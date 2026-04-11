@@ -26,6 +26,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/globe',
+      name: 'globe',
+      component: () => import('@/views/GlobeView.vue'),
+      meta: {
+        title: '星球留言',
+        description: '查看可旋转地球、头像坐标点位与来自世界各处的留言。',
+      },
+    },
+    {
       path: '/operations/projects',
       name: 'projects',
       component: () => import('@/views/ProjectsView.vue'),

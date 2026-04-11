@@ -1,4 +1,9 @@
-import { DataAnalysis, HomeFilled, Monitor } from '@element-plus/icons-vue';
+import {
+  DataAnalysis,
+  HomeFilled,
+  Location,
+  Monitor,
+} from '@element-plus/icons-vue';
 import type { Component } from 'vue';
 
 type NavigationMenuBase = {
@@ -30,6 +35,11 @@ export const navigationMenus: NavigationMenuItem[] = [
     index: '/workspace',
     label: '工作台',
     icon: Monitor,
+  },
+  {
+    index: '/globe',
+    label: '星球留言',
+    icon: Location,
   },
   {
     index: '/operations',
