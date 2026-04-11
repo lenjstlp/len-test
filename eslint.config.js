@@ -23,6 +23,12 @@ export default tseslint.config(
     },
     rules: {
       'vue/multi-word-component-names': 'off',
+      'vue/block-order': [
+        'error',
+        {
+          order: ['template', ['script', 'script setup'], 'style'],
+        },
+      ],
     },
   },
   {
