@@ -1,63 +1,3 @@
-<script setup lang="ts">
-import { Bell, Expand, Fold, Menu as MenuIcon } from '@element-plus/icons-vue';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
-import { RouterView, useRoute } from 'vue-router';
-import AppSidebar from '@/components/AppSidebar.vue';
-
-const route = useRoute();
-const sidebarCollapsed = ref(false);
-const mobileDrawerVisible = ref(false);
-const isMobile = ref(false);
-
-const pageTitle = computed(() => (route.meta.title as string) ?? '项目首页');
-const pageDescription = computed(
-  () =>
-    (route.meta.description as string) ?? '使用左侧导航组织业务模块和视图。',
-);
-const breadcrumbItems = computed(() => {
-  const parentTitle = route.meta.parentTitle as string | undefined;
-  return parentTitle ? [parentTitle, pageTitle.value] : [pageTitle.value];
-});
-const menuToggleIcon = computed(() => {
-  if (isMobile.value) {
-    return MenuIcon;
-  }
-
-  return sidebarCollapsed.value ? Expand : Fold;
-});
-
-let removeViewportListener: (() => void) | undefined;
-
-onMounted(() => {
-  const mediaQuery = window.matchMedia('(max-width: 1024px)');
-  const handleViewportChange = (event?: MediaQueryListEvent) => {
-    isMobile.value = event?.matches ?? mediaQuery.matches;
-
-    if (!isMobile.value) {
-      mobileDrawerVisible.value = false;
-    }
-  };
-
-  handleViewportChange();
-  mediaQuery.addEventListener('change', handleViewportChange);
-  removeViewportListener = () =>
-    mediaQuery.removeEventListener('change', handleViewportChange);
-});
-
-onBeforeUnmount(() => {
-  removeViewportListener?.();
-});
-
-const handleMenuToggle = () => {
-  if (isMobile.value) {
-    mobileDrawerVisible.value = true;
-    return;
-  }
-
-  sidebarCollapsed.value = !sidebarCollapsed.value;
-};
-</script>
-
 <template>
   <div
     class="min-h-screen bg-[radial-gradient(circle_at_top,#14334a_0%,#0f172a_35%,#04070d_100%)] text-slate-50"
@@ -144,3 +84,63 @@ const handleMenuToggle = () => {
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { Bell, Expand, Fold, Menu as MenuIcon } from '@element-plus/icons-vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { RouterView, useRoute } from 'vue-router';
+import AppSidebar from '@/components/AppSidebar.vue';
+
+const route = useRoute();
+const sidebarCollapsed = ref(false);
+const mobileDrawerVisible = ref(false);
+const isMobile = ref(false);
+
+const pageTitle = computed(() => (route.meta.title as string) ?? '项目首页');
+const pageDescription = computed(
+  () =>
+    (route.meta.description as string) ?? '使用左侧导航组织业务模块和视图。',
+);
+const breadcrumbItems = computed(() => {
+  const parentTitle = route.meta.parentTitle as string | undefined;
+  return parentTitle ? [parentTitle, pageTitle.value] : [pageTitle.value];
+});
+const menuToggleIcon = computed(() => {
+  if (isMobile.value) {
+    return MenuIcon;
+  }
+
+  return sidebarCollapsed.value ? Expand : Fold;
+});
+
+let removeViewportListener: (() => void) | undefined;
+
+onMounted(() => {
+  const mediaQuery = window.matchMedia('(max-width: 1024px)');
+  const handleViewportChange = (event?: MediaQueryListEvent) => {
+    isMobile.value = event?.matches ?? mediaQuery.matches;
+
+    if (!isMobile.value) {
+      mobileDrawerVisible.value = false;
+    }
+  };
+
+  handleViewportChange();
+  mediaQuery.addEventListener('change', handleViewportChange);
+  removeViewportListener = () =>
+    mediaQuery.removeEventListener('change', handleViewportChange);
+});
+
+onBeforeUnmount(() => {
+  removeViewportListener?.();
+});
+
+const handleMenuToggle = () => {
+  if (isMobile.value) {
+    mobileDrawerVisible.value = true;
+    return;
+  }
+
+  sidebarCollapsed.value = !sidebarCollapsed.value;
+};
+</script>

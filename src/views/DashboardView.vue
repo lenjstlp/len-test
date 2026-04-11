@@ -1,46 +1,3 @@
-<script setup lang="ts">
-const summaryCards = [
-  {
-    label: '模块数量',
-    value: '4',
-    detail: '当前内置概览、工作台、项目列表、数据报表四个示例视图',
-  },
-  {
-    label: '导航层级',
-    value: '2',
-    detail: '菜单配置限制为最多两级，避免后续维护成本失控',
-  },
-  {
-    label: '工程状态',
-    value: 'Ready',
-    detail: '代码规范、构建命令和基础布局均已完成整备',
-  },
-];
-
-const quickActions = [
-  '在 src/router/menu.ts 中新增一级或二级菜单项',
-  '在 src/router/index.ts 中补充对应路由组件',
-  '在 src/views 下继续拆分业务页面',
-];
-
-const milestones = [
-  {
-    title: '布局基础已就位',
-    description:
-      '主框架改为后台式左侧导航结构，桌面端支持折叠，移动端使用抽屉菜单。',
-  },
-  {
-    title: '模板残留已清理',
-    description: '默认 HelloWorld 和演示图片已移除，当前目录结构聚焦业务开发。',
-  },
-  {
-    title: '文档已补全',
-    description:
-      'README 新增命令、目录、菜单扩展方式和工程说明，可直接交接使用。',
-  },
-];
-</script>
-
 <template>
   <section class="space-y-6">
     <div class="surface-panel overflow-hidden rounded-[32px]">
@@ -167,3 +124,46 @@ const milestones = [
     </div>
   </section>
 </template>
+
+<script setup lang="ts">
+const summaryCards = [
+  {
+    label: '模块数量',
+    value: '4',
+    detail: '当前内置概览、工作台、项目列表、数据报表四个示例视图',
+  },
+  {
+    label: '导航层级',
+    value: '2',
+    detail: '菜单配置限制为最多两级，避免后续维护成本失控',
+  },
+  {
+    label: '工程状态',
+    value: 'Ready',
+    detail: '代码规范、构建命令和基础布局均已完成整备',
+  },
+];
+
+const quickActions = [
+  '在 src/router/menu.ts 中新增一级或二级菜单项',
+  '在 src/router/index.ts 中补充对应路由组件',
+  '在 src/views 下继续拆分业务页面',
+];
+
+const milestones = [
+  {
+    title: '布局基础已就位',
+    description:
+      '主框架改为后台式左侧导航结构，桌面端支持折叠，移动端使用抽屉菜单。',
+  },
+  {
+    title: '模板残留已清理',
+    description: '默认 HelloWorld 和演示图片已移除，当前目录结构聚焦业务开发。',
+  },
+  {
+    title: '文档已补全',
+    description:
+      'README 新增命令、目录、菜单扩展方式和工程说明，可直接交接使用。',
+  },
+];
+</script>

@@ -1,50 +1,3 @@
-<script setup lang="ts">
-import { computed } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import {
-  navigationMenus,
-  type NavigationMenuGroup,
-  isMenuGroup,
-} from '@/router/menu';
-
-const props = defineProps<{
-  collapsed: boolean;
-  isMobile: boolean;
-}>();
-
-const emit = defineEmits<{
-  navigate: [];
-}>();
-
-const route = useRoute();
-const router = useRouter();
-
-const activeMenu = computed(() => route.path);
-const actualCollapsed = computed(() =>
-  props.isMobile ? false : props.collapsed,
-);
-const openedMenus = computed(() => {
-  if (route.path.startsWith('/operations/')) {
-    return ['/operations'];
-  }
-
-  return [];
-});
-
-const handleSelect = (index: string) => {
-  if (route.path !== index) {
-    router.push(index);
-  }
-
-  emit('navigate');
-};
-
-const getMenuItemClass = (item: NavigationMenuGroup) =>
-  item.children.some((child) => child.index === route.path)
-    ? 'text-slate-100'
-    : 'text-slate-300';
-</script>
-
 <template>
   <div class="flex h-full flex-col">
     <div class="border-b border-white/10 px-4 py-5">
@@ -124,6 +77,53 @@ const getMenuItemClass = (item: NavigationMenuGroup) =>
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import {
+  navigationMenus,
+  type NavigationMenuGroup,
+  isMenuGroup,
+} from '@/router/menu';
+
+const props = defineProps<{
+  collapsed: boolean;
+  isMobile: boolean;
+}>();
+
+const emit = defineEmits<{
+  navigate: [];
+}>();
+
+const route = useRoute();
+const router = useRouter();
+
+const activeMenu = computed(() => route.path);
+const actualCollapsed = computed(() =>
+  props.isMobile ? false : props.collapsed,
+);
+const openedMenus = computed(() => {
+  if (route.path.startsWith('/operations/')) {
+    return ['/operations'];
+  }
+
+  return [];
+});
+
+const handleSelect = (index: string) => {
+  if (route.path !== index) {
+    router.push(index);
+  }
+
+  emit('navigate');
+};
+
+const getMenuItemClass = (item: NavigationMenuGroup) =>
+  item.children.some((child) => child.index === route.path)
+    ? 'text-slate-100'
+    : 'text-slate-300';
+</script>
 
 <style scoped>
 .sidebar-menu:deep(.el-menu) {

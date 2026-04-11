@@ -1,30 +1,3 @@
-<script setup lang="ts">
-const todoItems = [
-  {
-    title: '接入真实菜单权限',
-    owner: 'Frontend',
-    status: '进行中',
-  },
-  {
-    title: '补充接口请求层与状态管理',
-    owner: 'Platform',
-    status: '待开始',
-  },
-  {
-    title: '建立页面级测试基线',
-    owner: 'QA',
-    status: '待排期',
-  },
-];
-
-const publishChecklist = [
-  '确认路由与菜单映射一致',
-  '执行 pnpm lint 与 pnpm build',
-  '检查移动端抽屉菜单交互',
-  '补充新增页面的文档说明',
-];
-</script>
-
 <template>
   <section
     class="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]"
@@ -86,3 +59,30 @@ const publishChecklist = [
     </div>
   </section>
 </template>
+
+<script setup lang="ts">
+const todoItems = [
+  {
+    title: '接入真实菜单权限',
+    owner: 'Frontend',
+    status: '进行中',
+  },
+  {
+    title: '补充接口请求层与状态管理',
+    owner: 'Platform',
+    status: '待开始',
+  },
+  {
+    title: '建立页面级测试基线',
+    owner: 'QA',
+    status: '待排期',
+  },
+];
+
+const publishChecklist = [
+  '确认路由与菜单映射一致',
+  '执行 pnpm lint 与 pnpm build',
+  '检查移动端抽屉菜单交互',
+  '补充新增页面的文档说明',
+];
+</script>

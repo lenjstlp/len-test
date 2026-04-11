@@ -1,26 +1,3 @@
-<script setup lang="ts">
-const projects = [
-  {
-    name: '营销中台重构',
-    owner: 'Lena',
-    progress: 78,
-    status: '开发中',
-  },
-  {
-    name: '运营报表升级',
-    owner: 'Marcus',
-    progress: 56,
-    status: '联调中',
-  },
-  {
-    name: '权限中心接入',
-    owner: 'Ava',
-    progress: 31,
-    status: '待评审',
-  },
-];
-</script>
-
 <template>
   <section class="space-y-6">
     <div class="surface-panel rounded-[28px] p-6 lg:p-7">
@@ -58,6 +35,29 @@ const projects = [
     </div>
   </section>
 </template>
+
+<script setup lang="ts">
+const projects = [
+  {
+    name: '营销中台重构',
+    owner: 'Lena',
+    progress: 78,
+    status: '开发中',
+  },
+  {
+    name: '运营报表升级',
+    owner: 'Marcus',
+    progress: 56,
+    status: '联调中',
+  },
+  {
+    name: '权限中心接入',
+    owner: 'Ava',
+    progress: 31,
+    status: '待评审',
+  },
+];
+</script>
 
 <style scoped>
 .project-table:deep(.el-table) {

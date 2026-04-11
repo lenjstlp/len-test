@@ -1,33 +1,3 @@
-<script setup lang="ts">
-const metrics = [
-  {
-    label: '本周新增需求',
-    value: '24',
-    trend: '+12%',
-  },
-  {
-    label: '已完成交付',
-    value: '18',
-    trend: '+8%',
-  },
-  {
-    label: '平均处理时长',
-    value: '2.4d',
-    trend: '-0.6d',
-  },
-];
-
-const dataRows = [
-  { dimension: '交付效率', result: '良好', note: '需求响应速度高于上周' },
-  { dimension: '缺陷趋势', result: '稳定', note: '未出现高优先级新增缺陷' },
-  {
-    dimension: '需求积压',
-    result: '需关注',
-    note: '部分跨团队需求等待排期确认',
-  },
-];
-</script>
-
 <template>
   <section class="space-y-6">
     <div class="grid gap-4 md:grid-cols-3">
@@ -75,3 +45,33 @@ const dataRows = [
     </div>
   </section>
 </template>
+
+<script setup lang="ts">
+const metrics = [
+  {
+    label: '本周新增需求',
+    value: '24',
+    trend: '+12%',
+  },
+  {
+    label: '已完成交付',
+    value: '18',
+    trend: '+8%',
+  },
+  {
+    label: '平均处理时长',
+    value: '2.4d',
+    trend: '-0.6d',
+  },
+];
+
+const dataRows = [
+  { dimension: '交付效率', result: '良好', note: '需求响应速度高于上周' },
+  { dimension: '缺陷趋势', result: '稳定', note: '未出现高优先级新增缺陷' },
+  {
+    dimension: '需求积压',
+    result: '需关注',
+    note: '部分跨团队需求等待排期确认',
+  },
+];
+</script>
