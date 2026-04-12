@@ -20,209 +20,136 @@ import { ref } from 'vue';
 import GlobeMessageBoard from '@/components/GlobeMessageBoard.vue';
 import type { GlobeMarker } from '@/types/globe';
 
+const GLOBAL_MARKER_COUNT = 2000;
+const CHINA_EXTRA_MARKER_COUNT = 720;
+const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+
 const palette = [
-  ['#79c6d9', '#9ad7b6'],
-  ['#8fb8de', '#b6d3ef'],
-  ['#e0c398', '#e6dbc5'],
-  ['#9ec6a1', '#b6dfd0'],
-  ['#7ca8be', '#bfcfd8'],
-  ['#d8b7a7', '#f0ded5'],
-  ['#9fc3df', '#d4e3f3'],
-  ['#b7d4b2', '#dceacf'],
+  ['#0f172a', '#1e293b'],
+  ['#172033', '#24344e'],
+  ['#1f2937', '#374151'],
+  ['#111827', '#1f2937'],
+  ['#1e293b', '#334155'],
+  ['#18181b', '#27272a'],
+  ['#0b1325', '#22304d'],
+  ['#111827', '#2b3444'],
 ];
 
+const globalMessages = [
+  '今晚把一句安静的话留在这里，等下一次抬头的时候再读给自己听。',
+  '如果你也正好经过这片经纬度，希望今天对你温柔一点。',
+  '世界很大，但认真说出口的一句话，总会落在合适的人心里。',
+  '把这条留言钉在地球上，提醒自己别忘了继续出发。',
+  '愿你看到这里时，刚好也拥有一个缓慢又清醒的夜晚。',
+  '我在这座坐标按下暂停键，把现在的心情留给地球保存。',
+  '哪怕距离很远，我们也在同一颗星球上共享这一分钟的风。',
+  '如果生活有点吵，就来这里看一眼海岸线，再慢慢呼吸。',
+  '愿每个认真生活的人，都能在自己的坐标上被看见。',
+  '地球继续转动，这句话就先停在这里陪你一会儿。',
+];
+
+const chinaMessages = [
+  '这条来自中国区域的留言，会在放大后更密集地出现。',
+  '放大一点，就能看见更细的本地情绪和更多相近坐标。',
+  '沿着这片经纬度继续靠近，会有更多来自中国的细节留言。',
+  '这里刻意保留了更高密度的数据，便于近景浏览。',
+  '从省会到周边区域，留言会随着缩放层级逐步铺开。',
+];
+
+const avatarPool = Array.from({ length: 60 }, (_, index) =>
+  createAvatarDataUrl(
+    createCode(index),
+    palette[index % palette.length][0],
+    palette[index % palette.length][1],
+  ),
+);
+
 const markers = ref<GlobeMarker[]>([
-  createMarker(
-    'marker-shanghai',
-    'Lena',
-    '上海，中国',
-    31.2304,
-    121.4737,
-    '愿每一次抬头看见地球时，都还记得自己要去的远方。',
-    'LE',
-    palette[0],
-    326,
-  ),
-  createMarker(
-    'marker-tokyo',
-    'Aiko',
-    '东京，日本',
-    35.6762,
-    139.6503,
-    '城市再快，也要给自己留一小块安静的海面。',
-    'AI',
-    palette[1],
-    298,
-  ),
-  createMarker(
-    'marker-seoul',
-    'Hana',
-    '首尔，韩国',
-    37.5665,
-    126.978,
-    '有些温柔不需要大声说，只需要在这里被看见。',
-    'HA',
-    palette[6],
-    284,
-  ),
-  createMarker(
-    'marker-singapore',
-    'Milo',
-    '新加坡',
-    1.3521,
-    103.8198,
-    '把一句喜欢的话留给地球，也留给明天的自己。',
-    'MI',
-    palette[7],
-    238,
-  ),
-  createMarker(
-    'marker-sydney',
-    'Kai',
-    '悉尼，澳大利亚',
-    -33.8688,
-    151.2093,
-    '愿你在自己的经纬度上，也能拥有稳定且柔和的光。',
-    'KA',
-    palette[4],
-    226,
-  ),
-  createMarker(
-    'marker-dubai',
-    'Noor',
-    '迪拜，阿联酋',
-    25.2048,
-    55.2708,
-    '世界很热闹，但心里可以一直保持清澈。',
-    'NO',
-    palette[5],
-    214,
-  ),
-  createMarker(
-    'marker-london',
-    'Mina',
-    '伦敦，英国',
-    51.5072,
-    -0.1276,
-    '跨越时区的问候，也能在同一颗星球上相遇。',
-    'MN',
-    palette[1],
-    272,
-  ),
-  createMarker(
-    'marker-paris',
-    'Chloe',
-    '巴黎，法国',
-    48.8566,
-    2.3522,
-    '慢一点生活，很多好看的细节才会重新浮出来。',
-    'CH',
-    palette[3],
-    188,
-  ),
-  createMarker(
-    'marker-nairobi',
-    'Noah',
-    '内罗毕，肯尼亚',
-    -1.2921,
-    36.8219,
-    '风吹过草原的时候，我把今天最平静的一句话留在这里。',
-    'NH',
-    palette[2],
-    176,
-  ),
-  createMarker(
-    'marker-cape-town',
-    'Zuri',
-    '开普敦，南非',
-    -33.9249,
-    18.4241,
-    '海风会替我把这句问候带去更远的地方。',
-    'ZU',
-    palette[7],
-    164,
-  ),
-  createMarker(
-    'marker-newyork',
-    'Evan',
-    '纽约，美国',
-    40.7128,
-    -74.006,
-    '在忙碌里抬头看一眼地球，就知道自己并不孤单。',
-    'EV',
-    palette[6],
-    312,
-  ),
-  createMarker(
-    'marker-vancouver',
-    'Iris',
-    '温哥华，加拿大',
-    49.2827,
-    -123.1207,
-    '云和海都很慢，正好提醒我不用着急。',
-    'IR',
-    palette[0],
-    158,
-  ),
-  createMarker(
-    'marker-mexico',
-    'Luca',
-    '墨西哥城，墨西哥',
-    19.4326,
-    -99.1332,
-    '总会有人在很远的地方，认真接住你的心情。',
-    'LU',
-    palette[2],
-    146,
-  ),
-  createMarker(
-    'marker-santiago',
-    'Ava',
-    '圣地亚哥，智利',
-    -33.4489,
-    -70.6693,
-    '世界很大，但一句真诚的话总能找到愿意倾听的人。',
-    'AV',
-    palette[3],
-    202,
-  ),
-  createMarker(
-    'marker-saopaulo',
-    'Theo',
-    '圣保罗，巴西',
-    -23.5505,
-    -46.6333,
-    '愿今天留下的一句话，能在别人心里发光一会儿。',
-    'TH',
-    palette[5],
-    184,
-  ),
+  ...createGlobalMarkers(GLOBAL_MARKER_COUNT),
+  ...createChinaMarkers(CHINA_EXTRA_MARKER_COUNT, GLOBAL_MARKER_COUNT),
 ]);
+const selectedMarkerId = ref<string | null>(null);
 
-const selectedMarkerId = ref<string | null>(markers.value[0]?.id ?? null);
+function createGlobalMarkers(count: number) {
+  return Array.from({ length: count }, (_, index) => {
+    const y = 1 - ((index + 0.5) / count) * 2;
+    const radius = Math.sqrt(1 - y * y);
+    const theta = GOLDEN_ANGLE * index;
+    const x = Math.cos(theta) * radius;
+    const z = Math.sin(theta) * radius;
+    const lat = (Math.asin(y) * 180) / Math.PI;
+    const lng = (Math.atan2(z, x) * 180) / Math.PI;
 
-function createMarker(
-  id: string,
-  name: string,
-  location: string,
-  lat: number,
-  lng: number,
-  message: string,
-  initials: string,
-  [from, to]: string[],
-  likes: number,
-): GlobeMarker {
-  return {
-    id,
-    name,
-    location,
-    lat,
-    lng,
-    message,
-    avatar: createAvatarDataUrl(initials, from, to),
-    accent: from,
-    likes,
-  };
+    return createMarker({
+      id: `marker-${String(index + 1).padStart(4, '0')}`,
+      name: `访客 ${String(index + 1).padStart(4, '0')}`,
+      location: formatLocation(lat, lng),
+      lat,
+      lng,
+      message: `${globalMessages[index % globalMessages.length]} #${String(index + 1).padStart(4, '0')}`,
+      avatar: avatarPool[index % avatarPool.length],
+      accent: palette[index % palette.length][0],
+      likes: 36 + (index % 100) * 8,
+    });
+  });
+}
+
+function createChinaMarkers(count: number, offset: number) {
+  const columns = 30;
+  const rows = Math.ceil(count / columns);
+  const minLng = 73.5;
+  const maxLng = 134.8;
+  const minLat = 18.2;
+  const maxLat = 53.6;
+
+  return Array.from({ length: count }, (_, index) => {
+    const column = index % columns;
+    const row = Math.floor(index / columns);
+    const jitterX = pseudoRandom(index * 2 + 1) - 0.5;
+    const jitterY = pseudoRandom(index * 2 + 2) - 0.5;
+    const lng =
+      minLng + ((column + 0.5 + jitterX * 0.7) / columns) * (maxLng - minLng);
+    const lat =
+      maxLat - ((row + 0.5 + jitterY * 0.7) / rows) * (maxLat - minLat);
+    const globalIndex = offset + index;
+
+    return createMarker({
+      id: `cn-marker-${String(index + 1).padStart(4, '0')}`,
+      name: `华域 ${String(index + 1).padStart(4, '0')}`,
+      location: `中国 · ${formatLocation(lat, lng)}`,
+      lat,
+      lng,
+      message: `${chinaMessages[index % chinaMessages.length]} #CN-${String(index + 1).padStart(4, '0')}`,
+      avatar: avatarPool[globalIndex % avatarPool.length],
+      accent: palette[globalIndex % palette.length][0],
+      likes: 40 + (index % 120) * 7,
+    });
+  });
+}
+
+function createMarker(marker: GlobeMarker) {
+  return marker;
+}
+
+function formatLocation(lat: number, lng: number) {
+  return `${formatCoordinate(lat, 'N', 'S')} · ${formatCoordinate(lng, 'E', 'W')}`;
+}
+
+function formatCoordinate(value: number, positive: string, negative: string) {
+  const suffix = value >= 0 ? positive : negative;
+  return `${Math.abs(value).toFixed(2)}°${suffix}`;
+}
+
+function createCode(index: number) {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const first = alphabet[Math.floor(index / alphabet.length) % alphabet.length];
+  const second = alphabet[index % alphabet.length];
+  return `${first}${second}`;
+}
+
+function pseudoRandom(seed: number) {
+  const value = Math.sin(seed * 12.9898) * 43758.5453;
+  return value - Math.floor(value);
 }
 
 function createAvatarDataUrl(initials: string, from: string, to: string) {
@@ -235,9 +162,10 @@ function createAvatarDataUrl(initials: string, from: string, to: string) {
         </linearGradient>
       </defs>
       <rect width="160" height="160" rx="80" fill="url(#g)" />
-      <circle cx="80" cy="56" r="28" fill="rgba(255,255,255,0.22)" />
-      <path d="M38 136c7-26 25-40 42-40s35 14 42 40" fill="rgba(255,255,255,0.2)" />
-      <text x="50%" y="56%" dominant-baseline="middle" text-anchor="middle" font-family="Avenir Next, Segoe UI, sans-serif" font-size="36" letter-spacing="4" fill="#ffffff">${initials}</text>
+      <circle cx="80" cy="56" r="28" fill="rgba(255,255,255,0.08)" />
+      <path d="M38 136c7-26 25-40 42-40s35 14 42 40" fill="rgba(255,255,255,0.07)" />
+      <circle cx="80" cy="80" r="54" fill="none" stroke="rgba(255,255,255,0.08)" />
+      <text x="50%" y="56%" dominant-baseline="middle" text-anchor="middle" font-family="Avenir Next, Segoe UI, sans-serif" font-size="36" letter-spacing="4" fill="#f8fafc">${initials}</text>
     </svg>
   `;
 

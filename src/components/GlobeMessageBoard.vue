@@ -19,24 +19,27 @@
         v-for="point in visibleMarkers"
         :key="point.marker.id"
         type="button"
-        class="absolute"
+        class="absolute h-[58px] w-[42px] cursor-pointer border-0 bg-transparent p-0"
         :style="{
           left: `${point.x}px`,
           top: `${point.y}px`,
           opacity: point.opacity.toFixed(2),
-          transform: `translate(-50%, -100%) scale(${point.scale.toFixed(2)})`,
-          zIndex: String(point.zIndex),
+          transform: `translate(-50%, calc(-100% + 6px)) scale(${point.scale.toFixed(2)})`,
+          zIndex: String(getMarkerZIndex(point)),
         }"
+        @pointerdown.stop
+        @pointerup.stop
         @click.stop="emit('select', point.marker.id)"
       >
         <transition name="tip-fade">
           <div
-            v-if="point.marker.id === selectedMarkerId"
-            class="pointer-events-none absolute top-0 left-1/2 z-[1]"
+            v-if="isTipVisible(point.marker.id)"
+            class="absolute top-0 left-1/2 z-[1]"
             style="transform: translate(-50%, calc(-100% - 14px))"
           >
             <div
-              class="max-w-[320px] min-w-[240px] rounded-[24px] border border-white/20 bg-[linear-gradient(180deg,rgba(246,248,251,0.78),rgba(228,234,240,0.66))] px-4 py-3 text-left shadow-[0_26px_70px_rgba(15,23,42,0.34)] backdrop-blur-2xl"
+              class="max-w-[320px] min-w-[240px] cursor-pointer rounded-[24px] border border-white/20 bg-[linear-gradient(180deg,rgba(246,248,251,0.78),rgba(228,234,240,0.66))] px-4 py-3 text-left shadow-[0_26px_70px_rgba(15,23,42,0.34)] backdrop-blur-2xl"
+              @click.stop="emit('select', point.marker.id)"
             >
               <div class="flex items-center gap-3">
                 <img
@@ -69,21 +72,28 @@
         </transition>
 
         <div
-          class="drop-shell relative h-12 w-12 overflow-hidden border border-white/70 bg-white/94 shadow-[0_16px_32px_rgba(15,23,42,0.22)] transition duration-200 hover:scale-105"
-          :class="
-            point.marker.id === selectedMarkerId
-              ? 'ring-4 ring-white/16'
-              : 'ring-0'
-          "
+          class="drop-shell relative h-[58px] w-[42px] transition duration-200 hover:scale-105"
         >
-          <div
-            class="drop-avatar absolute inset-[4px] overflow-hidden rounded-full"
+          <svg
+            class="pointer-events-none absolute inset-0 h-full w-full"
+            viewBox="0 0 42 58"
+            aria-hidden="true"
           >
-            <img
-              :src="point.marker.avatar"
-              :alt="point.marker.name"
-              class="h-full w-full object-cover"
+            <path
+              d="M21 58C17.4 48.5 11 41.2 7 34.3C4.4 29.8 3 24.6 3 19C3 8.5 11.5 0 21 0C30.5 0 39 8.5 39 19C39 24.6 37.6 29.8 35 34.3C31 41.2 24.6 48.5 21 58Z"
+              fill="rgba(255,255,255,0.96)"
+              stroke="rgba(255,255,255,0.76)"
+              stroke-width="1"
             />
+          </svg>
+          <div class="drop-body">
+            <div class="drop-avatar">
+              <img
+                :src="point.marker.avatar"
+                :alt="point.marker.name"
+                class="block h-full w-full object-cover object-center"
+              />
+            </div>
           </div>
         </div>
       </button>
@@ -135,13 +145,13 @@ const emit = defineEmits<{
   select: [id: string];
 }>();
 
-const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const ROTATION_PERIOD_MS = 10 * 60 * 1000;
 const TAU = Math.PI * 2;
-const WORLD_WIDTH = 960;
-const WORLD_HEIGHT = 480;
+const WORLD_WIDTH = 1920;
+const WORLD_HEIGHT = 960;
 const LIGHT = normalizeVector([-0.36, 0.18, 0.91]);
 const MIN_RADIUS_RATIO = 0.25;
-const MAX_RADIUS_RATIO = 0.46;
+const MAX_RADIUS_RATIO = 1.8;
 const DEFAULT_RADIUS_RATIO = 0.39;
 const DEFAULT_ZOOM =
   (DEFAULT_RADIUS_RATIO - MIN_RADIUS_RATIO) /
@@ -170,7 +180,8 @@ let surfaceMap: SurfaceMap | undefined;
 
 const rotation = computed(
   () =>
-    -((currentTime.value % DAY_IN_MS) / DAY_IN_MS) * TAU + manualRotation.value,
+    -((currentTime.value % ROTATION_PERIOD_MS) / ROTATION_PERIOD_MS) * TAU +
+    manualRotation.value,
 );
 
 const radiusRatio = computed(
@@ -215,7 +226,10 @@ const visibleMarkers = computed<MarkerProjection[]>(() => {
         ...point,
         opacity: 0.38 + clampedDepth * 0.75,
         scale: 0.74 + clampedDepth * 0.22 + zoomLevel.value * 0.16,
-        zIndex: Math.round(60 + clampedDepth * 100),
+        zIndex:
+          marker.id === props.selectedMarkerId
+            ? 999
+            : Math.round(60 + clampedDepth * 100),
       };
     })
     .filter((marker) => marker.depth > 0.02);
@@ -233,8 +247,9 @@ const visibleMarkers = computed<MarkerProjection[]>(() => {
       return right.depth - left.depth;
     });
 
-  const limit = Math.round(4 + zoomLevel.value * 10);
-  const minimumDistance = 58 - zoomLevel.value * 26;
+  const zoomTier = Math.max(0, Math.floor(zoomLevel.value * 8));
+  const limit = 40 + zoomTier * 28;
+  const minimumDistance = Math.max(10, 52 - zoomTier * 6);
   const picked: MarkerProjection[] = [];
 
   if (selected) {
@@ -259,6 +274,113 @@ const visibleMarkers = computed<MarkerProjection[]>(() => {
 
   return picked.sort((left, right) => left.depth - right.depth);
 });
+
+const autoTipIds = computed(() => {
+  const visible = visibleMarkers.value;
+
+  if (visible.length === 0) {
+    return [] as string[];
+  }
+
+  const candidates = visible.filter((marker) => marker.depth > 0.08);
+
+  if (candidates.length <= 5) {
+    return candidates.map((marker) => marker.marker.id);
+  }
+
+  const rotationIndex = Math.floor(currentTime.value / 20000);
+  const ordered = [...candidates].sort((left, right) => {
+    const leftHash = hashString(`${left.marker.id}-${rotationIndex}`);
+    const rightHash = hashString(`${right.marker.id}-${rotationIndex}`);
+
+    return leftHash - rightHash;
+  });
+  const selected: MarkerProjection[] = [];
+
+  while (ordered.length > 0 && selected.length < 5) {
+    let bestIndex = 0;
+    let bestScore = -Infinity;
+
+    for (let index = 0; index < ordered.length; index += 1) {
+      const candidate = ordered[index];
+      const minDistance =
+        selected.length === 0
+          ? size.value * 0.25
+          : Math.min(
+              ...selected.map((marker) =>
+                Math.hypot(marker.x - candidate.x, marker.y - candidate.y),
+              ),
+            );
+      const latitudePenalty =
+        selected.length === 0
+          ? 0
+          : Math.min(
+              ...selected.map((marker) =>
+                Math.abs(marker.marker.lat - candidate.marker.lat),
+              ),
+            ) * 1.6;
+      const randomBoost = hashString(
+        `${candidate.marker.id}-${rotationIndex}-boost`,
+      );
+      const score = minDistance + latitudePenalty + randomBoost * 24;
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestIndex = index;
+      }
+    }
+
+    selected.push(ordered.splice(bestIndex, 1)[0]);
+  }
+
+  return selected.map((marker) => marker.marker.id);
+});
+
+const visibleTipIds = computed(() => {
+  const ids: string[] = [];
+
+  if (
+    props.selectedMarkerId &&
+    visibleMarkers.value.some(
+      (marker) => marker.marker.id === props.selectedMarkerId,
+    )
+  ) {
+    ids.push(props.selectedMarkerId);
+  }
+
+  for (const markerId of autoTipIds.value) {
+    if (ids.length >= 5) {
+      break;
+    }
+
+    if (!ids.includes(markerId)) {
+      ids.push(markerId);
+    }
+  }
+
+  return ids;
+});
+
+const isTipVisible = (markerId: string) =>
+  visibleTipIds.value.includes(markerId);
+
+const getMarkerZIndex = (point: MarkerProjection) =>
+  point.marker.id === props.selectedMarkerId
+    ? 3000 + point.zIndex
+    : isTipVisible(point.marker.id)
+      ? 1400 + point.zIndex
+      : point.zIndex;
+
+function hashString(value: string) {
+  let hash = 2166136261;
+
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return (hash >>> 0) / 4294967295;
+}
 
 function normalizeVector([x, y, z]: [number, number, number]) {
   const length = Math.hypot(x, y, z) || 1;
@@ -486,26 +608,44 @@ const sampleTerrain = (lat: number, lng: number): TerrainSample => {
     };
   }
 
-  const mappedX = wrap(
-    ((lng + 180) / 360) * surfaceMap.width,
-    surfaceMap.width,
-  );
+  const map = surfaceMap;
+  const mappedX = wrap(((lng + 180) / 360) * map.width, map.width);
   const mappedY = clamp(
-    ((90 - lat) / 180) * (surfaceMap.height - 1),
+    ((90 - lat) / 180) * (map.height - 1),
     0,
-    surfaceMap.height - 1,
+    map.height - 1,
   );
-  const x = Math.floor(mappedX);
-  const y = Math.floor(mappedY);
-  const index = (y * surfaceMap.width + x) * 4;
+  const x0 = Math.floor(mappedX);
+  const y0 = Math.floor(mappedY);
+  const x1 = wrap(x0 + 1, map.width);
+  const y1 = Math.min(y0 + 1, map.height - 1);
+  const tx = mappedX - x0;
+  const ty = mappedY - y0;
+  const topLeft = (y0 * map.width + x0) * 4;
+  const topRight = (y0 * map.width + x1) * 4;
+  const bottomLeft = (y1 * map.width + x0) * 4;
+  const bottomRight = (y1 * map.width + x1) * 4;
+
+  const mixChannel = (channel: number) => {
+    const top =
+      map.data[topLeft + channel] * (1 - tx) +
+      map.data[topRight + channel] * tx;
+    const bottom =
+      map.data[bottomLeft + channel] * (1 - tx) +
+      map.data[bottomRight + channel] * tx;
+
+    return Math.round(top * (1 - ty) + bottom * ty);
+  };
+
+  const alphaTop =
+    map.data[topLeft + 3] * (1 - tx) + map.data[topRight + 3] * tx;
+  const alphaBottom =
+    map.data[bottomLeft + 3] * (1 - tx) + map.data[bottomRight + 3] * tx;
+  const alpha = alphaTop * (1 - ty) + alphaBottom * ty;
 
   return {
-    color: [
-      surfaceMap.data[index],
-      surfaceMap.data[index + 1],
-      surfaceMap.data[index + 2],
-    ],
-    isLand: surfaceMap.data[index + 3] > 28,
+    color: [mixChannel(0), mixChannel(1), mixChannel(2)],
+    isLand: alpha > 28,
   };
 };
 
@@ -539,9 +679,9 @@ const renderGlobeTexture = () => {
   }
 
   const resolutionFactor = isDragging.value
-    ? 0.56
-    : 0.66 + zoomLevel.value * 0.06;
-  const renderSize = clamp(Math.round(size.value * resolutionFactor), 260, 440);
+    ? 0.68
+    : 0.88 + zoomLevel.value * 0.08;
+  const renderSize = clamp(Math.round(size.value * resolutionFactor), 380, 680);
   const buffer = getRenderBuffer(renderSize);
 
   if (!buffer) {
@@ -630,6 +770,8 @@ const drawScene = () => {
     context.scale(dpr, dpr);
   }
 
+  context.imageSmoothingEnabled = true;
+
   context.clearRect(0, 0, size.value, size.value);
 
   const shadow = context.createRadialGradient(
@@ -655,22 +797,6 @@ const drawScene = () => {
   );
   context.fill();
 
-  const outerGlow = context.createRadialGradient(
-    center,
-    center,
-    radius * 0.38,
-    center,
-    center,
-    radius * 1.5,
-  );
-  outerGlow.addColorStop(0, 'rgba(255,255,255,0.01)');
-  outerGlow.addColorStop(0.6, 'rgba(152,185,216,0.08)');
-  outerGlow.addColorStop(1, 'rgba(148,163,184,0)');
-  context.fillStyle = outerGlow;
-  context.beginPath();
-  context.arc(center, center, radius * 1.5, 0, TAU);
-  context.fill();
-
   const texture = renderGlobeTexture();
 
   if (texture) {
@@ -683,106 +809,21 @@ const drawScene = () => {
     );
   }
 
-  context.save();
-  context.beginPath();
-  context.arc(center, center, radius, 0, TAU);
-  context.clip();
-
-  context.strokeStyle = 'rgba(214,226,236,0.16)';
-  context.lineWidth = 0.85;
-
-  for (let latitude = -60; latitude <= 60; latitude += 30) {
-    context.beginPath();
-    let started = false;
-
-    for (let longitude = -180; longitude <= 180; longitude += 4) {
-      const point = projectPoint(latitude, longitude);
-
-      if (point.depth > 0) {
-        if (!started) {
-          context.moveTo(point.x, point.y);
-          started = true;
-        } else {
-          context.lineTo(point.x, point.y);
-        }
-      } else if (started) {
-        context.stroke();
-        context.beginPath();
-        started = false;
-      }
-    }
-
-    if (started) {
-      context.stroke();
-    }
-  }
-
-  for (let longitude = -150; longitude <= 180; longitude += 30) {
-    context.beginPath();
-    let started = false;
-
-    for (let latitude = -90; latitude <= 90; latitude += 3) {
-      const point = projectPoint(latitude, longitude);
-
-      if (point.depth > 0) {
-        if (!started) {
-          context.moveTo(point.x, point.y);
-          started = true;
-        } else {
-          context.lineTo(point.x, point.y);
-        }
-      } else if (started) {
-        context.stroke();
-        context.beginPath();
-        started = false;
-      }
-    }
-
-    if (started) {
-      context.stroke();
-    }
-  }
-
-  context.restore();
-
-  const atmosphere = context.createRadialGradient(
-    center,
-    center,
-    radius * 0.88,
-    center,
-    center,
-    radius * 1.08,
-  );
-  atmosphere.addColorStop(0, 'rgba(0,0,0,0)');
-  atmosphere.addColorStop(0.78, 'rgba(118,165,204,0.04)');
-  atmosphere.addColorStop(0.95, 'rgba(171,200,223,0.08)');
-  atmosphere.addColorStop(1, 'rgba(214,230,243,0.05)');
-  context.fillStyle = atmosphere;
-  context.beginPath();
-  context.arc(center, center, radius * 1.08, 0, TAU);
-  context.fill();
-
   const highlight = context.createRadialGradient(
-    center - radius * 0.28,
-    center - radius * 0.34,
-    radius * 0.02,
-    center - radius * 0.22,
     center - radius * 0.24,
-    radius * 0.48,
+    center - radius * 0.3,
+    radius * 0.01,
+    center - radius * 0.18,
+    center - radius * 0.18,
+    radius * 0.38,
   );
-  highlight.addColorStop(0, 'rgba(255,255,255,0.04)');
-  highlight.addColorStop(0.25, 'rgba(255,255,255,0.014)');
+  highlight.addColorStop(0, 'rgba(255,255,255,0.025)');
+  highlight.addColorStop(0.2, 'rgba(255,255,255,0.01)');
   highlight.addColorStop(1, 'rgba(255,255,255,0)');
   context.fillStyle = highlight;
   context.beginPath();
   context.arc(center, center, radius, 0, TAU);
   context.fill();
-
-  context.strokeStyle = 'rgba(214,230,243,0.34)';
-  context.lineWidth = 1;
-  context.beginPath();
-  context.arc(center, center, radius, 0, TAU);
-  context.stroke();
 };
 
 const syncCanvasSize = () => {
@@ -873,12 +914,29 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .drop-shell {
-  transform: rotate(45deg);
-  border-radius: 18px 18px 18px 4px;
+  filter: drop-shadow(0 14px 28px rgba(15, 23, 42, 0.18));
+}
+
+.drop-body {
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  display: flex;
+  height: 32px;
+  width: 32px;
+  transform: translateX(-50%);
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 999px;
 }
 
 .drop-avatar {
-  transform: rotate(-45deg) scale(1.12);
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.64);
 }
 
 .tip-fade-enter-active,
