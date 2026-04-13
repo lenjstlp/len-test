@@ -35,6 +35,16 @@ const router = createRouter({
       },
     },
     {
+      path: '/canvas-guide',
+      name: 'canvas-guide',
+      component: () => import('@/views/CanvasGuideView.vue'),
+      meta: {
+        title: 'Canvas 入门',
+        description:
+          '通过分章节的入门文章，建立 Canvas 与 canvas-editor 的实现基础。',
+      },
+    },
+    {
       path: '/operations/projects',
       name: 'projects',
       component: () => import('@/views/ProjectsView.vue'),

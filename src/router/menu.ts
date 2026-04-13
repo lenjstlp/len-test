@@ -1,4 +1,5 @@
 import {
+  Document,
   DataAnalysis,
   HomeFilled,
   Location,
@@ -40,6 +41,11 @@ export const navigationMenus: NavigationMenuItem[] = [
     index: '/globe',
     label: '星球留言',
     icon: Location,
+  },
+  {
+    index: '/canvas-guide',
+    label: 'Canvas 入门',
+    icon: Document,
   },
   {
     index: '/operations',
