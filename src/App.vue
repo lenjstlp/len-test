@@ -1,10 +1,10 @@
 <template>
   <div
-    class="min-h-screen bg-[radial-gradient(circle_at_top,#14334a_0%,#0f172a_35%,#04070d_100%)] text-slate-50"
+    class="h-screen overflow-hidden bg-[radial-gradient(circle_at_top,#14334a_0%,#0f172a_35%,#04070d_100%)] text-slate-50"
   >
-    <div class="flex min-h-screen">
+    <div class="flex h-screen overflow-hidden">
       <aside
-        class="hidden border-r border-white/10 bg-slate-950/80 backdrop-blur lg:block"
+        class="hidden h-screen shrink-0 overflow-hidden border-r border-white/10 bg-slate-950/80 backdrop-blur lg:block"
         :class="sidebarCollapsed ? 'w-[88px]' : 'w-[280px]'"
       >
         <AppSidebar :collapsed="sidebarCollapsed" :is-mobile="false" />
@@ -24,8 +24,10 @@
         />
       </el-drawer>
 
-      <div class="flex min-w-0 flex-1 flex-col">
-        <header class="border-b border-white/10 bg-slate-950/35 backdrop-blur">
+      <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <header
+          class="shrink-0 border-b border-white/10 bg-slate-950/35 backdrop-blur"
+        >
           <div class="flex items-center justify-between px-4 py-4 lg:px-8">
             <div class="flex min-w-0 items-center gap-3">
               <el-button
@@ -65,9 +67,11 @@
           </div>
         </header>
 
-        <main class="flex-1 px-4 py-4 lg:px-8 lg:py-6">
+        <main
+          class="flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-4 lg:px-8 lg:py-6"
+        >
           <div
-            class="mb-6 flex flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300"
+            class="mb-6 flex shrink-0 flex-wrap items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300"
           >
             <span
               v-for="item in breadcrumbItems"
@@ -78,7 +82,9 @@
             </span>
           </div>
 
-          <RouterView />
+          <div class="min-h-0 flex-1 overflow-y-auto pr-1 pb-2">
+            <RouterView />
+          </div>
         </main>
       </div>
     </div>

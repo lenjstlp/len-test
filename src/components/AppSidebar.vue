@@ -20,47 +20,45 @@
       </div>
     </div>
 
-    <div class="flex-1 overflow-hidden px-3 py-4">
-      <el-scrollbar height="100%">
-        <el-menu
-          :key="activeMenu"
-          :default-active="activeMenu"
-          :default-openeds="openedMenus"
-          :collapse="actualCollapsed"
-          :collapse-transition="false"
-          background-color="transparent"
-          text-color="#94a3b8"
-          active-text-color="#f8fafc"
-          class="sidebar-menu border-none"
-          @select="handleSelect"
-        >
-          <template v-for="item in navigationMenus" :key="item.index">
-            <el-sub-menu
-              v-if="isMenuGroup(item)"
-              :index="item.index"
-              :class="getMenuItemClass(item)"
-            >
-              <template #title>
-                <el-icon><component :is="item.icon" /></el-icon>
-                <span>{{ item.label }}</span>
-              </template>
-
-              <el-menu-item
-                v-for="child in item.children"
-                :key="child.index"
-                :index="child.index"
-              >
-                <span>{{ child.label }}</span>
-              </el-menu-item>
-            </el-sub-menu>
-
-            <el-menu-item v-else :index="item.index">
+    <div class="flex-1 px-3 py-4">
+      <el-menu
+        :key="activeMenu"
+        :default-active="activeMenu"
+        :default-openeds="openedMenus"
+        :collapse="actualCollapsed"
+        :collapse-transition="false"
+        background-color="transparent"
+        text-color="#94a3b8"
+        active-text-color="#f8fafc"
+        class="sidebar-menu border-none"
+        @select="handleSelect"
+      >
+        <template v-for="item in navigationMenus" :key="item.index">
+          <el-sub-menu
+            v-if="isMenuGroup(item)"
+            :index="item.index"
+            :class="getMenuItemClass(item)"
+          >
+            <template #title>
               <el-icon><component :is="item.icon" /></el-icon>
-              <template #title>{{ item.label }}</template>
+              <span>{{ item.label }}</span>
+            </template>
+
+            <el-menu-item
+              v-for="child in item.children"
+              :key="child.index"
+              :index="child.index"
+            >
+              <span>{{ child.label }}</span>
             </el-menu-item>
-          </template>
-        </el-menu>
-      </el-scrollbar>
+          </el-sub-menu>
+
+          <el-menu-item v-else :index="item.index">
+            <el-icon><component :is="item.icon" /></el-icon>
+            <template #title>{{ item.label }}</template>
+          </el-menu-item>
+        </template>
+      </el-menu>
     </div>
 
     <div v-if="!actualCollapsed" class="border-t border-white/10 px-4 py-4">
