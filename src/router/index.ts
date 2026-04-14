@@ -45,6 +45,16 @@ const router = createRouter({
       },
     },
     {
+      path: '/python-guide',
+      name: 'python-guide',
+      component: () => import('@/views/PythonGuideView.vue'),
+      meta: {
+        title: 'Python 学习',
+        description:
+          '系统学习 Python 基础、工程组织与 agent 开发模式，支撑后续智能体实现。',
+      },
+    },
+    {
       path: '/operations/projects',
       name: 'projects',
       component: () => import('@/views/ProjectsView.vue'),

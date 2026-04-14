@@ -4,6 +4,7 @@ import {
   HomeFilled,
   Location,
   Monitor,
+  Reading,
 } from '@element-plus/icons-vue';
 import type { Component } from 'vue';
 
@@ -46,6 +47,11 @@ export const navigationMenus: NavigationMenuItem[] = [
     index: '/canvas-guide',
     label: 'Canvas 入门',
     icon: Document,
+  },
+  {
+    index: '/python-guide',
+    label: 'Python 学习',
+    icon: Reading,
   },
   {
     index: '/operations',
