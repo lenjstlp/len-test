@@ -1,34 +1,40 @@
 <template>
   <section class="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)_280px]">
-    <aside class="surface-panel rounded-[28px] p-4 lg:p-5">
-      <div class="mb-4 px-2">
-        <p class="text-xs tracking-[0.28em] text-cyan-300 uppercase">
-          Canvas Guide
-        </p>
-        <h2 class="mt-2 text-xl font-semibold text-white">Canvas 简易入门</h2>
-        <p class="mt-2 text-sm leading-6 text-slate-400">
-          用于初学者掌握 Canvas 并进一步开发 `canvas-editor`。
-        </p>
-      </div>
+    <aside>
+      <div class="sticky top-6">
+        <div class="surface-panel rounded-[28px] p-4 lg:p-5">
+          <div class="mb-4 px-2">
+            <p class="text-xs tracking-[0.28em] text-cyan-300 uppercase">
+              Canvas Guide
+            </p>
+            <h2 class="mt-2 text-xl font-semibold text-white">
+              Canvas 简易入门
+            </h2>
+            <p class="mt-2 text-sm leading-6 text-slate-400">
+              用于初学者掌握 Canvas 并进一步开发 `canvas-editor`。
+            </p>
+          </div>
 
-      <div class="space-y-2">
-        <button
-          v-for="chapter in canvasGuideChapters"
-          :key="chapter.id"
-          type="button"
-          class="w-full rounded-2xl border px-4 py-4 text-left transition"
-          :class="
-            chapter.id === activeChapter.id
-              ? 'border-cyan-400/25 bg-cyan-400/12 text-white'
-              : 'border-white/10 bg-white/4 text-slate-300 hover:border-white/15 hover:bg-white/8'
-          "
-          @click="activeChapterId = chapter.id"
-        >
-          <p class="text-sm font-medium">{{ chapter.label }}</p>
-          <p class="mt-2 text-xs leading-5 text-slate-400">
-            {{ chapter.description }}
-          </p>
-        </button>
+          <div class="space-y-2">
+            <button
+              v-for="chapter in canvasGuideChapters"
+              :key="chapter.id"
+              type="button"
+              class="w-full rounded-2xl border px-4 py-4 text-left transition"
+              :class="
+                chapter.id === activeChapter.id
+                  ? 'border-cyan-400/25 bg-cyan-400/12 text-white'
+                  : 'border-white/10 bg-white/4 text-slate-300 hover:border-white/15 hover:bg-white/8'
+              "
+              @click="activeChapterId = chapter.id"
+            >
+              <p class="text-sm font-medium">{{ chapter.label }}</p>
+              <p class="mt-2 text-xs leading-5 text-slate-400">
+                {{ chapter.description }}
+              </p>
+            </button>
+          </div>
+        </div>
       </div>
     </aside>
 
