@@ -1,4 +1,5 @@
 import {
+  Cpu,
   Document,
   DataAnalysis,
   HomeFilled,
@@ -52,6 +53,11 @@ export const navigationMenus: NavigationMenuItem[] = [
     index: '/python-guide',
     label: 'Python 学习',
     icon: Reading,
+  },
+  {
+    index: '/agent-guide',
+    label: 'Agent 入门',
+    icon: Cpu,
   },
   {
     index: '/operations',

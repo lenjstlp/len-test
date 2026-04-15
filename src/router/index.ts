@@ -55,6 +55,16 @@ const router = createRouter({
       },
     },
     {
+      path: '/agent-guide',
+      name: 'agent-guide',
+      component: () => import('@/views/AgentGuideView.vue'),
+      meta: {
+        title: 'Agent 入门',
+        description:
+          '系统了解 agent 的概念、能力边界、开发方式与截至 2026 年 4 月的市场产品格局。',
+      },
+    },
+    {
       path: '/operations/projects',
       name: 'projects',
       component: () => import('@/views/ProjectsView.vue'),
