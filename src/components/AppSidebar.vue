@@ -80,10 +80,10 @@
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import {
-  navigationMenus,
+  getNavigationMenusFromRoutes,
   type NavigationMenuGroup,
   isMenuGroup,
-} from '@/router/menu';
+} from '@/router/permission';
 
 const props = defineProps<{
   collapsed: boolean;
@@ -97,17 +97,16 @@ const emit = defineEmits<{
 const route = useRoute();
 const router = useRouter();
 
+const navigationMenus = computed(() => getNavigationMenusFromRoutes());
 const activeMenu = computed(() => route.path);
 const actualCollapsed = computed(() =>
   props.isMobile ? false : props.collapsed,
 );
-const openedMenus = computed(() => {
-  if (route.path.startsWith('/operations/')) {
-    return ['/operations'];
-  }
-
-  return [];
-});
+const openedMenus = computed(() =>
+  route.matched
+    .filter((matchedRoute) => matchedRoute.meta.menuGroup)
+    .map((matchedRoute) => matchedRoute.path),
+);
 
 const handleSelect = (index: string) => {
   if (route.path !== index) {

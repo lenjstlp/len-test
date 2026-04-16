@@ -107,10 +107,11 @@ const pageDescription = computed(
   () =>
     (route.meta.description as string) ?? '使用左侧导航组织业务模块和视图。',
 );
-const breadcrumbItems = computed(() => {
-  const parentTitle = route.meta.parentTitle as string | undefined;
-  return parentTitle ? [parentTitle, pageTitle.value] : [pageTitle.value];
-});
+const breadcrumbItems = computed(() =>
+  route.matched
+    .map((matchedRoute) => matchedRoute.meta.title as string | undefined)
+    .filter((title): title is string => Boolean(title)),
+);
 const menuToggleIcon = computed(() => {
   if (isMobile.value) {
     return MenuIcon;
