@@ -2,6 +2,7 @@ import {
   Cpu,
   DataAnalysis,
   Document,
+  Grid,
   HomeFilled,
   Location,
   Monitor,
@@ -14,6 +15,7 @@ type IconKey =
   | 'Cpu'
   | 'DataAnalysis'
   | 'Document'
+  | 'Grid'
   | 'HomeFilled'
   | 'Location'
   | 'Monitor'
@@ -23,6 +25,7 @@ type ViewKey =
   | 'AgentGuideView'
   | 'CanvasGuideView'
   | 'DashboardView'
+  | 'FrontendArchitectureGuideView'
   | 'GlobeView'
   | 'ProjectsView'
   | 'PythonGuideView'
@@ -37,6 +40,7 @@ type PermissionMenuPayload = {
   icon?: IconKey;
   component?: ViewKey;
   redirect?: string;
+  standaloneLayout?: boolean;
   children?: PermissionMenuPayload[];
 };
 
@@ -46,6 +50,7 @@ export type AppRouteMeta = {
   icon?: Component;
   menuVisible?: boolean;
   menuGroup?: boolean;
+  standaloneLayout?: boolean;
 };
 
 export type AppRouteRecord = Omit<RouteRecordRaw, 'children' | 'meta'> & {
@@ -76,6 +81,7 @@ const iconMap: Record<IconKey, Component> = {
   Cpu,
   DataAnalysis,
   Document,
+  Grid,
   HomeFilled,
   Location,
   Monitor,
@@ -86,6 +92,8 @@ const viewMap: Record<ViewKey, () => Promise<unknown>> = {
   AgentGuideView: () => import('@/views/AgentGuideView.vue'),
   CanvasGuideView: () => import('@/views/CanvasGuideView.vue'),
   DashboardView: () => import('@/views/DashboardView.vue'),
+  FrontendArchitectureGuideView: () =>
+    import('@/views/FrontendArchitectureGuideView.vue'),
   GlobeView: () => import('@/views/GlobeView.vue'),
   ProjectsView: () => import('@/views/ProjectsView.vue'),
   PythonGuideView: () => import('@/views/PythonGuideView.vue'),
@@ -144,6 +152,15 @@ const mockPermissionMenus: PermissionMenuPayload[] = [
       '系统了解 agent 的概念、能力边界、开发方式与截至 2026 年 4 月的市场产品格局。',
     icon: 'Cpu',
     component: 'AgentGuideView',
+  },
+  {
+    name: 'frontend-architecture',
+    path: '/frontend-architecture',
+    title: '前端架构',
+    description: '系统梳理前端架构需要掌握的领域、支持库与工程化必备知识。',
+    icon: 'Grid',
+    component: 'FrontendArchitectureGuideView',
+    standaloneLayout: true,
   },
   {
     name: 'operations',
@@ -210,6 +227,7 @@ const buildRouteRecord = (
         icon: resolveIcon(item.icon),
         menuVisible: true,
         menuGroup: true,
+        standaloneLayout: item.standaloneLayout,
       },
       children: item.children.map((child) =>
         buildRouteRecord(child, item.path),
@@ -230,6 +248,7 @@ const buildRouteRecord = (
       description: item.description,
       icon: resolveIcon(item.icon),
       menuVisible: true,
+      standaloneLayout: item.standaloneLayout,
     },
   };
 };

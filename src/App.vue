@@ -1,8 +1,17 @@
 <template>
   <div
-    class="h-screen overflow-hidden bg-[radial-gradient(circle_at_top,#14334a_0%,#0f172a_35%,#04070d_100%)] text-slate-50"
+    class="h-screen overflow-hidden text-slate-50"
+    :class="
+      isStandaloneLayout
+        ? 'bg-[#f6f1e8]'
+        : 'bg-[radial-gradient(circle_at_top,#14334a_0%,#0f172a_35%,#04070d_100%)]'
+    "
   >
-    <div class="flex h-screen overflow-hidden">
+    <div v-if="isStandaloneLayout" class="h-screen overflow-y-auto p-4 lg:p-6">
+      <RouterView />
+    </div>
+
+    <div v-else class="flex h-screen overflow-hidden">
       <aside
         class="hidden h-screen shrink-0 overflow-hidden border-r border-white/10 bg-slate-950/80 backdrop-blur lg:block"
         :class="sidebarCollapsed ? 'w-[88px]' : 'w-[280px]'"
@@ -102,6 +111,9 @@ const sidebarCollapsed = ref(false);
 const mobileDrawerVisible = ref(false);
 const isMobile = ref(false);
 
+const isStandaloneLayout = computed(() =>
+  route.matched.some((matchedRoute) => matchedRoute.meta.standaloneLayout),
+);
 const pageTitle = computed(() => (route.meta.title as string) ?? '项目首页');
 const pageDescription = computed(
   () =>
