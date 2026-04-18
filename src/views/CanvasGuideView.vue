@@ -28,7 +28,7 @@
                   ? 'border-cyan-400/25 bg-cyan-400/12 text-white'
                   : 'border-white/10 bg-white/4 text-slate-300 hover:border-white/15 hover:bg-white/8'
               "
-              @click="activeChapterId = chapter.id"
+              @click="setActiveChapterId(chapter.id)"
             >
               <p class="text-sm font-medium">{{ chapter.label }}</p>
               <p class="mt-2 text-xs leading-5 text-slate-400">
@@ -147,17 +147,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { useGuideChapterRoute } from '@/composables/useGuideChapterRoute';
 import { canvasGuideChapters } from '@/data/canvasGuide';
 
-const activeChapterId = ref(canvasGuideChapters[0]?.id ?? '');
-
-const activeChapter = computed(
-  () =>
-    canvasGuideChapters.find(
-      (chapter) => chapter.id === activeChapterId.value,
-    ) ?? canvasGuideChapters[0],
-);
+const { activeChapter, setActiveChapterId } =
+  useGuideChapterRoute(canvasGuideChapters);
 </script>
 
 <style scoped>

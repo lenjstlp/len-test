@@ -26,7 +26,7 @@
                   ? 'border-white/18 bg-white/10 text-white'
                   : 'border-white/8 bg-white/[0.03] text-[#c7ccd4] hover:border-white/14 hover:bg-white/[0.06]'
               "
-              @click="activeChapterId = chapter.id"
+              @click="setActiveChapterId(chapter.id)"
             >
               <p class="text-sm font-medium">{{ chapter.label }}</p>
               <p class="mt-2 text-xs leading-5 text-[#9197a0]">
@@ -145,17 +145,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { useGuideChapterRoute } from '@/composables/useGuideChapterRoute';
 import { nextjsGuideChapters } from '@/data/nextjsGuide';
 
-const activeChapterId = ref(nextjsGuideChapters[0]?.id ?? '');
-
-const activeChapter = computed(
-  () =>
-    nextjsGuideChapters.find(
-      (chapter) => chapter.id === activeChapterId.value,
-    ) ?? nextjsGuideChapters[0],
-);
+const { activeChapter, setActiveChapterId } =
+  useGuideChapterRoute(nextjsGuideChapters);
 </script>
 
 <style scoped>

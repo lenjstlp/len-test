@@ -46,11 +46,11 @@
                 <div class="mt-4 space-y-2">
                   <RouterLink
                     v-for="child in item.children"
-                    :key="child.index"
-                    :to="child.index"
+                    :key="`${child.index}-${child.query?.chapter ?? 'root'}`"
+                    :to="{ path: child.index, query: child.query }"
                     class="block rounded-[7px] border px-4 py-3 transition"
                     :class="
-                      isActive(child.index)
+                      isActive(child.index, child.query)
                         ? 'border-[#cdb18a]/24 bg-[#f4ead6] text-[#191d24]'
                         : 'border-black/8 bg-[#fff] text-[#4f5864] hover:border-black/14 hover:bg-[#faf8f4]'
                     "
@@ -66,10 +66,12 @@
 
               <RouterLink
                 v-else
-                :to="item.index"
+                :to="{ path: item.index, query: item.query }"
                 class="block rounded-[7px] transition"
                 :class="
-                  isActive(item.index) ? 'text-[#171b21]' : 'text-[#4f5864]'
+                  isActive(item.index, item.query)
+                    ? 'text-[#171b21]'
+                    : 'text-[#4f5864]'
                 "
                 @click="emit('navigate')"
               >
@@ -89,6 +91,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
+import { agentGuideChapters } from '@/data/agentGuide';
+import { canvasGuideChapters } from '@/data/canvasGuide';
+import { nextjsGuideChapters } from '@/data/nextjsGuide';
+import { pythonGuideChapters } from '@/data/pythonGuide';
 import {
   getAccessibleRouteTree,
   type AppRouteRecord,
@@ -105,6 +111,7 @@ type SidebarEntry = {
   index: string;
   label: string;
   description?: string;
+  query?: Record<string, string>;
   children?: SidebarEntry[];
 };
 
@@ -113,6 +120,13 @@ type SidebarSection = {
   description: string;
   items: SidebarEntry[];
 };
+
+const guideChapterMap = {
+  'agent-guide': agentGuideChapters,
+  'canvas-guide': canvasGuideChapters,
+  'nextjs-guide': nextjsGuideChapters,
+  'python-guide': pythonGuideChapters,
+} as const;
 
 const routeEntries = computed<SidebarEntry[]>(() =>
   getAccessibleRouteTree()
@@ -166,25 +180,70 @@ const menuSections = computed<SidebarSection[]>(() => {
     .filter((section) => section.items.length > 0);
 });
 
-const mapRouteToEntry = (routeItem: AppRouteRecord): SidebarEntry => ({
-  name: routeItem.name as string | undefined,
-  index: routeItem.path,
-  label: routeItem.meta.title,
-  description: routeItem.meta.description,
-  children: routeItem.children
-    ?.filter((child) => child.meta.menuVisible !== false)
-    .map((child) => ({
-      name: child.name as string | undefined,
-      index: child.path.startsWith('/')
-        ? child.path
-        : `${routeItem.path}/${child.path}`,
-      label: child.meta.title,
-      description: child.meta.description,
-    })),
-});
+const mapRouteToEntry = (routeItem: AppRouteRecord): SidebarEntry => {
+  const routeName = routeItem.name as keyof typeof guideChapterMap | undefined;
+  const guideChapters = routeName ? guideChapterMap[routeName] : undefined;
 
-const isActive = (path: string) => route.path === path;
+  return {
+    name: routeItem.name as string | undefined,
+    index: routeItem.path,
+    label: routeItem.meta.title,
+    description: routeItem.meta.description,
+    children: guideChapters?.length
+      ? guideChapters.map((chapter) => ({
+          index: routeItem.path,
+          label: chapter.label,
+          description: chapter.description,
+          query: {
+            chapter: chapter.id,
+          },
+        }))
+      : routeItem.children
+          ?.filter((child) => child.meta.menuVisible !== false)
+          .map((child) => ({
+            name: child.name as string | undefined,
+            index: child.path.startsWith('/')
+              ? child.path
+              : `${routeItem.path}/${child.path}`,
+            label: child.meta.title,
+            description: child.meta.description,
+          })),
+  };
+};
+
+const resolveCurrentChapter = (path: string) => {
+  const entry = routeEntries.value.find((item) => item.index === path);
+  const routeName = entry?.name as keyof typeof guideChapterMap | undefined;
+  const guideChapters = routeName ? guideChapterMap[routeName] : undefined;
+
+  if (!guideChapters?.length) {
+    return '';
+  }
+
+  const queryChapter =
+    typeof route.query.chapter === 'string'
+      ? route.query.chapter
+      : Array.isArray(route.query.chapter)
+        ? (route.query.chapter[0] ?? '')
+        : '';
+
+  return guideChapters.some((chapter) => chapter.id === queryChapter)
+    ? queryChapter
+    : guideChapters[0].id;
+};
+
+const isActive = (path: string, query?: Record<string, string>) => {
+  if (route.path !== path) {
+    return false;
+  }
+
+  if (!query?.chapter) {
+    return true;
+  }
+
+  return resolveCurrentChapter(path) === query.chapter;
+};
 
 const isGroupActive = (item: SidebarEntry) =>
-  item.children?.some((child) => isActive(child.index)) ?? false;
+  item.children?.some((child) => isActive(child.index, child.query)) ?? false;
 </script>
