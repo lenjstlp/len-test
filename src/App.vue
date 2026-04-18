@@ -62,7 +62,7 @@
           </div>
 
           <div
-            class="h-[500px] overflow-hidden rounded-[7px] border border-black/8 bg-[#fff] text-[#171b21] shadow-[0_30px_70px_rgba(13,17,23,0.12)]"
+            class="min-h-0 flex-1 overflow-hidden rounded-[7px] border border-black/8 bg-[#fff] text-[#171b21] shadow-[0_30px_70px_rgba(13,17,23,0.12)]"
           >
             <AppDirectoryPanel />
           </div>
