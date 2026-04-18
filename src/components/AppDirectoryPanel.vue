@@ -1,11 +1,11 @@
 <template>
   <div class="flex h-full flex-col">
-    <div class="border-b border-white/10 px-5 py-5">
-      <p class="text-[11px] tracking-[0.32em] text-[#cdb18a] uppercase">
+    <div class="border-b border-black/8 px-5 py-5">
+      <p class="text-[11px] tracking-[0.32em] text-[#8b7557] uppercase">
         Directory / Unlock
       </p>
-      <h2 class="mt-3 text-xl font-semibold text-white">目录模块</h2>
-      <p class="mt-3 text-sm leading-7 text-[#aab2be]">
+      <h2 class="mt-3 text-xl font-semibold text-[#171b21]">目录模块</h2>
+      <p class="mt-3 text-sm leading-7 text-[#5f6772]">
         这里专门用来解锁各个菜单，按内容类型分组进入，不再把所有东西塞进同一个大盒子里。
       </p>
     </div>
@@ -29,16 +29,16 @@
               class="rounded-[7px] border p-4 transition"
               :class="
                 isGroupActive(item)
-                  ? 'border-[#cdb18a]/24 bg-[#cdb18a]/10'
-                  : 'border-white/8 bg-white/[0.03]'
+                  ? 'border-[#cdb18a]/24 bg-[#fff8ed]'
+                  : 'border-black/8 bg-[#fff]'
               "
             >
               <template v-if="item.children?.length">
                 <div class="px-1">
-                  <p class="text-base font-semibold text-[#f4efe7]">
+                  <p class="text-base font-semibold text-[#171b21]">
                     {{ item.label }}
                   </p>
-                  <p class="mt-2 text-sm leading-6 text-[#9ca5b2]">
+                  <p class="mt-2 text-sm leading-6 text-[#5f6772]">
                     {{ item.description }}
                   </p>
                 </div>
@@ -52,7 +52,7 @@
                     :class="
                       isActive(child.index)
                         ? 'border-[#cdb18a]/24 bg-[#f4ead6] text-[#191d24]'
-                        : 'border-white/8 bg-white/[0.03] text-[#d7dbe3] hover:border-white/14 hover:bg-white/[0.05]'
+                        : 'border-black/8 bg-[#fff] text-[#4f5864] hover:border-black/14 hover:bg-[#faf8f4]'
                     "
                     @click="emit('navigate')"
                   >
@@ -69,7 +69,7 @@
                 :to="item.index"
                 class="block rounded-[7px] transition"
                 :class="
-                  isActive(item.index) ? 'text-[#f4efe7]' : 'text-[#d7dbe3]'
+                  isActive(item.index) ? 'text-[#171b21]' : 'text-[#4f5864]'
                 "
                 @click="emit('navigate')"
               >

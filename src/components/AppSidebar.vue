@@ -1,6 +1,6 @@
 <template>
   <div class="flex h-full flex-col">
-    <div class="border-b border-white/10 px-5 py-6">
+    <div class="border-b border-black/8 px-5 py-6">
       <RouterLink to="/dashboard" class="block" @click="emit('navigate')">
         <div class="flex items-start gap-4">
           <div
@@ -9,13 +9,13 @@
             LN
           </div>
           <div class="min-w-0">
-            <p class="text-[11px] tracking-[0.34em] text-[#cdb18a] uppercase">
+            <p class="text-[11px] tracking-[0.34em] text-[#8b7557] uppercase">
               Len / Personal Journal
             </p>
-            <h2 class="mt-2 text-xl leading-8 font-semibold text-white">
+            <h2 class="mt-2 text-xl leading-8 font-semibold text-[#171b21]">
               技术作者、系统设计者、交付导向的前端工程师。
             </h2>
-            <p class="mt-3 text-sm leading-7 text-[#afb6c2]">
+            <p class="mt-3 text-sm leading-7 text-[#5f6772]">
               把前端架构、全栈能力、AI
               产品体验和复杂交互，整理成一个可以长期浏览的知识系统。
             </p>
@@ -29,26 +29,26 @@
         <div
           v-for="item in profileSummary"
           :key="item.label"
-          class="rounded-[7px] border border-white/8 bg-white/[0.04] px-4 py-4"
+          class="rounded-[7px] border border-black/8 bg-[#fff] px-4 py-4"
         >
           <p class="text-[11px] tracking-[0.28em] text-[#8d95a1] uppercase">
             {{ item.label }}
           </p>
-          <p class="mt-2 text-sm leading-6 text-[#f4efe7]">
+          <p class="mt-2 text-sm leading-6 text-[#171b21]">
             {{ item.value }}
           </p>
         </div>
       </div>
     </div>
 
-    <div class="border-t border-white/10 px-5 py-5">
+    <div class="border-t border-black/8 px-5 py-5">
       <p class="text-[11px] tracking-[0.3em] text-[#8d95a1] uppercase">
         当前页面
       </p>
-      <p class="mt-2 text-lg font-semibold text-[#f4efe7]">
+      <p class="mt-2 text-lg font-semibold text-[#171b21]">
         {{ currentEntry?.label ?? '首页' }}
       </p>
-      <p class="mt-2 text-sm leading-6 text-[#a7afb9]">
+      <p class="mt-2 text-sm leading-6 text-[#5f6772]">
         {{
           currentEntry?.description ??
           '围绕复杂系统、技术表达与产品判断持续输出。'

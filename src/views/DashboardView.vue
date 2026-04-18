@@ -19,7 +19,7 @@
         <div class="mt-8 flex flex-wrap gap-3">
           <RouterLink
             to="/resume"
-            class="rounded-full bg-[#171b21] px-6 py-3 text-sm font-medium text-[#f6f0e8] transition hover:bg-[#252a31]"
+            class="rounded-full border border-black/10 bg-[#fff] px-6 py-3 text-sm font-medium text-[#171b21] transition hover:bg-[#faf8f4]"
           >
             查看简历
           </RouterLink>
@@ -36,7 +36,7 @@
         <article
           v-for="item in manifesto"
           :key="item.title"
-          class="rounded-[7px] border border-black/8 bg-white/55 p-5"
+          class="rounded-[7px] border border-black/8 bg-[#fff] p-5"
         >
           <p class="text-[11px] tracking-[0.28em] text-[#8c8580] uppercase">
             {{ item.eyebrow }}
@@ -98,17 +98,17 @@
 
       <section class="space-y-5">
         <div
-          class="rounded-[7px] border border-black/8 bg-[#161a20] p-6 text-[#f4efe7]"
+          class="rounded-[7px] border border-black/8 bg-[#fff] p-6 text-[#171b21]"
         >
-          <p class="text-[11px] tracking-[0.28em] text-[#cdb18a] uppercase">
+          <p class="text-[11px] tracking-[0.28em] text-[#8b7557] uppercase">
             Positioning
           </p>
-          <p class="mt-4 text-2xl leading-9 font-semibold">
+          <p class="mt-4 text-2xl leading-9 font-semibold text-[#171b21]">
             站长最强的地方，不是学了很多，而是能把很多东西组织成系统。
           </p>
         </div>
 
-        <div class="rounded-[7px] border border-black/8 bg-white/55 p-6">
+        <div class="rounded-[7px] border border-black/8 bg-[#fff] p-6">
           <p class="text-[11px] tracking-[0.28em] text-[#8c8580] uppercase">
             Capability Signals
           </p>
@@ -134,7 +134,7 @@
       <article
         v-for="item in editorialBeliefs"
         :key="item.title"
-        class="rounded-[7px] border border-black/8 bg-white/50 p-6"
+        class="rounded-[7px] border border-black/8 bg-[#fff] p-6"
       >
         <p class="text-[11px] tracking-[0.28em] text-[#8d7557] uppercase">
           {{ item.eyebrow }}

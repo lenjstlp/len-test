@@ -23,12 +23,12 @@
         class="fixed inset-0 z-50 bg-[rgba(16,19,24,0.42)] p-3 backdrop-blur-sm lg:hidden"
       >
         <div
-          class="ml-auto flex h-full max-w-[344px] flex-col gap-3 overflow-y-auto rounded-[7px] border border-white/10 bg-[#171b21] p-3 text-[#f5f0e9] shadow-[0_28px_60px_rgba(7,10,15,0.32)]"
+          class="ml-auto flex h-full max-w-[344px] flex-col gap-3 overflow-y-auto rounded-[7px] border border-black/8 bg-[#fff] p-3 text-[#171b21] shadow-[0_28px_60px_rgba(7,10,15,0.18)]"
         >
           <div class="flex justify-end px-1 pt-1">
             <button
               type="button"
-              class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white"
+              class="flex h-10 w-10 items-center justify-center rounded-full border border-black/8 bg-[#fff] text-[#171b21]"
               @click="mobileMenuVisible = false"
             >
               <el-icon :size="18"><Close /></el-icon>
@@ -56,13 +56,13 @@
       >
         <aside class="hidden w-[320px] shrink-0 lg:flex lg:flex-col lg:gap-4">
           <div
-            class="h-[340px] overflow-hidden rounded-[7px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
+            class="h-[340px] overflow-hidden rounded-[7px] border border-black/8 bg-[#fff] text-[#171b21] shadow-[0_30px_70px_rgba(13,17,23,0.12)]"
           >
             <AppSidebar />
           </div>
 
           <div
-            class="h-[500px] overflow-hidden rounded-[7px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
+            class="h-[500px] overflow-hidden rounded-[7px] border border-black/8 bg-[#fff] text-[#171b21] shadow-[0_30px_70px_rgba(13,17,23,0.12)]"
           >
             <AppDirectoryPanel />
           </div>

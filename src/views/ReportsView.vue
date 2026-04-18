@@ -16,7 +16,7 @@
           </p>
         </div>
 
-        <aside class="rounded-[7px] border border-black/8 bg-white/55 p-6">
+        <aside class="rounded-[7px] border border-black/8 bg-[#fff] p-6">
           <p class="text-[11px] tracking-[0.28em] text-[#8c8580] uppercase">
             Summary
           </p>
@@ -24,7 +24,7 @@
             <article
               v-for="item in headlineMetrics"
               :key="item.label"
-              class="rounded-[7px] border border-black/8 bg-[#f7f2ea] px-4 py-4"
+              class="rounded-[7px] border border-black/8 bg-[#fff] px-4 py-4"
             >
               <p class="text-[11px] tracking-[0.26em] text-[#8c8580] uppercase">
                 {{ item.label }}
@@ -45,7 +45,7 @@
       <article
         v-for="item in noteDeck"
         :key="item.title"
-        class="rounded-[7px] border border-black/8 bg-white/55 p-6 lg:p-8"
+        class="rounded-[7px] border border-black/8 bg-[#fff] p-6 lg:p-8"
       >
         <div class="grid gap-5 xl:grid-cols-[140px_minmax(0,1fr)_280px]">
           <p class="text-sm text-[#8b7557]">{{ item.tag }}</p>
@@ -60,12 +60,12 @@
           </div>
 
           <div
-            class="rounded-[7px] border border-black/8 bg-[#171b21] p-5 text-[#f4efe7]"
+            class="rounded-[7px] border border-black/8 bg-[#fff] p-5 text-[#171b21]"
           >
-            <p class="text-[11px] tracking-[0.28em] text-[#cdb18a] uppercase">
+            <p class="text-[11px] tracking-[0.28em] text-[#8b7557] uppercase">
               结论
             </p>
-            <p class="mt-4 text-sm leading-7 text-[#d8dde4]">
+            <p class="mt-4 text-sm leading-7 text-[#5f6772]">
               {{ item.conclusion }}
             </p>
           </div>
@@ -77,7 +77,7 @@
       <article
         v-for="item in opinionStack"
         :key="item.title"
-        class="rounded-[7px] border border-black/8 bg-white/50 p-6"
+        class="rounded-[7px] border border-black/8 bg-[#fff] p-6"
       >
         <h2 class="text-2xl font-semibold text-[#171b21]">{{ item.title }}</h2>
         <p class="mt-4 text-sm leading-7 text-[#5f6772]">

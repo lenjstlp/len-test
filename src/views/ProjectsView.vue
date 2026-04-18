@@ -17,9 +17,9 @@
         </div>
 
         <aside
-          class="rounded-[7px] border border-black/8 bg-[#171b21] p-6 text-[#f4efe7]"
+          class="rounded-[7px] border border-black/8 bg-[#fff] p-6 text-[#171b21]"
         >
-          <p class="text-[11px] tracking-[0.28em] text-[#cdb18a] uppercase">
+          <p class="text-[11px] tracking-[0.28em] text-[#8b7557] uppercase">
             Work Method
           </p>
           <div class="mt-5 space-y-4">
@@ -29,7 +29,7 @@
               class="border-b border-white/10 pb-4 last:border-b-0 last:pb-0"
             >
               <h2 class="text-base font-semibold">{{ item.title }}</h2>
-              <p class="mt-2 text-sm leading-7 text-[#c3c9d2]">
+              <p class="mt-2 text-sm leading-7 text-[#5f6772]">
                 {{ item.description }}
               </p>
             </article>
@@ -42,7 +42,7 @@
       <article
         v-for="project in projectArchives"
         :key="project.title"
-        class="rounded-[7px] border border-black/8 bg-white/55 p-6 lg:p-8"
+        class="rounded-[7px] border border-black/8 bg-[#fff] p-6 lg:p-8"
       >
         <div
           class="grid gap-6 xl:grid-cols-[88px_minmax(0,1.02fr)_minmax(320px,0.98fr)]"
@@ -61,7 +61,7 @@
               <span
                 v-for="tag in project.tags"
                 :key="tag"
-                class="rounded-full border border-black/10 bg-white/70 px-3 py-2 text-xs text-[#5f6772]"
+                class="rounded-full border border-black/10 bg-[#fff] px-3 py-2 text-xs text-[#5f6772]"
               >
                 {{ tag }}
               </span>
@@ -69,9 +69,7 @@
           </div>
 
           <div class="grid gap-4 lg:grid-cols-2">
-            <section
-              class="rounded-[7px] border border-black/8 bg-[#f7f2ea] p-5"
-            >
+            <section class="rounded-[7px] border border-black/8 bg-[#fff] p-5">
               <p class="text-[11px] tracking-[0.28em] text-[#8c8580] uppercase">
                 我负责什么
               </p>
@@ -82,9 +80,7 @@
               </ul>
             </section>
 
-            <section
-              class="rounded-[7px] border border-black/8 bg-[#f7f2ea] p-5"
-            >
+            <section class="rounded-[7px] border border-black/8 bg-[#fff] p-5">
               <p class="text-[11px] tracking-[0.28em] text-[#8c8580] uppercase">
                 说明了什么能力
               </p>
