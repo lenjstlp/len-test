@@ -22,50 +22,18 @@
             </p>
           </div>
 
-          <div class="mt-4 space-y-3">
+          <div class="mt-4 space-y-2">
             <article
               v-for="item in section.items"
               :key="item.index"
-              class="rounded-[7px] border p-4 transition"
+              class="rounded-[7px] border p-3 transition"
               :class="
                 isGroupActive(item)
                   ? 'border-[#cdb18a]/24 bg-[#fff8ed]'
                   : 'border-black/8 bg-[#fff]'
               "
             >
-              <template v-if="item.children?.length">
-                <div class="px-1">
-                  <p class="text-base font-semibold text-[#171b21]">
-                    {{ item.label }}
-                  </p>
-                  <p class="mt-2 text-sm leading-6 text-[#5f6772]">
-                    {{ item.description }}
-                  </p>
-                </div>
-
-                <div class="mt-4 space-y-2">
-                  <RouterLink
-                    v-for="child in item.children"
-                    :key="`${child.index}-${child.query?.chapter ?? 'root'}`"
-                    :to="{ path: child.index, query: child.query }"
-                    class="block rounded-[7px] border px-4 py-3 transition"
-                    :class="
-                      isActive(child.index, child.query)
-                        ? 'border-[#cdb18a]/24 bg-[#f4ead6] text-[#191d24]'
-                        : 'border-black/8 bg-[#fff] text-[#4f5864] hover:border-black/14 hover:bg-[#faf8f4]'
-                    "
-                    @click="emit('navigate')"
-                  >
-                    <p class="text-sm font-medium">{{ child.label }}</p>
-                    <p class="mt-1 text-xs leading-5 opacity-75">
-                      {{ child.description }}
-                    </p>
-                  </RouterLink>
-                </div>
-              </template>
-
               <RouterLink
-                v-else
                 :to="{ path: item.index, query: item.query }"
                 class="block rounded-[7px] transition"
                 :class="
@@ -75,9 +43,8 @@
                 "
                 @click="emit('navigate')"
               >
-                <p class="text-base font-semibold">{{ item.label }}</p>
-                <p class="mt-2 text-sm leading-6 opacity-78">
-                  {{ item.description }}
+                <p class="text-[15px] leading-5 font-semibold">
+                  {{ item.label }}
                 </p>
               </RouterLink>
             </article>
@@ -91,10 +58,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
-import { agentGuideChapters } from '@/data/agentGuide';
-import { canvasGuideChapters } from '@/data/canvasGuide';
-import { nextjsGuideChapters } from '@/data/nextjsGuide';
-import { pythonGuideChapters } from '@/data/pythonGuide';
 import {
   getAccessibleRouteTree,
   type AppRouteRecord,
@@ -112,7 +75,6 @@ type SidebarEntry = {
   label: string;
   description?: string;
   query?: Record<string, string>;
-  children?: SidebarEntry[];
 };
 
 type SidebarSection = {
@@ -120,13 +82,6 @@ type SidebarSection = {
   description: string;
   items: SidebarEntry[];
 };
-
-const guideChapterMap = {
-  'agent-guide': agentGuideChapters,
-  'canvas-guide': canvasGuideChapters,
-  'nextjs-guide': nextjsGuideChapters,
-  'python-guide': pythonGuideChapters,
-} as const;
 
 const routeEntries = computed<SidebarEntry[]>(() =>
   getAccessibleRouteTree()
@@ -181,55 +136,21 @@ const menuSections = computed<SidebarSection[]>(() => {
 });
 
 const mapRouteToEntry = (routeItem: AppRouteRecord): SidebarEntry => {
-  const routeName = routeItem.name as keyof typeof guideChapterMap | undefined;
-  const guideChapters = routeName ? guideChapterMap[routeName] : undefined;
+  if (routeItem.children?.length) {
+    return {
+      name: routeItem.name as string | undefined,
+      index: routeItem.path,
+      label: routeItem.meta.title,
+      description: routeItem.meta.description,
+    };
+  }
 
   return {
     name: routeItem.name as string | undefined,
     index: routeItem.path,
     label: routeItem.meta.title,
     description: routeItem.meta.description,
-    children: guideChapters?.length
-      ? guideChapters.map((chapter) => ({
-          index: routeItem.path,
-          label: chapter.label,
-          description: chapter.description,
-          query: {
-            chapter: chapter.id,
-          },
-        }))
-      : routeItem.children
-          ?.filter((child) => child.meta.menuVisible !== false)
-          .map((child) => ({
-            name: child.name as string | undefined,
-            index: child.path.startsWith('/')
-              ? child.path
-              : `${routeItem.path}/${child.path}`,
-            label: child.meta.title,
-            description: child.meta.description,
-          })),
   };
-};
-
-const resolveCurrentChapter = (path: string) => {
-  const entry = routeEntries.value.find((item) => item.index === path);
-  const routeName = entry?.name as keyof typeof guideChapterMap | undefined;
-  const guideChapters = routeName ? guideChapterMap[routeName] : undefined;
-
-  if (!guideChapters?.length) {
-    return '';
-  }
-
-  const queryChapter =
-    typeof route.query.chapter === 'string'
-      ? route.query.chapter
-      : Array.isArray(route.query.chapter)
-        ? (route.query.chapter[0] ?? '')
-        : '';
-
-  return guideChapters.some((chapter) => chapter.id === queryChapter)
-    ? queryChapter
-    : guideChapters[0].id;
 };
 
 const isActive = (path: string, query?: Record<string, string>) => {
@@ -237,13 +158,9 @@ const isActive = (path: string, query?: Record<string, string>) => {
     return false;
   }
 
-  if (!query?.chapter) {
-    return true;
-  }
-
-  return resolveCurrentChapter(path) === query.chapter;
+  return !query?.chapter || route.query.chapter === query.chapter;
 };
 
 const isGroupActive = (item: SidebarEntry) =>
-  item.children?.some((child) => isActive(child.index, child.query)) ?? false;
+  isActive(item.index, item.query) || route.path.startsWith(`${item.index}/`);
 </script>
