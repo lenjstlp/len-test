@@ -90,7 +90,7 @@ export const frontendArchitectureModules: FrontendArchitectureModule[] = [
   {
     id: 'runtime-browser',
     title: '浏览器与运行时',
-    accent: 'from-[#f59e0b] to-[#f97316]',
+    accent: 'from-[#9f8a6a] to-[#c0ad91]',
     summary:
       '这是前端架构的底层地基。你不理解浏览器如何解析、渲染、调度任务和发起网络请求，就很难真正解决性能和稳定性问题。',
     canOwn: [
@@ -118,7 +118,7 @@ export const frontendArchitectureModules: FrontendArchitectureModule[] = [
   {
     id: 'app-skeleton',
     title: '工程骨架与模块边界',
-    accent: 'from-[#fb7185] to-[#f43f5e]',
+    accent: 'from-[#7d6a73] to-[#ad959e]',
     summary:
       '这一层决定项目会不会失控。目录结构、依赖方向、共享层抽象和模块职责，是系统能否长期维护的关键。',
     canOwn: [
@@ -146,7 +146,7 @@ export const frontendArchitectureModules: FrontendArchitectureModule[] = [
   {
     id: 'routing-and-permission',
     title: '路由、权限与应用编排',
-    accent: 'from-[#38bdf8] to-[#0ea5e9]',
+    accent: 'from-[#617b8c] to-[#8fa5b2]',
     summary:
       '一旦项目有菜单、角色、租户和二级模块，路由就不只是页面跳转，而是应用编排和权限投影层。',
     canOwn: [
@@ -174,7 +174,7 @@ export const frontendArchitectureModules: FrontendArchitectureModule[] = [
   {
     id: 'data-and-state',
     title: '数据层与状态管理',
-    accent: 'from-[#34d399] to-[#10b981]',
+    accent: 'from-[#5e776f] to-[#88a097]',
     summary:
       '前端复杂度的大头通常不是 UI，而是数据流。能不能区分本地状态、会话状态和服务端状态，决定了项目是否会越来越乱。',
     canOwn: [
@@ -204,7 +204,7 @@ export const frontendArchitectureModules: FrontendArchitectureModule[] = [
   {
     id: 'design-system',
     title: '组件体系与设计系统',
-    accent: 'from-[#a78bfa] to-[#8b5cf6]',
+    accent: 'from-[#6f6984] to-[#9992af]',
     summary:
       '真正成熟的前端系统，组件不是零散堆积，而是有设计令牌、交互规范、可访问性和复用边界的一整套系统。',
     canOwn: [
@@ -234,7 +234,7 @@ export const frontendArchitectureModules: FrontendArchitectureModule[] = [
   {
     id: 'delivery-and-quality',
     title: '质量体系与交付治理',
-    accent: 'from-[#22c55e] to-[#14b8a6]',
+    accent: 'from-[#5f7a69] to-[#8ca596]',
     summary:
       '前端架构最终要落到交付。测试、规范、构建、CI/CD、灰度和回滚策略，决定了系统是不是能放心上线。',
     canOwn: [
@@ -264,7 +264,7 @@ export const frontendArchitectureModules: FrontendArchitectureModule[] = [
   {
     id: 'observability-performance',
     title: '性能、监控与稳定性',
-    accent: 'from-[#06b6d4] to-[#3b82f6]',
+    accent: 'from-[#5f7482] to-[#8ca0ae]',
     summary:
       '架构不是交付完就结束。真正成熟的系统必须能在线上被看见、被衡量、被追踪，才能持续演进。',
     canOwn: [
