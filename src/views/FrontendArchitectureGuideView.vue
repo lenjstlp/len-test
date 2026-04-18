@@ -1,6 +1,6 @@
 <template>
   <section
-    class="frontend-architecture-page overflow-hidden rounded-[36px] border text-slate-900"
+    class="frontend-architecture-page overflow-hidden rounded-[7px] border text-slate-900"
   >
     <div class="border-b px-6 py-4 backdrop-blur lg:px-10">
       <div class="flex flex-wrap items-center justify-between gap-4">
@@ -53,7 +53,7 @@
         </div>
 
         <div
-          class="min-w-[260px] rounded-[28px] border border-[var(--fa-line)] bg-[var(--fa-elevated)] p-5"
+          class="min-w-[260px] rounded-[7px] border border-[var(--fa-line)] bg-[var(--fa-elevated)] p-5"
         >
           <p class="text-xs tracking-[0.24em] text-[var(--fa-muted)] uppercase">
             这页回答什么
@@ -71,7 +71,7 @@
         <article
           v-for="band in frontendArchitectureBands"
           :key="band.id"
-          class="rounded-[28px] border border-[var(--fa-line)] bg-[var(--fa-elevated)] p-5"
+          class="rounded-[7px] border border-[var(--fa-line)] bg-[var(--fa-elevated)] p-5"
         >
           <p class="text-xs tracking-[0.24em] text-[var(--fa-muted)] uppercase">
             {{ band.role }}
@@ -116,7 +116,7 @@
           v-for="module in frontendArchitectureModules"
           :id="module.id"
           :key="module.id"
-          class="scroll-mt-28 rounded-[32px] border border-[var(--fa-line)] bg-[var(--fa-elevated)] p-6 lg:p-7"
+          class="scroll-mt-28 rounded-[7px] border border-[var(--fa-line)] bg-[var(--fa-elevated)] p-6 lg:p-7"
         >
           <div
             class="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,1.3fr)]"
@@ -162,7 +162,7 @@
 
             <div class="grid gap-4 lg:grid-cols-3">
               <section
-                class="rounded-[26px] border border-[var(--fa-line)] bg-[var(--fa-pane)] p-5"
+                class="rounded-[7px] border border-[var(--fa-line)] bg-[var(--fa-pane)] p-5"
               >
                 <p
                   class="text-xs tracking-[0.24em] text-[var(--fa-muted)] uppercase"
@@ -179,7 +179,7 @@
               </section>
 
               <section
-                class="rounded-[26px] border border-[var(--fa-line)] bg-[var(--fa-pane)] p-5"
+                class="rounded-[7px] border border-[var(--fa-line)] bg-[var(--fa-pane)] p-5"
               >
                 <p
                   class="text-xs tracking-[0.24em] text-[var(--fa-muted)] uppercase"
@@ -198,7 +198,7 @@
               </section>
 
               <section
-                class="rounded-[26px] border border-[var(--fa-line)] bg-[var(--fa-pane)] p-5"
+                class="rounded-[7px] border border-[var(--fa-line)] bg-[var(--fa-pane)] p-5"
               >
                 <p
                   class="text-xs tracking-[0.24em] text-[var(--fa-muted)] uppercase"
@@ -220,7 +220,7 @@
 
       <div class="mt-10 grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_360px]">
         <section
-          class="rounded-[32px] border border-[var(--fa-line)] bg-[var(--fa-elevated)] p-6 lg:p-7"
+          class="rounded-[7px] border border-[var(--fa-line)] bg-[var(--fa-elevated)] p-6 lg:p-7"
         >
           <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -242,7 +242,7 @@
             <article
               v-for="cluster in frontendArchitectureLibraryClusters"
               :key="cluster.id"
-              class="rounded-[26px] border border-[var(--fa-line)] bg-[var(--fa-wash)] p-5"
+              class="rounded-[7px] border border-[var(--fa-line)] bg-[var(--fa-wash)] p-5"
             >
               <h3 class="text-lg font-semibold text-[var(--fa-title)]">
                 {{ cluster.title }}
@@ -264,7 +264,7 @@
         </section>
 
         <section
-          class="rounded-[32px] border border-[#2d3136] bg-[var(--fa-ink)] p-6 text-[var(--fa-paper)] lg:p-7"
+          class="rounded-[7px] border border-[#2d3136] bg-[var(--fa-ink)] p-6 text-[var(--fa-paper)] lg:p-7"
         >
           <p class="text-xs tracking-[0.24em] text-[#b7babd] uppercase">
             Learning Roadmap
@@ -277,7 +277,7 @@
             <article
               v-for="step in frontendArchitectureRoadmap"
               :key="step.id"
-              class="rounded-[24px] border border-white/8 bg-white/4 p-4"
+              class="rounded-[7px] border border-white/8 bg-white/4 p-4"
             >
               <h3 class="text-lg font-semibold text-[var(--fa-paper)]">
                 {{ step.title }}
@@ -297,7 +297,7 @@
         class="mt-10 grid gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]"
       >
         <section
-          class="rounded-[32px] border border-[var(--fa-line)] bg-[var(--fa-elevated)] p-6 lg:p-7"
+          class="rounded-[7px] border border-[var(--fa-line)] bg-[var(--fa-elevated)] p-6 lg:p-7"
         >
           <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -320,7 +320,7 @@
             <article
               v-for="shift in frontendArchitectureFutureShifts"
               :key="shift.id"
-              class="rounded-[26px] border border-[var(--fa-line)] bg-[var(--fa-wash)] p-5"
+              class="rounded-[7px] border border-[var(--fa-line)] bg-[var(--fa-wash)] p-5"
             >
               <h3 class="text-xl font-semibold text-[var(--fa-title)]">
                 {{ shift.title }}
@@ -349,7 +349,7 @@
         </section>
 
         <section
-          class="rounded-[32px] border border-[var(--fa-line)] bg-[var(--fa-pane)] p-6 lg:p-7"
+          class="rounded-[7px] border border-[var(--fa-line)] bg-[var(--fa-pane)] p-6 lg:p-7"
         >
           <p class="text-xs tracking-[0.24em] text-[var(--fa-muted)] uppercase">
             Next Direction
@@ -365,7 +365,7 @@
             <article
               v-for="path in frontendArchitectureCareerPaths"
               :key="path.id"
-              class="rounded-[24px] border border-[var(--fa-line)] bg-[var(--fa-paper)] p-5"
+              class="rounded-[7px] border border-[var(--fa-line)] bg-[var(--fa-paper)] p-5"
             >
               <p
                 class="text-xs tracking-[0.22em] text-[var(--fa-muted)] uppercase"

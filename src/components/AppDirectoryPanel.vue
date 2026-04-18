@@ -26,7 +26,7 @@
             <article
               v-for="item in section.items"
               :key="item.index"
-              class="rounded-[22px] border p-4 transition"
+              class="rounded-[7px] border p-4 transition"
               :class="
                 isGroupActive(item)
                   ? 'border-[#cdb18a]/24 bg-[#cdb18a]/10'
@@ -48,7 +48,7 @@
                     v-for="child in item.children"
                     :key="child.index"
                     :to="child.index"
-                    class="block rounded-[16px] border px-4 py-3 transition"
+                    class="block rounded-[7px] border px-4 py-3 transition"
                     :class="
                       isActive(child.index)
                         ? 'border-[#cdb18a]/24 bg-[#f4ead6] text-[#191d24]'
@@ -67,7 +67,7 @@
               <RouterLink
                 v-else
                 :to="item.index"
-                class="block rounded-[16px] transition"
+                class="block rounded-[7px] transition"
                 :class="
                   isActive(item.index) ? 'text-[#f4efe7]' : 'text-[#d7dbe3]'
                 "

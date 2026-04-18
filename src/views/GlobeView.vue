@@ -1,6 +1,6 @@
 <template>
   <section
-    class="relative flex min-h-[calc(100vh-13rem)] items-center justify-center overflow-hidden rounded-[44px] bg-[linear-gradient(180deg,#02050b_0%,#0a111b_48%,#0f1724_100%)]"
+    class="relative flex min-h-[calc(100vh-13rem)] items-center justify-center overflow-hidden rounded-[7px] bg-[linear-gradient(180deg,#02050b_0%,#0a111b_48%,#0f1724_100%)]"
   >
     <div
       class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(88,126,170,0.24),transparent_24%),radial-gradient(circle_at_50%_58%,rgba(255,255,255,0.08),transparent_44%)]"

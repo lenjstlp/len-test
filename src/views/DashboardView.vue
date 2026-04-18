@@ -36,7 +36,7 @@
         <article
           v-for="item in manifesto"
           :key="item.title"
-          class="rounded-[28px] border border-black/8 bg-white/55 p-5"
+          class="rounded-[7px] border border-black/8 bg-white/55 p-5"
         >
           <p class="text-[11px] tracking-[0.28em] text-[#8c8580] uppercase">
             {{ item.eyebrow }}
@@ -98,7 +98,7 @@
 
       <section class="space-y-5">
         <div
-          class="rounded-[30px] border border-black/8 bg-[#161a20] p-6 text-[#f4efe7]"
+          class="rounded-[7px] border border-black/8 bg-[#161a20] p-6 text-[#f4efe7]"
         >
           <p class="text-[11px] tracking-[0.28em] text-[#cdb18a] uppercase">
             Positioning
@@ -108,7 +108,7 @@
           </p>
         </div>
 
-        <div class="rounded-[30px] border border-black/8 bg-white/55 p-6">
+        <div class="rounded-[7px] border border-black/8 bg-white/55 p-6">
           <p class="text-[11px] tracking-[0.28em] text-[#8c8580] uppercase">
             Capability Signals
           </p>
@@ -134,7 +134,7 @@
       <article
         v-for="item in editorialBeliefs"
         :key="item.title"
-        class="rounded-[30px] border border-black/8 bg-white/50 p-6"
+        class="rounded-[7px] border border-black/8 bg-white/50 p-6"
       >
         <p class="text-[11px] tracking-[0.28em] text-[#8d7557] uppercase">
           {{ item.eyebrow }}

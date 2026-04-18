@@ -1,6 +1,6 @@
 <template>
   <section
-    class="fullstack-guide-page overflow-hidden rounded-[36px] border text-slate-900"
+    class="fullstack-guide-page overflow-hidden rounded-[7px] border text-slate-900"
   >
     <div class="border-b px-6 py-8 lg:px-10 lg:py-10">
       <div class="grid gap-6 xl:grid-cols-[minmax(0,1.18fr)_360px]">
@@ -21,7 +21,7 @@
         </div>
 
         <div
-          class="rounded-[30px] border border-[var(--fs-line)] bg-[var(--fs-card)] p-5"
+          class="rounded-[7px] border border-[var(--fs-line)] bg-[var(--fs-card)] p-5"
         >
           <p class="text-xs tracking-[0.24em] text-[var(--fs-muted)] uppercase">
             你会得到什么
@@ -39,7 +39,7 @@
         <article
           v-for="level in fullstackLevels"
           :key="level.id"
-          class="rounded-[28px] border border-[var(--fs-line)] bg-[var(--fs-card)] p-5"
+          class="rounded-[7px] border border-[var(--fs-line)] bg-[var(--fs-card)] p-5"
         >
           <p class="text-xs tracking-[0.24em] text-[var(--fs-muted)] uppercase">
             {{ level.role }}
@@ -84,7 +84,7 @@
           v-for="domain in fullstackDomains"
           :id="domain.id"
           :key="domain.id"
-          class="scroll-mt-28 rounded-[32px] border border-[var(--fs-line)] bg-[var(--fs-card)] p-6 lg:p-7"
+          class="scroll-mt-28 rounded-[7px] border border-[var(--fs-line)] bg-[var(--fs-card)] p-6 lg:p-7"
         >
           <div
             class="grid gap-6 xl:grid-cols-[minmax(0,1.06fr)_minmax(0,1.28fr)]"
@@ -130,7 +130,7 @@
 
             <div class="grid gap-4 lg:grid-cols-2">
               <section
-                class="rounded-[26px] border border-[var(--fs-line)] bg-[var(--fs-pane)] p-5"
+                class="rounded-[7px] border border-[var(--fs-line)] bg-[var(--fs-pane)] p-5"
               >
                 <p
                   class="text-xs tracking-[0.24em] text-[var(--fs-muted)] uppercase"
@@ -147,7 +147,7 @@
               </section>
 
               <section
-                class="rounded-[26px] border border-[var(--fs-line)] bg-[var(--fs-pane)] p-5"
+                class="rounded-[7px] border border-[var(--fs-line)] bg-[var(--fs-pane)] p-5"
               >
                 <p
                   class="text-xs tracking-[0.24em] text-[var(--fs-muted)] uppercase"
@@ -171,7 +171,7 @@
 
       <div class="mt-10 grid gap-6 xl:grid-cols-[minmax(0,1.12fr)_360px]">
         <section
-          class="rounded-[32px] border border-[var(--fs-line)] bg-[var(--fs-card)] p-6 lg:p-7"
+          class="rounded-[7px] border border-[var(--fs-line)] bg-[var(--fs-card)] p-6 lg:p-7"
         >
           <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -193,7 +193,7 @@
             <article
               v-for="track in fullstackTracks"
               :key="track.id"
-              class="rounded-[26px] border border-[var(--fs-line)] bg-[var(--fs-wash)] p-5"
+              class="rounded-[7px] border border-[var(--fs-line)] bg-[var(--fs-wash)] p-5"
             >
               <p
                 class="text-xs tracking-[0.22em] text-[var(--fs-muted)] uppercase"
@@ -235,7 +235,7 @@
         </section>
 
         <section
-          class="rounded-[32px] border border-[var(--fs-line-strong)] bg-[var(--fs-ink)] p-6 text-[var(--fs-paper)] lg:p-7"
+          class="rounded-[7px] border border-[var(--fs-line-strong)] bg-[var(--fs-ink)] p-6 text-[var(--fs-paper)] lg:p-7"
         >
           <p class="text-xs tracking-[0.24em] text-[#b5c1b8] uppercase">
             Upgrade Path
@@ -248,7 +248,7 @@
             <article
               v-for="step in fullstackRoadmap"
               :key="step.id"
-              class="rounded-[24px] border border-white/8 bg-white/5 p-4"
+              class="rounded-[7px] border border-white/8 bg-white/5 p-4"
             >
               <h3 class="text-lg font-semibold text-[var(--fs-paper)]">
                 {{ step.title }}

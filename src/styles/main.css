@@ -7,18 +7,7 @@
   line-height: 1.5;
   font-weight: 400;
   color: #23272d;
-  background:
-    radial-gradient(
-      circle at top left,
-      rgba(255, 255, 255, 0.46),
-      transparent 26%
-    ),
-    radial-gradient(
-      circle at right top,
-      rgba(126, 108, 82, 0.1),
-      transparent 24%
-    ),
-    linear-gradient(180deg, #e9e0d2 0%, #e4d8c8 100%);
+  background: #fff;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -41,6 +30,7 @@ html {
 
 body {
   margin: 0;
+  background: #fff;
 }
 
 a {

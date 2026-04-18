@@ -1,11 +1,6 @@
 <template>
-  <div
-    class="min-h-screen"
-    :class="isStandaloneLayout ? 'bg-[#ede5d7]' : 'bg-[#e6ddcf]'"
-  >
-    <div
-      class="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.36),transparent_28%),radial-gradient(circle_at_70%_0%,rgba(120,103,77,0.08),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.18),transparent_36%)]"
-    />
+  <div class="min-h-screen bg-[#fff]">
+    <div class="pointer-events-none fixed inset-0 bg-[#fff]" />
 
     <button
       type="button"
@@ -28,7 +23,7 @@
         class="fixed inset-0 z-50 bg-[rgba(16,19,24,0.42)] p-3 backdrop-blur-sm lg:hidden"
       >
         <div
-          class="ml-auto flex h-full max-w-[344px] flex-col gap-3 overflow-y-auto rounded-[34px] border border-white/10 bg-[#171b21] p-3 text-[#f5f0e9] shadow-[0_28px_60px_rgba(7,10,15,0.32)]"
+          class="ml-auto flex h-full max-w-[344px] flex-col gap-3 overflow-y-auto rounded-[7px] border border-white/10 bg-[#171b21] p-3 text-[#f5f0e9] shadow-[0_28px_60px_rgba(7,10,15,0.32)]"
         >
           <div class="flex justify-end px-1 pt-1">
             <button
@@ -57,13 +52,13 @@
       <aside class="hidden w-[304px] shrink-0 lg:block">
         <div class="sticky top-6 flex flex-col gap-4">
           <div
-            class="rounded-[34px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
+            class="h-[220px] overflow-y-auto rounded-[7px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
           >
             <AppSidebar />
           </div>
 
           <div
-            class="rounded-[34px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
+            class="h-[340px] overflow-hidden rounded-[7px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
           >
             <AppDirectoryPanel />
           </div>
@@ -72,7 +67,7 @@
 
       <main class="min-w-0 flex-1">
         <div
-          class="overflow-hidden rounded-[42px] border border-black/6 bg-[linear-gradient(180deg,rgba(249,245,238,0.96),rgba(244,238,228,0.98))] shadow-[0_32px_80px_rgba(56,45,30,0.12)]"
+          class="overflow-hidden rounded-[7px] border border-black/6 bg-[#fff] shadow-[0_32px_80px_rgba(56,45,30,0.08)]"
         >
           <div class="px-4 py-6 lg:px-10 lg:py-10">
             <RouterView />

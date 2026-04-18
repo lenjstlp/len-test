@@ -17,7 +17,7 @@
           </p>
         </div>
 
-        <aside class="rounded-[30px] border border-black/8 bg-white/55 p-6">
+        <aside class="rounded-[7px] border border-black/8 bg-white/55 p-6">
           <p class="text-[11px] tracking-[0.28em] text-[#8c8580] uppercase">
             当前原则
           </p>
@@ -43,7 +43,7 @@
       <article
         v-for="item in writingAngles"
         :key="item.title"
-        class="rounded-[30px] border border-black/8 bg-white/50 p-6"
+        class="rounded-[7px] border border-black/8 bg-white/50 p-6"
       >
         <p class="text-[11px] tracking-[0.28em] text-[#8d7557] uppercase">
           {{ item.eyebrow }}

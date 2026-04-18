@@ -4,7 +4,7 @@
   >
     <aside>
       <div class="sticky top-6">
-        <div class="surface-panel python-guide-panel rounded-[28px] p-4 lg:p-5">
+        <div class="surface-panel python-guide-panel rounded-[7px] p-4 lg:p-5">
           <div class="mb-4 px-2">
             <p class="text-xs tracking-[0.28em] text-emerald-300 uppercase">
               Python Guide
@@ -40,7 +40,7 @@
       </div>
     </aside>
 
-    <article class="surface-panel python-guide-panel rounded-[28px] p-6 lg:p-8">
+    <article class="surface-panel python-guide-panel rounded-[7px] p-6 lg:p-8">
       <header class="border-b border-white/10 pb-6">
         <span
           class="inline-flex rounded-full border border-emerald-400/25 bg-emerald-400/10 px-4 py-1 text-xs tracking-[0.28em] text-emerald-300 uppercase"
@@ -70,7 +70,7 @@
           v-for="section in activeChapter.sections"
           :id="section.id"
           :key="section.id"
-          class="scroll-mt-28 rounded-[28px] border border-white/10 bg-slate-950/34 px-5 py-5 lg:px-6"
+          class="scroll-mt-28 rounded-[7px] border border-white/10 bg-slate-950/34 px-5 py-5 lg:px-6"
         >
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div class="max-w-3xl">
@@ -111,13 +111,13 @@
 
           <pre
             v-if="section.code"
-            class="mt-5 overflow-x-auto rounded-[24px] border border-slate-800 bg-[#020617] px-4 py-4 text-sm leading-7 text-slate-200"
+            class="mt-5 overflow-x-auto rounded-[7px] border border-slate-800 bg-[#020617] px-4 py-4 text-sm leading-7 text-slate-200"
           ><code>{{ section.code }}</code></pre>
         </section>
       </div>
     </article>
 
-    <aside class="surface-panel python-guide-panel rounded-[28px] p-4 lg:p-5">
+    <aside class="surface-panel python-guide-panel rounded-[7px] p-4 lg:p-5">
       <div class="sticky top-6">
         <div class="mb-4 px-2">
           <p class="text-xs tracking-[0.28em] text-slate-400 uppercase">

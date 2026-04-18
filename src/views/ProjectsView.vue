@@ -17,7 +17,7 @@
         </div>
 
         <aside
-          class="rounded-[30px] border border-black/8 bg-[#171b21] p-6 text-[#f4efe7]"
+          class="rounded-[7px] border border-black/8 bg-[#171b21] p-6 text-[#f4efe7]"
         >
           <p class="text-[11px] tracking-[0.28em] text-[#cdb18a] uppercase">
             Work Method
@@ -42,7 +42,7 @@
       <article
         v-for="project in projectArchives"
         :key="project.title"
-        class="rounded-[34px] border border-black/8 bg-white/55 p-6 lg:p-8"
+        class="rounded-[7px] border border-black/8 bg-white/55 p-6 lg:p-8"
       >
         <div
           class="grid gap-6 xl:grid-cols-[88px_minmax(0,1.02fr)_minmax(320px,0.98fr)]"
@@ -70,7 +70,7 @@
 
           <div class="grid gap-4 lg:grid-cols-2">
             <section
-              class="rounded-[26px] border border-black/8 bg-[#f7f2ea] p-5"
+              class="rounded-[7px] border border-black/8 bg-[#f7f2ea] p-5"
             >
               <p class="text-[11px] tracking-[0.28em] text-[#8c8580] uppercase">
                 我负责什么
@@ -83,7 +83,7 @@
             </section>
 
             <section
-              class="rounded-[26px] border border-black/8 bg-[#f7f2ea] p-5"
+              class="rounded-[7px] border border-black/8 bg-[#f7f2ea] p-5"
             >
               <p class="text-[11px] tracking-[0.28em] text-[#8c8580] uppercase">
                 说明了什么能力

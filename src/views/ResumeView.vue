@@ -1,5 +1,5 @@
 <template>
-  <section class="resume-page overflow-hidden rounded-[36px] border">
+  <section class="resume-page overflow-hidden rounded-[7px] border">
     <div
       class="sticky top-0 z-10 border-b border-[var(--resume-line)] bg-[rgba(243,238,229,0.9)] px-6 py-4 backdrop-blur lg:px-10"
     >
@@ -59,7 +59,7 @@
         </div>
 
         <div
-          class="rounded-[30px] border border-[var(--resume-line)] bg-[var(--resume-card)] p-5"
+          class="rounded-[7px] border border-[var(--resume-line)] bg-[var(--resume-card)] p-5"
         >
           <p
             class="text-xs tracking-[0.24em] text-[var(--resume-muted)] uppercase"
@@ -70,7 +70,7 @@
             <article
               v-for="item in profileSnapshot"
               :key="item.label"
-              class="rounded-[22px] border border-[var(--resume-line)] bg-[var(--resume-pane)] px-4 py-4"
+              class="rounded-[7px] border border-[var(--resume-line)] bg-[var(--resume-pane)] px-4 py-4"
             >
               <p
                 class="text-xs tracking-[0.22em] text-[var(--resume-muted)] uppercase"
@@ -92,7 +92,7 @@
         <article
           v-for="item in signatureStrengths"
           :key="item.title"
-          class="rounded-[28px] border border-[var(--resume-line)] bg-[var(--resume-card)] p-5"
+          class="rounded-[7px] border border-[var(--resume-line)] bg-[var(--resume-card)] p-5"
         >
           <p
             class="text-xs tracking-[0.24em] text-[var(--resume-muted)] uppercase"
@@ -112,7 +112,7 @@
     <div class="px-6 py-8 lg:px-10 lg:py-10">
       <div class="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
         <section
-          class="rounded-[32px] border border-[var(--resume-line)] bg-[var(--resume-card)] p-6 lg:p-7"
+          class="rounded-[7px] border border-[var(--resume-line)] bg-[var(--resume-card)] p-6 lg:p-7"
         >
           <p
             class="text-xs tracking-[0.24em] text-[var(--resume-muted)] uppercase"
@@ -127,7 +127,7 @@
             <article
               v-for="item in experienceTimeline"
               :key="item.phase"
-              class="rounded-[26px] border border-[var(--resume-line)] bg-[var(--resume-pane)] p-5"
+              class="rounded-[7px] border border-[var(--resume-line)] bg-[var(--resume-pane)] p-5"
             >
               <p
                 class="text-xs tracking-[0.22em] text-[var(--resume-muted)] uppercase"
@@ -146,7 +146,7 @@
                 <li
                   v-for="detail in item.details"
                   :key="detail"
-                  class="rounded-[18px] border border-[var(--resume-line)] bg-[var(--resume-paper)] px-4 py-3"
+                  class="rounded-[7px] border border-[var(--resume-line)] bg-[var(--resume-paper)] px-4 py-3"
                 >
                   {{ detail }}
                 </li>
@@ -156,7 +156,7 @@
         </section>
 
         <section
-          class="rounded-[32px] border border-[var(--resume-line)] bg-[var(--resume-pane)] p-6 lg:p-7"
+          class="rounded-[7px] border border-[var(--resume-line)] bg-[var(--resume-pane)] p-6 lg:p-7"
         >
           <p
             class="text-xs tracking-[0.24em] text-[var(--resume-muted)] uppercase"
@@ -171,7 +171,7 @@
             <article
               v-for="item in capabilityMatrix"
               :key="item.title"
-              class="rounded-[24px] border border-[var(--resume-line)] bg-[var(--resume-paper)] p-5"
+              class="rounded-[7px] border border-[var(--resume-line)] bg-[var(--resume-paper)] p-5"
             >
               <h3 class="text-xl font-semibold text-[var(--resume-title)]">
                 {{ item.title }}
@@ -195,7 +195,7 @@
 
       <div class="mt-10 grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_360px]">
         <section
-          class="rounded-[32px] border border-[var(--resume-line)] bg-[var(--resume-card)] p-6 lg:p-7"
+          class="rounded-[7px] border border-[var(--resume-line)] bg-[var(--resume-card)] p-6 lg:p-7"
         >
           <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -219,7 +219,7 @@
             <article
               v-for="item in selectedWorks"
               :key="item.title"
-              class="rounded-[26px] border border-[var(--resume-line)] bg-[var(--resume-pane)] p-5"
+              class="rounded-[7px] border border-[var(--resume-line)] bg-[var(--resume-pane)] p-5"
             >
               <div class="flex flex-wrap items-center justify-between gap-3">
                 <h3 class="text-xl font-semibold text-[var(--resume-title)]">
@@ -244,7 +244,7 @@
         </section>
 
         <section
-          class="rounded-[32px] border border-[var(--resume-line-strong)] bg-[var(--resume-ink)] p-6 text-[var(--resume-paper)] lg:p-7"
+          class="rounded-[7px] border border-[var(--resume-line-strong)] bg-[var(--resume-ink)] p-6 text-[var(--resume-paper)] lg:p-7"
         >
           <p class="text-xs tracking-[0.24em] text-[#b8bebf] uppercase">
             Collaboration Style
@@ -257,7 +257,7 @@
             <article
               v-for="item in collaborationStyle"
               :key="item.title"
-              class="rounded-[24px] border border-white/8 bg-white/5 p-4"
+              class="rounded-[7px] border border-white/8 bg-white/5 p-4"
             >
               <h3 class="text-lg font-semibold text-[var(--resume-paper)]">
                 {{ item.title }}

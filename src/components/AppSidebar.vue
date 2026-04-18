@@ -4,7 +4,7 @@
       <RouterLink to="/dashboard" class="block" @click="emit('navigate')">
         <div class="flex items-start gap-4">
           <div
-            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-[18px] bg-[linear-gradient(145deg,#f4ead6,#cdb18a)] text-sm font-semibold text-[#16191f]"
+            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-[7px] bg-[linear-gradient(145deg,#f4ead6,#cdb18a)] text-sm font-semibold text-[#16191f]"
           >
             LN
           </div>
@@ -29,7 +29,7 @@
         <div
           v-for="item in profileSummary"
           :key="item.label"
-          class="rounded-[22px] border border-white/8 bg-white/[0.04] px-4 py-4"
+          class="rounded-[7px] border border-white/8 bg-white/[0.04] px-4 py-4"
         >
           <p class="text-[11px] tracking-[0.28em] text-[#8d95a1] uppercase">
             {{ item.label }}
