@@ -28,9 +28,9 @@
         class="fixed inset-0 z-50 bg-[rgba(16,19,24,0.42)] p-3 backdrop-blur-sm lg:hidden"
       >
         <div
-          class="ml-auto flex h-full max-w-[360px] flex-col rounded-[34px] border border-white/10 bg-[#171b21] text-[#f5f0e9] shadow-[0_28px_60px_rgba(7,10,15,0.32)]"
+          class="ml-auto flex h-full max-w-[344px] flex-col gap-3 overflow-y-auto rounded-[34px] border border-white/10 bg-[#171b21] p-3 text-[#f5f0e9] shadow-[0_28px_60px_rgba(7,10,15,0.32)]"
         >
-          <div class="flex justify-end px-4 pt-4">
+          <div class="flex justify-end px-1 pt-1">
             <button
               type="button"
               class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white"
@@ -40,7 +40,8 @@
             </button>
           </div>
 
-          <AppSidebar :is-mobile="true" @navigate="mobileMenuVisible = false" />
+          <AppSidebar @navigate="mobileMenuVisible = false" />
+          <AppDirectoryPanel @navigate="mobileMenuVisible = false" />
         </div>
       </div>
     </transition>
@@ -53,14 +54,19 @@
       v-else
       class="relative mx-auto flex min-h-screen max-w-[1680px] gap-4 px-3 py-3 lg:gap-6 lg:px-6 lg:py-6"
     >
-      <aside class="hidden w-[350px] shrink-0 lg:block">
-        <div
-          class="sticky top-6 rounded-[38px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
-        >
-          <AppSidebar
-            :is-mobile="false"
-            @navigate="mobileMenuVisible = false"
-          />
+      <aside class="hidden w-[304px] shrink-0 lg:block">
+        <div class="sticky top-6 flex flex-col gap-4">
+          <div
+            class="rounded-[34px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
+          >
+            <AppSidebar />
+          </div>
+
+          <div
+            class="rounded-[34px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
+          >
+            <AppDirectoryPanel />
+          </div>
         </div>
       </aside>
 
@@ -81,6 +87,7 @@
 import { Close, Menu } from '@element-plus/icons-vue';
 import { computed, ref, watch } from 'vue';
 import { RouterView, useRoute } from 'vue-router';
+import AppDirectoryPanel from '@/components/AppDirectoryPanel.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
 
 const route = useRoute();
