@@ -1,96 +1,89 @@
 <template>
-  <section class="space-y-6">
-    <div class="grid gap-4 md:grid-cols-3">
+  <section class="space-y-14 text-[#23272d]">
+    <header class="border-b border-black/8 pb-10">
+      <p class="text-[11px] tracking-[0.34em] text-[#8d7557] uppercase">
+        Notes / Long-term View
+      </p>
+      <div class="mt-4 grid gap-8 xl:grid-cols-[minmax(0,1.18fr)_320px]">
+        <div>
+          <h1
+            class="max-w-4xl text-4xl leading-[1.12] font-semibold text-[#171b21] lg:text-6xl"
+          >
+            观察笔记不是资讯汇总，而是站长长期有效的判断集。
+          </h1>
+          <p class="mt-6 max-w-3xl text-base leading-8 text-[#5f6772]">
+            好的个人站点不只是展示“做了什么”，还应该展示“怎么想”。这里保留那些不依赖一时热度、但会持续影响产品和工程质量的判断。
+          </p>
+        </div>
+
+        <aside class="rounded-[30px] border border-black/8 bg-white/55 p-6">
+          <p class="text-[11px] tracking-[0.28em] text-[#8c8580] uppercase">
+            Summary
+          </p>
+          <div class="mt-5 grid gap-3">
+            <article
+              v-for="item in headlineMetrics"
+              :key="item.label"
+              class="rounded-[22px] border border-black/8 bg-[#f7f2ea] px-4 py-4"
+            >
+              <p class="text-[11px] tracking-[0.26em] text-[#8c8580] uppercase">
+                {{ item.label }}
+              </p>
+              <p class="mt-2 text-lg font-semibold text-[#171b21]">
+                {{ item.value }}
+              </p>
+              <p class="mt-2 text-sm leading-6 text-[#5f6772]">
+                {{ item.detail }}
+              </p>
+            </article>
+          </div>
+        </aside>
+      </div>
+    </header>
+
+    <div class="space-y-8">
       <article
-        v-for="item in headlineMetrics"
-        :key="item.label"
-        class="stat-card rounded-[28px] px-5 py-5"
+        v-for="item in noteDeck"
+        :key="item.title"
+        class="rounded-[34px] border border-black/8 bg-white/55 p-6 lg:p-8"
       >
-        <p class="text-xs tracking-[0.25em] text-slate-500 uppercase">
-          {{ item.label }}
-        </p>
-        <p class="mt-3 text-3xl font-semibold text-white">{{ item.value }}</p>
-        <p class="mt-3 text-sm leading-6 text-[#e4d6bd]">{{ item.detail }}</p>
+        <div class="grid gap-5 xl:grid-cols-[140px_minmax(0,1fr)_280px]">
+          <p class="text-sm text-[#8b7557]">{{ item.tag }}</p>
+
+          <div>
+            <h2 class="text-3xl font-semibold text-[#171b21]">
+              {{ item.title }}
+            </h2>
+            <p class="mt-4 text-sm leading-8 text-[#5f6772]">
+              {{ item.summary }}
+            </p>
+          </div>
+
+          <div
+            class="rounded-[24px] border border-black/8 bg-[#171b21] p-5 text-[#f4efe7]"
+          >
+            <p class="text-[11px] tracking-[0.28em] text-[#cdb18a] uppercase">
+              结论
+            </p>
+            <p class="mt-4 text-sm leading-7 text-[#d8dde4]">
+              {{ item.conclusion }}
+            </p>
+          </div>
+        </div>
       </article>
     </div>
 
-    <div class="surface-panel rounded-[32px] p-6 lg:p-7">
-      <div class="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p class="text-xs tracking-[0.28em] text-[#d6c1a0] uppercase">
-            Notes & Signals
-          </p>
-          <h2 class="mt-2 text-3xl font-semibold text-white">观察笔记</h2>
-          <p class="mt-3 max-w-3xl text-sm leading-7 text-slate-300">
-            这里记录的不是新闻摘要，而是长期成立的判断。好的技术站点应该有自己的观点系统，否则再漂亮也只是一层皮。
-          </p>
-        </div>
-        <span
-          class="rounded-full border border-[#d6c1a0]/20 bg-[#d6c1a0]/10 px-3 py-1 text-xs text-[#eadfc9]"
-        >
-          Long-term View
-        </span>
-      </div>
-
-      <div class="mt-6 grid gap-4">
-        <article
-          v-for="item in noteDeck"
-          :key="item.title"
-          class="rounded-[28px] border border-white/8 bg-[rgba(255,255,255,0.03)] p-5"
-        >
-          <div class="flex flex-wrap items-center justify-between gap-3">
-            <h3 class="text-xl font-semibold text-white">{{ item.title }}</h3>
-            <span
-              class="rounded-full border border-white/8 bg-white/5 px-3 py-1 text-xs text-slate-300"
-            >
-              {{ item.tag }}
-            </span>
-          </div>
-          <p class="mt-3 text-sm leading-7 text-slate-300">
-            {{ item.summary }}
-          </p>
-          <p class="mt-4 text-sm leading-7 text-[#e4d6bd]">
-            结论：{{ item.conclusion }}
-          </p>
-        </article>
-      </div>
-    </div>
-
-    <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-      <div class="surface-panel rounded-[32px] p-6 lg:p-7">
-        <p class="text-xs tracking-[0.28em] text-[#d6c1a0] uppercase">
-          Opinion Stack
+    <div class="grid gap-8 border-t border-black/8 pt-12 xl:grid-cols-3">
+      <article
+        v-for="item in opinionStack"
+        :key="item.title"
+        class="rounded-[30px] border border-black/8 bg-white/50 p-6"
+      >
+        <h2 class="text-2xl font-semibold text-[#171b21]">{{ item.title }}</h2>
+        <p class="mt-4 text-sm leading-7 text-[#5f6772]">
+          {{ item.description }}
         </p>
-        <h3 class="mt-2 text-2xl font-semibold text-white">核心立场</h3>
-
-        <div class="mt-6 grid gap-4 lg:grid-cols-3">
-          <article
-            v-for="item in opinionStack"
-            :key="item.title"
-            class="rounded-[26px] border border-white/8 bg-white/[0.04] p-5"
-          >
-            <h4 class="text-lg font-semibold text-white">{{ item.title }}</h4>
-            <p class="mt-3 text-sm leading-7 text-slate-300">
-              {{ item.description }}
-            </p>
-          </article>
-        </div>
-      </div>
-
-      <div class="surface-panel rounded-[32px] p-6">
-        <p class="text-xs tracking-[0.28em] text-[#d6c1a0] uppercase">
-          Tone Guide
-        </p>
-        <div class="mt-5 space-y-3">
-          <article
-            v-for="item in toneGuide"
-            :key="item"
-            class="rounded-[24px] border border-white/8 bg-white/[0.04] px-4 py-4 text-sm leading-6 text-slate-300"
-          >
-            {{ item }}
-          </article>
-        </div>
-      </div>
+      </article>
     </div>
   </section>
 </template>
@@ -99,73 +92,67 @@
 const headlineMetrics = [
   {
     label: '长期关注',
-    value: '04',
-    detail: '架构、全栈、AI 产品、交付方法',
+    value: '架构 / 全栈 / AI / 交付',
+    detail: '不追单点热点，而是追踪会持续影响技术职业价值的方向。',
   },
   {
-    label: '内容立场',
-    value: '判断优先',
-    detail: '不迷信概念表演，更看重边界、取舍与结果。',
+    label: '内容语气',
+    value: '克制，但有锋芒',
+    detail: '保持明确立场，同时避免流于营销话术和空洞判断。',
   },
   {
-    label: '站点语气',
-    value: '克制但锋利',
-    detail: '保持审美与表达密度，不做浮夸包装。',
+    label: '站点目标',
+    value: '建立职业信誉',
+    detail: '让读者能从观点、作品和结构中感受到站长真正的水平。',
   },
 ];
 
 const noteDeck = [
   {
-    title: 'AI 提高了“系统设计能力”的含金量',
+    title: 'AI 提升了系统设计能力的含金量',
     tag: 'AI + Engineering',
     summary:
-      '越是能被模型自动补全的实现细节，越说明真正稀缺的是结构化思考、模块切分和工作流设计。',
+      '当实现本身越来越容易被模型加速时，真正稀缺的能力会回到结构判断、模块切分、工作流设计和质量控制。',
     conclusion:
-      '未来真正值钱的不是“写得快”，而是能定义系统、约束系统并让团队稳定协作。',
+      '以后更值钱的不是“写得快”，而是能定义系统、约束系统并让团队稳定协作的人。',
   },
   {
-    title: '全栈不是“前后端都沾一点”',
+    title: '全栈不是多知道几个技术名词',
     tag: 'Fullstack',
     summary:
-      '全栈的关键在于你能不能独立负责完整交付链路，而不是知道几个框架的名字。',
+      '全栈真正的难点不在于“学了前后端”，而在于是否能独立串起服务、数据、前台、部署与维护的完整链路。',
     conclusion:
-      '如果没有数据、服务、部署和协作视角，只能算扩展型前端，不能算完整全栈。',
+      '没有完整交付视角的“全栈”，大多只是知识覆盖变宽了，不等于能力成型。',
   },
   {
-    title: '好的技术写作，本质上是建模能力',
+    title: '好技术写作本质上是高级建模',
     tag: 'Writing',
     summary:
-      '真正有价值的文章不是把概念堆起来，而是给读者一个可以迁移的问题框架。',
-    conclusion: '一个强技术站长，写作应该能反映其系统能力，而不只是阅读量。',
+      '真正值得看的文章，会把一个复杂问题的关键变量抽出来，让读者以后遇到类似场景也知道怎么处理。',
+    conclusion:
+      '强站长写文章，不是为了收藏量，而是为了让自己的系统思维被别人感知到。',
   },
   {
-    title: '界面高级感来自秩序，不来自特效堆砌',
+    title: '高级感来自秩序，不来自模块堆砌',
     tag: 'Design + Product',
     summary:
-      '很多技术站点看起来“很努力”，但仍然显得廉价，根本原因是缺少节奏、留白和层级控制。',
-    conclusion:
-      '越想显得专业，越要控制颜色、动效和信息密度，而不是拼命加模块。',
+      '页面显得廉价，往往不是因为颜色错了，而是因为信息堆太满、层次混乱、重点不明确。',
+    conclusion: '真正成熟的界面会知道该删什么，而不是不断往上加东西。',
   },
 ];
 
 const opinionStack = [
   {
-    title: '先组织信息，再组织页面',
-    description: '站点和产品都一样，信息结构先决定上限，视觉只是放大器。',
+    title: '先组织信息，再组织界面',
+    description: '界面只是载体，真正决定上限的是信息怎么被切分、连接和导航。',
   },
   {
-    title: '会写是能力，会删更是能力',
-    description: '真正成熟的产品表达，往往来自删掉不必要的模块和噪音。',
+    title: '写得少但准，比写得多更能证明能力',
+    description: '一个判断明确、结构清楚的专题，往往比十篇流水账更有说服力。',
   },
   {
-    title: '技术深度要能转化为职业信誉',
-    description: '博客、简历、作品和观察必须连成一体，才能形成真正的个人品牌。',
+    title: '作品、观点、简历必须互相印证',
+    description: '只有这些内容彼此支持，个人站点才会真正像一个专业人士的主场。',
   },
-];
-
-const toneGuide = [
-  '保持明确观点，但不用营销式夸张语气。',
-  '让每条观察都能回到真实项目和交付场景。',
-  '写得克制一点，反而更容易显出底层判断力。',
 ];
 </script>

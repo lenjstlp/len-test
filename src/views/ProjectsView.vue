@@ -1,41 +1,59 @@
 <template>
-  <section class="space-y-6">
-    <div class="surface-panel rounded-[32px] p-6 lg:p-7">
-      <div class="flex flex-wrap items-end justify-between gap-4">
+  <section class="space-y-14 text-[#23272d]">
+    <header class="border-b border-black/8 pb-10">
+      <p class="text-[11px] tracking-[0.34em] text-[#8d7557] uppercase">
+        Selected Work
+      </p>
+      <div class="mt-4 grid gap-8 xl:grid-cols-[minmax(0,1.16fr)_320px]">
         <div>
-          <p class="text-xs tracking-[0.28em] text-[#d6c1a0] uppercase">
-            Portfolio Selection
-          </p>
-          <h2 class="mt-2 text-3xl font-semibold text-white">项目档案</h2>
-          <p class="mt-3 max-w-3xl text-sm leading-7 text-slate-300">
-            这里不做流水账式项目列表，而是精选能体现系统能力、产品判断和实现质量的项目方向。重点不是数量，而是能否证明站长能从结构、交互到工程交付全部接住。
+          <h1
+            class="max-w-4xl text-4xl leading-[1.12] font-semibold text-[#171b21] lg:text-6xl"
+          >
+            项目档案不应该像需求表，而应该像一份能证明站长水平的作品册。
+          </h1>
+          <p class="mt-6 max-w-3xl text-base leading-8 text-[#5f6772]">
+            所以这里只保留真正能代表方法、结构和审美的项目方向。它们不只是“做过”，更重要的是能说明站长有能力从信息组织、交互体验到工程落地全部接住。
           </p>
         </div>
-        <span
-          class="rounded-full border border-[#d6c1a0]/20 bg-[#d6c1a0]/10 px-3 py-1 text-xs text-[#eadfc9]"
-        >
-          Selected Works
-        </span>
-      </div>
-    </div>
 
-    <div class="grid gap-6">
+        <aside
+          class="rounded-[30px] border border-black/8 bg-[#171b21] p-6 text-[#f4efe7]"
+        >
+          <p class="text-[11px] tracking-[0.28em] text-[#cdb18a] uppercase">
+            Work Method
+          </p>
+          <div class="mt-5 space-y-4">
+            <article
+              v-for="item in workMethod"
+              :key="item.title"
+              class="border-b border-white/10 pb-4 last:border-b-0 last:pb-0"
+            >
+              <h2 class="text-base font-semibold">{{ item.title }}</h2>
+              <p class="mt-2 text-sm leading-7 text-[#c3c9d2]">
+                {{ item.description }}
+              </p>
+            </article>
+          </div>
+        </aside>
+      </div>
+    </header>
+
+    <div class="space-y-10">
       <article
         v-for="project in projectArchives"
         :key="project.title"
-        class="surface-panel rounded-[32px] p-6 lg:p-7"
+        class="rounded-[34px] border border-black/8 bg-white/55 p-6 lg:p-8"
       >
         <div
-          class="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]"
+          class="grid gap-6 xl:grid-cols-[88px_minmax(0,1.02fr)_minmax(320px,0.98fr)]"
         >
+          <p class="text-sm text-[#8b7557]">{{ project.eyebrow }}</p>
+
           <div>
-            <p class="text-xs tracking-[0.24em] text-[#d6c1a0] uppercase">
-              {{ project.eyebrow }}
-            </p>
-            <h3 class="mt-3 text-2xl font-semibold text-white">
+            <h2 class="text-3xl font-semibold text-[#171b21]">
               {{ project.title }}
-            </h3>
-            <p class="mt-4 text-sm leading-7 text-slate-300">
+            </h2>
+            <p class="mt-4 text-sm leading-8 text-[#5f6772]">
               {{ project.summary }}
             </p>
 
@@ -43,7 +61,7 @@
               <span
                 v-for="tag in project.tags"
                 :key="tag"
-                class="rounded-full border border-white/8 bg-white/[0.04] px-3 py-2 text-xs text-slate-300"
+                class="rounded-full border border-black/10 bg-white/70 px-3 py-2 text-xs text-[#5f6772]"
               >
                 {{ tag }}
               </span>
@@ -52,34 +70,26 @@
 
           <div class="grid gap-4 lg:grid-cols-2">
             <section
-              class="rounded-[26px] border border-white/8 bg-white/[0.04] p-5"
+              class="rounded-[26px] border border-black/8 bg-[#f7f2ea] p-5"
             >
-              <p class="text-xs tracking-[0.24em] text-slate-500 uppercase">
+              <p class="text-[11px] tracking-[0.28em] text-[#8c8580] uppercase">
                 我负责什么
               </p>
-              <ul class="mt-4 space-y-3 text-sm leading-7 text-slate-300">
-                <li
-                  v-for="item in project.ownership"
-                  :key="item"
-                  class="rounded-[18px] border border-white/8 bg-[rgba(255,255,255,0.03)] px-4 py-3"
-                >
+              <ul class="mt-4 space-y-3 text-sm leading-7 text-[#5f6772]">
+                <li v-for="item in project.ownership" :key="item">
                   {{ item }}
                 </li>
               </ul>
             </section>
 
             <section
-              class="rounded-[26px] border border-white/8 bg-white/[0.04] p-5"
+              class="rounded-[26px] border border-black/8 bg-[#f7f2ea] p-5"
             >
-              <p class="text-xs tracking-[0.24em] text-slate-500 uppercase">
-                体现出的能力
+              <p class="text-[11px] tracking-[0.28em] text-[#8c8580] uppercase">
+                说明了什么能力
               </p>
-              <ul class="mt-4 space-y-3 text-sm leading-7 text-slate-300">
-                <li
-                  v-for="item in project.signals"
-                  :key="item"
-                  class="rounded-[18px] border border-white/8 bg-[rgba(255,255,255,0.03)] px-4 py-3"
-                >
+              <ul class="mt-4 space-y-3 text-sm leading-7 text-[#5f6772]">
+                <li v-for="item in project.signals" :key="item">
                   {{ item }}
                 </li>
               </ul>
@@ -88,121 +98,76 @@
         </div>
       </article>
     </div>
-
-    <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-      <div class="surface-panel rounded-[32px] p-6 lg:p-7">
-        <p class="text-xs tracking-[0.28em] text-[#d6c1a0] uppercase">
-          Working Style
-        </p>
-        <h3 class="mt-2 text-2xl font-semibold text-white">做项目的方式</h3>
-
-        <div class="mt-6 grid gap-4 lg:grid-cols-3">
-          <article
-            v-for="item in workingStyle"
-            :key="item.title"
-            class="rounded-[26px] border border-white/8 bg-white/[0.04] p-5"
-          >
-            <h4 class="text-lg font-semibold text-white">{{ item.title }}</h4>
-            <p class="mt-3 text-sm leading-7 text-slate-300">
-              {{ item.description }}
-            </p>
-          </article>
-        </div>
-      </div>
-
-      <div class="surface-panel rounded-[32px] p-6">
-        <p class="text-xs tracking-[0.28em] text-[#d6c1a0] uppercase">
-          Delivery Habits
-        </p>
-        <div class="mt-5 space-y-3">
-          <article
-            v-for="item in deliveryHabits"
-            :key="item"
-            class="rounded-[24px] border border-white/8 bg-white/[0.04] px-4 py-4 text-sm leading-6 text-slate-300"
-          >
-            {{ item }}
-          </article>
-        </div>
-      </div>
-    </div>
   </section>
 </template>
 
 <script setup lang="ts">
 const projectArchives = [
   {
-    eyebrow: 'Project 01',
+    eyebrow: '01',
     title: '知识型技术博客系统',
     summary:
-      '把学习内容、作品展示、路由权限和站点气质统一到一个项目里，让博客本身就是个人能力的最佳演示。',
-    tags: ['Vue 3', 'Content Architecture', 'Personal Branding'],
+      '把学习模块、简历、专题栏目、路由组织和视觉语言统一成一个个人品牌站点，让博客本身成为最有说服力的作品。',
+    tags: ['Vue 3', 'Information Architecture', 'Brand System'],
     ownership: [
-      '重做整体信息结构，让菜单与路由直接映射真实内容分层。',
-      '将普通学习页提升为专题栏目，形成可持续扩展的知识系统。',
-      '把主页、简历、栏目、作品与观察组合成一个完整的技术作者站点。',
+      '重构站点骨架，摆脱后台式承载方式，改成作者主页 + 内容画布。',
+      '把菜单入口变成栏目系统，让内容结构本身具备可阅读性和表达力。',
+      '统一简历、专题、作品与观察，形成完整的职业展示链路。',
     ],
     signals: [
-      '不仅会搭页面，还能定义站点定位和叙事方式。',
-      '懂得用结构和视觉共同建立专业可信度。',
-      '能把“内容系统”设计成产品，而不只是静态页面集合。',
+      '能做的不只是页面，而是整套信息结构和叙事方式。',
+      '理解个人品牌站点如何通过内容与设计共同建立可信度。',
+      '会把“知识内容”做成可持续演进的产品系统。',
     ],
   },
   {
-    eyebrow: 'Project 02',
-    title: '智能交互前台探索',
+    eyebrow: '02',
+    title: '全球留言地球交互页',
     summary:
-      '通过地球留言等可视化页面，验证 AI 时代交互产品如何兼顾性能、表达力和信息组织。',
-    tags: ['Canvas / WebGL Thinking', 'Interaction', 'Performance'],
+      '围绕地球仪、头像点位、缩放分层和 tip 展示规则构建互动作品，让视觉表达和性能控制同时成立。',
+    tags: ['Interactive Frontend', 'Performance', 'Visual Storytelling'],
     ownership: [
-      '设计支持缩放、旋转、分层展示的交互逻辑。',
-      '平衡视觉表达与渲染性能，控制同屏展示数量。',
-      '让互动组件服务于叙事，而不是只做技术炫技。',
+      '设计缩放、旋转、优先级展示与留言切换的核心交互规则。',
+      '平衡视觉表现、数据数量和浏览流畅度，避免只炫技不落地。',
+      '让互动效果服务内容叙事，而不是脱离上下文单独存在。',
     ],
     signals: [
-      '能做不落俗套的可视化交互体验。',
-      '理解性能约束下的信息可视化组织。',
-      '具备 AI 产品前台所需的界面判断和实现能力。',
+      '能做复杂且不落俗套的前端体验。',
+      '理解性能约束下的信息分层与视觉组织。',
+      '具备 AI 时代互动前台所需的产品感与实现判断。',
     ],
   },
   {
-    eyebrow: 'Project 03',
-    title: '全栈能力地图构建',
+    eyebrow: '03',
+    title: '前端架构与全栈能力地图',
     summary:
-      '用专题页面把前端、服务端、数据库、交付与协作能力拆成清晰模块，帮助读者理解真正的全栈边界。',
-    tags: ['Fullstack', 'System Design', 'Developer Education'],
+      '将原本容易写成流水账的学习主题，拆成明确能力域和升级路径，帮助读者理解“掌握后能干什么”。',
+    tags: ['Architecture', 'Fullstack', 'Technical Writing'],
     ownership: [
-      '拆分能力域，并给出每一层对应的责任范围和升级方向。',
-      '梳理语言路线和框架定位，避免“样样都会一点”的伪全栈叙述。',
-      '把长期学习内容做成能指导职业升级的结构化产品。',
+      '把抽象知识做成结构清晰、可导航、可长期更新的专题内容。',
+      '用职责、边界和交付结果组织技术，而不是罗列名词。',
+      '通过内容产品化建立站长在技术判断上的说服力。',
     ],
     signals: [
-      '能把复杂知识体系整理成易于执行的路线图。',
-      '兼顾技术深度与表达清晰度。',
-      '具备技术内容产品化的能力。',
+      '会把复杂知识整理成可以执行的方法论。',
+      '技术表达能力足够支撑长期写作与专业形象。',
+      '能把学习内容升级为真正的内容产品。',
     ],
   },
 ];
 
-const workingStyle = [
+const workMethod = [
   {
-    title: '先定结构，再定实现',
-    description: '先把边界和信息组织想清楚，再进入编码，这样项目不会越做越散。',
+    title: '先判断结构，再进入实现',
+    description: '先想清楚层级、关系和边界，代码阶段才不会越写越散。',
   },
   {
-    title: '先做关键路径，再做锦上添花',
-    description:
-      '优先打通真正影响体验和交付的链路，避免把时间耗在低价值装饰上。',
+    title: '先做关键路径，再做装饰',
+    description: '优先解决影响最终体验和交付的链路，而不是先堆低价值模块。',
   },
   {
-    title: '把工程质量当成产品质量的一部分',
-    description:
-      '代码结构、命名、路由组织和可扩展性，本身就是最终体验的一部分。',
+    title: '把职业感当作质量的一部分',
+    description: '代码、界面、信息组织和叙事方式，都应该共同指向专业感。',
   },
-];
-
-const deliveryHabits = [
-  '会主动把需求抽象成模块与规则，而不是只等任务拆好再做。',
-  '会关心设计、内容和工程之间是否统一，而不是只关注局部代码。',
-  '会把能复用的模式沉淀下来，让项目越往后越稳定，而不是越做越乱。',
 ];
 </script>

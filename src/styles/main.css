@@ -6,19 +6,23 @@
     'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #e8edf3;
+  color: #23272d;
   background:
-    radial-gradient(circle at top, rgba(188, 164, 120, 0.12), transparent 24%),
     radial-gradient(
-      circle at right top,
-      rgba(93, 119, 146, 0.2),
+      circle at top left,
+      rgba(255, 255, 255, 0.46),
       transparent 26%
     ),
-    linear-gradient(180deg, #090d13 0%, #101722 52%, #121a24 100%);
+    radial-gradient(
+      circle at right top,
+      rgba(126, 108, 82, 0.1),
+      transparent 24%
+    ),
+    linear-gradient(180deg, #e9e0d2 0%, #e4d8c8 100%);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 * {
@@ -61,13 +65,13 @@ select {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(36, 40, 46, 0.04);
 }
 
 ::-webkit-scrollbar-thumb {
   border: 2px solid transparent;
   border-radius: 999px;
-  background: rgba(214, 193, 160, 0.24);
+  background: rgba(113, 93, 64, 0.22);
   background-clip: padding-box;
 }
 
@@ -75,10 +79,10 @@ select {
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: linear-gradient(
     180deg,
-    rgba(13, 18, 28, 0.9),
-    rgba(13, 18, 28, 0.72)
+    rgba(15, 20, 29, 0.94),
+    rgba(15, 20, 29, 0.76)
   );
-  box-shadow: 0 28px 64px rgba(3, 7, 18, 0.34);
+  box-shadow: 0 28px 64px rgba(3, 7, 18, 0.24);
   backdrop-filter: blur(18px);
 }
 
@@ -86,7 +90,7 @@ select {
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.07),
     rgba(255, 255, 255, 0.03)
   );
   backdrop-filter: blur(14px);

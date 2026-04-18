@@ -1,168 +1,99 @@
 <template>
   <div
-    class="h-screen overflow-hidden text-slate-100"
-    :class="
-      isStandaloneLayout
-        ? 'bg-[#f4efe7]'
-        : 'bg-[radial-gradient(circle_at_top,#31485d_0%,#121922_32%,#090d13_100%)]'
-    "
+    class="min-h-screen"
+    :class="isStandaloneLayout ? 'bg-[#ede5d7]' : 'bg-[#e6ddcf]'"
   >
-    <div v-if="isStandaloneLayout" class="h-screen overflow-y-auto p-3 lg:p-5">
+    <div
+      class="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.36),transparent_28%),radial-gradient(circle_at_70%_0%,rgba(120,103,77,0.08),transparent_24%),linear-gradient(180deg,rgba(255,255,255,0.18),transparent_36%)]"
+    />
+
+    <button
+      type="button"
+      class="fixed top-4 right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-black/8 bg-[#16191f] text-[#f4efe7] shadow-[0_16px_32px_rgba(15,18,24,0.18)] backdrop-blur lg:hidden"
+      @click="mobileMenuVisible = true"
+    >
+      <el-icon :size="20"><Menu /></el-icon>
+    </button>
+
+    <transition
+      enter-active-class="transition duration-200 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition duration-150 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="mobileMenuVisible && !isStandaloneLayout"
+        class="fixed inset-0 z-50 bg-[rgba(16,19,24,0.42)] p-3 backdrop-blur-sm lg:hidden"
+      >
+        <div
+          class="ml-auto flex h-full max-w-[360px] flex-col rounded-[34px] border border-white/10 bg-[#171b21] text-[#f5f0e9] shadow-[0_28px_60px_rgba(7,10,15,0.32)]"
+        >
+          <div class="flex justify-end px-4 pt-4">
+            <button
+              type="button"
+              class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white"
+              @click="mobileMenuVisible = false"
+            >
+              <el-icon :size="18"><Close /></el-icon>
+            </button>
+          </div>
+
+          <AppSidebar :is-mobile="true" @navigate="mobileMenuVisible = false" />
+        </div>
+      </div>
+    </transition>
+
+    <div v-if="isStandaloneLayout" class="relative px-3 py-3 lg:px-5 lg:py-5">
       <RouterView />
     </div>
 
-    <div v-else class="flex h-screen overflow-hidden">
-      <aside
-        class="hidden h-screen shrink-0 overflow-hidden border-r border-white/8 bg-[rgba(7,10,16,0.72)] backdrop-blur-xl lg:block"
-        :class="sidebarCollapsed ? 'w-[92px]' : 'w-[292px]'"
-      >
-        <AppSidebar :collapsed="sidebarCollapsed" :is-mobile="false" />
+    <div
+      v-else
+      class="relative mx-auto flex min-h-screen max-w-[1680px] gap-4 px-3 py-3 lg:gap-6 lg:px-6 lg:py-6"
+    >
+      <aside class="hidden w-[350px] shrink-0 lg:block">
+        <div
+          class="sticky top-6 rounded-[38px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
+        >
+          <AppSidebar
+            :is-mobile="false"
+            @navigate="mobileMenuVisible = false"
+          />
+        </div>
       </aside>
 
-      <el-drawer
-        v-model="mobileDrawerVisible"
-        :with-header="false"
-        direction="ltr"
-        size="292px"
-        class="lg:!hidden"
-      >
-        <AppSidebar
-          :collapsed="false"
-          :is-mobile="true"
-          @navigate="mobileDrawerVisible = false"
-        />
-      </el-drawer>
-
-      <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <header
-          class="shrink-0 border-b border-white/8 bg-[rgba(8,11,16,0.35)] backdrop-blur-xl"
+      <main class="min-w-0 flex-1">
+        <div
+          class="overflow-hidden rounded-[42px] border border-black/6 bg-[linear-gradient(180deg,rgba(249,245,238,0.96),rgba(244,238,228,0.98))] shadow-[0_32px_80px_rgba(56,45,30,0.12)]"
         >
-          <div
-            class="flex items-center justify-between gap-4 px-4 py-4 lg:px-8"
-          >
-            <div class="flex min-w-0 items-center gap-3">
-              <el-button
-                circle
-                class="!border-white/8 !bg-white/5 !text-slate-100 hover:!bg-white/10"
-                @click="handleMenuToggle"
-              >
-                <el-icon><component :is="menuToggleIcon" /></el-icon>
-              </el-button>
-
-              <div class="min-w-0">
-                <p
-                  class="text-[11px] tracking-[0.34em] text-[#d2c3a3] uppercase"
-                >
-                  LEN / SYSTEMS JOURNAL
-                </p>
-                <h1 class="truncate text-xl font-semibold text-white">
-                  {{ pageTitle }}
-                </h1>
-              </div>
-            </div>
-
-            <div class="hidden max-w-[420px] items-center gap-3 md:flex">
-              <div
-                class="w-full rounded-[22px] border border-white/8 bg-white/[0.04] px-4 py-3 text-right"
-              >
-                <p
-                  class="text-[11px] tracking-[0.28em] text-slate-500 uppercase"
-                >
-                  Current Focus
-                </p>
-                <p class="mt-1 text-sm leading-6 text-slate-200">
-                  {{ pageDescription }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <main
-          class="flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-4 lg:px-8 lg:py-6"
-        >
-          <div
-            class="mb-6 flex shrink-0 flex-wrap items-center gap-2 rounded-[24px] border border-white/8 bg-white/[0.04] px-4 py-3 text-sm text-slate-300"
-          >
-            <span
-              v-for="item in breadcrumbItems"
-              :key="item"
-              class="rounded-full border border-white/8 bg-[rgba(255,255,255,0.04)] px-3 py-1"
-            >
-              {{ item }}
-            </span>
-          </div>
-
-          <div class="min-h-0 flex-1 overflow-y-auto pr-1 pb-2">
+          <div class="px-4 py-6 lg:px-10 lg:py-10">
             <RouterView />
           </div>
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Expand, Fold, Menu as MenuIcon } from '@element-plus/icons-vue';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import { Close, Menu } from '@element-plus/icons-vue';
+import { computed, ref, watch } from 'vue';
 import { RouterView, useRoute } from 'vue-router';
 import AppSidebar from '@/components/AppSidebar.vue';
 
 const route = useRoute();
-const sidebarCollapsed = ref(false);
-const mobileDrawerVisible = ref(false);
-const isMobile = ref(false);
+const mobileMenuVisible = ref(false);
 
 const isStandaloneLayout = computed(() =>
   route.matched.some((matchedRoute) => matchedRoute.meta.standaloneLayout),
 );
-const pageTitle = computed(() => (route.meta.title as string) ?? 'LEN / BLOG');
-const pageDescription = computed(
-  () =>
-    (route.meta.description as string) ??
-    '围绕前端架构、全栈工程与 AI 产品交互持续写作。',
+
+watch(
+  () => route.fullPath,
+  () => {
+    mobileMenuVisible.value = false;
+  },
 );
-const breadcrumbItems = computed(() =>
-  route.matched
-    .map((matchedRoute) => matchedRoute.meta.title as string | undefined)
-    .filter((title): title is string => Boolean(title)),
-);
-const menuToggleIcon = computed(() => {
-  if (isMobile.value) {
-    return MenuIcon;
-  }
-
-  return sidebarCollapsed.value ? Expand : Fold;
-});
-
-let removeViewportListener: (() => void) | undefined;
-
-onMounted(() => {
-  const mediaQuery = window.matchMedia('(max-width: 1024px)');
-  const handleViewportChange = (event?: MediaQueryListEvent) => {
-    isMobile.value = event?.matches ?? mediaQuery.matches;
-
-    if (!isMobile.value) {
-      mobileDrawerVisible.value = false;
-    }
-  };
-
-  handleViewportChange();
-  mediaQuery.addEventListener('change', handleViewportChange);
-  removeViewportListener = () =>
-    mediaQuery.removeEventListener('change', handleViewportChange);
-});
-
-onBeforeUnmount(() => {
-  removeViewportListener?.();
-});
-
-const handleMenuToggle = () => {
-  if (isMobile.value) {
-    mobileDrawerVisible.value = true;
-    return;
-  }
-
-  sidebarCollapsed.value = !sidebarCollapsed.value;
-};
 </script>
