@@ -1,20 +1,20 @@
 <template>
   <div class="flex h-full flex-col">
-    <div class="border-b border-white/10 px-4 py-5">
+    <div class="border-b border-white/8 px-4 py-5">
       <div class="flex items-center gap-3">
         <div
-          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-emerald-300 to-lime-200 text-sm font-bold text-slate-950"
+          class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[18px] bg-[linear-gradient(145deg,#f2e7cf,#d6c1a0)] text-sm font-bold text-slate-950 shadow-[0_12px_30px_rgba(8,11,16,0.3)]"
         >
-          LT
+          LN
         </div>
         <div v-if="!actualCollapsed" class="min-w-0">
           <p
             class="truncate text-sm font-semibold tracking-[0.24em] text-slate-100"
           >
-            LEN TEST
+            LEN / SYSTEMS JOURNAL
           </p>
           <p class="mt-1 text-xs leading-5 text-slate-400">
-            Admin starter with 2-level navigation
+            Frontend architecture, fullstack delivery, AI product thinking
           </p>
         </div>
       </div>
@@ -28,7 +28,7 @@
         :collapse="actualCollapsed"
         :collapse-transition="false"
         background-color="transparent"
-        text-color="#94a3b8"
+        text-color="#8b97a7"
         active-text-color="#f8fafc"
         class="sidebar-menu border-none"
         @select="handleSelect"
@@ -61,15 +61,15 @@
       </el-menu>
     </div>
 
-    <div v-if="!actualCollapsed" class="border-t border-white/10 px-4 py-4">
+    <div v-if="!actualCollapsed" class="border-t border-white/8 px-4 py-4">
       <div
-        class="rounded-2xl border border-cyan-400/10 bg-cyan-400/10 px-4 py-3"
+        class="rounded-[24px] border border-[#d6c1a0]/10 bg-[#d6c1a0]/8 px-4 py-4"
       >
-        <p class="text-xs tracking-[0.28em] text-cyan-300 uppercase">
-          Navigation Rule
+        <p class="text-[11px] tracking-[0.28em] text-[#d6c1a0] uppercase">
+          Editorial Note
         </p>
         <p class="mt-2 text-sm leading-6 text-slate-300">
-          当前导航限制为最多两级，避免菜单层级失控。
+          这里不是知识堆砌页，而是持续整理系统设计、工程判断与产品落地的方法论。
         </p>
       </div>
     </div>
@@ -129,27 +129,30 @@ const getMenuItemClass = (item: NavigationMenuGroup) =>
 
 .sidebar-menu:deep(.el-menu-item),
 .sidebar-menu:deep(.el-sub-menu__title) {
-  border-radius: 16px;
-  height: 48px;
-  margin-bottom: 6px;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  height: 50px;
+  margin-bottom: 8px;
 }
 
 .sidebar-menu:deep(.el-menu-item:hover),
 .sidebar-menu:deep(.el-sub-menu__title:hover) {
   background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.06);
 }
 
 .sidebar-menu:deep(.el-menu-item.is-active) {
   background: linear-gradient(
     135deg,
-    rgba(34, 211, 238, 0.22),
-    rgba(59, 130, 246, 0.18)
+    rgba(214, 193, 160, 0.18),
+    rgba(148, 163, 184, 0.12)
   );
+  border-color: rgba(214, 193, 160, 0.18);
 }
 
 .sidebar-menu:deep(.el-sub-menu .el-menu-item) {
   min-width: 0;
-  margin-left: 6px;
+  margin-left: 8px;
   padding-left: 44px !important;
 }
 </style>

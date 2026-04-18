@@ -8,6 +8,7 @@ import {
   Monitor,
   Reading,
   SetUp,
+  UserFilled,
 } from '@element-plus/icons-vue';
 import type { Component } from 'vue';
 import type { RouteRecordRaw } from 'vue-router';
@@ -21,7 +22,8 @@ type IconKey =
   | 'Location'
   | 'Monitor'
   | 'Reading'
-  | 'SetUp';
+  | 'SetUp'
+  | 'UserFilled';
 
 type ViewKey =
   | 'AgentGuideView'
@@ -33,6 +35,7 @@ type ViewKey =
   | 'NextjsGuideView'
   | 'ProjectsView'
   | 'PythonGuideView'
+  | 'ResumeView'
   | 'ReportsView'
   | 'WorkspaceView';
 
@@ -91,6 +94,7 @@ const iconMap: Record<IconKey, Component> = {
   Monitor,
   Reading,
   SetUp,
+  UserFilled,
 };
 
 const viewMap: Record<ViewKey, () => Promise<unknown>> = {
@@ -104,6 +108,7 @@ const viewMap: Record<ViewKey, () => Promise<unknown>> = {
   NextjsGuideView: () => import('@/views/NextjsGuideView.vue'),
   ProjectsView: () => import('@/views/ProjectsView.vue'),
   PythonGuideView: () => import('@/views/PythonGuideView.vue'),
+  ResumeView: () => import('@/views/ResumeView.vue'),
   ReportsView: () => import('@/views/ReportsView.vue'),
   WorkspaceView: () => import('@/views/WorkspaceView.vue'),
 };
@@ -112,24 +117,33 @@ const mockPermissionMenus: PermissionMenuPayload[] = [
   {
     name: 'dashboard',
     path: '/dashboard',
-    title: '首页概览',
-    description: '展示项目状态、常用入口与交付节奏。',
+    title: '首页',
+    description: '站长定位、代表栏目、核心观点与长期输出方向。',
     icon: 'HomeFilled',
     component: 'DashboardView',
   },
   {
     name: 'workspace',
     path: '/workspace',
-    title: '工作台',
-    description: '集中查看开发任务、发布准备和团队协作信息。',
+    title: '写作现场',
+    description: '展示内容选题、写作原则、方法论沉淀与长期研究方向。',
     icon: 'Monitor',
     component: 'WorkspaceView',
+  },
+  {
+    name: 'resume',
+    path: '/resume',
+    title: '个人简历',
+    description: '展示站长的能力矩阵、代表经历、合作方式与交付视角。',
+    icon: 'UserFilled',
+    component: 'ResumeView',
+    standaloneLayout: true,
   },
   {
     name: 'globe',
     path: '/globe',
     title: '星球留言',
-    description: '查看可旋转地球、头像坐标点位与来自世界各处的留言。',
+    description: '查看全球留言互动、坐标故事与分层展示的头像信息。',
     icon: 'Location',
     component: 'GlobeView',
   },
@@ -190,23 +204,23 @@ const mockPermissionMenus: PermissionMenuPayload[] = [
   {
     name: 'operations',
     path: '/operations',
-    title: '业务管理',
-    description: '统一承载二级业务菜单和管理页面。',
+    title: '作品与观察',
+    description: '收纳项目档案与长期观察，保留最多两级的信息组织。',
     icon: 'DataAnalysis',
     redirect: '/operations/projects',
     children: [
       {
         name: 'projects',
         path: '/operations/projects',
-        title: '项目列表',
-        description: '二级菜单示例，用于项目与需求的统一管理。',
+        title: '项目档案',
+        description: '展示代表项目、产品判断和复杂系统的落地方式。',
         component: 'ProjectsView',
       },
       {
         name: 'reports',
         path: '/operations/reports',
-        title: '数据报表',
-        description: '二级菜单示例，用于查看核心经营和交付指标。',
+        title: '观察笔记',
+        description: '记录技术判断、产品趋势与工程方法上的长期观察。',
         component: 'ReportsView',
       },
     ],

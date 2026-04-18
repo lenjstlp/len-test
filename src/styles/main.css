@@ -2,14 +2,19 @@
 
 :root {
   font-family:
-    'Avenir Next', 'Segoe UI Variable', 'PingFang SC', 'Hiragino Sans GB',
-    'Microsoft YaHei', sans-serif;
+    'SF Pro Display', 'Avenir Next', 'Segoe UI Variable', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #e2e8f0;
+  color: #e8edf3;
   background:
-    radial-gradient(circle at top, rgba(32, 178, 170, 0.14), transparent 24%),
-    linear-gradient(180deg, #050816 0%, #0f172a 46%, #111827 100%);
+    radial-gradient(circle at top, rgba(188, 164, 120, 0.12), transparent 24%),
+    radial-gradient(
+      circle at right top,
+      rgba(93, 119, 146, 0.2),
+      transparent 26%
+    ),
+    linear-gradient(180deg, #090d13 0%, #101722 52%, #121a24 100%);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -24,6 +29,10 @@ html,
 body,
 #app {
   min-height: 100%;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -46,18 +55,39 @@ select {
   min-height: 100vh;
 }
 
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(214, 193, 160, 0.24);
+  background-clip: padding-box;
+}
+
 .surface-panel {
-  border: 1px solid rgba(148, 163, 184, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   background: linear-gradient(
     180deg,
-    rgba(15, 23, 42, 0.92),
-    rgba(15, 23, 42, 0.72)
+    rgba(13, 18, 28, 0.9),
+    rgba(13, 18, 28, 0.72)
   );
-  box-shadow: 0 24px 60px rgba(3, 7, 18, 0.28);
+  box-shadow: 0 28px 64px rgba(3, 7, 18, 0.34);
+  backdrop-filter: blur(18px);
 }
 
 .stat-card {
-  border: 1px solid rgba(148, 163, 184, 0.14);
-  background: rgba(15, 23, 42, 0.72);
-  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.03)
+  );
+  backdrop-filter: blur(14px);
 }
