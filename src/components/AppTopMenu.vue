@@ -1,66 +1,60 @@
 <template>
   <div class="h-[60px] border-b border-black/8 bg-[#fff]">
     <div
-      class="mx-auto flex h-full max-w-[1680px] items-center gap-3 px-3 lg:gap-4 lg:px-6"
+      class="mx-auto flex h-full max-w-[1680px] items-center gap-4 px-3 lg:gap-6 lg:px-6"
     >
-      <p
-        class="shrink-0 text-[11px] tracking-[0.32em] text-[#8b7557] uppercase"
+      <RouterLink
+        to="/dashboard"
+        class="shrink-0 text-lg font-semibold tracking-tight text-[#171b21]"
       >
-        Menu
-      </p>
+        LEN
+      </RouterLink>
 
-      <div class="flex min-w-0 flex-1 gap-2 overflow-x-auto">
+      <nav class="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto">
         <RouterLink
-          v-for="item in menuEntries"
+          v-for="item in primaryChannels"
           :key="item.index"
           :to="item.index"
-          class="shrink-0 rounded-[7px] border px-4 py-2 text-sm transition"
+          class="shrink-0 rounded-[7px] px-4 py-2 text-sm transition"
           :class="
             isActive(item.index)
-              ? 'border-[#171b21] bg-[#171b21] text-[#f6f0e8]'
-              : 'border-black/10 bg-[#fff] text-[#4f5864] hover:border-black/18 hover:bg-[#faf8f4]'
+              ? 'bg-[#171b21] text-[#f6f0e8]'
+              : 'text-[#5f6772] hover:bg-[#f7f4ef] hover:text-[#171b21]'
           "
         >
           {{ item.label }}
         </RouterLink>
+      </nav>
+
+      <div class="hidden shrink-0 items-center gap-2 lg:flex">
+        <span
+          v-for="item in quickTags"
+          :key="item"
+          class="rounded-[7px] bg-[#f7f4ef] px-3 py-2 text-xs text-[#7a6a54]"
+        >
+          {{ item }}
+        </span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
-import { getAccessibleRouteTree } from '@/router/permission';
 
 const route = useRoute();
 
-type TopMenuEntry = {
-  index: string;
-  label: string;
-};
+const primaryChannels = [
+  { index: '/dashboard', label: '推荐' },
+  { index: '/frontend-architecture', label: '专栏' },
+  { index: '/canvas-guide', label: '学习' },
+  { index: '/operations/projects', label: '作品' },
+  { index: '/operations/reports', label: '热榜' },
+  { index: '/globe', label: '社区' },
+  { index: '/resume', label: '简历' },
+];
 
-const menuEntries = computed<TopMenuEntry[]>(() =>
-  getAccessibleRouteTree().flatMap((item) => {
-    const baseEntry = {
-      index: item.path,
-      label: item.meta.title,
-    };
-
-    if (!item.children?.length) {
-      return [baseEntry];
-    }
-
-    return item.children
-      .filter((child) => child.meta.menuVisible !== false)
-      .map((child) => ({
-        index: child.path.startsWith('/')
-          ? child.path
-          : `${item.path}/${child.path}`,
-        label: child.meta.title,
-      }));
-  }),
-);
+const quickTags = ['知乎式推荐', '掘金式专栏', 'LeetCode式路径'];
 
 const isActive = (path: string) => route.path === path;
 </script>

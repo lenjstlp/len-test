@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-[#fff]">
+  <div class="h-screen overflow-hidden bg-[#fff]">
     <div class="pointer-events-none fixed inset-0 bg-[#fff]" />
 
     <button
@@ -41,41 +41,42 @@
       </div>
     </transition>
 
-    <div v-if="isStandaloneLayout" class="relative px-3 py-3 lg:px-5 lg:py-5">
+    <div
+      v-if="isStandaloneLayout"
+      class="relative h-screen overflow-y-auto px-3 py-3 lg:px-5 lg:py-5"
+    >
       <RouterView />
     </div>
 
-    <div v-else class="relative min-h-screen">
+    <div v-else class="relative flex h-screen flex-col overflow-hidden">
       <AppTopMenu />
 
-      <div class="mx-auto max-w-[1680px] px-3 py-4 lg:px-6 lg:py-6">
-        <div class="flex gap-4 lg:gap-6">
-          <aside class="hidden w-[304px] shrink-0 lg:block">
-            <div class="sticky top-6 flex flex-col gap-4">
-              <div
-                class="h-[280px] overflow-y-auto rounded-[7px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
-              >
-                <AppSidebar />
-              </div>
+      <div
+        class="mx-auto flex min-h-0 w-full max-w-[1680px] gap-4 px-3 py-4 lg:gap-6 lg:px-6 lg:py-6"
+      >
+        <aside class="hidden w-[320px] shrink-0 lg:flex lg:flex-col lg:gap-4">
+          <div
+            class="h-[340px] overflow-hidden rounded-[7px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
+          >
+            <AppSidebar />
+          </div>
 
-              <div
-                class="h-[420px] overflow-hidden rounded-[7px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
-              >
-                <AppDirectoryPanel />
-              </div>
-            </div>
-          </aside>
+          <div
+            class="h-[500px] overflow-hidden rounded-[7px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
+          >
+            <AppDirectoryPanel />
+          </div>
+        </aside>
 
-          <main class="min-w-0 flex-1">
-            <div
-              class="overflow-hidden rounded-[7px] border border-black/6 bg-[#fff] shadow-[0_32px_80px_rgba(56,45,30,0.08)]"
-            >
-              <div class="px-4 py-6 lg:px-10 lg:py-10">
-                <RouterView />
-              </div>
+        <main class="min-w-0 flex-1 overflow-hidden">
+          <div
+            class="h-full overflow-hidden rounded-[7px] border border-black/6 bg-[#fff] shadow-[0_32px_80px_rgba(56,45,30,0.08)]"
+          >
+            <div class="h-full overflow-y-auto px-4 py-6 lg:px-10 lg:py-10">
+              <RouterView />
             </div>
-          </main>
-        </div>
+          </div>
+        </main>
       </div>
     </div>
   </div>

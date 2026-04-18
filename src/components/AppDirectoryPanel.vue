@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col">
+  <div class="flex h-full flex-col">
     <div class="border-b border-white/10 px-5 py-5">
       <p class="text-[11px] tracking-[0.32em] text-[#cdb18a] uppercase">
         Directory / Unlock
@@ -10,7 +10,7 @@
       </p>
     </div>
 
-    <div class="max-h-[calc(100vh-23rem)] overflow-y-auto px-5 py-5">
+    <div class="flex-1 overflow-y-auto px-5 py-5">
       <nav class="space-y-7">
         <section v-for="section in menuSections" :key="section.title">
           <div class="px-1">

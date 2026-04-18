@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col">
+  <div class="flex h-full flex-col">
     <div class="border-b border-white/10 px-5 py-6">
       <RouterLink to="/dashboard" class="block" @click="emit('navigate')">
         <div class="flex items-start gap-4">
@@ -24,7 +24,7 @@
       </RouterLink>
     </div>
 
-    <div class="px-5 py-5">
+    <div class="flex-1 overflow-y-auto px-5 py-5">
       <div class="grid gap-3">
         <div
           v-for="item in profileSummary"
