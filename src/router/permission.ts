@@ -7,6 +7,7 @@ import {
   Location,
   Monitor,
   Reading,
+  SetUp,
 } from '@element-plus/icons-vue';
 import type { Component } from 'vue';
 import type { RouteRecordRaw } from 'vue-router';
@@ -19,13 +20,15 @@ type IconKey =
   | 'HomeFilled'
   | 'Location'
   | 'Monitor'
-  | 'Reading';
+  | 'Reading'
+  | 'SetUp';
 
 type ViewKey =
   | 'AgentGuideView'
   | 'CanvasGuideView'
   | 'DashboardView'
   | 'FrontendArchitectureGuideView'
+  | 'FullstackGuideView'
   | 'GlobeView'
   | 'NextjsGuideView'
   | 'ProjectsView'
@@ -87,6 +90,7 @@ const iconMap: Record<IconKey, Component> = {
   Location,
   Monitor,
   Reading,
+  SetUp,
 };
 
 const viewMap: Record<ViewKey, () => Promise<unknown>> = {
@@ -95,6 +99,7 @@ const viewMap: Record<ViewKey, () => Promise<unknown>> = {
   DashboardView: () => import('@/views/DashboardView.vue'),
   FrontendArchitectureGuideView: () =>
     import('@/views/FrontendArchitectureGuideView.vue'),
+  FullstackGuideView: () => import('@/views/FullstackGuideView.vue'),
   GlobeView: () => import('@/views/GlobeView.vue'),
   NextjsGuideView: () => import('@/views/NextjsGuideView.vue'),
   ProjectsView: () => import('@/views/ProjectsView.vue'),
@@ -171,6 +176,15 @@ const mockPermissionMenus: PermissionMenuPayload[] = [
     description: '系统梳理前端架构需要掌握的领域、支持库与工程化必备知识。',
     icon: 'Grid',
     component: 'FrontendArchitectureGuideView',
+    standaloneLayout: true,
+  },
+  {
+    name: 'fullstack-guide',
+    path: '/fullstack-guide',
+    title: '全栈能力汇总',
+    description: '汇总全栈开发需要具备的能力域、语言路线、框架定位与升级路径。',
+    icon: 'SetUp',
+    component: 'FullstackGuideView',
     standaloneLayout: true,
   },
   {
