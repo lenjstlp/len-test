@@ -47,33 +47,41 @@
 
     <div
       v-else
-      class="relative mx-auto flex min-h-screen max-w-[1680px] gap-4 px-3 py-3 lg:gap-6 lg:px-6 lg:py-6"
+      class="relative mx-auto min-h-screen max-w-[1680px] px-3 py-3 lg:px-6 lg:py-6"
     >
-      <aside class="hidden w-[304px] shrink-0 lg:block">
-        <div class="sticky top-6 flex flex-col gap-4">
-          <div
-            class="h-[220px] overflow-y-auto rounded-[7px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
-          >
-            <AppSidebar />
-          </div>
+      <div
+        class="mb-4 overflow-hidden rounded-[7px] border border-black/6 bg-[#fff] shadow-[0_20px_48px_rgba(56,45,30,0.06)]"
+      >
+        <AppTopMenu />
+      </div>
 
-          <div
-            class="h-[340px] overflow-hidden rounded-[7px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
-          >
-            <AppDirectoryPanel />
-          </div>
-        </div>
-      </aside>
+      <div class="flex gap-4 lg:gap-6">
+        <aside class="hidden w-[304px] shrink-0 lg:block">
+          <div class="sticky top-6 flex flex-col gap-4">
+            <div
+              class="h-[280px] overflow-y-auto rounded-[7px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
+            >
+              <AppSidebar />
+            </div>
 
-      <main class="min-w-0 flex-1">
-        <div
-          class="overflow-hidden rounded-[7px] border border-black/6 bg-[#fff] shadow-[0_32px_80px_rgba(56,45,30,0.08)]"
-        >
-          <div class="px-4 py-6 lg:px-10 lg:py-10">
-            <RouterView />
+            <div
+              class="h-[420px] overflow-hidden rounded-[7px] border border-white/10 bg-[#171b21] text-[#f4efe7] shadow-[0_30px_70px_rgba(13,17,23,0.24)]"
+            >
+              <AppDirectoryPanel />
+            </div>
           </div>
-        </div>
-      </main>
+        </aside>
+
+        <main class="min-w-0 flex-1">
+          <div
+            class="overflow-hidden rounded-[7px] border border-black/6 bg-[#fff] shadow-[0_32px_80px_rgba(56,45,30,0.08)]"
+          >
+            <div class="px-4 py-6 lg:px-10 lg:py-10">
+              <RouterView />
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   </div>
 </template>
@@ -84,6 +92,7 @@ import { computed, ref, watch } from 'vue';
 import { RouterView, useRoute } from 'vue-router';
 import AppDirectoryPanel from '@/components/AppDirectoryPanel.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
+import AppTopMenu from '@/components/AppTopMenu.vue';
 
 const route = useRoute();
 const mobileMenuVisible = ref(false);
