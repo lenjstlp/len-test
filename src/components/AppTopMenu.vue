@@ -1,13 +1,15 @@
 <template>
-  <div class="border-b border-black/8 bg-[#fff] px-4 py-4 lg:px-10">
-    <div class="flex flex-wrap items-center gap-3 lg:gap-4">
+  <div class="h-[60px] border-b border-black/8 bg-[#fff]">
+    <div
+      class="mx-auto flex h-full max-w-[1680px] items-center gap-3 px-3 lg:gap-4 lg:px-6"
+    >
       <p
         class="shrink-0 text-[11px] tracking-[0.32em] text-[#8b7557] uppercase"
       >
         Menu
       </p>
 
-      <div class="flex min-w-0 flex-1 gap-2 overflow-x-auto pb-1">
+      <div class="flex min-w-0 flex-1 gap-2 overflow-x-auto">
         <RouterLink
           v-for="item in menuEntries"
           :key="item.index"
