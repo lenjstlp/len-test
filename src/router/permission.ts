@@ -27,6 +27,7 @@ type ViewKey =
   | 'DashboardView'
   | 'FrontendArchitectureGuideView'
   | 'GlobeView'
+  | 'NextjsGuideView'
   | 'ProjectsView'
   | 'PythonGuideView'
   | 'ReportsView'
@@ -95,6 +96,7 @@ const viewMap: Record<ViewKey, () => Promise<unknown>> = {
   FrontendArchitectureGuideView: () =>
     import('@/views/FrontendArchitectureGuideView.vue'),
   GlobeView: () => import('@/views/GlobeView.vue'),
+  NextjsGuideView: () => import('@/views/NextjsGuideView.vue'),
   ProjectsView: () => import('@/views/ProjectsView.vue'),
   PythonGuideView: () => import('@/views/PythonGuideView.vue'),
   ReportsView: () => import('@/views/ReportsView.vue'),
@@ -152,6 +154,15 @@ const mockPermissionMenus: PermissionMenuPayload[] = [
       '系统了解 agent 的概念、能力边界、开发方式与截至 2026 年 4 月的市场产品格局。',
     icon: 'Cpu',
     component: 'AgentGuideView',
+  },
+  {
+    name: 'nextjs-guide',
+    path: '/nextjs-guide',
+    title: 'Next.js 入门',
+    description:
+      '从 App Router、Server Components 到部署生产化，建立现代 Next.js 开发基础。',
+    icon: 'Document',
+    component: 'NextjsGuideView',
   },
   {
     name: 'frontend-architecture',

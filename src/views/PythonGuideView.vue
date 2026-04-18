@@ -1,8 +1,10 @@
 <template>
-  <section class="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)_280px]">
+  <section
+    class="python-guide-page grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)_280px]"
+  >
     <aside>
       <div class="sticky top-6">
-        <div class="surface-panel rounded-[28px] p-4 lg:p-5">
+        <div class="surface-panel python-guide-panel rounded-[28px] p-4 lg:p-5">
           <div class="mb-4 px-2">
             <p class="text-xs tracking-[0.28em] text-emerald-300 uppercase">
               Python Guide
@@ -38,7 +40,7 @@
       </div>
     </aside>
 
-    <article class="surface-panel rounded-[28px] p-6 lg:p-8">
+    <article class="surface-panel python-guide-panel rounded-[28px] p-6 lg:p-8">
       <header class="border-b border-white/10 pb-6">
         <span
           class="inline-flex rounded-full border border-emerald-400/25 bg-emerald-400/10 px-4 py-1 text-xs tracking-[0.28em] text-emerald-300 uppercase"
@@ -115,7 +117,7 @@
       </div>
     </article>
 
-    <aside class="surface-panel rounded-[28px] p-4 lg:p-5">
+    <aside class="surface-panel python-guide-panel rounded-[28px] p-4 lg:p-5">
       <div class="sticky top-6">
         <div class="mb-4 px-2">
           <p class="text-xs tracking-[0.28em] text-slate-400 uppercase">
@@ -157,3 +159,13 @@ const activeChapter = computed(
     ) ?? pythonGuideChapters[0],
 );
 </script>
+
+<style scoped>
+.python-guide-page .python-guide-panel {
+  background:
+    radial-gradient(circle at top, rgba(192, 168, 114, 0.12), transparent 40%),
+    linear-gradient(180deg, rgba(24, 29, 23, 0.96), rgba(14, 19, 15, 0.95));
+  border: 1px solid rgba(153, 145, 111, 0.16);
+  box-shadow: 0 24px 56px rgba(8, 12, 8, 0.28);
+}
+</style>

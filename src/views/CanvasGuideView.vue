@@ -1,8 +1,10 @@
 <template>
-  <section class="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)_280px]">
+  <section
+    class="canvas-guide-page grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)_280px]"
+  >
     <aside>
       <div class="sticky top-6">
-        <div class="surface-panel rounded-[28px] p-4 lg:p-5">
+        <div class="surface-panel canvas-guide-panel rounded-[28px] p-4 lg:p-5">
           <div class="mb-4 px-2">
             <p class="text-xs tracking-[0.28em] text-cyan-300 uppercase">
               Canvas Guide
@@ -38,7 +40,7 @@
       </div>
     </aside>
 
-    <article class="surface-panel rounded-[28px] p-6 lg:p-8">
+    <article class="surface-panel canvas-guide-panel rounded-[28px] p-6 lg:p-8">
       <header class="border-b border-white/10 pb-6">
         <span
           class="inline-flex rounded-full border border-cyan-400/25 bg-cyan-400/10 px-4 py-1 text-xs tracking-[0.28em] text-cyan-300 uppercase"
@@ -115,7 +117,7 @@
       </div>
     </article>
 
-    <aside class="surface-panel rounded-[28px] p-4 lg:p-5">
+    <aside class="surface-panel canvas-guide-panel rounded-[28px] p-4 lg:p-5">
       <div class="sticky top-6">
         <div class="mb-4 px-2">
           <p class="text-xs tracking-[0.28em] text-slate-400 uppercase">
@@ -157,3 +159,13 @@ const activeChapter = computed(
     ) ?? canvasGuideChapters[0],
 );
 </script>
+
+<style scoped>
+.canvas-guide-page .canvas-guide-panel {
+  background:
+    radial-gradient(circle at top, rgba(87, 173, 255, 0.12), transparent 38%),
+    linear-gradient(180deg, rgba(11, 23, 39, 0.95), rgba(8, 17, 29, 0.94));
+  border: 1px solid rgba(105, 153, 204, 0.16);
+  box-shadow: 0 26px 60px rgba(4, 12, 20, 0.26);
+}
+</style>

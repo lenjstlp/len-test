@@ -1,8 +1,10 @@
 <template>
-  <section class="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)_280px]">
+  <section
+    class="agent-guide-page grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)_280px]"
+  >
     <aside>
       <div class="sticky top-6">
-        <div class="surface-panel rounded-[28px] p-4 lg:p-5">
+        <div class="surface-panel agent-guide-panel rounded-[28px] p-4 lg:p-5">
           <div class="mb-4 px-2">
             <p class="text-xs tracking-[0.28em] text-sky-300 uppercase">
               Agent Guide
@@ -36,7 +38,7 @@
       </div>
     </aside>
 
-    <article class="surface-panel rounded-[28px] p-6 lg:p-8">
+    <article class="surface-panel agent-guide-panel rounded-[28px] p-6 lg:p-8">
       <header class="border-b border-white/10 pb-6">
         <span
           class="inline-flex rounded-full border border-sky-400/25 bg-sky-400/10 px-4 py-1 text-xs tracking-[0.28em] text-sky-300 uppercase"
@@ -113,7 +115,7 @@
       </div>
     </article>
 
-    <aside class="surface-panel rounded-[28px] p-4 lg:p-5">
+    <aside class="surface-panel agent-guide-panel rounded-[28px] p-4 lg:p-5">
       <div class="sticky top-6">
         <div class="mb-4 px-2">
           <p class="text-xs tracking-[0.28em] text-slate-400 uppercase">
@@ -155,3 +157,13 @@ const activeChapter = computed(
     ) ?? agentGuideChapters[0],
 );
 </script>
+
+<style scoped>
+.agent-guide-page .agent-guide-panel {
+  background:
+    radial-gradient(circle at top, rgba(112, 152, 196, 0.12), transparent 40%),
+    linear-gradient(180deg, rgba(18, 24, 33, 0.95), rgba(11, 15, 22, 0.94));
+  border: 1px solid rgba(116, 142, 171, 0.16);
+  box-shadow: 0 26px 58px rgba(6, 10, 16, 0.28);
+}
+</style>
