@@ -18,8 +18,15 @@
           class="shrink-0 rounded-[7px] px-4 py-2 text-sm transition"
           :class="
             isActive(item.index)
-              ? 'bg-[#171b21] text-white'
+              ? 'bg-[#171b21] font-medium'
               : 'text-[#5f6772] hover:bg-[#f7f4ef] hover:text-[#171b21]'
+          "
+          :style="
+            isActive(item.index)
+              ? {
+                  color: '#ffffff',
+                }
+              : undefined
           "
         >
           {{ item.label }}
@@ -56,5 +63,8 @@ const primaryChannels = [
 
 const quickTags = ['知乎式推荐', '掘金式专栏', 'LeetCode式路径'];
 
-const isActive = (path: string) => route.path === path;
+const isActive = (path: string) =>
+  route.path === path ||
+  route.fullPath.startsWith(`${path}?`) ||
+  (path !== '/dashboard' && route.path.startsWith(`${path}/`));
 </script>
