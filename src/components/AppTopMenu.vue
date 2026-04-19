@@ -18,7 +18,7 @@
           class="shrink-0 rounded-[7px] px-4 py-2 text-sm transition"
           :class="
             isActive(item.index)
-              ? 'bg-[#171b21] text-[#f6f0e8]'
+              ? 'bg-[#171b21] text-white'
               : 'text-[#5f6772] hover:bg-[#f7f4ef] hover:text-[#171b21]'
           "
         >
@@ -47,7 +47,7 @@ const route = useRoute();
 const primaryChannels = [
   { index: '/dashboard', label: '推荐' },
   { index: '/frontend-architecture', label: '专栏' },
-  { index: '/canvas-guide', label: '学习' },
+  { index: '/algorithm-guide', label: '算法题' },
   { index: '/operations/projects', label: '作品' },
   { index: '/operations/reports', label: '热榜' },
   { index: '/globe', label: '社区' },

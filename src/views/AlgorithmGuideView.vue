@@ -22,7 +22,7 @@
               v-for="chapter in algorithmGuideChapters"
               :key="chapter.id"
               type="button"
-              class="w-full rounded-2xl border px-4 py-4 text-left transition"
+              class="w-full rounded-2xl border px-4 py-3 text-left transition"
               :class="
                 chapter.id === activeChapter.id
                   ? 'border-[#f0c67d]/24 bg-[#f0c67d]/10 text-white'
@@ -30,10 +30,21 @@
               "
               @click="setActiveChapterId(chapter.id)"
             >
-              <p class="text-sm font-medium">{{ chapter.label }}</p>
-              <p class="mt-2 text-xs leading-5 text-[#979289]">
-                {{ chapter.description }}
-              </p>
+              <div class="flex items-center justify-between gap-3">
+                <p class="text-sm leading-5 font-medium">{{ chapter.label }}</p>
+                <span
+                  class="inline-flex shrink-0 rounded-full border px-2.5 py-1 text-[11px] leading-none"
+                  :class="
+                    chapter.difficulty === '简单'
+                      ? 'border-emerald-300/18 bg-emerald-300/10 text-emerald-200'
+                      : chapter.difficulty === '中等'
+                        ? 'border-amber-300/18 bg-amber-300/10 text-amber-200'
+                        : 'border-rose-300/18 bg-rose-300/10 text-rose-200'
+                  "
+                >
+                  {{ chapter.difficulty }}
+                </span>
+              </div>
             </button>
           </div>
         </div>

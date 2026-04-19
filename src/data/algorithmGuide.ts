@@ -10,6 +10,7 @@ export type AlgorithmGuideSection = {
 export type AlgorithmGuideChapter = {
   id: string;
   label: string;
+  difficulty: '简单' | '中等' | '困难';
   description: string;
   outcome: string;
   sections: AlgorithmGuideSection[];
@@ -19,6 +20,7 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
   {
     id: 'two-sum',
     label: '1. LeetCode 1. 两数之和',
+    difficulty: '简单',
     description:
       '用一道最经典的入门题，讲清楚哈希表在算法题里的基本用法。重点不是背答案，而是建立“边遍历边查找”的思维方式。',
     outcome:
@@ -99,6 +101,92 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
         ],
         callout:
           '如果你刚开始刷题，不要急着刷很多道。先把一题真正拆开：题目在问什么、暴力解是什么、瓶颈在哪、优化点是什么、代码为什么这样写。这样才会积累解题能力。',
+      },
+    ],
+  },
+  {
+    id: 'valid-parentheses',
+    label: '2. LeetCode 20. 有效的括号',
+    difficulty: '简单',
+    description:
+      '这题用来建立栈的直觉。重点不是会不会写括号匹配，而是理解“后进先出”的结构什么时候天然适合解决问题。',
+    outcome:
+      '你能独立写出有效括号的栈解法，知道为什么不能只统计数量，并能识别括号、路径回退、表达式等典型栈场景。',
+    sections: [
+      {
+        id: 'vp-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `()[]{}` 的字符串，判断这个字符串是否有效。有效的含义有两层：每个左括号都必须被同类型右括号正确闭合，而且闭合顺序必须正确。',
+        bullets: [
+          '不能只看左右括号数量是否相等。',
+          '类型必须匹配，例如 `[` 不能用 `)` 关闭。',
+          '顺序也必须匹配，例如 `([)]` 数量对了，但顺序错了。',
+          '这类题的关键是记住“最近打开的括号，必须最先被关闭”。',
+        ],
+      },
+      {
+        id: 'vp-why-stack',
+        title: '为什么这里天然适合用栈',
+        summary:
+          '括号匹配本质上是“最后进来的左括号，必须最先配对出去”。这正好符合栈的后进先出特性，所以不需要硬凑，栈本身就是这道题的自然结构。',
+        bullets: [
+          '遇到左括号，就入栈，表示它还在等待匹配。',
+          '遇到右括号，就检查栈顶是不是对应的左括号。',
+          '如果栈顶不匹配，说明顺序或类型出错，直接返回 `false`。',
+          '最终遍历结束后，栈必须为空，才说明全部匹配完成。',
+        ],
+        callout:
+          '很多初学者会想用计数器分别统计三种括号数量，但这种方法解决不了嵌套顺序问题。顺序问题通常意味着你需要一个“记住最近状态”的结构，栈就是最常见答案。',
+      },
+      {
+        id: 'vp-counterexample',
+        title: '为什么计数法不行',
+        summary:
+          '比如字符串 `([)]`，如果只统计数量，会发现圆括号和方括号数量都是匹配的，但它仍然不是有效字符串，因为关闭顺序破坏了嵌套结构。',
+        bullets: [
+          '`([])` 是正确的，因为 `[` 在 `(` 之后打开，也在 `)` 之前关闭。',
+          '`([)]` 是错误的，因为 `(` 还没关闭，`[` 却先被错误地跨层关闭了。',
+          '这说明问题不只是“有没有配对”，而是“是不是按正确层级配对”。',
+        ],
+      },
+      {
+        id: 'vp-optimal-solution',
+        title: '标准解法：栈 + 映射表',
+        summary:
+          '用一个映射表记录右括号对应的左括号，再用数组模拟栈。遍历字符串时，左括号入栈，右括号就拿栈顶比较。',
+        bullets: [
+          '时间复杂度是 `O(n)`，每个字符只处理一次。',
+          '空间复杂度是 `O(n)`，最坏情况下所有字符都是左括号。',
+          '先判断栈顶再弹出，逻辑会更清楚，也更不容易写错。',
+        ],
+        code: `function isValid(s: string): boolean {\n  const pairMap: Record<string, string> = {\n    ')': '(',\n    ']': '[',\n    '}': '{',\n  }\n  const stack: string[] = []\n\n  for (const char of s) {\n    if (!(char in pairMap)) {\n      stack.push(char)\n      continue\n    }\n\n    if (stack[stack.length - 1] !== pairMap[char]) {\n      return false\n    }\n\n    stack.pop()\n  }\n\n  return stack.length === 0\n}`,
+      },
+      {
+        id: 'vp-walkthrough',
+        title: '手推一个例子',
+        summary:
+          '以字符串 `{[()]}` 为例：依次读入 `{`、`[`、`(`，它们都会先入栈。随后遇到 `)`，就要求栈顶必须是 `(`；再遇到 `]`，栈顶必须是 `[`；最后遇到 `}`，栈顶必须是 `{`。',
+        bullets: [
+          '读到左括号：入栈。',
+          '读到右括号：检查栈顶是否匹配，匹配后弹出。',
+          '任何一步失败都直接返回 `false`。',
+          '最后栈为空，说明全部括号都成对消掉了。',
+        ],
+      },
+      {
+        id: 'vp-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题非常适合建立“最近状态”思维。学会后，不只会做括号题，很多解析型题目也会更容易上手。',
+        bullets: [
+          '易错点 1：遇到右括号时没有先判断栈是否为空。',
+          '易错点 2：把左括号和右括号的映射关系写反，导致判断分支混乱。',
+          '易错点 3：遍历完就直接返回 `true`，忘了检查栈里是否还有未闭合的左括号。',
+          '延伸方向：最小移除使括号有效、逆波兰表达式求值、浏览器前进后退、DFS 路径回溯等，都和栈有关。',
+        ],
+        callout:
+          '如果说“两数之和”教你用哈希表保存历史信息，那“有效的括号”就是在教你：一旦问题涉及最近未完成状态，优先想栈。',
       },
     ],
   },
