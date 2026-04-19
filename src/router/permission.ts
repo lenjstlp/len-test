@@ -26,6 +26,7 @@ type IconKey =
   | 'UserFilled';
 
 type ViewKey =
+  | 'AlgorithmGuideView'
   | 'AgentGuideView'
   | 'CanvasGuideView'
   | 'DashboardView'
@@ -98,6 +99,7 @@ const iconMap: Record<IconKey, Component> = {
 };
 
 const viewMap: Record<ViewKey, () => Promise<unknown>> = {
+  AlgorithmGuideView: () => import('@/views/AlgorithmGuideView.vue'),
   AgentGuideView: () => import('@/views/AgentGuideView.vue'),
   CanvasGuideView: () => import('@/views/CanvasGuideView.vue'),
   DashboardView: () => import('@/views/DashboardView.vue'),
@@ -173,6 +175,15 @@ const mockPermissionMenus: PermissionMenuPayload[] = [
       '系统了解 agent 的概念、能力边界、开发方式与截至 2026 年 4 月的市场产品格局。',
     icon: 'Cpu',
     component: 'AgentGuideView',
+  },
+  {
+    name: 'algorithm-guide',
+    path: '/algorithm-guide',
+    title: '算法题',
+    description:
+      '用 LeetCode 经典题建立刷题思维，这次先只讲一道代表性的入门题。',
+    icon: 'Document',
+    component: 'AlgorithmGuideView',
   },
   {
     name: 'nextjs-guide',

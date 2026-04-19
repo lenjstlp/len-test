@@ -114,6 +114,7 @@ const menuSections = computed<SidebarSection[]>(() => {
       title: '学习栏目',
       description: '用于系统化解锁各个学习主题和专题模块。',
       keys: [
+        'algorithm-guide',
         'canvas-guide',
         'python-guide',
         'agent-guide',
