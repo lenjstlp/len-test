@@ -1,5 +1,5 @@
 <template>
-  <div class="h-[60px] border-b border-black/8 bg-[#fff]">
+  <div class="h-[60px] min-h-[60px] shrink-0 border-b border-black/8 bg-[#fff]">
     <div
       class="mx-auto flex h-full max-w-[1680px] items-center gap-4 px-3 lg:gap-6 lg:px-6"
     >
