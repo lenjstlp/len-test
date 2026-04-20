@@ -120,6 +120,7 @@ const menuSections = computed<SidebarSection[]>(() => {
         'python-guide',
         'agent-guide',
         'nextjs-guide',
+        'vue3-source-guide',
         'frontend-architecture',
         'fullstack-guide',
       ],

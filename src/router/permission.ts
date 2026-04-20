@@ -39,6 +39,7 @@ type ViewKey =
   | 'PythonGuideView'
   | 'ResumeView'
   | 'ReportsView'
+  | 'Vue3SourceGuideView'
   | 'WorkspaceView';
 
 type PermissionMenuPayload = {
@@ -114,6 +115,7 @@ const viewMap: Record<ViewKey, () => Promise<unknown>> = {
   PythonGuideView: () => import('@/views/PythonGuideView.vue'),
   ResumeView: () => import('@/views/ResumeView.vue'),
   ReportsView: () => import('@/views/ReportsView.vue'),
+  Vue3SourceGuideView: () => import('@/views/Vue3SourceGuideView.vue'),
   WorkspaceView: () => import('@/views/WorkspaceView.vue'),
 };
 
@@ -203,6 +205,15 @@ const mockPermissionMenus: PermissionMenuPayload[] = [
       '从 App Router、Server Components 到部署生产化，建立现代 Next.js 开发基础。',
     icon: 'Document',
     component: 'NextjsGuideView',
+  },
+  {
+    name: 'vue3-source-guide',
+    path: '/vue3-source-guide',
+    title: 'Vue3 源码',
+    description:
+      '面向只懂 JavaScript 的读者，从响应式到渲染器，系统讲解 Vue 3 源码主干并附简化示例。',
+    icon: 'Document',
+    component: 'Vue3SourceGuideView',
   },
   {
     name: 'frontend-architecture',
