@@ -32,6 +32,7 @@ type ViewKey =
   | 'DashboardView'
   | 'FrontendArchitectureGuideView'
   | 'FullstackGuideView'
+  | 'GitGuideView'
   | 'GlobeView'
   | 'NextjsGuideView'
   | 'ProjectsView'
@@ -106,6 +107,7 @@ const viewMap: Record<ViewKey, () => Promise<unknown>> = {
   FrontendArchitectureGuideView: () =>
     import('@/views/FrontendArchitectureGuideView.vue'),
   FullstackGuideView: () => import('@/views/FullstackGuideView.vue'),
+  GitGuideView: () => import('@/views/GitGuideView.vue'),
   GlobeView: () => import('@/views/GlobeView.vue'),
   NextjsGuideView: () => import('@/views/NextjsGuideView.vue'),
   ProjectsView: () => import('@/views/ProjectsView.vue'),
@@ -166,6 +168,14 @@ const mockPermissionMenus: PermissionMenuPayload[] = [
       '系统学习 Python 基础、工程组织与 agent 开发模式，支撑后续智能体实现。',
     icon: 'Reading',
     component: 'PythonGuideView',
+  },
+  {
+    name: 'git-guide',
+    path: '/git-guide',
+    title: 'Git 命令',
+    description: '系统整理 Git 的初始化、提交、分支、远程与回退命令。',
+    icon: 'Document',
+    component: 'GitGuideView',
   },
   {
     name: 'agent-guide',
