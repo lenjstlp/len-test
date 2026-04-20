@@ -2,11 +2,11 @@
   <section class="resume-page">
     <div class="resume-toolbar">
       <div class="resume-toolbar__intro">
-        <p class="resume-toolbar__eyebrow">Personal Resume</p>
-        <h1 class="resume-toolbar__title">A4 多页简历</h1>
+        <p class="resume-toolbar__eyebrow">Resume</p>
+        <h1 class="resume-toolbar__title">双版本简历</h1>
         <p class="resume-toolbar__text">
-          页面按 A4 纸张尺寸居中排版，支持多页内容。点击“导出
-          PDF”后，可直接在浏览器打印面板中选择“另存为 PDF”。
+          保留医疗信息化与 WebGL 两个方向，内容压缩在两页 A4
+          内，重点看技术栈、负责模块和实际开发细节。
         </p>
       </div>
 
@@ -24,197 +24,203 @@
       </div>
     </div>
 
-    <div v-if="siblingEntries.length" class="resume-nav">
-      <RouterLink
-        v-for="item in siblingEntries"
-        :key="item.path"
-        :to="item.path"
-        class="resume-nav__item"
+    <div class="resume-switcher">
+      <button
+        v-for="variant in resumeVariants"
+        :key="variant.key"
+        type="button"
+        class="resume-switcher__button"
+        :class="variant.key === activeVersion ? 'is-active' : ''"
+        @click="handleSwitchVersion(variant.key)"
       >
-        {{ item.label }}
-      </RouterLink>
+        <span>{{ variant.switchLabel }}</span>
+        <small>{{ variant.switchHint }}</small>
+      </button>
     </div>
 
     <div class="resume-stack">
       <article class="resume-sheet">
-        <header class="hero-card">
-          <div>
-            <p class="hero-card__eyebrow">Len / Systems Product Engineer</p>
-            <h2 class="hero-card__title">
-              能把复杂的前端、全栈与 AI
-              产品问题，整理成可信、可交付、可持续演进的系统。
-            </h2>
-            <p class="hero-card__summary">
-              我更关注长期有效的工程与产品能力：信息结构是否稳固、交互是否有职业感、代码与协作是否支撑未来演化。这也是我构建个人站点、内容体系和作品集的核心方法。
-            </p>
+        <header class="resume-header">
+          <div class="resume-header__identity">
+            <p class="resume-header__name">LEN</p>
+            <h2 class="resume-header__title">{{ activeResume.title }}</h2>
+            <p class="resume-header__summary">{{ activeResume.summary }}</p>
           </div>
 
-          <div class="hero-card__meta">
+          <div class="resume-header__facts">
             <article
-              v-for="item in profileSnapshot"
+              v-for="item in activeResume.facts"
               :key="item.label"
-              class="metric-card"
+              class="fact-card"
             >
-              <p class="metric-card__label">{{ item.label }}</p>
-              <p class="metric-card__value">{{ item.value }}</p>
-              <p class="metric-card__detail">{{ item.detail }}</p>
+              <p class="fact-card__label">{{ item.label }}</p>
+              <p class="fact-card__value">{{ item.value }}</p>
             </article>
           </div>
         </header>
 
-        <section class="sheet-section">
-          <div class="section-heading">
-            <p class="section-heading__eyebrow">Signature</p>
-            <h3 class="section-heading__title">核心优势</h3>
-          </div>
-
-          <div class="strength-grid">
-            <article
-              v-for="item in signatureStrengths"
-              :key="item.title"
-              class="strength-card"
-            >
-              <p class="strength-card__eyebrow">{{ item.eyebrow }}</p>
-              <h4 class="strength-card__title">{{ item.title }}</h4>
-              <p class="strength-card__text">{{ item.description }}</p>
-            </article>
-          </div>
-        </section>
-
-        <section class="sheet-section">
-          <div class="section-heading">
-            <p class="section-heading__eyebrow">Focus</p>
-            <h3 class="section-heading__title">我能解决什么问题</h3>
-          </div>
-
-          <div class="focus-list">
-            <article
-              v-for="item in focusPoints"
-              :key="item.title"
-              class="focus-item"
-            >
-              <div>
-                <h4 class="focus-item__title">{{ item.title }}</h4>
-                <p class="focus-item__text">{{ item.description }}</p>
+        <div class="resume-sheet__main">
+          <aside class="resume-sidebar">
+            <section class="resume-block">
+              <div class="section-heading">
+                <p class="section-heading__eyebrow">Positioning</p>
+                <h3 class="section-heading__title">核心定位</h3>
               </div>
-              <p class="focus-item__outcome">{{ item.outcome }}</p>
-            </article>
+
+              <div class="strength-list">
+                <article
+                  v-for="item in activeResume.strengths"
+                  :key="item.title"
+                  class="strength-item"
+                >
+                  <h4 class="strength-item__title">{{ item.title }}</h4>
+                  <p class="strength-item__text">{{ item.description }}</p>
+                </article>
+              </div>
+            </section>
+
+            <section class="resume-block">
+              <div class="section-heading">
+                <p class="section-heading__eyebrow">Stack</p>
+                <h3 class="section-heading__title">技术栈</h3>
+              </div>
+
+              <div class="stack-list">
+                <article
+                  v-for="group in activeResume.stackGroups"
+                  :key="group.title"
+                  class="stack-card"
+                >
+                  <h4 class="stack-card__title">{{ group.title }}</h4>
+                  <div class="tag-list">
+                    <span v-for="tag in group.tags" :key="tag">{{ tag }}</span>
+                  </div>
+                </article>
+              </div>
+            </section>
+          </aside>
+
+          <div class="resume-content">
+            <section class="resume-block">
+              <div class="section-heading">
+                <p class="section-heading__eyebrow">Experience</p>
+                <h3 class="section-heading__title">经历概览</h3>
+              </div>
+
+              <div class="experience-list">
+                <article
+                  v-for="item in activeResume.experience"
+                  :key="item.phase"
+                  class="experience-item"
+                >
+                  <div class="experience-item__phase">{{ item.phase }}</div>
+                  <div class="experience-item__body">
+                    <h4 class="experience-item__title">{{ item.title }}</h4>
+                    <p class="experience-item__summary">{{ item.summary }}</p>
+                    <ul class="bullet-list">
+                      <li v-for="detail in item.details" :key="detail">
+                        {{ detail }}
+                      </li>
+                    </ul>
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section class="resume-block">
+              <div class="section-heading">
+                <p class="section-heading__eyebrow">Delivery</p>
+                <h3 class="section-heading__title">我能直接负责的事</h3>
+              </div>
+
+              <div class="ownership-grid">
+                <article
+                  v-for="item in activeResume.ownership"
+                  :key="item.title"
+                  class="ownership-card"
+                >
+                  <h4 class="ownership-card__title">{{ item.title }}</h4>
+                  <p class="ownership-card__text">{{ item.description }}</p>
+                </article>
+              </div>
+            </section>
           </div>
-        </section>
+        </div>
       </article>
 
       <article class="resume-sheet">
-        <section class="sheet-section">
+        <section class="resume-block">
           <div class="section-heading">
-            <p class="section-heading__eyebrow">Experience Direction</p>
-            <h3 class="section-heading__title">职业路径与能力迁移</h3>
+            <p class="section-heading__eyebrow">Projects</p>
+            <h3 class="section-heading__title">代表项目与开发细节</h3>
           </div>
 
-          <div class="timeline">
+          <div class="project-list">
             <article
-              v-for="item in experienceTimeline"
-              :key="item.phase"
-              class="timeline-item"
-            >
-              <div class="timeline-item__phase">{{ item.phase }}</div>
-              <div class="timeline-item__body">
-                <h4 class="timeline-item__title">{{ item.title }}</h4>
-                <p class="timeline-item__summary">{{ item.summary }}</p>
-                <ul class="timeline-item__list">
-                  <li v-for="detail in item.details" :key="detail">
-                    {{ detail }}
-                  </li>
-                </ul>
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <section class="sheet-section">
-          <div class="section-heading">
-            <p class="section-heading__eyebrow">Capability Matrix</p>
-            <h3 class="section-heading__title">能力矩阵</h3>
-          </div>
-
-          <div class="capability-grid">
-            <article
-              v-for="item in capabilityMatrix"
+              v-for="item in activeResume.projects"
               :key="item.title"
-              class="capability-card"
+              class="project-card"
             >
-              <h4 class="capability-card__title">{{ item.title }}</h4>
-              <p class="capability-card__text">{{ item.description }}</p>
-              <div class="capability-card__tags">
-                <span v-for="tag in item.tags" :key="tag">
-                  {{ tag }}
-                </span>
+              <div class="project-card__head">
+                <div>
+                  <h4 class="project-card__title">{{ item.title }}</h4>
+                  <p class="project-card__role">{{ item.role }}</p>
+                </div>
+                <p class="project-card__stack">{{ item.stack }}</p>
               </div>
-            </article>
-          </div>
-        </section>
-      </article>
 
-      <article class="resume-sheet">
-        <section class="sheet-section">
-          <div class="section-heading">
-            <p class="section-heading__eyebrow">Selected Work</p>
-            <h3 class="section-heading__title">代表项目与价值证明</h3>
-          </div>
+              <p class="project-card__challenge">场景：{{ item.challenge }}</p>
 
-          <div class="work-list">
-            <article
-              v-for="item in selectedWorks"
-              :key="item.title"
-              class="work-card"
-            >
-              <div class="work-card__head">
-                <h4 class="work-card__title">{{ item.title }}</h4>
-                <span class="work-card__role">{{ item.role }}</span>
-              </div>
-              <p class="work-card__text">{{ item.summary }}</p>
-              <p class="work-card__value">价值：{{ item.value }}</p>
+              <ul class="bullet-list">
+                <li v-for="detail in item.details" :key="detail">
+                  {{ detail }}
+                </li>
+              </ul>
+
+              <p class="project-card__result">结果：{{ item.result }}</p>
             </article>
           </div>
         </section>
 
-        <section class="sheet-section page-split">
-          <div class="section-heading">
-            <p class="section-heading__eyebrow">Collaboration</p>
-            <h3 class="section-heading__title">合作风格与交付原则</h3>
-          </div>
-
-          <div class="page-split__grid">
-            <div class="collaboration-list">
-              <article
-                v-for="item in collaborationStyle"
-                :key="item.title"
-                class="collaboration-card"
-              >
-                <h4 class="collaboration-card__title">{{ item.title }}</h4>
-                <p class="collaboration-card__text">{{ item.description }}</p>
-              </article>
+        <div class="resume-sheet__footer">
+          <section class="resume-block">
+            <div class="section-heading">
+              <p class="section-heading__eyebrow">Architecture</p>
+              <h3 class="section-heading__title">架构与带队</h3>
             </div>
 
-            <aside class="closing-note">
-              <p class="closing-note__eyebrow">Positioning</p>
-              <h4 class="closing-note__title">我更像一名系统型的产品工程师</h4>
-              <p class="closing-note__text">
-                能做界面，也能做结构；能写代码，也能整理知识；能推进交付，也能判断长期方向。对团队而言，这种能力的价值在于减少反复、提升成品感，并让复杂项目更容易走向成熟。
-              </p>
+            <div class="summary-card">
+              <ul class="bullet-list">
+                <li v-for="item in activeResume.leadership" :key="item">
+                  {{ item }}
+                </li>
+              </ul>
+            </div>
+          </section>
 
-              <div class="closing-note__items">
+          <section class="resume-block">
+            <div class="section-heading">
+              <p class="section-heading__eyebrow">Fit</p>
+              <h3 class="section-heading__title">岗位适配</h3>
+            </div>
+
+            <div class="fit-card">
+              <h4 class="fit-card__title">{{ activeResume.fitTitle }}</h4>
+              <p class="fit-card__summary">{{ activeResume.fitSummary }}</p>
+
+              <div class="fit-card__list">
                 <div
-                  v-for="item in closingPoints"
+                  v-for="item in activeResume.fitPoints"
                   :key="item.label"
-                  class="closing-note__item"
+                  class="fit-card__item"
                 >
-                  <p class="closing-note__label">{{ item.label }}</p>
-                  <p class="closing-note__value">{{ item.value }}</p>
+                  <p class="fit-card__label">{{ item.label }}</p>
+                  <p class="fit-card__value">{{ item.value }}</p>
                 </div>
               </div>
-            </aside>
-          </div>
-        </section>
+            </div>
+          </section>
+        </div>
       </article>
     </div>
   </section>
@@ -222,242 +228,430 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { RouterLink, useRoute } from 'vue-router';
-import { getNavigationMenusFromRoutes, isMenuGroup } from '@/router/permission';
+import { RouterLink, useRoute, useRouter } from 'vue-router';
+
+type ResumeVariantKey = 'medical' | 'webgl';
+
+type ResumeFact = {
+  label: string;
+  value: string;
+};
+
+type ResumeStrength = {
+  title: string;
+  description: string;
+};
+
+type ResumeStackGroup = {
+  title: string;
+  tags: string[];
+};
+
+type ResumeExperience = {
+  phase: string;
+  title: string;
+  summary: string;
+  details: string[];
+};
+
+type ResumeOwnership = {
+  title: string;
+  description: string;
+};
+
+type ResumeProject = {
+  title: string;
+  role: string;
+  stack: string;
+  challenge: string;
+  details: string[];
+  result: string;
+};
+
+type ResumeFitPoint = {
+  label: string;
+  value: string;
+};
+
+type ResumeVariant = {
+  key: ResumeVariantKey;
+  switchLabel: string;
+  switchHint: string;
+  title: string;
+  summary: string;
+  facts: ResumeFact[];
+  strengths: ResumeStrength[];
+  stackGroups: ResumeStackGroup[];
+  experience: ResumeExperience[];
+  ownership: ResumeOwnership[];
+  projects: ResumeProject[];
+  leadership: string[];
+  fitTitle: string;
+  fitSummary: string;
+  fitPoints: ResumeFitPoint[];
+};
 
 const route = useRoute();
+const router = useRouter();
 
 const handleExportPdf = () => {
   window.print();
 };
 
-const siblingEntries = computed(() =>
-  getNavigationMenusFromRoutes()
-    .flatMap((item) =>
-      isMenuGroup(item)
-        ? item.children.map((child) => ({
-            path: child.index,
-            label: `${item.label} · ${child.label}`,
-          }))
-        : [{ path: item.index, label: item.label }],
-    )
-    .filter((item) => item.path !== route.path)
-    .slice(0, 6),
+const resumeVariants: ResumeVariant[] = [
+  {
+    key: 'medical',
+    switchLabel: '医疗信息化简历',
+    switchHint: 'OnlyOffice / EMR / HIS / 前端架构',
+    title: '前端架构师 / 医疗信息化方向',
+    summary:
+      '长期处理复杂业务前端，做过基于 OnlyOffice 的 EMR 与 HIS 相关系统，能同时承担前端架构、核心模块开发和 5 人左右团队协作推进。',
+    facts: [
+      {
+        label: '核心方向',
+        value: '医疗信息化 / 复杂业务系统 / 前端架构',
+      },
+      {
+        label: '代表场景',
+        value: 'EMR、HIS、病历编辑、复杂表单、权限流程',
+      },
+      {
+        label: '团队经验',
+        value: '带过 5 人左右开发小组',
+      },
+      {
+        label: '交付方式',
+        value: '方案设计 + 模块拆分 + 关键模块兜底',
+      },
+    ],
+    strengths: [
+      {
+        title: '能做架构，不只做页面',
+        description:
+          '能把路由、状态流、组件边界、权限体系和工程规范收束成可维护结构。',
+      },
+      {
+        title: '熟悉医疗场景复杂度',
+        description:
+          '理解病历编辑、表单联动、权限校验、流程节点和接口映射的实现难点。',
+      },
+      {
+        title: '关键模块能自己下场',
+        description:
+          '编辑器集成、复杂页面状态、多人协作冲突点，能亲自收口并压住风险。',
+      },
+    ],
+    stackGroups: [
+      {
+        title: '主技术栈',
+        tags: ['Vue 3', 'TypeScript', 'Vite', 'Pinia', 'Element Plus'],
+      },
+      {
+        title: '业务能力',
+        tags: ['OnlyOffice', 'EMR', 'HIS', '复杂表单', '权限系统'],
+      },
+      {
+        title: '工程能力',
+        tags: ['前端架构', '模块拆分', '组件体系', '代码规范', '带队推进'],
+      },
+    ],
+    experience: [
+      {
+        phase: '01',
+        title: '复杂业务页面开发',
+        summary: '从常规页面实现转向高状态密度和高耦合业务场景。',
+        details: [
+          '做过多字段联动、分权限展示、长流程页面。',
+          '开始从页面实现转向系统结构设计。',
+        ],
+      },
+      {
+        phase: '02',
+        title: 'OnlyOffice + EMR / HIS 项目落地',
+        summary: '负责病历编辑器集成、业务字段映射和系统联动。',
+        details: [
+          '处理文档编辑状态与业务流程状态同步。',
+          '打通病历内容、表单数据和业务模块之间的映射关系。',
+        ],
+      },
+      {
+        phase: '03',
+        title: '承担前端架构与团队推进',
+        summary: '负责方案统一、模块拆分、代码评审和复杂问题收口。',
+        details: [
+          '带过 5 人左右开发小组推进版本。',
+          '关键模块自己兜底，避免多人协作把系统做乱。',
+        ],
+      },
+    ],
+    ownership: [
+      {
+        title: '复杂医疗模块设计',
+        description: '病历页、复杂表单、权限流转、审核节点等高耦合模块。',
+      },
+      {
+        title: '编辑器与业务系统集成',
+        description:
+          'OnlyOffice 接入、文档结构映射、业务字段回填和编辑状态管理。',
+      },
+      {
+        title: '前端架构治理',
+        description: '模块边界、状态收敛、组件复用和工程规范沉淀。',
+      },
+      {
+        title: '多人协作推进',
+        description: '任务拆分、风险识别、代码评审和交付节奏控制。',
+      },
+    ],
+    projects: [
+      {
+        title: 'OnlyOffice 驱动的 EMR 病历系统',
+        role: 'Frontend Architect / Core Module Owner',
+        stack: 'Vue 3 / TypeScript / OnlyOffice / Pinia / Element Plus',
+        challenge:
+          '病历编辑既要有文档协同能力，又要和医疗业务字段、审核流程、权限控制保持一致。',
+        details: [
+          '负责编辑器接入、病历结构映射和业务字段联动方案。',
+          '处理病历编辑状态、流程节点状态和页面权限之间的同步问题。',
+          '拆分病历页模块，收敛高耦合状态，降低后续维护成本。',
+        ],
+        result: '把编辑器能力嵌进医疗业务流，而不是孤立做一个文档页面。',
+      },
+      {
+        title: 'HIS 相关业务模块建设',
+        role: 'Architecture Owner / Multi-module Delivery',
+        stack: 'Vue 3 / TypeScript / Vite / 权限体系 / 复杂表单',
+        challenge: '模块多、联动多、权限差异大，单纯堆页面很快就会失控。',
+        details: [
+          '设计页面结构和模块职责，控制表单、列表、审核模块之间的边界。',
+          '统一状态管理和接口约定，减少多人协作中的联调混乱。',
+          '负责复杂模块兜底与代码质量把关，保障版本可交付。',
+        ],
+        result: '让项目从“能跑”变成“能维护、能协作、能稳定迭代”。',
+      },
+    ],
+    leadership: [
+      '带过 5 人左右开发小组，负责拆任务、定方案、做评审和卡质量底线。',
+      '能从业务复杂度、模块边界、交付节奏三个维度推进项目，而不是只盯单个页面。',
+      '适合承担医疗信息化前端负责人、前端架构或复杂模块 Owner 角色。',
+    ],
+    fitTitle: '适合复杂医疗系统的前端架构与交付岗位',
+    fitSummary:
+      '我能处理的不只是页面产出，而是复杂业务系统里从架构设计到关键模块落地，再到多人协作推进的整套问题。',
+    fitPoints: [
+      {
+        label: '技术栈关键词',
+        value: 'Vue 3 / TypeScript / OnlyOffice / EMR / HIS',
+      },
+      {
+        label: '直接可承担',
+        value: '前端架构、病历系统核心模块、多人协作交付',
+      },
+      {
+        label: '项目价值',
+        value: '把高复杂度医疗前端做成可维护、可交付、可持续迭代的系统',
+      },
+    ],
+  },
+  {
+    key: 'webgl',
+    switchLabel: 'WebGL 地图简历',
+    switchHint: 'WebGL / 地图渲染 / 高交互 / 前端架构',
+    title: '前端架构师 / WebGL 地图方向',
+    summary:
+      '做过基于 WebGL 的地图项目，负责图层组织、空间交互与性能平衡，也能承担前端架构和 5 人左右团队推进，适合可视化与复杂交互并重的前端岗位。',
+    facts: [
+      {
+        label: '核心方向',
+        value: 'WebGL 地图 / 高交互前端 / 前端架构',
+      },
+      {
+        label: '代表场景',
+        value: '地图图层、空间交互、数据可视化、性能治理',
+      },
+      {
+        label: '团队经验',
+        value: '带过 5 人左右开发小组',
+      },
+      {
+        label: '交付方式',
+        value: '渲染实现 + 工程架构 + 团队推进并行',
+      },
+    ],
+    strengths: [
+      {
+        title: '高交互项目不失控',
+        description:
+          '不仅关注视觉效果，也会约束状态、模块和协作边界，避免项目越做越乱。',
+      },
+      {
+        title: '能处理地图与性能平衡',
+        description: '做过图层组织、交互响应和渲染成本之间的工程权衡。',
+      },
+      {
+        title: '适合带复杂前端团队',
+        description:
+          '架构、核心模块、交付节奏都能自己压住，不依赖单点英雄式开发。',
+      },
+    ],
+    stackGroups: [
+      {
+        title: '主技术栈',
+        tags: ['Vue 3', 'TypeScript', 'Vite', 'Pinia', 'Element Plus'],
+      },
+      {
+        title: '图形与交互',
+        tags: ['WebGL', '地图渲染', '图层管理', '空间交互', '性能优化'],
+      },
+      {
+        title: '工程能力',
+        tags: ['前端架构', '模块分层', '状态治理', '组件体系', '带队推进'],
+      },
+    ],
+    experience: [
+      {
+        phase: '01',
+        title: '高质量前端与复杂交互实现',
+        summary: '从普通业务页面转向高信息密度、高交互复杂度的前端系统。',
+        details: [
+          '处理过大量状态切换和复杂界面联动。',
+          '开始从交互实现上升到结构设计。',
+        ],
+      },
+      {
+        phase: '02',
+        title: '基于 WebGL 的地图项目',
+        summary: '负责地图图层、空间交互和视觉表现相关模块。',
+        details: [
+          '处理图层组织和空间交互逻辑。',
+          '在表现力与渲染开销之间做工程取舍。',
+        ],
+      },
+      {
+        phase: '03',
+        title: '承担架构与带队职责',
+        summary: '负责方案统一、复杂模块兜底和多人协作推进。',
+        details: [
+          '带过 5 人左右开发小组。',
+          '负责架构治理、代码评审和关键问题收口。',
+        ],
+      },
+    ],
+    ownership: [
+      {
+        title: '地图核心模块开发',
+        description: '地图图层、交互事件、可视化叠加和场景化表现模块。',
+      },
+      {
+        title: '复杂交互架构设计',
+        description: '高交互页面的状态边界、模块层次和扩展方式设计。',
+      },
+      {
+        title: '性能与体验平衡',
+        description: '在渲染效果、响应速度和工程可维护性之间做合理取舍。',
+      },
+      {
+        title: '团队交付推进',
+        description: '方案统一、协作拆分、代码把关和关键问题收口。',
+      },
+    ],
+    projects: [
+      {
+        title: '基于 WebGL 的地图项目',
+        role: 'Frontend Architect / Visualization Engineering',
+        stack: 'Vue 3 / TypeScript / WebGL / 地图图层 / 交互性能优化',
+        challenge: '地图既要保证视觉表现，也要维持交互响应和后续扩展能力。',
+        details: [
+          '负责地图图层组织、空间交互逻辑和高表现力前端模块建设。',
+          '梳理地图状态职责，避免图层、交互和业务数据混成一团。',
+          '控制渲染表现与性能成本之间的平衡，保证项目可持续迭代。',
+        ],
+        result: '把地图能力做成可交付产品，而不是一次性的演示效果。',
+      },
+      {
+        title: '复杂前端系统架构与团队推进',
+        role: 'Architecture Owner / Team Lead',
+        stack: 'Vue 3 / TypeScript / 模块分层 / 状态流治理 / 代码规范',
+        challenge: '高交互项目一旦多人并行开发，很容易在结构和质量上迅速失控。',
+        details: [
+          '统一模块边界、状态流和代码规范，降低团队协作摩擦。',
+          '负责复杂模块兜底，确保关键页面结构和交互方案稳定。',
+          '通过评审与任务拆分控制系统增长速度，减少返工成本。',
+        ],
+        result: '让高表现力前端项目兼顾视觉效果、性能和工程稳定性。',
+      },
+    ],
+    leadership: [
+      '带过 5 人左右开发小组，负责拆分任务、统一方案、卡代码质量和收关键风险。',
+      '做可视化项目时，不只关注酷炫效果，也关注长期维护和团队协作成本。',
+      '适合承担可视化前端负责人、WebGL 地图核心岗位或前端架构角色。',
+    ],
+    fitTitle: '适合可视化与复杂交互并重的前端岗位',
+    fitSummary:
+      '如果项目既要视觉表现，也要工程结构和多人协作能力，我可以同时处理渲染交互、架构治理和交付推进三类问题。',
+    fitPoints: [
+      {
+        label: '技术栈关键词',
+        value: 'Vue 3 / TypeScript / WebGL / 地图渲染 / 性能优化',
+      },
+      {
+        label: '直接可承担',
+        value: '地图核心模块、可视化前端架构、复杂交互系统推进',
+      },
+      {
+        label: '项目价值',
+        value: '把高交互可视化项目做成可维护、可扩展、可持续交付的产品能力',
+      },
+    ],
+  },
+];
+
+const resolveVersion = (value: unknown): ResumeVariantKey => {
+  if (value === 'webgl') {
+    return 'webgl';
+  }
+
+  return 'medical';
+};
+
+const activeVersion = computed<ResumeVariantKey>(() =>
+  resolveVersion(route.query.version),
 );
 
-const profileSnapshot = [
-  {
-    label: '核心定位',
-    value: '前端架构 / 全栈交付 / AI 产品界面',
-    detail: '从视觉与交互，到路由组织、模块结构和工程策略都能兼顾。',
-  },
-  {
-    label: '擅长问题',
-    value: '复杂系统的结构化整理',
-    detail: '把混乱需求拆成模块、规则与可维护的长期实现路径。',
-  },
-  {
-    label: '工作风格',
-    value: '克制、直接、强调结果',
-    detail: '不会停留在表面“做出来”，而是追求成品质量与演进能力。',
-  },
-];
+const activeResume = computed(
+  () =>
+    resumeVariants.find((item) => item.key === activeVersion.value) ??
+    resumeVariants[0],
+);
 
-const signatureStrengths = [
-  {
-    eyebrow: 'Strength 01',
-    title: '会做复杂前台，也会组织系统结构',
-    description:
-      '不仅能完成界面实现，还能从信息架构、路由、模块边界和交互节奏上提升整个产品质量。',
-  },
-  {
-    eyebrow: 'Strength 02',
-    title: '能把技术内容做成有产品力的体系',
-    description:
-      '擅长把零散知识重构成栏目、专题、学习路径与能力地图，让内容本身具备专业表达与可浏览性。',
-  },
-  {
-    eyebrow: 'Strength 03',
-    title: '对 AI 时代的前端升级有清晰判断',
-    description:
-      '理解 agent、AI UX、工作流协作与未来价值迁移，能够用现实视角判断技术演进方向。',
-  },
-];
-
-const focusPoints = [
-  {
-    title: '复杂前台与交互设计',
-    description:
-      '处理内容密度高、层次复杂、状态切换多的产品页面，避免出现后台模板感或廉价组件味。',
-    outcome: '结果：界面更克制，信息更清楚，品牌辨识度更高。',
-  },
-  {
-    title: '信息架构与内容产品化',
-    description:
-      '把学习体系、专题栏目、能力地图等抽象内容做成结构稳定、路径清晰的可浏览产品。',
-    outcome: '结果：用户能快速理解内容边界，也更容易形成站点认知。',
-  },
-  {
-    title: '工程结构升级与长期维护',
-    description:
-      '关注路由生成、权限菜单、模块分层、页面职责和样式规范，减少项目后续扩展成本。',
-    outcome: '结果：需求继续增加时，系统不会迅速失控。',
-  },
-];
-
-const experienceTimeline = [
-  {
-    phase: 'Phase 01',
-    title: '从页面实现走向系统级前端',
-    summary:
-      '早期关注高质量界面实现与组件抽象，逐步扩展到路由结构、状态组织和复杂页面体验。',
-    details: [
-      '能把视觉、交互和代码结构统一起来，不做割裂实现。',
-      '关注可维护性，而不是只追求短期完成。',
-    ],
-  },
-  {
-    phase: 'Phase 02',
-    title: '从功能开发走向产品交付',
-    summary:
-      '从单点需求转向完整交付视角，开始关注模块关系、发布节奏和系统的持续演进能力。',
-    details: [
-      '能把需求抽象成模块和规则，而不是只完成单页开发。',
-      '理解设计、接口、内容与工程协作之间的真实衔接。',
-    ],
-  },
-  {
-    phase: 'Phase 03',
-    title: '进入 AI 产品与全栈延展',
-    summary:
-      '持续关注 agent、AI 应用前台以及从前端走向完整系统交付的升级路径。',
-    details: [
-      '能识别哪些价值会被 AI 压缩，哪些能力会被进一步放大。',
-      '把技术学习组织成路线图，而不是随机补点式成长。',
-    ],
-  },
-];
-
-const capabilityMatrix = [
-  {
-    title: '前端架构',
-    description:
-      '擅长前端项目的信息结构、模块分层、路由组织、可维护性设计与长期演进方案。',
-    tags: [
-      'Route Design',
-      'Module Boundaries',
-      'UI Systems',
-      'Maintainability',
-    ],
-  },
-  {
-    title: '交互与视觉判断',
-    description:
-      '关注界面节奏、信息密度、细节质感和复杂交互的自然体验，避免产品显得廉价或模板化。',
-    tags: ['Interaction Design', 'Visual Hierarchy', 'Content UX', 'AI UX'],
-  },
-  {
-    title: '全栈视角',
-    description:
-      '理解服务端、数据库、部署和协作流程如何影响前台决策，能从整体视角组织系统。',
-    tags: [
-      'Fullstack Thinking',
-      'Delivery',
-      'Engineering Workflow',
-      'Deployment',
-    ],
-  },
-  {
-    title: '技术表达',
-    description:
-      '能够把复杂知识拆成清晰结构，用专题、教程、能力地图与作品页建立长期职业信誉。',
-    tags: [
-      'Technical Writing',
-      'Knowledge Design',
-      'Documentation',
-      'Narrative',
-    ],
-  },
-];
-
-const selectedWorks = [
-  {
-    title: '个人技术博客系统重构',
-    role: 'Information Architecture / Frontend Design',
-    summary:
-      '将原始模板式项目改造成带有个人品牌、专题栏目、独立模块与简历文档的技术博客。',
-    value: '证明了从信息结构到视觉气质的整体控制能力。',
-  },
-  {
-    title: '全球留言地球交互页',
-    role: 'Interactive Frontend',
-    summary:
-      '围绕地球仪、头像水滴、缩放层级和 tip 展示规则构建互动表达，同时兼顾性能与视觉完成度。',
-    value: '体现复杂交互设计、性能约束下的实现判断与审美控制。',
-  },
-  {
-    title: '前端架构 / 全栈能力地图专题',
-    role: 'Technical Content Product',
-    summary:
-      '把抽象知识做成可浏览、可理解、可升级的能力地图，帮助读者建立现实的成长路径。',
-    value: '证明了技术内容产品化与系统化表达能力。',
-  },
-];
-
-const collaborationStyle = [
-  {
-    title: '能直接进入复杂问题',
-    description:
-      '不依赖过度细碎的任务切分，能够自行梳理结构、发现关键路径并推进落地。',
-  },
-  {
-    title: '会主动提出更优解',
-    description:
-      '如果发现当前做法只是能跑但不够好，会明确指出结构问题并给出更合理的实现方式。',
-  },
-  {
-    title: '重视完成度与职业感',
-    description:
-      '不仅关心代码是否可用，也关心产品是否显得专业、信息是否清楚、用户是否感受到质量。',
-  },
-];
-
-const closingPoints = [
-  {
-    label: '适合场景',
-    value: '复杂前端、技术内容产品、AI 应用界面与系统升级',
-  },
-  {
-    label: '带来的价值',
-    value: '提升成品感、结构稳定性和长期交付效率',
-  },
-  {
-    label: '合作关键词',
-    value: '结构化、审美判断、工程 rigor、长期主义',
-  },
-];
+const handleSwitchVersion = (version: ResumeVariantKey) => {
+  void router.replace({
+    query: {
+      ...route.query,
+      version,
+    },
+  });
+};
 </script>
 
 <style scoped>
 .resume-page {
-  --resume-bg: #f6f4ee;
   --resume-paper: #ffffff;
-  --resume-paper-soft: #faf8f3;
-  --resume-line: rgba(28, 34, 42, 0.1);
-  --resume-line-strong: rgba(28, 34, 42, 0.16);
-  --resume-title: #17202a;
-  --resume-text: #4a5561;
-  --resume-muted: #78818b;
-  --resume-accent: #7c6955;
-  --resume-accent-soft: rgba(124, 105, 85, 0.1);
+  --resume-line: rgba(17, 24, 39, 0.1);
+  --resume-line-strong: rgba(17, 24, 39, 0.16);
+  --resume-title: #16202b;
+  --resume-text: #475569;
+  --resume-muted: #7c8796;
+  --resume-accent: #556477;
+  --resume-accent-soft: rgba(85, 100, 119, 0.1);
   padding: 24px 0 64px;
   color: var(--resume-text);
 }
 
 .resume-toolbar,
-.resume-nav,
+.resume-switcher,
 .resume-stack {
-  width: min(calc(210mm + 72px), calc(100vw - 32px));
+  width: min(calc(210mm + 32px), calc(100vw - 32px));
   margin: 0 auto;
 }
 
@@ -466,36 +660,34 @@ const closingPoints = [
   align-items: flex-end;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .resume-toolbar__eyebrow,
 .section-heading__eyebrow,
-.strength-card__eyebrow,
-.metric-card__label,
-.closing-note__eyebrow,
-.closing-note__label,
-.hero-card__eyebrow {
+.fact-card__label,
+.resume-header__name,
+.fit-card__label {
   font-size: 11px;
   line-height: 1.4;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--resume-muted);
 }
 
 .resume-toolbar__title {
   margin-top: 6px;
-  font-size: 28px;
-  line-height: 1.2;
+  font-size: 26px;
+  line-height: 1.15;
   font-weight: 600;
   color: var(--resume-title);
 }
 
 .resume-toolbar__text {
-  max-width: 680px;
+  max-width: 640px;
   margin-top: 8px;
-  font-size: 14px;
-  line-height: 1.9;
+  font-size: 13px;
+  line-height: 1.8;
 }
 
 .resume-toolbar__actions {
@@ -508,321 +700,303 @@ const closingPoints = [
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 42px;
+  min-height: 40px;
   padding: 0 18px;
   border: 1px solid var(--resume-line);
   border-radius: 7px;
-  background: rgba(255, 255, 255, 0.84);
+  background: #ffffff;
   color: var(--resume-title);
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
   cursor: pointer;
-  transition:
-    border-color 160ms ease,
-    background-color 160ms ease,
-    color 160ms ease;
-}
-
-.resume-toolbar__button:hover {
-  border-color: var(--resume-line-strong);
-  background: var(--resume-paper);
 }
 
 .resume-toolbar__button.is-dark {
   border-color: var(--resume-title);
   background: var(--resume-title);
-  color: var(--resume-paper);
+  color: #ffffff;
 }
 
-.resume-toolbar__button.is-dark:hover {
-  background: #2a3440;
-  border-color: #2a3440;
-}
-
-.resume-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.resume-nav__item {
-  display: inline-flex;
-  align-items: center;
-  min-height: 38px;
-  padding: 0 14px;
-  border: 1px solid var(--resume-line);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--resume-text);
-  font-size: 13px;
-  text-decoration: none;
-}
-
-.resume-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.resume-sheet {
-  width: 210mm;
-  min-height: 297mm;
-  margin: 0 auto;
-  padding: 18mm 16mm;
-  border: 1px solid rgba(19, 27, 34, 0.08);
-  border-radius: 7px;
-  background: linear-gradient(180deg, #fffdfa 0%, #ffffff 100%);
-  box-shadow: 0 24px 60px rgba(17, 24, 32, 0.1);
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-}
-
-.hero-card {
+.resume-switcher {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) 240px;
-  gap: 18px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid var(--resume-line);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
-.hero-card__title {
-  margin-top: 10px;
-  font-size: 34px;
-  line-height: 1.24;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  color: var(--resume-title);
-}
-
-.hero-card__summary {
-  margin-top: 16px;
-  font-size: 15px;
-  line-height: 2;
-}
-
-.hero-card__meta {
+.resume-switcher__button {
   display: grid;
-  gap: 10px;
-}
-
-.metric-card,
-.strength-card,
-.focus-item,
-.capability-card,
-.work-card,
-.collaboration-card,
-.closing-note {
+  gap: 6px;
+  padding: 13px 15px;
   border: 1px solid var(--resume-line);
   border-radius: 7px;
-  background: var(--resume-paper);
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
 }
 
-.metric-card {
-  padding: 14px;
-  background: var(--resume-paper-soft);
-}
-
-.metric-card__value {
-  margin-top: 8px;
-  font-size: 17px;
+.resume-switcher__button span {
+  font-size: 14px;
   line-height: 1.5;
   font-weight: 600;
   color: var(--resume-title);
 }
 
-.metric-card__detail {
-  margin-top: 8px;
-  font-size: 13px;
-  line-height: 1.85;
+.resume-switcher__button small {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--resume-muted);
 }
 
-.sheet-section {
+.resume-switcher__button.is-active {
+  border-color: var(--resume-line-strong);
+  background: #f8fafc;
+}
+
+.resume-stack {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  align-items: center;
+  gap: 20px;
 }
 
-.section-heading {
+.resume-sheet {
+  box-sizing: border-box;
+  width: 210mm;
+  height: 297mm;
+  padding: 12mm;
+  overflow: hidden;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 7px;
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
   display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 14px;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.section-heading__title {
-  margin-top: 5px;
-  font-size: 24px;
-  line-height: 1.28;
+.resume-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 248px;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--resume-line);
+}
+
+.resume-header__title {
+  margin-top: 8px;
+  font-size: 27px;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: var(--resume-title);
+}
+
+.resume-header__summary {
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.resume-header__facts {
+  display: grid;
+  gap: 8px;
+}
+
+.fact-card,
+.strength-item,
+.stack-card,
+.experience-item,
+.ownership-card,
+.project-card,
+.summary-card,
+.fit-card {
+  border: 1px solid var(--resume-line);
+  border-radius: 7px;
+  background: #ffffff;
+}
+
+.fact-card {
+  padding: 10px 11px;
+  background: #f8fafc;
+}
+
+.fact-card__value {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.55;
   font-weight: 600;
   color: var(--resume-title);
 }
 
-.strength-grid,
-.capability-grid {
+.resume-sheet__main {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 244px minmax(0, 1fr);
   gap: 12px;
+  min-height: 0;
+  flex: 1;
 }
 
-.strength-card,
-.capability-card,
-.collaboration-card,
-.closing-note {
-  padding: 16px;
+.resume-sidebar,
+.resume-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
 }
 
-.strength-card__title,
-.capability-card__title,
-.focus-item__title,
-.timeline-item__title,
-.work-card__title,
-.collaboration-card__title,
-.closing-note__title {
+.resume-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.section-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.section-heading__title {
   font-size: 18px;
+  line-height: 1.2;
+  font-weight: 600;
+  color: var(--resume-title);
+}
+
+.strength-list,
+.stack-list,
+.experience-list,
+.project-list {
+  display: grid;
+  gap: 8px;
+}
+
+.strength-item,
+.stack-card,
+.ownership-card,
+.summary-card,
+.fit-card {
+  padding: 11px;
+}
+
+.strength-item__title,
+.stack-card__title,
+.experience-item__title,
+.ownership-card__title,
+.project-card__title,
+.fit-card__title {
+  font-size: 14px;
   line-height: 1.45;
   font-weight: 600;
   color: var(--resume-title);
 }
 
-.strength-card__title,
-.capability-card__title,
-.collaboration-card__title,
-.closing-note__title {
+.strength-item__text,
+.experience-item__summary,
+.ownership-card__text,
+.fit-card__summary,
+.project-card__role,
+.project-card__challenge {
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.75;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   margin-top: 8px;
 }
 
-.strength-card__text,
-.capability-card__text,
-.focus-item__text,
-.timeline-item__summary,
-.work-card__text,
-.collaboration-card__text,
-.closing-note__text {
-  margin-top: 10px;
-  font-size: 14px;
-  line-height: 1.9;
-}
-
-.focus-list,
-.work-list,
-.collaboration-list,
-.closing-note__items {
-  display: grid;
-  gap: 12px;
-}
-
-.focus-item {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 220px;
-  gap: 16px;
-  padding: 16px;
-}
-
-.focus-item__outcome,
-.work-card__value,
-.closing-note__value {
-  font-size: 13px;
-  line-height: 1.85;
-  color: var(--resume-accent);
-}
-
-.timeline {
-  display: grid;
-  gap: 14px;
-}
-
-.timeline-item {
-  display: grid;
-  grid-template-columns: 110px minmax(0, 1fr);
-  gap: 14px;
-  padding: 16px;
-  border: 1px solid var(--resume-line);
-  border-radius: 7px;
-  background: var(--resume-paper);
-}
-
-.timeline-item__phase {
-  font-size: 12px;
-  line-height: 1.4;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--resume-muted);
-}
-
-.timeline-item__list {
-  margin-top: 12px;
-  padding-left: 18px;
-  display: grid;
-  gap: 8px;
-  font-size: 14px;
-  line-height: 1.8;
-}
-
-.capability-card__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.capability-card__tags span {
+.tag-list span {
   display: inline-flex;
   align-items: center;
-  min-height: 30px;
-  padding: 0 10px;
+  min-height: 24px;
+  padding: 0 9px;
   border-radius: 999px;
   background: var(--resume-accent-soft);
   color: var(--resume-accent);
-  font-size: 12px;
+  font-size: 11px;
 }
 
-.work-card {
-  padding: 16px;
-  background: linear-gradient(180deg, #ffffff 0%, #fcfaf6 100%);
+.experience-item {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 10px;
+  padding: 11px;
 }
 
-.work-card__head {
+.experience-item__phase {
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 600;
+  color: var(--resume-muted);
+}
+
+.bullet-list {
+  margin: 8px 0 0;
+  padding-left: 16px;
+  display: grid;
+  gap: 4px;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--resume-text);
+}
+
+.ownership-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.project-card {
+  padding: 12px;
+}
+
+.project-card__head {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
 }
 
-.work-card__role {
-  display: inline-flex;
-  align-items: center;
-  min-height: 30px;
-  padding: 0 10px;
-  border-radius: 999px;
-  border: 1px solid var(--resume-line);
-  font-size: 12px;
+.project-card__stack {
+  max-width: 250px;
+  font-size: 11px;
+  line-height: 1.65;
+  text-align: right;
   color: var(--resume-muted);
 }
 
-.page-split__grid {
+.project-card__result,
+.fit-card__value {
+  margin-top: 8px;
+  font-size: 11px;
+  line-height: 1.75;
+  color: var(--resume-accent);
+}
+
+.resume-sheet__footer {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) 250px;
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) 272px;
+  gap: 12px;
 }
 
-.closing-note {
-  background: linear-gradient(180deg, #fbfaf6 0%, #f7f3eb 100%);
+.fit-card {
+  background: #f8fafc;
 }
 
-.closing-note__items {
-  margin-top: 16px;
+.fit-card__list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
 }
 
-.closing-note__item {
-  padding-top: 12px;
+.fit-card__item {
+  padding-top: 8px;
   border-top: 1px solid var(--resume-line);
-}
-
-.closing-note__value {
-  margin-top: 6px;
 }
 
 @media (max-width: 1120px) {
@@ -831,7 +1005,7 @@ const closingPoints = [
   }
 
   .resume-toolbar,
-  .resume-nav,
+  .resume-switcher,
   .resume-stack {
     width: calc(100vw - 24px);
   }
@@ -841,19 +1015,19 @@ const closingPoints = [
     align-items: stretch;
   }
 
-  .resume-sheet {
-    width: 100%;
-    min-height: auto;
-    padding: 24px;
+  .resume-switcher,
+  .resume-header,
+  .resume-sheet__main,
+  .resume-sheet__footer,
+  .ownership-grid {
+    grid-template-columns: 1fr;
   }
 
-  .hero-card,
-  .strength-grid,
-  .capability-grid,
-  .page-split__grid,
-  .focus-item,
-  .timeline-item {
-    grid-template-columns: 1fr;
+  .resume-sheet {
+    width: 100%;
+    height: auto;
+    min-height: auto;
+    padding: 24px;
   }
 }
 
@@ -869,7 +1043,7 @@ const closingPoints = [
   }
 
   .resume-toolbar,
-  .resume-nav {
+  .resume-switcher {
     display: none;
   }
 
@@ -881,8 +1055,8 @@ const closingPoints = [
 
   .resume-sheet {
     width: 210mm;
-    min-height: 297mm;
-    padding: 18mm 16mm;
+    height: 297mm;
+    padding: 12mm;
     border: none;
     border-radius: 0;
     box-shadow: none;
