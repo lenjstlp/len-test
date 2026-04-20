@@ -277,4 +277,101 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'median-of-two-sorted-arrays',
+    label: '4. LeetCode 4. 寻找两个正序数组的中位数',
+    difficulty: '困难',
+    description:
+      '这题是二分查找的代表性进阶题。真正难点不在于“二分”两个字，而在于能否把问题转成“找到正确切分位置”。',
+    outcome:
+      '你能理解为什么这题不能停留在简单合并，能掌握按切分位置做二分的思路，并独立写出 `O(log(min(m,n)))` 的标准解法。',
+    sections: [
+      {
+        id: 'mta-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个从小到大排序的数组 `nums1` 和 `nums2`，要求找出这两个数组合并后的中位数，并且时间复杂度必须是 `O(log(m + n))` 级别。',
+        bullets: [
+          '两个数组本身已经有序，这是最重要的前提。',
+          '如果把两个数组完整合并，当然能做，但复杂度通常是 `O(m + n)`。',
+          '题目明确要求更快，所以你必须利用“有序”这个性质做二分。',
+          '中位数本质上就是把整体切成左右两半，并保证左半最大值不大于右半最小值。',
+        ],
+      },
+      {
+        id: 'mta-brute-force',
+        title: '为什么普通合并法不够',
+        summary:
+          '最自然的思路是先合并两个有序数组，再取中位数。这个做法在工程里没问题，但在这道题里达不到目标复杂度。',
+        bullets: [
+          '完整合并需要遍历两边数组，时间复杂度是 `O(m + n)`。',
+          '即使不完整合并，只模拟到中位数位置，仍然是线性复杂度。',
+          '题目要求对数级别，所以必须换角度，而不是继续优化合并细节。',
+        ],
+      },
+      {
+        id: 'mta-core-idea',
+        title: '真正的核心：在较短数组上二分切分点',
+        summary:
+          '把两个数组想象成被切成左右两半。只要找到一个切分位置，使得左边所有数都不大于右边所有数，那么中位数就能直接从边界算出来。',
+        bullets: [
+          '设 `i` 是 `nums1` 的切分位置，`j` 是 `nums2` 的切分位置。',
+          '要求左半部分总元素数等于右半部分，或只多一个。',
+          '只要满足 `nums1Left <= nums2Right` 且 `nums2Left <= nums1Right`，切分就合法。',
+          '因为切分合法性随位置单调变化，所以可以在较短数组上二分。',
+        ],
+        callout:
+          '这题最值钱的地方就是思维转换：不是在数组里找某个值，而是在找一个“让整体左右平衡且有序”的切分位置。很多高级二分题本质都是这样。',
+      },
+      {
+        id: 'mta-why-shorter-array',
+        title: '为什么一定在较短数组上二分',
+        summary:
+          '如果不先保证在较短数组上二分，另一个数组的切分位置 `j` 可能会越界。先交换数组，让 `nums1` 永远更短，写法会稳定很多。',
+        bullets: [
+          '二分范围会更小，效率更高。',
+          '更重要的是可以保证 `j` 的计算更容易控制在合法区间。',
+          '很多官方或经典解法第一步就是先交换两数组，让短数组在前。',
+        ],
+      },
+      {
+        id: 'mta-optimal-solution',
+        title: '标准解法：二分切分位置',
+        summary:
+          '每一轮先取 `nums1` 的中间切分点 `i`，再根据总左半长度推导出 `nums2` 的切分点 `j`。之后比较四个边界值，判断应该左移还是右移。',
+        bullets: [
+          '时间复杂度是 `O(log(min(m, n)))`。',
+          '空间复杂度是 `O(1)`。',
+          '边界处理通常借助 `-Infinity` 和 `Infinity`，避免写很多额外判断。',
+        ],
+        code: `function findMedianSortedArrays(nums1: number[], nums2: number[]): number {\n  if (nums1.length > nums2.length) {\n    return findMedianSortedArrays(nums2, nums1)\n  }\n\n  const m = nums1.length\n  const n = nums2.length\n  let left = 0\n  let right = m\n\n  while (left <= right) {\n    const i = Math.floor((left + right) / 2)\n    const j = Math.floor((m + n + 1) / 2) - i\n\n    const nums1Left = i === 0 ? -Infinity : nums1[i - 1]\n    const nums1Right = i === m ? Infinity : nums1[i]\n    const nums2Left = j === 0 ? -Infinity : nums2[j - 1]\n    const nums2Right = j === n ? Infinity : nums2[j]\n\n    if (nums1Left <= nums2Right && nums2Left <= nums1Right) {\n      if ((m + n) % 2 === 1) {\n        return Math.max(nums1Left, nums2Left)\n      }\n\n      return (\n        (Math.max(nums1Left, nums2Left) +\n          Math.min(nums1Right, nums2Right)) /\n        2\n      )\n    }\n\n    if (nums1Left > nums2Right) {\n      right = i - 1\n    } else {\n      left = i + 1\n    }\n  }\n\n  throw new Error('Invalid input')\n}`,
+      },
+      {
+        id: 'mta-example-walkthrough',
+        title: '拿例子理解切分过程',
+        summary:
+          '例如 `nums1 = [1, 3]`，`nums2 = [2]`。先让较短数组在前，即 `nums1 = [2]`，`nums2 = [1, 3]`。此时切分后左边是 `[1, 2]`，右边是 `[3]`，左边最大值就是中位数。',
+        bullets: [
+          '总长度是 3，所以左边应有 2 个元素。',
+          '当 `nums1` 切 1 个、`nums2` 切 1 个时，左边是 `[2] + [1]`，右边是 `[] + [3]`。',
+          '此时左边最大值为 2，右边最小值为 3，且左右合法。',
+          '因为总长度是奇数，所以答案是左边最大值 2。',
+        ],
+      },
+      {
+        id: 'mta-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题通常不是“不会二分”，而是边界和切分条件容易写错。只要把切分语义想清楚，代码就会稳定很多。',
+        bullets: [
+          '易错点 1：没有先让较短数组在前，导致 `j` 越界。',
+          '易错点 2：奇偶长度下中位数公式混淆。',
+          '易错点 3：边界位置没有用 `Infinity` 和 `-Infinity` 兜底，导致判断分支过于混乱。',
+          '延伸方向：第 K 小元素、旋转数组二分、在两个有序结构中找临界位置等题目，都能训练类似的切分思维。',
+        ],
+        callout:
+          '前 3 题更多是在练常用数据结构和窗口；第 4 题开始要求你主动重构问题模型。能把这题看懂，说明你已经开始真正进入算法题的“思维层”。',
+      },
+    ],
+  },
 ];
