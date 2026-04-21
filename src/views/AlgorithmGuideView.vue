@@ -13,7 +13,7 @@
             </p>
             <h2 class="mt-2 text-xl font-semibold text-white">算法题</h2>
             <p class="mt-2 text-sm leading-6 text-[#b8b6b0]">
-              先从一道 LeetCode 经典题入手，建立刷题时真正有用的解题框架。
+              按 LeetCode 顺序逐题补充，用经典题建立刷题时真正有用的解题框架。
             </p>
           </div>
 

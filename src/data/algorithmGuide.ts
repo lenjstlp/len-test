@@ -374,4 +374,92 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'longest-palindromic-substring',
+    label: '5. LeetCode 5. 最长回文子串',
+    difficulty: '中等',
+    description:
+      '这题开始让你建立“以某个位置为中心向两边扩展”的思维。重点不是背中心扩展法，而是理解为什么回文天然适合围绕中心处理。',
+    outcome:
+      '你能独立写出最长回文子串的中心扩展解法，理解奇偶长度回文的区别，并知道为什么它比暴力枚举更合适。',
+    sections: [
+      {
+        id: 'lps-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串 `s`，返回其中最长的回文子串。回文串的意思是正着读和反着读都一样，比如 `aba`、`abba`。',
+        bullets: [
+          '要求的是子串，所以必须连续。',
+          '返回值是具体子串，不是长度。',
+          '回文既可能是奇数长度，也可能是偶数长度。',
+          '这题最关键的不是判断某个串是不是回文，而是如何高效找到最长的那个。',
+        ],
+      },
+      {
+        id: 'lps-brute-force',
+        title: '暴力解为什么不划算',
+        summary:
+          '最直接的做法是枚举所有子串，再逐个判断是否回文，最后取最长的那一个。思路没有问题，但枚举量太大。',
+        bullets: [
+          '用双重循环枚举起点和终点，能列出所有子串。',
+          '每个子串再用双指针判断是否回文。',
+          '这样时间复杂度通常会到 `O(n³)`，字符串稍长就会明显变慢。',
+          '真正需要优化的点，是避免对大量无效子串反复做完整检查。',
+        ],
+      },
+      {
+        id: 'lps-core-idea',
+        title: '真正的关键：回文一定围绕中心对称',
+        summary:
+          '只要一个字符串是回文，那么它一定可以看成从某个中心向左右两边扩展得到。这个中心可能是一个字符，也可能是两个字符之间的空隙。',
+        bullets: [
+          '像 `aba` 这种奇数长度回文，中心是中间那个字符 `b`。',
+          '像 `abba` 这种偶数长度回文，中心是两个 `b` 之间的位置。',
+          '只要从每个可能的中心向两侧扩展，就能找到所有回文子串。',
+          '因此这题不需要枚举所有子串，而是枚举所有中心。',
+        ],
+        callout:
+          '很多算法题的本质都是换一个角度描述问题。这题如果站在“子串”角度看会很乱；一旦改成“中心”，思路立刻清晰很多。',
+      },
+      {
+        id: 'lps-center-expand',
+        title: '标准解法：中心扩展',
+        summary:
+          '遍历字符串中的每个位置，把它当作回文中心扩展一次；同时把它和下一个位置之间的空隙也当作中心扩展一次，这样奇偶两种情况都覆盖到了。',
+        bullets: [
+          '总共有 `2n - 1` 个潜在中心。',
+          '每次扩展时，只要左右字符相等，就继续往外走。',
+          '扩展结束后，就得到了以该中心为核心的最长回文。',
+          '遍历所有中心后，记录其中最长的结果即可。',
+        ],
+        code: `function longestPalindrome(s: string): string {\n  if (s.length < 2) {\n    return s\n  }\n\n  let start = 0\n  let end = 0\n\n  const expandFromCenter = (left: number, right: number) => {\n    while (left >= 0 && right < s.length && s[left] === s[right]) {\n      left -= 1\n      right += 1\n    }\n\n    return [left + 1, right - 1]\n  }\n\n  for (let i = 0; i < s.length; i += 1) {\n    const [left1, right1] = expandFromCenter(i, i)\n    const [left2, right2] = expandFromCenter(i, i + 1)\n\n    if (right1 - left1 > end - start) {\n      start = left1\n      end = right1\n    }\n\n    if (right2 - left2 > end - start) {\n      start = left2\n      end = right2\n    }\n  }\n\n  return s.slice(start, end + 1)\n}`,
+      },
+      {
+        id: 'lps-example-walkthrough',
+        title: '拿例子手推一次',
+        summary:
+          '例如 `s = "babad"`。当中心落在第 1 个字符 `a` 上时，可以向两边扩出 `bab`；当中心落在第 2 个字符 `b` 上时，又能扩出 `aba`。所以答案可以是 `bab` 或 `aba`。',
+        bullets: [
+          '以 `b` 为中心时，只能得到长度 1 的回文。',
+          '以 `a` 为中心时，左右分别是 `b` 和 `b`，可以扩成 `bab`。',
+          '继续往外已经越界，所以停止。',
+          '后面再以另一个 `b` 为中心，又能得到 `aba`。',
+        ],
+      },
+      {
+        id: 'lps-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题看起来像字符串题，实际上是在练“围绕局部结构扩展”的思维。很多区间和双指针题都能借这个模式建立感觉。',
+        bullets: [
+          '易错点 1：只处理奇数长度中心，漏掉 `abba` 这种偶数回文。',
+          '易错点 2：扩展结束后直接返回 `left` 和 `right`，忘了它们已经多走了一步。',
+          '易错点 3：更新答案时比较长度写错，导致边界偏移。',
+          '延伸方向：回文子串数量、最长回文子序列、最短回文串、Manacher 算法。',
+        ],
+        callout:
+          '如果前几题在训练哈希、链表、滑动窗口和二分，那这第 5 题就在训练你如何主动寻找“问题的天然结构”。能意识到回文的中心对称性，说明你的题感已经开始往上走了。',
+      },
+    ],
+  },
 ];
