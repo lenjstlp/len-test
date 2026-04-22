@@ -30,6 +30,7 @@ type ViewKey =
   | 'AgentGuideView'
   | 'CanvasGuideView'
   | 'DashboardView'
+  | 'DockerGuideView'
   | 'FrontendArchitectureGuideView'
   | 'FullstackGuideView'
   | 'GitGuideView'
@@ -105,6 +106,7 @@ const viewMap: Record<ViewKey, () => Promise<unknown>> = {
   AgentGuideView: () => import('@/views/AgentGuideView.vue'),
   CanvasGuideView: () => import('@/views/CanvasGuideView.vue'),
   DashboardView: () => import('@/views/DashboardView.vue'),
+  DockerGuideView: () => import('@/views/DockerGuideView.vue'),
   FrontendArchitectureGuideView: () =>
     import('@/views/FrontendArchitectureGuideView.vue'),
   FullstackGuideView: () => import('@/views/FullstackGuideView.vue'),
@@ -178,6 +180,15 @@ const mockPermissionMenus: PermissionMenuPayload[] = [
     description: '系统整理 Git 的初始化、提交、分支、远程与回退命令。',
     icon: 'Document',
     component: 'GitGuideView',
+  },
+  {
+    name: 'docker-guide',
+    path: '/docker-guide',
+    title: 'Docker 学习',
+    description:
+      '系统学习 Docker 的基础概念、常用命令、Dockerfile、Compose 与前后端项目部署。',
+    icon: 'Document',
+    component: 'DockerGuideView',
   },
   {
     name: 'agent-guide',

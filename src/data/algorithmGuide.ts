@@ -462,4 +462,103 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'zigzag-conversion',
+    label: '6. LeetCode 6. Z 字形变换',
+    difficulty: '中等',
+    description:
+      '这题表面像字符串模拟，真正训练的是你把“二维摆动过程”压缩成一维规则的能力。重点不是画图，而是找到行号变化的规律。',
+    outcome:
+      '你能独立写出 Z 字形变换的模拟解法，理解方向切换的时机，并知道这类题为什么本质是状态机而不是复杂数学题。',
+    sections: [
+      {
+        id: 'zz-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s` 和行数 `numRows`，需要把字符串按 Z 字形摆放后，再按行读取，返回新的结果字符串。',
+        bullets: [
+          '字符串字符会先从上往下填，再斜着往上回折。',
+          '最终不是返回二维图，而是按每一行拼接后的结果。',
+          '如果 `numRows = 1`，实际上根本不会发生折返。',
+          '这题的难点不在字符串操作，而在于模拟字符落在哪一行。',
+        ],
+      },
+      {
+        id: 'zz-visualization',
+        title: '先用例子看清楚 Z 字形',
+        summary:
+          '例如 `s = "PAYPALISHIRING"`，`numRows = 3` 时，字符会摆成 3 行折返结构。按行读取后，结果是 `PAHNAPLSIIGYIR`。',
+        code: `P   A   H   N\nA P L S I I G\nY   I   R`,
+        bullets: [
+          '第一行拿到的是折返路径的顶点字符。',
+          '中间行既会接收向下路径，也会接收斜着向上的字符。',
+          '最后一行拿到的是折返路径的底点字符。',
+        ],
+      },
+      {
+        id: 'zz-core-idea',
+        title: '核心思路：维护当前行和方向',
+        summary:
+          '你不需要真的构造一个完整二维矩阵。更高效的做法是维护一个“当前在哪一行”和“当前方向是向下还是向上”的状态，把字符依次追加到对应行里。',
+        bullets: [
+          '准备一个数组，每个元素对应一行字符串。',
+          '遍历原字符串，每个字符都追加到当前行。',
+          '如果到达第一行或最后一行，就切换方向。',
+          '行号根据方向不断加一或减一。',
+        ],
+        callout:
+          '这题很适合建立一个意识：很多看起来像二维图的问题，其实并不需要真的开二维数组。只要状态转移规则清楚，常常可以在线模拟。',
+      },
+      {
+        id: 'zz-state-machine',
+        title: '它为什么本质上是一个状态机',
+        summary:
+          '所谓状态机，简单说就是“当前状态决定下一步怎么走”。在这题里，状态就是“当前行号 + 当前方向”，规则固定，遍历过程完全可控。',
+        bullets: [
+          '状态 1：当前在哪一行。',
+          '状态 2：当前方向是向下还是向上。',
+          '遇到边界时，方向翻转。',
+          '其余情况按当前方向继续移动。',
+        ],
+      },
+      {
+        id: 'zz-optimal-solution',
+        title: '标准解法：行数组 + 方向切换',
+        summary:
+          '这是最稳定也最容易写对的做法。每轮把字符加入当前行，然后根据是否触边决定是否翻转方向。',
+        bullets: [
+          '时间复杂度是 `O(n)`，每个字符只处理一次。',
+          '空间复杂度是 `O(n)`，因为需要保存每一行的字符结果。',
+          '这题不是考你极限优化，而是考你是否能把过程状态表达清楚。',
+        ],
+        code: `function convert(s: string, numRows: number): string {\n  if (numRows === 1 || numRows >= s.length) {\n    return s\n  }\n\n  const rows = Array.from({ length: numRows }, () => '')\n  let currentRow = 0\n  let goingDown = false\n\n  for (const char of s) {\n    rows[currentRow] += char\n\n    if (currentRow === 0 || currentRow === numRows - 1) {\n      goingDown = !goingDown\n    }\n\n    currentRow += goingDown ? 1 : -1\n  }\n\n  return rows.join('')\n}`,
+      },
+      {
+        id: 'zz-example-walkthrough',
+        title: '拿示例手推一次',
+        summary:
+          '以 `PAYPALISHIRING` 和 `numRows = 4` 为例，一开始从第 0 行往下走，到第 3 行后方向反转，再斜着往上回到第 0 行，之后继续重复这个过程。',
+        bullets: [
+          '字符 `P` 落在第 0 行，接着 `A` 到第 1 行，`Y` 到第 2 行，`P` 到第 3 行。',
+          '到达最后一行后，方向翻转，后续字符开始往上走。',
+          '当再次回到第 0 行时，方向又翻回向下。',
+          '整个过程只有“追加字符”和“切换方向”两个核心动作。',
+        ],
+      },
+      {
+        id: 'zz-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题代码不长，但很容易写出边界错误。只要方向翻转时机错一点，整条结果就会错。',
+        bullets: [
+          '易错点 1：忘记处理 `numRows === 1`，导致行号来回出错。',
+          '易错点 2：在切换方向前后更新 `currentRow` 的顺序写错。',
+          '易错点 3：真的去构造二维矩阵，结果代码复杂度被自己抬高。',
+          '延伸方向：状态机模拟、字符串重排、矩阵遍历类题目、按规则走位的模拟题。',
+        ],
+        callout:
+          '前几题分别在练哈希、链表、滑动窗口、二分和中心扩展；第 6 题则在练“把过程规则抽成状态转移”。这是算法题里非常常见的一类能力。',
+      },
+    ],
+  },
 ];

@@ -116,6 +116,7 @@ const menuSections = computed<SidebarSection[]>(() => {
       keys: [
         'algorithm-guide',
         'canvas-guide',
+        'docker-guide',
         'git-guide',
         'python-guide',
         'agent-guide',
