@@ -17,6 +17,16 @@ const constantRoutes = [
     path: '/',
     redirect: () => getDefaultRoutePath(),
   },
+  {
+    path: '/fullstack-guide/download',
+    name: 'fullstack-download',
+    component: () => import('@/views/FullstackDownloadView.vue'),
+    meta: {
+      title: '下载功能',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
