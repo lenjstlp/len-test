@@ -47,6 +47,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/auth',
+    name: 'fullstack-auth',
+    component: () => import('@/views/FullstackAuthView.vue'),
+    meta: {
+      title: '前端鉴权',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

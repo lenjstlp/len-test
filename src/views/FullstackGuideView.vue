@@ -12,7 +12,7 @@
       <div class="fullstack-menu-hero__meta">
         <p class="fullstack-menu-hero__label">当前阶段</p>
         <p class="fullstack-menu-hero__value">
-          先开放三个入口：下载功能、前端上传、前端跨域
+          先开放四个入口：下载功能、前端上传、前端跨域、前端鉴权
         </p>
       </div>
     </header>
@@ -45,6 +45,10 @@ const menuCards = [
   {
     path: '/fullstack-guide/cross-origin',
     title: '前端跨域',
+  },
+  {
+    path: '/fullstack-guide/auth',
+    title: '前端鉴权',
   },
 ];
 </script>
