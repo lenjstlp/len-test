@@ -97,6 +97,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/testing',
+    name: 'fullstack-testing',
+    component: () => import('@/views/FullstackTestingView.vue'),
+    meta: {
+      title: '前端测试',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
