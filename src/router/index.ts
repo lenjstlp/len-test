@@ -27,6 +27,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/upload',
+    name: 'fullstack-upload',
+    component: () => import('@/views/FullstackUploadView.vue'),
+    meta: {
+      title: '前端上传',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
