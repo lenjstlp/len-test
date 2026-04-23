@@ -87,6 +87,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/monitoring',
+    name: 'fullstack-monitoring',
+    component: () => import('@/views/FullstackMonitoringView.vue'),
+    meta: {
+      title: '前端监控',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
