@@ -12,7 +12,7 @@
       <div class="fullstack-menu-hero__meta">
         <p class="fullstack-menu-hero__label">当前阶段</p>
         <p class="fullstack-menu-hero__value">
-          先开放五个入口：下载功能、前端上传、前端跨域、前端鉴权、前端缓存
+          先开放六个入口：下载功能、前端上传、前端跨域、前端鉴权、前端缓存、前端性能
         </p>
       </div>
     </header>
@@ -53,6 +53,10 @@ const menuCards = [
   {
     path: '/fullstack-guide/cache',
     title: '前端缓存',
+  },
+  {
+    path: '/fullstack-guide/performance',
+    title: '前端性能',
   },
 ];
 </script>

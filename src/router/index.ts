@@ -67,6 +67,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/performance',
+    name: 'fullstack-performance',
+    component: () => import('@/views/FullstackPerformanceView.vue'),
+    meta: {
+      title: '前端性能',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
