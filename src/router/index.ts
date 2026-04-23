@@ -77,6 +77,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/security',
+    name: 'fullstack-security',
+    component: () => import('@/views/FullstackSecurityView.vue'),
+    meta: {
+      title: '前端安全',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
