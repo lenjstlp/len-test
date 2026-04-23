@@ -37,6 +37,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/cross-origin',
+    name: 'fullstack-cross-origin',
+    component: () => import('@/views/FullstackCrossOriginView.vue'),
+    meta: {
+      title: '前端跨域',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
