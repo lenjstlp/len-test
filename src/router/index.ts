@@ -107,6 +107,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/monorepo',
+    name: 'fullstack-monorepo',
+    component: () => import('@/views/FullstackMonorepoView.vue'),
+    meta: {
+      title: 'Monorepo 掌握',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

@@ -12,7 +12,8 @@
       <div class="fullstack-menu-hero__meta">
         <p class="fullstack-menu-hero__label">当前阶段</p>
         <p class="fullstack-menu-hero__value">
-          先开放九个入口：下载功能、前端上传、前端跨域、前端鉴权、前端缓存、前端性能、前端安全、前端监控、前端测试
+          先开放十个入口：下载功能、前端上传、前端跨域、前端鉴权、前端缓存、前端性能、前端安全、前端监控、前端测试、Monorepo
+          掌握
         </p>
       </div>
     </header>
@@ -69,6 +70,10 @@ const menuCards = [
   {
     path: '/fullstack-guide/testing',
     title: '前端测试',
+  },
+  {
+    path: '/fullstack-guide/monorepo',
+    title: 'Monorepo 掌握',
   },
 ];
 </script>
