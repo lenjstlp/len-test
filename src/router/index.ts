@@ -57,6 +57,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/cache',
+    name: 'fullstack-cache',
+    component: () => import('@/views/FullstackCacheView.vue'),
+    meta: {
+      title: '前端缓存',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
