@@ -127,6 +127,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/i18n',
+    name: 'fullstack-i18n',
+    component: () => import('@/views/FullstackI18nView.vue'),
+    meta: {
+      title: '前端国际化',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

@@ -12,8 +12,8 @@
       <div class="fullstack-menu-hero__meta">
         <p class="fullstack-menu-hero__label">当前阶段</p>
         <p class="fullstack-menu-hero__value">
-          先开放十一个入口：下载功能、前端上传、前端跨域、前端鉴权、前端缓存、前端性能、前端安全、前端监控、前端测试、Monorepo
-          掌握、前端部署
+          先开放十二个入口：下载功能、前端上传、前端跨域、前端鉴权、前端缓存、前端性能、前端安全、前端监控、前端测试、Monorepo
+          掌握、前端部署、前端国际化
         </p>
       </div>
     </header>
@@ -78,6 +78,10 @@ const menuCards = [
   {
     path: '/fullstack-guide/deployment',
     title: '前端部署',
+  },
+  {
+    path: '/fullstack-guide/i18n',
+    title: '前端国际化',
   },
 ];
 </script>
