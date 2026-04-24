@@ -187,6 +187,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/pwa',
+    name: 'fullstack-pwa',
+    component: () => import('@/views/FullstackPwaView.vue'),
+    meta: {
+      title: '前端离线与 PWA',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
