@@ -167,6 +167,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/forms',
+    name: 'fullstack-forms',
+    component: () => import('@/views/FullstackFormsView.vue'),
+    meta: {
+      title: '前端表单工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

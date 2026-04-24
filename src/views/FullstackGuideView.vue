@@ -12,8 +12,8 @@
       <div class="fullstack-menu-hero__meta">
         <p class="fullstack-menu-hero__label">当前阶段</p>
         <p class="fullstack-menu-hero__value">
-          先开放十五个入口：下载功能、前端上传、前端跨域、前端鉴权、前端缓存、前端性能、前端安全、前端监控、前端测试、Monorepo
-          掌握、前端部署、前端国际化、前端实时通信、前端状态管理、前端微前端
+          先开放十六个入口：下载功能、前端上传、前端跨域、前端鉴权、前端缓存、前端性能、前端安全、前端监控、前端测试、Monorepo
+          掌握、前端部署、前端国际化、前端实时通信、前端状态管理、前端微前端、前端表单工程
         </p>
       </div>
     </header>
@@ -94,6 +94,10 @@ const menuCards = [
   {
     path: '/fullstack-guide/micro-frontend',
     title: '前端微前端',
+  },
+  {
+    path: '/fullstack-guide/forms',
+    title: '前端表单工程',
   },
 ];
 </script>
