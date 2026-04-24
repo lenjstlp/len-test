@@ -157,6 +157,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/micro-frontend',
+    name: 'fullstack-micro-frontend',
+    component: () => import('@/views/FullstackMicroFrontendView.vue'),
+    meta: {
+      title: '前端微前端',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
