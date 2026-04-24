@@ -177,6 +177,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/design-system',
+    name: 'fullstack-design-system',
+    component: () => import('@/views/FullstackDesignSystemView.vue'),
+    meta: {
+      title: '前端设计系统',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
