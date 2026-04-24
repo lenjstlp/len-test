@@ -117,6 +117,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/deployment',
+    name: 'fullstack-deployment',
+    component: () => import('@/views/FullstackDeploymentView.vue'),
+    meta: {
+      title: '前端部署',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
