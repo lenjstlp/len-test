@@ -147,6 +147,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/state-management',
+    name: 'fullstack-state-management',
+    component: () => import('@/views/FullstackStateManagementView.vue'),
+    meta: {
+      title: '前端状态管理',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
