@@ -137,6 +137,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/realtime',
+    name: 'fullstack-realtime',
+    component: () => import('@/views/FullstackRealtimeView.vue'),
+    meta: {
+      title: '前端实时通信',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
