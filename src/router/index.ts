@@ -207,6 +207,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/seo',
+    name: 'fullstack-seo',
+    component: () => import('@/views/FullstackSeoView.vue'),
+    meta: {
+      title: '前端 SEO',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
