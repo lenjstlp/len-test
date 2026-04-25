@@ -227,6 +227,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/multi-tenant',
+    name: 'fullstack-multi-tenant',
+    component: () => import('@/views/FullstackMultiTenantView.vue'),
+    meta: {
+      title: '前端多租户',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
