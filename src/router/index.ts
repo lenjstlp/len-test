@@ -197,6 +197,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/accessibility',
+    name: 'fullstack-accessibility',
+    component: () => import('@/views/FullstackAccessibilityView.vue'),
+    meta: {
+      title: '前端无障碍',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
