@@ -217,6 +217,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/bff',
+    name: 'fullstack-bff',
+    component: () => import('@/views/FullstackBffView.vue'),
+    meta: {
+      title: '前端 BFF',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
