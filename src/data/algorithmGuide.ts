@@ -951,4 +951,104 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'container-with-most-water',
+    label: '11. LeetCode 11. 盛最多水的容器',
+    difficulty: '中等',
+    description:
+      '这题是双指针的代表题。重点不是记住“左右夹逼”四个字，而是理解为什么每一步只移动更短的那根板，才不会错过最优解。',
+    outcome:
+      '你能独立写出盛最多水的容器双指针解法，理解面积公式、剪枝逻辑，以及为什么这个题不能靠“保留更宽的距离”这种直觉来做。',
+    sections: [
+      {
+        id: 'cwmw-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个数组 `height`，其中每个元素表示一根竖线的高度。任选两根线和 x 轴组成一个容器，问最多能装多少水。',
+        bullets: [
+          '容器的宽度由两个下标之间的距离决定。',
+          '容器的高度不是取两边较高值，而是取两边较短值。',
+          '面积公式是 `min(height[left], height[right]) * (right - left)`。',
+          '题目返回的是最大面积，不是具体哪两根柱子。',
+        ],
+      },
+      {
+        id: 'cwmw-brute-force',
+        title: '暴力解为什么不划算',
+        summary:
+          '最直接的做法是枚举所有两根柱子的组合，逐个计算面积后取最大值。这个思路当然正确，但会把所有配对都看一遍，复杂度太高。',
+        bullets: [
+          '双重循环枚举左边界和右边界。',
+          '每组组合都算一次面积，再更新最大值。',
+          '时间复杂度是 `O(n²)`，数组一长就明显不合适。',
+          '真正需要优化的点，是如何利用“宽度变窄、高度可能变化”之间的关系做剪枝。',
+        ],
+        code: `function maxAreaBruteForce(height: number[]): number {\n  let answer = 0\n\n  for (let i = 0; i < height.length; i += 1) {\n    for (let j = i + 1; j < height.length; j += 1) {\n      const area = Math.min(height[i], height[j]) * (j - i)\n      answer = Math.max(answer, area)\n    }\n  }\n\n  return answer\n}`,
+      },
+      {
+        id: 'cwmw-core-idea',
+        title: '真正的关键：每次只移动更短的那一边',
+        summary:
+          '一开始把左右指针放在数组两端，此时宽度最大。接下来如果想得到更大的面积，虽然宽度一定会变小，但只有把短板换掉，容器高度才有机会变高。所以每一步都应该移动更短的那根柱子。',
+        bullets: [
+          '当前面积由短板决定，长板再高也装不进更多水。',
+          '如果移动长板，宽度变小了，但短板没变，面积不可能变大。',
+          '只有移动短板，才有机会遇到更高的柱子，从而弥补宽度损失。',
+          '这就是这题最核心的剪枝逻辑，也是双指针成立的原因。',
+        ],
+        callout:
+          '很多人记住了“移动短板”，但没有真正想明白原因。你要记住的不是结论，而是：当前面积上限被短板卡住了，想突破上限，就必须换掉短板。',
+      },
+      {
+        id: 'cwmw-why-move-shorter',
+        title: '为什么移动长板一定不划算',
+        summary:
+          '假设当前左右高度分别是 `2` 和 `8`，宽度是 `10`，那面积最多就是 `2 * 10 = 20`。如果你移动右边的长板，宽度只会更小，而左边的短板还是 `2`，所以新面积上限一定小于等于 `2 * 9`，不可能超过当前状态。',
+        bullets: [
+          '长板不是当前瓶颈，移动它不会提升有效高度。',
+          '宽度一旦减小，而短板没提升，面积只会更差或持平。',
+          '这个推理不是某个例子的巧合，而是对所有状态都成立。',
+          '因此双指针每轮只需要做一个动作：移动更短的一侧。',
+        ],
+      },
+      {
+        id: 'cwmw-optimal-solution',
+        title: '标准解法：双指针左右夹逼',
+        summary:
+          '用两个指针分别指向数组首尾。每轮先计算当前面积，再根据左右高度比较结果，移动较短的一边，直到两个指针相遇。',
+        bullets: [
+          '时间复杂度是 `O(n)`，因为每个指针都只会单向移动一次。',
+          '空间复杂度是 `O(1)`。',
+          '写法的关键顺序是：先算面积，再决定移动谁。',
+        ],
+        code: `function maxArea(height: number[]): number {\n  let left = 0\n  let right = height.length - 1\n  let answer = 0\n\n  while (left < right) {\n    const width = right - left\n    const area = Math.min(height[left], height[right]) * width\n\n    answer = Math.max(answer, area)\n\n    if (height[left] < height[right]) {\n      left += 1\n    } else {\n      right -= 1\n    }\n  }\n\n  return answer\n}`,
+      },
+      {
+        id: 'cwmw-example-walkthrough',
+        title: '拿经典例子手推一次',
+        summary:
+          '例如 `height = [1,8,6,2,5,4,8,3,7]`。一开始左右是 `1` 和 `7`，宽度是 8，面积是 8。因为左边更短，所以移动左指针。之后左边来到 `8`，右边还是 `7`，面积变成 `7 * 7 = 49`，这就是最大值。',
+        bullets: [
+          '第一轮：`left = 0`，`right = 8`，面积是 `1 * 8 = 8`。',
+          '因为左边高度更短，所以左指针右移。',
+          '第二轮：左右高度是 `8` 和 `7`，宽度是 7，面积是 `49`。',
+          '后面继续移动虽然还能尝试，但不会超过 49。',
+        ],
+      },
+      {
+        id: 'cwmw-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题是双指针里非常值得反复咀嚼的一题。真正学到位之后，后面的接雨水、三数之和、移动零、删除有序数组重复项都会更容易建立判断。',
+        bullets: [
+          '易错点 1：把面积高度写成 `Math.max(...)`，这是最常见的公式错误。',
+          '易错点 2：每轮移动更高的一边，结果会错过最优解。',
+          '易错点 3：先移动指针再算面积，导致当前状态被跳过。',
+          '延伸方向：接雨水、三数之和、颜色分类、移除元素、双指针分区类题目。',
+        ],
+        callout:
+          '如果前面的题在训练哈希、链表、滑动窗口、二分和动态规划，那第 11 题就是在训练另一种非常高频的能力：通过不变量和剪枝逻辑，把暴力枚举压成线性扫描。',
+      },
+    ],
+  },
 ];
