@@ -277,6 +277,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/dependency-governance',
+    name: 'fullstack-dependency-governance',
+    component: () => import('@/views/FullstackDependencyGovernanceView.vue'),
+    meta: {
+      title: '前端依赖治理',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
