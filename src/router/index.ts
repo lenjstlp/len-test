@@ -247,6 +247,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/config-center',
+    name: 'fullstack-config-center',
+    component: () => import('@/views/FullstackConfigCenterView.vue'),
+    meta: {
+      title: '前端配置中心',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
