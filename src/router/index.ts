@@ -267,6 +267,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/resilience',
+    name: 'fullstack-resilience',
+    component: () => import('@/views/FullstackResilienceView.vue'),
+    meta: {
+      title: '前端容灾降级',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
