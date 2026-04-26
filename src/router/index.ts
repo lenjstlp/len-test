@@ -257,6 +257,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/api-contract',
+    name: 'fullstack-api-contract',
+    component: () => import('@/views/FullstackApiContractView.vue'),
+    meta: {
+      title: '前端接口契约',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
