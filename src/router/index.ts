@@ -237,6 +237,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/feature-flags',
+    name: 'fullstack-feature-flags',
+    component: () => import('@/views/FullstackFeatureFlagsView.vue'),
+    meta: {
+      title: '前端特性开关',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
