@@ -1362,4 +1362,104 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: '3sum',
+    label: '15. LeetCode 15. 三数之和',
+    difficulty: '中等',
+    description:
+      '这题是排序加双指针的代表题。重点不是把三重循环改成两重循环，而是理解“固定一个数，再把剩余问题变成两数之和”，以及去重为什么必须在多个层次同时处理。',
+    outcome:
+      '你能独立写出三数之和的标准解法，理解排序、左右夹逼和结果去重的配合方式，并知道这类题为什么要先把输入变成有序结构再处理。',
+    sections: [
+      {
+        id: 'ts-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组 `nums`，找出所有和为 0 且不重复的三元组 `[nums[i], nums[j], nums[k]]`。返回的结果中不能包含重复三元组。',
+        bullets: [
+          '返回的是三元组本身，不是下标。',
+          '三元组内部元素顺序不重要，但结果集不能重复。',
+          '题目要的是“所有解”，不是找到一个解就结束。',
+          '“去重”是这题比两数之和更麻烦的关键点。',
+        ],
+      },
+      {
+        id: 'ts-brute-force',
+        title: '暴力解为什么不合适',
+        summary:
+          '最直接的做法是三重循环，枚举所有三个位置的组合，再判断它们的和是否为 0。这个思路能做，但时间复杂度太高，而且还要额外处理重复结果。',
+        bullets: [
+          '三重循环的时间复杂度是 `O(n³)`。',
+          '即使找到满足条件的三元组，还要想办法判重。',
+          '数组一旦稍大，这种写法就会明显超时。',
+          '真正需要优化的是：如何在固定一个数后，更快找到另外两个数。',
+        ],
+        code: `function threeSumBruteForce(nums: number[]): number[][] {\n  const answer: number[][] = []\n\n  for (let i = 0; i < nums.length; i += 1) {\n    for (let j = i + 1; j < nums.length; j += 1) {\n      for (let k = j + 1; k < nums.length; k += 1) {\n        if (nums[i] + nums[j] + nums[k] === 0) {\n          answer.push([nums[i], nums[j], nums[k]])\n        }\n      }\n    }\n  }\n\n  return answer\n}`,
+      },
+      {
+        id: 'ts-core-transform',
+        title: '真正的关键：固定一个数，把问题转成两数之和',
+        summary:
+          '如果先固定 `nums[i]`，那么剩下的问题就变成：在右侧区间里找两个数，使它们的和等于 `-nums[i]`。这样原来的三数问题就转成了一个更熟悉的“两数配对”问题。',
+        bullets: [
+          '先枚举第一个数 `nums[i]`。',
+          '目标值随之变成 `target = -nums[i]`。',
+          '在 `i` 右边的有序区间内，用双指针找和为 `target` 的两个数。',
+          '这就是典型的“降一维”思路：固定一部分，简化剩余问题。',
+        ],
+        callout:
+          '这题最值得记住的不是答案，而是这种变形方式。很多多数求和题都不是直接硬上，而是先固定一部分，再把问题降成更熟的子问题。',
+      },
+      {
+        id: 'ts-why-sort-first',
+        title: '为什么排序是整题的前提',
+        summary:
+          '如果数组无序，你很难稳定地做双指针，也很难优雅地去重。排序之后，和的变化具备单调性，重复元素也会自然聚在一起，这两点正好同时解决搜索和判重问题。',
+        bullets: [
+          '排序后，左右指针的移动方向才有明确意义。',
+          '当前和太小就右移左指针，当前和太大就左移右指针。',
+          '相同元素排在一起后，去重只需要跳过连续重复值。',
+          '排序虽然有 `O(n log n)` 成本，但换来了后续更稳定的线性扫描。',
+        ],
+      },
+      {
+        id: 'ts-optimal-solution',
+        title: '标准解法：排序 + 固定一位 + 双指针',
+        summary:
+          '先对数组排序。外层枚举第一个数 `nums[i]`，如果和前一个相同就跳过以避免重复。然后在右侧区间用左右指针寻找另外两个数：和为 0 就收集答案并同时跳过左右两边的重复值；和小于 0 就左指针右移；和大于 0 就右指针左移。',
+        bullets: [
+          '时间复杂度是 `O(n²)`，这是这题的标准级别。',
+          '空间复杂度如果不算排序带来的额外开销，结果集之外可视作 `O(1)`。',
+          '去重有两层：外层枚举 `i` 时要去重，内层找到答案后左右指针也要去重。',
+        ],
+        code: `function threeSum(nums: number[]): number[][] {\n  const sorted = [...nums].sort((a, b) => a - b)\n  const answer: number[][] = []\n\n  for (let i = 0; i < sorted.length - 2; i += 1) {\n    if (i > 0 && sorted[i] === sorted[i - 1]) {\n      continue\n    }\n\n    let left = i + 1\n    let right = sorted.length - 1\n\n    while (left < right) {\n      const sum = sorted[i] + sorted[left] + sorted[right]\n\n      if (sum === 0) {\n        answer.push([sorted[i], sorted[left], sorted[right]])\n\n        left += 1\n        right -= 1\n\n        while (left < right && sorted[left] === sorted[left - 1]) {\n          left += 1\n        }\n\n        while (left < right && sorted[right] === sorted[right + 1]) {\n          right -= 1\n        }\n      } else if (sum < 0) {\n        left += 1\n      } else {\n        right -= 1\n      }\n    }\n  }\n\n  return answer\n}`,
+      },
+      {
+        id: 'ts-example-walkthrough',
+        title: '拿经典例子手推一次',
+        summary:
+          '例如 `nums = [-1,0,1,2,-1,-4]`。排序后得到 `[-4,-1,-1,0,1,2]`。先固定 `-4`，右侧找不到两数和为 4；再固定第一个 `-1`，左右指针可以找到 `[-1,-1,2]` 和 `[-1,0,1]`；固定第二个 `-1` 时要跳过，因为它会产生重复结果。',
+        bullets: [
+          '排序后，重复值会挨在一起，方便跳过。',
+          '固定第一个 `-1` 时，目标是另外两个数相加等于 1。',
+          '找到一个解后，左右指针都要继续跳过重复值。',
+          '外层第二个 `-1` 必须直接 `continue`，否则结果会重复。',
+        ],
+      },
+      {
+        id: 'ts-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题是很多人第一次真正把排序、双指针和去重绑在一起写。只要这题写稳，四数之和、最接近的三数之和、去重组合类题目都会更容易上手。',
+        bullets: [
+          '易错点 1：只在结果集中判重，不在搜索过程中去重，导致复杂度和代码都变差。',
+          '易错点 2：找到答案后只移动一个指针，导致死循环或重复结果。',
+          '易错点 3：忘记外层固定值也要去重。',
+          '延伸方向：最接近的三数之和、四数之和、两数之和 II、去重组合搜索类题目。',
+        ],
+        callout:
+          '如果第 11 题在训练你理解双指针为什么能剪枝，那第 15 题就在训练你把双指针放进更复杂的结构里：先排序，再固定一位，再在剩余区间里做线性收缩，同时把去重嵌到流程本身。这个能力非常关键。',
+      },
+    ],
+  },
 ];
