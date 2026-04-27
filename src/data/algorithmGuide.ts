@@ -1462,4 +1462,104 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: '3sum-closest',
+    label: '16. LeetCode 16. 最接近的三数之和',
+    difficulty: '中等',
+    description:
+      '这题是上一题三数之和的顺延版本。重点不是继续死记双指针模板，而是理解当目标从“恰好等于 0”变成“尽量接近 target”之后，搜索和更新答案的逻辑是如何变化的。',
+    outcome:
+      '你能独立写出最接近的三数之和标准解法，理解为什么排序后仍然适合双指针，以及“当前最优答案”该在什么时机更新。 ',
+    sections: [
+      {
+        id: 'tsc-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums` 和目标值 `target`，从数组中选出三个数，使它们的和最接近 `target`。返回这个最接近的三数之和。题目保证恰好存在一个答案。',
+        bullets: [
+          '这次不要求刚好等于某个值，而是要求“距离最小”。',
+          '返回的是三数之和本身，不是三元组，也不是下标。',
+          '可能根本不存在和恰好等于 `target` 的组合。',
+          '关键在于：遍历过程中要持续维护“当前最接近”的答案。',
+        ],
+      },
+      {
+        id: 'tsc-brute-force',
+        title: '暴力解为什么还是不合适',
+        summary:
+          '暴力方法仍然是三重循环，把所有三元组和都算一遍，然后比较它们和 `target` 的差距，取最小值。思路简单，但复杂度依旧是 `O(n³)`。',
+        bullets: [
+          '三重循环会把所有三元组都枚举出来。',
+          '每次都要算 `Math.abs(sum - target)` 和当前最优差值比较。',
+          '题目规模一旦上来，这个复杂度就不够用了。',
+          '真正需要优化的是：如何利用排序和指针移动，让大量无效组合被跳过。',
+        ],
+        code: `function threeSumClosestBruteForce(nums: number[], target: number): number {\n  let best = nums[0] + nums[1] + nums[2]\n\n  for (let i = 0; i < nums.length; i += 1) {\n    for (let j = i + 1; j < nums.length; j += 1) {\n      for (let k = j + 1; k < nums.length; k += 1) {\n        const sum = nums[i] + nums[j] + nums[k]\n\n        if (Math.abs(sum - target) < Math.abs(best - target)) {\n          best = sum\n        }\n      }\n    }\n  }\n\n  return best\n}`,
+      },
+      {
+        id: 'tsc-relationship-with-3sum',
+        title: '它和三数之和是什么关系',
+        summary:
+          '这题和第 15 题骨架几乎一样，都是先固定一个数，再把剩余区间交给双指针。但目标不同了：第 15 题找到“等于 0”的所有解；第 16 题则是不断比较哪个和更接近 `target`，所以你不需要收集所有结果，只需要维护当前最优值。 ',
+        bullets: [
+          '外层仍然固定第一个数。',
+          '内层仍然用左右指针在有序区间里夹逼。',
+          '不同点在于：不再是“找到就收集”，而是“每次都尝试更新最优答案”。',
+          '如果某次和刚好等于 `target`，就可以直接返回，因为已经不可能更近了。',
+        ],
+        callout:
+          '这题特别适合你做一个能力迁移练习：同样是排序加双指针，问题目标一改，代码结构还能不能稳定迁移。这比单独会做一道题更重要。',
+      },
+      {
+        id: 'tsc-why-sort-first',
+        title: '为什么排序后仍然可以用双指针',
+        summary:
+          '排序之后，如果当前三数之和小于 `target`，就应该让总和变大，于是左指针右移；如果当前和大于 `target`，就应该让总和变小，于是右指针左移。这种单调性正是双指针成立的前提。 ',
+        bullets: [
+          '排序让“变大”和“变小”的方向可控。',
+          '和太小时，移动左指针有机会增大总和。',
+          '和太大时，移动右指针有机会减小总和。',
+          '如果不排序，指针移动就不再有明确含义。',
+        ],
+      },
+      {
+        id: 'tsc-optimal-solution',
+        title: '标准解法：排序 + 固定一位 + 双指针逼近',
+        summary:
+          '先排序，再把前三个数的和当作初始答案 `best`。外层枚举 `i`，内层用 `left` 和 `right` 形成两端夹逼。每次先算当前和 `sum`，如果它比 `best` 更接近 `target`，就更新 `best`。然后根据 `sum` 和 `target` 的大小关系移动指针。 ',
+        bullets: [
+          '时间复杂度是 `O(n²)`。 ',
+          '空间复杂度如果不算排序额外开销，可视作 `O(1)`。 ',
+          '先更新答案，再移动指针，这个顺序最稳。 ',
+        ],
+        code: `function threeSumClosest(nums: number[], target: number): number {\n  const sorted = [...nums].sort((a, b) => a - b)\n  let best = sorted[0] + sorted[1] + sorted[2]\n\n  for (let i = 0; i < sorted.length - 2; i += 1) {\n    let left = i + 1\n    let right = sorted.length - 1\n\n    while (left < right) {\n      const sum = sorted[i] + sorted[left] + sorted[right]\n\n      if (Math.abs(sum - target) < Math.abs(best - target)) {\n        best = sum\n      }\n\n      if (sum === target) {\n        return sum\n      }\n\n      if (sum < target) {\n        left += 1\n      } else {\n        right -= 1\n      }\n    }\n  }\n\n  return best\n}`,
+      },
+      {
+        id: 'tsc-example-walkthrough',
+        title: '拿经典例子手推一次',
+        summary:
+          '例如 `nums = [-1,2,1,-4]`，`target = 1`。排序后得到 `[-4,-1,1,2]`。初始答案可以设成前三个数之和 `-4`。固定 `-4` 时，双指针先得到 `-3`，再得到 `-1`；固定 `-1` 时，三数和正好是 `2`。此时和 `target = 1` 的差距是 1，已经是当前最优，最终答案就是 2。 ',
+        bullets: [
+          '排序后初始 `best = -4 + -1 + 1 = -4`。',
+          '固定 `-4`：先算出 `-3`，比 `-4` 更接近 1，更新。 ',
+          '继续移动得到 `-1`，再次更接近，继续更新。 ',
+          '固定 `-1` 时得到 `2`，它和目标差 1，成为最终最优答案。 ',
+        ],
+      },
+      {
+        id: 'tsc-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题是“三数之和”之后非常值得立刻接着做的一题，因为它能逼你把同一套工具迁移到不同目标上。迁移能力比单独记住某道题更重要。 ',
+        bullets: [
+          '易错点 1：没有先给 `best` 一个合法初值，导致后续比较差值时逻辑混乱。 ',
+          '易错点 2：只在找到更优答案时才移动指针，忘了指针移动取决于 sum 和 target 的大小关系。 ',
+          '易错点 3：更新答案时比较的是原值大小，而不是和 `target` 的距离。 ',
+          '延伸方向：四数之和、最接近的 K 数之和、最小绝对差组合、二分与双指针混合优化题。 ',
+        ],
+        callout:
+          '如果第 15 题教你的是“找到所有满足条件的组合”，那第 16 题就在训练另一种常见目标：不求完全匹配，而是在搜索过程中持续维护一个最优近似答案。很多工程优化和搜索问题都更接近这种模式。 ',
+      },
+    ],
+  },
 ];
