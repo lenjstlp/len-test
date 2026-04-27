@@ -297,6 +297,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/package-manager',
+    name: 'fullstack-package-manager',
+    component: () => import('@/views/FullstackPackageManagerView.vue'),
+    meta: {
+      title: 'Node 包管理',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
