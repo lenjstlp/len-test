@@ -287,6 +287,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/web-worker',
+    name: 'fullstack-web-worker',
+    component: () => import('@/views/FullstackWebWorkerView.vue'),
+    meta: {
+      title: '前端 Web Worker',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
