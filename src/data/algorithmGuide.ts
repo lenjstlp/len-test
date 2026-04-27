@@ -1562,4 +1562,103 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'letter-combinations-of-a-phone-number',
+    label: '17. LeetCode 17. 电话号码的字母组合',
+    difficulty: '中等',
+    description:
+      '这题是回溯的标准入门题。重点不是把递归写出来，而是理解“每一位都有若干选择，所有结果就是一棵选择树”的建模方式。',
+    outcome:
+      '你能独立写出电话号码字母组合的回溯解法，理解路径、选择列表和递归终止条件，并知道这类题为什么本质上是在枚举一棵多叉树。 ',
+    sections: [
+      {
+        id: 'lcpn-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个仅包含数字 `2-9` 的字符串 `digits`，返回它能表示的所有字母组合。数字和字母的映射与手机按键一致，比如 `2 -> abc`，`3 -> def`。',
+        bullets: [
+          '每个数字都对应一个字母集合。',
+          '结果要返回所有可能组合，不是只返回个数。',
+          '输入为空字符串时，结果应为空数组。 ',
+          '这题本质上是在做多层选择的全排列式枚举。 ',
+        ],
+      },
+      {
+        id: 'lcpn-why-not-hardcode',
+        title: '为什么不能靠手写拼接分支',
+        summary:
+          '如果只看一两个数字，你可能会想直接双重循环、三重循环去拼字符串。但输入长度是不固定的，手写分支没有扩展性。更自然的方式是把“当前来到第几位、这一位有哪些选择”抽象成递归过程。 ',
+        bullets: [
+          '位数不固定，循环层数也不能固定写死。',
+          '每一位的处理逻辑完全相同，适合递归统一表达。 ',
+          '只要把映射表准备好，递归每层只做“选一个字符，继续下一位”。 ',
+          '这就是典型的回溯/DFS 模型。 ',
+        ],
+      },
+      {
+        id: 'lcpn-core-model',
+        title: '真正的关键：把问题看成一棵选择树',
+        summary:
+          '假设 `digits = "23"`，第一位可以选 `a/b/c`，第二位可以选 `d/e/f`。这意味着从根节点往下，每一层代表一个数字位，每条边代表当前位选择了哪个字母，走到叶子节点时就得到一个完整组合。 ',
+        bullets: [
+          '树的层数等于 `digits` 的长度。 ',
+          '每层的分支数由当前数字映射到的字母个数决定。 ',
+          '从根走到叶子的整条路径，就是一个答案字符串。 ',
+          '回溯就是在深度优先遍历这棵树。 ',
+        ],
+        callout:
+          '回溯最难的从来不是代码，而是建模。只要你能把题目翻译成“路径 + 选择 + 结束条件”，大多数基础回溯题都会清晰很多。 ',
+      },
+      {
+        id: 'lcpn-path-choice-end',
+        title: '回溯三件套：路径、选择列表、结束条件',
+        summary:
+          '这题的路径是“当前已经拼好的字符串”；选择列表是“当前数字可选的字母”；结束条件是“路径长度已经等于 digits 的长度”。一旦走到结束条件，就把当前路径加入答案。 ',
+        bullets: [
+          '路径：`path`，表示当前已经选了哪些字母。 ',
+          '选择：当前数字映射出来的字母集合。 ',
+          '结束条件：处理完所有数字位。 ',
+          '撤销选择：递归返回后，回到上一个状态，尝试下一个字母。 ',
+        ],
+      },
+      {
+        id: 'lcpn-optimal-solution',
+        title: '标准解法：映射表 + 回溯 DFS',
+        summary:
+          '先准备一个数字到字母的映射表。然后写一个 `backtrack(index, path)`，表示当前处理到第 `index` 位，已经拼好的路径是 `path`。如果 `index` 到了字符串末尾，就把 `path` 收进结果；否则遍历当前位对应的所有字母，逐个递归进入下一层。 ',
+        bullets: [
+          '时间复杂度和结果数量同级，通常写成 `O(3^m * 4^n)`，其中 `m/n` 分别表示映射到 3 个字母和 4 个字母的数字个数。 ',
+          '空间复杂度主要来自递归深度 `O(k)`，`k` 是 `digits` 长度。 ',
+          '这题的代码短，但非常适合用来建立对回溯模板的直觉。 ',
+        ],
+        code: `function letterCombinations(digits: string): string[] {\n  if (digits.length === 0) {\n    return []\n  }\n\n  const digitMap: Record<string, string> = {\n    '2': 'abc',\n    '3': 'def',\n    '4': 'ghi',\n    '5': 'jkl',\n    '6': 'mno',\n    '7': 'pqrs',\n    '8': 'tuv',\n    '9': 'wxyz',\n  }\n\n  const answer: string[] = []\n\n  const backtrack = (index: number, path: string) => {\n    if (index === digits.length) {\n      answer.push(path)\n      return\n    }\n\n    const letters = digitMap[digits[index]]\n\n    for (const letter of letters) {\n      backtrack(index + 1, path + letter)\n    }\n  }\n\n  backtrack(0, '')\n  return answer\n}`,
+      },
+      {
+        id: 'lcpn-example-walkthrough',
+        title: '拿一个例子手推一次',
+        summary:
+          '例如 `digits = "23"`。第一层先选 `a`，第二层依次接上 `d/e/f`，得到 `ad/ae/af`；回到第一层再选 `b`，得到 `bd/be/bf`；再选 `c`，得到 `cd/ce/cf`。 ',
+        bullets: [
+          '第一层选择来自 `2 -> abc`。 ',
+          '选了 `a` 后，第二层选择来自 `3 -> def`。 ',
+          '路径走到长度 2 时，说明一个完整组合已经形成。 ',
+          'DFS 会把这一整棵树完整遍历完。 ',
+        ],
+      },
+      {
+        id: 'lcpn-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题是非常适合打回溯基础的一题。真正需要练熟的不是答案，而是这种“按层选择、走到叶子收集结果、回退后继续试”的过程感。 ',
+        bullets: [
+          '易错点 1：没有处理空字符串，导致返回 `[""]` 而不是 `[]`。 ',
+          '易错点 2：把当前路径写成共享可变状态却没有正确回退。 ',
+          '易错点 3：没有理解结束条件，导致递归层数错位。 ',
+          '延伸方向：组合总和、全排列、子集、括号生成、N 皇后。 ',
+        ],
+        callout:
+          '如果前面的题在练哈希、链表、双指针和窗口，那第 17 题就是一个明显的分界点：你开始要学会把问题看成一棵树，并用 DFS 去遍历所有可能路径。回溯能力从这里正式起步。 ',
+      },
+    ],
+  },
 ];
