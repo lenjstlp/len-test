@@ -203,8 +203,7 @@ const mockPermissionMenus: PermissionMenuPayload[] = [
     name: 'algorithm-guide',
     path: '/algorithm-guide',
     title: '算法题',
-    description:
-      '用 LeetCode 经典题建立刷题思维，这次先只讲一道代表性的入门题。',
+    description: '按 LeetCode 顺序逐题补充，用经典题建立真正可迁移的刷题思维。',
     icon: 'Document',
     component: 'AlgorithmGuideView',
   },
