@@ -1661,4 +1661,116 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: '4sum',
+    label: '18. LeetCode 18. 四数之和',
+    difficulty: '中等',
+    description:
+      '这题不是一套全新的技巧，而是把三数之和的框架再向前推进一层：先排序，再固定两位，最后在剩余区间里用双指针搜索。重点在于去重和层级迁移。',
+    outcome:
+      '你能把三数之和的思路稳定迁移到四数之和，理解为什么要排序、为什么要做双层固定、为什么每一层都要去重，并能独立写出标准解法。',
+    sections: [
+      {
+        id: '4sum-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组 `nums` 和目标值 `target`，找出所有满足 `a + b + c + d = target` 且不重复的四元组。',
+        bullets: [
+          '返回的是所有不重复的四元组，不是只返回个数。',
+          '每个四元组内部通常按升序呈现，因为数组会先排序。',
+          '重点有两个：找到所有解，以及避免重复解。',
+          '这题本质上是在更高一层上复用排序 + 双指针。 ',
+        ],
+      },
+      {
+        id: '4sum-brute-force',
+        title: '暴力解为什么一眼就该放弃',
+        summary:
+          '最直接的做法是四重循环，枚举所有 `i/j/k/l` 组合，再判断四数之和是否等于 `target`。思路当然能写，但复杂度是 `O(n⁴)`，规模一上来就完全不现实。',
+        bullets: [
+          '四重循环的搜索空间非常大。',
+          '即使加一个 set 去重，复杂度也没有本质改善。',
+          '真正应该想的是：怎样让一部分循环被双指针替代。',
+          '这正是排序的价值所在。 ',
+        ],
+        code: `function fourSumBruteForce(nums: number[], target: number): number[][] {\n  const answer: number[][] = []\n  const seen = new Set<string>()\n\n  for (let i = 0; i < nums.length; i += 1) {\n    for (let j = i + 1; j < nums.length; j += 1) {\n      for (let k = j + 1; k < nums.length; k += 1) {\n        for (let l = k + 1; l < nums.length; l += 1) {\n          if (nums[i] + nums[j] + nums[k] + nums[l] === target) {\n            const group = [nums[i], nums[j], nums[k], nums[l]].sort((a, b) => a - b)\n            const key = group.join(',')\n\n            if (!seen.has(key)) {\n              seen.add(key)\n              answer.push(group)\n            }\n          }\n        }\n      }\n    }\n  }\n\n  return answer\n}`,
+      },
+      {
+        id: '4sum-relationship-with-3sum',
+        title: '它和三数之和到底是什么关系',
+        summary:
+          '这题可以直接理解成“三数之和再套一层固定”。三数之和是固定一位，再在剩余区间用双指针找两数；四数之和则是固定两位，再在剩余区间用双指针找另外两数。',
+        bullets: [
+          '排序依然是前提。',
+          '外层从固定一位，升级为固定两位。',
+          '内层仍然是左右指针夹逼。',
+          '去重逻辑也从一层扩展到两层固定 + 两端指针。 ',
+        ],
+        callout:
+          '这题真正训练的是“框架迁移能力”。你不能把每道题都当新题重学，而要学会看出它和上一题骨架之间的继承关系。 ',
+      },
+      {
+        id: '4sum-why-sort-first',
+        title: '为什么排序后才能稳定使用双指针',
+        summary:
+          '排序之后，如果当前四数和偏小，就移动左指针去增大和；如果当前和偏大，就移动右指针去减小和。这种移动方向的确定性，是双指针成立的根本原因。',
+        bullets: [
+          '排序让区间里的数字大小关系固定下来。',
+          '和太小时，左指针右移更可能变大。',
+          '和太大时，右指针左移更可能变小。',
+          '如果不排序，你根本不知道该怎么动指针。 ',
+        ],
+      },
+      {
+        id: '4sum-dedup-core',
+        title: '这题最容易写乱的部分：去重到底该放在哪里',
+        summary:
+          '四数之和最大的难点往往不是找解，而是去重。外层 `i` 要去重，第二层 `j` 也要去重；找到一个合法四元组之后，`left` 和 `right` 也都要跳过重复值。少去一层就会重复，多去一层又可能漏解。',
+        bullets: [
+          '固定 `i` 时，如果和前一个值相同，就跳过。',
+          '固定 `j` 时，如果和前一个值相同，也跳过。',
+          '找到答案后，左指针连续跳过相同值。',
+          '右指针同样连续跳过相同值。 ',
+        ],
+      },
+      {
+        id: '4sum-optimal-solution',
+        title: '标准解法：排序 + 双层固定 + 双指针',
+        summary:
+          '先对数组排序。第一层循环固定 `i`，第二层循环固定 `j`。然后在 `j` 右侧区间设置 `left` 和 `right`，通过双指针寻找另外两数。每次根据当前和与 `target` 的大小关系移动指针，并在各层做好去重。',
+        bullets: [
+          '时间复杂度是 `O(n³)`。 ',
+          '空间复杂度如果不算排序开销，可视作 `O(1)`。 ',
+          '这题的结构很适合作为“三数之和模板升级版”。 ',
+        ],
+        code: `function fourSum(nums: number[], target: number): number[][] {\n  const sorted = [...nums].sort((a, b) => a - b)\n  const answer: number[][] = []\n\n  for (let i = 0; i < sorted.length - 3; i += 1) {\n    if (i > 0 && sorted[i] === sorted[i - 1]) {\n      continue\n    }\n\n    for (let j = i + 1; j < sorted.length - 2; j += 1) {\n      if (j > i + 1 && sorted[j] === sorted[j - 1]) {\n        continue\n      }\n\n      let left = j + 1\n      let right = sorted.length - 1\n\n      while (left < right) {\n        const sum = sorted[i] + sorted[j] + sorted[left] + sorted[right]\n\n        if (sum === target) {\n          answer.push([sorted[i], sorted[j], sorted[left], sorted[right]])\n\n          left += 1\n          right -= 1\n\n          while (left < right && sorted[left] === sorted[left - 1]) {\n            left += 1\n          }\n\n          while (left < right && sorted[right] === sorted[right + 1]) {\n            right -= 1\n          }\n        } else if (sum < target) {\n          left += 1\n        } else {\n          right -= 1\n        }\n      }\n    }\n  }\n\n  return answer\n}`,
+      },
+      {
+        id: '4sum-example-walkthrough',
+        title: '拿经典例子走一遍',
+        summary:
+          '例如 `nums = [1,0,-1,0,-2,2]`，`target = 0`。排序后得到 `[-2,-1,0,0,1,2]`。先固定 `-2`，再固定 `-1`，双指针可以找到 `[-2,-1,1,2]`；继续固定 `-2` 和 `0`，能找到 `[-2,0,0,2]`；再固定 `-1` 和 `0`，能找到 `[-1,0,0,1]`。',
+        bullets: [
+          '排序后所有搜索都在有序数组里进行。',
+          '同一个起点值不会重复固定两次。',
+          '每找到一个答案，左右指针都要跳过重复值。',
+          '最后得到三组经典答案：`[-2,-1,1,2]`、`[-2,0,0,2]`、`[-1,0,0,1]`。 ',
+        ],
+      },
+      {
+        id: '4sum-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '四数之和是双指针题里非常典型的“套模板升级题”。它不要求你发明新算法，而是要求你把已有模板层次化、系统化地写稳定。',
+        bullets: [
+          '易错点 1：只给 `i` 去重，却忘了 `j` 也会重复。 ',
+          '易错点 2：找到答案后只移动指针，不跳过重复值，结果答案重复。 ',
+          '易错点 3：把三数之和的模板生搬硬套，但没有意识到这里是双层固定。 ',
+          '延伸方向：K 数之和、最接近的 K 数之和、递归降维搜索。 ',
+        ],
+        callout:
+          '如果第 15 题是三数之和模板的起点，那第 18 题就是第一次真正考你：你能不能把一个成熟模板向更高维度迁移，而不是只会做原题。 ',
+      },
+    ],
+  },
 ];
