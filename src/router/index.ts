@@ -327,6 +327,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/low-code',
+    name: 'fullstack-low-code',
+    component: () => import('@/views/FullstackLowCodeView.vue'),
+    meta: {
+      title: '前端低代码平台',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
