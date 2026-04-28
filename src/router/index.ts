@@ -307,6 +307,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/search',
+    name: 'fullstack-search',
+    component: () => import('@/views/FullstackSearchView.vue'),
+    meta: {
+      title: '前端搜索',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
