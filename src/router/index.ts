@@ -317,6 +317,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/rich-text-editor',
+    name: 'fullstack-rich-text-editor',
+    component: () => import('@/views/FullstackRichTextEditorView.vue'),
+    meta: {
+      title: '前端富文本编辑器',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
