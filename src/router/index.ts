@@ -337,6 +337,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/visualization',
+    name: 'fullstack-visualization',
+    component: () => import('@/views/FullstackVisualizationView.vue'),
+    meta: {
+      title: '前端可视化工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
