@@ -437,6 +437,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/file-preview',
+    name: 'fullstack-file-preview',
+    component: () => import('@/views/FullstackFilePreviewView.vue'),
+    meta: {
+      title: '前端文件预览工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
