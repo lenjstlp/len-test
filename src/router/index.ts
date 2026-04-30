@@ -357,6 +357,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/report-printing',
+    name: 'fullstack-report-printing',
+    component: () => import('@/views/FullstackReportPrintingView.vue'),
+    meta: {
+      title: '前端报表打印工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
