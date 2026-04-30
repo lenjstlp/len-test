@@ -1971,4 +1971,103 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'merge-two-sorted-lists',
+    label: '21. LeetCode 21. 合并两个有序链表',
+    difficulty: '简单',
+    description:
+      '这题是链表题里最经典的“归并感”入门题。重点不是把两个链表拼起来，而是理解如何在不打乱顺序的前提下，持续选择当前更小的节点接到结果链表后面。',
+    outcome:
+      '你能独立写出合并两个有序链表的迭代解法，理解虚拟头结点和尾指针的作用，并知道为什么这题本质上是在训练“有序流合并”的思维。 ',
+    sections: [
+      {
+        id: 'm2sl-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给你两个已经按升序排列的链表 `list1` 和 `list2`，要求把它们合并成一个新的升序链表，并返回合并后的头节点。这里所谓“新的”，通常不是新建所有节点，而是把原有节点重新串起来。 ',
+        bullets: [
+          '两个输入链表本身都已经有序。 ',
+          '返回结果仍然必须保持升序。 ',
+          '可以直接复用原链表节点，不需要额外复制一遍值。 ',
+          '真正难点在于：每一步都要决定当前接谁。 ',
+        ],
+      },
+      {
+        id: 'm2sl-direct-idea',
+        title: '最直观的思路是什么',
+        summary:
+          '既然两个链表都有序，那最自然的想法就是像两条排好队的队伍一样比较队首：谁更小，就先把谁接到结果链表后面，然后对应链表向后移动一格。这个过程会一直持续到某一边走完。 ',
+        bullets: [
+          '比较 `list1.val` 和 `list2.val`。 ',
+          '较小的节点先接到结果尾部。 ',
+          '被选中的那个链表指针继续后移。 ',
+          '最后把没走完的那一段整体接上即可。 ',
+        ],
+        callout:
+          '这题表面是链表题，底层其实和数组归并一模一样：两个有序源，不断取更小值输出。 ',
+      },
+      {
+        id: 'm2sl-why-dummy-tail',
+        title: '为什么虚拟头结点和尾指针几乎是标配',
+        summary:
+          '如果你直接处理结果链表的头节点，会很快陷入“第一次接节点时怎么初始化”的分支判断。更稳的做法是准备一个 dummy head，再用 `tail` 永远指向结果链表最后一个节点。 ',
+        bullets: [
+          'dummy head 让第一个节点和后续节点使用同一套接法。 ',
+          '`tail.next = 某个更小节点` 后，再把 `tail` 向后移动。 ',
+          '整个过程只关心“尾部怎么继续接”，不用反复判断头节点。 ',
+          '链表拼接题里，这个模板非常高频。 ',
+        ],
+      },
+      {
+        id: 'm2sl-core-idea',
+        title: '真正的关键：尾指针始终维护当前已合并部分的末尾',
+        summary:
+          '每轮比较后，你不是在“创建一个答案”，而是在延长一条已经有序的结果链表。只要 `tail` 始终站在结果末尾，每次把较小节点接过去，就能保证结果一直有序。 ',
+        bullets: [
+          '结果链表前半段始终已经排好序。 ',
+          '两个输入链表当前节点里较小的那个，一定可以安全接到末尾。 ',
+          '因为两个输入本身有序，所以被跳过的较大值之后仍然不会破坏顺序。 ',
+          '这就是贪心选择在局部可成立的原因。 ',
+        ],
+      },
+      {
+        id: 'm2sl-optimal-solution',
+        title: '标准解法：迭代比较 + 尾插法',
+        summary:
+          '准备一个虚拟头结点 `dummy`，再用 `tail` 指向它。只要 `list1` 和 `list2` 都还没走完，就比较两边当前值，把更小节点接到 `tail.next`，然后移动对应链表指针和 `tail`。循环结束后，把剩余链表整体接到末尾。 ',
+        bullets: [
+          '时间复杂度是 `O(m + n)`。 ',
+          '额外空间复杂度是 `O(1)`，因为没有新建成批节点。 ',
+          '这题最推荐先写迭代版，再去理解递归版。 ',
+        ],
+        code: `class ListNode {\n  val: number\n  next: ListNode | null\n\n  constructor(val = 0, next: ListNode | null = null) {\n    this.val = val\n    this.next = next\n  }\n}\n\nfunction mergeTwoLists(\n  list1: ListNode | null,\n  list2: ListNode | null,\n): ListNode | null {\n  const dummy = new ListNode()\n  let tail = dummy\n  let left = list1\n  let right = list2\n\n  while (left && right) {\n    if (left.val <= right.val) {\n      tail.next = left\n      left = left.next\n    } else {\n      tail.next = right\n      right = right.next\n    }\n\n    tail = tail.next\n  }\n\n  tail.next = left ?? right\n\n  return dummy.next\n}`,
+      },
+      {
+        id: 'm2sl-example-walkthrough',
+        title: '拿一个例子手推一次',
+        summary:
+          '例如 `list1 = [1,2,4]`，`list2 = [1,3,4]`。先比较两个 `1`，任选较左边那个先接，再比较 `2` 和 `1`，接 `list2` 的 `1`。后面继续按这个规则推进，最终得到 `[1,1,2,3,4,4]`。 ',
+        bullets: [
+          '开始时 `tail` 指向 dummy。 ',
+          '每接入一个节点，`tail` 都向后走一步。 ',
+          '某一边耗尽后，另一边剩余部分天然已经有序。 ',
+          '所以最后一步可以整段接上，而不是一个个再比。 ',
+        ],
+      },
+      {
+        id: 'm2sl-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题是很多后续题型的母题。你把它吃透，后面像合并 K 个有序链表、归并排序链表、外部排序流式合并，都会更容易理解。 ',
+        bullets: [
+          '易错点 1：不使用 dummy，导致头节点初始化分支很多。 ',
+          '易错点 2：接完较小节点后忘记移动 `tail`。 ',
+          '易错点 3：循环结束后忘记把剩余链表整体挂上。 ',
+          '延伸方向：合并 K 个有序链表、排序链表、两个数组归并。 ',
+        ],
+        callout:
+          '如果前面的第 19 题在训练你“如何定位链表中的相对位置”，那第 21 题训练的就是“如何稳定地重组链表结构”。这两种能力一起，才算真正开始会做链表题。 ',
+      },
+    ],
+  },
 ];
