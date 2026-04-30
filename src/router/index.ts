@@ -417,6 +417,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/task-scheduling',
+    name: 'fullstack-task-scheduling',
+    component: () => import('@/views/FullstackTaskSchedulingView.vue'),
+    meta: {
+      title: '前端任务调度工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
