@@ -144,6 +144,10 @@ const menuCards = [
     title: 'Node 包管理',
   },
   {
+    path: '/fullstack-guide/package-json',
+    title: 'package.json 详解',
+  },
+  {
     path: '/fullstack-guide/search',
     title: '前端搜索',
   },

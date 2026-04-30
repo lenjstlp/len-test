@@ -308,6 +308,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/package-json',
+    name: 'fullstack-package-json',
+    component: () => import('@/views/FullstackPackageJsonView.vue'),
+    meta: {
+      title: 'package.json 详解',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/search',
     name: 'fullstack-search',
     component: () => import('@/views/FullstackSearchView.vue'),
