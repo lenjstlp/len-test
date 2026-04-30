@@ -467,6 +467,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/sdk-engineering',
+    name: 'fullstack-sdk-engineering',
+    component: () => import('@/views/FullstackSdkEngineeringView.vue'),
+    meta: {
+      title: '前端 SDK 工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

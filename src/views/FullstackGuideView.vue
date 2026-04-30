@@ -207,6 +207,10 @@ const menuCards = [
     path: '/fullstack-guide/tracking-analytics',
     title: '前端埋点工程',
   },
+  {
+    path: '/fullstack-guide/sdk-engineering',
+    title: '前端 SDK 工程',
+  },
 ];
 </script>
 
