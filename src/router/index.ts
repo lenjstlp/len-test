@@ -457,6 +457,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/tracking-analytics',
+    name: 'fullstack-tracking-analytics',
+    component: () => import('@/views/FullstackTrackingAnalyticsView.vue'),
+    meta: {
+      title: '前端埋点工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
