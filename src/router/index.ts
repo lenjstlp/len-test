@@ -347,6 +347,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/map-engineering',
+    name: 'fullstack-map-engineering',
+    component: () => import('@/views/FullstackMapEngineeringView.vue'),
+    meta: {
+      title: '前端地图工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
