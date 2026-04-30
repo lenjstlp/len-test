@@ -367,6 +367,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/document-collaboration',
+    name: 'fullstack-document-collaboration',
+    component: () => import('@/views/FullstackDocumentCollaborationView.vue'),
+    meta: {
+      title: '前端文档协同工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
