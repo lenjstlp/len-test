@@ -387,6 +387,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/rule-engine',
+    name: 'fullstack-rule-engine',
+    component: () => import('@/views/FullstackRuleEngineView.vue'),
+    meta: {
+      title: '前端规则引擎工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
