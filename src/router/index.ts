@@ -407,6 +407,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/message-center',
+    name: 'fullstack-message-center',
+    component: () => import('@/views/FullstackMessageCenterView.vue'),
+    meta: {
+      title: '前端消息中心工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
