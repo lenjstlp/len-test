@@ -397,6 +397,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/permission-system',
+    name: 'fullstack-permission-system',
+    component: () => import('@/views/FullstackPermissionSystemView.vue'),
+    meta: {
+      title: '前端权限系统工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
