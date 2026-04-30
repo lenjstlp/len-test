@@ -1773,4 +1773,103 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'remove-nth-node-from-end-of-list',
+    label: '19. LeetCode 19. 删除链表的倒数第 N 个结点',
+    difficulty: '中等',
+    description:
+      '这题是双指针在链表里的代表题。重点不是记住“快慢指针”四个字，而是理解为什么只靠一次遍历，就能准确定位倒数第 N 个节点的前一个位置。',
+    outcome:
+      '你能独立写出删除链表倒数第 N 个结点的双指针解法，理解虚拟头结点和固定间距双指针的意义，并知道为什么它比先算长度再删更稳。',
+    sections: [
+      {
+        id: 'rn-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给你一个链表头节点 `head`，要求删除链表的倒数第 `n` 个节点，并返回删除后的头节点。这里的关键是“倒数第 n 个”，也就是你不能直接从前往后数到它。',
+        bullets: [
+          '删除的是节点本身，不是单纯把值改掉。',
+          '返回的可能是新的头节点，因为有可能删掉原来的第一个节点。',
+          '题目保证 `n` 一定合法，不会超过链表长度。',
+          '真正要找的通常不是目标节点，而是目标节点的前一个节点。',
+        ],
+      },
+      {
+        id: 'rn-direct-idea',
+        title: '最直观的思路是什么',
+        summary:
+          '最容易想到的方法是先遍历一遍求链表长度 `len`，然后再走到正数第 `len - n` 个位置，把它后面的节点删掉。这个思路没问题，但要走两遍。',
+        bullets: [
+          '第一遍统计链表长度。 ',
+          '第二遍走到待删除节点的前一个位置。 ',
+          '然后执行 `prev.next = prev.next?.next ?? null`。 ',
+          '这样时间复杂度仍然是 `O(n)`，但不是题目最优雅的写法。 ',
+        ],
+        callout:
+          '这题不是说先算长度不对，而是还有更值得掌握的模型：让两个指针保持固定间距，一次遍历直接定位。 ',
+      },
+      {
+        id: 'rn-core-idea',
+        title: '真正的关键：让快指针先走 n 步',
+        summary:
+          '如果快指针先走 `n` 步，然后快慢指针一起走，那么当快指针走到链表末尾时，慢指针刚好站在“待删除节点的前一个位置”。这就是固定间距双指针的经典用法。',
+        bullets: [
+          '先让 `fast` 比 `slow` 多走 `n` 步。 ',
+          '之后两个指针同步前进。 ',
+          '当 `fast` 到达末尾时，`slow` 和目标节点之间正好隔着 1 个位置。 ',
+          '此时修改 `slow.next` 就能完成删除。 ',
+        ],
+      },
+      {
+        id: 'rn-why-dummy-head',
+        title: '为什么这里同样建议用虚拟头结点',
+        summary:
+          '如果删除的是原链表第一个节点，那么目标节点前面其实没有真实节点。为了让“删除头节点”和“删除中间节点”使用同一套逻辑，最稳的方式就是在最前面挂一个 dummy head。',
+        bullets: [
+          'dummy head 的 `next` 指向原始 `head`。 ',
+          '慢指针从 dummy 出发，就能统一覆盖删头节点场景。 ',
+          '最后返回 `dummy.next` 即可。 ',
+          '这是链表删除题里非常通用的稳定技巧。 ',
+        ],
+      },
+      {
+        id: 'rn-optimal-solution',
+        title: '标准解法：虚拟头结点 + 固定间距双指针',
+        summary:
+          '让 `fast` 和 `slow` 都从 dummy 出发，先让 `fast` 走 `n + 1` 步，这样两个指针之间始终相差一个“待删除节点前驱”的距离。之后同步前进，直到 `fast` 为空。 ',
+        bullets: [
+          '时间复杂度是 `O(L)`，`L` 为链表长度。 ',
+          '额外空间复杂度是 `O(1)`。 ',
+          '实现细节上，`fast` 先走 `n + 1` 步，是为了让 `slow` 最终停在目标前一个节点。 ',
+        ],
+        code: `class ListNode {\n  val: number\n  next: ListNode | null\n\n  constructor(val = 0, next: ListNode | null = null) {\n    this.val = val\n    this.next = next\n  }\n}\n\nfunction removeNthFromEnd(\n  head: ListNode | null,\n  n: number,\n): ListNode | null {\n  const dummy = new ListNode(0, head)\n  let fast: ListNode | null = dummy\n  let slow: ListNode | null = dummy\n\n  for (let step = 0; step <= n; step += 1) {\n    fast = fast?.next ?? null\n  }\n\n  while (fast) {\n    fast = fast.next\n    slow = slow?.next ?? null\n  }\n\n  if (slow?.next) {\n    slow.next = slow.next.next\n  }\n\n  return dummy.next\n}`,
+      },
+      {
+        id: 'rn-example-walkthrough',
+        title: '拿一个例子手推一次',
+        summary:
+          '例如 `head = [1,2,3,4,5]`，`n = 2`。倒数第 2 个节点是 `4`。让快指针先走 3 步后，快慢指针同步移动。等快指针走到末尾时，慢指针正好停在 `3` 上，所以把 `3.next` 指向 `5` 即可。 ',
+        bullets: [
+          'dummy -> 1 -> 2 -> 3 -> 4 -> 5。 ',
+          '快指针先走 `n + 1 = 3` 步，和慢指针拉开固定距离。 ',
+          '同步移动后，慢指针停在值为 `3` 的节点。 ',
+          '执行删除后结果是 `[1,2,3,5]`。 ',
+        ],
+      },
+      {
+        id: 'rn-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题是链表双指针模型里很经典的一道。它的价值不在于题目本身，而在于让你建立“固定间距定位”的思维，后面很多题都会复用。 ',
+        bullets: [
+          '易错点 1：不用 dummy head，结果删除头节点时逻辑单独分叉。 ',
+          '易错点 2：快指针先走的步数写错，导致慢指针停错位置。 ',
+          '易错点 3：最后删的是 `slow` 而不是 `slow.next`。 ',
+          '延伸方向：链表中点、环形链表、相交链表、K 个一组翻转链表。 ',
+        ],
+        callout:
+          '如果第 2 题在训练你“链表遍历 + 进位状态”，那第 19 题训练的就是“链表遍历 + 相对距离”。这两类模型是链表题里最常复用的骨架。 ',
+      },
+    ],
+  },
 ];
