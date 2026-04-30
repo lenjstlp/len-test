@@ -8,18 +8,6 @@
           这里不再直接展示长文，而是作为全栈能力模块的独立入口页。后续不同能力模块会以长方块子菜单方式继续扩展，点击后进入对应的独立空白页。
         </p>
       </div>
-
-      <div class="fullstack-menu-hero__meta">
-        <p class="fullstack-menu-hero__label">当前阶段</p>
-        <p class="fullstack-menu-hero__value">
-          先开放四十五个入口：下载功能、前端上传、前端跨域、前端鉴权、前端缓存、前端性能、前端安全、前端监控、前端测试、Monorepo
-          掌握、前端部署、前端国际化、前端实时通信、前端状态管理、前端微前端、前端表单工程、前端设计系统、前端离线与
-          PWA、前端无障碍、前端 SEO、前端
-          BFF、前端多租户、前端特性开关、前端配置中心、前端接口契约、前端容灾降级、前端依赖治理、前端
-          Web Worker、Node
-          包管理、前端搜索、前端富文本编辑器、前端低代码平台、前端可视化工程、前端地图工程、前端报表打印工程、前端文档协同工程、前端工作流编排工程、前端规则引擎工程、前端权限系统工程、前端消息中心工程、前端任务调度工程、前端表格工程、前端文件预览工程、前端主题系统工程、前端埋点工程
-        </p>
-      </div>
     </header>
 
     <div class="fullstack-menu-grid">
@@ -239,16 +227,12 @@ const menuCards = [
 }
 
 .fullstack-menu-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
-  gap: 20px;
   padding-bottom: 24px;
   border-bottom: 1px solid rgba(19, 27, 34, 0.08);
 }
 
 .fullstack-menu-hero__eyebrow,
-.fullstack-menu-card__eyebrow,
-.fullstack-menu-hero__label {
+.fullstack-menu-card__eyebrow {
   font-size: 11px;
   line-height: 1.4;
   letter-spacing: 0.24em;
@@ -271,22 +255,6 @@ const menuCards = [
   font-size: 15px;
   line-height: 1.9;
   color: #57616d;
-}
-
-.fullstack-menu-hero__meta {
-  align-self: end;
-  padding: 20px;
-  border: 1px solid rgba(19, 27, 34, 0.08);
-  border-radius: 7px;
-  background: rgba(255, 255, 255, 0.72);
-}
-
-.fullstack-menu-hero__value {
-  margin-top: 10px;
-  font-size: 22px;
-  line-height: 1.5;
-  font-weight: 600;
-  color: #17202a;
 }
 
 .fullstack-menu-grid {
@@ -335,10 +303,6 @@ const menuCards = [
   .fullstack-menu-page {
     min-height: auto;
     padding: 22px;
-  }
-
-  .fullstack-menu-hero {
-    grid-template-columns: 1fr;
   }
 
   .fullstack-menu-hero__title {
