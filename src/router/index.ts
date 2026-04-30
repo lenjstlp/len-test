@@ -447,6 +447,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/theme-system',
+    name: 'fullstack-theme-system',
+    component: () => import('@/views/FullstackThemeSystemView.vue'),
+    meta: {
+      title: '前端主题系统工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
