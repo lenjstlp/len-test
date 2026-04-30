@@ -377,6 +377,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/workflow-orchestration',
+    name: 'fullstack-workflow-orchestration',
+    component: () => import('@/views/FullstackWorkflowOrchestrationView.vue'),
+    meta: {
+      title: '前端工作流编排工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
