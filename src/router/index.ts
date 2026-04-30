@@ -427,6 +427,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/table-engineering',
+    name: 'fullstack-table-engineering',
+    component: () => import('@/views/FullstackTableEngineeringView.vue'),
+    meta: {
+      title: '前端表格工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
