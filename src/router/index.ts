@@ -318,6 +318,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/scaffolding',
+    name: 'fullstack-scaffolding',
+    component: () => import('@/views/FullstackScaffoldingView.vue'),
+    meta: {
+      title: '前端脚手架工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/search',
     name: 'fullstack-search',
     component: () => import('@/views/FullstackSearchView.vue'),

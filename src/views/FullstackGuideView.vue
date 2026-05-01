@@ -148,6 +148,10 @@ const menuCards = [
     title: 'package.json 详解',
   },
   {
+    path: '/fullstack-guide/scaffolding',
+    title: '前端脚手架工程',
+  },
+  {
     path: '/fullstack-guide/search',
     title: '前端搜索',
   },
