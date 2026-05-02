@@ -2666,4 +2666,112 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'find-the-index-of-the-first-occurrence-in-a-string',
+    label: '28. LeetCode 28. 找出字符串中第一个匹配项的下标',
+    difficulty: '简单',
+    description:
+      '这题表面看只是字符串查找，但它其实是在训练最基础的“模式匹配”意识。重点不是直接调库，而是理解如何从主串里逐个位置尝试匹配模式串。 ',
+    outcome:
+      '你能独立写出朴素字符串匹配解法，理解双层扫描如何判断首个匹配位置，并知道为什么后面会进一步发展出 KMP 这类更高阶算法。 ',
+    sections: [
+      {
+        id: 'fs-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个字符串 `haystack` 和 `needle`，要求返回 `needle` 在 `haystack` 中第一次出现的下标；如果不存在，就返回 `-1`。这是最经典的子串查找问题。 ',
+        bullets: [
+          '`haystack` 是主串，也就是被搜索的长字符串。 ',
+          '`needle` 是模式串，也就是你想找的目标。 ',
+          '只需要返回第一次出现的位置。 ',
+          '找不到时返回 `-1`，不是 `null` 或其他值。 ',
+        ],
+      },
+      {
+        id: 'fs-core-observation',
+        title: '最直接的观察：从每个可能起点试一次',
+        summary:
+          '如果 `needle` 想在 `haystack` 某个位置开始匹配，那么这个起点后面必须至少还能容纳下整个 `needle`。所以最朴素的思路就是：枚举每个可能起点，然后逐个字符比较。只要某个起点全部匹配成功，就立刻返回它。 ',
+        bullets: [
+          '起点最多只需要枚举到 `haystack.length - needle.length`。 ',
+          '每个起点都尝试把模式串完整比一遍。 ',
+          '中途一旦有字符不相等，就换下一个起点。 ',
+          '第一次完整成功的起点就是答案。 ',
+        ],
+      },
+      {
+        id: 'fs-why-naive-still-matters',
+        title: '为什么朴素解法仍然值得认真掌握',
+        summary:
+          '后面你会看到 KMP、BM、Rabin-Karp 这些更快的字符串匹配算法，但它们都是建立在朴素匹配的痛点之上。只有先把最直接的匹配过程写清楚，你才知道更高级算法到底优化了哪里。 ',
+        bullets: [
+          '朴素解法最容易写对，适合建立基础。 ',
+          '它能清楚暴露“回退太多次”的性能瓶颈。 ',
+          '很多简单业务场景里，朴素解法已经够用。 ',
+          '学高级算法前，必须先有这个基线。 ',
+        ],
+        callout:
+          '算法学习里，先把朴素方法吃透，不是低效，而是为了搞清楚优化真正要解决的具体问题。 ',
+      },
+      {
+        id: 'fs-optimal-solution',
+        title: '标准解法：双层遍历做朴素匹配',
+        summary:
+          '外层循环负责枚举主串里的每个可能起点，内层循环负责验证这个起点开始能不能和模式串完全匹配。若 `needle[j] !== haystack[i + j]`，说明这个起点失败；如果内层循环完整走完，说明从 `i` 开始匹配成功，直接返回 `i`。 ',
+        bullets: [
+          '时间复杂度在最坏情况下是 `O((n - m + 1) * m)`。 ',
+          '额外空间复杂度是 `O(1)`。 ',
+          '真正的关键是起点边界和内层比较边界不要写错。 ',
+        ],
+        code: `function strStr(haystack: string, needle: string): number {
+  if (needle.length === 0) {
+    return 0
+  }
+
+  for (let i = 0; i <= haystack.length - needle.length; i += 1) {
+    let matched = true
+
+    for (let j = 0; j < needle.length; j += 1) {
+      if (haystack[i + j] !== needle[j]) {
+        matched = false
+        break
+      }
+    }
+
+    if (matched) {
+      return i
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'fs-example-walkthrough',
+        title: '拿 `haystack = "sadbutsad"`，`needle = "sad"` 手推一次',
+        summary:
+          '从下标 `0` 开始看，主串前三个字符刚好就是 `"sad"`，所以第一次匹配立即成功，答案就是 `0`。这题只关心第一次出现的位置，所以后面虽然还有一个 `"sad"`，也不需要继续找。 ',
+        bullets: [
+          '第 0 个起点就已经完整匹配成功。 ',
+          '既然问的是第一次出现，找到就可以立刻返回。 ',
+          '如果前几个起点失败，就继续尝试下一个起点。 ',
+          '整体思路非常适合手动模拟。 ',
+        ],
+      },
+      {
+        id: 'fs-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题是字符串匹配的起点题。真正学会它以后，后面的 KMP 就不再是“硬背 next 数组”，而是能明确知道它在避免哪些重复比较。 ',
+        bullets: [
+          '易错点 1：外层循环越界，导致 `i + j` 访问到主串边界外。 ',
+          '易错点 2：找到匹配后没立即返回，结果错过第一次出现的位置。 ',
+          '易错点 3：没有处理空模式串的边界。 ',
+          '延伸方向：KMP、重复子串查找、最短匹配窗口、字符串哈希。 ',
+        ],
+        callout:
+          '如果你把这题看成“遍历字符串”，会觉得很散；如果你把它看成“模式串在主串里试探性落点”，后面的字符串匹配题会清晰很多。 ',
+      },
+    ],
+  },
 ];
