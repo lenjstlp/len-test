@@ -223,6 +223,10 @@ const menuCards = [
     path: '/fullstack-guide/mock-engineering',
     title: '前端 Mock 工程',
   },
+  {
+    path: '/fullstack-guide/import-engineering',
+    title: '前端导入工程',
+  },
 ];
 </script>
 

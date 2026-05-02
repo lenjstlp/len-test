@@ -507,6 +507,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/import-engineering',
+    name: 'fullstack-import-engineering',
+    component: () => import('@/views/FullstackImportEngineeringView.vue'),
+    meta: {
+      title: '前端导入工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
