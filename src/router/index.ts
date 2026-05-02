@@ -497,6 +497,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/mock-engineering',
+    name: 'fullstack-mock-engineering',
+    component: () => import('@/views/FullstackMockEngineeringView.vue'),
+    meta: {
+      title: '前端 Mock 工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
