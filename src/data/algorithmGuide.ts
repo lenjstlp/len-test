@@ -2900,4 +2900,141 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'substring-with-concatenation-of-all-words',
+    label: '30. LeetCode 30. 串联所有单词的子串',
+    difficulty: '困难',
+    description:
+      '这题是字符串滑动窗口的进阶版，难点在于不是匹配一个词，而是匹配一组词的组合。它很适合训练你把“单个模式匹配”升级成“多词窗口统计”。 ',
+    outcome:
+      '你能理解为什么这题不能直接暴力切分，掌握按单词长度分组的滑动窗口思想，并知道如何统计窗口内每个单词的出现次数。 ',
+    sections: [
+      {
+        id: 'sc-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串 `s` 和一个字符串数组 `words`，其中 `words` 中所有单词长度相同。要求找出 `s` 中所有由 `words` 里的单词“恰好各一次”串联而成的子串起始下标。单词顺序可以任意。 ',
+        bullets: [
+          '每个单词长度相同，这是这题最重要的隐藏条件。 ',
+          '必须恰好使用 `words` 里的每个单词一次。 ',
+          '顺序可以打乱，但数量必须对齐。 ',
+          '返回所有合法起点下标。 ',
+        ],
+      },
+      {
+        id: 'sc-why-brute-force-is-hard',
+        title: '为什么不能直接随便切来比',
+        summary:
+          '如果你从每个起点开始，直接把窗口切成若干个等长单词再比对，当然能做，但会重复很多工作。更麻烦的是，起点不一定对齐到字符级，而是要按单词长度对齐，因此窗口移动方式和普通字符串题不一样。 ',
+        bullets: [
+          '单词是定长的，所以窗口也应该按定长步进。 ',
+          '不同起点会共享很多重复统计。 ',
+          '如果每次都重新统计，效率会很差。 ',
+          '所以需要“按偏移分组”的滑动窗口。 ',
+        ],
+      },
+      {
+        id: 'sc-core-idea',
+        title: '核心思路：按单词长度分组滑动',
+        summary:
+          '既然每个单词长度相同，那就可以按 `wordLength` 个字符为一个步长去移动窗口。为了覆盖所有可能起点，需要按偏移量 `0...wordLength-1` 分组。每组里维护一个窗口和词频表，右边不断加入新单词，若某个单词次数超标，就从左边缩窗，直到恢复合法。 ',
+        bullets: [
+          '先统计 `words` 里的目标词频。 ',
+          '按单词长度分组处理不同偏移。 ',
+          '右指针每次跳 `wordLength`。 ',
+          '窗口词频超标时，从左侧同样按单词粒度收缩。 ',
+        ],
+        callout:
+          '这题真正的精髓不在于字符串，而在于“窗口移动粒度”和“统计单位”必须一致。 ',
+      },
+      {
+        id: 'sc-optimal-solution',
+        title: '标准解法：分组滑动窗口 + 词频表',
+        summary:
+          '先建立 `words` 的目标计数字典。然后按 `0...wordLength-1` 做分组扫描：每次取出一个长度固定的单词，如果它在目标词典里，就把它纳入当前窗口计数；若当前单词出现次数超过目标次数，就移动左指针并逐个减少窗口计数。窗口里刚好装满 `words.length` 个单词时，就记录当前起点。 ',
+        bullets: [
+          '时间复杂度通常是 `O(n * wordLength)` 级别的分组扫描。 ',
+          '额外空间复杂度是 `O(k)`，`k` 为不同单词数量。 ',
+          '关键是窗口移动必须以单词为单位，而不是按字符。 ',
+        ],
+        code: `function findSubstring(s: string, words: string[]): number[] {
+  if (words.length === 0) {
+    return []
+  }
+
+  const wordLength = words[0].length
+  const totalLength = wordLength * words.length
+  const target = new Map<string, number>()
+
+  for (const word of words) {
+    target.set(word, (target.get(word) ?? 0) + 1)
+  }
+
+  const result: number[] = []
+
+  for (let offset = 0; offset < wordLength; offset += 1) {
+    let left = offset
+    let right = offset
+    let matched = 0
+    const window = new Map<string, number>()
+
+    while (right + wordLength <= s.length) {
+      const word = s.slice(right, right + wordLength)
+      right += wordLength
+
+      if (!target.has(word)) {
+        window.clear()
+        matched = 0
+        left = right
+        continue
+      }
+
+      window.set(word, (window.get(word) ?? 0) + 1)
+      matched += 1
+
+      while ((window.get(word) ?? 0) > (target.get(word) ?? 0)) {
+        const leftWord = s.slice(left, left + wordLength)
+        window.set(leftWord, (window.get(leftWord) ?? 0) - 1)
+        left += wordLength
+        matched -= 1
+      }
+
+      if (matched === words.length) {
+        result.push(left)
+      }
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'sc-example-walkthrough',
+        title:
+          '拿 `s = "barfoothefoobarman"`，`words = ["foo","bar"]` 手推一次',
+        summary:
+          '按长度 3 分组后，起点 `0` 处看到 `"bar"` 再看到 `"foo"`，刚好凑齐一组，所以记录 `0`。继续往后滚动，在起点 `9` 处又能看到 `"foo"` 和 `"bar"` 的组合，所以再记录 `9`。最终答案是 `[0, 9]`。 ',
+        bullets: [
+          '每次窗口都按 3 个字符读取。 ',
+          '一旦单词超标，就从左边缩回去。 ',
+          '窗口刚好装满目标单词数时，当前左边界就是答案。 ',
+          '不同偏移分组能覆盖所有可能起点。 ',
+        ],
+      },
+      {
+        id: 'sc-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题是滑动窗口里很典型的“窗口单位必须对齐”的例子。学会它以后，你会更容易看出很多字符串题其实是在做词频窗口管理，而不是单纯比较字符串。 ',
+        bullets: [
+          '易错点 1：按字符而不是按单词移动窗口。 ',
+          '易错点 2：忘记按偏移分组，漏掉合法起点。 ',
+          '易错点 3：窗口超标后没有持续左移到合法为止。 ',
+          '延伸方向：最小覆盖子串、重复词统计、定长窗口枚举、字符串哈希。 ',
+        ],
+        callout:
+          '如果第 28 题是在做“单个模式串匹配”，那第 30 题就是在做“一组模式串的组合匹配”。难度上了一个台阶，但本质仍然是窗口和统计。 ',
+      },
+    ],
+  },
 ];
