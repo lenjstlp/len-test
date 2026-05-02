@@ -2268,4 +2268,103 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'swap-nodes-in-pairs',
+    label: '24. LeetCode 24. 两两交换链表中的节点',
+    difficulty: '中等',
+    description:
+      '这题是链表指针重连的经典训练题。重点不是把两个值交换一下，而是理解：如何在不破坏后续链表结构的前提下，稳定地重接两个相邻节点。 ',
+    outcome:
+      '你能独立写出两两交换链表节点的迭代解法，理解 dummy head、前驱节点和局部重连顺序，并建立对链表局部翻转的基本感觉。 ',
+    sections: [
+      {
+        id: 'snp-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给你一个链表，要求每两个相邻节点交换一次，并返回交换后的头节点。注意交换的是节点本身，而不是简单交换节点里的值。 ',
+        bullets: [
+          '第 1 个和第 2 个交换，第 3 个和第 4 个交换，以此类推。 ',
+          '不能只改节点值，题目强调要动节点结构。 ',
+          '如果链表长度是奇数，最后一个节点保持不动。 ',
+          '核心难点是：怎么安全地改指针，不把链表断掉。 ',
+        ],
+      },
+      {
+        id: 'snp-why-not-swap-values',
+        title: '为什么题目不建议直接交换值',
+        summary:
+          '如果题目只是让你“交换内容”，那直接交换节点值会很省事。但这里更想训练的是链表操作能力：节点位置改变时，你得真正学会修改 `next` 指针关系。后面很多链表题都要求这种能力。 ',
+        bullets: [
+          '交换值绕开了链表结构问题。 ',
+          '题目真正想考的是局部节点重连。 ',
+          '会交换节点，后面才更容易做 K 个一组翻转之类的题。 ',
+          '所以这题的价值在于练指针，而不是练赋值。 ',
+        ],
+        callout:
+          '链表题里，很多“简单做法”之所以不推荐，不是因为它跑不出来，而是因为它绕开了题目真正想训练的结构操作能力。 ',
+      },
+      {
+        id: 'snp-core-idea',
+        title: '真正的关键：先记住三个角色',
+        summary:
+          '每次交换一对节点时，你至少要盯住 3 个角色：这一对节点前面的前驱节点 `prev`，当前第一个节点 `first`，以及当前第二个节点 `second`。只要这三个位置关系搞清楚，局部交换就会变成一个稳定模板。 ',
+        bullets: [
+          '`prev.next` 原本指向 `first`。 ',
+          '`first.next` 原本指向 `second`。 ',
+          '`second.next` 原本指向后续节点。 ',
+          '交换后应该变成：`prev -> second -> first -> 后续`。 ',
+        ],
+      },
+      {
+        id: 'snp-why-dummy-head',
+        title: '为什么这里同样推荐 dummy head',
+        summary:
+          '如果链表头两个节点要交换，那新的头节点会直接变化。为了让“交换第一对”和“交换中间某一对”用同一套逻辑，最稳的办法就是加一个虚拟头结点，从 dummy 出发统一处理。 ',
+        bullets: [
+          'dummy 的 `next` 指向原始 head。 ',
+          '每次都从 `prev` 开始找当前要交换的一对。 ',
+          '这样就不用单独特判“头节点变化”的场景。 ',
+          '链表改结构时，dummy 几乎总是一个稳手法。 ',
+        ],
+      },
+      {
+        id: 'snp-optimal-solution',
+        title: '标准解法：dummy + 局部指针重连',
+        summary:
+          '使用一个 `prev` 指针从 dummy 出发，只要 `prev.next` 和 `prev.next.next` 都存在，就说明还有一对可交换节点。设这一对为 `first` 和 `second`，再按正确顺序调整 3 条指针：先让 `first.next` 指向 `second.next`，再让 `second.next` 指向 `first`，最后让 `prev.next` 指向 `second`。之后把 `prev` 移到 `first`，继续处理下一对。 ',
+        bullets: [
+          '时间复杂度是 `O(n)`。 ',
+          '额外空间复杂度是 `O(1)`。 ',
+          '真正容易错的不是思路，而是指针改动顺序。 ',
+        ],
+        code: `class ListNode {\n  val: number\n  next: ListNode | null\n\n  constructor(val = 0, next: ListNode | null = null) {\n    this.val = val\n    this.next = next\n  }\n}\n\nfunction swapPairs(head: ListNode | null): ListNode | null {\n  const dummy = new ListNode(0, head)\n  let prev: ListNode | null = dummy\n\n  while (prev?.next && prev.next.next) {\n    const first = prev.next\n    const second = first.next!\n\n    first.next = second.next\n    second.next = first\n    prev.next = second\n\n    prev = first\n  }\n\n  return dummy.next\n}`,
+      },
+      {
+        id: 'snp-example-walkthrough',
+        title: '拿 `[1,2,3,4]` 手推一次',
+        summary:
+          '开始时 `dummy -> 1 -> 2 -> 3 -> 4`。第一轮交换的是 `1` 和 `2`，交换后变成 `dummy -> 2 -> 1 -> 3 -> 4`。接着 `prev` 移到 `1`，第二轮交换 `3` 和 `4`，最后得到 `2 -> 1 -> 4 -> 3`。 ',
+        bullets: [
+          '第一轮结束后，`prev` 要移动到交换后的后一个节点，也就是 `1`。 ',
+          '这样 `prev.next` 才会刚好指向下一对的第一个节点。 ',
+          '每次交换只影响局部 2 个节点和它们前面的连接。 ',
+          '所以整个过程可以稳定地从前往后推进。 ',
+        ],
+      },
+      {
+        id: 'snp-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题是链表局部重连的标准练习。它和简单遍历型链表题不同，真正训练的是你能不能把多个指针位置关系在脑子里同时维护住。 ',
+        bullets: [
+          '易错点 1：先改 `prev.next`，导致丢失原始节点关系。 ',
+          '易错点 2：交换完成后把 `prev` 移到 `second` 而不是 `first`。 ',
+          '易错点 3：没用 dummy，导致头节点交换时逻辑分叉。 ',
+          '延伸方向：K 个一组翻转链表、反转链表 II、链表分段重排。 ',
+        ],
+        callout:
+          '如果第 21 题是在训练你“如何把链表接长”，那第 24 题训练的就是“如何把链表局部翻转”。这已经开始接近更复杂链表题的核心手感了。 ',
+      },
+    ],
+  },
 ];
