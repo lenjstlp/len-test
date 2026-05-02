@@ -557,6 +557,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/recycle-bin-engineering',
+    name: 'fullstack-recycle-bin-engineering',
+    component: () => import('@/views/FullstackRecycleBinEngineeringView.vue'),
+    meta: {
+      title: '前端回收站工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
