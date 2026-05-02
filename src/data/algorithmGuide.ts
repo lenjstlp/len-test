@@ -2169,4 +2169,103 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'merge-k-sorted-lists',
+    label: '23. LeetCode 23. 合并 K 个升序链表',
+    difficulty: '困难',
+    description:
+      '这题是第 21 题“合并两个有序链表”的升级版。重点不是再写一遍链表比较，而是意识到：当“两个有序源”变成“K 个有序源”时，你需要一个更高效的全局选择结构。 ',
+    outcome:
+      '你能独立写出合并 K 个升序链表的最优思路，理解为什么最小堆适合处理多个有序输入源，并知道它和分治法之间的关系。 ',
+    sections: [
+      {
+        id: 'mk-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给你一个链表数组 `lists`，其中每个链表都已经按升序排列。要求把这些链表合并成一个新的升序链表，并返回合并后的头节点。难点不在链表本身，而在于有很多条链表同时竞争“当前最小值”。 ',
+        bullets: [
+          '每条输入链表内部本身都是有序的。 ',
+          '输入数量不再固定为 2，而是 `k` 条。 ',
+          '返回结果仍然必须整体升序。 ',
+          '核心问题变成：如何高效选出所有链表当前头节点中的最小值。 ',
+        ],
+      },
+      {
+        id: 'mk-why-repeat-merge-is-not-best',
+        title: '为什么一条条顺次合并不够好',
+        summary:
+          '最直观的办法是先合并前两条，再拿结果和第三条合并，再和第四条合并……这样当然能做出来，但如果前面合出来的链表越来越长，后面的每次合并成本都会越来越高，整体效率不够理想。 ',
+        bullets: [
+          '如果总节点数是 `N`，链表数量是 `k`。 ',
+          '顺次合并会让前面结果反复被扫描。 ',
+          '在 `k` 较大时，性能会明显变差。 ',
+          '这说明我们需要一种更“全局”的最小值选择方式。 ',
+        ],
+        callout:
+          '第 21 题告诉你怎么合并两个有序流，第 23 题在追问：当有很多个有序流同时到来时，你怎么避免低效地反复重扫。 ',
+      },
+      {
+        id: 'mk-core-idea',
+        title: '真正的关键：谁能最快告诉你“当前最小头节点是谁”',
+        summary:
+          '因为每条链表本身有序，所以每条链表里真正有资格参与竞争的，永远只有当前头节点。你要做的不是关心所有节点，而是维护这 `k` 个候选头节点中谁最小。每取出一个最小节点，再把它所在链表的下一个节点补回候选集合即可。 ',
+        bullets: [
+          '候选集合里只放每条链表当前头节点。 ',
+          '每次弹出最小头节点，把它接到答案后面。 ',
+          '然后把这个节点的 `next` 再放回候选集合。 ',
+          '这个过程天然适合“动态维护最小值”的数据结构。 ',
+        ],
+      },
+      {
+        id: 'mk-why-heap',
+        title: '为什么最小堆是这里最自然的选择',
+        summary:
+          '最小堆的作用就是快速拿到当前最小元素，并在插入新元素后继续维持整体有序关系。这里候选数量最多只有 `k` 个，所以每次取最小和插入新节点的代价都能控制在 `O(log k)`。 ',
+        bullets: [
+          '堆顶永远是当前最小节点。 ',
+          '弹出最小值是 `O(log k)`。 ',
+          '插入下一个候选节点也是 `O(log k)`。 ',
+          '总共处理 `N` 个节点，所以整体效率很好。 ',
+        ],
+      },
+      {
+        id: 'mk-optimal-solution',
+        title: '标准解法：最小堆 + 链表尾插',
+        summary:
+          '先把所有非空链表的头节点放进最小堆。然后反复弹出堆顶最小节点，接到结果链表尾部；如果这个节点后面还有 `next`，就把 `next` 继续放回堆中。直到堆为空，说明所有节点都已经按顺序处理完。 ',
+        bullets: [
+          '时间复杂度是 `O(N log k)`。 ',
+          '额外空间复杂度是 `O(k)`。 ',
+          '实现上通常仍然搭配 dummy head 和 tail 指针。 ',
+        ],
+        code: `class ListNode {\n  val: number\n  next: ListNode | null\n\n  constructor(val = 0, next: ListNode | null = null) {\n    this.val = val\n    this.next = next\n  }\n}\n\nclass MinHeap {\n  private data: ListNode[] = []\n\n  size() {\n    return this.data.length\n  }\n\n  push(node: ListNode) {\n    this.data.push(node)\n    this.bubbleUp(this.data.length - 1)\n  }\n\n  pop() {\n    if (this.data.length === 0) {\n      return null\n    }\n\n    const top = this.data[0]\n    const last = this.data.pop()!\n\n    if (this.data.length > 0) {\n      this.data[0] = last\n      this.bubbleDown(0)\n    }\n\n    return top\n  }\n\n  private bubbleUp(index: number) {\n    let current = index\n\n    while (current > 0) {\n      const parent = Math.floor((current - 1) / 2)\n      if (this.data[parent].val <= this.data[current].val) {\n        break\n      }\n      ;[this.data[parent], this.data[current]] = [\n        this.data[current],\n        this.data[parent],\n      ]\n      current = parent\n    }\n  }\n\n  private bubbleDown(index: number) {\n    let current = index\n    const length = this.data.length\n\n    while (true) {\n      const left = current * 2 + 1\n      const right = current * 2 + 2\n      let smallest = current\n\n      if (left < length && this.data[left].val < this.data[smallest].val) {\n        smallest = left\n      }\n\n      if (right < length && this.data[right].val < this.data[smallest].val) {\n        smallest = right\n      }\n\n      if (smallest === current) {\n        break\n      }\n\n      ;[this.data[current], this.data[smallest]] = [\n        this.data[smallest],\n        this.data[current],\n      ]\n      current = smallest\n    }\n  }\n}\n\nfunction mergeKLists(lists: Array<ListNode | null>): ListNode | null {\n  const heap = new MinHeap()\n\n  for (const node of lists) {\n    if (node) {\n      heap.push(node)\n    }\n  }\n\n  const dummy = new ListNode()\n  let tail = dummy\n\n  while (heap.size() > 0) {\n    const node = heap.pop()!\n    tail.next = node\n    tail = tail.next\n\n    if (node.next) {\n      heap.push(node.next)\n    }\n  }\n\n  return dummy.next\n}`,
+      },
+      {
+        id: 'mk-example-walkthrough',
+        title: '拿一个例子手推一次',
+        summary:
+          '例如 `lists = [[1,4,5],[1,3,4],[2,6]]`。最开始把三个头节点 `1、1、2` 放入堆。先弹出一个 `1`，再把它后面的 `4` 放回堆；接着再弹出另一个 `1`，把它后面的 `3` 放回堆。如此反复，最终得到 `[1,1,2,3,4,4,5,6]`。 ',
+        bullets: [
+          '堆里维护的是“每条链表当前最前面的候选值”。 ',
+          '每弹出一个节点，只需要补回它后面的一个节点。 ',
+          '候选集合规模始终不会超过 `k`。 ',
+          '这就是最小堆能稳定控制复杂度的原因。 ',
+        ],
+      },
+      {
+        id: 'mk-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的价值，在于它把“有序流合并”从双指针升级到了堆和分治层面。会做它，说明你已经开始接触真正更通用的多路归并模型。 ',
+        bullets: [
+          '易错点 1：把所有节点一股脑塞进数组排序，忽略了有序链表的结构信息。 ',
+          '易错点 2：弹出最小节点后忘记把 `node.next` 放回堆。 ',
+          '易错点 3：自己写堆时上浮下沉边界处理出错。 ',
+          '延伸方向：分治合并 K 条链表、Top K、合并多个有序数组、外部排序。 ',
+        ],
+        callout:
+          '如果第 21 题是“二路归并”的模板题，那第 23 题就是你第一次真正接触“多路归并”。它背后的模型，不只会出现在链表题里。 ',
+      },
+    ],
+  },
 ];
