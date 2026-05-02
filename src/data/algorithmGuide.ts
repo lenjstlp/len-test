@@ -2367,4 +2367,103 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'reverse-nodes-in-k-group',
+    label: '25. LeetCode 25. K 个一组翻转链表',
+    difficulty: '困难',
+    description:
+      '这题是链表局部翻转能力的代表题。重点不是记住一段很长的模板代码，而是理解：如何把链表切成一个个长度为 `k` 的小段，并对每一段做稳定的局部反转。 ',
+    outcome:
+      '你能独立写出 K 个一组翻转链表的迭代解法，理解分组、局部反转、前后拼接这三个核心步骤，并建立链表分段操作的整体框架。 ',
+    sections: [
+      {
+        id: 'rng-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给你一个链表头节点 `head` 和整数 `k`，要求每 `k` 个节点为一组进行翻转，并返回修改后的链表。如果最后剩下的节点不足 `k` 个，则保持原样。 ',
+        bullets: [
+          '只有完整的 `k` 个节点才需要翻转。 ',
+          '不足 `k` 个的尾部节点保持原顺序。 ',
+          '翻转的是节点本身，不是简单交换值。 ',
+          '核心难点是：如何安全地定位每一组，并把翻转后的结果接回原链表。 ',
+        ],
+      },
+      {
+        id: 'rng-relationship-to-24',
+        title: '它和第 24 题是什么关系',
+        summary:
+          '如果第 24 题是“每 2 个一组交换”，那这题就是把组大小从 2 推广到了任意 `k`。本质上训练的是同一种能力：链表局部重排。区别在于，这次不再只是交换两个节点，而是整段翻转一组节点。 ',
+        bullets: [
+          '第 24 题只需要处理固定 2 个节点。 ',
+          '这题需要处理长度为 `k` 的整段链表。 ',
+          '组内翻转之后，还要把前后链表重新拼接起来。 ',
+          '所以这题比第 24 题更系统、更接近完整模板。 ',
+        ],
+        callout:
+          '很多链表难题本质上都不是“想新思路”，而是把你已有的小模板扩展成更大的结构操作模板。 ',
+      },
+      {
+        id: 'rng-core-idea',
+        title: '真正的关键：先确定这一组够不够 k 个',
+        summary:
+          '每次准备翻转前，首先要从当前起点往后数 `k` 个节点，确认这一组是否完整。如果不完整，直接结束；如果完整，才进入局部翻转流程。这一步非常关键，因为题目要求最后不足 `k` 个节点时必须保持原样。 ',
+        bullets: [
+          '不能一边翻一边发现节点不够。 ',
+          '必须先确认这一段是完整的 `k` 个节点。 ',
+          '确认后再切出这一组做局部反转。 ',
+          '这样才能保证尾部不足 `k` 的部分不会被误操作。 ',
+        ],
+      },
+      {
+        id: 'rng-three-steps',
+        title: '这一题其实可以拆成 3 个稳定步骤',
+        summary:
+          '你可以把整个过程拆成 3 步：第一步，找到这一组的起点和终点；第二步，把这一组局部翻转；第三步，把翻转后的头尾重新接回外部链表。只要这 3 步清晰，代码就不会乱。 ',
+        bullets: [
+          '步骤 1：找到组前驱、组起点、组终点、下一组起点。 ',
+          '步骤 2：只反转当前这 `k` 个节点。 ',
+          '步骤 3：把前驱接到新头，把旧头接到下一段。 ',
+          '然后继续处理下一组。 ',
+        ],
+      },
+      {
+        id: 'rng-optimal-solution',
+        title: '标准解法：dummy + 分组定位 + 局部反转',
+        summary:
+          '使用 dummy head 统一处理头节点变化。每轮从 `groupPrev` 出发，先找到当前组的第 `k` 个节点 `kth`；如果找不到，说明不足 `k` 个，直接结束。否则记住下一组起点 `groupNext`，然后把当前组 `[groupPrev.next, kth]` 反转。反转后，把 `groupPrev.next` 指向新组头，把原组头接到 `groupNext`，最后移动 `groupPrev` 继续下一轮。 ',
+        bullets: [
+          '时间复杂度是 `O(n)`。 ',
+          '额外空间复杂度是 `O(1)`。 ',
+          '真正难点集中在局部翻转过程里的指针更新顺序。 ',
+        ],
+        code: `class ListNode {\n  val: number\n  next: ListNode | null\n\n  constructor(val = 0, next: ListNode | null = null) {\n    this.val = val\n    this.next = next\n  }\n}\n\nfunction reverseKGroup(head: ListNode | null, k: number): ListNode | null {\n  const dummy = new ListNode(0, head)\n  let groupPrev: ListNode | null = dummy\n\n  const getKth = (node: ListNode | null, step: number) => {\n    let current = node\n    for (let count = 0; count < step; count += 1) {\n      current = current?.next ?? null\n    }\n    return current\n  }\n\n  while (groupPrev) {\n    const kth = getKth(groupPrev, k)\n    if (!kth) {\n      break\n    }\n\n    const groupNext = kth.next\n    let prev = groupNext\n    let current = groupPrev.next\n\n    while (current !== groupNext) {\n      const next = current!.next\n      current!.next = prev\n      prev = current\n      current = next\n    }\n\n    const groupStart = groupPrev.next\n    groupPrev.next = kth\n    groupPrev = groupStart\n  }\n\n  return dummy.next\n}`,
+      },
+      {
+        id: 'rng-example-walkthrough',
+        title: '拿 `[1,2,3,4,5]`，`k = 3` 手推一次',
+        summary:
+          '第一组是 `[1,2,3]`，它完整，所以翻转成 `[3,2,1]`。剩余链表是 `[4,5]`，因为不足 `3` 个节点，所以保持原样。最终结果是 `[3,2,1,4,5]`。 ',
+        bullets: [
+          '先确认前 3 个节点存在，才能进入翻转。 ',
+          '翻转后，原组头 `1` 会变成这一组的尾巴。 ',
+          '它要负责接回剩余部分 `[4,5]`。 ',
+          '最后不足 `k` 的部分直接保留。 ',
+        ],
+      },
+      {
+        id: 'rng-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题是链表局部翻转题里的经典门槛。真正把它做稳了，你对链表的控制力会明显上一个台阶，因为它要求你同时看清组边界、局部翻转和外部连接。 ',
+        bullets: [
+          '易错点 1：没先确认是否有完整 `k` 个节点，就提前翻转。 ',
+          '易错点 2：翻转完之后忘记把原组头接回后续链表。 ',
+          '易错点 3：更新 `groupPrev` 的位置错了，导致下一轮起点错乱。 ',
+          '延伸方向：反转链表 II、分段翻转、链表重排、链表旋转。 ',
+        ],
+        callout:
+          '如果第 24 题训练的是“局部交换”，那第 25 题训练的就是“分段翻转”。这已经是链表结构题里非常核心的一类模板了。 ',
+      },
+    ],
+  },
 ];
