@@ -64,6 +64,10 @@ const menuCards = [
     title: '前端并发控制工程',
   },
   {
+    path: '/fullstack-guide/polling-refresh',
+    title: '前端轮询与增量刷新工程',
+  },
+  {
     path: '/fullstack-guide/performance',
     title: '前端性能',
   },

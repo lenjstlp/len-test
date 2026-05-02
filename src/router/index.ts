@@ -108,6 +108,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/polling-refresh',
+    name: 'fullstack-polling-refresh',
+    component: () => import('@/views/FullstackPollingRefreshView.vue'),
+    meta: {
+      title: '前端轮询与增量刷新工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/performance',
     name: 'fullstack-performance',
     component: () => import('@/views/FullstackPerformanceView.vue'),
