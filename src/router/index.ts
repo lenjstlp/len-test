@@ -537,6 +537,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/export-engineering',
+    name: 'fullstack-export-engineering',
+    component: () => import('@/views/FullstackExportEngineeringView.vue'),
+    meta: {
+      title: '前端导出工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
