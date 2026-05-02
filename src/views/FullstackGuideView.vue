@@ -56,6 +56,10 @@ const menuCards = [
     title: '前端多标签页同步工程',
   },
   {
+    path: '/fullstack-guide/retry-idempotency',
+    title: '前端重试与幂等工程',
+  },
+  {
     path: '/fullstack-guide/performance',
     title: '前端性能',
   },

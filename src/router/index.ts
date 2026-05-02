@@ -88,6 +88,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/retry-idempotency',
+    name: 'fullstack-retry-idempotency',
+    component: () => import('@/views/FullstackRetryIdempotencyView.vue'),
+    meta: {
+      title: '前端重试与幂等工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/performance',
     name: 'fullstack-performance',
     component: () => import('@/views/FullstackPerformanceView.vue'),
