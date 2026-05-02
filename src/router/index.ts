@@ -517,6 +517,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/payment-engineering',
+    name: 'fullstack-payment-engineering',
+    component: () => import('@/views/FullstackPaymentEngineeringView.vue'),
+    meta: {
+      title: '前端支付工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
