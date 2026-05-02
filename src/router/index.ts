@@ -527,6 +527,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/audit-log-engineering',
+    name: 'fullstack-audit-log-engineering',
+    component: () => import('@/views/FullstackAuditLogEngineeringView.vue'),
+    meta: {
+      title: '前端审计日志工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

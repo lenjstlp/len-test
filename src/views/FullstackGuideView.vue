@@ -231,6 +231,10 @@ const menuCards = [
     path: '/fullstack-guide/payment-engineering',
     title: '前端支付工程',
   },
+  {
+    path: '/fullstack-guide/audit-log-engineering',
+    title: '前端审计日志工程',
+  },
 ];
 </script>
 
