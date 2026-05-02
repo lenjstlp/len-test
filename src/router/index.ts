@@ -118,6 +118,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/resumable-upload',
+    name: 'fullstack-resumable-upload',
+    component: () => import('@/views/FullstackResumableUploadView.vue'),
+    meta: {
+      title: '前端文件断点续传工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/performance',
     name: 'fullstack-performance',
     component: () => import('@/views/FullstackPerformanceView.vue'),

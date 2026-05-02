@@ -68,6 +68,10 @@ const menuCards = [
     title: '前端轮询与增量刷新工程',
   },
   {
+    path: '/fullstack-guide/resumable-upload',
+    title: '前端文件断点续传工程',
+  },
+  {
     path: '/fullstack-guide/performance',
     title: '前端性能',
   },
