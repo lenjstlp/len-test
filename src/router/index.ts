@@ -547,6 +547,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/draft-box-engineering',
+    name: 'fullstack-draft-box-engineering',
+    component: () => import('@/views/FullstackDraftBoxEngineeringView.vue'),
+    meta: {
+      title: '前端草稿箱工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

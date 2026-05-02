@@ -239,6 +239,10 @@ const menuCards = [
     path: '/fullstack-guide/export-engineering',
     title: '前端导出工程',
   },
+  {
+    path: '/fullstack-guide/draft-box-engineering',
+    title: '前端草稿箱工程',
+  },
 ];
 </script>
 
