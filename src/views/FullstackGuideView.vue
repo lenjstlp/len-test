@@ -48,6 +48,10 @@ const menuCards = [
     title: '前端缓存',
   },
   {
+    path: '/fullstack-guide/api-cache-engineering',
+    title: '前端 API 缓存工程',
+  },
+  {
     path: '/fullstack-guide/performance',
     title: '前端性能',
   },

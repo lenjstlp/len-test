@@ -68,6 +68,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/api-cache-engineering',
+    name: 'fullstack-api-cache-engineering',
+    component: () => import('@/views/FullstackApiCacheEngineeringView.vue'),
+    meta: {
+      title: '前端 API 缓存工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/performance',
     name: 'fullstack-performance',
     component: () => import('@/views/FullstackPerformanceView.vue'),
