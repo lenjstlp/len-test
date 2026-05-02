@@ -52,6 +52,10 @@ const menuCards = [
     title: '前端 API 缓存工程',
   },
   {
+    path: '/fullstack-guide/multi-tab-sync',
+    title: '前端多标签页同步工程',
+  },
+  {
     path: '/fullstack-guide/performance',
     title: '前端性能',
   },

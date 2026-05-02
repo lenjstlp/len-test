@@ -78,6 +78,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/multi-tab-sync',
+    name: 'fullstack-multi-tab-sync',
+    component: () => import('@/views/FullstackMultiTabSyncView.vue'),
+    meta: {
+      title: '前端多标签页同步工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/performance',
     name: 'fullstack-performance',
     component: () => import('@/views/FullstackPerformanceView.vue'),
