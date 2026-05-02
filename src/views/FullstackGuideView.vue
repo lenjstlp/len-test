@@ -60,6 +60,10 @@ const menuCards = [
     title: '前端重试与幂等工程',
   },
   {
+    path: '/fullstack-guide/concurrency-control',
+    title: '前端并发控制工程',
+  },
+  {
     path: '/fullstack-guide/performance',
     title: '前端性能',
   },

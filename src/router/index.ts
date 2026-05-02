@@ -98,6 +98,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/concurrency-control',
+    name: 'fullstack-concurrency-control',
+    component: () => import('@/views/FullstackConcurrencyControlView.vue'),
+    meta: {
+      title: '前端并发控制工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/performance',
     name: 'fullstack-performance',
     component: () => import('@/views/FullstackPerformanceView.vue'),
