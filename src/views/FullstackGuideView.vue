@@ -247,6 +247,10 @@ const menuCards = [
     path: '/fullstack-guide/recycle-bin-engineering',
     title: '前端回收站工程',
   },
+  {
+    path: '/fullstack-guide/data-masking-engineering',
+    title: '前端数据脱敏工程',
+  },
 ];
 </script>
 

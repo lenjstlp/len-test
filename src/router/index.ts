@@ -567,6 +567,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/data-masking-engineering',
+    name: 'fullstack-data-masking-engineering',
+    component: () => import('@/views/FullstackDataMaskingEngineeringView.vue'),
+    meta: {
+      title: '前端数据脱敏工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
