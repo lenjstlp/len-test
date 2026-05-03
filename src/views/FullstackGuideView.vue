@@ -44,6 +44,10 @@ const menuCards = [
     title: '前端鉴权',
   },
   {
+    path: '/fullstack-guide/auth-token',
+    title: '前端认证与令牌工程',
+  },
+  {
     path: '/fullstack-guide/cache',
     title: '前端缓存',
   },

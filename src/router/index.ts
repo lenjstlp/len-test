@@ -58,6 +58,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/auth-token',
+    name: 'fullstack-auth-token',
+    component: () => import('@/views/FullstackAuthTokenView.vue'),
+    meta: {
+      title: '前端认证与令牌工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/cache',
     name: 'fullstack-cache',
     component: () => import('@/views/FullstackCacheView.vue'),
