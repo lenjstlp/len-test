@@ -3494,4 +3494,105 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'search-insert-position',
+    label: '35. LeetCode 35. 搜索插入位置',
+    difficulty: '简单',
+    description:
+      '这题表面看很简单，实际上是学习“二分边界思维”的入门题。它不是只问你元素是否存在，而是要求你在不存在时也能给出正确的插入位置，这就要求你真正理解二分在找什么。',
+    outcome:
+      '你能独立写出搜索插入位置的二分解法，理解为什么答案本质上是“第一个大于等于 target 的位置”，并把这种思路迁移到更多边界题中。',
+    sections: [
+      {
+        id: 'sip-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个升序排列的整数数组 `nums` 和一个目标值 `target`。如果目标值存在，返回它的下标；如果不存在，返回它应该按顺序插入的位置。',
+        bullets: [
+          '数组已经有序，这是使用二分的前提。',
+          '如果目标存在，答案就是它当前的下标。',
+          '如果目标不存在，答案是把它插进去后仍保持有序的位置。',
+          '本质是在找一个边界位置，不只是找某个元素。',
+        ],
+      },
+      {
+        id: 'sip-why-brute-force-is-wasteful',
+        title: '为什么不直接从左到右找',
+        summary:
+          '当然可以线性扫描，遇到第一个大于等于 `target` 的元素就返回下标。但数组既然已经有序，就没必要逐个比较。二分可以把查找过程从 `O(n)` 压到 `O(log n)`。',
+        bullets: [
+          '线性扫描时间复杂度是 `O(n)`。',
+          '有序数组最适合用二分处理。',
+          '题目规模一大，二分优势会非常明显。',
+        ],
+      },
+      {
+        id: 'sip-core-idea',
+        title: '核心思路：找第一个大于等于 target 的位置',
+        summary:
+          '这题最关键的转换是：答案不是“target 在哪”，而是“第一个大于等于 target 的位置在哪”。如果 target 存在，这个位置就是它本身；如果不存在，这个位置就是应该插入的位置。',
+        bullets: [
+          '当 `nums[mid] >= target` 时，答案可能在 `mid` 或它左边。',
+          '当 `nums[mid] < target` 时，答案一定在右边。',
+          '最终 `left` 停下来的位置，就是第一个满足条件的位置。',
+          '如果所有元素都小于 `target`，答案就是数组长度 `nums.length`。',
+        ],
+        callout:
+          '很多二分题都不是在找“某个值”，而是在找“第一个满足条件的位置”。这题就是最经典的入门模板。',
+      },
+      {
+        id: 'sip-optimal-solution',
+        title: '标准解法：半开区间二分',
+        summary:
+          '使用半开区间 `[left, right)` 写法，初始化 `left = 0`、`right = nums.length`。每轮取中点 `mid`，如果 `nums[mid] >= target`，就收缩右边界到 `mid`；否则收缩左边界到 `mid + 1`。循环结束时，`left` 就是答案。',
+        bullets: [
+          '时间复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(1)`。',
+          '统一使用半开区间后，边界会更稳定。',
+        ],
+        code: `function searchInsert(nums: number[], target: number): number {
+  let left = 0
+  let right = nums.length
+
+  while (left < right) {
+    const mid = Math.floor((left + right) / 2)
+
+    if (nums[mid] >= target) {
+      right = mid
+    } else {
+      left = mid + 1
+    }
+  }
+
+  return left
+}`,
+      },
+      {
+        id: 'sip-example-walkthrough',
+        title: '拿 `[1,3,5,6]` 手推一次',
+        summary:
+          '如果 `target = 5`，二分最后会停在下标 `2`，因为这里正好是第一个大于等于 `5` 的位置。如果 `target = 2`，最终会停在下标 `1`，表示它应该插在 `1` 和 `3` 之间。若 `target = 7`，则所有元素都比它小，答案就是 `4`。',
+        bullets: [
+          '找已有元素时，结果是它原本的位置。',
+          '找不存在元素时，结果是应插入的位置。',
+          '如果目标比所有元素都大，答案就是数组末尾。',
+          '这正是边界二分比普通二分更强的地方。',
+        ],
+      },
+      {
+        id: 'sip-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易错的地方，是还在用“命中就返回”的普通二分思维。真正稳定的写法，是直接把问题当作边界查找来做。这样以后做查找区间、插入位置、lowerBound/upperBound 一类题时都会更顺手。',
+        bullets: [
+          '易错点 1：把它写成普通二分，找不到时再临时补边界。',
+          '易错点 2：没有统一区间写法，导致边界混乱。',
+          '易错点 3：忘了目标可能插在数组最后面。',
+          '延伸方向：第一个大于等于 x、最后一个小于等于 x、搜索范围题。',
+        ],
+        callout:
+          '如果你把这题彻底吃透，后面的边界二分会轻松很多，因为它训练的是“答案是一个位置边界”的思维方式。',
+      },
+    ],
+  },
 ];
