@@ -3269,4 +3269,117 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'search-rotated-sorted-array',
+    label: '33. LeetCode 33. 搜索旋转排序数组',
+    difficulty: '中等',
+    description:
+      '这题是二分查找的经典变体。数组原本有序，但被某个位置旋转了一下。你要做的不是重新排序，而是在局部有序的前提下，快速判断目标值在哪一边。',
+    outcome:
+      '你能独立写出搜索旋转排序数组的二分解法，理解为什么每一轮都能先判断哪一侧有序，再把搜索范围缩小到正确半边。',
+    sections: [
+      {
+        id: 'sra-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个没有重复元素的升序数组 `nums`，它被某个未知位置旋转过。现在给你一个目标值 `target`，要求你返回它在数组中的下标；如果不存在，返回 `-1`。',
+        bullets: [
+          '数组原本是升序的，只是被旋转过。',
+          '数组中没有重复元素，这一点非常关键。',
+          '要求的是下标，不是元素本身。',
+          '题目核心是利用局部有序来做二分。',
+        ],
+      },
+      {
+        id: 'sra-brute-force',
+        title: '为什么不能直接线性扫',
+        summary:
+          '当然可以从头到尾扫一遍，但这会浪费掉“数组整体有序”这个重要信息。既然题目给了有序结构，就应该把它转化成更快的查找过程。',
+        bullets: [
+          '线性扫描时间复杂度是 `O(n)`。',
+          '题目希望你使用二分，把复杂度压到 `O(log n)`。',
+          '真正要利用的是“旋转后仍然有两段局部有序”。',
+        ],
+      },
+      {
+        id: 'sra-core-idea',
+        title: '核心思路：先判断哪一边有序',
+        summary:
+          '每次取中点 `mid` 后，左半边或右半边至少有一边是有序的。先判断哪一边有序，再看 `target` 是否落在这一边的范围内。如果在，就继续往这边缩；如果不在，就去另一边找。',
+        bullets: [
+          '如果 `nums[left] <= nums[mid]`，说明左半边有序。',
+          '如果左半边有序，就判断 `target` 是否落在 `[nums[left], nums[mid])`。',
+          '否则右半边一定有序，再判断目标是否落在右半边范围内。',
+          '每轮都能砍掉一半搜索区间，所以仍然是二分。',
+        ],
+        callout:
+          '这题不是“判断中点值和目标值的大小”，而是“判断哪一侧有序，再判断目标是否属于这一侧”。这是旋转数组二分的灵魂。',
+      },
+      {
+        id: 'sra-optimal-solution',
+        title: '标准解法：局部有序 + 二分收缩',
+        summary:
+          '维护 `left` 和 `right`。每轮先看 `mid`，判断左半边是否有序；如果有序，就检查目标是否落在左半边范围内。若是，收缩到左边，否则去右边。若右半边有序，则反过来判断。这个过程直到找到目标或区间为空。',
+        bullets: [
+          '时间复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(1)`。',
+          '关键点是每轮都要先判断“哪一边有序”。',
+        ],
+        code: `function search(nums: number[], target: number): number {
+  let left = 0
+  let right = nums.length - 1
+
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2)
+
+    if (nums[mid] === target) {
+      return mid
+    }
+
+    if (nums[left] <= nums[mid]) {
+      if (nums[left] <= target && target < nums[mid]) {
+        right = mid - 1
+      } else {
+        left = mid + 1
+      }
+    } else {
+      if (nums[mid] < target && target <= nums[right]) {
+        left = mid + 1
+      } else {
+        right = mid - 1
+      }
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'sra-example-walkthrough',
+        title: '拿 `[4,5,6,7,0,1,2]` 手推一次',
+        summary:
+          '目标值如果是 `0`，中点先落在 `7` 附近。此时左半边 `[4,5,6,7]` 是有序的，但 `0` 不在这个范围内，所以直接去右半边 `[0,1,2]`。继续二分后很快就能找到 `0` 的位置。',
+        bullets: [
+          '第一轮先判断左半边有序。',
+          '目标不在左半边范围内，所以排除左边。',
+          '第二轮继续在右半边二分。',
+          '因为每轮都排除掉一半区间，所以搜索仍然很快。',
+        ],
+      },
+      {
+        id: 'sra-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易写错的地方，是只盯着中点值和目标值比较，却忘了先判断哪边有序。只要顺序搞对，整题其实就很稳定。',
+        bullets: [
+          '易错点 1：没有先判断哪一边有序。',
+          '易错点 2：目标区间判断时边界写反。',
+          '易错点 3：忘了数组没有重复元素这个前提。',
+          '延伸方向：搜索旋转数组 II、寻找旋转点、二分答案题。',
+        ],
+        callout:
+          '这题训练的是二分的“区间判断能力”。会写普通二分，不代表会写旋转数组二分；但只要你学会先找有序半边，很多变体都能套出来。',
+      },
+    ],
+  },
 ];
