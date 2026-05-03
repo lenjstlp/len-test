@@ -80,6 +80,10 @@ const menuCards = [
     title: '前端性能',
   },
   {
+    path: '/fullstack-guide/performance-governance',
+    title: '前端性能治理工程',
+  },
+  {
     path: '/fullstack-guide/security',
     title: '前端安全',
   },

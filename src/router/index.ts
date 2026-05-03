@@ -148,6 +148,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/performance-governance',
+    name: 'fullstack-performance-governance',
+    component: () => import('@/views/FullstackPerformanceGovernanceView.vue'),
+    meta: {
+      title: '前端性能治理工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/security',
     name: 'fullstack-security',
     component: () => import('@/views/FullstackSecurityView.vue'),
