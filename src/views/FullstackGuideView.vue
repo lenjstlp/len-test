@@ -148,6 +148,10 @@ const menuCards = [
     title: '前端配置中心',
   },
   {
+    path: '/fullstack-guide/environment-variables',
+    title: '前端环境变量工程',
+  },
+  {
     path: '/fullstack-guide/api-contract',
     title: '前端接口契约',
   },

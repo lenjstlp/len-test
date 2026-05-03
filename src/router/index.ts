@@ -318,6 +318,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/environment-variables',
+    name: 'fullstack-environment-variables',
+    component: () => import('@/views/FullstackEnvironmentVariablesView.vue'),
+    meta: {
+      title: '前端环境变量工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/api-contract',
     name: 'fullstack-api-contract',
     component: () => import('@/views/FullstackApiContractView.vue'),
