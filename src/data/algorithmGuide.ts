@@ -3382,4 +3382,116 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'find-first-and-last-position-of-element-in-sorted-array',
+    label: '34. LeetCode 34. 在排序数组中查找元素的第一个和最后一个位置',
+    difficulty: '中等',
+    description:
+      '这题是二分查找里非常重要的一道边界题。难点不在于“找到一个 target”，而在于稳定找出最左边界和最右边界。很多人会写普通二分，但一到边界定位就开始混乱，这题正好用来补这个短板。',
+    outcome:
+      '你能独立写出查找第一个位置和最后一个位置的双二分解法，理解为什么“找左边界”和“找右边界”本质上是两个不同的二分问题。',
+    sections: [
+      {
+        id: 'ffl-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个按照非递减顺序排列的整数数组 `nums`，以及一个目标值 `target`。如果目标值存在，返回它在数组中的第一个位置和最后一个位置；如果不存在，返回 `[-1, -1]`。',
+        bullets: [
+          '数组已经有序，这是使用二分的基础。',
+          '返回的是一个区间 `[first, last]`。',
+          '如果目标不存在，两个位置都要返回 `-1`。',
+          '重点不是找到一个位置，而是精确定位左右边界。',
+        ],
+      },
+      {
+        id: 'ffl-why-one-binary-search-is-not-enough',
+        title: '为什么普通二分找到一个位置还不够',
+        summary:
+          '普通二分一旦命中 `target` 就会返回，但它返回的是哪个位置并不确定。要找最左位置和最右位置，必须在命中后继续朝一个方向逼近边界，因此通常要拆成两个独立二分。',
+        bullets: [
+          '命中目标不等于命中左边界。',
+          '命中目标也不等于命中右边界。',
+          '边界题常常不是“找到就停”，而是“找到后继续缩”。',
+        ],
+      },
+      {
+        id: 'ffl-core-idea',
+        title: '核心思路：左边界和右边界分别找',
+        summary:
+          '查找左边界时，只要 `nums[mid] >= target`，就继续往左收缩；查找右边界时，只要 `nums[mid] <= target`，就继续往右收缩。两次二分结束后，再组合出最终区间。',
+        bullets: [
+          '左边界二分的目标是第一个满足 `nums[i] >= target` 的位置。',
+          '右边界二分的目标是第一个满足 `nums[i] > target` 的位置减一。',
+          '这类写法往往比“命中后继续扫”更稳定，也更清晰。',
+          '边界二分的关键在于循环不变量，而不是背模板。',
+        ],
+        callout:
+          '很多边界二分题的本质，都是在找“第一个满足某个条件的位置”。只要你会把问题翻译成这个形式，代码就会简单很多。',
+      },
+      {
+        id: 'ffl-optimal-solution',
+        title: '标准解法：两次边界二分',
+        summary:
+          '先写一个函数 `lowerBound`，返回数组中第一个大于等于 `target` 的位置。左边界就是 `lowerBound(target)`，右边界则是 `lowerBound(target + 1) - 1`。最后再检查左边界是否越界或是否真的等于 `target`，决定是否返回有效结果。',
+        bullets: [
+          '时间复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(1)`。',
+          '把通用边界函数抽出来后，很多题都能复用。',
+        ],
+        code: `function searchRange(nums: number[], target: number): number[] {
+  const lowerBound = (value: number) => {
+    let left = 0
+    let right = nums.length
+
+    while (left < right) {
+      const mid = Math.floor((left + right) / 2)
+
+      if (nums[mid] >= value) {
+        right = mid
+      } else {
+        left = mid + 1
+      }
+    }
+
+    return left
+  }
+
+  const first = lowerBound(target)
+
+  if (first === nums.length || nums[first] !== target) {
+    return [-1, -1]
+  }
+
+  const last = lowerBound(target + 1) - 1
+  return [first, last]
+}`,
+      },
+      {
+        id: 'ffl-example-walkthrough',
+        title: '拿 `[5,7,7,8,8,10]` 手推一次',
+        summary:
+          '如果 `target = 8`，左边界二分会定位到第一个 `8` 的位置 `3`。然后再查找第一个大于等于 `9` 的位置，得到 `5`，减一后就是最后一个 `8` 的位置 `4`。最终答案是 `[3, 4]`。',
+        bullets: [
+          '第一次二分找的是“第一个 >= 8”。',
+          '第二次二分找的是“第一个 >= 9”。',
+          '第二次结果减一，就是右边界。',
+          '这种方式比命中后左右扩展更高效。',
+        ],
+      },
+      {
+        id: 'ffl-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易出错的是边界定义。只要你对 `left < right`、`right = nums.length` 这种半开区间写法不熟，就很容易 off-by-one。把区间语义统一之后，这类题会顺很多。',
+        bullets: [
+          '易错点 1：普通二分命中后直接返回。',
+          '易错点 2：右边界二分后忘记减一。',
+          '易错点 3：没有检查左边界是否真的命中目标。',
+          '延伸方向：搜索插入位置、第一个错误版本、峰值元素、边界统计题。',
+        ],
+        callout:
+          '普通二分是在找“有没有”，边界二分是在找“第一个/最后一个”。一旦你把这两件事混在一起，代码就会开始不稳定。',
+      },
+    ],
+  },
 ];
