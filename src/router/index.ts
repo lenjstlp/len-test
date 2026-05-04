@@ -308,6 +308,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/gradual-release',
+    name: 'fullstack-gradual-release',
+    component: () => import('@/views/FullstackGradualReleaseView.vue'),
+    meta: {
+      title: '前端灰度发布工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/seo',
     name: 'fullstack-seo',
     component: () => import('@/views/FullstackSeoView.vue'),
