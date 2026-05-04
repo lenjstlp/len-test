@@ -136,6 +136,10 @@ const menuCards = [
     title: '前端无障碍',
   },
   {
+    path: '/fullstack-guide/browser-compatibility',
+    title: '前端浏览器兼容工程',
+  },
+  {
     path: '/fullstack-guide/seo',
     title: '前端 SEO',
   },

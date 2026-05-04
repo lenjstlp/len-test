@@ -288,6 +288,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/browser-compatibility',
+    name: 'fullstack-browser-compatibility',
+    component: () => import('@/views/FullstackBrowserCompatibilityView.vue'),
+    meta: {
+      title: '前端浏览器兼容工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/seo',
     name: 'fullstack-seo',
     component: () => import('@/views/FullstackSeoView.vue'),
