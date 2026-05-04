@@ -298,6 +298,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/bundle-governance',
+    name: 'fullstack-bundle-governance',
+    component: () => import('@/views/FullstackBundleGovernanceView.vue'),
+    meta: {
+      title: '前端包体积治理工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/seo',
     name: 'fullstack-seo',
     component: () => import('@/views/FullstackSeoView.vue'),

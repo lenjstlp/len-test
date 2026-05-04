@@ -140,6 +140,10 @@ const menuCards = [
     title: '前端浏览器兼容工程',
   },
   {
+    path: '/fullstack-guide/bundle-governance',
+    title: '前端包体积治理工程',
+  },
+  {
     path: '/fullstack-guide/seo',
     title: '前端 SEO',
   },
