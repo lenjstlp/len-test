@@ -168,6 +168,10 @@ const menuCards = [
     title: '前端容灾降级',
   },
   {
+    path: '/fullstack-guide/error-boundary',
+    title: '前端错误边界工程',
+  },
+  {
     path: '/fullstack-guide/dependency-governance',
     title: '前端依赖治理',
   },

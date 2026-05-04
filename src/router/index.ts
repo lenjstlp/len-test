@@ -368,6 +368,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/error-boundary',
+    name: 'fullstack-error-boundary',
+    component: () => import('@/views/FullstackErrorBoundaryView.vue'),
+    meta: {
+      title: '前端错误边界工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/dependency-governance',
     name: 'fullstack-dependency-governance',
     component: () => import('@/views/FullstackDependencyGovernanceView.vue'),
