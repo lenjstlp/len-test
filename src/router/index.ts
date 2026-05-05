@@ -308,6 +308,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/local-database',
+    name: 'fullstack-local-database',
+    component: () => import('@/views/FullstackLocalDatabaseView.vue'),
+    meta: {
+      title: '前端本地数据库工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/gradual-release',
     name: 'fullstack-gradual-release',
     component: () => import('@/views/FullstackGradualReleaseView.vue'),

@@ -144,6 +144,10 @@ const menuCards = [
     title: '前端包体积治理工程',
   },
   {
+    path: '/fullstack-guide/local-database',
+    title: '前端本地数据库工程',
+  },
+  {
     path: '/fullstack-guide/gradual-release',
     title: '前端灰度发布工程',
   },
