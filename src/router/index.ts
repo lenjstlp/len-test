@@ -318,6 +318,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/data-sync',
+    name: 'fullstack-data-sync',
+    component: () => import('@/views/FullstackDataSyncView.vue'),
+    meta: {
+      title: '前端数据同步工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/gradual-release',
     name: 'fullstack-gradual-release',
     component: () => import('@/views/FullstackGradualReleaseView.vue'),

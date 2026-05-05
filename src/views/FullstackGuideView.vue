@@ -148,6 +148,10 @@ const menuCards = [
     title: '前端本地数据库工程',
   },
   {
+    path: '/fullstack-guide/data-sync',
+    title: '前端数据同步工程',
+  },
+  {
     path: '/fullstack-guide/gradual-release',
     title: '前端灰度发布工程',
   },
