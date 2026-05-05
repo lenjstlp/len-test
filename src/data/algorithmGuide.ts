@@ -3711,4 +3711,154 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'sudoku-solver',
+    label: '37. LeetCode 37. 解数独',
+    difficulty: '困难',
+    description:
+      '这题和上一题是天然衔接的进阶版。上一题是在校验规则，这一题是在规则约束下把整张棋盘补完整。真正训练的是回溯搜索、状态维护和剪枝思维，而不是把所有空格一股脑暴力尝试。',
+    outcome:
+      '你能独立写出解数独的回溯解法，理解为什么要同步维护行、列、九宫格状态，并掌握“尝试 - 递归 - 撤销”这套回溯核心流程。',
+    sections: [
+      {
+        id: 'ss-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 `9 x 9` 的数独棋盘，空格用 `.` 表示。你需要原地填充这张表，使它成为一个合法数独，并且题目保证输入只有唯一解。',
+        bullets: [
+          '要求直接修改原棋盘，而不是返回一份新棋盘。',
+          '每个空格都要填 `1` 到 `9` 中的某一个数字。',
+          '填入后必须同时满足行、列、九宫格三个维度不重复。',
+          '题目保证有唯一解，所以只要搜到一个合法答案就可以停。',
+        ],
+      },
+      {
+        id: 'ss-why-brute-force-explodes',
+        title: '为什么不能把所有空格都无脑穷举',
+        summary:
+          '如果一个空格有 9 种可能，几十个空格连乘起来会非常夸张。真正的问题不是“会不会试”，而是如果每次尝试都不做约束过滤，搜索树会瞬间爆炸。所以这题的关键是边尝试边剪枝，而不是单纯暴力枚举。',
+        bullets: [
+          '每个空格最多有 9 种候选数字。',
+          '如果不利用已有数字做剪枝，搜索空间会非常大。',
+          '数独题天然适合回溯，因为一旦当前选择冲突，就应该立刻撤回。',
+          '“尽早发现不合法”比“尝试更多可能”更重要。',
+        ],
+      },
+      {
+        id: 'ss-core-idea',
+        title: '核心思路：回溯 + 行列宫状态表',
+        summary:
+          '先遍历棋盘，把已经存在的数字登记到三组状态结构里：行 `rows`、列 `cols`、九宫格 `boxes`。然后收集所有空格位置。回溯时，对当前空格尝试填 `1` 到 `9`，只要某个数字在行、列、宫里都没出现过，就可以填进去并继续递归；如果后面走不通，再撤销这一步，继续试下一个数字。',
+        bullets: [
+          '`rows[r]` 记录第 `r` 行用过哪些数字。',
+          '`cols[c]` 记录第 `c` 列用过哪些数字。',
+          '`boxes[b]` 记录第 `b` 个九宫格用过哪些数字。',
+          '每次递归只处理一个空格，处理完就进入下一个空格。',
+        ],
+        callout:
+          '回溯题的本质不是“会递归”，而是你能不能把状态维护干净。试一个值时加状态，撤销时减状态，这个动作必须完全对称。',
+      },
+      {
+        id: 'ss-optimal-solution',
+        title: '标准解法：DFS 回溯搜索',
+        summary:
+          '这题的标准写法是深度优先搜索配合状态表。先预处理所有空格，再写一个 `dfs(index)` 表示当前处理第 `index` 个空格。若 `index === spaces.length`，说明所有空格都填完了。否则枚举 `1` 到 `9`，挑合法的数字填入、递归、失败后撤销。因为状态表能做到 `O(1)` 检查合法性，所以实际效率会高很多。',
+        bullets: [
+          '合法性判断由 Set 完成，复杂度非常低。',
+          '时间复杂度没有简单闭式表达，本质取决于剪枝效果。',
+          '空间复杂度主要来自递归栈和状态表。',
+          '这类题写法上最重要的是“填入、递归、撤销”三步严格成对。',
+        ],
+        code: `function solveSudoku(board: string[][]): void {
+  const rows = Array.from({ length: 9 }, () => new Set<string>())
+  const cols = Array.from({ length: 9 }, () => new Set<string>())
+  const boxes = Array.from({ length: 9 }, () => new Set<string>())
+  const spaces: Array<[number, number]> = []
+
+  const getBoxIndex = (row: number, col: number) =>
+    Math.floor(row / 3) * 3 + Math.floor(col / 3)
+
+  for (let row = 0; row < 9; row += 1) {
+    for (let col = 0; col < 9; col += 1) {
+      const value = board[row][col]
+
+      if (value === '.') {
+        spaces.push([row, col])
+        continue
+      }
+
+      rows[row].add(value)
+      cols[col].add(value)
+      boxes[getBoxIndex(row, col)].add(value)
+    }
+  }
+
+  const dfs = (index: number): boolean => {
+    if (index === spaces.length) {
+      return true
+    }
+
+    const [row, col] = spaces[index]
+    const boxIndex = getBoxIndex(row, col)
+
+    for (let digit = 1; digit <= 9; digit += 1) {
+      const value = String(digit)
+
+      if (
+        rows[row].has(value) ||
+        cols[col].has(value) ||
+        boxes[boxIndex].has(value)
+      ) {
+        continue
+      }
+
+      board[row][col] = value
+      rows[row].add(value)
+      cols[col].add(value)
+      boxes[boxIndex].add(value)
+
+      if (dfs(index + 1)) {
+        return true
+      }
+
+      board[row][col] = '.'
+      rows[row].delete(value)
+      cols[col].delete(value)
+      boxes[boxIndex].delete(value)
+    }
+
+    return false
+  }
+
+  dfs(0)
+}`,
+      },
+      {
+        id: 'ss-search-process',
+        title: '回溯过程到底怎么推进',
+        summary:
+          '假设当前处理某个空格 `(r, c)`。如果数字 `1` 合法，就先填进去，然后递归处理下一个空格；如果后面的某一步发现没有任何数字可填，说明当前这条路走不通，就回到 `(r, c)`，把 `1` 撤销，再试 `2`。这就是回溯的本质：先做选择，失败就撤回，换别的选择继续试。',
+        bullets: [
+          '当前空格先试第一个合法值。',
+          '递归进入下一层，相当于把问题规模缩小一格。',
+          '如果后续失败，撤销当前值和对应状态。',
+          '一旦某条路径成功填完整盘，递归会层层返回 true。',
+        ],
+      },
+      {
+        id: 'ss-pruning-and-mistakes',
+        title: '易错点、剪枝方向和延伸题',
+        summary:
+          '这题最容易错的，是状态维护不对称。你填进去时加了哪些记录，撤销时就必须删掉同样的记录。除此之外，如果你想继续优化，还可以加入“优先填候选最少的空格”这种剪枝策略，让搜索树更浅。数独题本身是经典回溯题模板，学透后会对很多组合搜索题有帮助。',
+        bullets: [
+          '易错点 1：回溯撤销时忘了把行、列、宫中的记录删掉。',
+          '易错点 2：九宫格编号公式写错，导致状态校验失真。',
+          '易错点 3：递归成功后没有立刻返回，继续把答案改坏。',
+          '延伸方向：N 皇后、组合总和、分割回文串、括号生成等回溯题。',
+        ],
+        callout:
+          '从第 36 题到第 37 题，是非常典型的一步升级：先会判断规则，再会在规则里搜索答案。很多算法能力的成长，本质上都是这种“校验 -> 搜索 -> 剪枝”的递进。',
+      },
+    ],
+  },
 ];
