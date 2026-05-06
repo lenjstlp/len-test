@@ -168,6 +168,10 @@ const menuCards = [
     title: '前端剪贴板工程',
   },
   {
+    path: '/fullstack-guide/notification-push-engineering',
+    title: '前端通知推送工程',
+  },
+  {
     path: '/fullstack-guide/gradual-release',
     title: '前端灰度发布工程',
   },
