@@ -172,6 +172,10 @@ const menuCards = [
     title: '前端通知推送工程',
   },
   {
+    path: '/fullstack-guide/undo-redo-engineering',
+    title: '前端撤销重做工程',
+  },
+  {
     path: '/fullstack-guide/gradual-release',
     title: '前端灰度发布工程',
   },

@@ -379,6 +379,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/undo-redo-engineering',
+    name: 'fullstack-undo-redo-engineering',
+    component: () => import('@/views/FullstackUndoRedoEngineeringView.vue'),
+    meta: {
+      title: '前端撤销重做工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/gradual-release',
     name: 'fullstack-gradual-release',
     component: () => import('@/views/FullstackGradualReleaseView.vue'),
