@@ -348,6 +348,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/url-state-engineering',
+    name: 'fullstack-url-state-engineering',
+    component: () => import('@/views/FullstackUrlStateEngineeringView.vue'),
+    meta: {
+      title: '前端 URL 状态工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/gradual-release',
     name: 'fullstack-gradual-release',
     component: () => import('@/views/FullstackGradualReleaseView.vue'),

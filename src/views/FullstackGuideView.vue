@@ -160,6 +160,10 @@ const menuCards = [
     title: '前端操作回放工程',
   },
   {
+    path: '/fullstack-guide/url-state-engineering',
+    title: '前端 URL 状态工程',
+  },
+  {
     path: '/fullstack-guide/gradual-release',
     title: '前端灰度发布工程',
   },
