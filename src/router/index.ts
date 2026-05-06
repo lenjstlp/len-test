@@ -338,6 +338,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/session-replay',
+    name: 'fullstack-session-replay',
+    component: () => import('@/views/FullstackSessionReplayView.vue'),
+    meta: {
+      title: '前端操作回放工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/gradual-release',
     name: 'fullstack-gradual-release',
     component: () => import('@/views/FullstackGradualReleaseView.vue'),

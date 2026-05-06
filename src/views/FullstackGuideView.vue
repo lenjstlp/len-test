@@ -156,6 +156,10 @@ const menuCards = [
     title: '前端会话保活工程',
   },
   {
+    path: '/fullstack-guide/session-replay',
+    title: '前端操作回放工程',
+  },
+  {
     path: '/fullstack-guide/gradual-release',
     title: '前端灰度发布工程',
   },
