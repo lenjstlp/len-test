@@ -164,6 +164,10 @@ const menuCards = [
     title: '前端 URL 状态工程',
   },
   {
+    path: '/fullstack-guide/clipboard-engineering',
+    title: '前端剪贴板工程',
+  },
+  {
     path: '/fullstack-guide/gradual-release',
     title: '前端灰度发布工程',
   },
