@@ -48,6 +48,10 @@ const menuCards = [
     title: '前端认证与令牌工程',
   },
   {
+    path: '/fullstack-guide/qr-login-engineering',
+    title: '前端扫码登录工程',
+  },
+  {
     path: '/fullstack-guide/cache',
     title: '前端缓存',
   },

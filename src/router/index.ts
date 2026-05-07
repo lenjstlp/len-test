@@ -68,6 +68,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/qr-login-engineering',
+    name: 'fullstack-qr-login-engineering',
+    component: () => import('@/views/FullstackQrLoginEngineeringView.vue'),
+    meta: {
+      title: '前端扫码登录工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/cache',
     name: 'fullstack-cache',
     component: () => import('@/views/FullstackCacheView.vue'),
