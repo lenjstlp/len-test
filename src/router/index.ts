@@ -632,6 +632,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/optimistic-update',
+    name: 'fullstack-optimistic-update',
+    component: () => import('@/views/FullstackOptimisticUpdateView.vue'),
+    meta: {
+      title: '前端乐观更新工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/scaffolding',
     name: 'fullstack-scaffolding',
     component: () => import('@/views/FullstackScaffoldingView.vue'),

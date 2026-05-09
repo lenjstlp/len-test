@@ -244,6 +244,10 @@ const menuCards = [
     title: '前端虚拟滚动工程',
   },
   {
+    path: '/fullstack-guide/optimistic-update',
+    title: '前端乐观更新工程',
+  },
+  {
     path: '/fullstack-guide/scaffolding',
     title: '前端脚手架工程',
   },
