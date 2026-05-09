@@ -6441,4 +6441,131 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'spiral-matrix-ii',
+    label: '59. LeetCode 59. 螺旋矩阵 II',
+    difficulty: '中等',
+    description:
+      '这题是标准的模拟题。难点不在于“知道按圈填数”，而在于能不能把上下左右边界收缩得干净、不重不漏。',
+    outcome:
+      '你能独立写出螺旋填充的边界模拟解法，掌握上、右、下、左四段填充与边界收缩方式，建立处理矩阵模拟题的稳定框架。',
+    sections: [
+      {
+        id: 'sm2-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个正整数 `n`，生成一个 `n x n` 的矩阵，并按照顺时针螺旋顺序填入 `1` 到 `n²` 的所有数字。',
+        bullets: [
+          '不是读矩阵，而是构造矩阵。',
+          '填充顺序是顺时针螺旋。',
+          '每一圈填完后边界会收缩。',
+          '核心是控制遍历顺序和边界变化。',
+        ],
+      },
+      {
+        id: 'sm2-boundary-model',
+        title: '核心模型：四条边界逐圈收缩',
+        summary:
+          '维护 `top`、`bottom`、`left`、`right` 四条边界。每一轮依次填充上边、右边、下边、左边，然后让四条边界向内收缩，继续处理下一圈。',
+        bullets: [
+          '上边从左到右填。',
+          '右边从上到下填。',
+          '下边从右到左填。',
+          '左边从下到上填。',
+        ],
+        callout:
+          '矩阵模拟题最容易乱的地方，不是方向，而是边界更新时机。先想清楚一圈结束后谁该移动，再写代码。',
+      },
+      {
+        id: 'sm2-why-need-check',
+        title: '为什么中间要做边界判断',
+        summary:
+          '当 `n` 是奇数时，最后会剩下一个中心点；当矩阵逐渐收缩后，也可能出现某一条边已经越界。如果不在填下边和左边前做判断，就可能重复填充。',
+        bullets: [
+          '上边和右边填完后，边界可能已经相交。',
+          '下边和左边不是每轮都一定存在。',
+          '边界判断是防止重复写值的关键。',
+          '模拟题里这类保护条件非常常见。',
+        ],
+      },
+      {
+        id: 'sm2-optimal-solution',
+        title: '标准解法：按圈模拟填充',
+        summary:
+          '先创建一个 `n x n` 的二维数组，初始值全部设为 `0`。然后维护四条边界和当前要填的数字 `current`，按顺时针依次填每条边，并在每轮结束后收缩边界，直到所有位置都被填完。',
+        bullets: [
+          '时间复杂度是 `O(n²)`。',
+          '空间复杂度是 `O(n²)`，因为要返回整个矩阵。',
+          '每个位置只会被访问一次。',
+          '这是标准矩阵边界模拟题模板。',
+        ],
+        code: `function generateMatrix(n: number): number[][] {
+  const matrix = Array.from({ length: n }, () => Array(n).fill(0))
+  let top = 0
+  let bottom = n - 1
+  let left = 0
+  let right = n - 1
+  let current = 1
+
+  while (top <= bottom && left <= right) {
+    for (let column = left; column <= right; column += 1) {
+      matrix[top][column] = current
+      current += 1
+    }
+    top += 1
+
+    for (let row = top; row <= right && row <= bottom; row += 1) {
+      matrix[row][right] = current
+      current += 1
+    }
+    right -= 1
+
+    if (top <= bottom) {
+      for (let column = right; column >= left; column -= 1) {
+        matrix[bottom][column] = current
+        current += 1
+      }
+      bottom -= 1
+    }
+
+    if (left <= right) {
+      for (let row = bottom; row >= top; row -= 1) {
+        matrix[row][left] = current
+        current += 1
+      }
+      left += 1
+    }
+  }
+
+  return matrix
+}`,
+      },
+      {
+        id: 'sm2-example-walkthrough',
+        title: '拿 `n = 3` 手推一次',
+        summary:
+          '第一圈先填上边得到 `1 2 3`，再填右边得到 `6`，再填下边得到 `8 7`，再填左边得到 `4`。边界收缩后只剩中心点，最后填入 `5`，结果就是 `[[1,2,3],[8,9,4],[7,6,5]]`。',
+        bullets: [
+          '每一圈都严格按上右下左执行。',
+          '填完一边立刻收缩对应边界。',
+          '中心点是奇数阶矩阵的最后一步。',
+          '模拟过程本质是缩圈。',
+        ],
+      },
+      {
+        id: 'sm2-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '最常见的问题是边界更新顺序不清、下边和左边重复填充，或者把行列变量写混。真正掌握后，你会发现很多矩阵题都能用边界、方向和状态控制来做。 ',
+        bullets: [
+          '易错点 1：边界收缩过早或过晚，导致漏填或重填。',
+          '易错点 2：行索引和列索引混用。',
+          '易错点 3：没有在下边、左边填充前做边界判断。',
+          '延伸方向：螺旋矩阵、矩阵置零、旋转图像、岛屿类网格模拟题。',
+        ],
+        callout:
+          '模拟题没有什么玄学，关键是先建立一个稳定的控制框架。四条边界就是这题的骨架。',
+      },
+    ],
+  },
 ];
