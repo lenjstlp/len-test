@@ -80,6 +80,10 @@ const menuCards = [
     title: '前端版本升级提示工程',
   },
   {
+    path: '/fullstack-guide/watermark-leak-prevention',
+    title: '前端水印防泄漏工程',
+  },
+  {
     path: '/fullstack-guide/performance',
     title: '前端性能',
   },

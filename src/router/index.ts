@@ -151,6 +151,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/watermark-leak-prevention',
+    name: 'fullstack-watermark-leak-prevention',
+    component: () => import('@/views/FullstackWatermarkLeakPreventionView.vue'),
+    meta: {
+      title: '前端水印防泄漏工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/cache',
     name: 'fullstack-cache',
     component: () => import('@/views/FullstackCacheView.vue'),
