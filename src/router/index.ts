@@ -642,6 +642,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/drag-orchestration',
+    name: 'fullstack-drag-orchestration',
+    component: () => import('@/views/FullstackDragOrchestrationView.vue'),
+    meta: {
+      title: '前端拖拽编排工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/scaffolding',
     name: 'fullstack-scaffolding',
     component: () => import('@/views/FullstackScaffoldingView.vue'),
