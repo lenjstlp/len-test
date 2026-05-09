@@ -68,6 +68,10 @@ const menuCards = [
     title: '前端电子签章工程',
   },
   {
+    path: '/fullstack-guide/im-chat-engineering',
+    title: '前端 IM 聊天工程',
+  },
+  {
     path: '/fullstack-guide/performance',
     title: '前端性能',
   },

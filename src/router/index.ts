@@ -119,6 +119,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/im-chat-engineering',
+    name: 'fullstack-im-chat-engineering',
+    component: () => import('@/views/FullstackImChatEngineeringView.vue'),
+    meta: {
+      title: '前端 IM 聊天工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/cache',
     name: 'fullstack-cache',
     component: () => import('@/views/FullstackCacheView.vue'),
