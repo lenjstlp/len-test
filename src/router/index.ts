@@ -622,6 +622,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/virtual-scrolling',
+    name: 'fullstack-virtual-scrolling',
+    component: () => import('@/views/FullstackVirtualScrollingView.vue'),
+    meta: {
+      title: '前端虚拟滚动工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/scaffolding',
     name: 'fullstack-scaffolding',
     component: () => import('@/views/FullstackScaffoldingView.vue'),
