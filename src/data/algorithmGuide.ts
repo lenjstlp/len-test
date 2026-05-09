@@ -6224,4 +6224,118 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'insert-interval',
+    label: '57. LeetCode 57. 插入区间',
+    difficulty: '中等',
+    description:
+      '这题是合并区间的直接变体。难点不在新增了一个新区间，而在于你能不能把“不重叠在左边”“发生重叠”“不重叠在右边”三段关系拆清楚。',
+    outcome:
+      '你能在合并区间的基础上独立写出插入区间解法，掌握新区间和已有区间的三段式关系处理，并建立对区间扫描分类讨论的更清晰理解。',
+    sections: [
+      {
+        id: 'ii-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个已经按起点升序排列且互不重叠的区间数组 `intervals`，再给你一个新区间 `newInterval`。要求把这个新区间插入原数组中，并在必要时完成合并，最后返回新的不重叠区间数组。',
+        bullets: [
+          '原数组已经有序且互不重叠。',
+          '需要插入一个新区间。',
+          '如果插入后有重叠，要继续合并。',
+          '最终结果仍要保持有序且不重叠。',
+        ],
+      },
+      {
+        id: 'ii-core-observation',
+        title: '核心观察：所有区间可以分成三段',
+        summary:
+          '相对于 `newInterval`，原数组中的区间只会落入三类：一类完全在它左边且不重叠；一类和它有重叠，需要一起合并；还有一类完全在它右边且不重叠。只要按这个三段式来扫描，逻辑就会非常清晰。',
+        bullets: [
+          '左边区间直接加入结果。',
+          '中间重叠区间不断和 `newInterval` 合并。',
+          '右边区间在合并结束后直接追加。',
+          '这是典型的分类扫描题。',
+        ],
+        callout:
+          '很多看起来麻烦的区间题，一旦你能把关系拆成几种稳定类别，代码就会一下子变简单。插入区间最值钱的就是这种分类能力。',
+      },
+      {
+        id: 'ii-three-phase-scan',
+        title: '三段式扫描怎么写',
+        summary:
+          '先把所有终点小于 `newInterval[0]` 的区间加入结果，因为它们一定在左边。接着处理所有起点小于等于 `newInterval[1]` 的区间，这些都和新区间有重叠，于是不断更新新区间的左右边界。最后把合并后的新区间加入答案，再把剩余右边区间全部追加进去。',
+        bullets: [
+          '左边阶段负责无重叠直接追加。',
+          '中间阶段负责更新合并区间边界。',
+          '右边阶段负责剩余区间收尾。',
+          '整个过程只需一次线性扫描。',
+        ],
+      },
+      {
+        id: 'ii-optimal-solution',
+        title: '标准解法：一趟扫描完成插入与合并',
+        summary:
+          '因为原数组本身已经有序且无重叠，所以你甚至不需要重新排序。用一个指针从左到右扫描即可：先处理左边不重叠区间，再把所有重叠区间与 `newInterval` 合并，最后处理右边区间。这样能直接在线性时间内完成插入。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '额外空间复杂度主要来自结果数组。',
+          '利用了原数组已排序且互不重叠的先验条件。',
+          '这是合并区间思想的自然变体。',
+        ],
+        code: `function insert(
+  intervals: number[][],
+  newInterval: number[],
+): number[][] {
+  const result: number[][] = []
+  let index = 0
+
+  while (index < intervals.length && intervals[index][1] < newInterval[0]) {
+    result.push(intervals[index])
+    index += 1
+  }
+
+  while (index < intervals.length && intervals[index][0] <= newInterval[1]) {
+    newInterval[0] = Math.min(newInterval[0], intervals[index][0])
+    newInterval[1] = Math.max(newInterval[1], intervals[index][1])
+    index += 1
+  }
+
+  result.push(newInterval)
+
+  while (index < intervals.length) {
+    result.push(intervals[index])
+    index += 1
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'ii-example-walkthrough',
+        title: '拿 `[[1,3],[6,9]]` 插入 `[2,5]` 手推一次',
+        summary:
+          '先看 `[1,3]`，它和 `[2,5]` 有重叠，于是合并成 `[1,5]`。接着看 `[6,9]`，因为它已经完全在新区间右边，所以直接追加。最终结果就是 `[[1,5],[6,9]]`。这个例子能很好体现“三段式分类”的思路。',
+        bullets: [
+          '左边阶段可能一个区间都没有。',
+          '重叠阶段会更新新区间边界。',
+          '右边阶段直接保留原顺序追加。',
+          '整个过程不需要回头再排序。',
+        ],
+      },
+      {
+        id: 'ii-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忘了原数组已经有序无重叠，结果又去写多余的排序逻辑；或者三段式边界条件写错，导致漏合并。真正掌握后，你会发现很多区间题都可以先按“左边、重叠、右边”分类。',
+        bullets: [
+          '易错点 1：没利用原数组已排序条件，白白增加复杂度。',
+          '易错点 2：重叠条件写错，导致新区间没有完全合并。',
+          '易错点 3：把合并后的新区间 push 太早，后续又重复处理。',
+          '延伸方向：区间删除、日程安排、区间覆盖、扫描线类题目。',
+        ],
+        callout:
+          '如果前一题在训练你做排序后扫描，这一题就在训练你做分类扫描。很多区间题真正的核心，不是代码模板，而是把关系拆成几段稳定逻辑。',
+      },
+    ],
+  },
 ];
