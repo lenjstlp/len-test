@@ -672,6 +672,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/advanced-search',
+    name: 'fullstack-advanced-search',
+    component: () => import('@/views/FullstackAdvancedSearchView.vue'),
+    meta: {
+      title: '前端富筛选查询工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/scaffolding',
     name: 'fullstack-scaffolding',
     component: () => import('@/views/FullstackScaffoldingView.vue'),
