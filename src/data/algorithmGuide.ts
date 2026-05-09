@@ -6568,4 +6568,113 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'permutation-sequence',
+    label: '60. LeetCode 60. 排列序列',
+    difficulty: '困难',
+    description:
+      '这题如果你只会暴力生成所有排列，一定会超时。真正的突破点，是看出第 `k` 个排列其实可以直接按阶乘分组定位。',
+    outcome:
+      '你能用阶乘和贪心定位法直接求出第 `k` 个排列，理解为什么不用枚举全部排列，并掌握排列序号与阶乘进制之间的映射关系。',
+    sections: [
+      {
+        id: 'ps-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `n` 和 `k`，数字 `1` 到 `n` 一共有 `n!` 种排列。要求返回按字典序排列后的第 `k` 个排列字符串。',
+        bullets: [
+          '不是求所有排列，而是直接求第 `k` 个。',
+          '排列顺序是字典序。',
+          '`k` 从 `1` 开始计数。',
+          '核心是如何跳过成批排列，而不是一个一个试。',
+        ],
+      },
+      {
+        id: 'ps-factorial-grouping',
+        title: '关键观察：同一开头会形成阶乘大小的分组',
+        summary:
+          '如果第一位固定为某个数字，剩下 `n - 1` 个数字可以组成 `(n - 1)!` 种排列。所以第 `k` 个排列落在哪个首位分组，可以通过 `k / (n - 1)!` 直接算出来。',
+        bullets: [
+          '第一位每换一次，会跳过 `(n - 1)!` 个排列。',
+          '选定第一位后，问题规模缩小为 `n - 1`。',
+          '后面的每一位都可以继续同样处理。',
+          '这其实就是阶乘进制思想。',
+        ],
+        callout:
+          '困难题往往不是让你把暴力写快一点，而是逼你换一套建模方式。这里从“生成排列”切到“按分组定位”就是关键跃迁。',
+      },
+      {
+        id: 'ps-zero-based',
+        title: '为什么先把 `k` 变成从 0 开始更自然',
+        summary:
+          '计算组号时，用从 `0` 开始的下标最顺手。因为第 `0` 到第 `(n - 1)! - 1` 个排列都属于第一组，所以通常先把 `k` 减一，再做整除和取模。',
+        bullets: [
+          '`k -= 1` 后更容易做整除分组。',
+          '商表示当前该选第几个未使用数字。',
+          '余数表示在当前分组里的相对位置。',
+          '这是把 1-based 排名转成 0-based 下标。',
+        ],
+      },
+      {
+        id: 'ps-optimal-solution',
+        title: '标准解法：阶乘分组 + 可选数字列表',
+        summary:
+          '先准备 `1` 到 `n` 的候选数字列表和每一位对应的阶乘值。每次用 `k / factorial` 确定当前该选哪个数字，把它从候选列表中移除，再用 `k % factorial` 更新剩余位置的目标排名。直到所有位置都选完。',
+        bullets: [
+          '时间复杂度约为 `O(n²)`，主要来自数组删除。',
+          '空间复杂度是 `O(n)`。',
+          '比生成全部排列的 `O(n! * n)` 高效得多。',
+          '核心不是 DFS，而是数学分组。',
+        ],
+        code: `function getPermutation(n: number, k: number): string {
+  const numbers = Array.from({ length: n }, (_, index) => String(index + 1))
+  const factorial = Array(n).fill(1)
+
+  for (let i = 1; i < n; i += 1) {
+    factorial[i] = factorial[i - 1] * i
+  }
+
+  let rank = k - 1
+  let result = ''
+
+  for (let remaining = n; remaining >= 1; remaining -= 1) {
+    const blockSize = factorial[remaining - 1]
+    const blockIndex = Math.floor(rank / blockSize)
+
+    result += numbers[blockIndex]
+    numbers.splice(blockIndex, 1)
+    rank %= blockSize
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'ps-example-walkthrough',
+        title: '拿 `n = 3, k = 4` 手推一次',
+        summary:
+          '所有排列依次是 `123, 132, 213, 231, 312, 321`。第 `4` 个是 `231`。按算法看：先把 `k` 变成 `3`，每组大小是 `2`，所以第一位选第 `1` 组也就是 `2`；剩下 `[1,3]` 和 `rank = 1`，第二位选第 `1` 个也就是 `3`；最后剩 `1`，结果就是 `231`。',
+        bullets: [
+          '第一位靠 `(n - 1)!` 分组确定。',
+          '后续位不断缩小问题规模。',
+          '每选一个数，就从候选列表里删除。',
+          '这就是“按排名直接解码排列”。',
+        ],
+      },
+      {
+        id: 'ps-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题是没把 `k` 转成 0-based，导致每一位都偏一组；或者阶乘数组下标写错。真正掌握后，你会对组合数学和排列编号类题更敏感。',
+        bullets: [
+          '易错点 1：忘记 `k - 1`，整组定位会错位。',
+          '易错点 2：阶乘数组定义不清，`0!` 和 `1!` 边界混乱。',
+          '易错点 3：取出数字后没有从候选列表删除。',
+          '延伸方向：康托展开、排列逆排名、组合编号类数学题。',
+        ],
+        callout:
+          '困难题的价值，往往就在于逼你从“枚举所有答案”升级到“直接定位答案”。这题就是典型代表。',
+      },
+    ],
+  },
 ];
