@@ -72,6 +72,10 @@ const menuCards = [
     title: '前端 IM 聊天工程',
   },
   {
+    path: '/fullstack-guide/offline-conflict-engineering',
+    title: '前端离线冲突合并工程',
+  },
+  {
     path: '/fullstack-guide/performance',
     title: '前端性能',
   },

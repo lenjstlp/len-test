@@ -129,6 +129,17 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/offline-conflict-engineering',
+    name: 'fullstack-offline-conflict-engineering',
+    component: () =>
+      import('@/views/FullstackOfflineConflictEngineeringView.vue'),
+    meta: {
+      title: '前端离线冲突合并工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/cache',
     name: 'fullstack-cache',
     component: () => import('@/views/FullstackCacheView.vue'),
