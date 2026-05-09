@@ -98,6 +98,17 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/session-kickout-engineering',
+    name: 'fullstack-session-kickout-engineering',
+    component: () =>
+      import('@/views/FullstackSessionKickoutEngineeringView.vue'),
+    meta: {
+      title: '前端会话互踢工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/cache',
     name: 'fullstack-cache',
     component: () => import('@/views/FullstackCacheView.vue'),

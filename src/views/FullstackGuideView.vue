@@ -60,6 +60,10 @@ const menuCards = [
     title: '前端设备风控工程',
   },
   {
+    path: '/fullstack-guide/session-kickout-engineering',
+    title: '前端会话互踢工程',
+  },
+  {
     path: '/fullstack-guide/performance',
     title: '前端性能',
   },
