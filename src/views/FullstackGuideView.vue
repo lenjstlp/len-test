@@ -64,6 +64,10 @@ const menuCards = [
     title: '前端会话互踢工程',
   },
   {
+    path: '/fullstack-guide/electronic-signature',
+    title: '前端电子签章工程',
+  },
+  {
     path: '/fullstack-guide/performance',
     title: '前端性能',
   },

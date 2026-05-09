@@ -109,6 +109,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/electronic-signature',
+    name: 'fullstack-electronic-signature',
+    component: () => import('@/views/FullstackElectronicSignatureView.vue'),
+    meta: {
+      title: '前端电子签章工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/cache',
     name: 'fullstack-cache',
     component: () => import('@/views/FullstackCacheView.vue'),
