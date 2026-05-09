@@ -140,6 +140,17 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/upgrade-prompt-engineering',
+    name: 'fullstack-upgrade-prompt-engineering',
+    component: () =>
+      import('@/views/FullstackUpgradePromptEngineeringView.vue'),
+    meta: {
+      title: '前端版本升级提示工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/cache',
     name: 'fullstack-cache',
     component: () => import('@/views/FullstackCacheView.vue'),

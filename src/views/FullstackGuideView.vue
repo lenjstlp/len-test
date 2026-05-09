@@ -76,6 +76,10 @@ const menuCards = [
     title: '前端离线冲突合并工程',
   },
   {
+    path: '/fullstack-guide/upgrade-prompt-engineering',
+    title: '前端版本升级提示工程',
+  },
+  {
     path: '/fullstack-guide/performance',
     title: '前端性能',
   },
