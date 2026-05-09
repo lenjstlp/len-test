@@ -56,6 +56,10 @@ const menuCards = [
     title: '前端单点登录工程',
   },
   {
+    path: '/fullstack-guide/device-risk-engineering',
+    title: '前端设备风控工程',
+  },
+  {
     path: '/fullstack-guide/performance',
     title: '前端性能',
   },

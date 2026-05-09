@@ -88,6 +88,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/device-risk-engineering',
+    name: 'fullstack-device-risk-engineering',
+    component: () => import('@/views/FullstackDeviceRiskEngineeringView.vue'),
+    meta: {
+      title: '前端设备风控工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/cache',
     name: 'fullstack-cache',
     component: () => import('@/views/FullstackCacheView.vue'),
