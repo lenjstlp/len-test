@@ -662,6 +662,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/api-signature',
+    name: 'fullstack-api-signature',
+    component: () => import('@/views/FullstackApiSignatureView.vue'),
+    meta: {
+      title: '前端接口签名工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/scaffolding',
     name: 'fullstack-scaffolding',
     component: () => import('@/views/FullstackScaffoldingView.vue'),

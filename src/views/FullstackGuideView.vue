@@ -256,6 +256,10 @@ const menuCards = [
     title: '前端请求取消工程',
   },
   {
+    path: '/fullstack-guide/api-signature',
+    title: '前端接口签名工程',
+  },
+  {
     path: '/fullstack-guide/scaffolding',
     title: '前端脚手架工程',
   },
