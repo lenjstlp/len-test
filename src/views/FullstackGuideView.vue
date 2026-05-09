@@ -52,32 +52,8 @@ const menuCards = [
     title: '前端扫码登录工程',
   },
   {
-    path: '/fullstack-guide/cache',
-    title: '前端缓存',
-  },
-  {
-    path: '/fullstack-guide/api-cache-engineering',
-    title: '前端 API 缓存工程',
-  },
-  {
-    path: '/fullstack-guide/multi-tab-sync',
-    title: '前端多标签页同步工程',
-  },
-  {
-    path: '/fullstack-guide/retry-idempotency',
-    title: '前端重试与幂等工程',
-  },
-  {
-    path: '/fullstack-guide/concurrency-control',
-    title: '前端并发控制工程',
-  },
-  {
-    path: '/fullstack-guide/polling-refresh',
-    title: '前端轮询与增量刷新工程',
-  },
-  {
-    path: '/fullstack-guide/resumable-upload',
-    title: '前端文件断点续传工程',
+    path: '/fullstack-guide/sso-engineering',
+    title: '前端单点登录工程',
   },
   {
     path: '/fullstack-guide/performance',

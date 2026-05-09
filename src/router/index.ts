@@ -78,6 +78,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/sso-engineering',
+    name: 'fullstack-sso-engineering',
+    component: () => import('@/views/FullstackSsoEngineeringView.vue'),
+    meta: {
+      title: '前端单点登录工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/cache',
     name: 'fullstack-cache',
     component: () => import('@/views/FullstackCacheView.vue'),
