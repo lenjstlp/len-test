@@ -6677,4 +6677,128 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'rotate-list',
+    label: '61. LeetCode 61. 旋转链表',
+    difficulty: '中等',
+    description:
+      '这题表面是链表操作，真正考的是你能不能把“右旋 k 次”压缩成一次断开和重连，而不是傻乎乎地一轮轮移动。',
+    outcome:
+      '你能写出基于链表长度和成环思想的旋转解法，理解为什么先求长度、再取模、最后找新尾节点是最稳的做法。',
+    sections: [
+      {
+        id: 'rl-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个链表头节点 `head` 和一个非负整数 `k`，把链表每个节点向右移动 `k` 个位置，返回旋转后的新头节点。',
+        bullets: [
+          '右旋一次，最后一个节点会移到最前面。',
+          '`k` 可能远大于链表长度。',
+          '链表可能为空或只有一个节点。',
+          '关键是找到新头和新尾的位置。',
+        ],
+      },
+      {
+        id: 'rl-why-mod',
+        title: '先取模是这题第一步',
+        summary:
+          '如果链表长度是 `length`，那么右旋 `length` 次后会回到原状。所以真正有效的旋转次数应该是 `k % length`。这一步能把很多看似很大的操作直接压缩掉。',
+        bullets: [
+          '长度相同的一整圈旋转没有意义。',
+          '`k % length === 0` 时答案就是原链表。',
+          '取模能防止无谓循环。',
+          '这是链表旋转题的基本优化。',
+        ],
+      },
+      {
+        id: 'rl-make-cycle',
+        title: '更稳的思路：先成环，再断开',
+        summary:
+          '遍历链表时顺便求出长度和尾节点，然后把尾节点连回头节点形成一个环。接着只要找到新尾节点，把它的 `next` 断开，就能得到新头节点。',
+        bullets: [
+          '成环后，旋转问题会变成“在哪断开”。',
+          '新尾节点位置是 `length - (k % length) - 1`。',
+          '新头节点就是新尾的下一个节点。',
+          '链表题常常靠“先连起来再断开”简化逻辑。',
+        ],
+        callout:
+          '链表题很多时候难就难在指针关系想不顺。一旦把它变成环，整体结构就简单很多。',
+      },
+      {
+        id: 'rl-optimal-solution',
+        title: '标准解法：求长度 + 成环 + 找断点',
+        summary:
+          '如果链表为空、只有一个节点，或者 `k` 为 `0`，直接返回原链表。否则先求出长度 `length` 和尾节点 `tail`，计算有效旋转次数 `offset = k % length`。若 `offset === 0`，同样直接返回。接着把链表连成环，找到新的尾节点并断开，返回新的头节点。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '每个节点只遍历有限次。',
+          '这是链表旋转题最经典的写法。',
+        ],
+        code: `function rotateRight(
+  head: ListNode | null,
+  k: number,
+): ListNode | null {
+  if (!head || !head.next || k === 0) {
+    return head
+  }
+
+  let length = 1
+  let tail = head
+
+  while (tail.next) {
+    tail = tail.next
+    length += 1
+  }
+
+  const offset = k % length
+
+  if (offset === 0) {
+    return head
+  }
+
+  tail.next = head
+
+  let stepsToNewTail = length - offset - 1
+  let newTail = head
+
+  while (stepsToNewTail > 0) {
+    newTail = newTail.next!
+    stepsToNewTail -= 1
+  }
+
+  const newHead = newTail.next
+  newTail.next = null
+
+  return newHead
+}`,
+      },
+      {
+        id: 'rl-example-walkthrough',
+        title: '拿 `1 -> 2 -> 3 -> 4 -> 5`，`k = 2` 手推一次',
+        summary:
+          '链表长度是 `5`，有效旋转次数是 `2`。先把尾节点 `5` 指回头节点 `1`，形成环。新尾节点应该在第 `5 - 2 - 1 = 2` 个位置，也就是值为 `3` 的节点；它后面的 `4` 就是新头。断开后结果是 `4 -> 5 -> 1 -> 2 -> 3`。',
+        bullets: [
+          '先求长度，再算有效旋转次数。',
+          '成环只是中间状态，最终还要断开。',
+          '新尾节点的位置决定了新头节点。',
+          '链表旋转本质是重定断点。',
+        ],
+      },
+      {
+        id: 'rl-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题是忘记 `k % length`，或者成环后忘记断开，导致死循环。真正掌握后，你会对链表中的“成环再拆分”技巧更熟。 ',
+        bullets: [
+          '易错点 1：没有处理空链表和单节点链表。',
+          '易错点 2：没取模，导致做了很多无意义操作。',
+          '易错点 3：成环后忘了断开，链表会无限循环。',
+          '延伸方向：分隔链表、重排链表、环形链表、快慢指针类题目。',
+        ],
+        callout:
+          '链表题真正重要的，不是记模板，而是学会把指针关系压成少数几个可控步骤。这题就是“成环 + 断开”的经典模板。',
+      },
+    ],
+  },
 ];
