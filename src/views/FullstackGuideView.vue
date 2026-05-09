@@ -252,6 +252,10 @@ const menuCards = [
     title: '前端拖拽编排工程',
   },
   {
+    path: '/fullstack-guide/request-cancellation',
+    title: '前端请求取消工程',
+  },
+  {
     path: '/fullstack-guide/scaffolding',
     title: '前端脚手架工程',
   },

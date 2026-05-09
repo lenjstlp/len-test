@@ -652,6 +652,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/request-cancellation',
+    name: 'fullstack-request-cancellation',
+    component: () => import('@/views/FullstackRequestCancellationView.vue'),
+    meta: {
+      title: '前端请求取消工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/scaffolding',
     name: 'fullstack-scaffolding',
     component: () => import('@/views/FullstackScaffoldingView.vue'),
