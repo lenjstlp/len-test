@@ -264,6 +264,10 @@ const menuCards = [
     title: '前端富筛选查询工程',
   },
   {
+    path: '/fullstack-guide/data-permission',
+    title: '前端数据权限工程',
+  },
+  {
     path: '/fullstack-guide/scaffolding',
     title: '前端脚手架工程',
   },

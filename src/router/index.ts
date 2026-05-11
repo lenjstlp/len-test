@@ -682,6 +682,16 @@ const constantRoutes = [
     },
   },
   {
+    path: '/fullstack-guide/data-permission',
+    name: 'fullstack-data-permission',
+    component: () => import('@/views/FullstackDataPermissionView.vue'),
+    meta: {
+      title: '前端数据权限工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
     path: '/fullstack-guide/scaffolding',
     name: 'fullstack-scaffolding',
     component: () => import('@/views/FullstackScaffoldingView.vue'),
