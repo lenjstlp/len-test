@@ -7494,4 +7494,138 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'text-justification',
+    label: '68. LeetCode 68. 文本左右对齐',
+    difficulty: '困难',
+    description:
+      '这题不是考算法公式，而是考实现力。你要把“贪心分组 + 空格分配 + 最后一行特判”三层逻辑拆干净，否则代码很容易变成一团难维护的字符串拼接。',
+    outcome:
+      '你能掌握按行贪心装词、均匀分配空格和处理最后一行左对齐的完整流程，建立复杂字符串排版题的拆解思路，并写出结构清晰的实现。',
+    sections: [
+      {
+        id: 'tj-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个单词数组 `words` 和每行宽度 `maxWidth`，要求把这些单词排成左右对齐的文本。除了最后一行外，每一行都要尽量均匀地分配空格；如果无法均分，左边的空格数要更多。',
+        bullets: [
+          '每行要尽量装下更多单词，这天然指向贪心。',
+          '普通行要求左右对齐，最后一行只要求左对齐。',
+          '单词之间至少一个空格。',
+          '多余空格优先分配到左侧间隙。',
+        ],
+      },
+      {
+        id: 'tj-greedy-grouping',
+        title: '第一步先做贪心分组，不要一边装词一边排版',
+        summary:
+          '最稳的做法是先确定“这一行包含哪些单词”，再单独处理这一行如何分配空格。也就是说，先把问题拆成“分组”和“格式化”两个阶段，而不是在一个循环里全做完。',
+        bullets: [
+          '分组负责决定每行放哪些单词。',
+          '格式化负责决定空格怎么补。',
+          '职责分开后，代码结构会清晰很多。',
+          '这是复杂实现题最常见的拆解方式。',
+        ],
+      },
+      {
+        id: 'tj-space-distribution',
+        title: '普通行的关键：均分空格，余数从左到右补',
+        summary:
+          '如果当前行有多个单词，就先计算所有单词总长度，再用 `maxWidth - totalLetters` 得到总空格数。间隙数量是 `wordsCount - 1`，均分得到基础空格，余数部分从左往右依次多补一个。',
+        bullets: [
+          '总空格数 = 行宽 - 单词总长度。',
+          '基础空格数 = 总空格数 / 间隙数 向下取整。',
+          '余数空格优先给左边间隙。',
+          '这样才能满足题目要求的“左边更多”。',
+        ],
+        callout:
+          '很多人卡在这里，不是不会算，而是没有先把“总空格”和“间隙个数”抽出来。实现题怕的不是难，是边界没抽象。',
+      },
+      {
+        id: 'tj-last-line',
+        title: '为什么最后一行要单独处理',
+        summary:
+          '最后一行不需要左右对齐，只需要单词之间一个空格，然后把剩余空格统一补到行尾。单词只有一个的普通行，也要用类似方式处理，因为它没有可均分的间隙。',
+        bullets: [
+          '最后一行统一左对齐。',
+          '单个单词行也不能做均分空格。',
+          '这两个场景都要落到“尾部补空格”。',
+          '把这些边界提前单列，主体逻辑会简洁很多。',
+        ],
+      },
+      {
+        id: 'tj-optimal-solution',
+        title: '标准解法：贪心分行 + 分类格式化',
+        summary:
+          '外层循环负责扫描单词，尽可能把更多单词装进当前行。确定行范围后，若是最后一行或单词数为一，就做左对齐；否则按总空格数和间隙数均分，并让多余空格从左向右补齐。最终把每一行加入结果数组。',
+        bullets: [
+          '时间复杂度是 `O(n + 总字符数)`。',
+          '空间复杂度取决于结果输出。',
+          '本质是实现题，不是高深算法题。',
+          '但非常考验你对边界的拆解能力。',
+        ],
+        code: `function fullJustify(words: string[], maxWidth: number): string[] {
+  const result: string[] = []
+  let index = 0
+
+  while (index < words.length) {
+    let lineLength = words[index].length
+    let last = index + 1
+
+    while (
+      last < words.length &&
+      lineLength + 1 + words[last].length <= maxWidth
+    ) {
+      lineLength += 1 + words[last].length
+      last += 1
+    }
+
+    const lineWords = words.slice(index, last)
+    const isLastLine = last === words.length
+
+    if (isLastLine || lineWords.length === 1) {
+      const line = lineWords.join(' ')
+      result.push(line + ' '.repeat(maxWidth - line.length))
+    } else {
+      const totalLetters = lineWords.reduce((sum, word) => sum + word.length, 0)
+      const spaces = maxWidth - totalLetters
+      const gaps = lineWords.length - 1
+      const evenSpace = Math.floor(spaces / gaps)
+      let extraSpace = spaces % gaps
+      let line = ''
+
+      for (let offset = 0; offset < gaps; offset += 1) {
+        line += lineWords[offset]
+        line += ' '.repeat(evenSpace + (extraSpace > 0 ? 1 : 0))
+        if (extraSpace > 0) {
+          extraSpace -= 1
+        }
+      }
+
+      line += lineWords[lineWords.length - 1]
+      result.push(line)
+    }
+
+    index = last
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'tj-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把分组和排版混在一起，导致边界一多就失控。掌握之后，你会更擅长做富文本、表格导出、打印模板这类需要复杂格式控制的实现题。',
+        bullets: [
+          '易错点 1：最后一行仍然按左右对齐处理。',
+          '易错点 2：余数空格没有从左往右补。',
+          '易错点 3：单词总长度和行总长度混为一谈。',
+          '延伸方向：打印排版、Markdown 渲染、文本编辑器布局、表格导出。',
+        ],
+        callout:
+          '实现题真正拉开差距的，不是会不会写循环，而是能不能先把问题拆出清晰的中间层。',
+      },
+    ],
+  },
 ];
