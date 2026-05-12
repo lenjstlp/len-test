@@ -971,6 +971,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/comment-mention-engineering',
+    name: 'fullstack-comment-mention-engineering',
+    component: () =>
+      import('@/views/FullstackCommentMentionEngineeringView.vue'),
+    meta: {
+      title: '前端评论与@提及工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

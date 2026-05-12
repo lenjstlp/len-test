@@ -379,6 +379,10 @@ const menuCards = [
     path: '/fullstack-guide/approval-form-engineering',
     title: '前端审批流表单联动工程',
   },
+  {
+    path: '/fullstack-guide/comment-mention-engineering',
+    title: '前端评论与@提及工程',
+  },
 ];
 </script>
 
