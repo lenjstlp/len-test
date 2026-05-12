@@ -387,6 +387,10 @@ const menuCards = [
     path: '/fullstack-guide/qrcode-engineering',
     title: '前端二维码与条码工程',
   },
+  {
+    path: '/fullstack-guide/attachment-center-engineering',
+    title: '前端附件中心工程',
+  },
 ];
 </script>
 

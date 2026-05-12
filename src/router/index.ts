@@ -992,6 +992,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/attachment-center-engineering',
+    name: 'fullstack-attachment-center-engineering',
+    component: () =>
+      import('@/views/FullstackAttachmentCenterEngineeringView.vue'),
+    meta: {
+      title: '前端附件中心工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
