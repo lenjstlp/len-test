@@ -375,6 +375,10 @@ const menuCards = [
     path: '/fullstack-guide/org-selector-engineering',
     title: '前端组织架构选择器工程',
   },
+  {
+    path: '/fullstack-guide/approval-form-engineering',
+    title: '前端审批流表单联动工程',
+  },
 ];
 </script>
 

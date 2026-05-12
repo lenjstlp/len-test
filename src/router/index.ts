@@ -961,6 +961,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/approval-form-engineering',
+    name: 'fullstack-approval-form-engineering',
+    component: () => import('@/views/FullstackApprovalFormEngineeringView.vue'),
+    meta: {
+      title: '前端审批流表单联动工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
