@@ -982,6 +982,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/qrcode-engineering',
+    name: 'fullstack-qrcode-engineering',
+    component: () => import('@/views/FullstackQrcodeEngineeringView.vue'),
+    meta: {
+      title: '前端二维码与条码工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

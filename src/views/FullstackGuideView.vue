@@ -383,6 +383,10 @@ const menuCards = [
     path: '/fullstack-guide/comment-mention-engineering',
     title: '前端评论与@提及工程',
   },
+  {
+    path: '/fullstack-guide/qrcode-engineering',
+    title: '前端二维码与条码工程',
+  },
 ];
 </script>
 
