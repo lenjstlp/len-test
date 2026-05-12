@@ -371,6 +371,10 @@ const menuCards = [
     path: '/fullstack-guide/data-masking-engineering',
     title: '前端数据脱敏工程',
   },
+  {
+    path: '/fullstack-guide/org-selector-engineering',
+    title: '前端组织架构选择器工程',
+  },
 ];
 </script>
 

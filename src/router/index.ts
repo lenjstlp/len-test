@@ -951,6 +951,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/org-selector-engineering',
+    name: 'fullstack-org-selector-engineering',
+    component: () => import('@/views/FullstackOrgSelectorEngineeringView.vue'),
+    meta: {
+      title: '前端组织架构选择器工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
