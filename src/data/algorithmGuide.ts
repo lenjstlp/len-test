@@ -7162,4 +7162,135 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'valid-number',
+    label: '65. LeetCode 65. 有效数字',
+    difficulty: '困难',
+    description:
+      '这题不是考你会不会调 `Number()`，而是考你能不能把一个看起来混乱的字符串规则拆成有限状态。真正的价值在于：你能否把“语法校验题”从拍脑袋判断，升级成有边界、有状态的工程思维。',
+    outcome:
+      '你能独立分析数字字符串中的符号位、小数点、整数段和指数段，掌握有限状态机解法，并把复杂规则校验题转换成状态转移问题。',
+    sections: [
+      {
+        id: 'vn-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串 `s`，判断它是否表示一个有效数字。字符串可能包含正负号、小数点、指数标记 `e/E`，也可能包含前后空格，但不能出现非法组合。',
+        bullets: [
+          '允许 `2`、`0089`、`-0.1`、`+3.14`、`4.`、`-.9` 这类形式。',
+          '允许 `2e10`、`-90E3`、`3e+7` 这类指数形式。',
+          '不允许 `abc`、`1a`、`1e`、`e3`、`99e2.5` 这类混合错误形式。',
+          '本质是在判断一个字符串是否符合数字语法，而不是在做数值计算。',
+        ],
+      },
+      {
+        id: 'vn-why-hard',
+        title: '为什么它比普通字符串题更难',
+        summary:
+          '难点在于规则不是单点判断，而是要看字符出现的先后顺序和组合关系。比如符号只能出现在开头或 `e/E` 后面，小数点不能出现在指数段里，指数前后都必须有数字。',
+        bullets: [
+          '不是看某个字符存不存在，而是看它出现的位置是否合法。',
+          '多个规则会相互制约，顺序一乱就会误判。',
+          '指数段和小数段有不同的约束条件。',
+          '这类题特别适合用“状态”统一表达规则。',
+        ],
+      },
+      {
+        id: 'vn-state-machine',
+        title: '为什么有限状态机是最稳的解法',
+        summary:
+          '你可以把字符串扫描过程理解成“当前读到了哪一类信息”。每遇到一个字符，就从当前状态跳到下一个状态；如果无路可走，说明字符串非法。这样就把零散规则全部变成了可维护的状态转移表。',
+        bullets: [
+          '状态负责表达“当前已经读到什么”。',
+          '字符类别负责表达“接下来来了什么”。',
+          '状态转移表负责统一管理规则。',
+          '最终只要看停留状态是否合法，就能得出答案。',
+        ],
+        callout:
+          '这题真正训练的是“把自然语言规则翻译成状态”的能力。这和做表单校验、协议解析、词法分析时的思路是一致的。',
+      },
+      {
+        id: 'vn-character-groups',
+        title: '先把字符分组，再谈状态转移',
+        summary:
+          '为了简化判断，通常先把字符分成 `digit`、`sign`、`dot`、`exp`、`space`、`illegal` 六类。然后状态机只跟这些类别打交道，而不是直接跟每个字符硬编码判断。',
+        bullets: [
+          '数字字符统一归到 `digit`。',
+          '正负号统一归到 `sign`。',
+          '小数点单独处理，因为它和整数段、指数段关系密切。',
+          '这样状态表更稳定，也更适合后续扩展。',
+        ],
+      },
+      {
+        id: 'vn-optimal-solution',
+        title: '标准解法：有限状态机',
+        summary:
+          '定义状态表后，按字符逐个扫描。每步先把字符映射到类别，再按 `state -> nextState` 转移。如果当前状态没有对应的转移规则，直接返回 `false`。扫描结束后，只要当前状态属于可接受终态，就返回 `true`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '规则多但结构稳定，适合状态机。',
+          '这是字符串语法校验题的经典套路。',
+        ],
+        code: `function isNumber(s: string): boolean {
+  const states: Array<Record<string, number>> = [
+    { space: 0, sign: 1, digit: 2, dot: 4 },
+    { digit: 2, dot: 4 },
+    { digit: 2, dot: 3, exp: 5, space: 8 },
+    { digit: 3, exp: 5, space: 8 },
+    { digit: 3 },
+    { sign: 6, digit: 7 },
+    { digit: 7 },
+    { digit: 7, space: 8 },
+    { space: 8 },
+  ]
+
+  const getType = (char: string) => {
+    if (char >= '0' && char <= '9') {
+      return 'digit'
+    }
+    if (char === '+' || char === '-') {
+      return 'sign'
+    }
+    if (char === 'e' || char === 'E') {
+      return 'exp'
+    }
+    if (char === '.') {
+      return 'dot'
+    }
+    if (char === ' ') {
+      return 'space'
+    }
+    return 'illegal'
+  }
+
+  let state = 0
+
+  for (const char of s) {
+    const type = getType(char)
+    if (!(type in states[state])) {
+      return false
+    }
+    state = states[state][type]
+  }
+
+  return state === 2 || state === 3 || state === 7 || state === 8
+}`,
+      },
+      {
+        id: 'vn-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是用很多 `if` 生拼规则，最后把自己绕进去。真正掌握后，你会对复杂校验题更有掌控力，因为你不再靠感觉，而是靠状态建模。',
+        bullets: [
+          '易错点 1：忘了指数前后都必须有数字。',
+          '易错点 2：允许小数点出现在指数段里。',
+          '易错点 3：忽略前后空格或符号位置限制。',
+          '延伸方向：括号匹配状态题、表达式解析、JSON/CSV 词法扫描。',
+        ],
+        callout:
+          '越是规则复杂的题，越不能靠堆条件分支硬扛。把规则变成状态，代码才会真正稳定。',
+      },
+    ],
+  },
 ];
