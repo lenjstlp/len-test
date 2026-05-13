@@ -1045,6 +1045,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/diff-merge-engineering',
+    name: 'fullstack-diff-merge-engineering',
+    component: () => import('@/views/FullstackDiffMergeEngineeringView.vue'),
+    meta: {
+      title: '前端差异对比与合并工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

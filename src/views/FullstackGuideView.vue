@@ -407,6 +407,10 @@ const menuCards = [
     path: '/fullstack-guide/filter-form-engineering',
     title: '前端筛选表单工程',
   },
+  {
+    path: '/fullstack-guide/diff-merge-engineering',
+    title: '前端差异对比与合并工程',
+  },
 ];
 </script>
 
