@@ -7942,4 +7942,121 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'edit-distance',
+    label: '72. LeetCode 72. 编辑距离',
+    difficulty: '困难',
+    description:
+      '这题是动态规划里的经典硬题之一。它真正考的不是公式背诵，而是你能否把“插入、删除、替换”这三种编辑操作统一抽象进二维状态转移。',
+    outcome:
+      '你能掌握编辑距离的二维 DP 建模方式，理解状态为什么要定义到两个字符串前缀上，并能独立推导出插入、删除、替换三种操作对应的转移关系。',
+    sections: [
+      {
+        id: 'ed-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个单词 `word1` 和 `word2`，要求计算把 `word1` 转换成 `word2` 所使用的最少操作数。允许的操作只有三种：插入一个字符、删除一个字符、替换一个字符。',
+        bullets: [
+          '目标是最少操作次数。',
+          '只允许插入、删除、替换。',
+          '字符顺序会影响结果，不能只看集合。',
+          '这是典型的字符串最优化型 DP 题。',
+        ],
+      },
+      {
+        id: 'ed-state-definition',
+        title: '为什么状态一定要定义在两个前缀上',
+        summary:
+          '可以令 `dp[i][j]` 表示把 `word1` 的前 `i` 个字符转换成 `word2` 的前 `j` 个字符所需的最少操作数。因为任何一次编辑，实际上都在影响两个字符串某个前缀之间的关系，所以二维前缀状态是最自然、最稳定的定义方式。',
+        bullets: [
+          '一维状态不够表达两个字符串的对齐关系。',
+          '前缀定义可以天然承接逐字符比较。',
+          '最终答案就是 `dp[m][n]`。',
+          '这是字符串匹配类 DP 最经典的状态模型。',
+        ],
+      },
+      {
+        id: 'ed-transition',
+        title: '三种操作如何落进同一个转移公式',
+        summary:
+          '如果当前字符相同，那么不用新操作，直接继承 `dp[i - 1][j - 1]`；如果不同，就要在三种操作里选最优：删除对应 `dp[i - 1][j] + 1`，插入对应 `dp[i][j - 1] + 1`，替换对应 `dp[i - 1][j - 1] + 1`。',
+        bullets: [
+          '删除：删掉 `word1` 当前字符。',
+          '插入：向 `word1` 当前前缀补一个字符。',
+          '替换：把当前字符改成目标字符。',
+          '三种操作的最小值就是当前最优解。',
+        ],
+        callout:
+          '编辑距离这题的核心，不是记住公式，而是理解每个转移项到底对应哪一种真实编辑动作。你能讲清楚这一点，公式自然就记住了。',
+      },
+      {
+        id: 'ed-initialization',
+        title: '初始化为什么代表“和空串对齐”',
+        summary:
+          '当 `word2` 为空串时，把 `word1` 的前 `i` 个字符变成空串，只能删 `i` 次，所以 `dp[i][0] = i`；同理，把空串变成 `word2` 的前 `j` 个字符，只能插入 `j` 次，所以 `dp[0][j] = j`。这些初始化值构成了整个 DP 表的边界。',
+        bullets: [
+          '第一列是“删到空”。',
+          '第一行是“从空插入”。',
+          '这是二维 DP 边界最标准的含义之一。',
+          '初始化不只是填数字，而是在描述真实操作场景。',
+        ],
+      },
+      {
+        id: 'ed-optimal-solution',
+        title: '标准解法：二维 DP',
+        summary:
+          '先建立 `(m + 1) x (n + 1)` 的 DP 表，并初始化第一行和第一列。然后按行按列遍历：若当前字符相同，则继承左上角；若不同，则在删除、插入、替换三种方案中取最小值加一。最后 `dp[m][n]` 就是编辑距离。',
+        bullets: [
+          '时间复杂度是 `O(mn)`。',
+          '空间复杂度是 `O(mn)`。',
+          '如果需要，还能压缩到一维 DP。',
+          '但先把二维转移彻底理解更重要。',
+        ],
+        code: `function minDistance(word1: string, word2: string): number {
+  const rows = word1.length
+  const cols = word2.length
+  const dp = Array.from({ length: rows + 1 }, () => Array(cols + 1).fill(0))
+
+  for (let row = 0; row <= rows; row += 1) {
+    dp[row][0] = row
+  }
+
+  for (let col = 0; col <= cols; col += 1) {
+    dp[0][col] = col
+  }
+
+  for (let row = 1; row <= rows; row += 1) {
+    for (let col = 1; col <= cols; col += 1) {
+      if (word1[row - 1] === word2[col - 1]) {
+        dp[row][col] = dp[row - 1][col - 1]
+      } else {
+        dp[row][col] =
+          Math.min(
+            dp[row - 1][col],
+            dp[row][col - 1],
+            dp[row - 1][col - 1],
+          ) + 1
+      }
+    }
+  }
+
+  return dp[rows][cols]
+}`,
+      },
+      {
+        id: 'ed-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是记住了公式却不理解三种操作的语义，或者二维下标和字符串下标没对齐。真正掌握后，你会对很多字符串 DP 题建立更稳的分析框架。',
+        bullets: [
+          '易错点 1：`dp` 下标和字符串字符下标错位一位。',
+          '易错点 2：分不清插入、删除、替换各自对应哪个状态。',
+          '易错点 3：初始化没从“和空串对齐”去理解。',
+          '延伸方向：删除操作得到两个字符串相同、不同子序列、LCS、正则匹配。',
+        ],
+        callout:
+          '编辑距离几乎是字符串 DP 里的里程碑题。能真正推明白它，你对二维动态规划的理解会明显上一个台阶。',
+      },
+    ],
+  },
 ];
