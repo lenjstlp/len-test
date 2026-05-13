@@ -1003,6 +1003,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/multi-step-wizard-engineering',
+    name: 'fullstack-multi-step-wizard-engineering',
+    component: () =>
+      import('@/views/FullstackMultiStepWizardEngineeringView.vue'),
+    meta: {
+      title: '前端多步骤向导工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

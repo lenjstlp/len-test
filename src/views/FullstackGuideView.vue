@@ -391,6 +391,10 @@ const menuCards = [
     path: '/fullstack-guide/attachment-center-engineering',
     title: '前端附件中心工程',
   },
+  {
+    path: '/fullstack-guide/multi-step-wizard-engineering',
+    title: '前端多步骤向导工程',
+  },
 ];
 </script>
 
