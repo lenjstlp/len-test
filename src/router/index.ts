@@ -1024,6 +1024,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/bulk-operation-engineering',
+    name: 'fullstack-bulk-operation-engineering',
+    component: () =>
+      import('@/views/FullstackBulkOperationEngineeringView.vue'),
+    meta: {
+      title: '前端批量操作工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

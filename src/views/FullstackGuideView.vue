@@ -399,6 +399,10 @@ const menuCards = [
     path: '/fullstack-guide/timeline-engineering',
     title: '前端业务时间线工程',
   },
+  {
+    path: '/fullstack-guide/bulk-operation-engineering',
+    title: '前端批量操作工程',
+  },
 ];
 </script>
 
