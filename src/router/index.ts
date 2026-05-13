@@ -1014,6 +1014,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/timeline-engineering',
+    name: 'fullstack-timeline-engineering',
+    component: () => import('@/views/FullstackTimelineEngineeringView.vue'),
+    meta: {
+      title: '前端业务时间线工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

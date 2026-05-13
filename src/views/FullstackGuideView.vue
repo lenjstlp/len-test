@@ -395,6 +395,10 @@ const menuCards = [
     path: '/fullstack-guide/multi-step-wizard-engineering',
     title: '前端多步骤向导工程',
   },
+  {
+    path: '/fullstack-guide/timeline-engineering',
+    title: '前端业务时间线工程',
+  },
 ];
 </script>
 
