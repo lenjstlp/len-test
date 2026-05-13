@@ -1035,6 +1035,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/filter-form-engineering',
+    name: 'fullstack-filter-form-engineering',
+    component: () => import('@/views/FullstackFilterFormEngineeringView.vue'),
+    meta: {
+      title: '前端筛选表单工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

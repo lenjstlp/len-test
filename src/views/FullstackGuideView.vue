@@ -403,6 +403,10 @@ const menuCards = [
     path: '/fullstack-guide/bulk-operation-engineering',
     title: '前端批量操作工程',
   },
+  {
+    path: '/fullstack-guide/filter-form-engineering',
+    title: '前端筛选表单工程',
+  },
 ];
 </script>
 
