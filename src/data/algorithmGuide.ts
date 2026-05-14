@@ -8193,4 +8193,116 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'search-a-2d-matrix',
+    label: '74. LeetCode 74. 搜索二维矩阵',
+    difficulty: '中等',
+    description:
+      '这题看起来是二维查找，核心却是降维。只要你真正理解题目给出的有序结构，就会发现整个矩阵本质上就是一条排好序的一维数组。',
+    outcome:
+      '你能掌握二维有序矩阵的一维映射二分写法，理解为什么行列坐标可以和一维下标互相转换，并把这类“结构降维”思路迁移到更多查找题。',
+    sections: [
+      {
+        id: 's2m-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给你一个 `m x n` 矩阵。每一行从左到右升序排列，且每一行的第一个元素都大于上一行的最后一个元素。要求判断目标值 `target` 是否存在于矩阵中。',
+        bullets: [
+          '每一行内部有序。',
+          '行与行之间也是整体递增衔接的。',
+          '只需要返回是否存在。',
+          '重点在于利用整体有序结构。',
+        ],
+      },
+      {
+        id: 's2m-why-one-array',
+        title: '为什么它本质上就是一维有序数组',
+        summary:
+          '由于后一行第一个元素一定大于前一行最后一个元素，所以把矩阵按行展开后，得到的序列仍然严格有序。既然如此，就没必要先二分行再二分列，直接把整个矩阵当成长度为 `m * n` 的有序数组即可。',
+        bullets: [
+          '按行展开后顺序不被破坏。',
+          '整体就是单调递增序列。',
+          '二分查找可以直接在全局区间上做。',
+          '这是标准的“二维结构降维”。',
+        ],
+        callout:
+          '很多题的突破口，不是去设计更复杂的结构，而是识别“它其实已经是你熟悉的结构了”。',
+      },
+      {
+        id: 's2m-index-mapping',
+        title: '一维下标和二维坐标怎么互转',
+        summary:
+          '如果把矩阵看成长为 `rows * cols` 的一维数组，那么一维下标 `index` 对应的行号就是 `Math.floor(index / cols)`，列号就是 `index % cols`。这样你每次二分取中点，都能反推出真实矩阵元素。',
+        bullets: [
+          '行号 = `Math.floor(index / cols)`。',
+          '列号 = `index % cols`。',
+          '映射公式固定且可逆。',
+          '这是很多矩阵降维题的通用技巧。',
+        ],
+      },
+      {
+        id: 's2m-binary-search',
+        title: '为什么没必要先找行再找列',
+        summary:
+          '先找行再找列当然也能做，但那其实把问题拆成了两次判断。直接做全局二分逻辑更统一，边界更少，思路也更接近题目真正提供的“整体有序”条件。工程上更偏好这种简洁稳定的写法。',
+        bullets: [
+          '全局二分逻辑更统一。',
+          '只维护一组左右边界即可。',
+          '边界条件更少，更不容易写错。',
+          '是这题最自然的主流解法。',
+        ],
+      },
+      {
+        id: 's2m-optimal-solution',
+        title: '标准解法：降维后二分',
+        summary:
+          '把搜索区间定义在 `[0, rows * cols - 1]` 上。每次取中点 `mid`，通过映射公式定位到矩阵中的真实元素，再与 `target` 比较，像普通二分查找那样收缩左右边界即可。',
+        bullets: [
+          '时间复杂度是 `O(log(mn))`。',
+          '空间复杂度是 `O(1)`。',
+          '本质是有序数组二分，而不是复杂矩阵算法。',
+          '关键在于识别整体单调性。',
+        ],
+        code: `function searchMatrix(matrix: number[][], target: number): boolean {
+  const rows = matrix.length
+  const cols = matrix[0].length
+  let left = 0
+  let right = rows * cols - 1
+
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2)
+    const row = Math.floor(mid / cols)
+    const col = mid % cols
+    const value = matrix[row][col]
+
+    if (value === target) {
+      return true
+    }
+
+    if (value < target) {
+      left = mid + 1
+    } else {
+      right = mid - 1
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 's2m-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是看到二维矩阵就下意识想写两层逻辑，反而错过了最简单的一维二分模型。掌握后，你会对很多“表面二维、实则一维有序”的题更敏感。',
+        bullets: [
+          '易错点 1：没利用行间严格递增这一关键信息。',
+          '易错点 2：一维下标和行列坐标换算错误。',
+          '易错点 3：把它和“每行每列分别有序”的另一类矩阵题混淆。',
+          '延伸方向：搜索二维矩阵 II、旋转数组查找、答案二分、索引映射题。',
+        ],
+        callout:
+          '降维思维非常值钱。很多中等题一旦降成熟悉模型，难度会立刻掉一大截。',
+      },
+    ],
+  },
 ];
