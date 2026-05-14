@@ -8059,4 +8059,138 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'set-matrix-zeroes',
+    label: '73. LeetCode 73. 矩阵置零',
+    difficulty: '中等',
+    description:
+      '这题表面是在改二维数组，真正考的是你能否在“原地修改”和“状态记录”之间找到平衡。很多人一边扫描一边置零，结果把后续判断需要的原始信息提前污染掉了。',
+    outcome:
+      '你能掌握矩阵原地标记的经典思路，理解为什么第一行和第一列可以同时承担“数据”和“标记位”两种角色，并能独立处理这类原地状态压缩题。',
+    sections: [
+      {
+        id: 'smz-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 `m x n` 的矩阵，如果某个元素为 `0`，就把它所在的整行和整列都设为 `0`。要求在原矩阵上直接修改。',
+        bullets: [
+          '发现一个 `0`，整行整列都要清零。',
+          '不能返回新矩阵，而是原地修改。',
+          '关键难点在于：修改过程中不能破坏后续判断依据。',
+          '这是典型的“原地标记”题。',
+        ],
+      },
+      {
+        id: 'smz-why-direct-fails',
+        title: '为什么边遍历边置零一定会出错',
+        summary:
+          '如果扫描到一个 `0` 就立刻把整行整列都改成 `0`，你后面再扫到这些新写进去的 `0` 时，就无法分辨它们是原始 `0` 还是你刚才制造出来的 `0`。状态一旦被污染，结果就会扩大化。',
+        bullets: [
+          '原始信息和新写入信息混在一起。',
+          '后续扫描会误判新出现的 `0`。',
+          '这类题必须先记录，再统一处理。',
+          '本质是“读阶段”和“写阶段”要分离。',
+        ],
+        callout:
+          '只要一看到“原地修改，但后续判断还依赖原始值”，就要立刻警惕状态污染问题。',
+      },
+      {
+        id: 'smz-marker-idea',
+        title: '第一行第一列为什么可以拿来当标记区',
+        summary:
+          '我们完全可以不用额外二维数组，而是把“这一行要不要清零”记录到该行第一列，把“这一列要不要清零”记录到该列第一行。这样矩阵本身就兼任了标记区，只需要额外两个布尔值记录第一行和第一列原本是否含 `0`。',
+        bullets: [
+          '第 `i` 行是否清零，记在 `matrix[i][0]`。',
+          '第 `j` 列是否清零，记在 `matrix[0][j]`。',
+          '第一行和第一列重叠在 `matrix[0][0]`，所以要额外补布尔变量。',
+          '这是典型的空间压缩技巧。',
+        ],
+      },
+      {
+        id: 'smz-processing-order',
+        title: '为什么必须先标记，再处理内部，再处理首行首列',
+        summary:
+          '正确顺序是：先扫描首行首列是否有 `0`；再扫描内部区域并写标记；然后根据标记处理除首行首列之外的内部区域；最后再根据两个布尔值决定是否清空首行和首列。顺序错了，标记就会被提前冲掉。',
+        bullets: [
+          '首行首列的原始状态要先保住。',
+          '内部区域可以放心借用首行首列做标记。',
+          '最后再回头处理首行首列。',
+          '顺序本身就是解法的一部分。',
+        ],
+      },
+      {
+        id: 'smz-optimal-solution',
+        title: '标准解法：首行首列原地标记',
+        summary:
+          '先用两个变量记录第一行和第一列是否需要清零。然后遍历内部区域，若 `matrix[row][col] === 0`，就把 `matrix[row][0]` 和 `matrix[0][col]` 标记为 `0`。接着依据这些标记处理内部区域，最后再单独处理第一行和第一列。',
+        bullets: [
+          '时间复杂度是 `O(mn)`。',
+          '额外空间复杂度是 `O(1)`。',
+          '核心是把矩阵本身当状态表来用。',
+          '这是二维原地修改题里的经典方法。',
+        ],
+        code: `function setZeroes(matrix: number[][]): void {
+  const rows = matrix.length
+  const cols = matrix[0].length
+  let firstRowZero = false
+  let firstColZero = false
+
+  for (let col = 0; col < cols; col += 1) {
+    if (matrix[0][col] === 0) {
+      firstRowZero = true
+    }
+  }
+
+  for (let row = 0; row < rows; row += 1) {
+    if (matrix[row][0] === 0) {
+      firstColZero = true
+    }
+  }
+
+  for (let row = 1; row < rows; row += 1) {
+    for (let col = 1; col < cols; col += 1) {
+      if (matrix[row][col] === 0) {
+        matrix[row][0] = 0
+        matrix[0][col] = 0
+      }
+    }
+  }
+
+  for (let row = 1; row < rows; row += 1) {
+    for (let col = 1; col < cols; col += 1) {
+      if (matrix[row][0] === 0 || matrix[0][col] === 0) {
+        matrix[row][col] = 0
+      }
+    }
+  }
+
+  if (firstRowZero) {
+    for (let col = 0; col < cols; col += 1) {
+      matrix[0][col] = 0
+    }
+  }
+
+  if (firstColZero) {
+    for (let row = 0; row < rows; row += 1) {
+      matrix[row][0] = 0
+    }
+  }
+}`,
+      },
+      {
+        id: 'smz-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是想到用首行首列做标记，却没处理好第一行第一列本身的语义冲突。只要你把这层想透，类似“原数组兼做状态表”的题都会清晰很多。',
+        bullets: [
+          '易错点 1：扫描时直接置零，导致状态污染。',
+          '易错点 2：忘记单独记录第一行和第一列是否原本含 `0`。',
+          '易错点 3：处理顺序错误，提前覆盖标记。',
+          '延伸方向：生命游戏、矩阵翻转、原地哈希标记、缺失数字类题目。',
+        ],
+        callout:
+          '原地算法的重点不是“省空间”三个字，而是你是否还能在有限空间里保住完整状态。',
+      },
+    ],
+  },
 ];
