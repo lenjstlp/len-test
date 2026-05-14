@@ -1086,6 +1086,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/data-mapping-engineering',
+    name: 'fullstack-data-mapping-engineering',
+    component: () => import('@/views/FullstackDataMappingEngineeringView.vue'),
+    meta: {
+      title: '前端数据映射工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

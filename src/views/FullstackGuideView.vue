@@ -423,6 +423,10 @@ const menuCards = [
     path: '/fullstack-guide/version-rollback-engineering',
     title: '前端版本回滚工程',
   },
+  {
+    path: '/fullstack-guide/data-mapping-engineering',
+    title: '前端数据映射工程',
+  },
 ];
 </script>
 
