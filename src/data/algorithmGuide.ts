@@ -8305,4 +8305,113 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'sort-colors',
+    label: '75. LeetCode 75. 颜色分类',
+    difficulty: '中等',
+    description:
+      '这题不是简单排序题，而是在训练你对“双指针分区”模型的理解。真正关键不在于把数组排好，而在于你能否一次扫描就把三种颜色送到各自区域。',
+    outcome:
+      '你能掌握荷兰国旗问题的三指针写法，理解小于区、当前扫描区和大于区的边界含义，并把这种原地分区思路迁移到更多数组重排问题。',
+    sections: [
+      {
+        id: 'sc-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0`、`1`、`2` 的数组，要求原地排序，使得相同颜色相邻，并按红、白、蓝的顺序排列。',
+        bullets: [
+          '`0`、`1`、`2` 分别代表三种颜色。',
+          '要求原地排序。',
+          '希望尽量一次遍历完成。',
+          '本质是三路分区问题。',
+        ],
+      },
+      {
+        id: 'sc-why-not-generic-sort',
+        title: '为什么这题重点不是调用排序',
+        summary:
+          '直接排序当然能过，但这题真正想考的是你能不能利用“值域只有三种”的特点，在线性时间里完成重排。它不是在考排序 API，而是在考你对分区过程的控制能力。',
+        bullets: [
+          '题目值域非常小，是明显提示。',
+          '目标是线性时间、原地完成。',
+          '这是一道典型的模型题，而不是工具题。',
+          '面试场景更看重你的分区思维。',
+        ],
+        callout:
+          '很多题都能“做出来”，但模型题的价值在于：你能不能说出它到底在训练什么能力。',
+      },
+      {
+        id: 'sc-three-zones',
+        title: '数组其实一直被维护成三个区间',
+        summary:
+          '可以用三个指针维护区间：`left` 左边全部是 `0`，`right` 右边全部是 `2`，`index` 在中间扫描。当扫到 `0` 时，把它交换到左区；扫到 `2` 时，把它交换到右区；扫到 `1` 时直接跳过即可。',
+        bullets: [
+          '`[0, left - 1]` 全是 `0`。',
+          '`[left, index - 1]` 全是 `1`。',
+          '`[right + 1, end]` 全是 `2`。',
+          '`index` 负责推进未处理区域。',
+        ],
+      },
+      {
+        id: 'sc-why-index-stays',
+        title: '为什么和右边交换后不能立刻前进',
+        summary:
+          '当当前位置是 `2` 时，你把它和 `right` 交换后，换回来的那个值还没检查过，所以 `index` 不能立刻加一；但如果当前位置是 `0`，交换到左边后，换回来的位置一定是已经处理过的区域，因此可以继续前进。',
+        bullets: [
+          '与右侧交换后，新值未知，必须重新检查。',
+          '与左侧交换后，新值来自已处理区，更安全。',
+          '这是这题最常见的细节坑。',
+          '理解区间语义，比硬背代码更重要。',
+        ],
+      },
+      {
+        id: 'sc-optimal-solution',
+        title: '标准解法：荷兰国旗三指针',
+        summary:
+          '维护 `left`、`index`、`right` 三个指针。遍历时若 `nums[index] === 0`，就与 `left` 交换并同时右移 `left` 与 `index`；若等于 `2`，就与 `right` 交换并左移 `right`；若等于 `1`，只移动 `index`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '一次扫描即可完成。',
+          '这是三路分区的经典模板。',
+        ],
+        code: `function sortColors(nums: number[]): void {
+  let left = 0
+  let index = 0
+  let right = nums.length - 1
+
+  while (index <= right) {
+    if (nums[index] === 0) {
+      ;[nums[left], nums[index]] = [nums[index], nums[left]]
+      left += 1
+      index += 1
+      continue
+    }
+
+    if (nums[index] === 2) {
+      ;[nums[right], nums[index]] = [nums[index], nums[right]]
+      right -= 1
+      continue
+    }
+
+    index += 1
+  }
+}`,
+      },
+      {
+        id: 'sc-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是交换 `2` 到右侧后错误地让 `index` 前进，导致漏检。只要你真正理解三个区间各自代表什么，三路分区题就会变得很稳。',
+        bullets: [
+          '易错点 1：和 `right` 交换后仍然让 `index++`。',
+          '易错点 2：没有清楚维护三个区间的语义。',
+          '易错点 3：把这题写成计数回填，却说不出分区解法。',
+          '延伸方向：快速排序分区、奇偶重排、按条件分组、区间划分题。',
+        ],
+        callout:
+          '荷兰国旗问题是双指针分区思维里的里程碑题，值得你彻底吃透而不是只记一版代码。',
+      },
+    ],
+  },
 ];
