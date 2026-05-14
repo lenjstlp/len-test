@@ -415,6 +415,10 @@ const menuCards = [
     path: '/fullstack-guide/dictionary-engineering',
     title: '前端字典管理工程',
   },
+  {
+    path: '/fullstack-guide/field-schema-engineering',
+    title: '前端字段配置工程',
+  },
 ];
 </script>
 

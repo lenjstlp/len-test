@@ -1065,6 +1065,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/field-schema-engineering',
+    name: 'fullstack-field-schema-engineering',
+    component: () => import('@/views/FullstackFieldSchemaEngineeringView.vue'),
+    meta: {
+      title: '前端字段配置工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
