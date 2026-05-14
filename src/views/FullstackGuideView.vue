@@ -419,6 +419,10 @@ const menuCards = [
     path: '/fullstack-guide/field-schema-engineering',
     title: '前端字段配置工程',
   },
+  {
+    path: '/fullstack-guide/version-rollback-engineering',
+    title: '前端版本回滚工程',
+  },
 ];
 </script>
 

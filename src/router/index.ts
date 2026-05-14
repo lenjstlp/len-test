@@ -1075,6 +1075,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/version-rollback-engineering',
+    name: 'fullstack-version-rollback-engineering',
+    component: () =>
+      import('@/views/FullstackVersionRollbackEngineeringView.vue'),
+    meta: {
+      title: '前端版本回滚工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
