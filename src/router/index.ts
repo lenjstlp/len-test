@@ -1055,6 +1055,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/dictionary-engineering',
+    name: 'fullstack-dictionary-engineering',
+    component: () => import('@/views/FullstackDictionaryEngineeringView.vue'),
+    meta: {
+      title: '前端字典管理工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

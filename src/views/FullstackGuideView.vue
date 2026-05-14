@@ -411,6 +411,10 @@ const menuCards = [
     path: '/fullstack-guide/diff-merge-engineering',
     title: '前端差异对比与合并工程',
   },
+  {
+    path: '/fullstack-guide/dictionary-engineering',
+    title: '前端字典管理工程',
+  },
 ];
 </script>
 
