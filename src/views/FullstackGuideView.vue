@@ -447,6 +447,10 @@ const menuCards = [
     path: '/fullstack-guide/operation-replay-engineering',
     title: '前端操作日志回放工程',
   },
+  {
+    path: '/fullstack-guide/environment-switch-engineering',
+    title: '前端环境切换工程',
+  },
 ];
 </script>
 

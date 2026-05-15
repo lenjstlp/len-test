@@ -1149,6 +1149,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/environment-switch-engineering',
+    name: 'fullstack-environment-switch-engineering',
+    component: () =>
+      import('@/views/FullstackEnvironmentSwitchEngineeringView.vue'),
+    meta: {
+      title: '前端环境切换工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
