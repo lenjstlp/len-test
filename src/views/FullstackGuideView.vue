@@ -439,6 +439,10 @@ const menuCards = [
     path: '/fullstack-guide/release-workflow-engineering',
     title: '前端配置发布工程',
   },
+  {
+    path: '/fullstack-guide/review-annotation-engineering',
+    title: '前端批注审阅工程',
+  },
 ];
 </script>
 

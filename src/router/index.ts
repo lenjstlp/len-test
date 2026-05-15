@@ -1127,6 +1127,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/review-annotation-engineering',
+    name: 'fullstack-review-annotation-engineering',
+    component: () =>
+      import('@/views/FullstackReviewAnnotationEngineeringView.vue'),
+    meta: {
+      title: '前端批注审阅工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
