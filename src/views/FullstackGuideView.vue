@@ -443,6 +443,10 @@ const menuCards = [
     path: '/fullstack-guide/review-annotation-engineering',
     title: '前端批注审阅工程',
   },
+  {
+    path: '/fullstack-guide/operation-replay-engineering',
+    title: '前端操作日志回放工程',
+  },
 ];
 </script>
 

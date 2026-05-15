@@ -1138,6 +1138,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/operation-replay-engineering',
+    name: 'fullstack-operation-replay-engineering',
+    component: () =>
+      import('@/views/FullstackOperationReplayEngineeringView.vue'),
+    meta: {
+      title: '前端操作日志回放工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
