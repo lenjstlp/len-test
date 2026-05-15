@@ -427,6 +427,10 @@ const menuCards = [
     path: '/fullstack-guide/data-mapping-engineering',
     title: '前端数据映射工程',
   },
+  {
+    path: '/fullstack-guide/header-schema-engineering',
+    title: '前端表头配置工程',
+  },
 ];
 </script>
 
