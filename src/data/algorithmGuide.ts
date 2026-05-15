@@ -8763,4 +8763,145 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'word-search',
+    label: '79. LeetCode 79. 单词搜索',
+    difficulty: '中等',
+    description:
+      '这题是二维 DFS 回溯题里的标准模板。真正考点不在于会不会写四个方向，而在于你能否正确处理“路径不能重复使用同一个格子”的限制。',
+    outcome:
+      '你能掌握网格搜索中的 DFS + 回溯写法，理解为什么访问标记必须和递归路径绑定，并把这种“走一步、试探、回退”的思路迁移到更多矩阵搜索题。',
+    sections: [
+      {
+        id: 'ws-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个二维字符网格 `board` 和一个单词 `word`，判断是否存在一条路径，可以按上下左右相邻的方式依次拼出这个单词。每个格子在同一条路径中只能使用一次。',
+        bullets: [
+          '只能走上下左右四个方向。',
+          '路径上的字符顺序必须和 `word` 一致。',
+          '同一个格子不能重复使用。',
+          '目标是判断是否存在，不需要返回具体路径。',
+        ],
+      },
+      {
+        id: 'ws-why-backtracking',
+        title: '为什么这题天然是 DFS + 回溯',
+        summary:
+          '你要从某个起点出发，逐字符尝试往四周扩展，一旦当前字符不匹配或后续走不通，就必须退回上一步继续尝试别的方向。这种“试探一条路，不行就撤回”的结构，正是回溯搜索最典型的场景。',
+        bullets: [
+          '每个起点都可能成为答案起点。',
+          '每一步都有最多四个方向可走。',
+          '走错后需要恢复现场再试别的分支。',
+          '这类题本质是路径搜索，不是普通遍历。',
+        ],
+        callout:
+          '看到“路径不能重复走格子，而且每一步都要试方向”，基本就该立刻想到 DFS 回溯。',
+      },
+      {
+        id: 'ws-visited-bound-to-path',
+        title: '访问标记为什么必须和当前路径绑定',
+        summary:
+          '这题不是全局访问一次就结束的遍历，而是每次起点、每条路径都要重新尝试。所以访问标记不能永久写死，只能在当前递归路径内生效。进入格子时标记，递归返回时撤销，才能保证其它分支还能正常使用这个格子。',
+        bullets: [
+          '访问标记只对当前搜索路径有效。',
+          '回溯返回时必须撤销标记。',
+          '否则会错误阻断其它合法路径。',
+          '这是矩阵回溯题的核心细节。',
+        ],
+      },
+      {
+        id: 'ws-base-cases',
+        title: '递归终止条件要先想清楚',
+        summary:
+          '如果当前字符和 `word[index]` 不匹配，就立即失败；如果已经匹配到 `word` 的最后一个字符，就直接成功返回。把这两个基本判断放在最前面，递归主体就会非常干净。',
+        bullets: [
+          '越界和字符不匹配要第一时间剪掉。',
+          '匹配到最后一个字符时直接成功。',
+          '基本情况清楚，递归代码会更短。',
+          '网格搜索题往往成败就在这些边界判断。',
+        ],
+      },
+      {
+        id: 'ws-optimal-solution',
+        title: '标准解法：枚举起点 + DFS 回溯',
+        summary:
+          '先枚举网格中的每个格子作为起点。对每个起点做 DFS：判断当前字符是否匹配，若匹配则临时标记已访问，再向四个方向递归搜索下一个字符。若任一方向成功，整体成功；否则撤销标记并回溯。',
+        bullets: [
+          '时间复杂度和搜索树规模相关。',
+          '空间复杂度主要来自递归栈。',
+          '本质是带约束的路径搜索。',
+          '二维 DFS 回溯的模板价值很高。',
+        ],
+        code: `function exist(board: string[][], word: string): boolean {
+  const rows = board.length
+  const cols = board[0].length
+
+  const dfs = (row: number, col: number, index: number): boolean => {
+    if (board[row][col] !== word[index]) {
+      return false
+    }
+
+    if (index === word.length - 1) {
+      return true
+    }
+
+    const current = board[row][col]
+    board[row][col] = '#'
+
+    const directions = [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ]
+
+    for (const [deltaRow, deltaCol] of directions) {
+      const nextRow = row + deltaRow
+      const nextCol = col + deltaCol
+
+      if (
+        nextRow >= 0 &&
+        nextRow < rows &&
+        nextCol >= 0 &&
+        nextCol < cols &&
+        board[nextRow][nextCol] !== '#' &&
+        dfs(nextRow, nextCol, index + 1)
+      ) {
+        board[row][col] = current
+        return true
+      }
+    }
+
+    board[row][col] = current
+    return false
+  }
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      if (dfs(row, col, 0)) {
+        return true
+      }
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'ws-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是访问标记没有在回溯时恢复，或者起点枚举不完整。真正掌握后，你会对很多网格 DFS、岛屿搜索、路径回溯题建立统一模型。',
+        bullets: [
+          '易错点 1：访问标记写死，导致其它分支无法复用格子。',
+          '易错点 2：匹配到最后一个字符时没有及时返回。',
+          '易错点 3：忘记从每个格子都尝试起点。',
+          '延伸方向：岛屿问题、迷宫路径、N 皇后、矩阵路径搜索题。',
+        ],
+        callout:
+          '网格回溯题的核心不是方向数组，而是你是否真正理解“路径状态”和“全局状态”的区别。',
+      },
+    ],
+  },
 ];
