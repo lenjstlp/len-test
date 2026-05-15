@@ -1116,6 +1116,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/release-workflow-engineering',
+    name: 'fullstack-release-workflow-engineering',
+    component: () =>
+      import('@/views/FullstackReleaseWorkflowEngineeringView.vue'),
+    meta: {
+      title: '前端配置发布工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
