@@ -8414,4 +8414,141 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'minimum-window-substring',
+    label: '76. LeetCode 76. 最小覆盖子串',
+    difficulty: '困难',
+    description:
+      '这题表面是字符串查找，核心却是滑动窗口的“先满足，再收缩”模型。真正难点不在于会不会双指针，而在于你能否精确维护“窗口已经覆盖目标串”的状态。',
+    outcome:
+      '你能掌握最小覆盖子串的标准滑动窗口写法，理解为什么需要一边扩张窗口凑齐需求，一边在满足条件时持续收缩，并把这种“动态维护合法窗口”的思路迁移到更多子串题。',
+    sections: [
+      {
+        id: 'mws-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s` 和 `t`，要求在 `s` 中找出包含 `t` 所有字符的最短子串。如果不存在这样的子串，就返回空字符串。',
+        bullets: [
+          '子串必须覆盖 `t` 中所有字符。',
+          '字符出现次数也要满足，不只是出现过即可。',
+          '目标是最短，而不是任意一个可行解。',
+          '这是典型的滑动窗口最优化问题。',
+        ],
+      },
+      {
+        id: 'mws-why-bruteforce-fails',
+        title: '为什么暴力枚举子串会非常笨重',
+        summary:
+          '如果你枚举所有子串，再逐个判断是否覆盖 `t`，时间复杂度会很快爆炸。真正高效的做法，是利用窗口的连续性：右指针负责把窗口扩到合法，左指针负责在合法前提下尽量缩小。',
+        bullets: [
+          '子串数量本身就是平方级。',
+          '每个子串再去统计字符，会更慢。',
+          '窗口问题要优先想双指针而不是枚举边界。',
+          '关键是复用相邻窗口之间的状态。',
+        ],
+        callout:
+          '滑动窗口的价值，不是“省掉一层循环”，而是你能否把窗口状态持续复用起来。',
+      },
+      {
+        id: 'mws-valid-window',
+        title: '什么叫“窗口已经覆盖目标串”',
+        summary:
+          '先统计 `t` 中每个字符需要多少次。窗口右移时，把当前字符加入计数；当某个字符的窗口计数刚好达到需求，就认为这个字符“满足了”。当所有需要的字符都满足后，窗口才算合法。',
+        bullets: [
+          '不是窗口里字符种类够了就行。',
+          '必须连出现次数也满足。',
+          '通常要维护 `need`、`window` 和 `matched` 三类状态。',
+          '合法窗口的判断要尽量做到 `O(1)`。',
+        ],
+      },
+      {
+        id: 'mws-why-shrink',
+        title: '为什么一旦窗口合法，就要马上尝试收缩',
+        summary:
+          '这题求的是最短覆盖子串，所以窗口一旦合法，就应该让左指针尽可能右移，直到窗口刚好失去合法性为止。这个过程会不断刷新答案，也正是“最小化”的关键来源。',
+        bullets: [
+          '右指针负责找到可行解。',
+          '左指针负责把可行解压缩成更优解。',
+          '每个字符最多进窗出窗一次，所以总复杂度仍然线性。',
+          '这是“先满足，再缩小”的窗口经典模式。',
+        ],
+      },
+      {
+        id: 'mws-optimal-solution',
+        title: '标准解法：滑动窗口 + 计数表',
+        summary:
+          '用 `need` 记录 `t` 的字符需求，用 `window` 记录当前窗口计数。右指针不断扩张；若窗口满足所有需求，就进入收缩循环，用左指针缩到不能再缩，同时维护最短答案。最后返回记录下来的最优区间。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度取决于字符集大小。',
+          '重点是合法窗口判断和收缩时机。',
+          '这是字符串窗口题里的里程碑模板。',
+        ],
+        code: `function minWindow(s: string, t: string): string {
+  const need = new Map<string, number>()
+  const window = new Map<string, number>()
+
+  for (const char of t) {
+    need.set(char, (need.get(char) ?? 0) + 1)
+  }
+
+  let left = 0
+  let matched = 0
+  let bestStart = 0
+  let bestLength = Number.POSITIVE_INFINITY
+
+  for (let right = 0; right < s.length; right += 1) {
+    const rightChar = s[right]
+
+    if (need.has(rightChar)) {
+      window.set(rightChar, (window.get(rightChar) ?? 0) + 1)
+
+      if (window.get(rightChar) === need.get(rightChar)) {
+        matched += 1
+      }
+    }
+
+    while (matched === need.size) {
+      const currentLength = right - left + 1
+
+      if (currentLength < bestLength) {
+        bestLength = currentLength
+        bestStart = left
+      }
+
+      const leftChar = s[left]
+
+      if (need.has(leftChar)) {
+        if (window.get(leftChar) === need.get(leftChar)) {
+          matched -= 1
+        }
+
+        window.set(leftChar, (window.get(leftChar) ?? 0) - 1)
+      }
+
+      left += 1
+    }
+  }
+
+  return Number.isFinite(bestLength)
+    ? s.slice(bestStart, bestStart + bestLength)
+    : ''
+}`,
+      },
+      {
+        id: 'mws-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“字符出现过”误当成“字符需求已满足”，或者在收缩窗口时把状态更新顺序写反。真正掌握后，你会对很多覆盖型窗口题建立更稳的手感。',
+        bullets: [
+          '易错点 1：忽略字符重复次数，只判断字符是否存在。',
+          '易错点 2：收缩窗口时先减计数还是先改匹配数写混。',
+          '易错点 3：没理解为什么窗口合法后必须持续收缩。',
+          '延伸方向：字符串排列、找到所有字母异位词、最短超串、覆盖型滑动窗口题。',
+        ],
+        callout:
+          '最小覆盖子串是真正能把滑动窗口能力拉到中高级水平的一道题，值得反复吃透。',
+      },
+    ],
+  },
 ];
