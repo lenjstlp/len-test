@@ -1106,6 +1106,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/api-adapter-engineering',
+    name: 'fullstack-api-adapter-engineering',
+    component: () => import('@/views/FullstackApiAdapterEngineeringView.vue'),
+    meta: {
+      title: '前端接口适配层工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

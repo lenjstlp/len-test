@@ -431,6 +431,10 @@ const menuCards = [
     path: '/fullstack-guide/header-schema-engineering',
     title: '前端表头配置工程',
   },
+  {
+    path: '/fullstack-guide/api-adapter-engineering',
+    title: '前端接口适配层工程',
+  },
 ];
 </script>
 
