@@ -9125,4 +9125,112 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'remove-duplicates-from-sorted-list-ii',
+    label: '82. LeetCode 82. 删除排序链表中的重复元素 II',
+    difficulty: '中等',
+    description:
+      '这题不是简单地去重，而是要求把所有出现重复的值整段删掉，一个都不保留。真正难点在于你是否能在链表里稳定地跳过整段重复节点，并把前后链重新接好。',
+    outcome:
+      '你能掌握带哑节点的链表删除套路，理解为什么遇到重复值时要先扫描完整重复段，再决定是否断开，并把这种思路迁移到更多链表批量删除题。',
+    sections: [
+      {
+        id: 'rdsl2-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个升序链表，删除所有含有重复数字的节点，只保留原链表中没有重复出现的数字。',
+        bullets: [
+          '链表已经有序，相同值一定连续出现。',
+          '不是“保留一个”，而是“重复值全部删掉”。',
+          '要返回处理后的新链表头结点。',
+          '这题很适合训练链表指针稳定性。',
+        ],
+      },
+      {
+        id: 'rdsl2-why-dummy-node',
+        title: '为什么这题强烈建议先加哑节点',
+        summary:
+          '如果头结点本身就属于重复段，比如 `1 -> 1 -> 2`，真正的新头结点会发生变化。加一个 `dummy` 指向 `head` 后，无论删除的是头部、中间还是尾部，你都能统一地用前驱节点去接回链表。',
+        bullets: [
+          '哑节点能统一处理头结点被删除的情况。',
+          '前驱指针写法会更稳定。',
+          '链表删除题里这是非常高频的工程手法。',
+          '它能显著减少边界分支。',
+        ],
+        callout: '只要链表题可能删头节点，先想 `dummy`，通常不会错。',
+      },
+      {
+        id: 'rdsl2-how-to-skip-block',
+        title: '真正关键不是“删一个”，而是“跳过整段重复块”',
+        summary:
+          '当你发现 `current.val === current.next.val` 时，不应该只删当前一个节点，而应该记下这个重复值，然后一路往后跳，直到这一整段重复值全部越过，再让前驱节点直接连到第一个不同值节点。',
+        bullets: [
+          '有序性保证了重复值一定连在一起。',
+          '删除动作应该按整段处理，而不是逐个试错。',
+          '这是这题区别于普通去重题的核心。',
+          '前驱节点始终负责接回剩余链表。',
+        ],
+      },
+      {
+        id: 'rdsl2-two-pointer-roles',
+        title: '前驱指针和扫描指针职责要分开',
+        summary:
+          '一个指针 `prev` 代表当前结果链表的最后一个稳定节点，另一个指针 `current` 负责向前扫描原链表。只有当 `current` 所在值确认不重复时，`prev` 才前进；否则 `prev.next` 直接跳过整个重复段。',
+        bullets: [
+          '`prev` 负责维护答案链表。',
+          '`current` 负责识别重复块。',
+          '两者职责清晰后，代码会很稳。',
+          '链表题最怕一个指针承担过多语义。',
+        ],
+      },
+      {
+        id: 'rdsl2-optimal-solution',
+        title: '标准解法：哑节点 + 前驱指针 + 整段跳过',
+        summary:
+          '创建 `dummy` 指向头结点。用 `prev` 指向 `dummy`，`current` 指向 `head`。若当前值出现重复，就持续向后跳过同值节点，并让 `prev.next` 指向重复段后的第一个节点；否则同时推进 `prev` 和 `current`。最终返回 `dummy.next`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '关键在于重复段只扫描一次。',
+          '这是链表批量删除的标准模板。',
+        ],
+        code: `function deleteDuplicates(head: ListNode | null): ListNode | null {
+  const dummy = new ListNode(0, head)
+  let prev: ListNode = dummy
+  let current = head
+
+  while (current) {
+    if (current.next && current.val === current.next.val) {
+      const duplicateValue = current.val
+
+      while (current && current.val === duplicateValue) {
+        current = current.next
+      }
+
+      prev.next = current
+    } else {
+      prev = current
+      current = current.next
+    }
+  }
+
+  return dummy.next
+}`,
+      },
+      {
+        id: 'rdsl2-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是误把它写成“保留一个重复值”的版本。真正掌握后，你会对链表中的前驱节点、批量跳过和哑节点设计更有感觉。',
+        bullets: [
+          '易错点 1：看到重复时只删除一个节点，没有整段跳过。',
+          '易错点 2：头部重复段删除后没有正确返回新头结点。',
+          '易错点 3：`prev` 在删除分支里错误前进，导致链断裂。',
+          '延伸方向：链表分组操作、删除指定值、链表分区、区间翻转。',
+        ],
+        callout:
+          '链表题写稳的关键，从来不是背操作，而是先把每个指针的职责讲清楚。',
+      },
+    ],
+  },
 ];
