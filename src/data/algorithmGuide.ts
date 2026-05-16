@@ -9233,4 +9233,102 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'remove-duplicates-from-sorted-list',
+    label: '83. LeetCode 83. 删除排序链表中的重复元素',
+    difficulty: '简单',
+    description:
+      '这题和上一题很像，但目标完全不同。这里不是删掉所有重复值，而是每种值保留一个。真正训练的是你能否利用链表有序性，在原地稳定地压缩重复节点。',
+    outcome:
+      '你能掌握有序链表原地去重的基本写法，理解为什么当前节点只需要和下一个节点比较，并把这种“局部重连”的思路迁移到更多基础链表题。',
+    sections: [
+      {
+        id: 'rdsl1-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个升序链表，删除所有重复元素，使得每个元素只出现一次，并返回处理后的链表。',
+        bullets: [
+          '链表已经有序。',
+          '重复值只需要保留一个。',
+          '要求原地修改链表链接关系。',
+          '这是链表入门去重题。',
+        ],
+      },
+      {
+        id: 'rdsl1-why-local-compare',
+        title: '为什么只比较当前节点和下一个节点就够了',
+        summary:
+          '因为链表有序，所以相同值必然挨在一起。对于当前节点，只要看 `current.next` 是否和自己值相同，就能决定要不要跳过下一个节点，不需要回头，也不需要哈希表。',
+        bullets: [
+          '有序性让重复检测变成局部判断。',
+          '每次只用看相邻两个节点。',
+          '不需要额外存储结构。',
+          '这是有序链表题的典型红利。',
+        ],
+      },
+      {
+        id: 'rdsl1-remove-logic',
+        title: '删除动作本质上是让当前节点跳过重复后继',
+        summary:
+          '若 `current.val === current.next.val`，说明后一个节点是多余的，直接让 `current.next = current.next.next` 即可。因为当前值还可能继续重复，所以当前节点此时不要前进，继续检查新的 `current.next`。',
+        bullets: [
+          '删除后当前节点先别动。',
+          '因为后面可能还有同值节点。',
+          '只有不重复时才推进当前节点。',
+          '这是写出正确 while 循环的关键细节。',
+        ],
+      },
+      {
+        id: 'rdsl1-one-pass',
+        title: '整题只需要一趟扫描',
+        summary:
+          '从头结点开始一路向后扫。当前节点和下一节点相同时就删除下一节点，不同时就把当前节点往后挪一格。由于每个节点最多被访问和重连有限次，所以整体只需要线性时间。',
+        bullets: [
+          '扫描过程天然是单向的。',
+          '不会出现回退。',
+          '每个多余节点只会被跳过一次。',
+          '这就是链表原地修改的典型节奏。',
+        ],
+      },
+      {
+        id: 'rdsl1-optimal-solution',
+        title: '标准解法：单指针原地去重',
+        summary:
+          '用一个指针 `current` 从头开始遍历。若 `current.next` 存在且值相同，就让 `current.next` 跳过重复节点；否则让 `current` 前进。最终返回原头结点即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现短，但很考验循环推进时机。',
+          '这是理解链表重连最基础的一题。',
+        ],
+        code: `function deleteDuplicates(head: ListNode | null): ListNode | null {
+  let current = head
+
+  while (current && current.next) {
+    if (current.val === current.next.val) {
+      current.next = current.next.next
+    } else {
+      current = current.next
+    }
+  }
+
+  return head
+}`,
+      },
+      {
+        id: 'rdsl1-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是删除一个重复节点后马上把指针后移，结果漏删连续重复值。真正掌握后，你会更自然地理解“删除后是否前进”这种链表细节。',
+        bullets: [
+          '易错点 1：删除后立即前进，导致漏掉连续重复。',
+          '易错点 2：把它和上一题的“整段删除”逻辑混淆。',
+          '易错点 3：忘记判空 `current.next`。',
+          '延伸方向：删除排序链表中的重复元素 II、链表去重变体、双指针链表题。',
+        ],
+        callout:
+          '基础链表题看着短，但能非常直接地暴露你对指针推进节奏是否真的清楚。',
+      },
+    ],
+  },
 ];
