@@ -9007,4 +9007,122 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'search-in-rotated-sorted-array-ii',
+    label: '81. LeetCode 81. 搜索旋转排序数组 II',
+    difficulty: '中等',
+    description:
+      '这题是在旋转数组二分查找的基础上，再额外塞进了重复元素。真正难点不在会不会写二分，而在于你能否识别“哪一侧有序”这个判断何时会因为重复值失效。',
+    outcome:
+      '你能掌握带重复元素的旋转数组二分思路，理解为什么 `left`、`mid`、`right` 相等时必须先缩边界，并把这种“局部失去单调性时先排除噪音”的思维迁移到更多变体二分题。',
+    sections: [
+      {
+        id: 'sr2-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个可能经过旋转的非降序数组 `nums`，数组中允许重复元素。判断目标值 `target` 是否存在于数组中。',
+        bullets: [
+          '数组原本是有序的，但中间某个位置发生了旋转。',
+          '数组允许重复元素，这会干扰二分判断。',
+          '只需要返回是否存在。',
+          '这是旋转数组二分的进阶版。',
+        ],
+      },
+      {
+        id: 'sr2-why-duplicates-break-order',
+        title: '为什么重复元素会破坏“哪边有序”的判断',
+        summary:
+          '在不含重复元素时，只要比较 `nums[left]` 和 `nums[mid]`，通常就能判断左半段是否有序。但一旦出现大量重复，比如 `1, 1, 1, 3, 1`，你会发现 `left`、`mid` 的值一样，却无法据此断定旋转点在哪一侧。',
+        bullets: [
+          '重复值会让左右两段看起来都像有序。',
+          '单靠一次比较无法确定答案区间。',
+          '这是这题和 LeetCode 33 的核心差异。',
+          '二分不是失效，而是要先清掉噪音。',
+        ],
+        callout: '很多二分题真正难的不是切半，而是判断条件什么时候不再可靠。',
+      },
+      {
+        id: 'sr2-trim-noise',
+        title: '遇到三端相等时，先缩边界而不是硬判有序区间',
+        summary:
+          '当 `nums[left] === nums[mid] && nums[mid] === nums[right]` 时，左右哪边有序都无法确定。这时最稳的做法是让 `left += 1`、`right -= 1`，先去掉两端重复噪音，再继续二分。',
+        bullets: [
+          '这一步不会漏解，因为两端值和中间完全相同。',
+          '它的作用是恢复可判断的局部单调性。',
+          '虽然最坏情况会退化，但整体思路仍然正确。',
+          '这是这题的关键修补动作。',
+        ],
+      },
+      {
+        id: 'sr2-how-to-pick-side',
+        title: '一旦能判断某边有序，就回到标准旋转数组二分',
+        summary:
+          '如果左半段有序，就判断 `target` 是否落在 `[nums[left], nums[mid])` 里；若是，则收缩右边，否则去右边找。右半段同理。核心还是靠“有序区间 + target 落点”来丢弃一半搜索空间。',
+        bullets: [
+          '左有序就判断 target 是否在左半段范围内。',
+          '右有序就判断 target 是否在右半段范围内。',
+          '每次都尽量丢掉确定不可能的一边。',
+          '这是旋转数组二分模板的主干。',
+        ],
+      },
+      {
+        id: 'sr2-optimal-solution',
+        title: '标准解法：二分 + 去重噪音',
+        summary:
+          '维护 `left` 和 `right`。每轮先取 `mid`，若命中直接返回 `true`；若三端值相等，则同时缩边界；否则判断哪一段有序，再根据 `target` 所在范围选择保留哪一半。最终若区间为空仍未命中，则返回 `false`。',
+        bullets: [
+          '平均情况下仍接近二分效率。',
+          '最坏情况下可能退化到 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '关键不是模板本身，而是三端相等时的处理。',
+        ],
+        code: `function search(nums: number[], target: number): boolean {
+  let left = 0
+  let right = nums.length - 1
+
+  while (left <= right) {
+    const mid = left + Math.floor((right - left) / 2)
+
+    if (nums[mid] === target) {
+      return true
+    }
+
+    if (nums[left] === nums[mid] && nums[mid] === nums[right]) {
+      left += 1
+      right -= 1
+      continue
+    }
+
+    if (nums[left] <= nums[mid]) {
+      if (nums[left] <= target && target < nums[mid]) {
+        right = mid - 1
+      } else {
+        left = mid + 1
+      }
+    } else if (nums[mid] < target && target <= nums[right]) {
+      left = mid + 1
+    } else {
+      right = mid - 1
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'sr2-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它当成不含重复元素的旋转数组题直接套模板，结果在重复值场景下判断错误。真正掌握后，你会更理解二分查找对“单调性前提”的依赖。',
+        bullets: [
+          '易错点 1：没有处理三端相等，导致死循环或错判。',
+          '易错点 2：区间比较时边界开闭写混。',
+          '易错点 3：误以为这题一定能稳定做到 `O(log n)`。',
+          '延伸方向：寻找旋转点、查找最小值、带重复元素的边界二分题。',
+        ],
+        callout:
+          '二分题能不能做，往往取决于你有没有先确认“单调性是否真的还在”。',
+      },
+    ],
+  },
 ];
