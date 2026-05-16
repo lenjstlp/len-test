@@ -9331,4 +9331,111 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'largest-rectangle-in-histogram',
+    label: '84. LeetCode 84. 柱状图中最大的矩形',
+    difficulty: '困难',
+    description:
+      '这题是单调栈的里程碑题目。真正难点不是记住“栈里放下标”，而是理解每根柱子什么时候能确定自己作为最矮柱子的最大扩展宽度。',
+    outcome:
+      '你能掌握单调递增栈在区间边界问题中的用法，理解为什么出栈时才能确定面积，并把这种“找左边界和右边界”的思路迁移到更多单调栈题。',
+    sections: [
+      {
+        id: 'lrh-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个柱状图，每根柱子的宽度都为 `1`，求其中能够勾勒出的最大矩形面积。',
+        bullets: [
+          '矩形必须由连续柱子组成。',
+          '矩形高度由所覆盖柱子中的最小高度决定。',
+          '目标是求最大面积。',
+          '这是单调栈经典母题。',
+        ],
+      },
+      {
+        id: 'lrh-why-enumerate-height',
+        title: '为什么更自然的视角是“枚举谁当最矮柱子”',
+        summary:
+          '如果直接枚举左右边界，会有大量重复计算。更高效的思路是：假设某根柱子是矩形里最矮的那根，那么它能往左和往右扩展到哪里？一旦找到左右第一个比它矮的位置，就能确定这根柱子能主导的最大面积。',
+        bullets: [
+          '矩形面积 = 高度 × 宽度。',
+          '高度固定后，关键就是找最大可扩展宽度。',
+          '左右边界本质是“第一个更矮元素”。',
+          '这正是单调栈擅长解决的问题。',
+        ],
+        callout:
+          '很多单调栈题，本质都是在问“某个元素什么时候能确认自己的影响范围”。',
+      },
+      {
+        id: 'lrh-why-pop-means-answer',
+        title: '为什么一定要在出栈时计算面积',
+        summary:
+          '栈里保持高度递增，意味着栈中柱子右边还没遇到比自己更矮的柱子，所以它们的右边界还不确定。只有当新柱子高度更小，导致某根柱子出栈时，这根柱子的右边界才首次被确定，面积也才真正可以结算。',
+        bullets: [
+          '入栈时右边界未知。',
+          '出栈时说明第一次遇到更矮柱子。',
+          '此时左右边界都齐了。',
+          '所以面积计算放在出栈逻辑里最自然。',
+        ],
+      },
+      {
+        id: 'lrh-sentinel',
+        title: '头尾补哨兵，能把边界写法变得更干净',
+        summary:
+          '在高度数组前后补 `0`，能保证所有柱子最终都会被弹出结算，也能统一处理“左边没有更矮元素”或“右边没有更矮元素”的场景。工程上这能大幅减少特判。',
+        bullets: [
+          '头部哨兵统一左边界。',
+          '尾部哨兵强制清空栈。',
+          '边界不用再单独分支讨论。',
+          '这是单调栈题很常见的小技巧。',
+        ],
+      },
+      {
+        id: 'lrh-optimal-solution',
+        title: '标准解法：单调递增栈 + 出栈结算面积',
+        summary:
+          '先构造前后带 `0` 的新数组，用栈保存下标，并保证栈中对应高度递增。遍历数组时，若当前高度小于栈顶高度，就不断弹栈：被弹出的柱子高度就是矩形高度，当前下标和新的栈顶共同决定它的左右边界。持续更新最大面积即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '每个下标最多进栈出栈一次。',
+          '这是单调栈能力的典型代表题。',
+        ],
+        code: `function largestRectangleArea(heights: number[]): number {
+  const extended = [0, ...heights, 0]
+  const stack: number[] = []
+  let best = 0
+
+  for (let index = 0; index < extended.length; index += 1) {
+    while (
+      stack.length > 0 &&
+      extended[index] < extended[stack[stack.length - 1]]
+    ) {
+      const height = extended[stack.pop() as number]
+      const left = stack[stack.length - 1]
+      const width = index - left - 1
+      best = Math.max(best, height * width)
+    }
+
+    stack.push(index)
+  }
+
+  return best
+}`,
+      },
+      {
+        id: 'lrh-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是不知道为什么宽度要减 `1`，或者在出栈时把左右边界含义写混。真正掌握后，你会对单调栈处理区间边界的方式建立很强的直觉。',
+        bullets: [
+          '易错点 1：出栈后新的栈顶才是左边第一个更矮元素。',
+          '易错点 2：宽度写错成 `index - left`。',
+          '易错点 3：没有补尾部哨兵，导致栈中剩余柱子没被结算。',
+          '延伸方向：最大矩形、接雨水、每日温度、下一个更大元素。',
+        ],
+        callout: '单调栈题别死背模板，先想清楚栈里元素“还在等什么边界出现”。',
+      },
+    ],
+  },
 ];
