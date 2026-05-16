@@ -9544,4 +9544,116 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'partition-list',
+    label: '86. LeetCode 86. 分隔链表',
+    difficulty: '中等',
+    description:
+      '这题看起来只是重排链表，但真正考的是稳定分组。你不仅要把小于 `x` 的节点放前面，还要保证每个分区内部的相对顺序不变，这就决定了它不是简单交换，而是链表版的稳定分桶。',
+    outcome:
+      '你能掌握双链表收集再拼接的稳定分区写法，理解为什么分别维护“小链表”和“大链表”比原地硬调指针更稳，并把这种思路迁移到更多链表重组题。',
+    sections: [
+      {
+        id: 'pl-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个链表和一个值 `x`，要求把所有小于 `x` 的节点放到大于等于 `x` 的节点之前，同时保持两个分区内部原有的相对顺序。',
+        bullets: [
+          '不是排序，只是按阈值分区。',
+          '分区后仍要保持稳定性。',
+          '要返回新的链表头结点。',
+          '这题非常适合练链表重组能力。',
+        ],
+      },
+      {
+        id: 'pl-why-two-lists',
+        title: '为什么最稳的思路是拆成两条链表再拼回去',
+        summary:
+          '如果你尝试在原链表里直接挪节点，很容易把相对顺序和链接关系弄乱。更稳的做法是分别维护“小于 `x`”和“大于等于 `x`”两条结果链，按原顺序把节点依次挂进去，最后再把两条链表首尾拼接。',
+        bullets: [
+          '分而治之能显著降低指针复杂度。',
+          '天然保留了原有顺序。',
+          '最后只需要一次拼接。',
+          '这是链表稳定分组的标准套路。',
+        ],
+        callout: '链表题一旦要求“保持相对顺序”，就要优先警惕原地交换式写法。',
+      },
+      {
+        id: 'pl-tail-management',
+        title: '每条分区链都要维护自己的尾指针',
+        summary:
+          '准备两个哑节点 `smallDummy` 和 `largeDummy`，再分别维护 `smallTail`、`largeTail`。遍历原链表时，根据当前节点值把它接到对应尾部，并让尾指针前进。这样整个收集过程始终是线性的。',
+        bullets: [
+          '哑节点统一处理空链和首节点问题。',
+          '尾指针保证追加操作是 `O(1)`。',
+          '每个节点只会被接入一次。',
+          '这也是稳定收集最常见的链表写法。',
+        ],
+      },
+      {
+        id: 'pl-cut-old-links',
+        title: '别忘了切断旧链接，否则很容易把原链带回去',
+        summary:
+          '遍历时最好先保存 `next`，再把当前节点接入小链或大链。有些实现即使不立即断链也能工作，但最后一定要把 `largeTail.next = null`，否则原链表尾部旧关系可能导致环或脏链接。',
+        bullets: [
+          '原链节点复用时要警惕旧指针残留。',
+          '最终大链尾部必须显式置空。',
+          '链表重组题经常出这种隐藏 bug。',
+          '这是细节稳定性的体现。',
+        ],
+      },
+      {
+        id: 'pl-optimal-solution',
+        title: '标准解法：双哑节点分区收集后拼接',
+        summary:
+          '创建两条链表：一条存放小于 `x` 的节点，一条存放大于等于 `x` 的节点。遍历原链表，把每个节点按值挂到对应尾部；遍历结束后，让小链尾部连到大链头部，并把大链尾部置空。返回小链头即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现稳定，边界清晰。',
+          '这是链表稳定分区题的标准答案。',
+        ],
+        code: `function partition(head: ListNode | null, x: number): ListNode | null {
+  const smallDummy = new ListNode(0)
+  const largeDummy = new ListNode(0)
+  let smallTail = smallDummy
+  let largeTail = largeDummy
+  let current = head
+
+  while (current) {
+    const next = current.next
+
+    if (current.val < x) {
+      smallTail.next = current
+      smallTail = smallTail.next
+    } else {
+      largeTail.next = current
+      largeTail = largeTail.next
+    }
+
+    current = next
+  }
+
+  largeTail.next = null
+  smallTail.next = largeDummy.next
+
+  return smallDummy.next
+}`,
+      },
+      {
+        id: 'pl-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有保持稳定顺序，或者最后忘记断开大链尾部。真正掌握后，你会更熟悉链表“分组收集再拼接”的稳定套路。',
+        bullets: [
+          '易错点 1：原地交换节点，结果破坏相对顺序。',
+          '易错点 2：忘记把大链尾部置空，导致脏链接。',
+          '易错点 3：没有使用哑节点，头部边界处理混乱。',
+          '延伸方向：奇偶链表、重排链表、按条件拆分链表、链表归并。',
+        ],
+        callout:
+          '链表重排题最稳的工程思路，通常不是原地炫技巧，而是先拆分职责，再做最后拼接。',
+      },
+    ],
+  },
 ];
