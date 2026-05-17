@@ -9991,4 +9991,111 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'subsets-ii',
+    label: '90. LeetCode 90. 子集 II',
+    difficulty: '中等',
+    description:
+      '这题和子集很像，但加入了重复元素后，去重就成了核心。真正要掌握的是如何在回溯树的同层上跳过重复值，从而避免生成重复子集。',
+    outcome:
+      '你能掌握排序后回溯去重的标准套路，理解为什么同层重复要跳过、不同层重复可以保留，并把这种去重策略迁移到更多组合枚举题。',
+    sections: [
+      {
+        id: 'subset2-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个可能包含重复元素的数组 `nums`，返回它所有不重复的子集。',
+        bullets: [
+          '元素可能重复。',
+          '仍然要返回所有子集。',
+          '结果中不能有重复集合。',
+          '这是子集题的去重版。',
+        ],
+      },
+      {
+        id: 'subset2-why-sort',
+        title: '为什么先排序几乎是这题的前置条件',
+        summary:
+          '只有排序后，相同元素才会连续聚在一起。这样在回溯时，你才能在同一层里轻松识别“前一个选过，后一个相同值就别再选”的情况，从源头避免重复结果。',
+        bullets: [
+          '排序让重复值相邻。',
+          '相邻重复更容易剪枝。',
+          '这是回溯去重题的常规起手式。',
+          '没有排序，去重边界会更难写。',
+        ],
+      },
+      {
+        id: 'subset2-same-level-skip',
+        title: '同层去重是这题的核心',
+        summary:
+          '回溯树同一层中，如果某个值已经被尝试过一次，那么后面相同值的分支就不应该再进入，否则会生成重复子集。真正需要跳过的是“同层重复”，而不是“路径中已经出现过的值”。',
+        bullets: [
+          '同层重复会生成相同结果。',
+          '不同层重复可以出现在不同长度的路径中。',
+          '去重规则必须和层级绑定。',
+          '这是这题最容易混淆的点。',
+        ],
+      },
+      {
+        id: 'subset2-path-logic',
+        title: '路径仍然可以收集，但每层枚举必须跳过重复起点',
+        summary:
+          '和普通子集一样，回溯开始时就可以把当前路径加入结果。不同的是，for 循环里要在同层遇到重复值时直接 `continue`，避免重复扩展同一类选择。',
+        bullets: [
+          '路径本身还是合法子集。',
+          '每层都可以收集当前路径。',
+          '枚举分支时要跳过同层重复值。',
+          '收集和去重是两件不同的事。',
+        ],
+      },
+      {
+        id: 'subset2-optimal-solution',
+        title: '标准解法：排序 + 回溯 + 同层去重',
+        summary:
+          '先对数组排序，然后进行回溯。每次从 `start` 开始枚举，如果当前元素和前一个元素相同，并且前一个元素在同一层已经被跳过，就直接略过当前元素。这样能保证结果集中没有重复子集。',
+        bullets: [
+          '时间复杂度是 `O(n * 2^n)`。',
+          '排序成本是 `O(n log n)`。',
+          '关键是同层去重规则。',
+          '这是组合枚举去重的标准模板。',
+        ],
+        code: `function subsetsWithDup(nums: number[]): number[][] {
+  nums.sort((a, b) => a - b)
+  const result: number[][] = []
+  const path: number[] = []
+
+  const dfs = (start: number) => {
+    result.push([...path])
+
+    for (let index = start; index < nums.length; index += 1) {
+      if (index > start && nums[index] === nums[index - 1]) {
+        continue
+      }
+
+      path.push(nums[index])
+      dfs(index + 1)
+      path.pop()
+    }
+  }
+
+  dfs(0)
+  return result
+}`,
+      },
+      {
+        id: 'subset2-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“同层去重”和“路径去重”混为一谈。真正掌握后，你会更擅长处理带重复元素的枚举题。',
+        bullets: [
+          '易错点 1：没有先排序，重复判断失效。',
+          '易错点 2：把路径中已出现的重复值误删，漏掉合法结果。',
+          '易错点 3：同层去重条件写错，导致仍有重复答案。',
+          '延伸方向：组合总和 II、排列 II、去重搜索树。',
+        ],
+        callout:
+          '重复元素题的本质，不是“去掉所有重复”，而是“只去掉会造成重复结果的那一层重复”。',
+      },
+    ],
+  },
 ];
