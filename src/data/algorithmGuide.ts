@@ -9656,4 +9656,139 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'scramble-string',
+    label: '87. LeetCode 87. 扰乱字符串',
+    difficulty: '困难',
+    description:
+      '这题表面看像字符串题，实际是典型的递归分治加记忆化搜索。难点不在“能不能拆”，而在于你能不能证明两个字符串是否可以通过不断二分、交换子串得到同构关系。',
+    outcome:
+      '你能掌握字符串分治搜索的建模方式，理解为什么每次切分都要同时考虑“不交换”和“交换”两种情况，并把记忆化用于剪掉重复子问题。',
+    sections: [
+      {
+        id: 'ss-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个等长字符串 `s1` 和 `s2`，判断 `s2` 是否可以通过对 `s1` 不断做“切分并交换左右子串”得到。',
+        bullets: [
+          '每次都可以把字符串切成两段。',
+          '切完后可以选择交换，也可以不交换。',
+          '要求判断是否存在一种变换方案。',
+          '这是一道典型分治搜索题。',
+        ],
+      },
+      {
+        id: 'ss-why-divide',
+        title: '为什么这题天然适合递归分治',
+        summary:
+          '题目规则本身就是“把字符串拆成两部分，再对子部分继续做同样操作”。这意味着子问题和原问题结构完全一致，递归是最自然的表达方式。',
+        bullets: [
+          '问题可以不断向子串缩小。',
+          '每一层都只关心当前切分是否成立。',
+          '子问题形式和原问题一致。',
+          '这是典型的递归定义题。',
+        ],
+        callout:
+          '一旦题目在描述“切一刀后继续判断”，基本就该先想递归，而不是贪心。',
+      },
+      {
+        id: 'ss-two-branches',
+        title: '每次切分都必须同时试“交换”和“不交换”',
+        summary:
+          '如果只看一种切法，很容易漏解。正确做法是对每个切点同时验证两种可能：左对左、右对右是不交换；左对右、右对左是交换。只要其中一种递归都成立，就能判定整体成立。',
+        bullets: [
+          '不交换是第一种自然匹配。',
+          '交换是另一种等价结构。',
+          '不能凭直觉只走一边。',
+          '两种分支都要在递归中验证。',
+        ],
+      },
+      {
+        id: 'ss-pruning',
+        title: '字符计数剪枝是这题最值得写的优化',
+        summary:
+          '如果两个子串的字符频次根本不同，那它们不可能互为扰乱字符串。先做频次比较，可以直接砍掉大量无意义递归，尤其在长字符串时非常关键。',
+        bullets: [
+          '先比字符频次，快速排除不可能情况。',
+          '频次一致才有必要进入深层递归。',
+          '这是记忆化之前最有效的剪枝。',
+          '能明显降低搜索树规模。',
+        ],
+      },
+      {
+        id: 'ss-optimal-solution',
+        title: '标准解法：递归分治 + 记忆化 + 频次剪枝',
+        summary:
+          '定义函数判断两个等长子串是否扰乱。若长度为 `1`，直接比较字符；否则先做频次剪枝，再遍历切点。对每个切点同时尝试“不交换”和“交换”两种递归组合。用记忆化缓存子问题结果，避免重复计算。',
+        bullets: [
+          '时间复杂度由搜索树和剪枝共同决定。',
+          '空间复杂度主要来自递归栈和缓存。',
+          '频次剪枝是实战里最重要的减枝点。',
+          '记忆化能把重复子问题压下去。',
+        ],
+        code: `function isScramble(s1: string, s2: string): boolean {
+  const memo = new Map<string, boolean>()
+
+  const helper = (a: string, b: string): boolean => {
+    const key = \`\${a}|\${b}\`
+    if (memo.has(key)) {
+      return memo.get(key) as boolean
+    }
+
+    if (a === b) {
+      memo.set(key, true)
+      return true
+    }
+
+    if (a.length !== b.length) {
+      memo.set(key, false)
+      return false
+    }
+
+    const count = new Array<number>(26).fill(0)
+
+    for (let index = 0; index < a.length; index += 1) {
+      count[a.charCodeAt(index) - 97] += 1
+      count[b.charCodeAt(index) - 97] -= 1
+    }
+
+    if (count.some((value) => value !== 0)) {
+      memo.set(key, false)
+      return false
+    }
+
+    for (let split = 1; split < a.length; split += 1) {
+      if (
+        (helper(a.slice(0, split), b.slice(0, split)) &&
+          helper(a.slice(split), b.slice(split))) ||
+        (helper(a.slice(0, split), b.slice(-split)) &&
+          helper(a.slice(split), b.slice(0, b.length - split)))
+      ) {
+        memo.set(key, true)
+        return true
+      }
+    }
+
+    memo.set(key, false)
+    return false
+  }
+
+  return helper(s1, s2)
+}`,
+      },
+      {
+        id: 'ss-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只试一种切分方式，或者忘记做频次剪枝导致递归爆炸。真正掌握后，你会对分治搜索、子问题缓存和剪枝组合有更强的意识。',
+        bullets: [
+          '易错点 1：没有同时尝试交换与不交换。',
+          '易错点 2：忽略频次剪枝，导致重复搜索过多。',
+          '易错点 3：子问题结果不缓存，时间开销失控。',
+          '延伸方向：字符串分割、区间 DP、记忆化搜索、树形递归题。',
+        ],
+        callout: '这类题真正考的是你能不能把“递归结构”和“剪枝条件”同时设计好。',
+      },
+    ],
+  },
 ];
