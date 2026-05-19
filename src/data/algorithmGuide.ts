@@ -10657,4 +10657,104 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'unique-binary-search-trees',
+    label: '96. LeetCode 96. 不同的二叉搜索树',
+    difficulty: '中等',
+    description:
+      '这题和上一题是同一模型的计数版。真正要掌握的是：一旦根节点固定，左右区间数量相乘，再对所有根节点求和，这就是典型的 Catalan 型 DP。',
+    outcome:
+      '你能掌握 BST 计数的区间乘法逻辑，理解为什么左右子树方案数要相乘，并用一维 DP 推出 Catalan 递推。',
+    sections: [
+      {
+        id: 'ubst1-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数 `n`，求由 `1` 到 `n` 组成的不同二叉搜索树一共有多少种。',
+        bullets: [
+          '只求数量，不要求返回具体树结构。',
+          '每棵树都必须满足 BST 性质。',
+          '节点值固定为 `1...n`。',
+          '这是经典 Catalan 计数题。',
+        ],
+      },
+      {
+        id: 'ubst1-root-count',
+        title: '每个根节点都把问题切成“左数量 × 右数量”',
+        summary:
+          '如果第 `k` 个值作为根，那么左边有 `k - 1` 个数，右边有 `n - k` 个数。左区间可以组成若干种 BST，右区间也可以组成若干种 BST，两边组合时总数就是二者乘积。',
+        bullets: [
+          '根节点固定后，左右规模立即确定。',
+          '左树数量和右树数量独立相乘。',
+          '每个根节点都会贡献一部分结果。',
+          '这是整题的核心递推来源。',
+        ],
+      },
+      {
+        id: 'ubst1-sum-all-roots',
+        title: '为什么最后要对所有根节点求和',
+        summary:
+          '因为不同根节点对应的是互斥的树结构集合。既然每个根值都可能作为合法根节点，那总方案数就是把每个根贡献的“左数 × 右数”全部加起来。',
+        bullets: [
+          '不同根节点对应不同结构集合。',
+          '这些集合之间互不重叠。',
+          '所以最后要做求和而不是取最大值。',
+          '这就是 Catalan 递推的来源。',
+        ],
+      },
+      {
+        id: 'ubst1-dp-definition',
+        title: '一维 DP 就够了，因为只和节点数量有关',
+        summary:
+          '题目只问有多少种，不关心具体值是什么，所以状态只需要记录“用 `i` 个节点能组成多少种 BST”。记作 `dp[i]`，再枚举每个可能的根位置，把左右子树节点数拆开做乘法累加即可。',
+        bullets: [
+          '状态只和节点数量相关。',
+          '不需要维护具体区间值。',
+          '一维 DP 就能完成。',
+          '这让实现非常紧凑。',
+        ],
+      },
+      {
+        id: 'ubst1-optimal-solution',
+        title: '标准解法：Catalan 递推 DP',
+        summary:
+          '定义 `dp[i]` 表示 `i` 个节点的 BST 数量，初始化 `dp[0] = 1`、`dp[1] = 1`。对于每个 `i`，枚举根节点位置 `root`，左子树节点数是 `root - 1`，右子树节点数是 `i - root`，转移为 `dp[i] += dp[left] * dp[right]`。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度是 `O(n)`。',
+          '这是 Catalan 型计数的经典模板。',
+          '关键在于拆分后数量相乘再求和。',
+        ],
+        code: `function numTrees(n: number): number {
+  const dp = new Array<number>(n + 1).fill(0)
+  dp[0] = 1
+  dp[1] = 1
+
+  for (let nodes = 2; nodes <= n; nodes += 1) {
+    for (let root = 1; root <= nodes; root += 1) {
+      const left = root - 1
+      const right = nodes - root
+      dp[nodes] += dp[left] * dp[right]
+    }
+  }
+
+  return dp[n]
+}`,
+      },
+      {
+        id: 'ubst1-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忘记 `dp[0] = 1` 的含义，或者把左右数量写成相加而不是相乘。真正掌握后，你会对构造题和计数题之间的关系更敏感。',
+        bullets: [
+          '易错点 1：把空树数量写成 `0`，导致递推全错。',
+          '易错点 2：左右子树数量误写成加法。',
+          '易错点 3：没意识到它和上一题是同一模型的计数版。',
+          '延伸方向：Catalan 数、括号生成、不同搜索结构计数题。',
+        ],
+        callout:
+          '很多 DP 题的难点其实不在代码，而在于你能不能先把“一个状态由哪些互斥情况组成”讲清楚。',
+      },
+    ],
+  },
 ];
