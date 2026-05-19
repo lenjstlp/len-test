@@ -1160,6 +1160,71 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/approval-node-engineering',
+    name: 'fullstack-approval-node-engineering',
+    component: () => import('@/views/FullstackApprovalNodeEngineeringView.vue'),
+    meta: {
+      title: '前端审批节点编排工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
+    path: '/fullstack-guide/import-validation-engineering',
+    name: 'fullstack-import-validation-engineering',
+    component: () =>
+      import('@/views/FullstackImportValidationEngineeringView.vue'),
+    meta: {
+      title: '前端导入校验工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
+    path: '/fullstack-guide/export-job-engineering',
+    name: 'fullstack-export-job-engineering',
+    component: () =>
+      import('@/views/FullstackExportJobCenterEngineeringView.vue'),
+    meta: {
+      title: '前端导出任务中心工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
+    path: '/fullstack-guide/message-template-engineering',
+    name: 'fullstack-message-template-engineering',
+    component: () =>
+      import('@/views/FullstackMessageTemplateEngineeringView.vue'),
+    meta: {
+      title: '前端消息模板编排工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
+    path: '/fullstack-guide/operation-guard-engineering',
+    name: 'fullstack-operation-guard-engineering',
+    component: () =>
+      import('@/views/FullstackOperationGuardEngineeringView.vue'),
+    meta: {
+      title: '前端防误触工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
+  {
+    path: '/fullstack-guide/permission-expression-engineering',
+    name: 'fullstack-permission-expression-engineering',
+    component: () =>
+      import('@/views/FullstackPermissionExpressionEngineeringView.vue'),
+    meta: {
+      title: '前端权限表达式工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
