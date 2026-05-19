@@ -10210,4 +10210,114 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'reverse-linked-list-ii',
+    label: '92. LeetCode 92. 反转链表 II',
+    difficulty: '中等',
+    description:
+      '这题不是整条链表反转，而是只反转中间一段区间。真正考点在于你能不能在不打乱前后链关系的前提下，把局部区间完整翻转后再稳定接回去。',
+    outcome:
+      '你能掌握链表局部反转的哑节点写法，理解为什么要先找到反转区间前驱，再在区间内部做头插式重排，并把这种思路迁移到更多链表区间操作题。',
+    sections: [
+      {
+        id: 'rll2-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定链表头结点 `head` 和两个位置 `left`、`right`，要求把第 `left` 到第 `right` 个节点原地反转，并返回新链表。',
+        bullets: [
+          '只反转局部区间，不是整链反转。',
+          '区间外节点顺序必须保持不变。',
+          '要求原地修改链表链接关系。',
+          '这是链表区间操作的典型题。',
+        ],
+      },
+      {
+        id: 'rll2-why-dummy',
+        title: '为什么这题几乎一定要先加哑节点',
+        summary:
+          '如果反转区间从头结点开始，比如 `left = 1`，新头结点会发生变化。加一个 `dummy` 指向原链表后，无论区间是否包含头部，你都能统一地通过“区间前驱节点”处理连接关系。',
+        bullets: [
+          '哑节点统一处理头结点变化。',
+          '能稳定找到反转区间前驱。',
+          '减少大量边界分支。',
+          '这是链表区间题的高频起手式。',
+        ],
+        callout:
+          '链表题一旦可能改头结点，就别硬扛，先上 `dummy`，后面会轻松很多。',
+      },
+      {
+        id: 'rll2-head-insertion',
+        title: '区间反转最稳的做法，是不断把后继节点头插到区间前面',
+        summary:
+          '先让 `prev` 走到反转区间前一个节点，再让 `current` 指向区间第一个节点。之后反复把 `current.next` 拿出来，插到 `prev` 后面。这个过程本质上是在区间内部做头插，几轮后局部顺序就被反转了。',
+        bullets: [
+          '`prev` 固定在区间前驱位置。',
+          '`current` 始终指向当前区间尾部。',
+          '每轮都把后继节点头插到前面。',
+          '这是一种非常稳的局部反转模板。',
+        ],
+      },
+      {
+        id: 'rll2-connection',
+        title: '真正容易出错的不是反转本身，而是前后链如何接回',
+        summary:
+          '区间反转后，原区间第一个节点会变成区间尾部，它最终要接上反转区间后的节点；而区间前驱节点要接上新的区间头。头插法之所以稳，就是因为这两个连接会在操作过程中自然维持正确。',
+        bullets: [
+          '区间前驱负责接新头。',
+          '原区间首节点最终变成尾节点。',
+          '尾节点要接回区间后续部分。',
+          '连线关系清楚，代码才不会绕。',
+        ],
+      },
+      {
+        id: 'rll2-optimal-solution',
+        title: '标准解法：哑节点 + 区间头插',
+        summary:
+          '创建 `dummy`，先找到 `left` 前一个节点 `prev`。令 `current` 指向区间首节点，随后执行 `right - left` 轮：每次把 `current.next` 抽出来，插到 `prev` 后面。最终返回 `dummy.next`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '真正关键是区间头插过程。',
+          '这是局部链表反转的标准模板。',
+        ],
+        code: `function reverseBetween(
+  head: ListNode | null,
+  left: number,
+  right: number,
+): ListNode | null {
+  const dummy = new ListNode(0, head)
+  let prev: ListNode = dummy
+
+  for (let step = 1; step < left; step += 1) {
+    prev = prev.next as ListNode
+  }
+
+  let current = prev.next as ListNode
+
+  for (let step = 0; step < right - left; step += 1) {
+    const next = current.next as ListNode
+    current.next = next.next
+    next.next = prev.next
+    prev.next = next
+  }
+
+  return dummy.next
+}`,
+      },
+      {
+        id: 'rll2-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是反转后没有正确接回前后链，或者在头插过程中把 `current` 指针推进错了。真正掌握后，你会对链表局部重排建立更强的稳定感。',
+        bullets: [
+          '易错点 1：没有使用哑节点，头部反转边界混乱。',
+          '易错点 2：头插后错误移动 `current`，导致漏节点。',
+          '易错点 3：反转完成后前后链断开。',
+          '延伸方向：K 个一组翻转链表、链表重排、链表区间删除。',
+        ],
+        callout:
+          '链表局部操作题里，真正值钱的能力不是会反转，而是能把前驱、当前、后继三者关系一直讲清楚。',
+      },
+    ],
+  },
 ];
