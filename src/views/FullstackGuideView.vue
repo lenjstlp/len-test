@@ -464,6 +464,10 @@ const menuCards = [
     title: '前端导出任务中心工程',
   },
   {
+    path: '/fullstack-guide/message-template-engineering',
+    title: '前端消息模板编排工程',
+  },
+  {
     path: '/fullstack-guide/approval-node-engineering',
     title: '前端审批节点编排工程',
   },
