@@ -10757,4 +10757,122 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'interleaving-string',
+    label: '97. LeetCode 97. 交错字符串',
+    difficulty: '中等',
+    description:
+      '这题是在练二维状态 DP。核心不是模拟拼接过程，而是判断 `s3` 的前缀能否由 `s1`、`s2` 的前缀交错组成。真正难点在于状态定义是否足够准确。',
+    outcome:
+      '你能掌握二维前缀 DP 的定义方式，理解为什么 `dp[i][j]` 要表示 `s1` 前 `i` 位和 `s2` 前 `j` 位是否能组成 `s3` 前 `i + j` 位，并把这种状态建模迁移到更多双串 DP 题。',
+    sections: [
+      {
+        id: 'ils-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s1`、`s2`、`s3`，判断 `s3` 是否由 `s1` 和 `s2` 交错组成，且各自字符相对顺序不能改变。',
+        bullets: [
+          '`s1` 和 `s2` 的内部顺序都必须保留。',
+          '`s3` 是两者交错合并后的结果。',
+          '只需要判断是否可行。',
+          '这是经典双串 DP 题。',
+        ],
+      },
+      {
+        id: 'ils-why-2d-state',
+        title: '为什么这题必须用二维状态来描述',
+        summary:
+          '单看 `s3` 的当前位置没法判断它是来自 `s1` 还是 `s2`。只有同时知道 `s1` 用了多少位、`s2` 用了多少位，才能确定当前该和 `s3` 的哪一位比较，所以状态必须同时带上两个前缀长度。',
+        bullets: [
+          '来源可能是 `s1`，也可能是 `s2`。',
+          '单维状态不足以描述“用了谁多少字符”。',
+          '二维前缀长度才能唯一定位子问题。',
+          '这是双串交错题的核心建模。',
+        ],
+      },
+      {
+        id: 'ils-state-meaning',
+        title: '`dp[i][j]` 的含义一定要先说清楚',
+        summary:
+          '定义 `dp[i][j]` 表示：`s1` 前 `i` 个字符和 `s2` 前 `j` 个字符，是否可以交错组成 `s3` 的前 `i + j` 个字符。这个定义一旦确定，转移就会非常自然。',
+        bullets: [
+          '`i + j` 恰好对应 `s3` 已经使用的长度。',
+          '状态完全由两个前缀决定。',
+          '定义清楚后转移会顺下来。',
+          '很多 DP 题成败就在状态定义这一行。',
+        ],
+      },
+      {
+        id: 'ils-transition',
+        title: '当前状态可能来自上方，也可能来自左方',
+        summary:
+          '如果 `s1[i - 1]` 恰好等于 `s3[i + j - 1]`，并且 `dp[i - 1][j]` 为真，那么当前状态就可以成立；同理，如果 `s2[j - 1]` 匹配并且 `dp[i][j - 1]` 为真，也可以成立。只要两种来源有一个能走通即可。',
+        bullets: [
+          '上方代表当前字符来自 `s1`。',
+          '左方代表当前字符来自 `s2`。',
+          '两个方向是或关系。',
+          '这是二维转移的标准模式。',
+        ],
+      },
+      {
+        id: 'ils-optimal-solution',
+        title: '标准解法：二维 DP',
+        summary:
+          '若长度不匹配，先直接返回 `false`。然后建立二维布尔数组 `dp`，初始化 `dp[0][0] = true`，再依次填充第一行、第一列和其余格子。最终答案就是 `dp[s1.length][s2.length]`。',
+        bullets: [
+          '时间复杂度是 `O(m * n)`。',
+          '空间复杂度也是 `O(m * n)`。',
+          '也可以进一步压成一维滚动数组。',
+          '核心仍然是前缀状态定义。',
+        ],
+        code: `function isInterleave(s1: string, s2: string, s3: string): boolean {
+  if (s1.length + s2.length !== s3.length) {
+    return false
+  }
+
+  const dp = Array.from({ length: s1.length + 1 }, () =>
+    new Array<boolean>(s2.length + 1).fill(false),
+  )
+
+  dp[0][0] = true
+
+  for (let i = 0; i <= s1.length; i += 1) {
+    for (let j = 0; j <= s2.length; j += 1) {
+      if (
+        i > 0 &&
+        s1[i - 1] === s3[i + j - 1] &&
+        dp[i - 1][j]
+      ) {
+        dp[i][j] = true
+      }
+
+      if (
+        j > 0 &&
+        s2[j - 1] === s3[i + j - 1] &&
+        dp[i][j - 1]
+      ) {
+        dp[i][j] = true
+      }
+    }
+  }
+
+  return dp[s1.length][s2.length]
+}`,
+      },
+      {
+        id: 'ils-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是状态定义不清，导致 `s3` 下标和 `i + j` 对不上。真正掌握后，你会对双串前缀 DP 的套路更敏感。',
+        bullets: [
+          '易错点 1：没有先做长度校验，白白进入 DP。',
+          '易错点 2：`s3` 下标写错，和 `i + j` 不匹配。',
+          '易错点 3：把两个来源写成且关系，而不是或关系。',
+          '延伸方向：编辑距离、不同子序列、最长公共子序列、双串 DP。',
+        ],
+        callout:
+          '双串 DP 最容易出错的不是公式，而是状态的下标语义一旦模糊，后面整张表都会跟着乱。',
+      },
+    ],
+  },
 ];
