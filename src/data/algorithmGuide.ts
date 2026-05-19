@@ -10320,4 +10320,128 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'restore-ip-addresses',
+    label: '93. LeetCode 93. 复原 IP 地址',
+    difficulty: '中等',
+    description:
+      '这题看起来像字符串分割，实际是非常标准的回溯剪枝题。真正关键不在于会不会切，而在于你能否及时排除前导零和数值越界这些无效分支。',
+    outcome:
+      '你能掌握固定段数的字符串回溯写法，理解为什么每段最多只看 3 位，以及如何把前导零和剩余长度约束写成有效剪枝。',
+    sections: [
+      {
+        id: 'ria-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含数字的字符串，要求在其中插入 3 个点，把它拆成 4 段，返回所有可能的合法 IP 地址。',
+        bullets: [
+          '每段范围必须在 `0` 到 `255` 之间。',
+          '每段不能有前导零，除非这段本身就是 `0`。',
+          '最终必须恰好分成 4 段。',
+          '这是固定段数分割回溯题。',
+        ],
+      },
+      {
+        id: 'ria-why-backtracking',
+        title: '为什么这题天然适合回溯',
+        summary:
+          '你需要逐段决定当前切多长，长度可以是 1、2、3 三种。每次切完一段后，剩余部分仍然是同样的问题。只要把“当前切了几段、用了字符串的哪个位置”作为状态，就能形成标准回溯树。',
+        bullets: [
+          '每一层决定当前段长度。',
+          '状态由段数和当前位置共同确定。',
+          '剩余子问题和原问题结构一致。',
+          '这是典型的有限深度回溯树。',
+        ],
+      },
+      {
+        id: 'ria-pruning',
+        title: '剪枝写得好，这题会非常轻',
+        summary:
+          '最有效的剪枝包括三类：当前段如果以 `0` 开头，就只能取这一位；当前三位数超过 `255`，后续更长就不用试；剩余字符数量如果不可能凑满剩余段数，也应该立刻返回。',
+        bullets: [
+          '前导零剪枝最常见也最关键。',
+          '超过 `255` 后立刻停止扩展。',
+          '剩余长度上下界能提前砍掉无效树枝。',
+          '这些剪枝会让搜索量大幅下降。',
+        ],
+      },
+      {
+        id: 'ria-fixed-depth',
+        title: '这题不是随便分，而是固定要分成 4 段',
+        summary:
+          '固定段数意味着递归深度其实是已知的，只要当前已经切了 4 段，就必须同时验证字符串也正好被用完；否则无论哪一边多或少，都不是合法答案。这种固定深度条件，能让终止判断非常清楚。',
+        bullets: [
+          '切满 4 段时必须同时用完整个字符串。',
+          '字符串提前用完也不行。',
+          '段数和位置要一起判终止。',
+          '这是固定分段题的共性。',
+        ],
+      },
+      {
+        id: 'ria-optimal-solution',
+        title: '标准解法：回溯 + 前导零/长度剪枝',
+        summary:
+          '用回溯函数维护当前下标和已经切出的段列表。每层尝试切 1 到 3 位，先做前导零、数值和剩余长度校验，合法后递归进入下一层。若成功切出 4 段且刚好用完整串，就把当前结果收集起来。',
+        bullets: [
+          '时间复杂度主要取决于剪枝后的搜索树。',
+          '空间复杂度来自递归栈和当前路径。',
+          '固定深度让实现并不复杂。',
+          '这是字符串分段回溯的经典母题。',
+        ],
+        code: `function restoreIpAddresses(s: string): string[] {
+  const result: string[] = []
+  const path: string[] = []
+
+  const dfs = (start: number) => {
+    const segmentsLeft = 4 - path.length
+    const charsLeft = s.length - start
+
+    if (charsLeft < segmentsLeft || charsLeft > segmentsLeft * 3) {
+      return
+    }
+
+    if (path.length === 4) {
+      if (start === s.length) {
+        result.push(path.join('.'))
+      }
+      return
+    }
+
+    for (let length = 1; length <= 3 && start + length <= s.length; length += 1) {
+      const segment = s.slice(start, start + length)
+
+      if (segment.length > 1 && segment[0] === '0') {
+        break
+      }
+
+      if (Number(segment) > 255) {
+        break
+      }
+
+      path.push(segment)
+      dfs(start + length)
+      path.pop()
+    }
+  }
+
+  dfs(0)
+  return result
+}`,
+      },
+      {
+        id: 'ria-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是对前导零处理不清，或者忘记剩余长度剪枝。真正掌握后，你会对固定段数的回溯切分题更有手感。',
+        bullets: [
+          '易错点 1：把 `00`、`01` 之类非法段误判为合法。',
+          '易错点 2：没写剩余长度剪枝，导致无效搜索过多。',
+          '易错点 3：切满 4 段时没有同步检查字符串是否用完。',
+          '延伸方向：回文分割、表达式加括号、字符串分段搜索题。',
+        ],
+        callout:
+          '回溯题真正拉开差距的，从来不是会不会搜，而是你会不会在搜之前先把无效分支剪掉。',
+      },
+    ],
+  },
 ];
