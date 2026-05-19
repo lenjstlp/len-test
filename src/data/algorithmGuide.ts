@@ -10444,4 +10444,106 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'binary-tree-inorder-traversal',
+    label: '94. LeetCode 94. 二叉树的中序遍历',
+    difficulty: '简单',
+    description:
+      '这题是二叉树遍历的基础题，但别因为简单就忽略它。真正应该吃透的，是中序遍历“左根右”的访问时机，以及递归和显式栈写法之间的对应关系。',
+    outcome:
+      '你能掌握中序遍历的访问顺序，理解为什么节点要在左子树访问完之后再入结果，并把递归与栈模拟写法联系起来。',
+    sections: [
+      {
+        id: 'btit-problem-summary',
+        title: '题目在问什么',
+        summary: '给定一棵二叉树，返回其中序遍历结果。',
+        bullets: [
+          '中序顺序是“左子树 -> 根节点 -> 右子树”。',
+          '结果需要按访问顺序输出。',
+          '这是二叉树最基础的遍历题之一。',
+          '看起来简单，但很适合建立遍历时机意识。',
+        ],
+      },
+      {
+        id: 'btit-visit-timing',
+        title: '中序遍历真正要记住的是“什么时候访问根”',
+        summary:
+          '前序是先访问根，后序是最后访问根，中序则是把根放在中间。也就是说，必须先彻底处理完左子树，节点本身才能进入结果，之后再进入右子树。这就是“左根右”真正的时机定义。',
+        bullets: [
+          '根节点访问时机夹在左右子树之间。',
+          '访问顺序比代码模板更重要。',
+          '一旦时机搞错，中序就会变成别的遍历。',
+          '这是树遍历题最基本的意识。',
+        ],
+      },
+      {
+        id: 'btit-recursion-and-stack',
+        title: '递归和栈写法，本质是在表达同一件事',
+        summary:
+          '递归写法依赖调用栈自动帮你记住“还没访问的根节点”；显式栈写法则是手动把这些根节点压进去，等左路走到底后再逐个弹出访问。理解这点后，递归和非递归遍历就能互相转换。',
+        bullets: [
+          '递归由系统调用栈保存现场。',
+          '栈写法由你手动保存待访问根节点。',
+          '两者顺序完全等价。',
+          '这对掌握树的非递归遍历很关键。',
+        ],
+      },
+      {
+        id: 'btit-left-spine',
+        title: '非递归写法的核心，是一路把左链压到底',
+        summary:
+          '中序遍历里，左边优先级最高，所以非递归时要先不断把当前节点和其左孩子压栈，直到无法再左移。然后弹出栈顶访问，再转向它的右子树，重复同样过程。',
+        bullets: [
+          '先压左链，再访问，再转右。',
+          '访问发生在弹栈时。',
+          '右子树会重新触发压左链流程。',
+          '这就是栈模拟中序的完整节奏。',
+        ],
+      },
+      {
+        id: 'btit-optimal-solution',
+        title: '标准解法：递归或显式栈都可以',
+        summary:
+          '最直接的是递归：先遍历左子树，再记录当前节点，再遍历右子树。如果要写非递归版，就用一个栈反复压入左链、弹栈访问、转入右子树。两种写法都很标准。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '递归空间复杂度与树高有关。',
+          '显式栈写法同样是 `O(h)` 辅助空间。',
+          '重点在理解访问时机，而不是背模板。',
+        ],
+        code: `function inorderTraversal(root: TreeNode | null): number[] {
+  const result: number[] = []
+  const stack: TreeNode[] = []
+  let current = root
+
+  while (current || stack.length > 0) {
+    while (current) {
+      stack.push(current)
+      current = current.left
+    }
+
+    current = stack.pop() as TreeNode
+    result.push(current.val)
+    current = current.right
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'btit-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把访问节点时机搞错，或者非递归写法中弹栈后忘记切到右子树。真正掌握后，你会对整套树遍历都有更稳的理解。',
+        bullets: [
+          '易错点 1：访问根节点时机不对，顺序变成前序或后序。',
+          '易错点 2：非递归时左链没压到底就开始访问。',
+          '易错点 3：弹栈后忘记处理右子树。',
+          '延伸方向：前序遍历、后序遍历、BST 中序性质、Morris 遍历。',
+        ],
+        callout:
+          '树遍历题最怕把模板和时机分开记，真正稳定的做法，是先记“访问时机”，再记代码。',
+      },
+    ],
+  },
 ];
