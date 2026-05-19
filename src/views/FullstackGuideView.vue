@@ -472,6 +472,10 @@ const menuCards = [
     title: '前端防误触工程',
   },
   {
+    path: '/fullstack-guide/permission-expression-engineering',
+    title: '前端权限表达式工程',
+  },
+  {
     path: '/fullstack-guide/approval-node-engineering',
     title: '前端审批节点编排工程',
   },
