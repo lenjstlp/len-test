@@ -10546,4 +10546,115 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'unique-binary-search-trees-ii',
+    label: '95. LeetCode 95. 不同的二叉搜索树 II',
+    difficulty: '中等',
+    description:
+      '这题不是只求数量，而是要真正构造出所有 BST 形态。它很适合训练你理解“选哪个值做根，就把问题拆成左右两个区间再做笛卡尔组合”的递归生成模型。',
+    outcome:
+      '你能掌握区间递归生成树的思路，理解 BST 结构为什么天然适合按根节点切分，并把左右子树结果做组合生成所有可能树形。',
+    sections: [
+      {
+        id: 'ubst2-problem-summary',
+        title: '题目在问什么',
+        summary: '给定整数 `n`，返回由 `1` 到 `n` 组成的所有不同二叉搜索树。',
+        bullets: [
+          '每棵树都必须满足 BST 性质。',
+          '不是求数量，而是要返回所有结构。',
+          '节点值固定是 `1...n`。',
+          '这是构造型递归树题。',
+        ],
+      },
+      {
+        id: 'ubst2-why-root-split',
+        title: '为什么 BST 题天然适合“枚举根节点”',
+        summary:
+          '如果某个值被选作根，那么所有比它小的值只能出现在左子树，所有比它大的值只能出现在右子树。这样一来，整题会自然拆成两个互不干扰的区间生成问题，这正是 BST 题最核心的结构性质。',
+        bullets: [
+          '根节点一旦确定，左右值域立即固定。',
+          '左区间和右区间互相独立。',
+          'BST 性质天然把问题切开。',
+          '这是这题建模的出发点。',
+        ],
+      },
+      {
+        id: 'ubst2-combination',
+        title: '左右子树不是二选一，而是要做全组合',
+        summary:
+          '对某个根值而言，左区间可能生成多棵树，右区间也可能生成多棵树。真正的结果不是随便挑一个，而是把左边每一种可能和右边每一种可能都拼起来，形成完整结果集。',
+        bullets: [
+          '左子树结果集和右子树结果集要做笛卡尔积。',
+          '每一对组合都生成一棵新树。',
+          '这是构造型题和计数型题的重要区别。',
+          '全组合意识是这题核心。',
+        ],
+      },
+      {
+        id: 'ubst2-empty-tree',
+        title: '空树在构造题里也是一种合法子结果',
+        summary:
+          '当区间为空时，返回的不是空数组，而是包含一个 `null` 的数组。这表示“这个位置可以没有子树”。否则在组合左右子树时，叶子节点根本没法被正确拼出来。',
+        bullets: [
+          '空区间对应一种“空子树”结果。',
+          '返回 `[null]` 而不是 `[]` 非常关键。',
+          '它能让组合过程自然覆盖叶子节点情况。',
+          '这是很多树构造题的隐藏关键点。',
+        ],
+      },
+      {
+        id: 'ubst2-optimal-solution',
+        title: '标准解法：区间递归 + 左右结果全组合',
+        summary:
+          '定义函数 `build(start, end)` 返回区间内所有可能 BST。遍历每个值作为根，递归生成左区间树集和右区间树集，再双层循环组合成完整树。区间为空时返回 `[null]`。',
+        bullets: [
+          '结果规模本身会很大。',
+          '时间复杂度取决于生成树的总数量。',
+          '这是典型的构造型递归题。',
+          '重点是“根切分 + 全组合”模型。',
+        ],
+        code: `function generateTrees(n: number): Array<TreeNode | null> {
+  if (n === 0) {
+    return []
+  }
+
+  const build = (start: number, end: number): Array<TreeNode | null> => {
+    if (start > end) {
+      return [null]
+    }
+
+    const result: Array<TreeNode | null> = []
+
+    for (let rootValue = start; rootValue <= end; rootValue += 1) {
+      const leftTrees = build(start, rootValue - 1)
+      const rightTrees = build(rootValue + 1, end)
+
+      for (const left of leftTrees) {
+        for (const right of rightTrees) {
+          result.push(new TreeNode(rootValue, left, right))
+        }
+      }
+    }
+
+    return result
+  }
+
+  return build(1, n)
+}`,
+      },
+      {
+        id: 'ubst2-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是空区间返回错成空数组，导致组合过程直接断掉。真正掌握后，你会对递归构造树和结果集组合更有感觉。',
+        bullets: [
+          '易错点 1：空区间返回 `[]`，导致叶子节点无法生成。',
+          '易错点 2：只枚举根，不对左右结果做全组合。',
+          '易错点 3：构造新树时复用节点引用不清。',
+          '延伸方向：不同 BST 数量、分治构造题、表达式树生成。',
+        ],
+        callout: '构造题最容易被低估的点，是“空结果”和“空结构”根本不是一回事。',
+      },
+    ],
+  },
 ];
