@@ -460,6 +460,10 @@ const menuCards = [
     title: '前端导入校验工程',
   },
   {
+    path: '/fullstack-guide/export-job-engineering',
+    title: '前端导出任务中心工程',
+  },
+  {
     path: '/fullstack-guide/approval-node-engineering',
     title: '前端审批节点编排工程',
   },
