@@ -468,6 +468,10 @@ const menuCards = [
     title: '前端消息模板编排工程',
   },
   {
+    path: '/fullstack-guide/operation-guard-engineering',
+    title: '前端防误触工程',
+  },
+  {
     path: '/fullstack-guide/approval-node-engineering',
     title: '前端审批节点编排工程',
   },
