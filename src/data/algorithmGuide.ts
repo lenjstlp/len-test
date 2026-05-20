@@ -10875,4 +10875,112 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'validate-binary-search-tree',
+    label: '98. LeetCode 98. 验证二叉搜索树',
+    difficulty: '中等',
+    description:
+      '这题表面上是在判断一棵树是不是 BST，真正难点不是知道 BST 左小右大，而是能不能把这个约束正确传递到整棵子树，而不是只盯住当前节点和它的直接孩子。',
+    outcome:
+      '你能掌握 BST 校验的上下界写法，理解为什么局部比较不够，为什么每个节点都要继承祖先传下来的范围约束，并把这种状态传递思维迁移到更多树形递归题。',
+    sections: [
+      {
+        id: 'vbst-problem-summary',
+        title: '题目在问什么',
+        summary: '给定一棵二叉树，判断它是否是一棵合法的二叉搜索树。',
+        bullets: [
+          '左子树所有节点都要小于根节点。',
+          '右子树所有节点都要大于根节点。',
+          '这个约束必须对整棵子树成立。',
+          '不能只检查当前节点的左右孩子。',
+        ],
+      },
+      {
+        id: 'vbst-why-local-check-fails',
+        title: '为什么只比较父子节点一定会漏判',
+        summary:
+          '很多人会写成“左孩子小于根、右孩子大于根”就返回真，但这只能保证局部关系。真正的 BST 要求左子树里所有节点都小于根，右子树里所有节点都大于根，所以祖先节点的约束必须一直往下传。',
+        bullets: [
+          '局部满足不代表整棵子树满足。',
+          '左子树深层节点也要小于当前根。',
+          '右子树深层节点也要大于当前根。',
+          '祖先约束必须递归传递。',
+        ],
+        callout:
+          '树题里最容易犯的错，就是把“整棵子树的性质”误写成“当前一层的性质”。',
+      },
+      {
+        id: 'vbst-range-definition',
+        title: '最稳的做法是给每个节点带上下界',
+        summary:
+          '访问一个节点时，不仅要看它和父节点的大小关系，还要看它是否落在当前允许的数值范围内。左子树会更新上界，右子树会更新下界，这样才能完整表达 BST 的全局约束。',
+        bullets: [
+          '每个节点都有一个合法区间。',
+          '左子树更新上界为当前节点值。',
+          '右子树更新下界为当前节点值。',
+          '节点值必须严格落在区间内部。',
+        ],
+      },
+      {
+        id: 'vbst-inorder-view',
+        title: '从中序遍历看，本质是在检查序列是否严格递增',
+        summary:
+          'BST 的中序遍历结果一定是严格递增序列，所以这题也可以转成中序遍历校验前一个节点值是否始终小于当前值。这个视角很有用，但写代码时上下界法通常更直接，也更不容易漏边界。',
+        bullets: [
+          '中序遍历会按从小到大访问 BST。',
+          '一旦出现非递增，就不是合法 BST。',
+          '这是理解 BST 性质的另一个角度。',
+          '实现时上下界法更清晰。',
+        ],
+      },
+      {
+        id: 'vbst-optimal-solution',
+        title: '标准解法：递归传递上下界',
+        summary:
+          '定义递归函数 `dfs(node, lower, upper)`，表示当前节点必须严格落在 `(lower, upper)` 这个范围内。若节点为空直接返回 `true`；若当前值越界则返回 `false`；否则继续递归检查左子树和右子树。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是递归栈深度 `O(h)`。',
+          '关键是上下界要层层传递。',
+          '比较必须使用严格大小关系。',
+        ],
+        code: `function isValidBST(root: TreeNode | null): boolean {
+  const dfs = (
+    node: TreeNode | null,
+    lower: number,
+    upper: number,
+  ): boolean => {
+    if (node === null) {
+      return true
+    }
+
+    if (node.val <= lower || node.val >= upper) {
+      return false
+    }
+
+    return (
+      dfs(node.left, lower, node.val) &&
+      dfs(node.right, node.val, upper)
+    )
+  }
+
+  return dfs(root, -Infinity, Infinity)
+}`,
+      },
+      {
+        id: 'vbst-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把校验写成局部父子比较，或者把重复值处理错。真正掌握后，你会对树上约束传递和 BST 性质更敏感。',
+        bullets: [
+          '易错点 1：只比较当前节点与左右孩子，漏掉深层越界节点。',
+          '易错点 2：把严格大小误写成允许相等。',
+          '易错点 3：上下界传递方向写反。',
+          '延伸方向：恢复二叉搜索树、二叉搜索树迭代器、最近公共祖先。',
+        ],
+        callout:
+          '只要题目要求某种全局树性质，第一反应就该是“这个性质如何沿递归路径传下去”。',
+      },
+    ],
+  },
 ];
