@@ -10983,4 +10983,120 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'recover-binary-search-tree',
+    label: '99. LeetCode 99. 恢复二叉搜索树',
+    difficulty: '中等',
+    description:
+      '这题不是让你重建 BST，而是要求你在两处节点被错误交换后，原地恢复这棵树。真正关键是识别中序遍历中哪两个位置破坏了严格递增顺序。',
+    outcome:
+      '你能掌握 BST 中序序列异常点的定位方式，理解为什么交换的两个节点会在有序序列里形成一到两次逆序，并把这种“由结构性质转成序列异常”的思路迁移到更多树题。',
+    sections: [
+      {
+        id: 'rbst-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '一棵二叉搜索树中有两个节点的值被错误交换了，要求在不改变树结构的前提下把它恢复回来。',
+        bullets: [
+          '只能交换节点值，不能改树结构。',
+          '原树本来是一棵合法 BST。',
+          '现在有两个节点位置错乱。',
+          '目标是恢复原始 BST 性质。',
+        ],
+      },
+      {
+        id: 'rbst-why-inorder',
+        title: '为什么一看到 BST 恢复题，就该想到中序遍历',
+        summary:
+          '因为合法 BST 的中序遍历一定是严格递增序列。现在两个节点被交换后，这个序列的有序性会被破坏，所以问题就变成：如何在几乎有序的序列里找出那两个放错位置的值。',
+        bullets: [
+          '合法 BST 的中序序列严格递增。',
+          '交换两个值后会出现逆序对。',
+          '恢复问题可以转成找异常位置。',
+          '这是 BST 性质最常用的利用方式。',
+        ],
+      },
+      {
+        id: 'rbst-one-or-two-inversions',
+        title: '为什么有时出现一次逆序，有时出现两次逆序',
+        summary:
+          '如果交换的两个节点在中序序列里相邻，就只会出现一次逆序；如果不相邻，就会出现两次逆序。处理时只要记录第一次逆序的前一个节点，以及最后一次逆序的后一个节点，最终交换这两个节点值即可。',
+        bullets: [
+          '相邻交换对应一次逆序。',
+          '不相邻交换对应两次逆序。',
+          '第一个错误节点来自第一次逆序前项。',
+          '第二个错误节点来自最后一次逆序后项。',
+        ],
+        callout:
+          '这题最值钱的不是记模板，而是理解“交换两个元素后，有序序列为什么会这样坏掉”。',
+      },
+      {
+        id: 'rbst-tracking-pointers',
+        title: '遍历过程中需要维护前驱节点和两个异常节点',
+        summary:
+          '中序遍历会按升序访问节点，所以只要当前节点值小于前驱节点值，就说明发现了逆序。第一次发现时记录 `first = prev`，每次发现都更新 `second = current`，这样无论是相邻还是不相邻都能统一处理。',
+        bullets: [
+          '需要一个 `prev` 指针记录中序前驱。',
+          '第一次逆序时锁定第一个错误节点。',
+          '最后一次逆序时锁定第二个错误节点。',
+          '统一覆盖相邻和不相邻两种情况。',
+        ],
+      },
+      {
+        id: 'rbst-optimal-solution',
+        title: '标准解法：中序遍历定位两个异常节点',
+        summary:
+          '使用 DFS 中序遍历整棵树，维护 `prev`、`first`、`second` 三个指针。若当前节点值小于前驱节点值，就说明出现逆序；第一次逆序时记录 `first`，每次逆序都更新 `second`。遍历结束后交换 `first.val` 和 `second.val`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是递归栈深度 `O(h)`。',
+          '本质是利用 BST 中序递增性质。',
+          '最终只交换两个节点值即可。',
+        ],
+        code: `function recoverTree(root: TreeNode | null): void {
+  let first: TreeNode | null = null
+  let second: TreeNode | null = null
+  let prev: TreeNode | null = null
+
+  const inorder = (node: TreeNode | null) => {
+    if (node === null) {
+      return
+    }
+
+    inorder(node.left)
+
+    if (prev !== null && node.val < prev.val) {
+      if (first === null) {
+        first = prev
+      }
+      second = node
+    }
+
+    prev = node
+    inorder(node.right)
+  }
+
+  inorder(root)
+
+  if (first !== null && second !== null) {
+    ;[first.val, second.val] = [second.val, first.val]
+  }
+}`,
+      },
+      {
+        id: 'rbst-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只在第一次逆序时记录两个节点，导致不相邻交换的情况恢复失败。真正掌握后，你会更敏感地把树性质映射成遍历序列性质。',
+        bullets: [
+          '易错点 1：只处理一次逆序，漏掉非相邻交换情况。',
+          '易错点 2：把 `first` 和 `second` 的记录顺序写反。',
+          '易错点 3：误以为要重新构建整棵树。',
+          '延伸方向：BST 验证、BST 第 K 小元素、Morris 遍历优化空间。',
+        ],
+        callout:
+          '很多树题一旦转成遍历序列后，难度会立刻下降一个层级，这就是“换观察角度”的价值。',
+      },
+    ],
+  },
 ];
