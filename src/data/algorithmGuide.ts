@@ -11762,4 +11762,120 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'construct-binary-tree-from-inorder-and-postorder-traversal',
+    label: '106. LeetCode 106. 从中序与后序遍历序列构造二叉树',
+    difficulty: '中等',
+    description:
+      '这题和上一题很像，但根节点的定位方式变了。真正关键不是重新发明一套逻辑，而是能不能识别出后序最后一个元素是根，然后反向切分左右子树区间。',
+    outcome:
+      '你能掌握中序 + 后序构造二叉树的递归分治方式，理解为什么后序数组需要从末尾往前取根节点，并把“同一类题换一种遍历组合”的能力迁移到更多构造题。',
+    sections: [
+      {
+        id: 'cbt2-problem-summary',
+        title: '题目在问什么',
+        summary: '给定二叉树的中序遍历和后序遍历数组，要求重建原始二叉树。',
+        bullets: [
+          '后序最后一个元素一定是当前子树根。',
+          '中序依然负责切分左右子树。',
+          '题目本质是树结构反推。',
+          '和上一题同属构造模板。',
+        ],
+      },
+      {
+        id: 'cbt2-postorder-role',
+        title: '后序遍历负责告诉你“当前根是谁”',
+        summary:
+          '后序顺序是“左、右、根”，所以对任意一个子树来说，后序区间的最后一个元素就是根节点。只要根确定了，就可以用中序数组切分左右子树。',
+        bullets: [
+          '后序尾元素就是根。',
+          '递归时要从后往前消耗后序指针。',
+          '根节点先确定，再切区间。',
+          '这和前序构造的方向正好相反。',
+        ],
+      },
+      {
+        id: 'cbt2-reverse-build-direction',
+        title: '因为根在末尾，所以构造顺序要先右后左',
+        summary:
+          '和前序构造不同，后序数组是从尾部往前取根节点。由于后序的末尾是根，而根前面的最后一段属于右子树，所以递归构造时通常需要先构造右子树，再构造左子树，才能和后序指针的逆向移动保持一致。',
+        bullets: [
+          '后序指针从右向左移动。',
+          '右子树在根前面，必须先构造。',
+          '再构造左子树才能对齐区间。',
+          '方向感是这题最容易错的地方。',
+        ],
+        callout:
+          '同样是构造树，只要遍历顺序一变，递归的“先构造谁”就可能反过来，这一点必须盯紧。',
+      },
+      {
+        id: 'cbt2-index-map',
+        title: '中序映射依然是定位区间的关键',
+        summary:
+          '虽然根来自后序，但切分左右子树仍然依赖中序中的根位置。预先建立值到中序下标的映射，可以让每次切分都保持 O(1) 定位。',
+        bullets: [
+          '中序仍然承担切分职责。',
+          '映射表能保持查找效率。',
+          '构造题的核心技巧没有变。',
+          '变化只在根节点来源和递归方向。',
+        ],
+      },
+      {
+        id: 'cbt2-optimal-solution',
+        title: '标准解法：后序逆向 + 中序切分',
+        summary:
+          '先建立中序值到下标的映射，再维护一个后序指针从尾部向前移动。每次取出当前根节点，找到它在中序中的位置 `mid`，先递归构造右子树，再递归构造左子树，最终组装出整棵树。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '关键是后序必须逆向读取。',
+          '右子树要先于左子树构造。',
+        ],
+        code: `function buildTree(
+  inorder: number[],
+  postorder: number[],
+): TreeNode | null {
+  const indexMap = new Map<number, number>()
+
+  for (let index = 0; index < inorder.length; index += 1) {
+    indexMap.set(inorder[index], index)
+  }
+
+  let postorderIndex = postorder.length - 1
+
+  const build = (left: number, right: number): TreeNode | null => {
+    if (left > right) {
+      return null
+    }
+
+    const rootValue = postorder[postorderIndex]
+    postorderIndex -= 1
+    const root = new TreeNode(rootValue)
+    const mid = indexMap.get(rootValue) as number
+
+    root.right = build(mid + 1, right)
+    root.left = build(left, mid - 1)
+
+    return root
+  }
+
+  return build(0, inorder.length - 1)
+}`,
+      },
+      {
+        id: 'cbt2-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把构造顺序写成先左后右，导致和后序指针逆向不一致。真正掌握后，你会更熟悉“同一类树构造题换遍历组合”的方式。',
+        bullets: [
+          '易错点 1：后序根节点消费方向错了。',
+          '易错点 2：左右子树构造顺序写反。',
+          '易错点 3：中序边界切分不一致。',
+          '延伸方向：前序 + 后序特殊树、表达式树、镜像构造题。',
+        ],
+        callout:
+          '树构造题最考验的，不是记住一份代码，而是你能否从遍历组合里快速恢复“根在哪、左在哪、右在哪”。',
+      },
+    ],
+  },
 ];
