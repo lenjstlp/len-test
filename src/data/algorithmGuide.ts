@@ -11646,4 +11646,120 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'construct-binary-tree-from-preorder-and-inorder-traversal',
+    label: '105. LeetCode 105. 从前序与中序遍历序列构造二叉树',
+    difficulty: '中等',
+    description:
+      '这题是典型的树构造题。真正难点不是记住前序和中序的特性，而是能不能快速定位根节点在中序数组中的位置，并据此切分左右子树区间。',
+    outcome:
+      '你能掌握前序 + 中序构造二叉树的递归分治写法，理解为什么前序第一个元素一定是根节点，并把这种“通过遍历序列反推树结构”的方法迁移到更多构造题。',
+    sections: [
+      {
+        id: 'cbt-problem-summary',
+        title: '题目在问什么',
+        summary: '给定二叉树的前序遍历和中序遍历数组，要求重建原始二叉树。',
+        bullets: [
+          '前序第一个元素是根节点。',
+          '中序可以用来切分左右子树。',
+          '题目要求恢复整棵树结构。',
+          '这是树构造题的经典模型。',
+        ],
+      },
+      {
+        id: 'cbt-preorder-role',
+        title: '前序遍历负责告诉你“当前根是谁”',
+        summary:
+          '前序遍历顺序是“根、左、右”，所以在任何一个递归区间里，前序数组的起点都对应当前子树的根节点。只要根确定了，左右子树的边界就可以由中序数组来切。',
+        bullets: [
+          '前序首元素就是当前子树根。',
+          '递归过程中要不断消耗前序指针。',
+          '根节点先确定，后面切分才有意义。',
+          '这是整题最关键的起点。',
+        ],
+      },
+      {
+        id: 'cbt-inorder-role',
+        title: '中序遍历负责告诉你“左子树有多大”',
+        summary:
+          '中序数组里，根节点左边全部属于左子树，右边全部属于右子树。找到根节点在中序中的位置后，就能立即知道左子树区间长度，也就能同步切分前序区间。',
+        bullets: [
+          '中序位置能切出左右子树。',
+          '左边长度直接决定前序左区间长度。',
+          '右边同理。',
+          '前序和中序要配合使用。',
+        ],
+      },
+      {
+        id: 'cbt-index-map',
+        title: '预先建立中序值到下标的映射，会让查找变成 O(1)',
+        summary:
+          '如果每次都在线性扫描中序数组找根节点，整体复杂度会退化。更稳的做法是先建立一个哈希表，把节点值映射到中序下标，这样每次定位根都只需要 O(1)。',
+        bullets: [
+          '哈希映射避免重复线性查找。',
+          '整体复杂度能保持在线性级别。',
+          '树构造题里这是常规优化。',
+          '数据量越大越能体现价值。',
+        ],
+        callout:
+          '构造题真正的效率差距，常常不是递归本身，而是你有没有提前把定位信息缓存好。',
+      },
+      {
+        id: 'cbt-optimal-solution',
+        title: '标准解法：递归分治构造左右子树',
+        summary:
+          '先用哈希表记录中序值对应下标，再定义递归函数处理前序和中序的区间。每次先取前序起点作为根节点，找到它在中序中的位置 `mid`，据此计算左子树长度，再递归构造左右子树并挂回根节点。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`，包含哈希表和递归栈。',
+          '关键是区间切分要一致。',
+          '这是树构造题的标准模板。',
+        ],
+        code: `function buildTree(
+  preorder: number[],
+  inorder: number[],
+): TreeNode | null {
+  const indexMap = new Map<number, number>()
+
+  for (let index = 0; index < inorder.length; index += 1) {
+    indexMap.set(inorder[index], index)
+  }
+
+  let preorderIndex = 0
+
+  const build = (left: number, right: number): TreeNode | null => {
+    if (left > right) {
+      return null
+    }
+
+    const rootValue = preorder[preorderIndex]
+    preorderIndex += 1
+    const root = new TreeNode(rootValue)
+    const mid = indexMap.get(rootValue) as number
+
+    root.left = build(left, mid - 1)
+    root.right = build(mid + 1, right)
+
+    return root
+  }
+
+  return build(0, inorder.length - 1)
+}`,
+      },
+      {
+        id: 'cbt-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有维护好前序指针，或者左右子树区间切分时把边界写乱。真正掌握后，你会对树构造和遍历反推结构有更强的感觉。',
+        bullets: [
+          '易错点 1：前序根节点消费顺序错乱。',
+          '易错点 2：中序切分边界写反。',
+          '易错点 3：没有用哈希表导致查找退化。',
+          '延伸方向：从中序后序构造树、恢复二叉树、表达式树构造。',
+        ],
+        callout:
+          '构造题的核心不是“把树画出来”，而是把“根、左区间、右区间”的关系完全拆清楚。',
+      },
+    ],
+  },
 ];
