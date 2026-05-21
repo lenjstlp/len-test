@@ -11430,4 +11430,124 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'binary-tree-zigzag-level-order-traversal',
+    label: '103. LeetCode 103. 二叉树的锯齿形层序遍历',
+    difficulty: '中等',
+    description:
+      '这题本质还是层序遍历，但多了一个“奇偶层方向不同”的要求。真正关键不是重新设计遍历，而是能否把 BFS 主体保持不变，只在每层结果的组织方式上做方向控制。',
+    outcome:
+      '你能掌握在层序遍历模板上叠加层状态的方法，理解为什么锯齿遍历不需要改 BFS 顺序，只需要改每层结果写入方式，并把这种“主流程不变，局部策略切换”的思路迁移到更多遍历题。',
+    sections: [
+      {
+        id: 'zlot-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定二叉树，按层返回节点值，但第一层从左到右，第二层从右到左，之后方向交替。',
+        bullets: [
+          '本质仍然是分层遍历。',
+          '区别只在每层的输出方向。',
+          '结果依然是二维数组。',
+          '这是层序遍历的常见变体。',
+        ],
+      },
+      {
+        id: 'zlot-bfs-stays-same',
+        title: 'BFS 顺序其实不用变，变的是每层怎么收集答案',
+        summary:
+          '很多人会以为既然方向交替，就得改队列出入顺序，甚至改成双端队列复杂模拟。其实没有必要。节点还是按标准 BFS 顺序出队，只是当前层的结果根据层号决定正向写入还是反向写入。',
+        bullets: [
+          '队列扩展顺序仍然保持普通 BFS。',
+          '不需要为了方向切换去折腾节点访问顺序。',
+          '变化只发生在当前层结果数组上。',
+          '这样最稳，也最容易复用模板。',
+        ],
+      },
+      {
+        id: 'zlot-collect-strategy',
+        title: '方向控制可以体现在 push 方式，也可以体现在索引映射',
+        summary:
+          '实现时有两种常见思路：一种是当前层从左到右就 `push`，从右到左就 `unshift`；另一种是预先开好当前层数组，通过索引决定写入位置。前者更直观，后者更稳定，避免频繁头插带来的额外开销。',
+        bullets: [
+          '可以用 `push/unshift` 直观实现。',
+          '也可以用索引映射预填数组。',
+          '索引映射更适合讲清复杂度。',
+          '两种思路本质相同。',
+        ],
+        callout:
+          '很多变体题真正考的不是新算法，而是你能不能稳住主模板，只对局部策略做最小改动。',
+      },
+      {
+        id: 'zlot-level-flag',
+        title: '最简单的层状态，就是用布尔值记录当前层方向',
+        summary:
+          '每处理完一层，就翻转一次方向标记。这样下一层在收集结果时自然知道该正向还是反向。层状态本身不要写复杂，一个布尔值就够了。',
+        bullets: [
+          '布尔值即可表示方向。',
+          '每层结束后统一翻转。',
+          '方向状态只影响结果写入。',
+          '不要把层状态和队列状态混在一起。',
+        ],
+      },
+      {
+        id: 'zlot-optimal-solution',
+        title: '标准解法：层序遍历 + 方向索引映射',
+        summary:
+          '还是使用标准队列做 BFS。每轮先固定当前层长度，创建同长度数组 `level`。遍历当前层节点时，如果当前层是从左到右，就把值写入当前位置；否则写入 `levelSize - 1 - index`。一层结束后把 `level` 加入结果，并翻转方向标记。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          'BFS 主体完全沿用层序遍历模板。',
+          '方向差异通过写入索引解决。',
+        ],
+        code: `function zigzagLevelOrder(root: TreeNode | null): number[][] {
+  if (root === null) {
+    return []
+  }
+
+  const result: number[][] = []
+  const queue: TreeNode[] = [root]
+  let leftToRight = true
+
+  while (queue.length > 0) {
+    const levelSize = queue.length
+    const level = new Array<number>(levelSize)
+
+    for (let index = 0; index < levelSize; index += 1) {
+      const node = queue.shift() as TreeNode
+      const writeIndex = leftToRight ? index : levelSize - 1 - index
+      level[writeIndex] = node.val
+
+      if (node.left !== null) {
+        queue.push(node.left)
+      }
+
+      if (node.right !== null) {
+        queue.push(node.right)
+      }
+    }
+
+    result.push(level)
+    leftToRight = !leftToRight
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'zlot-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是为了切换方向去改 BFS 访问顺序，结果把代码搞乱。真正掌握后，你会更理解“遍历顺序”和“结果组织方式”其实是两件事。',
+        bullets: [
+          '易错点 1：错误修改队列扩展顺序，导致层结构混乱。',
+          '易错点 2：没有先固定当前层长度。',
+          '易错点 3：方向标记翻转时机写错。',
+          '延伸方向：二叉树右视图、N 叉树层序遍历、按层统计问题。',
+        ],
+        callout:
+          '写 BFS 变体时，先问自己一句：我要改的是“节点访问顺序”，还是“答案收集方式”？',
+      },
+    ],
+  },
 ];
