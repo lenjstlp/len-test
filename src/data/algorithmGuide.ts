@@ -11878,4 +11878,121 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'binary-tree-level-order-traversal-ii',
+    label: '107. LeetCode 107. 二叉树的层序遍历 II',
+    difficulty: '中等',
+    description:
+      '这题本质还是层序遍历，只不过输出顺序从底向上。真正关键不是重新设计 BFS，而是能不能在保持层序模板不变的前提下，把结果收集顺序翻转过来。',
+    outcome:
+      '你能掌握自底向上的层序遍历写法，理解为什么可以在结果数组头部插入，也可以最后整体反转，并把这种“先正常收集，再统一调整输出顺序”的思路迁移到更多遍历题。',
+    sections: [
+      {
+        id: 'lot2-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定二叉树根节点，按层返回节点值，但输出顺序要从最底层开始，到根节点结束。',
+        bullets: [
+          '仍然是层序遍历。',
+          '只是最终结果倒序输出。',
+          '每层内部顺序仍然保持从左到右。',
+          '这是层序遍历的逆序变体。',
+        ],
+      },
+      {
+        id: 'lot2-why-not-reverse-bfs',
+        title: '没必要把 BFS 过程倒着写，正常遍历就行',
+        summary:
+          '这题最稳的方式，是先按普通层序遍历把每层结果收集出来，最后再统一反转整个结果数组。BFS 主体不用改，避免为了“倒序输出”而把节点访问顺序搞乱。',
+        bullets: [
+          '遍历过程保持普通层序。',
+          '结果顺序可以后处理。',
+          '不要为了输出逆序改动核心流程。',
+          '这能最大限度复用模板。',
+        ],
+      },
+      {
+        id: 'lot2-collect-front',
+        title: '也可以在收集阶段直接头插结果',
+        summary:
+          '另一种常见写法，是每处理完一层就把当前层结果插到结果数组最前面。这样最终得到的就是自底向上的顺序。两种方式都对，只是一个是“最后反转”，一个是“过程中头插”。',
+        bullets: [
+          '结果数组头插很直接。',
+          '最后统一反转也很常见。',
+          '两种思路都保留了 BFS 主体。',
+          '根据场景选择更清楚的写法即可。',
+        ],
+        callout:
+          '有些题不是要你换算法，而是要你学会把同一个结果用不同顺序组织出来。',
+      },
+      {
+        id: 'lot2-level-order-connection',
+        title: '层序遍历的核心仍然是“分层收集”',
+        summary:
+          '无论结果从上往下还是从下往上，层序遍历的前提都没变：每一轮固定当前层长度，收集本层节点，再把子节点入队。方向变化只发生在结果数组上。',
+        bullets: [
+          '分层处理逻辑不变。',
+          '当前层数组仍然独立创建。',
+          '层之间的边界依然要固定。',
+          '结果顺序和访问顺序是两件事。',
+        ],
+      },
+      {
+        id: 'lot2-optimal-solution',
+        title: '标准解法：普通层序遍历后整体反转',
+        summary:
+          '先用标准队列做层序遍历，逐层把结果追加到数组末尾。遍历结束后，再对结果数组整体反转，就得到自底向上的层序遍历结果。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          'BFS 模板完全不需要改。',
+          '最后反转结果即可。',
+        ],
+        code: `function levelOrderBottom(root: TreeNode | null): number[][] {
+  if (root === null) {
+    return []
+  }
+
+  const result: number[][] = []
+  const queue: TreeNode[] = [root]
+
+  while (queue.length > 0) {
+    const levelSize = queue.length
+    const level: number[] = []
+
+    for (let index = 0; index < levelSize; index += 1) {
+      const node = queue.shift() as TreeNode
+      level.push(node.val)
+
+      if (node.left !== null) {
+        queue.push(node.left)
+      }
+
+      if (node.right !== null) {
+        queue.push(node.right)
+      }
+    }
+
+    result.push(level)
+  }
+
+  return result.reverse()
+}`,
+      },
+      {
+        id: 'lot2-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“输出逆序”误解成“遍历逆序”。真正掌握后，你会更清楚结果排序和遍历过程是可以分离的。',
+        bullets: [
+          '易错点 1：为了逆序输出，反而改坏了 BFS 核心逻辑。',
+          '易错点 2：层边界没有先固定。',
+          '易错点 3：把最后反转和每层反转混淆。',
+          '延伸方向：层平均值、右视图、锯齿层序遍历、树的最小深度。',
+        ],
+        callout:
+          '很多遍历题真正的技巧，不是改变访问，而是改变“最后怎么展示结果”。',
+      },
+    ],
+  },
 ];
