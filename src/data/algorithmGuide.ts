@@ -11313,4 +11313,121 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'binary-tree-level-order-traversal',
+    label: '102. LeetCode 102. 二叉树的层序遍历',
+    difficulty: '中等',
+    description:
+      '这题是树 BFS 的标准母题。真正关键不是知道要一层一层遍历，而是能不能明确队列里存的是什么、每一轮为什么要先固定当前层节点数，以及如何把层与层之间的边界切清楚。',
+    outcome:
+      '你能掌握二叉树层序遍历的队列写法，理解为什么每轮都要先读取当前层长度，并把这种按层处理的思路迁移到右视图、锯齿遍历、最短路径等更多 BFS 题。',
+    sections: [
+      {
+        id: 'lot-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定二叉树根节点，按从上到下、从左到右的顺序，返回每一层的节点值。',
+        bullets: [
+          '结果是二维数组。',
+          '同一层的节点放在同一个子数组里。',
+          '遍历顺序是逐层推进。',
+          '这是树 BFS 的标准起手题。',
+        ],
+      },
+      {
+        id: 'lot-why-queue',
+        title: '为什么这题天然适合用队列',
+        summary:
+          '层序遍历的本质是“先进先出”地按层扩展节点。当前层的节点会先进入队列，也会先被处理；它们的子节点会排在后面，等下一层再统一处理。这和队列模型完全一致。',
+        bullets: [
+          '队列天然符合 BFS 扩展顺序。',
+          '当前层先出队，下一层后出队。',
+          '每个节点只会入队出队一次。',
+          '这是 BFS 和 DFS 最直接的分界点。',
+        ],
+      },
+      {
+        id: 'lot-why-level-size',
+        title: '每一轮为什么一定要先记录当前层节点数',
+        summary:
+          '如果不先记住当前层长度，你在处理当前层的过程中把子节点入队后，就会把下一层也一并处理掉，层边界会混乱。先固定 `levelSize`，就能保证这一轮只消费当前层节点。',
+        bullets: [
+          '层边界必须在循环开始前确定。',
+          '子节点入队不能影响当前层处理范围。',
+          '固定层长度是 BFS 按层输出的关键。',
+          '很多层序题都会用到这个技巧。',
+        ],
+        callout:
+          'BFS 真正常见的 bug，不是队列不会写，而是层与层的边界没有先锁死。',
+      },
+      {
+        id: 'lot-data-flow',
+        title: '当前层负责收集答案，下一层负责等待入队',
+        summary:
+          '处理当前层时，只需要做两件事：把当前节点值收集到本层数组里；把它的左右孩子按顺序压入队列。等这一轮结束，把本层数组推入结果，再进入下一层。',
+        bullets: [
+          '当前节点值进入本层结果。',
+          '左右孩子进入队列末尾。',
+          '一轮结束后产出一层答案。',
+          '流程非常规整，适合模板化。',
+        ],
+      },
+      {
+        id: 'lot-optimal-solution',
+        title: '标准解法：队列 + 固定层长度',
+        summary:
+          '若根节点为空，直接返回空数组。否则用队列保存待处理节点。每轮先读取队列长度作为 `levelSize`，再循环取出这一层的所有节点，收集值，并把左右孩子入队。处理完后把当前层数组加入结果。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '关键在于每层开始先记录队列长度。',
+          '这是树 BFS 的通用模板。',
+        ],
+        code: `function levelOrder(root: TreeNode | null): number[][] {
+  if (root === null) {
+    return []
+  }
+
+  const result: number[][] = []
+  const queue: TreeNode[] = [root]
+
+  while (queue.length > 0) {
+    const levelSize = queue.length
+    const level: number[] = []
+
+    for (let index = 0; index < levelSize; index += 1) {
+      const node = queue.shift() as TreeNode
+      level.push(node.val)
+
+      if (node.left !== null) {
+        queue.push(node.left)
+      }
+
+      if (node.right !== null) {
+        queue.push(node.right)
+      }
+    }
+
+    result.push(level)
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'lot-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有固定当前层长度，导致层边界错乱。真正掌握后，你会对树 BFS 的节奏和模板有非常稳的感觉。',
+        bullets: [
+          '易错点 1：边遍历边扩队列，但没有锁定当前层节点数。',
+          '易错点 2：空树边界漏判。',
+          '易错点 3：当前层数组被复用，导致结果污染。',
+          '延伸方向：锯齿层序遍历、层平均值、右视图、最小深度 BFS 解法。',
+        ],
+        callout:
+          '队列题一旦要求“按层输出”，脑子里第一反应就该是“这一轮先读 queue.length”。',
+      },
+    ],
+  },
 ];
