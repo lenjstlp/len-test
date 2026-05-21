@@ -11202,4 +11202,115 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'symmetric-tree',
+    label: '101. LeetCode 101. 对称二叉树',
+    difficulty: '简单',
+    description:
+      '这题看着像普通树比较，实际是在练“镜像递归”思维。真正关键不是把一棵树和自己比较，而是能不能明确左子树的外侧要和右子树的外侧比，左子树的内侧要和右子树的内侧比。',
+    outcome:
+      '你能掌握镜像递归的判断方式，理解为什么对称判断不是同侧比较而是交叉比较，并把这种“双树同步递归”的思路迁移到更多树结构判断题。',
+    sections: [
+      {
+        id: 'sym-problem-summary',
+        title: '题目在问什么',
+        summary: '给定一棵二叉树，判断它是否轴对称。',
+        bullets: [
+          '左右两边要呈镜像关系。',
+          '不仅节点值要对应相同。',
+          '结构也必须镜像一致。',
+          '这是镜像递归的标准入门题。',
+        ],
+      },
+      {
+        id: 'sym-what-mirror-means',
+        title: '对称不是“左右一样”，而是“左右互为镜像”',
+        summary:
+          '很多人会误写成左子树和右子树同方向比较，但镜像关系要求的是交叉对应。也就是说，左节点的左孩子要和右节点的右孩子比较，左节点的右孩子要和右节点的左孩子比较。',
+        bullets: [
+          '镜像比较是交叉方向。',
+          '外侧节点和外侧节点比较。',
+          '内侧节点和内侧节点比较。',
+          '这和普通相同树判断不一样。',
+        ],
+      },
+      {
+        id: 'sym-double-recursion',
+        title: '最自然的写法，是同时递归两棵子树',
+        summary:
+          '把问题定义成：`isMirror(left, right)` 表示左子树和右子树是否互为镜像。只要这句定义成立，代码就很直接了。先判断空节点和当前值，再递归比较外侧和内侧两组子节点。',
+        bullets: [
+          '递归函数有两个节点参数。',
+          '先处理空节点组合情况。',
+          '再处理当前值是否相等。',
+          '最后递归检查两组镜像位置。',
+        ],
+        callout:
+          '树题一旦能把问题重新定义成“两个节点之间的关系”，代码往往会立刻清晰很多。',
+      },
+      {
+        id: 'sym-why-not-traversal',
+        title: '为什么没必要先翻转一棵树再比较',
+        summary:
+          '当然可以先构造镜像树再做比较，但这会多做无用工作。题目本质只是判断关系，不需要真的修改结构，直接递归比较镜像位置就够了。',
+        bullets: [
+          '判断题不一定要真的变换结构。',
+          '直接比较能少做一次树处理。',
+          '实现更简洁，空间也更省。',
+          '更贴近题目本身的逻辑。',
+        ],
+      },
+      {
+        id: 'sym-optimal-solution',
+        title: '标准解法：镜像递归',
+        summary:
+          '如果根节点为空，直接返回 `true`。否则定义 `isMirror(left, right)`：若两边都为空返回 `true`；若只有一边为空返回 `false`；若值不同也返回 `false`；否则递归判断 `left.left` 和 `right.right`，以及 `left.right` 和 `right.left`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是递归栈深度 `O(h)`。',
+          '核心在于交叉比较子节点。',
+          '这是镜像树判断的标准模板。',
+        ],
+        code: `function isSymmetric(root: TreeNode | null): boolean {
+  const isMirror = (
+    left: TreeNode | null,
+    right: TreeNode | null,
+  ): boolean => {
+    if (left === null && right === null) {
+      return true
+    }
+
+    if (left === null || right === null) {
+      return false
+    }
+
+    if (left.val !== right.val) {
+      return false
+    }
+
+    return (
+      isMirror(left.left, right.right) &&
+      isMirror(left.right, right.left)
+    )
+  }
+
+  return root === null ? true : isMirror(root.left, root.right)
+}`,
+      },
+      {
+        id: 'sym-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把镜像比较误写成同侧比较。真正掌握后，你会对“两个子结构同步递归”的写法更有感觉。',
+        bullets: [
+          '易错点 1：把 `left.left` 和 `right.left` 拿去比较。',
+          '易错点 2：空节点边界判断不完整。',
+          '易错点 3：只比较节点值，不比较结构镜像关系。',
+          '延伸方向：相同的树、翻转二叉树、子树判断、N 叉树对称变体。',
+        ],
+        callout:
+          '镜像题最值钱的不是答案，而是你能否一眼识别出“比较顺序必须交叉”这件事。',
+      },
+    ],
+  },
 ];
