@@ -1225,6 +1225,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/api-retry-backoff-engineering',
+    name: 'fullstack-api-retry-backoff-engineering',
+    component: () =>
+      import('@/views/FullstackApiRetryBackoffEngineeringView.vue'),
+    meta: {
+      title: '前端接口重试与退避工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

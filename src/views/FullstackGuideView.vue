@@ -476,28 +476,8 @@ const menuCards = [
     title: '前端权限表达式工程',
   },
   {
-    path: '/fullstack-guide/approval-node-engineering',
-    title: '前端审批节点编排工程',
-  },
-  {
-    path: '/fullstack-guide/import-validation-engineering',
-    title: '前端导入校验工程',
-  },
-  {
-    path: '/fullstack-guide/export-job-engineering',
-    title: '前端导出任务中心工程',
-  },
-  {
-    path: '/fullstack-guide/message-template-engineering',
-    title: '前端消息模板编排工程',
-  },
-  {
-    path: '/fullstack-guide/operation-guard-engineering',
-    title: '前端防误触工程',
-  },
-  {
-    path: '/fullstack-guide/permission-expression-engineering',
-    title: '前端权限表达式工程',
+    path: '/fullstack-guide/api-retry-backoff-engineering',
+    title: '前端接口重试与退避工程',
   },
 ];
 </script>
