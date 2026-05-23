@@ -12532,4 +12532,122 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'path-sum-ii',
+    label: '113. LeetCode 113. 路径总和 II',
+    difficulty: '中等',
+    description:
+      '这题是在上一题基础上从“判断是否存在”升级成“收集所有路径”。真正关键不是路径和判断，而是回溯时如何维护当前路径，并在命中答案时正确拷贝结果。',
+    outcome:
+      '你能掌握树上路径回溯的写法，理解为什么路径数组要在进入和退出节点时成对维护，并把这种“状态下传 + 路径回退”的能力迁移到更多 DFS 枚举题。',
+    sections: [
+      {
+        id: 'ps2-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定二叉树和目标和，返回所有从根节点到叶子节点、节点值之和等于目标和的路径。',
+        bullets: [
+          '路径必须从根到叶子。',
+          '答案不是布尔值，而是所有合法路径。',
+          '每条路径都是一个数组。',
+          '这是树路径回溯题的标准模板。',
+        ],
+      },
+      {
+        id: 'ps2-vs-112',
+        title: '和上一题相比，变化不是判断逻辑，而是答案收集方式',
+        summary:
+          '112 题只问有没有路径，所以命中一次就可以返回真；这题要把所有路径都找出来，所以不能短路，需要完整 DFS 整棵树，并把满足条件的路径逐条保存。',
+        bullets: [
+          '不再是存在性判断。',
+          '需要遍历完所有可能路径。',
+          '命中答案后还要继续回溯。',
+          '核心升级在于结果收集。',
+        ],
+      },
+      {
+        id: 'ps2-path-backtracking',
+        title: '路径数组一定要成对地 push 和 pop',
+        summary:
+          '进入当前节点时，把它压入路径；离开当前节点时，把它从路径中弹出。这样路径数组始终只表示“当前递归路径”。如果忘了回退，后续分支会污染彼此结果。',
+        bullets: [
+          '进入节点时 `push`。',
+          '退出节点时 `pop`。',
+          '当前路径必须和递归栈同步。',
+          '这是回溯题的基本纪律。',
+        ],
+        callout:
+          '回溯题里最常见的 bug，从来不是不会搜，而是状态进去了没完整退出来。',
+      },
+      {
+        id: 'ps2-copy-result',
+        title: '命中答案时，保存的是路径快照，不是原路径引用',
+        summary:
+          '当前路径数组后面还会继续被修改，所以当找到一条合法路径时，必须拷贝一份当前数组加入结果，而不是直接把原数组引用塞进去。否则最终所有答案可能都变成同一条路径。',
+        bullets: [
+          '结果里要保存路径副本。',
+          '不能直接保存同一个数组引用。',
+          '后续回溯会继续改动当前路径。',
+          '这是收集型 DFS 的经典坑点。',
+        ],
+      },
+      {
+        id: 'ps2-optimal-solution',
+        title: '标准解法：DFS + 路径回溯 + 剩余和',
+        summary:
+          '递归时同时维护当前路径和剩余目标值。进入节点就把值加入路径并更新剩余值；若到达叶子且剩余值刚好为 `0`，就把路径拷贝进答案；然后递归左右子树，最后回溯弹出当前节点。',
+        bullets: [
+          '时间复杂度取决于整棵树搜索和结果规模。',
+          '空间复杂度来自递归栈和当前路径。',
+          '关键是路径维护和结果拷贝。',
+          '这是树路径枚举题的标准模板。',
+        ],
+        code: `function pathSum(
+  root: TreeNode | null,
+  targetSum: number,
+): number[][] {
+  const result: number[][] = []
+  const path: number[] = []
+
+  const dfs = (node: TreeNode | null, remaining: number) => {
+    if (node === null) {
+      return
+    }
+
+    path.push(node.val)
+    const nextRemaining = remaining - node.val
+
+    if (
+      node.left === null &&
+      node.right === null &&
+      nextRemaining === 0
+    ) {
+      result.push([...path])
+    }
+
+    dfs(node.left, nextRemaining)
+    dfs(node.right, nextRemaining)
+    path.pop()
+  }
+
+  dfs(root, targetSum)
+  return result
+}`,
+      },
+      {
+        id: 'ps2-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忘记回溯 `pop`，或者把路径引用直接推进结果。真正掌握后，你会对树上 DFS 枚举和状态回退更敏感。',
+        bullets: [
+          '易错点 1：找到答案时直接保存原路径引用。',
+          '易错点 2：递归退出前忘记 `pop`。',
+          '易错点 3：叶子判断和剩余值判断顺序混乱。',
+          '延伸方向：组合总和、子集回溯、路径总和 III、树路径字符串题。',
+        ],
+        callout:
+          '从“判断存在”到“收集所有”，本质升级就在于你要学会把路径状态完整地进出维护好。',
+      },
+    ],
+  },
 ];
