@@ -12099,4 +12099,119 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'convert-sorted-list-to-binary-search-tree',
+    label: '109. LeetCode 109. 有序链表转换二叉搜索树',
+    difficulty: '中等',
+    description:
+      '这题和上一题是同一主题的升级版。真正难点不是 BST，而是链表没有随机访问能力，所以“怎么拿到中点”成为整题核心。',
+    outcome:
+      '你能掌握快慢指针找链表中点并递归构造 BST 的方法，理解为什么链表版的难点在于中点定位成本，并把这种“数组方案迁移到链表时结构能力不同”的意识带到更多题里。',
+    sections: [
+      {
+        id: 'csltbst-problem-summary',
+        title: '题目在问什么',
+        summary: '给定一个升序链表，要求把它转换成一棵高度平衡的二叉搜索树。',
+        bullets: [
+          '链表节点已经按升序排列。',
+          '结果必须满足 BST 性质。',
+          '还要尽量保持平衡。',
+          '这是数组版构造题的链表升级版。',
+        ],
+      },
+      {
+        id: 'csltbst-core-difficulty',
+        title: '真正难点不是建树，而是链表怎么找中点',
+        summary:
+          '数组能直接按下标取中点，链表却不能随机访问。所以整题核心不是 BST 构造本身，而是如何高效找到当前链表区间的中间节点，再把链表拆成左右两段继续递归。',
+        bullets: [
+          '链表没有下标随机访问。',
+          '中点定位必须靠遍历。',
+          '构造逻辑其实仍然是中点选根。',
+          '结构能力变化带来了实现变化。',
+        ],
+      },
+      {
+        id: 'csltbst-fast-slow-pointer',
+        title: '最常用的做法，就是快慢指针找中点',
+        summary:
+          '快指针每次走两步，慢指针每次走一步。快指针走到末尾时，慢指针就落在中点位置。再配合一个前驱指针把链表断开，就能得到左半段和右半段，递归构造左右子树。',
+        bullets: [
+          '快慢指针定位中点。',
+          '前驱指针负责断开左半链表。',
+          '中点节点本身作为当前根。',
+          '左右两段继续递归构造。',
+        ],
+        callout:
+          '链表题一旦要找“中间位置”，快慢指针基本就是第一反应，这是结构特性决定的。',
+      },
+      {
+        id: 'csltbst-split-sublist',
+        title: '中点找到后，关键是把链表真正拆开',
+        summary:
+          '如果不把左半链表断开，递归处理左子树时仍然会看到整个链表，逻辑就错了。所以需要在慢指针前面维护一个 `prev`，找到中点后执行断链，把左半部分和中点分离。',
+        bullets: [
+          '左子树必须只拿到左半链表。',
+          '断链动作是递归成立的前提。',
+          '右子树从中点后一个节点开始。',
+          '链表构造题很依赖这个拆分动作。',
+        ],
+      },
+      {
+        id: 'csltbst-optimal-solution',
+        title: '标准解法：快慢指针找中点 + 递归构造',
+        summary:
+          '若链表为空返回 `null`；若只有一个节点，直接返回单节点树。否则用快慢指针找中点节点 `slow`，用 `prev` 断开左半链表，以 `slow.val` 建根节点，再递归构造左右子树。',
+        bullets: [
+          '时间复杂度常见实现是 `O(n log n)`。',
+          '空间复杂度是递归栈深度。',
+          '核心仍是中点建根。',
+          '区别只是中点通过链表遍历获取。',
+        ],
+        code: `function sortedListToBST(head: ListNode | null): TreeNode | null {
+  if (head === null) {
+    return null
+  }
+
+  if (head.next === null) {
+    return new TreeNode(head.val)
+  }
+
+  let prev: ListNode | null = null
+  let slow: ListNode | null = head
+  let fast: ListNode | null = head
+
+  while (fast !== null && fast.next !== null) {
+    prev = slow
+    slow = slow?.next ?? null
+    fast = fast.next.next
+  }
+
+  if (prev !== null) {
+    prev.next = null
+  }
+
+  const root = new TreeNode((slow as ListNode).val)
+  root.left = sortedListToBST(head === slow ? null : head)
+  root.right = sortedListToBST((slow as ListNode).next)
+
+  return root
+}`,
+      },
+      {
+        id: 'csltbst-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是中点找到后没有断链，或者单节点边界没处理好。真正掌握后，你会更清楚同一思路在数组和链表上的实现差异。',
+        bullets: [
+          '易错点 1：忘记断开左半链表，递归区间失真。',
+          '易错点 2：头节点就是中点时没有特殊处理。',
+          '易错点 3：链表中点定位和右子树起点混淆。',
+          '延伸方向：快慢指针题、链表重排、平衡 BST 构造优化。',
+        ],
+        callout:
+          '真正成熟的能力，不是会一个模板，而是知道同一个模板换数据结构后，哪一步必须重写。',
+      },
+    ],
+  },
 ];
