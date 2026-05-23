@@ -11995,4 +11995,108 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'convert-sorted-array-to-binary-search-tree',
+    label: '108. LeetCode 108. 将有序数组转换为二叉搜索树',
+    difficulty: '简单',
+    description:
+      '这题是平衡 BST 构造的入门题。真正关键不是会不会建树，而是能不能意识到“有序数组 + 中点做根”天然就对应一棵高度尽量平衡的二叉搜索树。',
+    outcome:
+      '你能掌握分治构造平衡 BST 的方式，理解为什么每次取中点可以同时满足 BST 有序性和高度平衡，并把这种“中点切分”思路迁移到更多分治题。',
+    sections: [
+      {
+        id: 'csatbst-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个升序排列的整数数组，要求把它转换成一棵高度平衡的二叉搜索树。',
+        bullets: [
+          '数组本身已经有序。',
+          '结果必须满足 BST 性质。',
+          '结果还要求尽量高度平衡。',
+          '这是构造平衡树的标准入门题。',
+        ],
+      },
+      {
+        id: 'csatbst-why-middle',
+        title: '为什么一看到“有序 + 平衡”，就该想到中点做根',
+        summary:
+          '因为数组有序，所以只要中点作为根，左边天然都小于根，右边天然都大于根，BST 性质自动满足。同时中点把数组尽量均分，左右子树规模接近，也就更容易保持平衡。',
+        bullets: [
+          '中点左边天然都更小。',
+          '中点右边天然都更大。',
+          '中点切分让左右规模接近。',
+          '这是同时满足 BST 和平衡的最自然选择。',
+        ],
+      },
+      {
+        id: 'csatbst-divide-and-conquer',
+        title: '这题本质就是一层层把中点变成子树根',
+        summary:
+          '当前区间取中点做根后，左半部分继续递归构造成左子树，右半部分继续递归构造成右子树。每个子区间都重复同样逻辑，所以它是标准分治题。',
+        bullets: [
+          '每个区间都独立决定自己的根。',
+          '左区间递归构造左子树。',
+          '右区间递归构造右子树。',
+          '整个过程就是递归分治。',
+        ],
+        callout:
+          '很多树构造题一旦发现“当前根如何选”，剩下的就只是把左右子区间继续递归下去。',
+      },
+      {
+        id: 'csatbst-base-case',
+        title: '递归边界非常简单：区间为空时返回空节点',
+        summary:
+          '只要当前左右边界越界，说明这个位置没有节点，直接返回 `null`。这个边界一旦定清楚，叶子节点的左右孩子会自然落到空区间上，不需要额外特殊处理。',
+        bullets: [
+          '空区间对应空节点。',
+          '叶子节点不需要单独分支。',
+          '边界越干净，主逻辑越顺。',
+          '这是树构造题的高频边界。',
+        ],
+      },
+      {
+        id: 'csatbst-optimal-solution',
+        title: '标准解法：递归取中点建树',
+        summary:
+          '定义递归函数处理数组区间 `[left, right]`。每次取中点 `mid` 作为根节点，递归构造左区间和右区间。区间为空时返回 `null`，最终得到一棵高度平衡的 BST。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是递归栈深度 `O(log n)` 到 `O(n)`。',
+          '核心就是中点选根。',
+          '这是平衡 BST 构造的标准模板。',
+        ],
+        code: `function sortedArrayToBST(nums: number[]): TreeNode | null {
+  const build = (left: number, right: number): TreeNode | null => {
+    if (left > right) {
+      return null
+    }
+
+    const mid = Math.floor((left + right) / 2)
+    const root = new TreeNode(nums[mid])
+
+    root.left = build(left, mid - 1)
+    root.right = build(mid + 1, right)
+
+    return root
+  }
+
+  return build(0, nums.length - 1)
+}`,
+      },
+      {
+        id: 'csatbst-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是中点边界处理不清，或者忘了它其实就是分治构造。真正掌握后，你会对“有序结构转平衡树”的模式更有感觉。',
+        bullets: [
+          '易错点 1：中点计算后左右区间边界写错。',
+          '易错点 2：空区间返回不清晰。',
+          '易错点 3：把平衡理解成必须完全二叉树。',
+          '延伸方向：有序链表转 BST、AVL/红黑树理解、分治构造题。',
+        ],
+        callout:
+          '这题真正值钱的不是代码长度，而是你能不能把“有序 + 平衡”直接映射成“中点 + 分治”。',
+      },
+    ],
+  },
 ];
