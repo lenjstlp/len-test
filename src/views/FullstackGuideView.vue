@@ -491,6 +491,10 @@ const menuCards = [
     path: '/fullstack-guide/domain-entity-engineering',
     title: '前端领域实体工程',
   },
+  {
+    path: '/fullstack-guide/release-canary-engineering',
+    title: '前端灰度发布工程进阶',
+  },
 ];
 </script>
 

@@ -1267,6 +1267,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/release-canary-engineering',
+    name: 'fullstack-release-canary-engineering',
+    component: () =>
+      import('@/views/FullstackReleaseCanaryEngineeringView.vue'),
+    meta: {
+      title: '前端灰度发布工程进阶',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
