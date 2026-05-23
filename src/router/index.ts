@@ -1257,6 +1257,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/domain-entity-engineering',
+    name: 'fullstack-domain-entity-engineering',
+    component: () => import('@/views/FullstackDomainEntityEngineeringView.vue'),
+    meta: {
+      title: '前端领域实体工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

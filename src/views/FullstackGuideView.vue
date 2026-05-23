@@ -487,6 +487,10 @@ const menuCards = [
     path: '/fullstack-guide/runtime-permission-engineering',
     title: '前端运行时权限工程',
   },
+  {
+    path: '/fullstack-guide/domain-entity-engineering',
+    title: '前端领域实体工程',
+  },
 ];
 </script>
 
