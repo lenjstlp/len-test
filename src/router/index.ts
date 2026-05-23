@@ -1246,6 +1246,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/runtime-permission-engineering',
+    name: 'fullstack-runtime-permission-engineering',
+    component: () =>
+      import('@/views/FullstackRuntimePermissionEngineeringView.vue'),
+    meta: {
+      title: '前端运行时权限工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

@@ -483,6 +483,10 @@ const menuCards = [
     path: '/fullstack-guide/task-queue-engineering',
     title: '前端任务队列工程',
   },
+  {
+    path: '/fullstack-guide/runtime-permission-engineering',
+    title: '前端运行时权限工程',
+  },
 ];
 </script>
 
