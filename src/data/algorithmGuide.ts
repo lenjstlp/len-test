@@ -12214,4 +12214,115 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'balanced-binary-tree',
+    label: '110. LeetCode 110. 平衡二叉树',
+    difficulty: '简单',
+    description:
+      '这题表面上是判断题，实际上是在练树上“向上返回多种信息”。真正关键不是只会算高度，而是能不能在算高度的同时顺带判断子树是否已经失衡。',
+    outcome:
+      '你能掌握自底向上的树递归返回信息写法，理解为什么这题比单纯求高度多了一层“顺便校验”的要求，并把这种后序递归思路迁移到更多树形 DP 题。',
+    sections: [
+      {
+        id: 'bbt-problem-summary',
+        title: '题目在问什么',
+        summary: '给定一棵二叉树，判断它是否是高度平衡的二叉树。',
+        bullets: [
+          '任意节点左右子树高度差不能超过 1。',
+          '这个约束必须对整棵树都成立。',
+          '不是只看根节点。',
+          '这是树高度判断题的经典变体。',
+        ],
+      },
+      {
+        id: 'bbt-why-top-down-is-wasteful',
+        title: '为什么“每个节点都重新算高度”会很浪费',
+        summary:
+          '如果你对每个节点都单独去算左右子树高度，再判断是否平衡，会重复计算很多次，复杂度容易退化到 `O(n^2)`。更稳的思路是自底向上，一次递归同时返回高度和失衡信息。',
+        bullets: [
+          '自顶向下会重复计算高度。',
+          '同一棵子树可能被多次扫描。',
+          '自底向上能把判断和求高合并。',
+          '这是复杂度优化的关键。',
+        ],
+      },
+      {
+        id: 'bbt-postorder-thinking',
+        title: '这题天然适合后序递归，因为当前节点依赖左右子树结果',
+        summary:
+          '当前节点是否平衡，必须先知道左子树高度和右子树高度，所以它天然是“先左右，后自己”的后序递归问题。左右子树一旦已有失衡，当前节点就没必要继续正常计算了。',
+        bullets: [
+          '先拿到左子树结果。',
+          '再拿到右子树结果。',
+          '最后判断当前节点是否平衡。',
+          '这是标准后序递归模型。',
+        ],
+        callout:
+          '树题里凡是“当前答案依赖左右子树先算完”，基本都应该优先想到后序递归。',
+      },
+      {
+        id: 'bbt-sentinel-skill',
+        title: '用特殊返回值表示“已经失衡”，能让代码很干净',
+        summary:
+          '常见做法是让递归函数返回子树高度；如果发现某棵子树已经失衡，就直接返回 `-1` 作为哨兵值。这样父节点一旦看到 `-1`，就能立刻知道整棵树已不平衡，不必继续正常比较。',
+        bullets: [
+          '正常情况返回子树高度。',
+          '异常情况返回哨兵值 `-1`。',
+          '父节点据此快速短路。',
+          '这是树题里很实用的技巧。',
+        ],
+      },
+      {
+        id: 'bbt-optimal-solution',
+        title: '标准解法：后序递归 + 高度哨兵',
+        summary:
+          '定义递归函数返回当前子树高度；若子树已经失衡，则返回 `-1`。先递归左右子树，如果任意一边返回 `-1`，或高度差大于 `1`，当前也返回 `-1`；否则返回 `max(left, right) + 1`。最终只要根节点返回值不是 `-1`，整棵树就平衡。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是递归栈深度 `O(h)`。',
+          '关键是把高度和状态一起返回。',
+          '这是平衡判断题的标准模板。',
+        ],
+        code: `function isBalanced(root: TreeNode | null): boolean {
+  const height = (node: TreeNode | null): number => {
+    if (node === null) {
+      return 0
+    }
+
+    const leftHeight = height(node.left)
+    if (leftHeight === -1) {
+      return -1
+    }
+
+    const rightHeight = height(node.right)
+    if (rightHeight === -1) {
+      return -1
+    }
+
+    if (Math.abs(leftHeight - rightHeight) > 1) {
+      return -1
+    }
+
+    return Math.max(leftHeight, rightHeight) + 1
+  }
+
+  return height(root) !== -1
+}`,
+      },
+      {
+        id: 'bbt-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是每个节点重复求高度，或者只检查根节点。真正掌握后，你会对树上“返回附加状态”的递归写法更有感觉。',
+        bullets: [
+          '易错点 1：只看根节点高度差，忽略子树内部失衡。',
+          '易错点 2：重复计算高度，复杂度退化。',
+          '易错点 3：哨兵值和正常高度语义混乱。',
+          '延伸方向：树直径、路径和、最近公共祖先、树形 DP。',
+        ],
+        callout:
+          '递归题一旦能学会“顺便带回一点额外信息”，很多原本分两遍做的题都能压成一遍。',
+      },
+    ],
+  },
 ];
