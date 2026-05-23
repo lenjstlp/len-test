@@ -479,6 +479,10 @@ const menuCards = [
     path: '/fullstack-guide/api-retry-backoff-engineering',
     title: '前端接口重试与退避工程',
   },
+  {
+    path: '/fullstack-guide/task-queue-engineering',
+    title: '前端任务队列工程',
+  },
 ];
 </script>
 

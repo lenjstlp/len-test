@@ -1236,6 +1236,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/task-queue-engineering',
+    name: 'fullstack-task-queue-engineering',
+    component: () => import('@/views/FullstackTaskQueueEngineeringView.vue'),
+    meta: {
+      title: '前端任务队列工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
