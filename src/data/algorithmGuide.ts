@@ -12650,4 +12650,114 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'flatten-binary-tree-to-linked-list',
+    label: '114. LeetCode 114. 二叉树展开为链表',
+    difficulty: '中等',
+    description:
+      '这题不是单纯改指针，而是在练你能不能一边保留先序遍历顺序，一边原地重排树结构。真正关键不是把节点串起来，而是保证左子树整体先接到右边，再把原右子树接回尾部。',
+    outcome:
+      '你能掌握树结构原地重排的递归思路，理解为什么展开结果必须遵循先序遍历，并把这种“先处理子树，再回接旧链路”的能力迁移到更多树指针题。',
+    sections: [
+      {
+        id: 'fbtll-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定二叉树根节点，要求把它原地展开成单链表，链表顺序要和二叉树先序遍历一致。',
+        bullets: [
+          '展开后所有左指针都要变成 `null`。',
+          '所有节点都沿右指针串起来。',
+          '节点顺序必须符合先序遍历。',
+          '要求原地修改结构。',
+        ],
+      },
+      {
+        id: 'fbtll-why-preorder',
+        title: '为什么结果顺序一定是先序遍历',
+        summary:
+          '先序遍历顺序是“根、左、右”。而展开后的链表要求从根开始一路往后走，显然就是把先序遍历的访问顺序直接线性化，所以整题本质是在把树的先序结构改写成链表结构。',
+        bullets: [
+          '根节点总是在最前面。',
+          '左子树整体要排在右子树前面。',
+          '展开顺序和先序访问顺序完全一致。',
+          '理解这一点后结构调整更清楚。',
+        ],
+      },
+      {
+        id: 'fbtll-reconnect-idea',
+        title: '真正难点是左子树接过去后，原右子树怎么接回来',
+        summary:
+          '把左子树搬到右边不难，难的是不能把原右子树丢掉。常见做法是先递归展开左右子树，再找到左子树展开后的尾节点，把原右子树接到这个尾节点后面。',
+        bullets: [
+          '左子树先整体搬到右边。',
+          '原右子树要保留下来。',
+          '左链尾节点负责接回原右链。',
+          '结构回接是整题核心。',
+        ],
+        callout:
+          '树指针题真正值钱的能力，不是会改一个指针，而是能同时记住“旧链路还要怎么接回来”。',
+      },
+      {
+        id: 'fbtll-postorder-view',
+        title: '从实现角度看，它更像后序处理结构',
+        summary:
+          '虽然结果要求是先序顺序，但真正改结构时，往往要先把左右子树各自展开完，再回来处理当前根节点。也就是说，求解顺序和最终顺序并不一定相同。',
+        bullets: [
+          '结果是先序。',
+          '处理过程常常是后序。',
+          '先拿到左右子树稳定形态，再改当前节点。',
+          '这是树结构题常见现象。',
+        ],
+      },
+      {
+        id: 'fbtll-optimal-solution',
+        title: '标准解法：递归展开后回接左右链路',
+        summary:
+          '先递归展开左子树和右子树；如果左子树存在，就先保存原右子树，把左子树移到当前节点右边，再沿右链找到左子树尾节点，把原右子树挂回尾部。最后把当前节点左指针置空。',
+        bullets: [
+          '时间复杂度是 `O(n)` 到 `O(n^2)`，取决于找尾方式。',
+          '空间复杂度是递归栈深度 `O(h)`。',
+          '核心是左链搬右边、右链接尾部。',
+          '这是最直观的原地重排写法。',
+        ],
+        code: `function flatten(root: TreeNode | null): void {
+  if (root === null) {
+    return
+  }
+
+  flatten(root.left)
+  flatten(root.right)
+
+  if (root.left !== null) {
+    const originalRight = root.right
+    root.right = root.left
+    root.left = null
+
+    let tail = root.right
+    while (tail?.right !== null) {
+      tail = tail.right
+    }
+
+    if (tail !== null) {
+      tail.right = originalRight
+    }
+  }
+}`,
+      },
+      {
+        id: 'fbtll-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是左子树搬过去后把原右子树弄丢，或者忘记清空左指针。真正掌握后，你会对树指针重排和先序结构更有感觉。',
+        bullets: [
+          '易错点 1：没有保存原右子树。',
+          '易错点 2：忘记把左指针置空。',
+          '易错点 3：左子树尾节点定位错，导致接链错误。',
+          '延伸方向：线索二叉树、Morris 遍历、树转双向链表。',
+        ],
+        callout:
+          '结构重排题里，真正的坑从来不在“怎么改”，而在“改完以后原来的东西还在不在”。',
+      },
+    ],
+  },
 ];
