@@ -499,6 +499,10 @@ const menuCards = [
     path: '/fullstack-guide/request-merge-engineering',
     title: '前端请求去重合并工程',
   },
+  {
+    path: '/fullstack-guide/form-linkage-rules-engineering',
+    title: '前端表单联动规则工程',
+  },
 ];
 </script>
 

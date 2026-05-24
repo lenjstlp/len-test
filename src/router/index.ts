@@ -1288,6 +1288,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/form-linkage-rules-engineering',
+    name: 'fullstack-form-linkage-rules-engineering',
+    component: () =>
+      import('@/views/FullstackFormLinkageRulesEngineeringView.vue'),
+    meta: {
+      title: '前端表单联动规则工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
