@@ -13093,4 +13093,104 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'pascals-triangle',
+    label: '118. LeetCode 118. 杨辉三角',
+    difficulty: '简单',
+    description:
+      '这题是最标准的“从上一层推下一层”的 DP 入门题。真正关键不是会不会相加，而是能不能看出每个内部元素都来自上一层相邻两个位置。',
+    outcome:
+      '你能掌握逐层构造型 DP 的基本模式，理解为什么边界永远是 1，内部元素总是上一层两个值之和，并把这种逐层递推思路迁移到更多组合与表格题。',
+    sections: [
+      {
+        id: 'pt-problem-summary',
+        title: '题目在问什么',
+        summary: '给定行数 `numRows`，返回前 `numRows` 行杨辉三角。',
+        bullets: [
+          '结果是二维数组。',
+          '每一行长度比上一行多 1。',
+          '边界位置永远是 1。',
+          '这是逐层构造题的典型代表。',
+        ],
+      },
+      {
+        id: 'pt-structure-observation',
+        title: '杨辉三角的规律非常稳定：边界是 1，内部看上一层',
+        summary:
+          '每一行的第一个和最后一个位置都是 1；中间位置的值等于上一行左上和右上的两个值之和。只要把这个规律写成循环，整题就结束了。',
+        bullets: [
+          '首尾固定是 1。',
+          '内部元素依赖上一层两个位置。',
+          '每层都重复同一模式。',
+          '这是最标准的递推结构。',
+        ],
+      },
+      {
+        id: 'pt-build-row',
+        title: '最稳的做法，是一行一行构造',
+        summary:
+          '先准备一个结果数组，再从第 0 行开始往后推。当前行的长度已知，所以先建一个同长度数组，再把首尾设为 1，中间位置按上一层计算即可。',
+        bullets: [
+          '当前行长度等于行号 + 1。',
+          '先创建当前行数组。',
+          '中间位置依赖上一层。',
+          '逐层推进最直观。',
+        ],
+        callout:
+          '这种“每一层都只依赖上一层”的问题，几乎就是动态规划最温和的入门形态。',
+      },
+      {
+        id: 'pt-why-2d',
+        title: '这题保留二维结果，不是为了复杂，而是题目就要所有行',
+        summary:
+          '如果只求某一行，可以做空间压缩；但题目要的是前 `numRows` 行完整结果，所以保留二维数组最自然，也更贴近问题本身。',
+        bullets: [
+          '目标是返回完整三角形。',
+          '二维数组更符合题意。',
+          '不是所有题都要急着压缩空间。',
+          '先把结构写清楚更重要。',
+        ],
+      },
+      {
+        id: 'pt-optimal-solution',
+        title: '标准解法：逐层构造二维数组',
+        summary:
+          '遍历每一行，创建当前行数组。首尾填 1；中间位置用上一行的 `result[row - 1][col - 1] + result[row - 1][col]` 计算。每构造完一行就加入答案。',
+        bullets: [
+          '时间复杂度是 `O(numRows^2)`。',
+          '空间复杂度也是 `O(numRows^2)`。',
+          '核心是上一层推下一层。',
+          '这是表格式递推的基础模板。',
+        ],
+        code: `function generate(numRows: number): number[][] {
+  const result: number[][] = []
+
+  for (let row = 0; row < numRows; row += 1) {
+    const current = new Array<number>(row + 1).fill(1)
+
+    for (let col = 1; col < row; col += 1) {
+      current[col] = result[row - 1][col - 1] + result[row - 1][col]
+    }
+
+    result.push(current)
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'pt-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是中间位置下标偏移写错。真正掌握后，你会对逐层构造和“依赖上一层”的问题更敏感。',
+        bullets: [
+          '易错点 1：中间位置读取上一层下标错位。',
+          '易错点 2：把首尾也参与递推。',
+          '易错点 3：行长度初始化错误。',
+          '延伸方向：119 题、组合数、二维表格 DP。',
+        ],
+        callout: '越基础的题，越适合训练你把数组下标和结构规律对齐得干干净净。',
+      },
+    ],
+  },
 ];
