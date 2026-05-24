@@ -13390,4 +13390,102 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'best-time-to-buy-and-sell-stock',
+    label: '121. LeetCode 121. 买卖股票的最佳时机',
+    difficulty: '简单',
+    description:
+      '这题表面像金融题，实际是在练一维扫描的状态维护。真正关键不是会算差值，而是能不能一边扫描价格，一边维护到当前位置为止的最低买入价。',
+    outcome:
+      '你能掌握单次遍历中的最优状态维护，理解为什么卖出收益只需要和历史最低价比较，并把这种“边走边维护最优前缀信息”的思路迁移到更多数组题。',
+    sections: [
+      {
+        id: 'bttbss-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定某支股票每天的价格，只允许买入一次、卖出一次，求最大利润。',
+        bullets: [
+          '最多只能完成一笔交易。',
+          '必须先买后卖。',
+          '如果无利润可得，返回 0。',
+          '这是前缀最优维护题的经典例子。',
+        ],
+      },
+      {
+        id: 'bttbss-core-observation',
+        title: '如果当天卖出，利润只取决于“之前最低买入价”',
+        summary:
+          '假设你今天决定卖出，那收益就是 `todayPrice - minPriceBeforeToday`。也就是说，只要你在扫描过程中持续记住历史最低价，就能即时算出“今天卖出”的最好收益。',
+        bullets: [
+          '卖出日一旦确定，买入价只需要最小的那个。',
+          '历史最低价就是最优买入候选。',
+          '扫描时顺手维护即可。',
+          '这让问题能压成一遍遍历。',
+        ],
+      },
+      {
+        id: 'bttbss-why-one-pass',
+        title: '这题不需要双重循环，因为历史信息可以在线维护',
+        summary:
+          '暴力做法是枚举每个买入日和卖出日，但那会重复比较很多次。更聪明的方式是：扫描到第 `i` 天时，历史最低价已经知道了，于是当天最优利润也立刻可得。',
+        bullets: [
+          '暴力法会重复枚举区间。',
+          '历史最低价可以前缀维护。',
+          '当天收益能在 O(1) 算出来。',
+          '所以总复杂度降到 O(n)。',
+        ],
+        callout:
+          '很多数组题真正厉害的地方，不是把所有组合都试一遍，而是知道哪些历史信息可以被压缩成一个变量。',
+      },
+      {
+        id: 'bttbss-two-variables',
+        title: '整题其实只需要两个变量：历史最低价和当前最大利润',
+        summary:
+          '一个变量记录到当前为止最便宜的买入价，另一个变量记录目前见过的最大利润。每看到一个新价格，先尝试用它卖出更新利润，再看看它会不会成为新的最低买入价。',
+        bullets: [
+          '最小买入价负责维护历史最好进场点。',
+          '最大利润负责维护当前最优答案。',
+          '两个变量就够了。',
+          '这是非常干净的一维扫描模板。',
+        ],
+      },
+      {
+        id: 'bttbss-optimal-solution',
+        title: '标准解法：一遍扫描维护最低价',
+        summary:
+          '初始化 `minPrice = Infinity`、`maxProfit = 0`。遍历每一天价格时，先用 `price - minPrice` 更新最大利润，再把 `minPrice` 更新为更小的价格。遍历结束后，`maxProfit` 就是答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '关键是历史最低价的前缀维护。',
+          '这是线性扫描最优维护题的经典模板。',
+        ],
+        code: `function maxProfit(prices: number[]): number {
+  let minPrice = Infinity
+  let maxProfit = 0
+
+  for (const price of prices) {
+    minPrice = Math.min(minPrice, price)
+    maxProfit = Math.max(maxProfit, price - minPrice)
+  }
+
+  return maxProfit
+}`,
+      },
+      {
+        id: 'bttbss-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是买入卖出顺序理解不清，或者看到负利润时不会处理。真正掌握后，你会对“历史最优前缀信息”的维护更加敏感。',
+        bullets: [
+          '易错点 1：把当天价格先当卖出再错误更新买入顺序。',
+          '易错点 2：无利润场景没有返回 0。',
+          '易错点 3：仍然写成双重循环。',
+          '延伸方向：多次交易、含冷冻期、股票 DP、前缀最优维护题。',
+        ],
+        callout:
+          '很多看似金融或业务味很重的题，抽象完以后其实只是一个前缀最优维护问题。',
+      },
+    ],
+  },
 ];
