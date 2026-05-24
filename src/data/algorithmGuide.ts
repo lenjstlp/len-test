@@ -12868,4 +12868,116 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'populating-next-right-pointers-in-each-node',
+    label: '116. LeetCode 116. 填充每个节点的下一个右侧节点指针',
+    difficulty: '中等',
+    description:
+      '这题看起来像层序遍历，但因为树是完美二叉树，所以可以做得更巧。真正关键不是把每层连起来，而是能不能利用已经建立的 `next` 关系把下一层也串起来。',
+    outcome:
+      '你能掌握完美二叉树的层间指针连接方式，理解为什么同一父节点内部连接和跨父节点连接都能被统一处理，并把这种 O(1) 层间推进思路迁移到更多树指针题。',
+    sections: [
+      {
+        id: 'pnr-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵完美二叉树，把每个节点的 `next` 指针指向它右侧的相邻节点；如果不存在右侧节点，就指向 `null`。',
+        bullets: [
+          '树是完美二叉树，所有叶子同层，且每个非叶子节点都有两个孩子。',
+          '目标是连同层节点。',
+          '每个节点都有 `next` 指针字段。',
+          '这是树横向连接题的母题。',
+        ],
+      },
+      {
+        id: 'pnr-perfect-tree-benefit',
+        title: '完美二叉树这个条件，决定了这题能做得很干净',
+        summary:
+          '因为每个父节点一定有左右孩子，所以同一父节点内部的连接总能写成 `left.next = right`。再加上父节点自己这一层已经通过 `next` 串好，就能把跨父节点的孩子也连起来。',
+        bullets: [
+          '每个父节点都有左右孩子。',
+          '内部连接永远存在。',
+          '父层 `next` 能帮助连接下一层跨父节点节点。',
+          '这让 O(1) 解法成为可能。',
+        ],
+      },
+      {
+        id: 'pnr-two-links',
+        title: '真正只有两种连接：同父连接和跨父连接',
+        summary:
+          '同父连接就是 `node.left.next = node.right`。跨父连接则是 `node.right.next = node.next.left`，前提是当前父节点右边还有下一个父节点。把这两种关系看清楚，代码就不复杂。',
+        bullets: [
+          '左孩子连右孩子。',
+          '右孩子连隔壁父节点的左孩子。',
+          '两类连接共同覆盖整层。',
+          '这是整题的全部结构逻辑。',
+        ],
+        callout:
+          '树题很多时候不是关系太多，而是你没把关系压缩成最少的几种基本情况。',
+      },
+      {
+        id: 'pnr-level-walk',
+        title: '处理方式是按层往下走，而不是一口气 DFS 到底',
+        summary:
+          '可以从根节点开始，把当前层最左节点记为 `leftmost`。每一轮横向走过这一层的所有父节点，把下一层孩子都连接好，然后再下移到下一层最左节点，重复处理。',
+        bullets: [
+          '每次只关心一层父节点。',
+          '横向利用 `next` 穿过当前层。',
+          '纵向下移到下一层最左边。',
+          '这是一种很优雅的层间迭代。',
+        ],
+      },
+      {
+        id: 'pnr-optimal-solution',
+        title: '标准解法：利用已建 next 指针逐层连接',
+        summary:
+          '从根节点开始，外层循环按层向下；内层循环沿当前层已经存在的 `next` 横向遍历所有父节点。对每个父节点，先连接左孩子和右孩子，再在存在相邻父节点时，把右孩子连到相邻父节点的左孩子。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`，不算递归栈。',
+          '核心是复用父层 `next` 处理子层。',
+          '完美二叉树条件让写法非常稳定。',
+        ],
+        code: `function connect(root: Node | null): Node | null {
+  if (root === null) {
+    return null
+  }
+
+  let leftmost: Node | null = root
+
+  while (leftmost.left !== null) {
+    let head: Node | null = leftmost
+
+    while (head !== null) {
+      head.left.next = head.right
+
+      if (head.next !== null) {
+        head.right.next = head.next.left
+      }
+
+      head = head.next
+    }
+
+    leftmost = leftmost.left
+  }
+
+  return root
+}`,
+      },
+      {
+        id: 'pnr-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只连了同父节点内部关系，漏掉跨父连接。真正掌握后，你会对利用树已有指针做 O(1) 连接更敏感。',
+        bullets: [
+          '易错点 1：漏掉 `head.right.next = head.next.left`。',
+          '易错点 2：没意识到外层应该按层推进。',
+          '易错点 3：把一般二叉树写法硬套到完美二叉树题上。',
+          '延伸方向：117 题、层序遍历、树横向指针题。',
+        ],
+        callout:
+          '看到“完美二叉树”这种强条件时，别浪费它，往往就是为了让你写出更优结构解。',
+      },
+    ],
+  },
 ];
