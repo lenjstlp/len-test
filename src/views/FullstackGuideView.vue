@@ -503,6 +503,10 @@ const menuCards = [
     path: '/fullstack-guide/form-linkage-rules-engineering',
     title: '前端表单联动规则工程',
   },
+  {
+    path: '/fullstack-guide/edit-state-recovery-engineering',
+    title: '前端编辑态回显恢复工程',
+  },
 ];
 </script>
 

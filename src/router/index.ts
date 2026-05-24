@@ -1299,6 +1299,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/edit-state-recovery-engineering',
+    name: 'fullstack-edit-state-recovery-engineering',
+    component: () =>
+      import('@/views/FullstackEditStateRecoveryEngineeringView.vue'),
+    meta: {
+      title: '前端编辑态回显恢复工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
