@@ -495,6 +495,10 @@ const menuCards = [
     path: '/fullstack-guide/release-canary-engineering',
     title: '前端灰度发布工程进阶',
   },
+  {
+    path: '/fullstack-guide/request-merge-engineering',
+    title: '前端请求去重合并工程',
+  },
 ];
 </script>
 

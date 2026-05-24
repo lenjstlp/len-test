@@ -1278,6 +1278,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/request-merge-engineering',
+    name: 'fullstack-request-merge-engineering',
+    component: () => import('@/views/FullstackRequestMergeEngineeringView.vue'),
+    meta: {
+      title: '前端请求去重合并工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
