@@ -12980,4 +12980,117 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'populating-next-right-pointers-in-each-node-ii',
+    label: '117. LeetCode 117. 填充每个节点的下一个右侧节点指针 II',
+    difficulty: '中等',
+    description:
+      '这题是 116 的泛化版。真正关键不是还想照搬完美二叉树写法，而是学会在一般二叉树里自己维护下一层链表的头和尾。',
+    outcome:
+      '你能掌握一般二叉树的按层 next 连接方式，理解为什么需要显式维护下一层的 `dummy/tail`，并把这种“边遍历当前层，边构造下一层链”的思路迁移到更多链式 BFS 题。',
+    sections: [
+      {
+        id: 'pnr2-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵普通二叉树，把每个节点的 `next` 指针连接到右侧相邻节点，不存在就设为 `null`。',
+        bullets: [
+          '树不再保证完美。',
+          '有的节点可能只有一个孩子。',
+          '目标仍然是连接同层节点。',
+          '这是 116 的一般化版本。',
+        ],
+      },
+      {
+        id: 'pnr2-why-116-fails',
+        title: '为什么 116 的写法在这里不能直接用',
+        summary:
+          '因为现在不保证每个节点都有左右孩子，也不保证跨父节点时下一层一定能找到固定位置的孩子。所以 `left.next = right` 和 `right.next = next.left` 这种硬编码关系不再稳定。',
+        bullets: [
+          '孩子节点可能缺失。',
+          '跨父节点目标也不固定。',
+          '完美树的固定结构优势消失了。',
+          '必须换成更通用的连接策略。',
+        ],
+      },
+      {
+        id: 'pnr2-dummy-tail',
+        title: '最稳的通用方案，是用 dummy 和 tail 串出下一层',
+        summary:
+          '遍历当前层时，把看到的每个孩子节点都顺次挂到 `tail.next` 后面，同时推进 `tail`。这一轮结束时，`dummy.next` 就是下一层最左节点，也就是下一轮的起点。',
+        bullets: [
+          'dummy 负责记住下一层头节点。',
+          'tail 始终指向下一层当前尾部。',
+          '当前层遍历时顺手把下一层串起来。',
+          '这是非常经典的链式 BFS 技巧。',
+        ],
+        callout:
+          '当结构不再规整时，最稳的办法往往不是猜位置，而是自己把目标层重新组织出来。',
+      },
+      {
+        id: 'pnr2-level-transition',
+        title: '当前层靠 next 横向走，下一层靠 dummy.next 开始',
+        summary:
+          '一层处理开始时，先把 `dummy.next` 和 `tail` 重置。然后沿当前层已有的 `next` 指针横向扫描，把孩子依次链接到下一层链表里。当前层走完后，让 `current = dummy.next`，就自然切到下一层。',
+        bullets: [
+          '当前层和下一层的职责清晰分开。',
+          '当前层负责扫描。',
+          '下一层负责被构建。',
+          '层切换通过 `dummy.next` 完成。',
+        ],
+      },
+      {
+        id: 'pnr2-optimal-solution',
+        title: '标准解法：next 层扫 + dummy 组下一层',
+        summary:
+          '用 `current` 指向当前层起点。每层创建一个哑节点 `dummy` 和尾指针 `tail`，沿着当前层的 `next` 扫描所有节点，依次把左右孩子挂到 `tail.next` 后面。扫描结束后，下一层起点就是 `dummy.next`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '核心是边扫描边重建下一层链表。',
+          '这是一般二叉树 next 连接的标准模板。',
+        ],
+        code: `function connect(root: Node | null): Node | null {
+  let current = root
+
+  while (current !== null) {
+    const dummy = new Node(0)
+    let tail = dummy
+
+    while (current !== null) {
+      if (current.left !== null) {
+        tail.next = current.left
+        tail = tail.next
+      }
+
+      if (current.right !== null) {
+        tail.next = current.right
+        tail = tail.next
+      }
+
+      current = current.next
+    }
+
+    current = dummy.next
+  }
+
+  return root
+}`,
+      },
+      {
+        id: 'pnr2-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是在孩子缺失时连接逻辑断掉，或者忘记每层重置 `dummy/tail`。真正掌握后，你会对“当前层扫描、下一层构建”的套路更敏感。',
+        bullets: [
+          '易错点 1：没有每层重置 `dummy` 和 `tail`。',
+          '易错点 2：左孩子不存在时连接链断掉。',
+          '易错点 3：当前层扫描和下一层构建状态混淆。',
+          '延伸方向：层序链表、BFS 优化写法、树横向遍历题。',
+        ],
+        callout:
+          '通用结构题往往比特殊结构题更考验你会不会先搭一个稳定的“中转容器”。',
+      },
+    ],
+  },
 ];
