@@ -14424,4 +14424,138 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'surrounded-regions',
+    label: '130. LeetCode 130. 被围绕的区域',
+    difficulty: '中等',
+    description:
+      '这题是在练二维网格中的逆向思考。真正关键不是直接找哪些 `O` 要翻，而是先找出哪些 `O` 一定不能翻。',
+    outcome:
+      '你能掌握从边界反推可保留区域的网格搜索思路，理解为什么与边界连通的 `O` 必须保留，并把这种“先标记安全区再处理剩余部分”的思路迁移到更多矩阵题。',
+    sections: [
+      {
+        id: 'sr-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个由 `X` 和 `O` 组成的矩阵，把所有被 `X` 完全包围的 `O` 翻成 `X`。',
+        bullets: [
+          '只翻转被完全包围的 `O`。',
+          '与边界连通的 `O` 不能翻。',
+          '矩阵会被原地修改。',
+          '这是网格搜索中的经典题。',
+        ],
+      },
+      {
+        id: 'sr-reverse-thinking',
+        title: '直接找“该翻谁”很难，先找“不能翻谁”更简单',
+        summary:
+          '被包围的定义是：它无法接触边界。那反过来说，只要某个 `O` 能通过上下左右连到边界，它就一定安全。于是先从边界出发，把所有安全 `O` 标记出来。',
+        bullets: [
+          '逆向思考能大幅简化问题。',
+          '边界连通 `O` 全部安全。',
+          '剩余未标记的 `O` 才需要翻转。',
+          '这是这题最关键的思路。',
+        ],
+      },
+      {
+        id: 'sr-border-search',
+        title: '从四条边上的 `O` 出发做 DFS 或 BFS',
+        summary:
+          '遍历矩阵边界，一旦碰到 `O`，就用 DFS 或 BFS 把所有与它连通的 `O` 临时标记成特殊字符，例如 `#`。这些都是不能被翻转的区域。',
+        bullets: [
+          '搜索起点只来自边界。',
+          '连通方向是上下左右。',
+          '临时标记用于区分安全区。',
+          '搜索完成后再统一清算。',
+        ],
+        callout:
+          '网格题里“从边界反推内部”是高频技巧，尤其适合处理逃逸、包围、岛屿这类问题。',
+      },
+      {
+        id: 'sr-final-pass',
+        title: '最后统一扫一遍矩阵，分两类处理',
+        summary:
+          '所有仍然是 `O` 的格子说明没能连到边界，应该翻成 `X`；所有临时标记成 `#` 的格子，则恢复为 `O`。这样就能一次性完成原地修改。',
+        bullets: [
+          '未标记 `O` 代表被包围。',
+          '临时标记要恢复原状。',
+          '最终只需再扫一遍矩阵。',
+          '实现层次非常清楚。',
+        ],
+      },
+      {
+        id: 'sr-optimal-solution',
+        title: '标准解法：边界 DFS 标记安全区',
+        summary:
+          '先遍历四周边界，对每个边界 `O` 执行 DFS，将连通区域标记为 `#`。接着遍历整个矩阵，把 `O` 变成 `X`，再把 `#` 恢复成 `O`。',
+        bullets: [
+          '时间复杂度是 `O(m * n)`。',
+          '空间复杂度取决于递归栈或队列。',
+          '核心是边界反向标记安全区。',
+          '这是包围类网格题的经典模板。',
+        ],
+        code: `function solve(board: string[][]): void {
+  if (!board.length || !board[0].length) {
+    return
+  }
+
+  const rows = board.length
+  const cols = board[0].length
+
+  const dfs = (row: number, col: number) => {
+    if (
+      row < 0 ||
+      row >= rows ||
+      col < 0 ||
+      col >= cols ||
+      board[row][col] !== 'O'
+    ) {
+      return
+    }
+
+    board[row][col] = '#'
+
+    dfs(row - 1, col)
+    dfs(row + 1, col)
+    dfs(row, col - 1)
+    dfs(row, col + 1)
+  }
+
+  for (let row = 0; row < rows; row += 1) {
+    dfs(row, 0)
+    dfs(row, cols - 1)
+  }
+
+  for (let col = 0; col < cols; col += 1) {
+    dfs(0, col)
+    dfs(rows - 1, col)
+  }
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      if (board[row][col] === 'O') {
+        board[row][col] = 'X'
+      } else if (board[row][col] === '#') {
+        board[row][col] = 'O'
+      }
+    }
+  }
+}`,
+      },
+      {
+        id: 'sr-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题常见错误是直接从内部找被围区域，思路会非常绕。真正掌握后，你会对网格题中的“安全区标记”更敏感。',
+        bullets: [
+          '易错点 1：没从边界出发，导致判断逻辑复杂。',
+          '易错点 2：临时标记字符和原字符混淆。',
+          '易错点 3：忘了处理空矩阵。',
+          '延伸方向：岛屿数量、飞地数量、太平洋大西洋水流问题。',
+        ],
+        callout:
+          '二维矩阵题一旦有“边界是否可达”的味道，就该优先考虑从边界开始反向搜索。',
+      },
+    ],
+  },
 ];
