@@ -13488,4 +13488,102 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'best-time-to-buy-and-sell-stock-ii',
+    label: '122. LeetCode 122. 买卖股票的最佳时机 II',
+    difficulty: '中等',
+    description:
+      '这题是在训练“把总收益拆成每一段可赚的上涨区间”。真正关键不是模拟买卖动作，而是看穿：只要今天比昨天贵，就应该把这段上涨收益吃掉。',
+    outcome:
+      '你能掌握贪心地累计局部上涨收益，理解为什么多次交易下每段正收益都应该保留，并把这种“全局最优可以由局部最优直接拼出”的思路迁移到更多贪心题。',
+    sections: [
+      {
+        id: 'bttbss2-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定每天股价，你可以进行多次交易，但同一时间只能持有一股，求最大总利润。',
+        bullets: [
+          '可以买卖多次。',
+          '必须先卖再买下一次。',
+          '目标是总利润最大化。',
+          '这是贪心题的经典入门题。',
+        ],
+      },
+      {
+        id: 'bttbss2-key-insight',
+        title: '只要今天比昨天贵，就把这段上涨收益拿走',
+        summary:
+          '如果价格从 `a -> b -> c` 持续上涨，那么一次性从 `a` 买到 `c` 的收益，和分段拿走 `(b - a) + (c - b)` 完全一样。所以，只要相邻两天存在正差值，就应该累加进去。',
+        bullets: [
+          '连续上涨可以拆分成多个相邻正收益。',
+          '拆分后总收益不变。',
+          '这样就不必纠结具体在哪一天卖到峰值。',
+          '问题被压缩成相邻差值求和。',
+        ],
+      },
+      {
+        id: 'bttbss2-why-greedy-works',
+        title: '局部吃掉所有正收益，整体就已经最优',
+        summary:
+          '因为交易次数不限，只要不重叠，任意上涨区间的收益都不会互相冲突。你今天少拿一段正收益，不会让未来赚更多，反而只是在白白丢利润。',
+        bullets: [
+          '交易次数不限是贪心成立的前提。',
+          '相邻正收益之间不存在冲突。',
+          '漏掉任一段正收益都会让答案变差。',
+          '所以直接累加即可。',
+        ],
+        callout:
+          '很多贪心题的本质都不是“猜策略”，而是先证明局部选择不会伤害全局最优。',
+      },
+      {
+        id: 'bttbss2-state-simplify',
+        title: '题目最终只剩一件事：遍历相邻差值',
+        summary:
+          '不需要维护持仓表，也不需要回溯交易过程。只要从第二天开始遍历，遇到 `prices[i] > prices[i - 1]`，就把差值加入答案。',
+        bullets: [
+          '不需要真正模拟买卖。',
+          '只看相邻两天的价格关系。',
+          '正差值直接计入利润。',
+          '实现非常简洁。',
+        ],
+      },
+      {
+        id: 'bttbss2-optimal-solution',
+        title: '标准解法：累加所有正差值',
+        summary:
+          '从下标 `1` 开始遍历数组，如果 `prices[i] > prices[i - 1]`，就把 `prices[i] - prices[i - 1]` 加入总利润。遍历结束后得到最大收益。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '核心在于连续上涨可拆分。',
+          '这是多次交易股票题的基础模板。',
+        ],
+        code: `function maxProfit(prices: number[]): number {
+  let profit = 0
+
+  for (let index = 1; index < prices.length; index += 1) {
+    if (prices[index] > prices[index - 1]) {
+      profit += prices[index] - prices[index - 1]
+    }
+  }
+
+  return profit
+}`,
+      },
+      {
+        id: 'bttbss2-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题常见错误是把它做复杂，试图找所有波峰波谷。真正掌握后，你会对“是否允许无限次操作”这个条件更加敏感。',
+        bullets: [
+          '易错点 1：把题目写成峰谷模拟，代码冗长且易错。',
+          '易错点 2：把多次交易误当成一次交易处理。',
+          '易错点 3：对连续上涨区间没有看出可拆性。',
+          '延伸方向：手续费、冷冻期、限制交易次数的股票 DP。',
+        ],
+        callout:
+          '题目限制一变，解法就会从贪心切换到 DP，所以先读清交易规则比写代码更重要。',
+      },
+    ],
+  },
 ];
