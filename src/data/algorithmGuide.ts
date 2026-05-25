@@ -13688,4 +13688,110 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'binary-tree-maximum-path-sum',
+    label: '124. LeetCode 124. 二叉树中的最大路径和',
+    difficulty: '困难',
+    description:
+      '这题是在训练树形 DP 和递归返回值设计。真正关键不是遍历整棵树，而是分清“给父节点提供的值”和“当前节点内部能形成的全局答案”不是一回事。',
+    outcome:
+      '你能掌握树上路径题的状态拆分，理解为什么递归返回值只能选择一条向上延伸的链路，并把这种“局部返回值与全局最优值分离”的思路迁移到更多树形 DP 题。',
+    sections: [
+      {
+        id: 'btmps-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，路径可以从任意节点出发到任意节点结束，但路径必须连续，求最大路径和。',
+        bullets: [
+          '路径不一定经过根节点。',
+          '路径可以从任意节点开始和结束。',
+          '路径不能分叉重复走。',
+          '这是树形 DP 的经典难题。',
+        ],
+      },
+      {
+        id: 'btmps-return-vs-answer',
+        title: '递归返回给父节点的值，和当前节点的最优路径不是同一个概念',
+        summary:
+          '父节点如果要接住当前节点，只能选择当前节点往左或往右其中一条链继续向上，所以返回值必须是“单边最大贡献”。但全局最优路径可以在当前节点同时接左边和右边，这部分只能用全局变量更新。',
+        bullets: [
+          '返回值只能保留一条边。',
+          '全局答案可以同时用左右子树。',
+          '这两个量必须分开处理。',
+          '这是整题最核心的思维转折。',
+        ],
+      },
+      {
+        id: 'btmps-negative-branch',
+        title: '负贡献分支要果断丢掉，因为带上只会让路径更差',
+        summary:
+          '如果某个子树向上提供的最大贡献是负数，那还不如不要它。所以左右贡献都应该先和 0 比较，负贡献直接裁掉。',
+        bullets: [
+          '负数子路径不会改善结果。',
+          '贡献值先和 0 取最大。',
+          '这样可避免把坏路径带上去。',
+          '这是树路径题的常见剪枝。',
+        ],
+        callout:
+          '很多递归题写不顺，不是因为递归本身复杂，而是你没有先想清“什么信息值得往上交”。',
+      },
+      {
+        id: 'btmps-postorder',
+        title: '后序遍历最合适，因为要先拿到左右子树贡献',
+        summary:
+          '当前节点要决定自己的最大贡献和全局答案，必须先知道左右子树分别能提供什么。因此应采用后序遍历：先算左，后算右，最后处理自己。',
+        bullets: [
+          '当前节点依赖左右子树结果。',
+          '后序遍历天然满足依赖顺序。',
+          '每个节点只处理一次。',
+          '递归结构很自然。',
+        ],
+      },
+      {
+        id: 'btmps-optimal-solution',
+        title: '标准解法：后序遍历 + 全局最大值',
+        summary:
+          '递归函数返回“当前节点向上能提供的最大单边路径和”。在每个节点处，计算左右贡献 `leftGain`、`rightGain`，用 `node.val + leftGain + rightGain` 更新全局答案，再返回 `node.val + Math.max(leftGain, rightGain)`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是递归栈 `O(h)`。',
+          '核心是单边返回值与全局答案分离。',
+          '这是树上最大路径题的标准模板。',
+        ],
+        code: `function maxPathSum(root: TreeNode | null): number {
+  let best = -Infinity
+
+  const dfs = (node: TreeNode | null): number => {
+    if (!node) {
+      return 0
+    }
+
+    const leftGain = Math.max(dfs(node.left), 0)
+    const rightGain = Math.max(dfs(node.right), 0)
+
+    best = Math.max(best, node.val + leftGain + rightGain)
+
+    return node.val + Math.max(leftGain, rightGain)
+  }
+
+  dfs(root)
+
+  return best
+}`,
+      },
+      {
+        id: 'btmps-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把返回值错误地写成左右都加上。真正掌握后，你会对树形 DP 中“返回什么”和“统计什么”更敏感。',
+        bullets: [
+          '易错点 1：把返回值写成 `node.val + left + right`。',
+          '易错点 2：没有裁掉负贡献分支。',
+          '易错点 3：只考虑经过根节点的路径。',
+          '延伸方向：直径问题、路径总和、树上打家劫舍。',
+        ],
+        callout: '树题一旦把返回值语义说清楚，难度往往直接下降一半。',
+      },
+    ],
+  },
 ];
