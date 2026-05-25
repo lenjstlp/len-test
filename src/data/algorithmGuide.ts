@@ -14558,4 +14558,132 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'palindrome-partitioning',
+    label: '131. LeetCode 131. 分割回文串',
+    difficulty: '中等',
+    description:
+      '这题是在练回溯搜索和回文判断优化。真正关键不是盲目切割，而是每一步只扩展“当前切出来就是回文”的分支。',
+    outcome:
+      '你能掌握字符串分割类回溯题的写法，理解为什么路径上的每一段都必须先满足约束才能继续深入，并把这种“剪枝后再搜索”的思路迁移到更多回溯题。',
+    sections: [
+      {
+        id: 'pp-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串，要求把它分割成若干子串，并返回所有满足“每个子串都是回文串”的分割方案。',
+        bullets: [
+          '要输出所有合法分割方案。',
+          '每一段都必须是回文。',
+          '这不是求数量，而是求完整方案。',
+          '这是回溯题的典型结构。',
+        ],
+      },
+      {
+        id: 'pp-search-tree',
+        title: '每个切割位置，都会决定搜索树如何向下展开',
+        summary:
+          '从某个起点出发，你可以尝试把 `s[start...end]` 切成当前这一段。如果这段是回文，就把它加入路径，然后从 `end + 1` 继续搜索；否则这条分支直接剪掉。',
+        bullets: [
+          '每次选择一段作为当前切片。',
+          '合法性判断决定是否继续递归。',
+          '搜索树的深度取决于切分次数。',
+          '这正是回溯模板的标准形态。',
+        ],
+      },
+      {
+        id: 'pp-palindrome-check',
+        title: '回文判断可以现场双指针，也可以预处理 DP',
+        summary:
+          '如果直接在回溯时用双指针判断某段是否回文，代码最直观。若想进一步优化，可以预处理 `dp[left][right]` 表示子串是否回文，减少重复判断。',
+        bullets: [
+          '现场判断实现简单。',
+          '预处理 DP 可以减少重复计算。',
+          '两种方法都常见。',
+          '入门阶段先写清回溯更重要。',
+        ],
+        callout:
+          '回溯题里优化不是第一目标，先把搜索树和剪枝条件说清，比一上来追求最优复杂度更重要。',
+      },
+      {
+        id: 'pp-termination',
+        title: '当起点走到字符串末尾，就得到一套完整方案',
+        summary:
+          '递归参数 `start` 表示下一段从哪里开始切。当 `start === s.length` 时，说明整个字符串都已经被合法分割，此时把当前路径拷贝进答案。',
+        bullets: [
+          '递归终点是起点走到末尾。',
+          '当前路径就是一组完整方案。',
+          '加入答案前要做拷贝。',
+          '这是组合回溯题的固定套路。',
+        ],
+      },
+      {
+        id: 'pp-optimal-solution',
+        title: '标准解法：回溯枚举切分 + 双指针判断回文',
+        summary:
+          '编写 `dfs(start)` 表示从 `start` 位置继续切分。枚举每个结束位置 `end`，若当前子串是回文，则入路径并递归处理后半段，回溯时再弹出路径。所有到达末尾的路径都加入结果。',
+        bullets: [
+          '时间复杂度与答案规模相关。',
+          '空间复杂度取决于递归深度和结果集。',
+          '核心是“先验证、再扩展”的剪枝思想。',
+          '这是字符串分割回溯题的标准模板。',
+        ],
+        code: `function partition(s: string): string[][] {
+  const result: string[][] = []
+  const path: string[] = []
+
+  const isPalindrome = (left: number, right: number): boolean => {
+    let start = left
+    let end = right
+
+    while (start < end) {
+      if (s[start] !== s[end]) {
+        return false
+      }
+
+      start += 1
+      end -= 1
+    }
+
+    return true
+  }
+
+  const dfs = (start: number) => {
+    if (start === s.length) {
+      result.push([...path])
+      return
+    }
+
+    for (let end = start; end < s.length; end += 1) {
+      if (!isPalindrome(start, end)) {
+        continue
+      }
+
+      path.push(s.slice(start, end + 1))
+      dfs(end + 1)
+      path.pop()
+    }
+  }
+
+  dfs(0)
+
+  return result
+}`,
+      },
+      {
+        id: 'pp-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题常见错误是没有在递归前先判断回文，或者路径回溯不完整。真正掌握后，你会对字符串切分类回溯更熟悉。',
+        bullets: [
+          '易错点 1：每次都无脑切分，缺少剪枝。',
+          '易错点 2：加入答案时没有拷贝路径。',
+          '易错点 3：回文判断边界写错。',
+          '延伸方向：复原 IP 地址、分割等和子集、括号生成、回文子串 DP。',
+        ],
+        callout:
+          '回溯题真正拉开差距的点，不是会不会写模板，而是你能不能提前识别哪些分支根本没必要继续走。',
+      },
+    ],
+  },
 ];
