@@ -14211,4 +14211,113 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'longest-consecutive-sequence',
+    label: '128. LeetCode 128. 最长连续序列',
+    difficulty: '中等',
+    description:
+      '这题是在练哈希去重和“只从序列起点出发”的优化思路。真正关键不是排序，而是避免重复扫描同一段连续区间。',
+    outcome:
+      '你能掌握 Set 处理连续序列的经典做法，理解为什么只从没有前驱的数字开始扩展即可，并把这种“识别起点再线性扩展”的思路迁移到更多哈希题。',
+    sections: [
+      {
+        id: 'lcs-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个未排序整数数组，求最长连续数字序列的长度，要求时间复杂度尽量接近线性。',
+        bullets: [
+          '数组无序。',
+          '连续指的是值相差 1。',
+          '要求最长长度。',
+          '目标复杂度是 `O(n)` 级别。',
+        ],
+      },
+      {
+        id: 'lcs-why-not-sort',
+        title: '排序能做，但不是题目最想考的点',
+        summary:
+          '排序后当然可以线性扫出最长连续段，但复杂度会变成 `O(n log n)`。题目真正想考的是能否利用哈希表把“某个数字是否存在”压到 O(1) 查询。',
+        bullets: [
+          '排序法思路简单但复杂度更高。',
+          'Set 能提供 O(1) 级存在性查询。',
+          '题目希望你用哈希解。',
+          '这类题本质在于去重与快速查找。',
+        ],
+      },
+      {
+        id: 'lcs-sequence-start',
+        title: '只有当 `num - 1` 不存在时，`num` 才可能是连续段起点',
+        summary:
+          '如果某个数前面还有 `num - 1`，那它只是某段连续序列的中间位置，没必要从它重新开始扫描。只有没有前驱的数字，才值得向后扩展整段序列。',
+        bullets: [
+          '识别起点能避免重复工作。',
+          '中间点不需要重复扩展。',
+          '每段连续序列只会被完整扫描一次。',
+          '这就是线性复杂度的关键。',
+        ],
+        callout:
+          '很多 `O(n)` 解法的本质，不是每次操作特别快，而是你成功避免了重复遍历。',
+      },
+      {
+        id: 'lcs-expand',
+        title: '从起点开始不断检查 `num + 1`、`num + 2` 是否存在',
+        summary:
+          '一旦确认 `num` 是起点，就持续向后检查下一位数字是否还在集合中，直到断开。这样就能算出以它为起点的连续段长度。',
+        bullets: [
+          '向后扩展逻辑很直接。',
+          '集合判断存在性非常高效。',
+          '每个数字最多参与一次扩展链。',
+          '整体复杂度可控制在线性级别。',
+        ],
+      },
+      {
+        id: 'lcs-optimal-solution',
+        title: '标准解法：Set 去重 + 只从起点扩展',
+        summary:
+          '先把所有数字放入 `Set`。遍历集合中的每个数字，若 `num - 1` 不存在，则以它为起点不断向后扩展并统计长度，用最大值更新答案即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '核心是“仅从起点出发”的去重思想。',
+          '这是哈希表题的经典范式。',
+        ],
+        code: `function longestConsecutive(nums: number[]): number {
+  const numSet = new Set(nums)
+  let longest = 0
+
+  for (const num of numSet) {
+    if (numSet.has(num - 1)) {
+      continue
+    }
+
+    let current = num
+    let length = 1
+
+    while (numSet.has(current + 1)) {
+      current += 1
+      length += 1
+    }
+
+    longest = Math.max(longest, length)
+  }
+
+  return longest
+}`,
+      },
+      {
+        id: 'lcs-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题常见错误是对每个数字都向前向后扫一遍，导致重复计算。真正掌握后，你会对“如何识别合法起点”更敏感。',
+        bullets: [
+          '易错点 1：没有去重，重复元素干扰判断。',
+          '易错点 2：每个数字都完整扩展，复杂度退化。',
+          '易错点 3：只想到排序法，错过哈希优化。',
+          '延伸方向：最长等差序列、区间合并、哈希去重题。',
+        ],
+        callout:
+          '看到“连续”“无序”“线性复杂度”这几个关键词同时出现，优先想到哈希集合通常不会错。',
+      },
+    ],
+  },
 ];
