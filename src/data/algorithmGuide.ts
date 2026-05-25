@@ -13586,4 +13586,106 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'best-time-to-buy-and-sell-stock-iii',
+    label: '123. LeetCode 123. 买卖股票的最佳时机 III',
+    difficulty: '困难',
+    description:
+      '这题是在练有限次交易的状态机 DP。真正关键不是背公式，而是把每一种“做过几次交易、当前是否持股”的状态拆清楚。',
+    outcome:
+      '你能掌握两次交易股票题的状态设计，理解为什么买卖动作会让状态在固定轨道上流转，并把这种有限次操作的状态机思路迁移到更多 DP 题。',
+    sections: [
+      {
+        id: 'bttbss3-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定每天股价，最多完成两笔交易，求最大利润。每次交易都必须先买后卖。',
+        bullets: [
+          '最多两笔交易。',
+          '同一时间只能持有一股。',
+          '交易顺序必须合法。',
+          '这是股票 DP 的代表题。',
+        ],
+      },
+      {
+        id: 'bttbss3-state-machine',
+        title: '最自然的建模方式，是把过程拆成四个状态',
+        summary:
+          '随着时间推进，你会依次经历：第一次买入、第一次卖出、第二次买入、第二次卖出。每个状态都表示“到今天为止，停在这个阶段时的最大收益”。',
+        bullets: [
+          '第一次买入后手里持股。',
+          '第一次卖出后手里无股。',
+          '第二次买入后再次持股。',
+          '第二次卖出后手里无股。',
+        ],
+      },
+      {
+        id: 'bttbss3-transition',
+        title: '每天的价格，只会推动这四个状态做一次转移',
+        summary:
+          '例如第一次买入状态要么沿用昨天的结果，要么今天从 0 收益开始买入；第一次卖出状态要么沿用昨天结果，要么用今天价格把第一次买入卖掉。后面两步也同理。',
+        bullets: [
+          '每个状态都有“保持不动”和“今天操作”两种选择。',
+          '转移关系非常稳定。',
+          '状态数量固定，所以空间可以压缩。',
+          '本质就是小型状态机。',
+        ],
+        callout:
+          '有限次交易题最怕的不是转移难，而是你一开始状态命名就含糊，后面整题都会乱掉。',
+      },
+      {
+        id: 'bttbss3-init',
+        title: '初始化要贴合业务语义，不能随便写 0',
+        summary:
+          '第一次买入、第二次买入都代表手里持股，因此初始值应该是负数；第一次卖出、第二次卖出初始为 0。尤其第二次买入不能乱设，它必须依赖第一次卖出后的利润。',
+        bullets: [
+          '持股状态本质上要付出成本。',
+          '未发生的卖出状态初始可视为 0。',
+          '第二次买入要建立在第一次卖出之后。',
+          '初始化不清会直接破坏答案。',
+        ],
+      },
+      {
+        id: 'bttbss3-optimal-solution',
+        title: '标准解法：四变量状态压缩',
+        summary:
+          '用 `buy1`、`sell1`、`buy2`、`sell2` 四个变量表示四个阶段。每天按顺序更新：买入看最大负成本，卖出看当前收益最大化。最终 `sell2` 就是至多两笔交易的最优结果。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '核心是固定状态机建模。',
+          '这是有限次股票交易题的基础模板。',
+        ],
+        code: `function maxProfit(prices: number[]): number {
+  let buy1 = -Infinity
+  let sell1 = 0
+  let buy2 = -Infinity
+  let sell2 = 0
+
+  for (const price of prices) {
+    buy1 = Math.max(buy1, -price)
+    sell1 = Math.max(sell1, buy1 + price)
+    buy2 = Math.max(buy2, sell1 - price)
+    sell2 = Math.max(sell2, buy2 + price)
+  }
+
+  return sell2
+}`,
+      },
+      {
+        id: 'bttbss3-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把四个状态的含义混淆，或者更新顺序写乱。真正掌握后，你会对“有限次操作”的 DP 抽象更熟练。',
+        bullets: [
+          '易错点 1：把第二次买入写成 `-price`。',
+          '易错点 2：状态命名不清，导致语义混乱。',
+          '易错点 3：用二维 DP 但边界初始化没处理好。',
+          '延伸方向：`k` 次交易、含手续费、含冷冻期的股票题。',
+        ],
+        callout:
+          '股票 DP 系列真正值得练的，不是某一道题，而是你能否建立一套稳定的状态机分析框架。',
+      },
+    ],
+  },
 ];
