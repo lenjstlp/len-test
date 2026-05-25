@@ -14077,4 +14077,138 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'word-ladder',
+    label: '127. LeetCode 127. 单词接龙',
+    difficulty: '困难',
+    description:
+      '这题是在练无权图最短路径。真正关键不是把单词问题想复杂，而是把每个单词看成图上的节点，再用 BFS 逐层推进。',
+    outcome:
+      '你能掌握无权图最短路径的 BFS 解法，理解为什么第一次到达终点时步数就是最短长度，并把这种“分层搜索”的思路迁移到更多图搜索题。',
+    sections: [
+      {
+        id: 'wl-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定起点单词和终点单词，每次只能改一个字母且新单词必须在字典中，求最短转换序列长度。',
+        bullets: [
+          '每次只能改变一个字母。',
+          '中间单词必须存在于字典。',
+          '要求的是最短长度，不是所有方案。',
+          '这是无权图最短路题。',
+        ],
+      },
+      {
+        id: 'wl-graph-view',
+        title: '把单词想成节点，只差一个字母的两个单词之间连边',
+        summary:
+          '一旦这样抽象，题目就非常标准了：从 `beginWord` 出发，在无权图里找 `endWord` 的最短步数。无权图最短路的标准做法就是 BFS。',
+        bullets: [
+          '每个单词是一个节点。',
+          '单字母可变换关系是一条边。',
+          '边权都相同，因此 BFS 最合适。',
+          '抽象正确后解法就自然了。',
+        ],
+      },
+      {
+        id: 'wl-bfs-layer',
+        title: 'BFS 按层推进，第一次到达终点就是最短长度',
+        summary:
+          '因为 BFS 会先访问所有长度为 1 的路径，再访问长度为 2 的路径，以此类推。所以一旦某一层首次碰到终点，这一层的步数就是最短答案。',
+        bullets: [
+          '层数直接对应变换步数。',
+          '无需比较所有路径长度。',
+          '首次到达终点即可返回。',
+          '这就是 BFS 在最短路中的优势。',
+        ],
+        callout:
+          '只要题目是“无权图 + 最短步数”，BFS 基本就是第一反应，不需要先想 DFS。',
+      },
+      {
+        id: 'wl-neighbor-generate',
+        title: '邻居生成方式决定实现效率',
+        summary:
+          '对每个单词的每个位置，尝试替换成 `a-z` 的 26 个字符，就能生成所有可能邻居。若生成的新单词存在于字典中，就说明能走到它。',
+        bullets: [
+          '逐位置替换是通用做法。',
+          '每次最多尝试 `单词长度 * 26` 次。',
+          '字典用 Set 存储便于 O(1) 查找。',
+          '访问过的词要及时删除或标记。',
+        ],
+      },
+      {
+        id: 'wl-optimal-solution',
+        title: '标准解法：Set + BFS 队列',
+        summary:
+          '把字典放进 `Set` 中，队列中保存当前单词与步数。每弹出一个单词，就枚举所有一位变换的邻居。若邻居等于终点，返回当前步数加一；否则把没访问过的邻居入队并从集合移除。',
+        bullets: [
+          '时间复杂度取决于节点数与邻居生成成本。',
+          '空间复杂度主要是队列和集合。',
+          '核心是 BFS 分层和邻居生成。',
+          '这是单词变换题的标准模板。',
+        ],
+        code: `function ladderLength(
+  beginWord: string,
+  endWord: string,
+  wordList: string[],
+): number {
+  const wordSet = new Set(wordList)
+
+  if (!wordSet.has(endWord)) {
+    return 0
+  }
+
+  const queue: Array<[string, number]> = [[beginWord, 1]]
+  wordSet.delete(beginWord)
+
+  while (queue.length) {
+    const [word, steps] = queue.shift()!
+    const chars = word.split('')
+
+    for (let index = 0; index < chars.length; index += 1) {
+      const original = chars[index]
+
+      for (let code = 97; code <= 122; code += 1) {
+        const nextChar = String.fromCharCode(code)
+
+        if (nextChar === original) {
+          continue
+        }
+
+        chars[index] = nextChar
+        const nextWord = chars.join('')
+
+        if (nextWord === endWord) {
+          return steps + 1
+        }
+
+        if (wordSet.has(nextWord)) {
+          queue.push([nextWord, steps + 1])
+          wordSet.delete(nextWord)
+        }
+      }
+
+      chars[index] = original
+    }
+  }
+
+  return 0
+}`,
+      },
+      {
+        id: 'wl-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题常见错误是没有把问题抽象成图，或者访问标记做得太晚导致重复入队。真正掌握后，你会对 BFS 最短路模型更熟悉。',
+        bullets: [
+          '易错点 1：重复访问同一单词，导致性能恶化。',
+          '易错点 2：把步数和层数关系写乱。',
+          '易错点 3：没处理终点不在字典中的情况。',
+          '延伸方向：双向 BFS、最短路径还原、单词图建模优化。',
+        ],
+        callout:
+          '图搜索题一旦重复入队过多，性能会迅速崩掉，所以访问控制是第一优先级。',
+      },
+    ],
+  },
 ];
