@@ -14320,4 +14320,108 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'sum-root-to-leaf-numbers',
+    label: '129. LeetCode 129. 求根节点到叶节点数字之和',
+    difficulty: '中等',
+    description:
+      '这题是在练树的前序 DFS 和路径状态累积。真正关键不是把路径存下来，而是理解当前路径值可以在递归过程中逐层滚动更新。',
+    outcome:
+      '你能掌握树上路径前缀值的递归写法，理解为什么每下探一层都只需要做一次 `previous * 10 + current`，并把这种路径状态传递思路迁移到更多树题。',
+    sections: [
+      {
+        id: 'srtl-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵每个节点值都在 `0-9` 的二叉树，每条从根到叶子的路径都能组成一个数字，求所有这些数字之和。',
+        bullets: [
+          '节点值视为数字位。',
+          '只统计根到叶子的完整路径。',
+          '每条路径都会形成一个十进制数。',
+          '这是典型的 DFS 路径题。',
+        ],
+      },
+      {
+        id: 'srtl-prefix-value',
+        title: '路径数字可以像前缀一样滚动构造',
+        summary:
+          '假设到父节点时路径值是 `current`，走到子节点后，新路径值就是 `current * 10 + child.val`。这说明你根本不需要把整条路径字符串或数组存起来。',
+        bullets: [
+          '新节点相当于在数字末尾追加一位。',
+          '十进制位移天然对应乘 10。',
+          '路径值可以在递归参数里传递。',
+          '状态设计非常简洁。',
+        ],
+      },
+      {
+        id: 'srtl-leaf-answer',
+        title: '只有走到叶子节点，当前路径值才算一条完整答案',
+        summary:
+          '中间节点还没有形成完整路径，不能直接加入总和。只有当左右孩子都为空时，才能把当前累计值计入答案。',
+        bullets: [
+          '叶子节点意味着路径结束。',
+          '中间节点只负责传递状态。',
+          '判断叶子是整题的边界条件。',
+          '这让递归收束很自然。',
+        ],
+        callout:
+          '树题里很多 bug 都来自边界判断放错位置，尤其是“什么时候算一个完整答案”这件事。',
+      },
+      {
+        id: 'srtl-preorder',
+        title: '前序遍历最顺手，因为状态要先更新再往下传',
+        summary:
+          '当前节点值会参与子路径计算，所以应先算出新的路径值，再把它传给左右孩子。这种“先处理自己，再递归孩子”的结构天然就是前序 DFS。',
+        bullets: [
+          '当前节点先参与路径值构造。',
+          '然后把新状态交给子节点。',
+          '前序顺序与业务语义一致。',
+          '实现简单直观。',
+        ],
+      },
+      {
+        id: 'srtl-optimal-solution',
+        title: '标准解法：DFS 传递当前路径值',
+        summary:
+          '递归函数接收节点和当前前缀值，进入节点后计算 `nextValue = current * 10 + node.val`。若当前是叶子节点，返回 `nextValue`；否则返回左右子树结果之和。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是递归栈 `O(h)`。',
+          '核心是路径值滚动更新。',
+          '这是树上路径累积题的标准模板。',
+        ],
+        code: `function sumNumbers(root: TreeNode | null): number {
+  const dfs = (node: TreeNode | null, current: number): number => {
+    if (!node) {
+      return 0
+    }
+
+    const nextValue = current * 10 + node.val
+
+    if (!node.left && !node.right) {
+      return nextValue
+    }
+
+    return dfs(node.left, nextValue) + dfs(node.right, nextValue)
+  }
+
+  return dfs(root, 0)
+}`,
+      },
+      {
+        id: 'srtl-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题常见错误是把路径存成字符串再转数字，或者叶子判断时机不对。真正掌握后，你会对路径状态在递归中如何传递更熟练。',
+        bullets: [
+          '易错点 1：只要访问节点就累加结果，导致中间路径被误算。',
+          '易错点 2：用字符串拼接，写法更笨重。',
+          '易错点 3：忽略空树返回 0。',
+          '延伸方向：路径总和、二叉树路径枚举、前缀状态 DFS。',
+        ],
+        callout:
+          '递归参数如果能直接承载业务状态，就别额外开路径数组，那通常只会增加复杂度。',
+      },
+    ],
+  },
 ];
