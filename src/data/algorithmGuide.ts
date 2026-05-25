@@ -13905,4 +13905,176 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'word-ladder-ii',
+    label: '126. LeetCode 126. 单词接龙 II',
+    difficulty: '困难',
+    description:
+      '这题是在练 BFS 找最短层级，再配合回溯还原所有最短路径。真正关键不是暴力枚举所有路径，而是先用分层搜索锁定“最短”这件事。',
+    outcome:
+      '你能掌握“BFS 建最短层图 + DFS 回溯所有答案”的组合套路，理解为什么最短路径问题要先分层再还原路径，并把这种思路迁移到更多图搜索题。',
+    sections: [
+      {
+        id: 'wl2-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定起始单词、结束单词和字典，每次只能改一个字母且新单词必须在字典中，求所有最短转换序列。',
+        bullets: [
+          '每次只能改一个字母。',
+          '中间单词必须在字典中。',
+          '要求的是所有最短路径。',
+          '这是图最短路与路径还原结合题。',
+        ],
+      },
+      {
+        id: 'wl2-why-bfs-first',
+        title: '最短路径问题，先 BFS 分层是第一原则',
+        summary:
+          '因为 BFS 天然按步数一层层扩展，第一次到达某个单词时，已经保证步数最短。题目要所有最短路径，所以应先通过 BFS 建立最短层关系，再从这些关系中回溯所有答案。',
+        bullets: [
+          'BFS 能保证第一次到达步数最短。',
+          '先锁定最短层级，再考虑路径枚举。',
+          '否则 DFS 会陷入大量无效长路径。',
+          '这是整题的基本框架。',
+        ],
+      },
+      {
+        id: 'wl2-parent-graph',
+        title: '不要急着存完整路径，先存每个节点的前驱关系',
+        summary:
+          '在 BFS 过程中，记录某个单词是从哪些上层单词转移而来。这样等最短层构建完成后，只需从终点逆向回溯，就能还原出所有最短方案。',
+        bullets: [
+          '前驱表比直接存整条路径更高效。',
+          '一个单词可能有多个最短前驱。',
+          '前驱关系天然适合后续 DFS 回溯。',
+          '结构上更清晰。',
+        ],
+        callout:
+          '路径题如果一开始就背着完整路径跑搜索，通常会又慢又乱；先存关系再还原，往往更稳。',
+      },
+      {
+        id: 'wl2-layer-control',
+        title: 'BFS 要按层删除访问节点，避免错删同层最短路径',
+        summary:
+          '某一层里，多个节点可能都会在同一步到达同一个新单词。如果你一发现就立刻从字典删除，可能会丢掉同层其他合法前驱。因此应等整层处理完，再批量删除新访问节点。',
+        bullets: [
+          '同层节点共享相同步数。',
+          '过早删除会漏掉等长最短路径。',
+          '按层批量处理更安全。',
+          '这是这题实现中的关键细节。',
+        ],
+      },
+      {
+        id: 'wl2-optimal-solution',
+        title: '标准解法：BFS 建前驱图，DFS 回溯答案',
+        summary:
+          '先用 BFS 从 `beginWord` 出发，逐层生成相邻单词，并记录每个单词的前驱列表。找到 `endWord` 后停止继续向更深层扩展。随后从 `endWord` 开始 DFS 回溯到 `beginWord`，把所有最短路径加入答案。',
+        bullets: [
+          '时间复杂度取决于单词数和生成邻居方式。',
+          '核心是 BFS 负责最短，DFS 负责枚举。',
+          '按层处理是正确性的关键。',
+          '这是最短路径全量输出的经典套路。',
+        ],
+        code: `function findLadders(
+  beginWord: string,
+  endWord: string,
+  wordList: string[],
+): string[][] {
+  const wordSet = new Set(wordList)
+
+  if (!wordSet.has(endWord)) {
+    return []
+  }
+
+  const parents = new Map<string, string[]>()
+  let level = new Set([beginWord])
+  let found = false
+
+  while (level.size && !found) {
+    const nextLevel = new Set<string>()
+
+    for (const word of level) {
+      wordSet.delete(word)
+    }
+
+    for (const word of level) {
+      const chars = word.split('')
+
+      for (let index = 0; index < chars.length; index += 1) {
+        const original = chars[index]
+
+        for (let code = 97; code <= 122; code += 1) {
+          const nextChar = String.fromCharCode(code)
+
+          if (nextChar === original) {
+            continue
+          }
+
+          chars[index] = nextChar
+          const nextWord = chars.join('')
+
+          if (!wordSet.has(nextWord)) {
+            continue
+          }
+
+          if (!parents.has(nextWord)) {
+            parents.set(nextWord, [])
+          }
+
+          parents.get(nextWord)!.push(word)
+          nextLevel.add(nextWord)
+
+          if (nextWord === endWord) {
+            found = true
+          }
+        }
+
+        chars[index] = original
+      }
+    }
+
+    level = nextLevel
+  }
+
+  const result: string[][] = []
+  const path = [endWord]
+
+  const dfs = (word: string) => {
+    if (word === beginWord) {
+      result.push([...path].reverse())
+      return
+    }
+
+    const prevWords = parents.get(word) ?? []
+
+    for (const prevWord of prevWords) {
+      path.push(prevWord)
+      dfs(prevWord)
+      path.pop()
+    }
+  }
+
+  if (found) {
+    dfs(endWord)
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'wl2-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是 BFS 层级处理不对导致漏解，或者直接 DFS 爆炸。真正掌握后，你会对“最短路径 + 全部方案”的组合题更有感觉。',
+        bullets: [
+          '易错点 1：访问标记删得太早，导致漏掉同层前驱。',
+          '易错点 2：没有先用 BFS 锁定最短层。',
+          '易错点 3：存完整路径跑 BFS，内存压力过大。',
+          '延伸方向：最短路径打印、无权图 BFS、双向 BFS。',
+        ],
+        callout:
+          '图题一旦同时要求“最短”和“所有方案”，基本就该想到 BFS 负责定层，DFS 负责还原。',
+      },
+    ],
+  },
 ];
