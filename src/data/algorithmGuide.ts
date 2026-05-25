@@ -13794,4 +13794,115 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'valid-palindrome',
+    label: '125. LeetCode 125. 验证回文串',
+    difficulty: '简单',
+    description:
+      '这题是在练双指针和字符串清洗。真正关键不是把字符串反转，而是能否在扫描过程中跳过无效字符，并统一大小写后比较两端。',
+    outcome:
+      '你能掌握双指针处理字符串的基础套路，理解为什么过滤和比较可以同步完成，并把这种“边移动边裁掉无效信息”的思路迁移到更多字符串题。',
+    sections: [
+      {
+        id: 'vp-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串，忽略非字母数字字符并忽略大小写，判断它是否是回文串。',
+        bullets: [
+          '只比较字母和数字。',
+          '大小写视为相同。',
+          '回文要求从两端向中间一致。',
+          '这是双指针字符串题。',
+        ],
+      },
+      {
+        id: 'vp-two-pointers',
+        title: '从两端向中间夹逼，是这题最自然的做法',
+        summary:
+          '左指针从头开始，右指针从尾开始。遇到不是字母数字的字符就跳过；当两边都落在有效字符上时，统一转成小写后比较，不相等就直接返回 `false`。',
+        bullets: [
+          '双指针能同步利用左右信息。',
+          '无效字符直接跳过。',
+          '比较前统一大小写。',
+          '一旦失配可立刻结束。',
+        ],
+      },
+      {
+        id: 'vp-filter-vs-in-place',
+        title: '可以先过滤再判断，但原地双指针更省空间',
+        summary:
+          '先把有效字符提取出来再做回文判断也能过，但会额外开辟一个新字符串。原地双指针则是在遍历过程中完成过滤和比较，更贴近题目本质。',
+        bullets: [
+          '过滤后再判断更直观。',
+          '原地双指针空间更优。',
+          '两种方法时间复杂度都差不多。',
+          '面试里更推荐原地写法。',
+        ],
+        callout:
+          '很多字符串题都存在“先预处理”与“边处理边判断”两种写法，后者往往更体现基本功。',
+      },
+      {
+        id: 'vp-char-check',
+        title: '字符是否合法，本质上就是判断它是不是字母或数字',
+        summary:
+          '在 JavaScript 里，可以写一个辅助函数，用字符编码判断 `0-9`、`A-Z`、`a-z` 是否命中。把这个逻辑抽出来，主流程会更清楚。',
+        bullets: [
+          '有效字符只有数字和英文字母。',
+          '辅助函数让主逻辑更干净。',
+          '字符编码判断比正则更可控。',
+          '清晰性比炫技更重要。',
+        ],
+      },
+      {
+        id: 'vp-optimal-solution',
+        title: '标准解法：原地双指针跳过无效字符',
+        summary:
+          '定义左右指针和 `isAlphaNumeric` 辅助函数。循环中持续跳过无效字符，之后将两端字符转成小写比较。若全部通过，则说明是合法回文。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '核心是过滤与比较同步进行。',
+          '这是字符串双指针的基础模板。',
+        ],
+        code: `function isPalindrome(s: string): boolean {
+  const isAlphaNumeric = (char: string): boolean => /[a-z0-9]/i.test(char)
+  let left = 0
+  let right = s.length - 1
+
+  while (left < right) {
+    while (left < right && !isAlphaNumeric(s[left])) {
+      left += 1
+    }
+
+    while (left < right && !isAlphaNumeric(s[right])) {
+      right -= 1
+    }
+
+    if (s[left].toLowerCase() !== s[right].toLowerCase()) {
+      return false
+    }
+
+    left += 1
+    right -= 1
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'vp-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题常见错误是没有正确跳过符号，或者比较前忘了统一大小写。真正掌握后，你会对双指针处理字符串的节奏更熟悉。',
+        bullets: [
+          '易错点 1：只过滤空格，没过滤其他符号。',
+          '易错点 2：大小写没统一。',
+          '易错点 3：跳过无效字符后忘了重新判断边界。',
+          '延伸方向：最多删一个字符验证回文、回文子串、中心扩展法。',
+        ],
+        callout:
+          '字符串题很多时候拼的不是算法深度，而是你对边界和细节是否足够严谨。',
+      },
+    ],
+  },
 ];
