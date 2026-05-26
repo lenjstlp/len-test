@@ -15027,4 +15027,115 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'candy',
+    label: '135. LeetCode 135. 分发糖果',
+    difficulty: '困难',
+    description:
+      '这题是在练双向约束下的贪心分配。真正关键不是边走边贪，而是意识到“比左边高”和“比右边高”是两套独立约束，需要分别满足后再合并。',
+    outcome:
+      '你能掌握双向扫描解决局部相邻约束问题的思路，理解为什么左右两侧要求需要独立处理，并把这种“两边各做一次约束累积”的方法迁移到更多数组题。',
+    sections: [
+      {
+        id: 'candy-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一组孩子评分，要求每个孩子至少 1 颗糖，且评分更高的孩子必须比相邻孩子拿更多，求最少需要多少糖。',
+        bullets: [
+          '每个人至少 1 颗糖。',
+          '相邻评分高者糖果更多。',
+          '目标是总糖果数最小。',
+          '这是相邻约束贪心题。',
+        ],
+      },
+      {
+        id: 'candy-one-direction-not-enough',
+        title: '只从左往右扫，无法同时满足右侧约束',
+        summary:
+          '从左往右可以保证“比左边高就多拿一颗”，但无法处理“某人虽然不比左边高，却比右边高”的情况。所以只做单向贪心是不够的。',
+        bullets: [
+          '左到右只能满足左侧关系。',
+          '右到左才能补上右侧关系。',
+          '两个方向的约束彼此独立。',
+          '这决定了整题必须至少两遍扫描。',
+        ],
+      },
+      {
+        id: 'candy-two-pass-idea',
+        title: '先满足左规则，再满足右规则，最后取两者最大值',
+        summary:
+          '可以分别构造两个数组：`left[i]` 表示为了满足左邻约束，`i` 至少拿多少；`right[i]` 表示为了满足右邻约束，`i` 至少拿多少。最终每个位置取两者较大值，才能同时满足两边规则。',
+        bullets: [
+          '左右约束拆开看更清楚。',
+          '每边都能线性处理。',
+          '最终用最大值合并两种下界。',
+          '这是一种非常典型的双向贪心结构。',
+        ],
+        callout:
+          '遇到“同时受左边和右边影响”的题，先别急着写一个万能规则，通常拆成两个单向约束更稳。',
+      },
+      {
+        id: 'candy-why-max',
+        title: '取最大值，不是取和，因为每个孩子只需要满足更严格的那一侧',
+        summary:
+          '左右两个数组本质上都在给当前位置设“最低下限”。如果左边要求至少 3、右边要求至少 2，那么给 3 就已经同时满足，不必把两个要求累加。',
+        bullets: [
+          '左右数组表示的是下界，不是独立份额。',
+          '满足更大的那个下界即可。',
+          '取和会重复计算。',
+          '理解语义比记公式更重要。',
+        ],
+      },
+      {
+        id: 'candy-optimal-solution',
+        title: '标准解法：左右两遍扫描',
+        summary:
+          '先把 `left` 全部初始化为 1，从左往右扫描，若当前评分比左边高，则 `left[i] = left[i - 1] + 1`。再从右往左维护 `right` 需求，累加每个位置的 `Math.max(left[i], right)` 即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度可做到 `O(n)` 或优化到 `O(1)` 辅助。',
+          '核心是双向约束分开处理。',
+          '这是相邻评分分配题的标准模板。',
+        ],
+        code: `function candy(ratings: number[]): number {
+  const left = Array(ratings.length).fill(1)
+
+  for (let index = 1; index < ratings.length; index += 1) {
+    if (ratings[index] > ratings[index - 1]) {
+      left[index] = left[index - 1] + 1
+    }
+  }
+
+  let total = 0
+  let right = 1
+
+  for (let index = ratings.length - 1; index >= 0; index -= 1) {
+    if (index < ratings.length - 1 && ratings[index] > ratings[index + 1]) {
+      right += 1
+    } else {
+      right = 1
+    }
+
+    total += Math.max(left[index], right)
+  }
+
+  return total
+}`,
+      },
+      {
+        id: 'candy-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是试图一遍扫描同时处理两边关系。真正掌握后，你会对双向约束拆分更敏感。',
+        bullets: [
+          '易错点 1：只扫描一次，漏掉右侧更高约束。',
+          '易错点 2：最终把左右需求相加。',
+          '易错点 3：相等评分时错误增加糖果。',
+          '延伸方向：接雨水、柱状图、双向前后缀约束题。',
+        ],
+        callout:
+          '双向限制题很多都不是“想一个更聪明的单规则”，而是老老实实把两个方向分开做。',
+      },
+    ],
+  },
 ];
