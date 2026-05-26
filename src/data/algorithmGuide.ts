@@ -14686,4 +14686,127 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'palindrome-partitioning-ii',
+    label: '132. LeetCode 132. 分割回文串 II',
+    difficulty: '困难',
+    description:
+      '这题是在练区间回文预处理和最小切割 DP。真正关键不是暴力试所有切法，而是先把“哪些子串是回文”预处理好，再去做最优切割决策。',
+    outcome:
+      '你能掌握回文预处理配合一维 DP 的经典套路，理解为什么最小切割可以转成前缀最优问题，并把这种“先判合法区间，再做最优转移”的思路迁移到更多字符串 DP 题。',
+    sections: [
+      {
+        id: 'pp2-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串，要求把它切成若干回文子串，并返回最少需要切多少刀。',
+        bullets: [
+          '每一段都必须是回文。',
+          '目标是切割次数最少。',
+          '不是求所有方案，而是求最优值。',
+          '这是回文 + DP 的经典组合题。',
+        ],
+      },
+      {
+        id: 'pp2-why-precompute',
+        title: '如果每次转移都现场判回文，重复成本会非常高',
+        summary:
+          '在考虑某个位置怎么切时，你会频繁问“`s[left...right]` 是否回文”。这类重复判断特别适合预处理成二维表，之后查询就能变成 O(1)。',
+        bullets: [
+          '回文判断会被重复调用很多次。',
+          '二维表可以缓存区间合法性。',
+          '预处理后主 DP 会更清晰。',
+          '这是字符串区间题的常规优化。',
+        ],
+      },
+      {
+        id: 'pp2-dp-view',
+        title: '最少切割次数，本质上是前缀最优问题',
+        summary:
+          '设 `dp[i]` 表示前 `i` 个字符最少切多少刀。如果某段 `s[j...i]` 是回文，那么可以从 `dp[j - 1]` 转移过来。若 `j === 0`，说明整个前缀本身就是回文，不需要切割。',
+        bullets: [
+          '状态关注的是前缀最优值。',
+          '每次尝试最后一段从哪里开始。',
+          '最后一段必须先是回文才可转移。',
+          '这让状态转移十分稳定。',
+        ],
+        callout:
+          '很多字符串最优划分题，最后都会落到“枚举最后一段”的 DP 模式上。',
+      },
+      {
+        id: 'pp2-palindrome-table',
+        title: '回文表通常从短区间向长区间递推',
+        summary:
+          '区间 `s[left...right]` 是否是回文，取决于两端字符是否相等，以及内部 `s[left + 1...right - 1]` 是否回文。所以可以按右端点递增、左端点递减的顺序填表。',
+        bullets: [
+          '长度 1 的区间天然是回文。',
+          '长度 2 看两端是否相等。',
+          '更长区间依赖更短区间。',
+          '填表顺序必须满足依赖关系。',
+        ],
+      },
+      {
+        id: 'pp2-optimal-solution',
+        title: '标准解法：回文预处理 + 一维 DP',
+        summary:
+          '先预处理 `isPalindrome[left][right]`，再用 `dp[right]` 表示 `0...right` 的最少切割次数。若 `0...right` 本身是回文，则 `dp[right] = 0`；否则枚举所有可能起点 `left`，若 `left...right` 是回文，就尝试 `dp[left - 1] + 1`。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度是 `O(n^2)`。',
+          '核心是先求合法区间，再求最优切法。',
+          '这是回文切分类题的标准模板。',
+        ],
+        code: `function minCut(s: string): number {
+  const length = s.length
+  const isPalindrome = Array.from({ length }, () => Array(length).fill(false))
+
+  for (let right = 0; right < length; right += 1) {
+    for (let left = right; left >= 0; left -= 1) {
+      if (
+        s[left] === s[right] &&
+        (right - left <= 2 || isPalindrome[left + 1][right - 1])
+      ) {
+        isPalindrome[left][right] = true
+      }
+    }
+  }
+
+  const dp = Array(length).fill(0)
+
+  for (let right = 0; right < length; right += 1) {
+    if (isPalindrome[0][right]) {
+      dp[right] = 0
+      continue
+    }
+
+    let best = Infinity
+
+    for (let left = 1; left <= right; left += 1) {
+      if (isPalindrome[left][right]) {
+        best = Math.min(best, dp[left - 1] + 1)
+      }
+    }
+
+    dp[right] = best
+  }
+
+  return dp[length - 1]
+}`,
+      },
+      {
+        id: 'pp2-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是回文表下标越界或把“段数”与“切割次数”混淆。真正掌握后，你会对区间预处理配合一维 DP 更熟练。',
+        bullets: [
+          '易错点 1：`left === 0` 时仍去访问 `dp[left - 1]`。',
+          '易错点 2：回文表填充顺序错误。',
+          '易错点 3：把最少段数直接当成最少切割次数。',
+          '延伸方向：回文子串、最长回文子串、区间 DP、字符串划分题。',
+        ],
+        callout:
+          '区间合法性一旦能被预处理，很多原本看起来很乱的字符串题都会立刻规整下来。',
+      },
+    ],
+  },
 ];
