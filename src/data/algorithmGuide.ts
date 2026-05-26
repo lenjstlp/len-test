@@ -14809,4 +14809,116 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'clone-graph',
+    label: '133. LeetCode 133. 克隆图',
+    difficulty: '中等',
+    description:
+      '这题是在练图遍历和哈希映射。真正关键不是复制节点本身，而是保证原图中的同一个节点，无论从哪条边访问，都只会对应到同一个新节点。',
+    outcome:
+      '你能掌握图拷贝题的映射思路，理解为什么必须先建立“原节点 -> 新节点”的对应关系，并把这种“先建映射、再递归连边”的写法迁移到更多图和链式结构题。',
+    sections: [
+      {
+        id: 'cg-problem-summary',
+        title: '题目在问什么',
+        summary: '给定一个无向连通图中的某个节点，要求返回这张图的深拷贝。',
+        bullets: [
+          '每个节点都要复制成新对象。',
+          '邻接关系也要完整复制。',
+          '不能复用原图节点。',
+          '这是图结构拷贝题。',
+        ],
+      },
+      {
+        id: 'cg-why-map-first',
+        title: '图里有环，如果不先建映射，就会无限递归或重复建点',
+        summary:
+          '图不像树，没有天然的单向父子关系。一个节点可能被多条边反复访问。如果每次访问都新建副本，就会产生多个重复节点；如果没有访问记录，还会在环里无限绕圈。',
+        bullets: [
+          '图中节点可能重复访问。',
+          '无向图尤其容易形成环。',
+          '映射表既能去重，也能防止死循环。',
+          '这是整题的核心数据结构。',
+        ],
+      },
+      {
+        id: 'cg-dfs-idea',
+        title: 'DFS 的典型写法，是先克隆自己，再递归克隆邻居',
+        summary:
+          '当你第一次遇到一个原节点时，立刻创建对应的新节点并放进 `Map`。之后遍历它的邻居，把递归返回的新邻居节点挂到当前新节点的邻接表中。',
+        bullets: [
+          '先建点，再连边。',
+          '递归返回的是邻居的克隆节点。',
+          '`Map` 保证同一原节点只克隆一次。',
+          '逻辑非常适合 DFS 表达。',
+        ],
+        callout:
+          '处理引用关系时，第一优先级往往不是“怎么遍历”，而是“如何保证对象身份不重复”。',
+      },
+      {
+        id: 'cg-bfs-alternative',
+        title: 'BFS 也能做，但核心仍然是那张映射表',
+        summary:
+          '无论你用 DFS 还是 BFS，真正不可替代的部分都不是遍历顺序，而是“原节点和新节点的唯一对应关系”。遍历方式只是实现细节。',
+        bullets: [
+          'DFS 和 BFS 都能覆盖整张图。',
+          '两者都必须依赖映射表。',
+          '遍历顺序不影响正确性。',
+          '选自己更顺手的实现即可。',
+        ],
+      },
+      {
+        id: 'cg-optimal-solution',
+        title: '标准解法：DFS + Map 建立节点映射',
+        summary:
+          '递归函数接收原节点，若为空返回空；若已克隆过则直接返回映射中的新节点；否则先创建新节点并放入映射，再递归处理所有邻居并挂载到 `neighbors` 中。',
+        bullets: [
+          '时间复杂度是 `O(V + E)`。',
+          '空间复杂度是 `O(V)`。',
+          '核心是 `Map` 保证唯一克隆身份。',
+          '这是图拷贝题的标准模板。',
+        ],
+        code: `function cloneGraph(node: Node | null): Node | null {
+  if (!node) {
+    return null
+  }
+
+  const visited = new Map<Node, Node>()
+
+  const dfs = (current: Node): Node => {
+    const clonedNode = visited.get(current)
+
+    if (clonedNode) {
+      return clonedNode
+    }
+
+    const copy = new Node(current.val)
+    visited.set(current, copy)
+
+    for (const neighbor of current.neighbors) {
+      copy.neighbors.push(dfs(neighbor))
+    }
+
+    return copy
+  }
+
+  return dfs(node)
+}`,
+      },
+      {
+        id: 'cg-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是克隆完节点却忘了缓存，或者把邻居数组浅拷贝过去。真正掌握后，你会对带引用结构的深拷贝更敏感。',
+        bullets: [
+          '易错点 1：没有在递归前及时 `visited.set`。',
+          '易错点 2：把原邻居数组直接赋给新节点。',
+          '易错点 3：空节点没有单独处理。',
+          '延伸方向：课程表、图遍历、随机指针链表拷贝、对象图深拷贝。',
+        ],
+        callout:
+          '一旦结构里存在共享引用或环，深拷贝问题本质上就变成了“映射表 + 图遍历”。',
+      },
+    ],
+  },
 ];
