@@ -507,6 +507,10 @@ const menuCards = [
     path: '/fullstack-guide/edit-state-recovery-engineering',
     title: '前端编辑态回显恢复工程',
   },
+  {
+    path: '/fullstack-guide/state-machine-engineering',
+    title: '前端状态机建模工程',
+  },
 ];
 </script>
 

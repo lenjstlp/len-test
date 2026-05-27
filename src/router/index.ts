@@ -1310,6 +1310,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/state-machine-engineering',
+    name: 'fullstack-state-machine-engineering',
+    component: () => import('@/views/FullstackStateMachineEngineeringView.vue'),
+    meta: {
+      title: '前端状态机建模工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
