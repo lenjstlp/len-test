@@ -511,6 +511,10 @@ const menuCards = [
     path: '/fullstack-guide/state-machine-engineering',
     title: '前端状态机建模工程',
   },
+  {
+    path: '/fullstack-guide/webhook-callback-engineering',
+    title: '前端开放平台回调工程',
+  },
 ];
 </script>
 

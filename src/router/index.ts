@@ -1320,6 +1320,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/webhook-callback-engineering',
+    name: 'fullstack-webhook-callback-engineering',
+    component: () =>
+      import('@/views/FullstackWebhookCallbackEngineeringView.vue'),
+    meta: {
+      title: '前端开放平台回调工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
