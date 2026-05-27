@@ -15338,4 +15338,114 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'copy-list-with-random-pointer',
+    label: '138. LeetCode 138. 随机链表的复制',
+    difficulty: '中等',
+    description:
+      '这题是在练带额外引用关系的数据结构拷贝。真正关键不是复制 next 链，而是保证 random 指针指向的仍是“对应的新节点”，而不是原链表节点或错误的新副本。',
+    outcome:
+      '你能掌握带共享引用结构的深拷贝思路，理解为什么原节点和新节点必须建立稳定映射，并把这种映射式拷贝方法迁移到图、树和复杂对象结构中。',
+    sections: [
+      {
+        id: 'clwrp-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个链表，每个节点除了 `next` 指针外，还有一个 `random` 指针可以指向任意节点或空，要求返回这条链表的深拷贝。',
+        bullets: [
+          '每个节点都要新建副本。',
+          'next 关系要保持。',
+          'random 关系也要保持。',
+          '这是引用结构拷贝题。',
+        ],
+      },
+      {
+        id: 'clwrp-why-map',
+        title: 'random 让链表不再只是线性结构，必须建立节点映射',
+        summary:
+          '如果只有 `next`，你顺着复制就够了。但 `random` 可能指向前面、后面甚至自己。为了确保所有指针都能准确落到对应的新节点上，必须先有“原节点 -> 新节点”的映射表。',
+        bullets: [
+          'random 会打破单向线性关系。',
+          '一个节点可能被多处引用。',
+          '映射表能保证唯一对应关系。',
+          '这是整题正确性的关键。',
+        ],
+      },
+      {
+        id: 'clwrp-two-pass',
+        title: '最稳的写法，是先建所有新节点，再补 next 和 random',
+        summary:
+          '第一遍遍历原链表，只负责为每个原节点创建副本并放进 `Map`。第二遍再利用这张映射表，为每个新节点补上 `next` 和 `random`。这样逻辑最直接，也最不容易写乱。',
+        bullets: [
+          '第一遍只建点。',
+          '第二遍统一补指针。',
+          'next 和 random 都靠映射表完成。',
+          '结构清晰，边界稳定。',
+        ],
+        callout:
+          '处理复杂引用时，先把“对象身份”建立完整，再去连关系，通常比边建边猜更稳。',
+      },
+      {
+        id: 'clwrp-weaving-idea',
+        title: '还有一种 O(1) 额外空间写法，但核心思想不变',
+        summary:
+          '更进阶的做法会把新节点临时插进原链表里，通过“原节点后面紧跟副本节点”的结构来完成 random 连接，再拆分链表。它节省了映射表，但本质上仍然是在寻找原节点和副本节点的一一对应。',
+        bullets: [
+          '空间可进一步优化。',
+          '实现复杂度会更高。',
+          '本质仍是建立稳定映射关系。',
+          '面试里先写清 `Map` 方案更稳。',
+        ],
+      },
+      {
+        id: 'clwrp-optimal-solution',
+        title: '标准解法：Map 建节点映射，两遍补齐指针',
+        summary:
+          '第一遍遍历原链表，为每个原节点创建副本并存入 `Map`。第二遍取出副本节点，把它的 `next` 指向 `map.get(current.next)`，`random` 指向 `map.get(current.random)`。最后返回 `map.get(head)`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '核心是原节点到新节点的稳定映射。',
+          '这是复杂链表深拷贝的基础模板。',
+        ],
+        code: `function copyRandomList(head: Node | null): Node | null {
+  if (!head) {
+    return null
+  }
+
+  const nodeMap = new Map<Node, Node>()
+  let current: Node | null = head
+
+  while (current) {
+    nodeMap.set(current, new Node(current.val))
+    current = current.next
+  }
+
+  current = head
+
+  while (current) {
+    const cloned = nodeMap.get(current)!
+    cloned.next = current.next ? nodeMap.get(current.next)! : null
+    cloned.random = current.random ? nodeMap.get(current.random)! : null
+    current = current.next
+  }
+
+  return nodeMap.get(head)!
+}`,
+      },
+      {
+        id: 'clwrp-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是新节点建出来了，但 random 仍指向旧链表。真正掌握后，你会对复杂引用结构的深拷贝更有方法感。',
+        bullets: [
+          '易错点 1：只复制 next，忘了正确处理 random。',
+          '易错点 2：random 直接复用旧节点引用。',
+          '易错点 3：空链表和空 random 边界漏处理。',
+          '延伸方向：克隆图、对象图深拷贝、树节点带父指针结构复制。',
+        ],
+        callout: '深拷贝题真正难的不是“复制值”，而是“复制引用关系”。',
+      },
+    ],
+  },
 ];
