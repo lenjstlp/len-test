@@ -15448,4 +15448,107 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'word-break',
+    label: '139. LeetCode 139. 单词拆分',
+    difficulty: '中等',
+    description:
+      '这题是在练前缀 DP 和字符串切分判定。真正关键不是枚举所有切法，而是判断某个前缀能否由字典词拼出来。',
+    outcome:
+      '你能掌握字符串可拆分判定的一维 DP 思路，理解为什么状态只需关心“前缀是否可达”，并把这种“枚举最后一段”的转移模式迁移到更多字符串划分题。',
+    sections: [
+      {
+        id: 'wb-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串和一个单词字典，判断该字符串能否被拆分成若干个字典中出现的单词。',
+        bullets: [
+          '字典中的单词可以重复使用。',
+          '要求的是能否拆分，不是所有方案。',
+          '拆分后每一段都必须在字典中。',
+          '这是字符串前缀 DP 题。',
+        ],
+      },
+      {
+        id: 'wb-prefix-state',
+        title: '状态只需要描述“前 i 个字符能不能被合法拆分”',
+        summary:
+          '设 `dp[i]` 表示字符串前 `i` 个字符是否可以由字典词拼成。如果存在某个位置 `j < i`，使得 `dp[j]` 为真，且子串 `s[j...i-1]` 在字典中，那么 `dp[i]` 就可以成立。',
+        bullets: [
+          '状态关注的是前缀可达性。',
+          '每次尝试最后一段从哪里开始。',
+          '前一段必须已可达。',
+          '最后一段必须命中字典。',
+        ],
+      },
+      {
+        id: 'wb-why-set',
+        title: '字典一定要放进 Set，否则子串查询成本会拖慢整体效率',
+        summary:
+          'DP 本身就要枚举切分点，如果字典每次还用数组线性查找，会让复杂度继续放大。把词典放进 `Set` 后，能把“某段是否是单词”的判断压到均摊 O(1)。',
+        bullets: [
+          'Set 适合做快速存在性判断。',
+          '能显著降低字典查询成本。',
+          '和 DP 组合非常自然。',
+          '这是整题实现的基础优化。',
+        ],
+        callout:
+          'DP 题里很多优化并不来自花哨公式，而是你有没有先把辅助查询结构选对。',
+      },
+      {
+        id: 'wb-last-segment',
+        title: '整题本质就是不断枚举“最后一段”',
+        summary:
+          '对于前缀 `0...i-1`，你只需要尝试它的最后一个单词从哪里开始。只要存在一个切点 `j` 让前缀 `0...j-1` 可达，且 `j...i-1` 恰好是字典词，那么当前前缀就可达。',
+        bullets: [
+          '这是字符串划分题的高频转移模式。',
+          '只要找到一个合法切点即可成立。',
+          '因此状态值是布尔型。',
+          '逻辑非常适合一维 DP 表达。',
+        ],
+      },
+      {
+        id: 'wb-optimal-solution',
+        title: '标准解法：Set + 一维 DP',
+        summary:
+          '用 `dp[0] = true` 表示空字符串可达。之后从 `1` 到 `s.length` 遍历，每个位置再枚举切点 `j`。若 `dp[j]` 为真且 `s.slice(j, i)` 在 `Set` 中，就把 `dp[i]` 设为真并结束当前枚举。',
+        bullets: [
+          '时间复杂度通常是 `O(n^2)`。',
+          '空间复杂度是 `O(n)`。',
+          '核心是前缀可达 + 最后一段命中字典。',
+          '这是单词拆分类题的标准模板。',
+        ],
+        code: `function wordBreak(s: string, wordDict: string[]): boolean {
+  const wordSet = new Set(wordDict)
+  const dp = Array(s.length + 1).fill(false)
+  dp[0] = true
+
+  for (let end = 1; end <= s.length; end += 1) {
+    for (let start = 0; start < end; start += 1) {
+      if (dp[start] && wordSet.has(s.slice(start, end))) {
+        dp[end] = true
+        break
+      }
+    }
+  }
+
+  return dp[s.length]
+}`,
+      },
+      {
+        id: 'wb-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把状态定义得过复杂，或者把空前缀初始化漏掉。真正掌握后，你会对前缀 DP 划分类题更敏感。',
+        bullets: [
+          '易错点 1：忘记初始化 `dp[0] = true`。',
+          '易错点 2：切片边界 `start/end` 写错。',
+          '易错点 3：用数组查词典导致性能变差。',
+          '延伸方向：单词拆分 II、最少切割、完全背包式字符串拼接题。',
+        ],
+        callout:
+          '当题目开始问“一个字符串能不能被拆出来”时，先想前缀 DP，通常比先想回溯更稳。',
+      },
+    ],
+  },
 ];
