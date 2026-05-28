@@ -15551,4 +15551,126 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'word-break-ii',
+    label: '140. LeetCode 140. 单词拆分 II',
+    difficulty: '困难',
+    description:
+      '这题是在练 DFS 回溯与记忆化搜索的结合。真正关键不是暴力切出所有可能，而是先识别哪些后缀已经求过，避免在同一个起点上反复展开整棵搜索树。',
+    outcome:
+      '你能掌握“可行性切分”升级到“枚举所有方案”时的搜索写法，理解为什么记忆化能剪掉大量重复子问题，并把这种“DFS + memo”思路迁移到更多字符串划分类题。',
+    sections: [
+      {
+        id: 'wb2-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串和单词字典，要求返回所有合法拆分方案，每个方案都由字典中的单词组成。',
+        bullets: [
+          '要输出所有合法句子。',
+          '字典中的单词可以重复使用。',
+          '不是判断能不能拆，而是要枚举所有方案。',
+          '这是字符串回溯题。',
+        ],
+      },
+      {
+        id: 'wb2-why-not-pure-dfs',
+        title: '直接纯 DFS 会在同一个后缀上重复搜索很多次',
+        summary:
+          '假设从位置 `start` 开始的后缀可以由很多方式拆分，那么不同路径只要再次来到同一个 `start`，都会把后面的所有搜索重跑一遍。输入一大，重复计算会非常夸张。',
+        bullets: [
+          '相同后缀会被多次展开。',
+          '纯 DFS 会产生大量重复子问题。',
+          '这正是记忆化的切入点。',
+          '问题本质上仍有重叠子问题结构。',
+        ],
+      },
+      {
+        id: 'wb2-memo-core',
+        title: '记忆化的关键，是缓存“从某个起点开始能拆出的所有句子”',
+        summary:
+          '定义 `dfs(start)` 返回从 `start` 位置到结尾的所有合法拆分结果。只要这个起点算过一次，下次再遇到就直接复用，不必再次向后递归展开。',
+        bullets: [
+          '缓存粒度是起点下标。',
+          '缓存内容是“所有可行句子列表”。',
+          '下次命中后可以直接返回。',
+          '这是搜索题常见的结果缓存方式。',
+        ],
+        callout:
+          '很多枚举题只要把“从这里往后所有答案”缓存起来，复杂度就会从爆炸式回落到可控区间。',
+      },
+      {
+        id: 'wb2-build-sentence',
+        title: '拼句子的过程，本质上是拿当前单词去拼接后缀答案',
+        summary:
+          '当你确认 `s[start...end]` 是字典词后，只要拿它去拼接 `dfs(end + 1)` 返回的每个句子即可。如果后缀为空，说明当前单词本身就能构成一条完整答案。',
+        bullets: [
+          '当前单词负责前缀。',
+          '后缀答案由递归返回。',
+          '两者拼接后形成完整句子。',
+          '边界是走到字符串末尾。',
+        ],
+      },
+      {
+        id: 'wb2-optimal-solution',
+        title: '标准解法：DFS + Memo + Set',
+        summary:
+          '把字典放入 `Set`，编写 `dfs(start)` 返回从 `start` 开始的所有合法句子。递归中枚举结束位置 `end`，若当前子串在字典中，就递归获取后缀句子并做拼接。每个 `start` 的结果都缓存到 `Map` 中。',
+        bullets: [
+          '时间复杂度与答案规模及切分方式有关。',
+          '空间复杂度主要来自递归栈、缓存和结果集。',
+          '核心是缓存每个起点的全部拆分结果。',
+          '这是输出所有方案类字符串题的标准套路。',
+        ],
+        code: `function wordBreak(s: string, wordDict: string[]): string[] {
+  const wordSet = new Set(wordDict)
+  const memo = new Map<number, string[]>()
+
+  const dfs = (start: number): string[] => {
+    if (memo.has(start)) {
+      return memo.get(start)!
+    }
+
+    if (start === s.length) {
+      return ['']
+    }
+
+    const sentences: string[] = []
+
+    for (let end = start + 1; end <= s.length; end += 1) {
+      const word = s.slice(start, end)
+
+      if (!wordSet.has(word)) {
+        continue
+      }
+
+      const suffixSentences = dfs(end)
+
+      for (const suffix of suffixSentences) {
+        sentences.push(suffix ? \`${word} ${suffix}\` : word)
+      }
+    }
+
+    memo.set(start, sentences)
+    return sentences
+  }
+
+  return dfs(0)
+}`,
+      },
+      {
+        id: 'wb2-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只会回溯不会缓存，或者句子拼接时空格处理混乱。真正掌握后，你会对“搜索 + 记忆化”的组合更熟悉。',
+        bullets: [
+          '易错点 1：没有缓存同一起点结果，性能退化严重。',
+          '易错点 2：后缀为空时句子拼接多出空格。',
+          '易错点 3：把它误写成只返回布尔值的上一题。',
+          '延伸方向：括号生成、复原 IP、分割回文串、记忆化 DFS。',
+        ],
+        callout:
+          '一旦题目要求“输出所有方案”，就要同时盯住两件事：搜索树怎么展开，以及重复子问题怎么剪。',
+      },
+    ],
+  },
 ];
