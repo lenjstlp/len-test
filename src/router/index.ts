@@ -1331,6 +1331,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/oauth-oidc-engineering',
+    name: 'fullstack-oauth-oidc-engineering',
+    component: () => import('@/views/FullstackOauthOidcEngineeringView.vue'),
+    meta: {
+      title: '前端 OAuth / OIDC 接入工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

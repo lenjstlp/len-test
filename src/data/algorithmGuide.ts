@@ -15646,7 +15646,7 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       const suffixSentences = dfs(end)
 
       for (const suffix of suffixSentences) {
-        sentences.push(suffix ? \`${word} ${suffix}\` : word)
+        sentences.push(suffix ? \`\${word} \${suffix}\` : word)
       }
     }
 

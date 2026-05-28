@@ -515,6 +515,10 @@ const menuCards = [
     path: '/fullstack-guide/webhook-callback-engineering',
     title: '前端开放平台回调工程',
   },
+  {
+    path: '/fullstack-guide/oauth-oidc-engineering',
+    title: '前端 OAuth / OIDC 接入工程',
+  },
 ];
 </script>
 
