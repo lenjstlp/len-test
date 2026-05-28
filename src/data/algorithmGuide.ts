@@ -15774,4 +15774,114 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'linked-list-cycle-ii',
+    label: '142. LeetCode 142. 环形链表 II',
+    difficulty: '中等',
+    description:
+      '这题是在练快慢指针的进一步推导。真正关键不是知道会相遇，而是理解为什么相遇后让一个指针回到头节点，再同步前进，二者会在环入口再次相遇。',
+    outcome:
+      '你能掌握 Floyd 判环后定位入口的完整推导，理解相遇点与入口之间的距离关系，并把这种数学化思路迁移到更多链表题。',
+    sections: [
+      {
+        id: 'llc2-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个链表，如果存在环，返回环的入口节点；若不存在环，则返回 `null`。',
+        bullets: [
+          '不仅要判断是否有环。',
+          '还要找出环的起点。',
+          '希望继续保持常数空间。',
+          '这是 Floyd 判环的进阶题。',
+        ],
+      },
+      {
+        id: 'llc2-meeting-point',
+        title: '第一阶段仍然是先让快慢指针判断并找到相遇点',
+        summary:
+          '如果没有相遇点，就说明无环，直接返回 `null`。只有先确认相遇，后面关于入口的推导才有意义。',
+        bullets: [
+          '先判环，再谈入口。',
+          '相遇点是第二阶段推导的基础。',
+          '无环情况要尽早返回。',
+          '整体仍然分两步完成。',
+        ],
+      },
+      {
+        id: 'llc2-math-proof',
+        title: '为什么一个指针回头后会在入口相遇，本质是距离关系相等',
+        summary:
+          '设头到入口距离为 `a`，入口到相遇点距离为 `b`，环剩余长度为 `c`。快指针走过的路程是慢指针的两倍，可推出 `a = c + k(b + c)`。这意味着从头走 `a` 步到入口，与从相遇点再走 `c + k(b + c)` 步到入口，本质上会落在同一点。',
+        bullets: [
+          '倍速关系带来距离方程。',
+          '头到入口距离与相遇点到入口的环上距离等价。',
+          '所以二者同步前进会在入口碰头。',
+          '这是整题最核心的推导。',
+        ],
+        callout:
+          '链表难题很多时候不是代码量大，而是你是否愿意把指针路径关系认真推一遍。',
+      },
+      {
+        id: 'llc2-second-walk',
+        title: '第二阶段只需要两个一步一步走的指针',
+        summary:
+          '当快慢指针首次相遇后，让一个指针回到头节点，另一个留在相遇点。之后二者每次都走一步，再次相遇的位置就是环入口。',
+        bullets: [
+          '回头的指针从头出发。',
+          '另一指针从相遇点出发。',
+          '两者步速相同。',
+          '第二次相遇即为入口。',
+        ],
+      },
+      {
+        id: 'llc2-optimal-solution',
+        title: '标准解法：先判环，再同步找入口',
+        summary:
+          '先用快慢指针找相遇点。若未相遇则返回 `null`。若相遇，让一个指针指向头节点，另一个留在相遇点，然后二者每次走一步；最终相遇的节点就是环入口。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '核心是相遇后的距离等价关系。',
+          '这是定位环入口的标准模板。',
+        ],
+        code: `function detectCycle(head: ListNode | null): ListNode | null {
+  let slow = head
+  let fast = head
+
+  while (fast && fast.next) {
+    slow = slow!.next
+    fast = fast.next.next
+
+    if (slow === fast) {
+      let pointerA = head
+      let pointerB = slow
+
+      while (pointerA !== pointerB) {
+        pointerA = pointerA!.next
+        pointerB = pointerB!.next
+      }
+
+      return pointerA
+    }
+  }
+
+  return null
+}`,
+      },
+      {
+        id: 'llc2-mistakes-and-extensions',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只记结论不懂推导，导致一紧张就写乱。真正掌握后，你会对 Floyd 算法的完整链路更有把握。',
+        bullets: [
+          '易错点 1：第一次相遇后继续让快指针走两步。',
+          '易错点 2：无环时没及时返回 `null`。',
+          '易错点 3：只会背公式，不理解为什么会在入口相遇。',
+          '延伸方向：寻找重复数、链表相交、更多快慢指针题型。',
+        ],
+        callout:
+          '真正能让你在面试和工程里稳定复现结论的，从来不是背答案，而是把路径关系想透。',
+      },
+    ],
+  },
 ];
