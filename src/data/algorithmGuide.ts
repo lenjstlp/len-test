@@ -16469,4 +16469,133 @@ class LRUCache {
       },
     ],
   },
+  {
+    id: 'sort-list',
+    label: '148. LeetCode 148. 排序链表',
+    difficulty: '中等',
+    description:
+      '这题是在练链表归并排序。真正关键不是“会排序”，而是认出链表最适合的高效排序方式不是快排，而是归并。',
+    outcome:
+      '你能掌握链表归并排序的完整过程，理解为什么链表更适合做分割和合并，并建立对链表排序复杂度的正确判断。',
+    sections: [
+      {
+        id: 'sort-list-summary',
+        title: '题目在问什么',
+        summary:
+          '给定链表头节点，将其按升序排序并返回排序后的链表，要求时间复杂度尽量优化。',
+        bullets: [
+          '目标是升序结果。',
+          '链表不能随机访问。',
+          '高频考点是 `O(n log n)` 解法。',
+          '这是链表排序核心题。',
+        ],
+      },
+      {
+        id: 'sort-list-why-merge',
+        title: '链表最适合归并排序，因为拆分和合并都顺手',
+        summary:
+          '数组归并排序的额外代价常在拷贝，而链表只需要改指针。反过来，快排在链表上不容易高效做分区，所以归并往往更自然。',
+        bullets: [
+          '找中点可用快慢指针。',
+          '合并两个有序链表是链表强项。',
+          '整体复杂度可做到 `O(n log n)`。',
+          '这是链表排序的标准答案。',
+        ],
+      },
+      {
+        id: 'sort-list-divide',
+        title: '第一步还是先找中点，把链表一分为二',
+        summary:
+          '每次递归都把链表切成左右两半，分别排好序后再合并。这和数组归并的分治骨架完全一致，只是分割方式改成了快慢指针。',
+        bullets: [
+          '中点是分治的入口。',
+          '切断链表要靠 `slow.next = null`。',
+          '子问题规模逐渐减半。',
+          '递归终点是空链表或单节点链表。',
+        ],
+      },
+      {
+        id: 'sort-list-merge',
+        title: '第二步是合并两个有序链表',
+        summary:
+          '两个子链已经排好序后，只要像归并数组那样每次选较小节点接到结果链尾部，最终就能得到完整有序链表。',
+        bullets: [
+          '双指针比较当前节点值。',
+          '小的先接入结果链。',
+          '剩余部分直接接尾部。',
+          '这是链表题里非常高频的基础操作。',
+        ],
+        callout:
+          '很多链表题最后都会回到“分”和“并”两个动作。能把这两个动作写稳，链表题难度会立刻降一截。',
+      },
+      {
+        id: 'sort-list-solution',
+        title: '标准解法：自顶向下归并排序',
+        summary:
+          '递归找到中点并拆分成两条子链，分别排序后，再调用合并有序链表的方法把结果拼回去。',
+        bullets: [
+          '时间复杂度是 `O(n log n)`。',
+          '递归栈空间复杂度是 `O(log n)`。',
+          '是链表排序题最经典模板。',
+          '比插入排序更适合大规模数据。',
+        ],
+        code: `function sortList(head: ListNode | null): ListNode | null {
+  if (!head || !head.next) {
+    return head
+  }
+
+  let slow = head
+  let fast = head.next
+
+  while (fast && fast.next) {
+    slow = slow.next!
+    fast = fast.next.next
+  }
+
+  const rightHead = slow.next
+  slow.next = null
+
+  const left = sortList(head)
+  const right = sortList(rightHead)
+
+  return merge(left, right)
+}
+
+function merge(
+  left: ListNode | null,
+  right: ListNode | null,
+): ListNode | null {
+  const dummy = new ListNode(0)
+  let tail = dummy
+
+  while (left && right) {
+    if (left.val <= right.val) {
+      tail.next = left
+      left = left.next
+    } else {
+      tail.next = right
+      right = right.next
+    }
+
+    tail = tail.next
+  }
+
+  tail.next = left || right
+  return dummy.next
+}`,
+      },
+      {
+        id: 'sort-list-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是切分和合并都知道要做，但细节没理顺，导致链表断得不干净或者合并后形成环。',
+        bullets: [
+          '易错点 1：找中点后没断链。',
+          '易错点 2：合并时尾指针推进错位。',
+          '易错点 3：把复杂度目标忘了，写成 `O(n^2)` 排序。',
+          '延伸方向：合并 K 个升序链表、区间合并、外部排序思想。',
+        ],
+      },
+    ],
+  },
 ];
