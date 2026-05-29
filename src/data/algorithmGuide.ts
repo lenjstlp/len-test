@@ -16106,4 +16106,104 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'binary-tree-postorder-traversal',
+    label: '145. LeetCode 145. 二叉树的后序遍历',
+    difficulty: '简单',
+    description:
+      '这题是在练遍历时机控制。真正关键不是代码多复杂，而是理解“左右都处理完之后再处理根节点”意味着什么。',
+    outcome:
+      '你能掌握后序遍历的递归思路，并理解为什么它特别适合先处理子问题、再处理当前节点的场景。',
+    sections: [
+      {
+        id: 'postorder-summary',
+        title: '题目在问什么',
+        summary: '返回二叉树的后序遍历结果，也就是“左 -> 右 -> 根”。',
+        bullets: [
+          '输出仍然是值数组。',
+          '空树返回空数组。',
+          '关注点是访问当前节点的时机。',
+          '这是树遍历顺序题。',
+        ],
+      },
+      {
+        id: 'postorder-meaning',
+        title: '后序意味着当前节点依赖左右子树先完成',
+        summary:
+          '如果一个节点的处理要建立在子节点结果之上，后序遍历往往最顺手，因为它天然保证“子问题先算完”。',
+        bullets: [
+          '先左，再右，最后当前节点。',
+          '适合自底向上问题。',
+          '很多树 DP 会用到这个顺序。',
+          '理解顺序比背定义更重要。',
+        ],
+      },
+      {
+        id: 'postorder-recursion',
+        title: '递归版是最自然的后序表达',
+        summary:
+          '递归先深入左右子树，等它们都返回后，再记录当前节点。这和后序的定义一一对应，几乎没有额外心智负担。',
+        bullets: [
+          '代码直接体现定义。',
+          '容易验证正确性。',
+          '适合树题初学阶段。',
+          '是后续树形 DP 的基础动作。',
+        ],
+      },
+      {
+        id: 'postorder-scenario',
+        title: '为什么很多复杂树题偏爱后序，因为它方便汇总子树信息',
+        summary:
+          '比如计算树高、判断平衡、收集路径代价，往往都要等左右子树先算完。后序的思想一旦建立，后面很多题都会更顺。',
+        bullets: [
+          '先拿到左右结果，再决定当前结果。',
+          '减少来回补算。',
+          '契合分治思维。',
+          '是树问题的重要心智模型。',
+        ],
+        callout:
+          '树题里真正要记住的，不是“前中后序”四个字，而是当前节点与子问题之间的依赖方向。',
+      },
+      {
+        id: 'postorder-solution',
+        title: '标准解法：递归后序 DFS',
+        summary:
+          '递归访问左子树和右子树，等它们完成后再把当前节点值压入结果数组，就得到了标准后序遍历。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度取决于树高。',
+          '每个节点访问一次。',
+          '是最容易写稳的版本。',
+        ],
+        code: `function postorderTraversal(root: TreeNode | null): number[] {
+  const result: number[] = []
+
+  const dfs = (node: TreeNode | null) => {
+    if (!node) {
+      return
+    }
+
+    dfs(node.left)
+    dfs(node.right)
+    result.push(node.val)
+  }
+
+  dfs(root)
+  return result
+}`,
+      },
+      {
+        id: 'postorder-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是嘴上说后序，代码却把 `push` 放错了位置。顺序一错，整棵树的输出就会完全变样。',
+        bullets: [
+          '易错点 1：把根节点处理时机提前。',
+          '易错点 2：把左右子树顺序混成右左根。',
+          '易错点 3：没把遍历顺序和应用场景联系起来。',
+          '延伸方向：平衡二叉树、路径总和、树形 DP。',
+        ],
+      },
+    ],
+  },
 ];
