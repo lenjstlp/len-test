@@ -16206,4 +16206,166 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'lru-cache',
+    label: '146. LeetCode 146. LRU 缓存',
+    difficulty: '中等',
+    description:
+      '这题是在练数据结构组合设计。真正关键不是知道 LRU 这个词，而是意识到“查找快”和“更新最近使用顺序快”必须同时满足。',
+    outcome:
+      '你能掌握哈希表加双向链表的经典组合，理解为什么这类设计题必须从操作复杂度反推数据结构。',
+    sections: [
+      {
+        id: 'lru-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个支持 `get` 和 `put` 的 LRU 缓存，要求两个操作平均时间复杂度都为 `O(1)`。',
+        bullets: [
+          '访问过的键会变成最近使用。',
+          '容量满时要淘汰最久未使用的键。',
+          '关键在于操作复杂度约束。',
+          '这是经典设计题。',
+        ],
+      },
+      {
+        id: 'lru-constraints',
+        title: '先从复杂度倒推：一个结构不够，必须组合使用',
+        summary:
+          '哈希表能做到 `O(1)` 查找，但不擅长维护访问顺序；链表能快速调整顺序，但查找节点慢。所以这题天然需要两个结构配合。',
+        bullets: [
+          '哈希表负责键到节点的定位。',
+          '双向链表负责最近使用顺序。',
+          '两者缺一不可。',
+          '这是设计题的典型思考方式。',
+        ],
+      },
+      {
+        id: 'lru-dlist',
+        title: '为什么一定是双向链表，而不是单链表',
+        summary:
+          '因为节点一旦被访问，就要在 `O(1)` 时间内从原位置摘掉再移动到头部。单链表删除当前节点前，通常还得找前驱，做不到稳定常数时间。',
+        bullets: [
+          '双向链表能 `O(1)` 删除任意已知节点。',
+          '头部表示最近使用。',
+          '尾部表示最久未使用。',
+          '淘汰时直接删尾部前一个节点。',
+        ],
+      },
+      {
+        id: 'lru-dummy',
+        title: '哨兵节点能显著降低边界复杂度',
+        summary:
+          '头尾各放一个虚拟节点后，插入头部、删除尾部、摘除中间节点都会变成统一操作，不再需要区分空链表和单节点特殊情况。',
+        bullets: [
+          '让增删逻辑统一。',
+          '减少 `if` 分支。',
+          '更适合设计题现场实现。',
+          '也是工程代码常用技巧。',
+        ],
+        callout:
+          '复杂数据结构题写不稳，往往不是思路错，而是边界太多。哨兵节点就是专门用来削掉边界噪音的。',
+      },
+      {
+        id: 'lru-solution',
+        title: '标准解法：哈希表 + 双向链表',
+        summary:
+          '哈希表保存键到链表节点的映射；每次 `get` 或命中 `put` 都把节点移到链表头；容量超限时删除链表尾部节点，并同步从哈希表中移除对应键。',
+        bullets: [
+          '`get` 与 `put` 都能做到平均 `O(1)`。',
+          '链表顺序直接表达使用新旧。',
+          '是缓存淘汰策略题最经典的模板。',
+          '面试中出现频率非常高。',
+        ],
+        code: `class Node {
+  key: number
+  value: number
+  prev: Node | null = null
+  next: Node | null = null
+
+  constructor(key: number, value: number) {
+    this.key = key
+    this.value = value
+  }
+}
+
+class LRUCache {
+  private capacity: number
+  private cache = new Map<number, Node>()
+  private head = new Node(0, 0)
+  private tail = new Node(0, 0)
+
+  constructor(capacity: number) {
+    this.capacity = capacity
+    this.head.next = this.tail
+    this.tail.prev = this.head
+  }
+
+  get(key: number): number {
+    const node = this.cache.get(key)
+
+    if (!node) {
+      return -1
+    }
+
+    this.moveToHead(node)
+    return node.value
+  }
+
+  put(key: number, value: number): void {
+    const node = this.cache.get(key)
+
+    if (node) {
+      node.value = value
+      this.moveToHead(node)
+      return
+    }
+
+    const newNode = new Node(key, value)
+    this.cache.set(key, newNode)
+    this.addToHead(newNode)
+
+    if (this.cache.size > this.capacity) {
+      const removed = this.removeTail()
+      this.cache.delete(removed.key)
+    }
+  }
+
+  private addToHead(node: Node) {
+    node.prev = this.head
+    node.next = this.head.next
+    this.head.next!.prev = node
+    this.head.next = node
+  }
+
+  private removeNode(node: Node) {
+    node.prev!.next = node.next
+    node.next!.prev = node.prev
+  }
+
+  private moveToHead(node: Node) {
+    this.removeNode(node)
+    this.addToHead(node)
+  }
+
+  private removeTail(): Node {
+    const node = this.tail.prev!
+    this.removeNode(node)
+    return node
+  }
+}`,
+      },
+      {
+        id: 'lru-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只记住“哈希表 + 链表”五个字，却没有把每个操作如何落在结构上想清楚。',
+        bullets: [
+          '易错点 1：访问后忘记把节点移到头部。',
+          '易错点 2：容量超限时只删链表，不删哈希表。',
+          '易错点 3：单链表实现删除任意节点时写炸。',
+          '延伸方向：LFU 缓存、浏览器历史记录、最近访问列表。',
+        ],
+      },
+    ],
+  },
 ];
