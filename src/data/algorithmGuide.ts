@@ -16598,4 +16598,137 @@ function merge(
       },
     ],
   },
+  {
+    id: 'max-points-on-a-line',
+    label: '149. LeetCode 149. 直线上最多的点数',
+    difficulty: '困难',
+    description:
+      '这题是在练几何问题的离散化表达。真正关键不是浮点算斜率，而是把“同一条直线”稳定地转换成可比较的数学表示。',
+    outcome:
+      '你能掌握以每个点为锚点统计斜率的做法，理解最大公约数化简在几何哈希中的作用，并避开浮点误差陷阱。',
+    sections: [
+      {
+        id: 'max-points-summary',
+        title: '题目在问什么',
+        summary: '给定平面上的若干点，求最多有多少个点落在同一条直线上。',
+        bullets: [
+          '输出是最大共线点数。',
+          '点数可能重复方向很多。',
+          '关键是如何判断“同一直线”。',
+          '这是几何与哈希结合题。',
+        ],
+      },
+      {
+        id: 'max-points-anchor',
+        title: '经典思路是枚举一个锚点，看其他点与它形成的斜率',
+        summary:
+          '如果若干点与同一个锚点形成相同斜率，那它们就与锚点共线。于是问题可以转化成：对每个起点，统计哪种斜率出现最多。',
+        bullets: [
+          '固定一个点，线就能由斜率区分。',
+          '每轮统计的是“经过当前点的所有直线”。',
+          '全局答案取每轮最大值。',
+          '这是把二维问题拆成多次一维统计。',
+        ],
+      },
+      {
+        id: 'max-points-slope',
+        title: '不能直接用浮点斜率，要把方向向量约成最简分数',
+        summary:
+          '浮点数会有精度误差，例如 `1 / 3` 和 `2 / 6` 理应相等，却可能因表示问题比较失败。更稳的方法是把 `dy` 和 `dx` 用最大公约数约分后作为键。',
+        bullets: [
+          '斜率本质上是方向比值。',
+          '用 `(dy, dx)` 的最简形式表示更稳。',
+          '垂直线和水平线也能统一处理。',
+          '这是几何哈希题的关键技巧。',
+        ],
+      },
+      {
+        id: 'max-points-normalization',
+        title: '方向还要统一符号，避免同一斜率出现两种写法',
+        summary:
+          '比如 `(1, 2)` 和 `(-1, -2)` 实际表示同一方向，如果不统一符号，会被当成两种不同斜率。通常做法是让 `dx` 始终非负，或在特例下统一到一个标准方向。',
+        bullets: [
+          '标准化是哈希去重的必要步骤。',
+          '否则统计结果会被拆散。',
+          '这是很多人第一次做几何题时最容易漏掉的点。',
+          '细节决定正确率。',
+        ],
+        callout:
+          '几何题经常不是败在大思路，而是败在“如何把数学对象稳定映射成程序里的 key”。',
+      },
+      {
+        id: 'max-points-solution',
+        title: '标准解法：枚举锚点并统计最简斜率',
+        summary:
+          '对每个点作为起点，遍历其后的所有点，计算 `dy` 与 `dx`，通过最大公约数约分并统一符号后写入哈希表，统计当前锚点下出现次数最多的方向。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度是 `O(n)`。',
+          '重点在斜率标准化，而不是浮点计算。',
+          '是高频几何哈希题。',
+        ],
+        code: `function maxPoints(points: number[][]): number {
+  if (points.length <= 2) {
+    return points.length
+  }
+
+  let answer = 0
+
+  const gcd = (a: number, b: number): number => {
+    while (b !== 0) {
+      const temp = a % b
+      a = b
+      b = temp
+    }
+
+    return Math.abs(a)
+  }
+
+  for (let i = 0; i < points.length; i += 1) {
+    const counter = new Map<string, number>()
+    let localMax = 0
+
+    for (let j = i + 1; j < points.length; j += 1) {
+      let dy = points[j][1] - points[i][1]
+      let dx = points[j][0] - points[i][0]
+
+      const divisor = gcd(dy, dx)
+      dy /= divisor
+      dx /= divisor
+
+      if (dx < 0) {
+        dx = -dx
+        dy = -dy
+      } else if (dx === 0) {
+        dy = 1
+      } else if (dy === 0) {
+        dx = 1
+      }
+
+      const key = dy + "," + dx
+      const count = (counter.get(key) ?? 0) + 1
+      counter.set(key, count)
+      localMax = Math.max(localMax, count)
+    }
+
+    answer = Math.max(answer, localMax + 1)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'max-points-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接上浮点数或者没有把方向统一成唯一表示，导致明明共线却没统计到一起。',
+        bullets: [
+          '易错点 1：直接用 `dy / dx` 做 key。',
+          '易错点 2：没有统一符号方向。',
+          '易错点 3：垂直线和水平线处理不统一。',
+          '延伸方向：矩形面积、最近点对、扫描线思维。',
+        ],
+      },
+    ],
+  },
 ];
