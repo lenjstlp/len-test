@@ -15884,4 +15884,128 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'reorder-list',
+    label: '143. LeetCode 143. 重排链表',
+    difficulty: '中等',
+    description:
+      '这题是在练链表分治式处理。真正关键不是硬模拟重排过程，而是把问题拆成找中点、反转后半段、交替合并三个经典动作。',
+    outcome:
+      '你能把复杂链表改造题拆成多个基础操作，掌握中点定位、链表反转和双链归并式穿插的组合思路。',
+    sections: [
+      {
+        id: 'reorder-list-summary',
+        title: '题目在问什么',
+        summary:
+          '给定单链表 `L0 -> L1 -> ... -> Ln`，要求原地重排成 `L0 -> Ln -> L1 -> Ln-1 -> ...`。',
+        bullets: [
+          '不能只改值，要真正改指针。',
+          '希望尽量原地完成。',
+          '目标顺序是前后交替插入。',
+          '这是链表综合操作题。',
+        ],
+      },
+      {
+        id: 'reorder-list-split',
+        title: '先找中点，把问题拆成前半段和后半段',
+        summary:
+          '链表题一旦出现“前后夹击”这种结构，第一反应就应该是找中点。这样才能把尾部元素的参与方式显式化。',
+        bullets: [
+          '快慢指针可以在 `O(n)` 内找到中点。',
+          '中点之后的链表就是待翻转部分。',
+          '拆分后更容易控制指针。',
+          '这是后续所有操作的基础。',
+        ],
+      },
+      {
+        id: 'reorder-list-reverse',
+        title: '后半段必须先反转，否则尾部元素没法顺序拿出来',
+        summary:
+          '原链表只能从头往后走，想按 `Ln、Ln-1` 这样的顺序取节点，最稳的方法就是把后半段先反转成正向可遍历结构。',
+        bullets: [
+          '反转后，原尾节点会来到前面。',
+          '交替合并时不需要回头找尾巴。',
+          '避免使用数组保存节点。',
+          '保持常数额外空间。',
+        ],
+      },
+      {
+        id: 'reorder-list-merge',
+        title: '最后一步是两条链交替合并',
+        summary:
+          '把前半段和反转后的后半段像拉拉链一样交替拼接，问题就自然完成了。这里最重要的是先缓存下一跳，再改当前指针。',
+        bullets: [
+          '每轮先保存 `next`，再改指针。',
+          '前半段通常比后半段多一个节点。',
+          '奇数长度时尾节点会自然保留。',
+          '这一步最容易写乱，必须按节奏走。',
+        ],
+        callout:
+          '链表改造题的核心能力，不是会不会写 while，而是你能不能把每一次指针改动的前后关系想清楚。',
+      },
+      {
+        id: 'reorder-list-solution',
+        title: '标准解法：找中点 + 反转后半段 + 交替合并',
+        summary:
+          '先用快慢指针找到中点并断开链表，再反转后半段，最后让两段链表按一个前节点、一个后节点的顺序交替连接。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '本质是三个基础链表模板的组合。',
+          '是链表综合能力的高频考题。',
+        ],
+        code: `function reorderList(head: ListNode | null): void {
+  if (!head || !head.next) {
+    return
+  }
+
+  let slow = head
+  let fast = head
+
+  while (fast.next && fast.next.next) {
+    slow = slow.next!
+    fast = fast.next.next
+  }
+
+  let second = slow.next
+  slow.next = null
+
+  let prev: ListNode | null = null
+
+  while (second) {
+    const next = second.next
+    second.next = prev
+    prev = second
+    second = next
+  }
+
+  let first: ListNode | null = head
+  let tail: ListNode | null = prev
+
+  while (tail) {
+    const firstNext = first!.next
+    const tailNext = tail.next
+
+    first!.next = tail
+    tail.next = firstNext
+
+    first = firstNext
+    tail = tailNext
+  }
+}`,
+      },
+      {
+        id: 'reorder-list-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是断链、反转、合并三个步骤混在一起写，最后把链表接丢。把动作拆开写，稳定性会高很多。',
+        bullets: [
+          '易错点 1：忘记 `slow.next = null`，导致形成环。',
+          '易错点 2：合并时没先保存下一跳。',
+          '易错点 3：奇数长度链表的尾节点处理混乱。',
+          '延伸方向：回文链表、排序链表、K 个一组翻转链表。',
+        ],
+      },
+    ],
+  },
 ];
