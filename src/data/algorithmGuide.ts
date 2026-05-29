@@ -16934,4 +16934,105 @@ function merge(
       },
     ],
   },
+  {
+    id: 'maximum-product-subarray',
+    label: '152. LeetCode 152. 乘积最大子数组',
+    difficulty: '中等',
+    description:
+      '这题是在练动态规划里“状态会因为负数翻转”的情况。真正关键不是只维护最大值，而是同时维护当前位置结尾的最大乘积和最小乘积。',
+    outcome:
+      '你能掌握乘积型动态规划的状态设计，理解为什么最小值也可能在下一步变成最大值，并建立对负数翻转效应的敏感度。',
+    sections: [
+      {
+        id: 'max-product-summary',
+        title: '题目在问什么',
+        summary: '给定整数数组，求乘积最大的连续子数组，并返回这个最大乘积。',
+        bullets: [
+          '子数组必须连续。',
+          '数组里可能有负数和零。',
+          '乘积问题和和问题不一样。',
+          '这是动态规划经典题。',
+        ],
+      },
+      {
+        id: 'max-product-why-two-states',
+        title: '只记最大值不够，因为负数会让最小值翻身',
+        summary:
+          '如果当前数字是负数，那么之前非常小的负积乘上它，反而可能变成一个很大的正积。所以最小乘积状态同样有价值。',
+        bullets: [
+          '负负得正会翻转优劣。',
+          '最大值和最小值要同步维护。',
+          '这是本题最核心的状态设计。',
+          '和最大子数组和那题不一样。',
+        ],
+      },
+      {
+        id: 'max-product-transition',
+        title: '每一步都要在三个候选里选：自己、接最大、接最小',
+        summary:
+          '当前位置结尾的最大乘积，可能只取当前数本身，也可能来自“当前数乘之前最大”或“当前数乘之前最小”。最小值同理。',
+        bullets: [
+          '候选来源一共三个。',
+          '当前数本身代表“从这里重新开段”。',
+          '状态转移要同时更新两条线。',
+          '先保存旧值再更新更稳。',
+        ],
+      },
+      {
+        id: 'max-product-zero',
+        title: '零会天然切断乘积链，但不需要特殊大分支',
+        summary:
+          '当当前数是零时，候选中自然会出现 `0`，状态会被重置。只要转移写得完整，零会被统一纳入处理，而不必单独写很多分支。',
+        bullets: [
+          '零既可能是答案，也可能是分界点。',
+          '统一转移比特判更稳。',
+          '状态机会自动重启。',
+          '体现出 DP 设计的优雅性。',
+        ],
+        callout:
+          '动态规划真正重要的不是公式多难，而是你定义的状态能不能把“局部变化规则”完整覆盖。',
+      },
+      {
+        id: 'max-product-solution',
+        title: '标准解法：维护当前位置结尾的最大值和最小值',
+        summary:
+          '初始化最大值、最小值和答案都为第一个元素。从第二个元素开始，基于当前数和旧的最大/最小乘积计算新的最大最小值，再更新全局答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '核心是双状态转移。',
+          '是乘积型 DP 的代表题。',
+        ],
+        code: `function maxProduct(nums: number[]): number {
+  let currentMax = nums[0]
+  let currentMin = nums[0]
+  let answer = nums[0]
+
+  for (let i = 1; i < nums.length; i += 1) {
+    const value = nums[i]
+    const prevMax = currentMax
+    const prevMin = currentMin
+
+    currentMax = Math.max(value, prevMax * value, prevMin * value)
+    currentMin = Math.min(value, prevMax * value, prevMin * value)
+    answer = Math.max(answer, currentMax)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'max-product-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是照搬最大子数组和的单状态写法，结果在负数场景直接失效。',
+        bullets: [
+          '易错点 1：只维护一个最大值。',
+          '易错点 2：更新最大值后再拿它算最小值，污染旧状态。',
+          '易错点 3：没有把当前数本身作为候选。',
+          '延伸方向：打家劫舍、股票问题、子数组动态规划。',
+        ],
+      },
+    ],
+  },
 ];
