@@ -16368,4 +16368,105 @@ class LRUCache {
       },
     ],
   },
+  {
+    id: 'insertion-sort-list',
+    label: '147. LeetCode 147. 对链表进行插入排序',
+    difficulty: '中等',
+    description:
+      '这题是在练链表上的局部有序维护。真正关键不是生搬硬套数组插入排序，而是理解链表里“找插入点”和“摘节点再插入”的写法。',
+    outcome:
+      '你能掌握链表插入排序的基本实现方式，理解哨兵节点在链表重排题中的价值，并区分链表排序与数组排序的操作差异。',
+    sections: [
+      {
+        id: 'insertion-list-summary',
+        title: '题目在问什么',
+        summary: '给定链表头节点，对其进行插入排序并返回排序后的链表。',
+        bullets: [
+          '排序规则是升序。',
+          '要真正改链表指针。',
+          '题意对应经典插入排序过程。',
+          '是链表排序入门题。',
+        ],
+      },
+      {
+        id: 'insertion-list-idea',
+        title: '核心思路是维护一段已经有序的前缀',
+        summary:
+          '每次从原链表中拿出一个节点，插入到已排序部分的正确位置。这个过程和数组插入排序一致，只是数组搬元素变成了链表改指针。',
+        bullets: [
+          '已排序部分会逐步扩大。',
+          '当前节点要插入到正确前驱之后。',
+          '链表省掉了数组整体搬移成本。',
+          '但需要精确处理指针关系。',
+        ],
+      },
+      {
+        id: 'insertion-list-dummy',
+        title: '哨兵节点让“插到最前面”这类情况变简单',
+        summary:
+          '如果一个节点应该插入到链表头部，没有哨兵时会频繁改头指针。加一个虚拟头节点后，不管插在哪，都统一成“插到某个前驱后面”。',
+        bullets: [
+          '统一头部插入与中间插入逻辑。',
+          '减少特殊分支。',
+          '更适合现场实现。',
+          '是链表题高频技巧。',
+        ],
+      },
+      {
+        id: 'insertion-list-scan',
+        title: '每次都从有序链起点扫描，是这题的主要复杂度来源',
+        summary:
+          '插入排序的代价不在插入本身，而在于寻找插入位置。链表不能随机访问，所以最直接做法是每轮从前往后找第一个比当前节点大的位置。',
+        bullets: [
+          '寻找位置可能要线性扫描。',
+          '整体最坏时间复杂度是 `O(n^2)`。',
+          '这也是它不如归并排序高效的原因。',
+          '但思路清晰，适合基础训练。',
+        ],
+      },
+      {
+        id: 'insertion-list-solution',
+        title: '标准解法：维护有序链表并逐个插入',
+        summary:
+          '使用一个哨兵节点作为已排序链表头。遍历原链表时，先保存下一个节点，再从哨兵开始寻找插入位置，把当前节点插入进去。',
+        bullets: [
+          '时间复杂度最坏是 `O(n^2)`。',
+          '空间复杂度是 `O(1)`。',
+          '重点是插入位置查找与指针改接。',
+          '是理解链表排序差异的好题。',
+        ],
+        code: `function insertionSortList(head: ListNode | null): ListNode | null {
+  const dummy = new ListNode(0)
+  let current = head
+
+  while (current) {
+    const next = current.next
+    let prev = dummy
+
+    while (prev.next && prev.next.val < current.val) {
+      prev = prev.next
+    }
+
+    current.next = prev.next
+    prev.next = current
+    current = next
+  }
+
+  return dummy.next
+}`,
+      },
+      {
+        id: 'insertion-list-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是在插入前忘了保存原链表的下一跳，导致后续节点整段丢失。',
+        bullets: [
+          '易错点 1：未保存 `next` 就修改当前节点的 `next`。',
+          '易错点 2：查找插入位置时比较条件写错。',
+          '易错点 3：没使用哨兵导致头插逻辑混乱。',
+          '延伸方向：排序链表、合并 K 个升序链表、链表去重。',
+        ],
+      },
+    ],
+  },
 ];
