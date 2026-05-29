@@ -16008,4 +16008,102 @@ export const algorithmGuideChapters: AlgorithmGuideChapter[] = [
       },
     ],
   },
+  {
+    id: 'binary-tree-preorder-traversal',
+    label: '144. LeetCode 144. 二叉树的前序遍历',
+    difficulty: '简单',
+    description:
+      '这题是在练二叉树遍历顺序。真正关键不是背前中后序名称，而是理解“什么时候处理当前节点”决定了遍历结果。',
+    outcome:
+      '你能掌握前序遍历的递归与迭代写法，理解栈在树遍历中的作用，并建立对树 DFS 顺序的基本感觉。',
+    sections: [
+      {
+        id: 'preorder-summary',
+        title: '题目在问什么',
+        summary: '返回一棵二叉树的前序遍历结果，也就是“根 -> 左 -> 右”。',
+        bullets: [
+          '输出是节点值数组。',
+          '空树返回空数组。',
+          '可以用递归，也可以用迭代。',
+          '这是树遍历入门题。',
+        ],
+      },
+      {
+        id: 'preorder-order',
+        title: '前序的本质是先处理当前节点，再处理左右子树',
+        summary:
+          '遍历顺序并不神秘，所谓前序，就是把“访问当前节点”这件事放在递归展开之前。',
+        bullets: [
+          '先根节点，后左子树，再右子树。',
+          '顺序决定输出形态。',
+          '递归天然贴合树结构。',
+          '这是理解各种 DFS 的起点。',
+        ],
+      },
+      {
+        id: 'preorder-recursion',
+        title: '递归写法最直接，因为树本来就是递归结构',
+        summary:
+          '对每个节点做同样三件事：记录自己、遍历左边、遍历右边。这和函数递归展开的顺序完全一致。',
+        bullets: [
+          '代码短且易读。',
+          '便于建立遍历顺序认知。',
+          '缺点是极深树可能有栈深限制。',
+          '面试里通常先写这个版本。',
+        ],
+      },
+      {
+        id: 'preorder-iterative',
+        title: '迭代版用栈模拟递归，入栈顺序决定访问顺序',
+        summary:
+          '因为栈是后进先出，想得到“根左右”，就要先压右子节点，再压左子节点，这样左边会先弹出处理。',
+        bullets: [
+          '栈顶代表下一个要访问的节点。',
+          '右先入栈，左后入栈。',
+          '这能模拟递归调用顺序。',
+          '是很多树题的通用套路。',
+        ],
+      },
+      {
+        id: 'preorder-solution',
+        title: '标准解法：递归 DFS',
+        summary:
+          '从根节点出发，先把当前值放入结果数组，再递归遍历左子树和右子树。逻辑最短，也最适合建立树遍历直觉。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度取决于递归深度。',
+          '每个节点恰好访问一次。',
+          '是后续中序、后序的基础模板。',
+        ],
+        code: `function preorderTraversal(root: TreeNode | null): number[] {
+  const result: number[] = []
+
+  const dfs = (node: TreeNode | null) => {
+    if (!node) {
+      return
+    }
+
+    result.push(node.val)
+    dfs(node.left)
+    dfs(node.right)
+  }
+
+  dfs(root)
+  return result
+}`,
+      },
+      {
+        id: 'preorder-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题本身不难，但很多人会在前中后序之间切换时顺序混乱。真正要练的是把遍历顺序和代码执行时机绑定起来。',
+        bullets: [
+          '易错点 1：把左右子树递归顺序写反。',
+          '易错点 2：把 `push` 放到了递归后面。',
+          '易错点 3：迭代版入栈顺序写错。',
+          '延伸方向：中序遍历、后序遍历、层序遍历。',
+        ],
+      },
+    ],
+  },
 ];
