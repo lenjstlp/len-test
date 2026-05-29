@@ -16731,4 +16731,114 @@ function merge(
       },
     ],
   },
+  {
+    id: 'evaluate-reverse-polish-notation',
+    label: '150. LeetCode 150. 逆波兰表达式求值',
+    difficulty: '中等',
+    description:
+      '这题是在练栈对表达式求值的支撑能力。真正关键不是认识后缀表达式，而是理解它为什么能天然消掉括号优先级问题。',
+    outcome:
+      '你能掌握逆波兰表达式的栈式求值过程，理解操作数出栈顺序的重要性，并建立对表达式解析问题的基本直觉。',
+    sections: [
+      {
+        id: 'rpn-summary',
+        title: '题目在问什么',
+        summary: '给定一个逆波兰表达式数组，返回它的计算结果。',
+        bullets: [
+          '数字直接入栈。',
+          '遇到运算符就弹出两个数计算。',
+          '表达式保证合法。',
+          '这是典型栈题。',
+        ],
+      },
+      {
+        id: 'rpn-why-stack',
+        title: '后缀表达式天然适合用栈，因为操作数总在运算符之前准备好',
+        summary:
+          '当扫描到一个运算符时，它所需要的两个操作数一定已经在前面出现并压入栈中，所以直接弹出即可。',
+        bullets: [
+          '不需要额外处理中缀优先级。',
+          '括号信息已经隐含在顺序里。',
+          '栈正好匹配“最近准备好的操作数”。',
+          '这是表达式处理的经典模型。',
+        ],
+      },
+      {
+        id: 'rpn-order',
+        title: '出栈顺序不能反，减法和除法尤其敏感',
+        summary:
+          '先弹出的数字是右操作数，后弹出的数字才是左操作数。如果顺序写反，加法乘法可能看不出问题，但减法和除法会直接错掉。',
+        bullets: [
+          '第二次出栈的是左值。',
+          '第一次出栈的是右值。',
+          '顺序错了结果就错。',
+          '这是本题最常见坑点。',
+        ],
+      },
+      {
+        id: 'rpn-trunc',
+        title: '除法要按题意向零截断',
+        summary:
+          'JavaScript 和 TypeScript 中普通除法会得到浮点结果，因此需要额外用 `Math.trunc` 处理，保证负数时也是向零截断。',
+        bullets: [
+          '不能直接保留小数。',
+          '向零截断和向下取整不同。',
+          '负数场景更容易出错。',
+          '实现细节要贴合题意。',
+        ],
+        callout:
+          '表达式题往往不难，真正拉开差距的是你有没有把题目里的运算语义逐字落实到代码里。',
+      },
+      {
+        id: 'rpn-solution',
+        title: '标准解法：线性扫描 + 栈',
+        summary:
+          '遍历 tokens，遇到数字就转成整数入栈；遇到运算符就依次弹出右值和左值，计算后再把结果压回栈中。最终栈顶即答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '每个 token 只处理一次。',
+          '是非常标准的栈应用题。',
+        ],
+        code: `function evalRPN(tokens: string[]): number {
+  const stack: number[] = []
+  const operators = new Set(["+", "-", "*", "/"])
+
+  for (const token of tokens) {
+    if (!operators.has(token)) {
+      stack.push(Number(token))
+      continue
+    }
+
+    const right = stack.pop()!
+    const left = stack.pop()!
+
+    if (token === "+") {
+      stack.push(left + right)
+    } else if (token === "-") {
+      stack.push(left - right)
+    } else if (token === "*") {
+      stack.push(left * right)
+    } else {
+      stack.push(Math.trunc(left / right))
+    }
+  }
+
+  return stack[0]
+}`,
+      },
+      {
+        id: 'rpn-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把左右操作数顺序写反，或者在除法时忘记截断规则。',
+        bullets: [
+          '易错点 1：`pop` 顺序反了。',
+          '易错点 2：除法没做向零截断。',
+          '易错点 3：把 token 当字符没转数字。',
+          '延伸方向：基本计算器、中缀转后缀、括号匹配。',
+        ],
+      },
+    ],
+  },
 ];
