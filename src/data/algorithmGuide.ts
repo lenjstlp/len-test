@@ -17352,4 +17352,103 @@ function merge(
       },
     ],
   },
+  {
+    id: 'binary-tree-upside-down',
+    label: '156. LeetCode 156. 上下翻转二叉树',
+    difficulty: '中等',
+    description:
+      '这题是在练树结构重连。真正关键不是死记结果长什么样，而是认清每个节点翻转后左、右孩子各自要接到哪里。',
+    outcome:
+      '你能掌握树指针重连的递归思路，理解“先到底、再回溯接线”的必要性，并建立对二叉树结构改造题的感觉。',
+    sections: [
+      {
+        id: 'upside-down-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵特定结构的二叉树，把它翻转成“原左孩子变父节点，原根变右孩子，原右孩子变左孩子”的新树。',
+        bullets: [
+          '翻转不是镜像。',
+          '要真正重连指针。',
+          '通常沿着左链一路翻。',
+          '这是树结构改造题。',
+        ],
+      },
+      {
+        id: 'upside-down-observe',
+        title: '先观察局部关系，别急着从根开始硬改',
+        summary:
+          '对一个节点来说，翻转后它的左孩子会上升为父节点，原右孩子会挂到这个新父节点的左边，而当前节点自己会挂到新父节点的右边。',
+        bullets: [
+          '局部接线关系是解题核心。',
+          '原左孩子负责“接班”。',
+          '原右孩子成为新左子树。',
+          '当前节点成为新右子树。',
+        ],
+      },
+      {
+        id: 'upside-down-bottom-up',
+        title: '为什么必须先递归到最左边，再回头重连',
+        summary:
+          '最左侧节点最终会变成新根。如果一开始就在上层乱改指针，很容易把后续还要访问的子树断掉。先到底，再在回溯时按规则接线更稳。',
+        bullets: [
+          '最左节点是最终新根。',
+          '回溯阶段更适合做重连。',
+          '避免提前破坏原结构。',
+          '这是典型的自底向上改造。',
+        ],
+      },
+      {
+        id: 'upside-down-cleanup',
+        title: '旧连接必须及时断掉，否则容易形成环',
+        summary:
+          '节点接到新位置后，原先的 `left` 和 `right` 关系已经失效，若不手动清空，就可能残留旧边，最终让树结构错误甚至形成环。',
+        bullets: [
+          '重连后要清理旧指针。',
+          '结构改造题都要注意旧边残留。',
+          '不清理会导致遍历异常。',
+          '这是实现层面的关键细节。',
+        ],
+        callout:
+          '树和链表的改造题，本质上都是在做“接新线之前先认清旧线，接完后别忘了拆旧线”。',
+      },
+      {
+        id: 'upside-down-solution',
+        title: '标准解法：递归到底后回溯接线',
+        summary:
+          '当节点没有左孩子时，它就是新的根。否则先递归处理左子树，等回溯时把 `root.left.left` 指向原右孩子，把 `root.left.right` 指向当前节点，最后清空当前节点原有左右指针。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度取决于递归深度。',
+          '核心是自底向上的指针重连。',
+          '很适合训练树结构改造能力。',
+        ],
+        code: `function upsideDownBinaryTree(root: TreeNode | null): TreeNode | null {
+  if (!root || !root.left) {
+    return root
+  }
+
+  const newRoot = upsideDownBinaryTree(root.left)
+
+  root.left.left = root.right
+  root.left.right = root
+  root.left = null
+  root.right = null
+
+  return newRoot
+}`,
+      },
+      {
+        id: 'upside-down-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是知道要翻转，但没有想清“原右孩子”和“当前节点”分别接到哪里。',
+        bullets: [
+          '易错点 1：把原右孩子和当前节点挂反。',
+          '易错点 2：没清空旧的左右指针。',
+          '易错点 3：从上往下直接改，导致原结构被破坏。',
+          '延伸方向：翻转二叉树、树展开为链表、树的序列化改造。',
+        ],
+      },
+    ],
+  },
 ];
