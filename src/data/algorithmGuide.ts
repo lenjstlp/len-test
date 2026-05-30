@@ -17136,4 +17136,107 @@ function merge(
       },
     ],
   },
+  {
+    id: 'find-minimum-in-rotated-sorted-array-ii',
+    label: '154. LeetCode 154. 寻找旋转排序数组中的最小值 II',
+    difficulty: '困难',
+    description:
+      '这题是在练二分查找在重复元素场景下的退化处理。真正关键不是沿用上一题模板，而是理解重复值会遮蔽断点信息。',
+    outcome:
+      '你能掌握旋转数组含重复元素时的二分思路，理解为什么在信息不足时只能保守收缩边界，并接受最坏退化到线性的原因。',
+    sections: [
+      {
+        id: 'find-min2-summary',
+        title: '题目在问什么',
+        summary:
+          '一个原本升序的数组发生旋转后，数组里允许有重复元素，要求找到最小值。',
+        bullets: [
+          '和上一题的唯一区别是允许重复。',
+          '目标仍然是最小值。',
+          '希望尽量保持二分思路。',
+          '这是旋转数组的进阶版。',
+        ],
+      },
+      {
+        id: 'find-min2-why-hard',
+        title: '重复元素会让中点和右端的比较失去部分判别力',
+        summary:
+          '在没有重复元素时，`nums[mid]` 和 `nums[right]` 的关系通常能直接指向某一侧；但当它们相等时，中点可能在左半段，也可能在右半段，信息不够了。',
+        bullets: [
+          '重复值会遮住断点结构。',
+          '相等时无法直接判断最小值方向。',
+          '这让普通二分模板不再完整。',
+          '必须补一个保守分支。',
+        ],
+      },
+      {
+        id: 'find-min2-safe-shrink',
+        title: '当中点等于右端时，安全做法是让右边界左移一格',
+        summary:
+          '因为 `nums[mid] === nums[right]` 时，去掉右端这个重复值并不会丢失最小值。即便右端正好是最小值，中点也同样是该值，所以可以安全写成 `right -= 1`。',
+        bullets: [
+          '这是信息不足时的保守收缩。',
+          '不会把答案删掉。',
+          '但可能只能一点点缩。',
+          '最坏情况下会退化为线性。',
+        ],
+      },
+      {
+        id: 'find-min2-complexity',
+        title: '为什么这题最坏不能保证 `O(log n)`',
+        summary:
+          '如果数组里很多元素都相同，例如几乎全是一个值，那么每轮比较可能都落入“相等”分支，只能把右边界减一，这时复杂度就退化成 `O(n)`。',
+        bullets: [
+          '重复元素是复杂度退化根源。',
+          '二分依赖有效判别信息。',
+          '信息不足时无法成倍缩区间。',
+          '理解退化原因比背结论更重要。',
+        ],
+        callout:
+          '二分题不是只要写 `mid` 就一定是 `O(log n)`。真正决定复杂度的，是每次比较能否稳定淘汰大块区间。',
+      },
+      {
+        id: 'find-min2-solution',
+        title: '标准解法：基于右端参照的二分加退化分支',
+        summary:
+          '若 `nums[mid] > nums[right]`，最小值在右侧；若 `nums[mid] < nums[right]`，最小值在左侧含中点；若两者相等，则让 `right -= 1` 保守收缩。',
+        bullets: [
+          '平均仍然接近二分效率。',
+          '最坏复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '关键在相等时的处理方式。',
+        ],
+        code: `function findMin(nums: number[]): number {
+  let left = 0
+  let right = nums.length - 1
+
+  while (left < right) {
+    const mid = left + Math.floor((right - left) / 2)
+
+    if (nums[mid] > nums[right]) {
+      left = mid + 1
+    } else if (nums[mid] < nums[right]) {
+      right = mid
+    } else {
+      right -= 1
+    }
+  }
+
+  return nums[left]
+}`,
+      },
+      {
+        id: 'find-min2-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是完全照搬上一题逻辑，结果在重复元素出现时把区间缩错。',
+        bullets: [
+          '易错点 1：漏掉相等分支。',
+          '易错点 2：相等时直接丢掉中点侧整段区间。',
+          '易错点 3：误以为这题仍然稳定是 `O(log n)`。',
+          '延伸方向：搜索旋转排序数组 II、重复元素二分、单调性退化问题。',
+        ],
+      },
+    ],
+  },
 ];
