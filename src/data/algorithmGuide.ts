@@ -17678,4 +17678,115 @@ class Reader {
       },
     ],
   },
+  {
+    id: 'longest-substring-with-at-most-two-distinct-characters',
+    label: '159. LeetCode 159. 至多包含两个不同字符的最长子串',
+    difficulty: '中等',
+    description:
+      '这题是在练滑动窗口里“窗口约束”的维护。真正关键不是枚举所有子串，而是让窗口始终只容纳最多两种字符。',
+    outcome:
+      '你能掌握“至多 K 种不同字符”这一类滑动窗口模板，理解左右指针与计数表如何协同维护窗口合法性。',
+    sections: [
+      {
+        id: 'two-distinct-summary',
+        title: '题目在问什么',
+        summary: '给定字符串，求其中至多包含两个不同字符的最长子串长度。',
+        bullets: [
+          '子串必须连续。',
+          '允许只有 1 种字符。',
+          '关键约束是“最多两种”。',
+          '这是滑动窗口经典题。',
+        ],
+      },
+      {
+        id: 'two-distinct-window',
+        title: '这类题的典型思路是维护一个始终合法的窗口',
+        summary:
+          '右指针负责扩张窗口，左指针负责在窗口不合法时收缩。只要窗口里不同字符的种类数超过 2，就不断左移直到恢复合法。',
+        bullets: [
+          '右扩张，左修复。',
+          '窗口合法性实时维护。',
+          '不需要重复枚举子串。',
+          '这是滑动窗口的核心节奏。',
+        ],
+      },
+      {
+        id: 'two-distinct-counter',
+        title: '哈希表负责记录每种字符在窗口中的出现次数',
+        summary:
+          '单靠左右指针不够，因为你还需要知道某个字符被移出窗口后是否彻底消失。计数表可以帮助你在次数减到 0 时及时删掉该字符类型。',
+        bullets: [
+          '计数表记录窗口内容。',
+          '次数归零时要删除键。',
+          '窗口种类数由表大小反映。',
+          '这是判断合法性的直接依据。',
+        ],
+      },
+      {
+        id: 'two-distinct-template',
+        title: '这题其实是“至多 K 种字符”模板的 K=2 特例',
+        summary:
+          '把 2 换成任意 K，思路完全一致。因此这道题的价值不只在本身，而是在于它能沉淀出一套通用的窗口模板。',
+        bullets: [
+          'K 变化，模板不变。',
+          '是很多字符串题的母题。',
+          '窗口类题目复用率很高。',
+          '值得抽象总结。',
+        ],
+        callout:
+          '真正高价值的刷题，不是记住某一道题，而是识别出它背后那套以后还能复用很多次的模板。',
+      },
+      {
+        id: 'two-distinct-solution',
+        title: '标准解法：滑动窗口 + 计数表',
+        summary:
+          '右指针遍历字符串并加入计数表；若不同字符超过 2，就不断移动左指针并减少计数，直到窗口恢复合法；过程中持续更新窗口最大长度。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度与字符种类数相关。',
+          '关键在合法窗口的维护。',
+          '是窗口模板代表题。',
+        ],
+        code: `function lengthOfLongestSubstringTwoDistinct(s: string): number {
+  const counter = new Map<string, number>()
+  let left = 0
+  let answer = 0
+
+  for (let right = 0; right < s.length; right += 1) {
+    const char = s[right]
+    counter.set(char, (counter.get(char) ?? 0) + 1)
+
+    while (counter.size > 2) {
+      const leftChar = s[left]
+      const count = (counter.get(leftChar) ?? 0) - 1
+
+      if (count === 0) {
+        counter.delete(leftChar)
+      } else {
+        counter.set(leftChar, count)
+      }
+
+      left += 1
+    }
+
+    answer = Math.max(answer, right - left + 1)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'two-distinct-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是窗口超限后只缩一步就停，导致窗口其实仍然不合法。',
+        bullets: [
+          '易错点 1：超限后没有用 `while` 持续收缩。',
+          '易错点 2：计数减到 0 没删键。',
+          '易错点 3：把子串和子序列混淆。',
+          '延伸方向：无重复字符最长子串、至多 K 种字符、最小覆盖子串。',
+        ],
+      },
+    ],
+  },
 ];
