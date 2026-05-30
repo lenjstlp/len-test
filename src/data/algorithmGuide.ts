@@ -18205,4 +18205,133 @@ class Reader {
       },
     ],
   },
+  {
+    id: 'maximum-gap',
+    label: '164. LeetCode 164. 最大间距',
+    difficulty: '困难',
+    description:
+      '这题是在练桶排序思想。真正关键不是先把数组完整排好序，而是利用抽屉原理证明最大间距一定出现在不同桶之间。',
+    outcome:
+      '你能掌握基于桶的线性时间解法，理解为什么只记录每个桶的最小值和最大值就够了，并建立对“用数学性质降复杂度”的敏感度。',
+    sections: [
+      {
+        id: 'maximum-gap-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个无序数组，要求返回排序后相邻元素的最大差值，并尽量做到线性时间与线性额外空间。',
+        bullets: [
+          '答案定义在排序后的相邻元素之间。',
+          '但不鼓励直接完整排序。',
+          '目标复杂度指向非比较排序思路。',
+          '这是桶思想代表题。',
+        ],
+      },
+      {
+        id: 'maximum-gap-pigeonhole',
+        title: '抽屉原理告诉你：最大间距不可能出现在同一个桶内部',
+        summary:
+          '把数值区间均匀划成若干桶后，同一桶内元素之间的差值被桶宽限制住；真正可能形成更大间距的，是某个非空桶的最小值与前一个非空桶的最大值之间。',
+        bullets: [
+          '桶宽限制了桶内最大差值。',
+          '跨桶间距才是重点。',
+          '这是整题的数学核心。',
+          '理解这个结论后实现就很自然。',
+        ],
+      },
+      {
+        id: 'maximum-gap-bucket-info',
+        title: '每个桶不需要存所有元素，只需要最小值和最大值',
+        summary:
+          '因为最终只关心跨桶比较：当前桶的最小值减去前一个非空桶的最大值。所以桶内具体排序没必要，记录边界值就足够了。',
+        bullets: [
+          '桶内细节不是答案重点。',
+          '边界值才参与最终比较。',
+          '这让空间保持线性。',
+          '也是算法高效的原因。',
+        ],
+      },
+      {
+        id: 'maximum-gap-build',
+        title: '桶数量和桶宽的设计要保证每个桶都可定位',
+        summary:
+          '常见做法是令桶宽至少为 1，并用 `(maxValue - minValue) / (n - 1)` 作为理论下界来设计桶宽。这样能保证如果数组有分散空隙，跨桶比较一定捕捉得到。',
+        bullets: [
+          '桶宽不能为 0。',
+          '元素少于 2 个可直接返回 0。',
+          '最值要先单独求出。',
+          '桶设计和数学结论是配套的。',
+        ],
+        callout:
+          '很多“看起来像排序题”的困难题，真正突破口不在代码技巧，而在你能不能先找出一个足以降低复杂度的数学事实。',
+      },
+      {
+        id: 'maximum-gap-solution',
+        title: '标准解法：桶排序思想 + 非空桶间比较',
+        summary:
+          '先找到全局最小值和最大值，按桶宽把数字分配进桶中，每个桶只维护最小值、最大值和是否为空。最后线性扫描桶，比较当前非空桶最小值与前一个非空桶最大值的差。',
+        bullets: [
+          '时间复杂度可以做到 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '关键在桶内不排序、只存边界。',
+          '是数学性质驱动算法设计的代表题。',
+        ],
+        code: `function maximumGap(nums: number[]): number {
+  if (nums.length < 2) {
+    return 0
+  }
+
+  let minValue = nums[0]
+  let maxValue = nums[0]
+
+  for (const value of nums) {
+    minValue = Math.min(minValue, value)
+    maxValue = Math.max(maxValue, value)
+  }
+
+  if (minValue === maxValue) {
+    return 0
+  }
+
+  const bucketSize = Math.max(1, Math.floor((maxValue - minValue) / (nums.length - 1)))
+  const bucketCount = Math.floor((maxValue - minValue) / bucketSize) + 1
+  const bucketMin = new Array<number>(bucketCount).fill(Number.POSITIVE_INFINITY)
+  const bucketMax = new Array<number>(bucketCount).fill(Number.NEGATIVE_INFINITY)
+  const bucketUsed = new Array<boolean>(bucketCount).fill(false)
+
+  for (const value of nums) {
+    const index = Math.floor((value - minValue) / bucketSize)
+    bucketUsed[index] = true
+    bucketMin[index] = Math.min(bucketMin[index], value)
+    bucketMax[index] = Math.max(bucketMax[index], value)
+  }
+
+  let answer = 0
+  let prevMax = minValue
+
+  for (let i = 0; i < bucketCount; i += 1) {
+    if (!bucketUsed[i]) {
+      continue
+    }
+
+    answer = Math.max(answer, bucketMin[i] - prevMax)
+    prevMax = bucketMax[i]
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'maximum-gap-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是知道要用桶，但仍然在桶内继续完整排序，等于把线性时间优势又做没了。',
+        bullets: [
+          '易错点 1：桶内存所有元素再排序。',
+          '易错点 2：桶宽计算可能变成 0。',
+          '易错点 3：没有跳过空桶。',
+          '延伸方向：基数排序、计数排序、Top K 与非比较排序思想。',
+        ],
+      },
+    ],
+  },
 ];
