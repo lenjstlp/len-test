@@ -17239,4 +17239,117 @@ function merge(
       },
     ],
   },
+  {
+    id: 'min-stack',
+    label: '155. LeetCode 155. 最小栈',
+    difficulty: '中等',
+    description:
+      '这题是在练辅助栈设计。真正关键不是支持 `push` 和 `pop`，而是让“当前最小值”也能和主栈状态同步演化。',
+    outcome:
+      '你能掌握双栈维护最小值的设计思路，理解为什么附加状态必须与主数据结构同步更新，并写出常数时间查询最小值的栈结构。',
+    sections: [
+      {
+        id: 'min-stack-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个支持 `push`、`pop`、`top` 和 `getMin` 的栈，其中 `getMin` 要在常数时间返回当前最小值。',
+        bullets: [
+          '不仅要会出入栈。',
+          '还要快速拿到最小值。',
+          '所有操作都追求 `O(1)`。',
+          '这是经典数据结构设计题。',
+        ],
+      },
+      {
+        id: 'min-stack-why-not-scan',
+        title: '每次线性扫描找最小值肯定不行',
+        summary:
+          '如果 `getMin` 时再去遍历整个栈，复杂度就是 `O(n)`，完全不符合题意。所以最小值信息必须在入栈和出栈时就同步维护好。',
+        bullets: [
+          '查询阶段不能再临时计算。',
+          '要把代价前置到状态维护上。',
+          '这是设计题常见思路。',
+          '本质是空间换时间。',
+        ],
+      },
+      {
+        id: 'min-stack-helper',
+        title: '最直接的方案是再维护一个“最小值栈”',
+        summary:
+          '主栈记录真实数据，辅助栈记录每个时刻对应的最小值。这样栈顶元素一一对应，出栈时两个栈同步弹出即可。',
+        bullets: [
+          '辅助栈栈顶就是当前最小值。',
+          '入栈时写入“旧最小值与当前值的较小者”。',
+          '出栈时两个栈同步弹出。',
+          '逻辑清晰且很稳。',
+        ],
+      },
+      {
+        id: 'min-stack-duplicate',
+        title: '重复最小值不能只存一次，否则弹出时会丢状态',
+        summary:
+          '辅助栈如果只在遇到更小值时才入栈，那么碰到相同最小值多次出现时，弹出一个后就可能错误地把最小值恢复大了。最稳妥的是每次入栈都同步写一份当前最小值。',
+        bullets: [
+          '重复值是常见边界坑。',
+          '同步镜像能规避很多分支。',
+          '代码量更少。',
+          '更适合面试现场实现。',
+        ],
+        callout:
+          '设计题很多时候不是“省几个元素”更高级，而是状态结构越对称、越不容易出错。',
+      },
+      {
+        id: 'min-stack-solution',
+        title: '标准解法：主栈加最小值栈',
+        summary:
+          '每次 `push` 时，把值压入主栈，同时把 `min(当前值, 旧最小值)` 压入辅助栈；每次 `pop` 时两个栈同步弹出；查询时直接读各自栈顶。',
+        bullets: [
+          '四个操作都能做到 `O(1)`。',
+          '空间复杂度是 `O(n)`。',
+          '是辅助状态同步维护的典型例子。',
+          '非常高频。',
+        ],
+        code: `class MinStack {
+  private stack: number[] = []
+  private minStack: number[] = []
+
+  push(val: number): void {
+    this.stack.push(val)
+
+    if (this.minStack.length === 0) {
+      this.minStack.push(val)
+    } else {
+      const currentMin = this.minStack[this.minStack.length - 1]
+      this.minStack.push(Math.min(currentMin, val))
+    }
+  }
+
+  pop(): void {
+    this.stack.pop()
+    this.minStack.pop()
+  }
+
+  top(): number {
+    return this.stack[this.stack.length - 1]
+  }
+
+  getMin(): number {
+    return this.minStack[this.minStack.length - 1]
+  }
+}`,
+      },
+      {
+        id: 'min-stack-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是辅助栈更新不对称，导致 `pop` 之后最小值状态错乱。',
+        bullets: [
+          '易错点 1：只在更小值出现时才压辅助栈。',
+          '易错点 2：`pop` 时忘记同步弹出辅助栈。',
+          '易错点 3：空栈边界没处理好。',
+          '延伸方向：最大栈、单调栈、括号匹配栈设计。',
+        ],
+      },
+    ],
+  },
 ];
