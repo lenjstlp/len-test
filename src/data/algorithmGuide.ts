@@ -17451,4 +17451,116 @@ function merge(
       },
     ],
   },
+  {
+    id: 'read-n-characters-given-read4',
+    label: '157. LeetCode 157. 用 Read4 读取 N 个字符',
+    difficulty: '简单',
+    description:
+      '这题是在练接口适配。真正关键不是循环几次，而是把系统提供的 `read4` 能力稳定包装成“读任意 n 个字符”的接口。',
+    outcome:
+      '你能掌握分块读取与结果拼装的基本思路，理解什么时候该停读，并建立对面向接口题目的实现节奏。',
+    sections: [
+      {
+        id: 'read4-summary',
+        title: '题目在问什么',
+        summary:
+          '系统提供 `read4(buf4)`，每次最多读 4 个字符。要求实现 `read(buf, n)`，把最多 `n` 个字符读入目标缓冲区。',
+        bullets: [
+          '底层能力固定是 4 个一组读取。',
+          '上层需求是任意 n。',
+          '要处理文件提前结束。',
+          '这是接口包装题。',
+        ],
+      },
+      {
+        id: 'read4-loop',
+        title: '整体就是反复调用 `read4`，直到满足两个停止条件',
+        summary:
+          '循环中不断取 4 个字符块，然后按需拷贝进结果区。停止条件有两个：已经读满 `n`，或者 `read4` 返回值小于 4，说明文件到头了。',
+        bullets: [
+          '读满 `n` 就停。',
+          '底层读不到更多也要停。',
+          '每轮只消费实际读到的字符数。',
+          '这是分块读取的标准套路。',
+        ],
+      },
+      {
+        id: 'read4-copy',
+        title: '关键不是每次读多少，而是每次最多拷贝多少',
+        summary:
+          '即使 `read4` 读到了 4 个字符，如果当前只剩 2 个名额，也只能复制 2 个进目标缓冲区。真正控制正确性的，是“拷贝上限”而不是“读取上限”。',
+        bullets: [
+          '读取块大小和需求块大小不总一致。',
+          '要用 `Math.min` 控制复制数量。',
+          '防止写越界。',
+          '体现接口适配思路。',
+        ],
+      },
+      {
+        id: 'read4-eof',
+        title: '`read4` 返回值小于 4 就意味着没有更多数据',
+        summary:
+          '文件剩余字符不足 4 时，`read4` 会只返回实际读到的数量；如果是 0，就表示已经没有任何字符可读了。这是退出循环的重要信号。',
+        bullets: [
+          '返回值是这轮有效字符数。',
+          '0 表示彻底结束。',
+          '小于 4 说明到文件尾部了。',
+          '不要继续盲读。',
+        ],
+        callout:
+          '这类接口题真正考的是你能不能把“底层批量能力”和“上层精确需求”之间的边界处理干净。',
+      },
+      {
+        id: 'read4-solution',
+        title: '标准解法：分块读取并按需拷贝',
+        summary:
+          '创建一个长度为 4 的临时缓冲区，循环调用 `read4`。每轮根据还需要的字符数决定复制多少，累计到结果缓冲区里，直到读满或文件结束。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '额外空间主要是长度 4 的临时缓冲区。',
+          '逻辑清晰且稳定。',
+          '是接口封装题的基础版。',
+        ],
+        code: `declare function read4(buf4: string[]): number
+
+function read(buf: string[], n: number): number {
+  const buf4 = new Array<string>(4)
+  let total = 0
+
+  while (total < n) {
+    const count = read4(buf4)
+
+    if (count === 0) {
+      break
+    }
+
+    const length = Math.min(count, n - total)
+
+    for (let i = 0; i < length; i += 1) {
+      buf[total] = buf4[i]
+      total += 1
+    }
+
+    if (count < 4) {
+      break
+    }
+  }
+
+  return total
+}`,
+      },
+      {
+        id: 'read4-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是每次把 `read4` 读到的字符全部复制走，结果超过了 `n` 的目标上限。',
+        bullets: [
+          '易错点 1：没有限制复制数量。',
+          '易错点 2：`count < 4` 时还继续循环。',
+          '易错点 3：把读取次数和写入次数混为一谈。',
+          '延伸方向：多次调用版、文件流读取、分块上传下载。',
+        ],
+      },
+    ],
+  },
 ];
