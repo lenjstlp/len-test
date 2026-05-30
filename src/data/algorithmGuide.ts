@@ -17789,4 +17789,103 @@ class Reader {
       },
     ],
   },
+  {
+    id: 'intersection-of-two-linked-lists',
+    label: '160. LeetCode 160. 相交链表',
+    difficulty: '简单',
+    description:
+      '这题是在练链表路径对齐。真正关键不是判断值是否相同，而是让两个指针走过相同的总路程后自然在交点汇合。',
+    outcome:
+      '你能掌握双指针路径补齐的经典技巧，理解为什么切换链表头后总路程会相等，并正确区分“节点相同”和“值相同”。',
+    sections: [
+      {
+        id: 'intersection-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个单链表，找出它们开始相交的节点；如果不相交，则返回 `null`。',
+        bullets: [
+          '比较的是节点引用，不是值。',
+          '链表可能长度不同。',
+          '希望用常数空间。',
+          '这是双指针经典题。',
+        ],
+      },
+      {
+        id: 'intersection-why-switch',
+        title: '最巧的思路是让两个指针都走完 A + B 这段总路程',
+        summary:
+          '指针 A 先走链表 A 再走链表 B，指针 B 先走链表 B 再走链表 A。这样两者总路程相同，如果有交点，就会在交点处同步抵达；如果没有，也会一起到 `null`。',
+        bullets: [
+          '本质是路程补齐。',
+          '不需要显式求长度差。',
+          '有交点会在交点相遇。',
+          '无交点会一起走到空。',
+        ],
+      },
+      {
+        id: 'intersection-node',
+        title: '一定要比较节点本身，不能比较节点值',
+        summary:
+          '两条链表的不同节点完全可能恰好存着相同的数值，但它们并不相交。只有当两个指针指向内存中的同一个节点时，才算真的相交。',
+        bullets: [
+          '值相同不代表节点相同。',
+          '题目考的是结构共享。',
+          '判断条件是引用相等。',
+          '这是最基本但最容易忽视的点。',
+        ],
+      },
+      {
+        id: 'intersection-proof',
+        title: '为什么切换头节点后就能对齐，本质是长度差被抵消了',
+        summary:
+          '假设两链表前缀长度不同，第一次各自走完本链后，长的那条会多走掉一段前缀；切到另一条后，短的那条会补上这段差值，于是两者在进入公共尾部时正好齐平。',
+        bullets: [
+          '长度差不会消失，只是被补齐。',
+          '切换头节点是对齐动作。',
+          '证明过程比背模板更重要。',
+          '这是双指针技巧的精髓。',
+        ],
+        callout:
+          '双指针很多时候的高明之处，不在“两个指针一起走”，而在于它们被设计成最终会走出同样长的路。',
+      },
+      {
+        id: 'intersection-solution',
+        title: '标准解法：双指针走完两条链表',
+        summary:
+          '定义两个指针分别从两条链表头出发；每轮同时前进一步，若某个指针走到空，就切换到另一条链表头。最终二者第一次相等的位置就是交点，或一起为 `null`。',
+        bullets: [
+          '时间复杂度是 `O(m + n)`。',
+          '空间复杂度是 `O(1)`。',
+          '不需要额外集合或长度计算。',
+          '是链表双指针的高频模板。',
+        ],
+        code: `function getIntersectionNode(
+  headA: ListNode | null,
+  headB: ListNode | null,
+): ListNode | null {
+  let pointerA = headA
+  let pointerB = headB
+
+  while (pointerA !== pointerB) {
+    pointerA = pointerA ? pointerA.next : headB
+    pointerB = pointerB ? pointerB.next : headA
+  }
+
+  return pointerA
+}`,
+      },
+      {
+        id: 'intersection-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是思路对了但判断条件写成比较值，结果误判出“伪交点”。',
+        bullets: [
+          '易错点 1：比较 `val` 而不是节点引用。',
+          '易错点 2：切换链表头逻辑写反。',
+          '易错点 3：没理解为何最终会相遇。',
+          '延伸方向：环形链表、删除倒数第 N 个节点、链表中点。',
+        ],
+      },
+    ],
+  },
 ];
