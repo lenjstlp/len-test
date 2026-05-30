@@ -17563,4 +17563,119 @@ function read(buf: string[], n: number): number {
       },
     ],
   },
+  {
+    id: 'read-n-characters-given-read4-ii',
+    label: '158. LeetCode 158. 用 Read4 读取 N 个字符 II - 多次调用',
+    difficulty: '困难',
+    description:
+      '这题是在练跨调用状态管理。真正关键不是复用上一题代码，而是把一次没用完的字符缓存下来，供下次继续消费。',
+    outcome:
+      '你能掌握带内部缓冲区的流式读取设计，理解“生产与消费速度不一致”时为什么必须做持久化缓存，并写出支持多次调用的读取器。',
+    sections: [
+      {
+        id: 'read4-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '仍然通过 `read4` 读取字符，但这次 `read(buf, n)` 会被调用很多次，要求整体行为正确。',
+        bullets: [
+          '和上一题最大的区别是多次调用。',
+          '上次多读出来的字符不能丢。',
+          '内部状态需要持久保存。',
+          '这是流式读取进阶题。',
+        ],
+      },
+      {
+        id: 'read4-ii-core',
+        title: '难点在于 `read4` 总是按 4 个块生产，而外部每次只想消费 n 个',
+        summary:
+          '如果本次只需要 1 个字符，`read4` 却返回了 4 个，那么多出来的 3 个必须保存在对象内部，下次调用时优先消费这些缓存，而不是重新去底层读取。',
+        bullets: [
+          '生产速度和消费速度不一致。',
+          '缓存是必须的，不是可选优化。',
+          '未消费数据要跨调用保留。',
+          '这就是设计重点。',
+        ],
+      },
+      {
+        id: 'read4-ii-buffer',
+        title: '内部缓冲区至少要记录内容、当前位置和有效长度',
+        summary:
+          '你需要知道缓存数组里总共有多少有效字符、当前消费到第几个，以及什么时候缓存已经用完，可以重新调用 `read4` 补货。',
+        bullets: [
+          '需要一块长度 4 的内部缓存。',
+          '需要读指针。',
+          '需要有效数据长度。',
+          '三者缺一不可。',
+        ],
+      },
+      {
+        id: 'read4-ii-priority',
+        title: '每次调用都应该先吃缓存，再决定要不要补读',
+        summary:
+          '只要内部缓存里还有数据，就应该优先复制给用户缓冲区。缓存耗尽后，再触发一次新的 `read4`。这样才能保证多次调用时字符顺序完全正确。',
+        bullets: [
+          '缓存优先，底层读取靠后。',
+          '保证字符顺序不乱。',
+          '避免重复读取或丢数据。',
+          '这是实现正确性的关键。',
+        ],
+        callout:
+          '很多“多次调用版”题目，本质上都在考你有没有意识到“函数之间其实共享一个长期存在的状态机”。',
+      },
+      {
+        id: 'read4-ii-solution',
+        title: '标准解法：对象内维护 read4 缓冲区',
+        summary:
+          '把 `buf4`、缓存指针和缓存长度定义为类成员。`read` 每次先消费缓存；若缓存空了就重新调用 `read4` 填充；直到读满 `n` 或底层读空。',
+        bullets: [
+          '时间复杂度仍然与总读取字符数线性相关。',
+          '关键在跨调用缓存持久化。',
+          '非常像真实流式 API 封装。',
+          '是接口状态管理代表题。',
+        ],
+        code: `declare function read4(buf4: string[]): number
+
+class Reader {
+  private buf4 = new Array<string>(4)
+  private size = 0
+  private index = 0
+
+  read(buf: string[], n: number): number {
+    let total = 0
+
+    while (total < n) {
+      if (this.index === this.size) {
+        this.size = read4(this.buf4)
+        this.index = 0
+
+        if (this.size === 0) {
+          break
+        }
+      }
+
+      while (total < n && this.index < this.size) {
+        buf[total] = this.buf4[this.index]
+        total += 1
+        this.index += 1
+      }
+    }
+
+    return total
+  }
+}`,
+      },
+      {
+        id: 'read4-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把上一题答案原样搬过来，导致多读出来的字符直接被丢掉。',
+        bullets: [
+          '易错点 1：没有内部缓存字段。',
+          '易错点 2：每次调用都从空状态开始。',
+          '易错点 3：缓存未消费完就再次调用 `read4`。',
+          '延伸方向：分页加载、消息队列消费者、本地文件流封装。',
+        ],
+      },
+    ],
+  },
 ];
