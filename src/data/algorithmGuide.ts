@@ -18097,4 +18097,112 @@ class Reader {
       },
     ],
   },
+  {
+    id: 'missing-ranges',
+    label: '163. LeetCode 163. 缺失的区间',
+    difficulty: '简单',
+    description:
+      '这题是在练区间枚举与边界补齐。真正关键不是遍历数组，而是把首尾边界也统一纳入“相邻元素之间的缺口”模型。',
+    outcome:
+      '你能掌握根据相邻数值差生成缺失区间的思路，理解哨兵边界在区间题里的价值，并写出清晰的区间格式化逻辑。',
+    sections: [
+      {
+        id: 'missing-ranges-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个有序数组以及下界 `lower`、上界 `upper`，要求找出闭区间 `[lower, upper]` 内所有缺失的数字区间。',
+        bullets: [
+          '数组本身有序。',
+          '输出的是缺失区间列表。',
+          '首尾边界同样重要。',
+          '这是区间枚举题。',
+        ],
+      },
+      {
+        id: 'missing-ranges-gap',
+        title: '核心就是看相邻已知数字之间有没有“空档”',
+        summary:
+          '如果前一个已知值是 `prev`，当前值是 `current`，那么当 `current - prev >= 2` 时，中间就存在缺失区间 `[prev + 1, current - 1]`。',
+        bullets: [
+          '相邻差值决定是否有缺失。',
+          '差 1 表示紧挨着，没有缺口。',
+          '差至少 2 才能形成区间。',
+          '这是主判断逻辑。',
+        ],
+      },
+      {
+        id: 'missing-ranges-boundary',
+        title: '别把首尾当特殊怪物，给它们补哨兵就能统一处理',
+        summary:
+          '可以先把 `prev` 初始化为 `lower - 1`，最后再把 `current` 视为 `upper + 1`。这样首缺口和尾缺口都能被视作普通的“相邻值之间的区间缺失”。',
+        bullets: [
+          '哨兵边界能统一逻辑。',
+          '省掉大量首尾特判。',
+          '是区间题常见技巧。',
+          '实现会更干净。',
+        ],
+      },
+      {
+        id: 'missing-ranges-format',
+        title: '输出阶段要区分单点区间和连续区间',
+        summary:
+          '如果缺失区间左右端点相同，输出单个数字即可；否则输出 `start->end`。这一步虽然只是格式化，但经常是题目要求的一部分。',
+        bullets: [
+          '单点和区间格式不同。',
+          '不要忽略输出规范。',
+          '数据判断和展示要分层。',
+          '实现上可以单独写格式函数。',
+        ],
+        callout:
+          '很多题的最后一步不是算法难点，却仍然会决定你这道题是不是“真正做完了”。',
+      },
+      {
+        id: 'missing-ranges-solution',
+        title: '标准解法：哨兵边界 + 相邻差值判断',
+        summary:
+          '用 `prev` 记录上一个已知数字，初始化为 `lower - 1`。遍历数组以及最后一个虚拟值 `upper + 1`，只要发现当前值与 `prev` 的差至少为 2，就生成一个缺失区间。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度不计输出为 `O(1)`。',
+          '关键在首尾统一处理。',
+          '是区间枚举的基础题。',
+        ],
+        code: `function findMissingRanges(
+  nums: number[],
+  lower: number,
+  upper: number,
+): string[] {
+  const result: string[] = []
+  let prev = lower - 1
+
+  const format = (start: number, end: number) =>
+    start === end ? String(start) : start + "->" + end
+
+  for (let i = 0; i <= nums.length; i += 1) {
+    const current = i === nums.length ? upper + 1 : nums[i]
+
+    if (current - prev >= 2) {
+      result.push(format(prev + 1, current - 1))
+    }
+
+    prev = current
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'missing-ranges-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把首尾边界独立手写，结果分支越来越多、还容易漏情况。',
+        bullets: [
+          '易错点 1：漏掉 `lower` 前后的缺失段。',
+          '易错点 2：单点区间和连续区间格式混淆。',
+          '易错点 3：没有使用哨兵导致逻辑碎裂。',
+          '延伸方向：合并区间、插入区间、会议室安排。',
+        ],
+      },
+    ],
+  },
 ];
