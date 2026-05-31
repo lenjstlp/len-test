@@ -1352,6 +1352,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/browser-file-system-engineering',
+    name: 'fullstack-browser-file-system-engineering',
+    component: () =>
+      import('@/views/FullstackBrowserFileSystemEngineeringView.vue'),
+    meta: {
+      title: '前端浏览器文件系统工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

@@ -523,6 +523,10 @@ const menuCards = [
     path: '/fullstack-guide/capture-evidence-engineering',
     title: '前端截图与录屏取证工程',
   },
+  {
+    path: '/fullstack-guide/browser-file-system-engineering',
+    title: '前端浏览器文件系统工程',
+  },
 ];
 </script>
 
