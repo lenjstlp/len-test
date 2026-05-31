@@ -1363,6 +1363,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/image-compression-engineering',
+    name: 'fullstack-image-compression-engineering',
+    component: () =>
+      import('@/views/FullstackImageCompressionEngineeringView.vue'),
+    meta: {
+      title: '前端图像压缩与上传链路工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

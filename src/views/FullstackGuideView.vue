@@ -527,6 +527,10 @@ const menuCards = [
     path: '/fullstack-guide/browser-file-system-engineering',
     title: '前端浏览器文件系统工程',
   },
+  {
+    path: '/fullstack-guide/image-compression-engineering',
+    title: '前端图像压缩与上传链路工程',
+  },
 ];
 </script>
 
