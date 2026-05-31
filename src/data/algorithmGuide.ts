@@ -18438,4 +18438,126 @@ class Reader {
       },
     ],
   },
+  {
+    id: 'fraction-to-recurring-decimal',
+    label: '166. LeetCode 166. 分数到小数',
+    difficulty: '中等',
+    description:
+      '这题是在练长除法模拟。真正关键不是做普通除法，而是识别余数一旦重复，小数部分就开始循环。',
+    outcome:
+      '你能掌握分数转字符串小数的完整过程，理解符号处理、整数部分、小数部分和循环节定位之间的关系。',
+    sections: [
+      {
+        id: 'fraction-summary',
+        title: '题目在问什么',
+        summary:
+          '给定分子和分母，返回它们相除后的小数字符串；若小数部分存在循环节，需要用括号括起来。',
+        bullets: [
+          '结果是字符串，不是数值。',
+          '循环小数要标出循环部分。',
+          '符号也要正确处理。',
+          '是数学模拟题。',
+        ],
+      },
+      {
+        id: 'fraction-sign',
+        title: '第一步先把符号处理干净，再只看绝对值',
+        summary:
+          '只要分子和分母一正一负，结果就是负数。把符号先决定好，后续统一用绝对值做除法，逻辑会简单很多。',
+        bullets: [
+          '异号为负，同号为正。',
+          '0 的结果直接返回 `"0"`。',
+          '先处理符号，后处理数值。',
+          '可减少后续分支。',
+        ],
+      },
+      {
+        id: 'fraction-remainder',
+        title: '循环节的本质不是数字重复，而是余数重复',
+        summary:
+          '长除法过程中，如果某个余数再次出现，说明从它第一次出现到现在这段生成的小数位会无限重复。这就是为什么要用哈希表记录“余数第一次出现的位置”。',
+        bullets: [
+          '余数决定后续小数位。',
+          '余数重复就意味着状态重复。',
+          '这是检测循环节的核心。',
+          '和直接找字符串重复完全不同。',
+        ],
+      },
+      {
+        id: 'fraction-build',
+        title: '小数部分要边算边拼，并在循环入口处插括号',
+        summary:
+          '每轮把余数乘 10，得到当前位的小数；然后更新余数继续。若发现余数已出现过，就能在当时记录的位置插入左括号，并在末尾补右括号。',
+        bullets: [
+          '哈希表存的是余数对应的小数位下标。',
+          '一旦重复就定位循环入口。',
+          '插括号需要知道开始位置。',
+          '构造字符串要有步骤感。',
+        ],
+        callout:
+          '模拟题的稳定写法，往往来自把每一步状态对象想清楚，而不是盯着最终字符串硬拼。',
+      },
+      {
+        id: 'fraction-solution',
+        title: '标准解法：长除法 + 余数位置表',
+        summary:
+          '先计算整数部分，再处理余数；若余数为 0 直接结束。否则用哈希表记录每个余数第一次出现时的小数位位置，循环生成小数位，发现余数重复时插入括号并返回。',
+        bullets: [
+          '时间复杂度与循环节长度相关。',
+          '空间复杂度主要来自余数表。',
+          '核心是“余数重复”而不是“数字重复”。',
+          '是非常经典的长除法模拟题。',
+        ],
+        code: `function fractionToDecimal(numerator: number, denominator: number): string {
+  if (numerator === 0) {
+    return "0"
+  }
+
+  const negative = (numerator < 0) !== (denominator < 0)
+  let dividend = Math.abs(numerator)
+  const divisor = Math.abs(denominator)
+  let result = negative ? "-" : ""
+
+  result += Math.floor(dividend / divisor)
+  let remainder = dividend % divisor
+
+  if (remainder === 0) {
+    return result
+  }
+
+  result += "."
+  const seen = new Map<number, number>()
+  const decimal: string[] = []
+
+  while (remainder !== 0) {
+    if (seen.has(remainder)) {
+      const index = seen.get(remainder)!
+      decimal.splice(index, 0, "(")
+      decimal.push(")")
+      break
+    }
+
+    seen.set(remainder, decimal.length)
+    remainder *= 10
+    decimal.push(String(Math.floor(remainder / divisor)))
+    remainder %= divisor
+  }
+
+  return result + decimal.join("")
+}`,
+      },
+      {
+        id: 'fraction-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是试图直接用浮点数处理，结果循环节和精度都丢了。',
+        bullets: [
+          '易错点 1：用普通除法直接转字符串。',
+          '易错点 2：记录的是小数位，不是余数。',
+          '易错点 3：符号和整数部分先后顺序混乱。',
+          '延伸方向：大整数运算、长除法模拟、分数字符串解析。',
+        ],
+      },
+    ],
+  },
 ];
