@@ -1341,6 +1341,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/capture-evidence-engineering',
+    name: 'fullstack-capture-evidence-engineering',
+    component: () =>
+      import('@/views/FullstackCaptureEvidenceEngineeringView.vue'),
+    meta: {
+      title: '前端截图与录屏取证工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({
