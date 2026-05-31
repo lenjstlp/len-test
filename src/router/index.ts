@@ -1374,6 +1374,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/tree-data-engineering',
+    name: 'fullstack-tree-data-engineering',
+    component: () => import('@/views/FullstackTreeDataEngineeringView.vue'),
+    meta: {
+      title: '前端大数据树形组件工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

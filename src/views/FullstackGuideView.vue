@@ -531,6 +531,10 @@ const menuCards = [
     path: '/fullstack-guide/image-compression-engineering',
     title: '前端图像压缩与上传链路工程',
   },
+  {
+    path: '/fullstack-guide/tree-data-engineering',
+    title: '前端大数据树形组件工程',
+  },
 ];
 </script>
 
