@@ -18861,4 +18861,112 @@ class Reader {
       },
     ],
   },
+  {
+    id: 'two-sum-iii-data-structure-design',
+    label: '170. LeetCode 170. 两数之和 III - 数据结构设计',
+    difficulty: '简单',
+    description:
+      '这题是在练接口设计权衡。真正关键不是解一道查询题，而是决定把复杂度放在 `add` 还是 `find` 上。',
+    outcome:
+      '你能掌握用频次表设计增量式查询结构的方法，理解重复元素对查询逻辑的影响，并分析不同复杂度分配方案的取舍。',
+    sections: [
+      {
+        id: 'two-sum3-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个结构，支持不断 `add(number)`，并在 `find(value)` 时判断是否存在两个数之和等于该值。',
+        bullets: [
+          '是在线数据结构题。',
+          '数据会持续加入。',
+          '查询可能被调用很多次。',
+          '重点在操作设计。',
+        ],
+      },
+      {
+        id: 'two-sum3-tradeoff',
+        title: '这题本质是在问：你想把代价放在写入还是查询',
+        summary:
+          '一种思路是每次 add 时预计算所有可能和，让 find 很快；另一种思路是 add 只记频次，find 时再扫描键。没有绝对唯一答案，但要结合接口调用特征做选择。',
+        bullets: [
+          '设计题先看操作频率。',
+          '复杂度分配是核心权衡。',
+          '不能只会一种方案。',
+          '这是工程思维的一部分。',
+        ],
+      },
+      {
+        id: 'two-sum3-map',
+        title: '最稳的通用方案是频次表，因为它兼顾简单和可扩展',
+        summary:
+          '用哈希表记录每个数字出现次数。查询时遍历每个键，看目标值减去它的补数是否存在；如果补数和当前值相同，则要求频次至少为 2。',
+        bullets: [
+          '频次表天然支持重复值。',
+          'add 可以做到 `O(1)`。',
+          'find 是遍历不同数字种类数。',
+          '实现简单且可解释。',
+        ],
+      },
+      {
+        id: 'two-sum3-duplicate',
+        title: '补数等于自身时，一定要确认这个数字出现了至少两次',
+        summary:
+          '例如目标值是 6，只有一个数字 3 时，不能因为 `6 - 3 = 3` 就直接返回 true。只有当 3 至少出现两次时，这对数才真正存在。',
+        bullets: [
+          '自配对是本题最典型边界。',
+          '频次信息在这里发挥作用。',
+          '不能只看键存在与否。',
+          '这是正确性的关键分支。',
+        ],
+        callout:
+          '设计题里很多边界本质上都和“一个值能不能被重复消费”有关，频次信息往往就是为了解决这个问题。',
+      },
+      {
+        id: 'two-sum3-solution',
+        title: '标准解法：哈希表存频次',
+        summary:
+          '`add` 时把数字频次加一；`find` 时遍历哈希表中的键，计算补数。如果补数不同，检查补数是否存在；如果补数相同，则检查该数频次是否至少为 2。',
+        bullets: [
+          '`add` 时间复杂度是 `O(1)`。',
+          '`find` 时间复杂度与不同数字种类数相关。',
+          '实现简单、解释成本低。',
+          '适合通用场景。',
+        ],
+        code: `class TwoSum {
+  private counter = new Map<number, number>()
+
+  add(number: number): void {
+    this.counter.set(number, (this.counter.get(number) ?? 0) + 1)
+  }
+
+  find(value: number): boolean {
+    for (const [num, count] of this.counter) {
+      const target = value - num
+
+      if (target === num) {
+        if (count > 1) {
+          return true
+        }
+      } else if (this.counter.has(target)) {
+        return true
+      }
+    }
+
+    return false
+  }
+}`,
+      },
+      {
+        id: 'two-sum3-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是查询逻辑没处理重复值，导致一个数字被当成用了两次。',
+        bullets: [
+          '易错点 1：补数等于自身时没校验频次。',
+          '易错点 2：完全不分析 add / find 复杂度取舍。',
+          '易错点 3：把它误写成一次性离线两数之和。',
+          '延伸方向：LRU 设计、最小栈、在线统计结构。',
+        ],
+      },
+    ],
+  },
 ];
