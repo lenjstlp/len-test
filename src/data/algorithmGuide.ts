@@ -18334,4 +18334,108 @@ class Reader {
       },
     ],
   },
+  {
+    id: 'compare-version-numbers',
+    label: '165. LeetCode 165. 比较版本号',
+    difficulty: '中等',
+    description:
+      '这题是在练分段字符串比较。真正关键不是按整体字符串字典序去比，而是把每一段版本号当成独立整数逐段比较。',
+    outcome:
+      '你能掌握按分隔符拆段、补零对齐和逐段比较的思路，理解为什么前导零不影响版本语义。',
+    sections: [
+      {
+        id: 'compare-version-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个版本号字符串，比较它们大小，相等返回 0，前者大返回 1，后者大返回 -1。',
+        bullets: [
+          '版本号由点号分隔。',
+          '每一段都应按整数理解。',
+          '前导零不影响大小。',
+          '是字符串拆分比较题。',
+        ],
+      },
+      {
+        id: 'compare-version-segment',
+        title: '核心思路是逐段比较，而不是把整个字符串当普通文本比较',
+        summary:
+          '例如 `"1.10"` 和 `"1.2"`，如果按字符串比会出错，但按整数段比较就很清楚：前一段相等，后一段 10 大于 2。',
+        bullets: [
+          '每段有独立语义。',
+          '字符串字典序不适用于这题。',
+          '必须先拆分，再逐段处理。',
+          '这是第一层认知分界线。',
+        ],
+      },
+      {
+        id: 'compare-version-padding',
+        title: '长度不同没关系，缺失段按 0 处理',
+        summary:
+          '如果一个版本号段数更多，并不意味着它一定更大。只有多出来的那些段里存在非零值时，才会影响结果。',
+        bullets: [
+          '`1.0` 和 `1` 应视为相等。',
+          '缺失段可当作 0。',
+          '需要按较长长度遍历。',
+          '这是常见边界点。',
+        ],
+      },
+      {
+        id: 'compare-version-leading-zero',
+        title: '前导零不重要，因为段的比较本质是整数比较',
+        summary:
+          '像 `"001"` 和 `"1"` 表示的是同一个数值。只要把每段转成数字，前导零自然被消掉。',
+        bullets: [
+          '整数化后无需单独剥离前导零。',
+          '数值语义比文本表现更重要。',
+          '让实现变得更简单。',
+          '这是题意里的关键信号。',
+        ],
+        callout:
+          '很多字符串题表面上是文本，实质上比较的是被文本包裹的结构化语义。',
+      },
+      {
+        id: 'compare-version-solution',
+        title: '标准解法：拆分数组后逐段比较',
+        summary:
+          '把两个版本号按点号拆成数组，遍历到较长长度。每一轮都取出对应段转成数字，不存在的段视为 0；一旦发现大小不同立即返回。',
+        bullets: [
+          '时间复杂度与总字符数线性相关。',
+          '空间复杂度主要来自拆分数组。',
+          '实现短但边界要想清。',
+          '是典型的逐段解析题。',
+        ],
+        code: `function compareVersion(version1: string, version2: string): number {
+  const parts1 = version1.split(".")
+  const parts2 = version2.split(".")
+  const length = Math.max(parts1.length, parts2.length)
+
+  for (let i = 0; i < length; i += 1) {
+    const value1 = i < parts1.length ? Number(parts1[i]) : 0
+    const value2 = i < parts2.length ? Number(parts2[i]) : 0
+
+    if (value1 > value2) {
+      return 1
+    }
+
+    if (value1 < value2) {
+      return -1
+    }
+  }
+
+  return 0
+}`,
+      },
+      {
+        id: 'compare-version-mistakes',
+        title: '易错点和延伸方向',
+        summary: '这题最常见的问题，是直接比较字符串或忽略尾部多余的 0 段。',
+        bullets: [
+          '易错点 1：用字典序比较版本号。',
+          '易错点 2：没有把缺失段按 0 处理。',
+          '易错点 3：把前导零当成不同版本。',
+          '延伸方向：IP 地址比较、文件版本治理、语义化版本解析。',
+        ],
+      },
+    ],
+  },
 ];
