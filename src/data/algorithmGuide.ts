@@ -18665,4 +18665,101 @@ class Reader {
       },
     ],
   },
+  {
+    id: 'excel-sheet-column-title',
+    label: '168. LeetCode 168. Excel表列名称',
+    difficulty: '简单',
+    description:
+      '这题是在练 26 进制变体。真正关键不是普通的 0 到 25 映射，而是 Excel 列号没有 0 这一位。',
+    outcome:
+      '你能掌握“1-based 进制”转换思路，理解为什么每轮都要先减 1，再做取模和整除。',
+    sections: [
+      {
+        id: 'excel-title-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个正整数列号，返回 Excel 中对应的列名称，例如 `1 -> A`，`28 -> AB`。',
+        bullets: [
+          '映射字符集是 A 到 Z。',
+          '不是普通 26 进制字符串。',
+          '没有 0 这一位。',
+          '是进制转换变体题。',
+        ],
+      },
+      {
+        id: 'excel-title-why-minus-one',
+        title: '最关键的一步是先减 1，因为这一套编码是 1-based',
+        summary:
+          '普通 26 进制会把 0 映射到第一位，但 Excel 列号里 `A` 对应的是 1，不是 0。所以每轮都要先把当前数字减 1，再拿它和 26 做取模。',
+        bullets: [
+          '先减 1 是为了把系统转回 0-based 计算空间。',
+          '否则 `26` 会算不对。',
+          '这是整题的本质难点。',
+          '理解后代码会非常顺。',
+        ],
+      },
+      {
+        id: 'excel-title-build',
+        title: '每次取出的是最低位字符，所以最终要反转结果',
+        summary:
+          '和普通进制转换一样，第一轮拿到的是最右边字符，后面逐步向高位推进。因此可以先把字符压入数组，最后整体反转后再拼接。',
+        bullets: [
+          '取模得到当前最低位。',
+          '整除推进到更高位。',
+          '构造顺序和最终显示顺序相反。',
+          '这是常规进制转换套路。',
+        ],
+      },
+      {
+        id: 'excel-title-map',
+        title: '字符映射就是把 0 到 25 映射成 A 到 Z',
+        summary:
+          '取模结果得到的是 0-based 索引，只要加上字符 `A` 的编码值，就能恢复出正确字母。',
+        bullets: [
+          '`0 -> A`，`25 -> Z`。',
+          '可用 `String.fromCharCode` 生成字符。',
+          '映射本身不难，难的是前面的减 1。',
+          '抓住主次很重要。',
+        ],
+        callout:
+          '很多所谓“进制题”真正难的不是循环，而是你有没有识别出它到底是不是标准进制系统。',
+      },
+      {
+        id: 'excel-title-solution',
+        title: '标准解法：每轮先减 1 的 26 进制转换',
+        summary:
+          '当列号大于 0 时，先把它减 1，然后取模得到当前字符，再整除 26 进入下一轮。最终把收集到的字符反转并拼接。',
+        bullets: [
+          '时间复杂度与结果长度相关。',
+          '空间复杂度主要来自字符数组。',
+          '核心是 1-based 进制处理。',
+          '是 Excel 编号系列的基础题。',
+        ],
+        code: `function convertToTitle(columnNumber: number): string {
+  const chars: string[] = []
+
+  while (columnNumber > 0) {
+    columnNumber -= 1
+    const remainder = columnNumber % 26
+    chars.push(String.fromCharCode(65 + remainder))
+    columnNumber = Math.floor(columnNumber / 26)
+  }
+
+  return chars.reverse().join("")
+}`,
+      },
+      {
+        id: 'excel-title-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它当普通 26 进制，结果在 `26`、`52` 这些边界值上全部翻车。',
+        bullets: [
+          '易错点 1：没有先减 1。',
+          '易错点 2：忘了最终反转字符序列。',
+          '易错点 3：把 `A` 当成 0 位处理错顺序。',
+          '延伸方向：Excel 列号反向转换、任意进制转换、进位编码题。',
+        ],
+      },
+    ],
+  },
 ];
