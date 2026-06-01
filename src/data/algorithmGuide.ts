@@ -19373,4 +19373,93 @@ class Reader {
       },
     ],
   },
+  {
+    id: 'combine-two-tables',
+    label: '175. LeetCode 175. 组合两个表',
+    difficulty: '简单',
+    description:
+      '这题是在练最基础的 SQL 连接查询。真正关键不是把两张表拼起来，而是理解为什么要用 `LEFT JOIN` 保证主表用户不丢失。',
+    outcome:
+      '你能掌握一对一表连接的基础写法，理解主表保留、从表补充字段的思路，并能区分 `LEFT JOIN` 与 `INNER JOIN` 的结果差异。',
+    sections: [
+      {
+        id: 'combine-tables-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `Person` 表和 `Address` 表，要求输出每个人的姓名以及对应的城市、州信息。',
+        bullets: [
+          '两张表通过 `personId` 关联。',
+          '并不是每个人都有地址。',
+          '输出要保留所有人。',
+          '是入门连接题。',
+        ],
+      },
+      {
+        id: 'combine-tables-main',
+        title: '先判断谁是主表：题目要保留所有人，所以 Person 是主表',
+        summary:
+          'SQL 题先别急着写语法，先看“谁必须保留”。这里要求即使某人没有地址，也要出现在结果中，因此 `Person` 必须是左表。',
+        bullets: [
+          '“谁必须都保留”决定主表。',
+          '主表通常放在 `FROM` 左边。',
+          '题意先行，语法后置。',
+          '这是连接题最重要的判断。',
+        ],
+      },
+      {
+        id: 'combine-tables-left-join',
+        title: '为什么一定是 LEFT JOIN，而不是 INNER JOIN',
+        summary:
+          '如果使用 `INNER JOIN`，没有地址的人会被过滤掉；而 `LEFT JOIN` 会保留左表所有记录，右表匹配不到时返回 `NULL`，正好符合题意。',
+        bullets: [
+          'INNER JOIN 只保留成功匹配行。',
+          'LEFT JOIN 会保留左表全部记录。',
+          '右表缺失时字段为 `NULL`。',
+          '这就是本题标准模型。',
+        ],
+      },
+      {
+        id: 'combine-tables-select',
+        title: 'SQL 里先把表关系定对，再谈字段选择',
+        summary:
+          '关系一旦定对，字段就只是从两张表里拿需要的列。这里取 `firstName`、`lastName` 来自主表，`city`、`state` 来自地址表。',
+        bullets: [
+          '字段来源要写清别名。',
+          '查询结果应只选题目所需列。',
+          '连接条件放在 `ON` 里。',
+          '可读性比炫技巧更重要。',
+        ],
+        callout:
+          'SQL 入门阶段最忌讳“背 join 语法”，而不理解保留哪张表。只要这个判断清晰，很多题都会顺手很多。',
+      },
+      {
+        id: 'combine-tables-solution',
+        title: '标准解法：Person LEFT JOIN Address',
+        summary:
+          '让 `Person` 作为主表，使用 `LEFT JOIN Address`，并通过 `personId` 建立关联。这样即使某个人没有地址，也会保留该人的姓名信息。',
+        bullets: [
+          '时间复杂度取决于数据库执行计划。',
+          '逻辑重点在连接语义，不在算法复杂度。',
+          '是最基础的表连接题。',
+          '非常适合建立 SQL 连接直觉。',
+        ],
+        code: `SELECT p.firstName, p.lastName, a.city, a.state
+FROM Person AS p
+LEFT JOIN Address AS a
+  ON p.personId = a.personId;`,
+      },
+      {
+        id: 'combine-tables-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是不先分析保留规则，上来就写成 `INNER JOIN`，结果把没有地址的人过滤掉了。',
+        bullets: [
+          '易错点 1：误用 `INNER JOIN`。',
+          '易错点 2：把关联条件写错字段。',
+          '易错点 3：没有使用表别名导致可读性差。',
+          '延伸方向：多表连接、主从表建模、聚合前连接顺序。',
+        ],
+      },
+    ],
+  },
 ];
