@@ -19462,4 +19462,95 @@ LEFT JOIN Address AS a
       },
     ],
   },
+  {
+    id: 'second-highest-salary',
+    label: '176. LeetCode 176. 第二高的薪水',
+    difficulty: '中等',
+    description:
+      '这题是在练 SQL 排名与去重。真正关键不是“取第二行”，而是先把薪水去重，再拿到严格意义上的第二高值。',
+    outcome:
+      '你能掌握 SQL 中去重排名的基本思路，理解为什么要先处理重复值，并能写出对无结果场景也稳定返回 `NULL` 的查询。',
+    sections: [
+      {
+        id: 'second-salary-summary',
+        title: '题目在问什么',
+        summary:
+          '在员工表中找出第二高的薪水。如果不存在第二高薪水，则返回 `NULL`。',
+        bullets: [
+          '要的是第二高，不是第二条记录。',
+          '重复薪水只能算一个档位。',
+          '不存在时要返回 `NULL`。',
+          '本质是去重后的排名题。',
+        ],
+      },
+      {
+        id: 'second-salary-distinct',
+        title: '“第二高”默认是 distinct 后的第二名',
+        summary:
+          '如果最高薪水出现多次，它们仍然只算第一高这一档。因此做这题时，第一步就该想到先对 `salary` 去重。',
+        bullets: [
+          '重复值不能重复占位。',
+          '先去重再排序更符合题意。',
+          '这比直接 `OFFSET 1` 更完整。',
+          '理解语义比套模板重要。',
+        ],
+      },
+      {
+        id: 'second-salary-null',
+        title: '题目要求没找到时返回 NULL，这决定了子查询写法',
+        summary:
+          '很多数据库里，子查询没有结果时会自然返回 `NULL`。因此可以先求出去重后的第二高值，再把它作为一个单值字段返回，正好满足题意。',
+        bullets: [
+          '空结果要能平滑退化成 `NULL`。',
+          '单值子查询很适合这种题。',
+          '别把“查不到”变成“不返回行”。',
+          '返回结构也要看题意。',
+        ],
+      },
+      {
+        id: 'second-salary-options',
+        title: '常见写法有两类：`LIMIT/OFFSET` 或子查询求最大次大',
+        summary:
+          '在支持 `LIMIT ... OFFSET` 的环境下，先 `DISTINCT` 再倒序排序取偏移 1 的值最直接。也可以先找到最大值，再找小于最大值的最大值，不过写起来更绕。',
+        bullets: [
+          '入门时优先写可读性高的版本。',
+          'SQL 题不是越绕越高级。',
+          '先保证语义正确。',
+          '再考虑数据库方言差异。',
+        ],
+        callout:
+          'SQL 面试里很多人喜欢背各种奇技淫巧，但真正拉开差距的，通常是能不能先把语义拆准：去重、排序、偏移、空结果。',
+      },
+      {
+        id: 'second-salary-solution',
+        title: '标准解法：去重后按薪水倒序取第二个',
+        summary:
+          '先从 `Employee` 表中选出去重后的薪水，按降序排列，然后跳过第一高的记录，取下一条作为第二高薪水。若不存在，自然返回 `NULL`。',
+        bullets: [
+          '核心步骤是 `DISTINCT + ORDER BY + OFFSET`。',
+          '结果字段名要按题目要求命名。',
+          '写法短且表达清楚。',
+          '是最常见标准答案之一。',
+        ],
+        code: `SELECT (
+  SELECT DISTINCT salary
+  FROM Employee
+  ORDER BY salary DESC
+  LIMIT 1 OFFSET 1
+) AS SecondHighestSalary;`,
+      },
+      {
+        id: 'second-salary-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有先去重，导致第二高被重复最高薪水占掉了位置。',
+        bullets: [
+          '易错点 1：忘记 `DISTINCT`。',
+          '易错点 2：把查不到结果写成整行不返回。',
+          '易错点 3：把第二高误解为排序后的第二条记录。',
+          '延伸方向：第 N 高值、窗口函数排名、分组内 TopK 查询。',
+        ],
+      },
+    ],
+  },
 ];
