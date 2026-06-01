@@ -19157,4 +19157,116 @@ class Reader {
       },
     ],
   },
+  {
+    id: 'binary-search-tree-iterator',
+    label: '173. LeetCode 173. 二叉搜索树迭代器',
+    difficulty: '中等',
+    description:
+      '这题是在练“按中序顺序渐进展开”数据结构。真正关键不是把树全拍平，而是用栈维护一条到当前最小节点的访问路径。',
+    outcome:
+      '你能掌握二叉搜索树中序遍历与单调顺序的关系，理解惰性迭代器设计，并写出 `next` / `hasNext` 都足够稳定的实现。',
+    sections: [
+      {
+        id: 'bst-iterator-summary',
+        title: '题目在问什么',
+        summary: '实现一个 BST 迭代器，使它能按从小到大的顺序依次返回节点值。',
+        bullets: [
+          '本质是中序遍历。',
+          '要求逐步返回，不是一次性输出数组。',
+          '需要支持 `next` 和 `hasNext`。',
+          '是典型惰性展开题。',
+        ],
+      },
+      {
+        id: 'bst-iterator-order',
+        title: 'BST 的中序遍历天然就是升序',
+        summary:
+          '因为 BST 满足左子树更小、右子树更大，所以按“左-根-右”顺序访问节点时，得到的就是从小到大的序列。',
+        bullets: [
+          '顺序来源于 BST 性质。',
+          '中序遍历是核心知识点。',
+          '题目不是在考别的高级技巧。',
+          '先抓住顺序规律，再谈结构设计。',
+        ],
+      },
+      {
+        id: 'bst-iterator-stack',
+        title: '栈里维护的是“接下来可能被访问的一条左链”',
+        summary:
+          '初始化时一路把根节点及其所有左孩子压栈。每次弹出栈顶就是当前最小值；如果它有右子树，就把右子树一路向左再压栈。',
+        bullets: [
+          '栈顶始终是当前最小未访问节点。',
+          '只展开必要路径，不全量展开。',
+          '右子树处理后要继续压左链。',
+          '这是惰性遍历的标准套路。',
+        ],
+      },
+      {
+        id: 'bst-iterator-lazy',
+        title: '这类题的工程意义，是把一次性计算改成按需消费',
+        summary:
+          '如果一开始就把整棵树中序拍平成数组，逻辑也能做，但空间开销更高，也失去了“迭代器”的设计价值。惰性迭代更贴近真实接口设计。',
+        bullets: [
+          '按需展开更省空间。',
+          '接口语义更贴合迭代器。',
+          '初始化成本更低。',
+          '是典型的懒加载思想。',
+        ],
+        callout:
+          '从刷题角度看这是栈题；从工程角度看，它其实是在练“如何把批量计算重构成流式消费接口”。',
+      },
+      {
+        id: 'bst-iterator-solution',
+        title: '标准解法：栈 + 压入左链',
+        summary:
+          '维护一个栈和辅助函数 `pushLeft`。构造时把根的左链全部压入。调用 `next` 时弹出栈顶节点；如果该节点有右孩子，就把右孩子及其左链继续压入。',
+        bullets: [
+          '`next` 均摊时间复杂度是 `O(1)`。',
+          '空间复杂度是树高 `O(h)`。',
+          '不会重复访问节点。',
+          '写法稳定，面试可解释性高。',
+        ],
+        code: `class BSTIterator {
+  private stack: TreeNode[] = []
+
+  constructor(root: TreeNode | null) {
+    this.pushLeft(root)
+  }
+
+  private pushLeft(node: TreeNode | null): void {
+    while (node) {
+      this.stack.push(node)
+      node = node.left
+    }
+  }
+
+  next(): number {
+    const node = this.stack.pop()!
+
+    if (node.right) {
+      this.pushLeft(node.right)
+    }
+
+    return node.val
+  }
+
+  hasNext(): boolean {
+    return this.stack.length > 0
+  }
+}`,
+      },
+      {
+        id: 'bst-iterator-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是理解了中序遍历，却不会把“遍历过程”拆成支持多次调用的状态机。',
+        bullets: [
+          '易错点 1：初始化时忘记压完整条左链。',
+          '易错点 2：弹出后没处理右子树的左链。',
+          '易错点 3：直接全量拍平成数组，失去题目重点。',
+          '延伸方向：双向 BST 迭代器、惰性遍历、生成器设计。',
+        ],
+      },
+    ],
+  },
 ];
