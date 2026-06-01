@@ -19269,4 +19269,108 @@ class Reader {
       },
     ],
   },
+  {
+    id: 'dungeon-game',
+    label: '174. LeetCode 174. 地下城游戏',
+    difficulty: '困难',
+    description:
+      '这题是在练逆向动态规划。真正关键不是算“到达终点后还剩多少血”，而是反过来算“进入当前格子前，最少必须带多少血”。',
+    outcome:
+      '你能掌握从终点反推起点的 DP 建模方式，理解“最小初始资源”类题目的定义方法，并写出边界清晰的二维状态转移。',
+    sections: [
+      {
+        id: 'dungeon-summary',
+        title: '题目在问什么',
+        summary:
+          '骑士从左上角走到右下角，每次只能向右或向下，格子会加血或扣血，要求求出保证能活着到终点的最小初始生命值。',
+        bullets: [
+          '血量任何时刻都必须至少为 1。',
+          '路径只能右或下。',
+          '格子有正有负。',
+          '求的是最小初始值，不是最大收益。',
+        ],
+      },
+      {
+        id: 'dungeon-forward-trap',
+        title: '正向想很容易乱，因为你不知道“现在多带多少血才算够”',
+        summary:
+          '如果从起点正向推，状态会很难定义，因为同一个格子下“当前剩余血量不同”会影响未来选择。直接正推很容易状态爆炸。',
+        bullets: [
+          '正向状态不容易压缩。',
+          '剩余血量会影响后续可行性。',
+          '不是普通路径和问题。',
+          '要换建模角度。',
+        ],
+      },
+      {
+        id: 'dungeon-reverse',
+        title: '逆向定义最稳：进入当前格子前至少需要多少血',
+        summary:
+          '定义 `dp[i][j]` 表示进入格子 `(i, j)` 前所需的最小生命值。这样一来，只要知道右边和下边格子的需求，就能反推出当前格子的需求。',
+        bullets: [
+          '状态语义要带“进入前”。',
+          '逆推后未来信息变确定。',
+          '转移只看右和下。',
+          '这是整题核心建模。',
+        ],
+      },
+      {
+        id: 'dungeon-transition',
+        title: '转移公式是：先选更省的下一步，再扣掉当前格子的影响',
+        summary:
+          '从当前格子出发，可以去右边或下边，所以后继需求取两者较小值；再减去当前格子的数值。如果结果小于 1，说明当前格子能把血补足到安全线，因此最终至少仍要 1。',
+        bullets: [
+          '先取 `min(right, down)`。',
+          '再做 `need - dungeon[i][j]`。',
+          '最终还要和 1 取最大值。',
+          '边界是终点格子。',
+        ],
+        callout:
+          '这题的难点几乎全在状态定义。定义对了，代码反而并不复杂；定义错了，怎么补细节都救不回来。',
+      },
+      {
+        id: 'dungeon-solution',
+        title: '标准解法：从右下往左上做二维 DP',
+        summary:
+          '先用一个比原网格大一圈的数组处理边界，把终点右边和下边设为 1。然后从右下角逆序遍历，按 `max(1, min(dp[i + 1][j], dp[i][j + 1]) - dungeon[i][j])` 更新当前格子。',
+        bullets: [
+          '时间复杂度是 `O(mn)`。',
+          '空间复杂度是 `O(mn)`。',
+          '边界处理可以写得很整齐。',
+          '是经典逆向 DP 题。',
+        ],
+        code: `function calculateMinimumHP(dungeon: number[][]): number {
+  const rows = dungeon.length
+  const cols = dungeon[0].length
+  const dp = Array.from({ length: rows + 1 }, () =>
+    Array(cols + 1).fill(Number.POSITIVE_INFINITY),
+  )
+
+  dp[rows][cols - 1] = 1
+  dp[rows - 1][cols] = 1
+
+  for (let row = rows - 1; row >= 0; row -= 1) {
+    for (let col = cols - 1; col >= 0; col -= 1) {
+      const need = Math.min(dp[row + 1][col], dp[row][col + 1]) - dungeon[row][col]
+      dp[row][col] = Math.max(1, need)
+    }
+  }
+
+  return dp[0][0]
+}`,
+      },
+      {
+        id: 'dungeon-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把状态写成“到达这里还剩多少血”，结果转移关系无法稳定成立。',
+        bullets: [
+          '易错点 1：正向定义状态，导致无法压缩。',
+          '易错点 2：忘记生命值下限必须是 1。',
+          '易错点 3：终点和边界初始化写乱。',
+          '延伸方向：最小初始能量、逆向 DP、带资源约束的路径问题。',
+        ],
+      },
+    ],
+  },
 ];
