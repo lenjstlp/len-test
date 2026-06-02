@@ -19649,4 +19649,98 @@ END;`,
       },
     ],
   },
+  {
+    id: 'rank-scores',
+    label: '178. LeetCode 178. 分数排名',
+    difficulty: '中等',
+    description:
+      '这题是在练 SQL 排名语义。真正关键不是把分数排个序，而是理解相同分数要共享排名，并且后续排名要连续，这对应的是 `DENSE_RANK` 思维。',
+    outcome:
+      '你能掌握“稠密排名”的概念，理解它与普通排序编号、跳跃排名的区别，并写出既符合题意又可读性高的 SQL。',
+    sections: [
+      {
+        id: 'rank-scores-summary',
+        title: '题目在问什么',
+        summary:
+          '给定分数表，按分数从高到低输出每条记录的排名。相同分数排名相同，且下一名应连续递增，不能跳号。',
+        bullets: [
+          '相同分数共享同一排名。',
+          '后续名次连续，不跳号。',
+          '结果仍要按分数降序输出。',
+          '本质是稠密排名题。',
+        ],
+      },
+      {
+        id: 'rank-scores-dense-rank',
+        title: '这题要的是 dense rank，不是 row number，也不是普通 rank',
+        summary:
+          '如果分数是 `100, 90, 90, 80`，题目要的排名是 `1, 2, 2, 3`。这说明相同值共享排名，同时下一名不能跳到 4，因此它对应的是 `DENSE_RANK` 语义。',
+        bullets: [
+          '`ROW_NUMBER` 会强行给每行唯一编号。',
+          '`RANK` 会在重复值后跳号。',
+          '`DENSE_RANK` 才会连续排名。',
+          '先识别排名语义比写 SQL 更重要。',
+        ],
+      },
+      {
+        id: 'rank-scores-old-style',
+        title: '在不依赖窗口函数的题解环境里，可以用相关子查询模拟排名',
+        summary:
+          '如果题目环境不强调窗口函数，最经典的写法就是：统计有多少个不同分数大于等于当前分数，这个数量就是当前分数的稠密排名。',
+        bullets: [
+          '核心仍然是 distinct 分数计数。',
+          '相关子查询便于表达语义。',
+          '读起来稍慢，但逻辑直观。',
+          '很适合面试解释。',
+        ],
+      },
+      {
+        id: 'rank-scores-why-work',
+        title: '为什么“统计不小于当前分数的不同分数个数”就是排名',
+        summary:
+          '因为每一种更高或相同的不同分数，都会占据一个排名档位。数出来有几个档位，当前这条记录的排名就是几。',
+        bullets: [
+          '排名本质是前面有多少个更高档位。',
+          '这里按不同分数计数，而不是按行计数。',
+          '重复值不会重复占位。',
+          '这正好满足 dense rank 语义。',
+        ],
+        callout:
+          'SQL 排名题最怕“语法先行”。你只要先把名次的数学含义说清楚，SQL 通常只是翻译工作。',
+      },
+      {
+        id: 'rank-scores-solution',
+        title: '标准解法：相关子查询统计不同分数档位',
+        summary:
+          '遍历 `Scores` 表的每一行，用子查询统计有多少个不同分数大于等于当前分数，这个数量就是当前行的排名，最后按分数降序输出结果。',
+        bullets: [
+          '逻辑重点是 dense rank 语义。',
+          '不依赖窗口函数也能完成。',
+          '代码不长，解释性强。',
+          '是 LeetCode 上的经典写法之一。',
+        ],
+        code: `SELECT
+  s.score,
+  (
+    SELECT COUNT(DISTINCT s2.score)
+    FROM Scores AS s2
+    WHERE s2.score >= s.score
+  ) AS \`rank\`
+FROM Scores AS s
+ORDER BY s.score DESC;`,
+      },
+      {
+        id: 'rank-scores-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“共享排名且不跳号”理解错，最后写成了行号或者跳跃排名。',
+        bullets: [
+          '易错点 1：没识别出 `DENSE_RANK` 语义。',
+          '易错点 2：子查询里没有 `DISTINCT`。',
+          '易错点 3：结果排序漏写降序。',
+          '延伸方向：窗口函数、排行榜系统、分组排名查询。',
+        ],
+      },
+    ],
+  },
 ];
