@@ -19553,4 +19553,100 @@ LEFT JOIN Address AS a
       },
     ],
   },
+  {
+    id: 'nth-highest-salary',
+    label: '177. LeetCode 177. 第N高的薪水',
+    difficulty: '中等',
+    description:
+      '这题是在把上一题“第二高的薪水”推广成通用模板。真正关键不是把 2 换成 N，而是理解“第 N 高”依然是去重后的排名问题。',
+    outcome:
+      '你能掌握 SQL 中参数化排名查询的写法，理解为什么要先去重再偏移，并能处理不存在第 N 高薪水时返回 `NULL` 的场景。',
+    sections: [
+      {
+        id: 'nth-salary-summary',
+        title: '题目在问什么',
+        summary:
+          '实现一个 SQL 函数 `getNthHighestSalary(N)`，返回员工表中的第 `N` 高薪水；如果不存在，则返回 `NULL`。',
+        bullets: [
+          '要的是第 N 高档位。',
+          '重复薪水只算一个名次。',
+          'N 是参数，不再写死为 2。',
+          '结果不存在时返回 `NULL`。',
+        ],
+      },
+      {
+        id: 'nth-salary-core',
+        title: '核心思路和上一题一样：先去重，再排序，再偏移',
+        summary:
+          '既然“第二高”本质是去重后的第 2 名，那么“第 N 高”自然就是去重后的第 N 名。整个问题没有变，只是把偏移量做成参数。',
+        bullets: [
+          '语义仍然是 distinct 排名。',
+          '去重是第一步，不可省略。',
+          '偏移量从固定值变成变量。',
+          '本题重点是通用化。',
+        ],
+      },
+      {
+        id: 'nth-salary-offset',
+        title: 'SQL 里的偏移量要注意：第 N 高对应的是偏移 `N - 1`',
+        summary:
+          '因为排序后的第一条记录偏移量是 0，所以第 `N` 高薪水对应 `OFFSET N - 1`。这类题最常见的错误，就是把偏移量直接写成 N。',
+        bullets: [
+          '第 1 个元素偏移量是 0。',
+          '第 N 个元素偏移量是 `N - 1`。',
+          '这里有一个典型 off-by-one 问题。',
+          '很适合面试时顺手解释清楚。',
+        ],
+      },
+      {
+        id: 'nth-salary-null',
+        title: '不存在第 N 高时，单值子查询天然能返回 NULL',
+        summary:
+          '如果去重后的薪水种类不够 N 个，子查询自然查不到结果，这时外层表达式会返回 `NULL`，恰好符合题目要求，因此这种写法很稳。',
+        bullets: [
+          '不需要额外手工兜底。',
+          '返回结构和题意天然匹配。',
+          '子查询模式很适合单值排名题。',
+          '代码短但语义完整。',
+        ],
+        callout:
+          '很多 SQL 题写得复杂，不是因为语义复杂，而是因为没有先把题目抽象成“单值查询”还是“结果集查询”。这题明显属于前者。',
+      },
+      {
+        id: 'nth-salary-solution',
+        title: '标准解法：DISTINCT + ORDER BY + LIMIT/OFFSET',
+        summary:
+          '在函数中先把参数 `N` 转换成偏移量 `N - 1`，再对子查询中的薪水做去重、降序排序，并取出偏移后的那一条记录，最终作为结果返回。',
+        bullets: [
+          '核心结构与上一题一致。',
+          '只是把固定偏移改成参数偏移。',
+          '写法清晰，迁移性强。',
+          '是最常见标准答案。',
+        ],
+        code: `CREATE FUNCTION getNthHighestSalary(N INT) RETURNS INT
+BEGIN
+  SET N = N - 1;
+
+  RETURN (
+    SELECT DISTINCT salary
+    FROM Employee
+    ORDER BY salary DESC
+    LIMIT 1 OFFSET N
+  );
+END;`,
+      },
+      {
+        id: 'nth-salary-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“第 N 高”当成排序后的第 N 条记录，结果重复薪水会把名次挤乱。',
+        bullets: [
+          '易错点 1：忘记 `DISTINCT`。',
+          '易错点 2：偏移量错写成 N 而不是 `N - 1`。',
+          '易错点 3：结果为空时没有意识到会返回 `NULL`。',
+          '延伸方向：窗口函数 `DENSE_RANK`、分组内第 N 高、排行榜查询。',
+        ],
+      },
+    ],
+  },
 ];
