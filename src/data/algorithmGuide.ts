@@ -19839,4 +19839,96 @@ ORDER BY s.score DESC;`,
       },
     ],
   },
+  {
+    id: 'consecutive-numbers',
+    label: '180. LeetCode 180. 连续出现的数字',
+    difficulty: '中等',
+    description:
+      '这题是在练 SQL 自连接的相邻行比较。真正关键不是统计出现次数，而是判断同一个数字是否在连续三条记录里紧挨着出现。',
+    outcome:
+      '你能掌握用自连接比较相邻行的思路，理解“连续出现”和“总共出现多次”不是一回事，并写出符合题意的去重结果。',
+    sections: [
+      {
+        id: 'consecutive-numbers-summary',
+        title: '题目在问什么',
+        summary: '给定日志表 `Logs(id, num)`，找出所有至少连续出现三次的数字。',
+        bullets: [
+          '关注的是连续出现。',
+          '不是统计全局频次。',
+          '结果只要数字本身。',
+          '重复结果要去重。',
+        ],
+      },
+      {
+        id: 'consecutive-numbers-continuous',
+        title: '“连续出现”比“出现三次”更严格',
+        summary:
+          '如果一个数字在全表中出现了三次，但中间被别的数字打断，那就不算答案。题目要求的是相邻三条记录都相同，并且它们的 `id` 也要连起来。',
+        bullets: [
+          '连续性是题目核心。',
+          '只看总次数会误判。',
+          '相邻记录关系很关键。',
+          '要借助 `id` 判断顺序。',
+        ],
+      },
+      {
+        id: 'consecutive-numbers-self-join',
+        title: '最直接的写法是把表和自己连三次',
+        summary:
+          '把当前行、下一行、下下行对齐比较。如果三行的数字相同，并且 `id` 分别相差 1，就说明这个数字至少连续出现了三次。',
+        bullets: [
+          '自连接非常适合相邻行问题。',
+          '三张别名表分别代表连续三行。',
+          '同时校验 `id` 和 `num`。',
+          '写法直接，表达清晰。',
+        ],
+      },
+      {
+        id: 'consecutive-numbers-distinct',
+        title: '结果要去重，因为同一个数字可能命中多段窗口',
+        summary:
+          '如果某个数字连续出现了四次或五次，自连接会命中多个三行窗口。题目最终只要这个数字出现一次，因此外层要加 `DISTINCT`。',
+        bullets: [
+          '连续长度大于 3 时会重复命中。',
+          '窗口命中次数不等于结果次数。',
+          '最终结果集只保留不同数字。',
+          '这是最容易漏掉的收尾动作。',
+        ],
+        callout:
+          'SQL 题经常有这种“中间过程会重复，但最终结果不允许重复”的情况。建模时要区分“命中条件”和“结果输出”这两个层次。',
+      },
+      {
+        id: 'consecutive-numbers-solution',
+        title: '标准解法：三次自连接比较相邻记录',
+        summary:
+          '令三张日志表别名分别代表连续三条记录，要求它们的 `id` 连续且 `num` 相同。最后选出满足条件的数字，并用 `DISTINCT` 去重。',
+        bullets: [
+          '逻辑重点是相邻三行对齐。',
+          '不需要聚合统计总频次。',
+          '写法稳定，面试可解释性好。',
+          '是相邻记录类 SQL 题的经典模板。',
+        ],
+        code: `SELECT DISTINCT l1.num AS ConsecutiveNums
+FROM Logs AS l1
+JOIN Logs AS l2
+  ON l2.id = l1.id + 1
+JOIN Logs AS l3
+  ON l3.id = l2.id + 1
+WHERE l1.num = l2.num
+  AND l2.num = l3.num;`,
+      },
+      {
+        id: 'consecutive-numbers-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它误写成分组计数，结果把不连续但总次数达到三次的数字也选进来了。',
+        bullets: [
+          '易错点 1：只按 `num` 分组计数。',
+          '易错点 2：忘记校验 `id` 连续。',
+          '易错点 3：遗漏 `DISTINCT` 导致重复结果。',
+          '延伸方向：窗口函数 `LAG/LEAD`、连续区间问题、序列检测。',
+        ],
+      },
+    ],
+  },
 ];
