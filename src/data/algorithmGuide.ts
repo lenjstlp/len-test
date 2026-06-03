@@ -19931,4 +19931,93 @@ WHERE l1.num = l2.num
       },
     ],
   },
+  {
+    id: 'employees-earning-more-than-their-managers',
+    label: '181. LeetCode 181. 超过经理收入的员工',
+    difficulty: '简单',
+    description:
+      '这题是在练同表自连接。真正关键不是筛工资大的人，而是先把“员工”和“经理”在同一张表里对应起来，再做比较。',
+    outcome:
+      '你能掌握同一张表里父子关系的自连接写法，理解为什么经理信息要通过 `managerId` 回连本表，并写出清晰的别名比较查询。',
+    sections: [
+      {
+        id: 'employee-manager-summary',
+        title: '题目在问什么',
+        summary: '在员工表中找出那些工资严格高于自己经理的员工姓名。',
+        bullets: [
+          '员工和经理都在同一张表里。',
+          '关系通过 `managerId` 建立。',
+          '最终只输出员工姓名。',
+          '本质是同表自连接题。',
+        ],
+      },
+      {
+        id: 'employee-manager-self-join',
+        title: '这题最重要的第一步，是把一张表拆成两个角色',
+        summary:
+          '虽然只有一张 `Employee` 表，但查询时要把它看成两种身份：员工一份，经理一份。员工行通过 `managerId` 指向经理行，然后才能比较两者工资。',
+        bullets: [
+          '同一张表可以在查询里扮演多个角色。',
+          '员工别名和经理别名必须分开。',
+          '角色拆清楚后逻辑就很直观。',
+          '这是自连接的核心思维。',
+        ],
+      },
+      {
+        id: 'employee-manager-condition',
+        title: '连接条件负责找关系，筛选条件负责比工资',
+        summary:
+          '很多 SQL 新手会把所有条件都堆在一起写，导致逻辑混乱。这里要明确：`e.managerId = m.id` 是建立上下级关系，`e.salary > m.salary` 才是题目真正的筛选条件。',
+        bullets: [
+          '连接条件和业务条件要分层写。',
+          '先找经理，再比工资。',
+          '逻辑拆开后更容易排错。',
+          '可读性会明显提升。',
+        ],
+      },
+      {
+        id: 'employee-manager-output',
+        title: '结果只需要员工名，不需要把经理信息一起带出来',
+        summary:
+          '虽然比较时需要经理工资，但输出只要求员工姓名。因此 `SELECT` 里只取员工别名下的名字列即可，不要多带无关字段。',
+        bullets: [
+          '中间计算字段不一定要输出。',
+          '输出结构要严格对题。',
+          '越简单的题越容易因为多带字段失分。',
+          'SQL 结果集要克制。',
+        ],
+        callout:
+          '做 SQL 题时，经常会“为了验证逻辑临时多查几个字段”。这在调试阶段可以，但交题时一定要收敛回题目要求的最小结果集。',
+      },
+      {
+        id: 'employee-manager-solution',
+        title: '标准解法：Employee 自连接 Employee',
+        summary:
+          '把员工表分别命名为员工别名和经理别名，通过 `managerId` 与 `id` 关联，再筛出员工工资高于经理工资的记录，最后返回员工姓名。',
+        bullets: [
+          '是最标准的自连接写法。',
+          '别名清楚后非常直观。',
+          '适合同类上下级关系题迁移。',
+          '复杂度由数据库执行计划决定。',
+        ],
+        code: `SELECT e.name AS Employee
+FROM Employee AS e
+JOIN Employee AS m
+  ON e.managerId = m.id
+WHERE e.salary > m.salary;`,
+      },
+      {
+        id: 'employee-manager-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有把同一张表拆成员工和经理两个角色，最后不是比错字段，就是根本连不上正确关系。',
+        bullets: [
+          '易错点 1：不会写同表自连接。',
+          '易错点 2：把连接条件和筛选条件混在一起。',
+          '易错点 3：输出了多余字段。',
+          '延伸方向：组织树查询、上下级统计、递归层级查询。',
+        ],
+      },
+    ],
+  },
 ];
