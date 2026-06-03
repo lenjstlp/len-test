@@ -20020,4 +20020,92 @@ WHERE e.salary > m.salary;`,
       },
     ],
   },
+  {
+    id: 'duplicate-emails',
+    label: '182. LeetCode 182. 查找重复的电子邮箱',
+    difficulty: '简单',
+    description:
+      '这题是在练分组与重复检测。真正关键不是把重复行都查出来，而是先按邮箱分组，再找出出现次数大于 1 的邮箱值本身。',
+    outcome:
+      '你能掌握 SQL 中最基础的重复值检测模式，理解 `GROUP BY + HAVING` 的职责分工，并写出只返回重复邮箱字段的查询。',
+    sections: [
+      {
+        id: 'duplicate-email-summary',
+        title: '题目在问什么',
+        summary: '在人员表中找出所有出现过至少两次的邮箱地址。',
+        bullets: [
+          '关注的是邮箱值是否重复。',
+          '不是要返回整行记录。',
+          '同一个邮箱只输出一次。',
+          '本质是分组后筛重复。',
+        ],
+      },
+      {
+        id: 'duplicate-email-group',
+        title: '检测重复值最稳的套路，就是先分组再看组大小',
+        summary:
+          '如果一个邮箱出现了多次，那么按邮箱分组后，这个组里的记录数就会大于 1。因此只要对 `email` 做 `GROUP BY`，再筛出计数大于 1 的组即可。',
+        bullets: [
+          '重复检测天然适合分组。',
+          '分组维度就是邮箱本身。',
+          '组内计数决定是否重复。',
+          '这是最基础也最常用的 SQL 模式。',
+        ],
+      },
+      {
+        id: 'duplicate-email-group-having',
+        title: '`GROUP BY` 和 `HAVING` 分工要明确',
+        summary:
+          '`GROUP BY` 负责把相同邮箱聚到一起，`HAVING` 负责在分组完成后筛选组条件。很多人会误写成 `WHERE COUNT(*) > 1`，但聚合后的条件必须写在 `HAVING` 里。',
+        bullets: [
+          '分组前过滤用 `WHERE`。',
+          '分组后过滤用 `HAVING`。',
+          '聚合条件不能写在 `WHERE`。',
+          '这是 SQL 基础高频考点。',
+        ],
+      },
+      {
+        id: 'duplicate-email-output',
+        title: '结果只要重复邮箱值，不要把计数或整行带出来',
+        summary:
+          '虽然判断重复时会用到 `COUNT(*)`，但题目最终只要求返回重复的邮箱本身。因此 `SELECT` 里只保留 `email` 字段即可。',
+        bullets: [
+          '中间判断字段不等于最终输出字段。',
+          '交题时只保留题目要求列。',
+          '结果集越简单越不容易偏题。',
+          '这是 SQL 题常见细节。',
+        ],
+        callout:
+          '很多 SQL 题的难点不在语法，而在“过程里用什么字段”和“结果里留什么字段”不是同一件事。把这层拆开，题目会简单很多。',
+      },
+      {
+        id: 'duplicate-email-solution',
+        title: '标准解法：按邮箱分组后用 HAVING 过滤',
+        summary:
+          '先按 `email` 分组，然后统计每组记录数，最后用 `HAVING COUNT(*) > 1` 保留重复邮箱组，并输出邮箱字段本身。',
+        bullets: [
+          '写法最短，也最符合题意。',
+          '是重复值检测的基础模板。',
+          '非常适合迁移到手机号、用户名等场景。',
+          '面试里出现频率很高。',
+        ],
+        code: `SELECT email AS Email
+FROM Person
+GROUP BY email
+HAVING COUNT(*) > 1;`,
+      },
+      {
+        id: 'duplicate-email-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把聚合条件写进 `WHERE`，或者把结果写成整行重复记录，而不是重复邮箱值本身。',
+        bullets: [
+          '易错点 1：误用 `WHERE COUNT(*) > 1`。',
+          '易错点 2：没有 `GROUP BY email`。',
+          '易错点 3：输出成整行而不是邮箱字段。',
+          '延伸方向：重复数据清洗、唯一约束校验、分组统计查询。',
+        ],
+      },
+    ],
+  },
 ];
