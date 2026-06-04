@@ -20598,4 +20598,115 @@ WHERE t.salaryRank <= 3;`,
       },
     ],
   },
+  {
+    id: 'best-time-to-buy-and-sell-stock-iv',
+    label: '188. LeetCode 188. 买卖股票的最佳时机 IV',
+    difficulty: '困难',
+    description:
+      '这题是在练交易状态 DP。真正关键不是暴力枚举买卖点，而是把“做了几次交易”和“当前是否持仓”同时纳入状态。',
+    outcome:
+      '你能掌握多次交易股票题的状态设计方式，理解 `buy/sell` 状态如何随交易次数推进，并知道当 `k` 很大时为什么可以退化成不限次数交易。',
+    sections: [
+      {
+        id: 'stock4-summary',
+        title: '题目在问什么',
+        summary: '给定最多可完成 `k` 次交易，求股票价格序列中的最大利润。',
+        bullets: [
+          '一次交易由买入和卖出组成。',
+          '不能同时参与多笔交易。',
+          '交易次数有限制。',
+          '本质是带次数约束的状态 DP。',
+        ],
+      },
+      {
+        id: 'stock4-state',
+        title: '最核心的状态，是“第 i 次交易后的持仓/空仓最优值”',
+        summary:
+          '因为每一次买卖都会改变利润和交易阶段，所以最自然的状态设计就是：某次交易阶段下，当前持有股票时的最优利润，以及当前不持有股票时的最优利润。',
+        bullets: [
+          '状态要同时带交易次数和持仓状态。',
+          '买入和卖出会在不同状态间切换。',
+          '单维 DP 不够表达问题。',
+          '这是整题建模难点。',
+        ],
+      },
+      {
+        id: 'stock4-transition',
+        title: '买入来自上一个卖出状态，卖出来自当前买入状态',
+        summary:
+          '当你做第 `t` 次买入时，利润应来自“第 `t - 1` 次卖出后”的状态减去当前价格；而第 `t` 次卖出则来自“第 `t` 次买入后”的状态加上当前价格。状态转移必须严格遵守交易顺序。',
+        bullets: [
+          '买入前必须先处于空仓。',
+          '卖出前必须已经持仓。',
+          '交易次数推进发生在买入这一层理解最顺。',
+          '顺序关系不能写乱。',
+        ],
+      },
+      {
+        id: 'stock4-large-k',
+        title: '当 `k` 足够大时，这题会退化成不限次数交易',
+        summary:
+          '如果 `k >= prices.length / 2`，理论上你可以覆盖所有可能的上升区间，此时问题就等价于“股票 II”。这一步优化能显著降低复杂场景下的计算复杂度。',
+        bullets: [
+          '一次完整交易至少占两天。',
+          '`k` 太大时约束失效。',
+          '可直接退化成贪心累加上升差值。',
+          '这是经典优化点。',
+        ],
+        callout:
+          '困难 DP 题经常有这种“极端参数退化”的入口。面试里你能主动讲出这一步，说明你不是只会背状态转移，而是会看约束结构。',
+      },
+      {
+        id: 'stock4-solution',
+        title: '标准解法：交易次数维度 + 持仓状态 DP',
+        summary:
+          '用两个数组分别表示每一笔交易下的买入最优值和卖出最优值。遍历价格时不断更新。如果 `k` 很大，先走不限次数交易分支；否则按交易状态 DP 计算。',
+        bullets: [
+          '时间复杂度是 `O(nk)`。',
+          '空间复杂度可压成 `O(k)`。',
+          '是股票系列最重要的综合题之一。',
+          '适合检验状态建模能力。',
+        ],
+        code: `function maxProfit(k: number, prices: number[]): number {
+  if (prices.length === 0 || k === 0) {
+    return 0
+  }
+
+  if (k >= Math.floor(prices.length / 2)) {
+    let profit = 0
+
+    for (let index = 1; index < prices.length; index += 1) {
+      profit += Math.max(0, prices[index] - prices[index - 1])
+    }
+
+    return profit
+  }
+
+  const buy = Array(k + 1).fill(Number.NEGATIVE_INFINITY)
+  const sell = Array(k + 1).fill(0)
+
+  for (const price of prices) {
+    for (let trade = 1; trade <= k; trade += 1) {
+      buy[trade] = Math.max(buy[trade], sell[trade - 1] - price)
+      sell[trade] = Math.max(sell[trade], buy[trade] + price)
+    }
+  }
+
+  return sell[k]
+}`,
+      },
+      {
+        id: 'stock4-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是交易次数和持仓状态混在一起，导致转移顺序错乱，或者漏掉大 `k` 退化优化。',
+        bullets: [
+          '易错点 1：交易次数定义不清。',
+          '易错点 2：更新顺序写乱。',
+          '易错点 3：漏掉大 `k` 特判。',
+          '延伸方向：股票系列 DP、状态压缩、交易冷冻期与手续费。',
+        ],
+      },
+    ],
+  },
 ];
