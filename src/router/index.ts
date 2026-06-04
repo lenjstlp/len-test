@@ -1384,6 +1384,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/tenant-switch-engineering',
+    name: 'fullstack-tenant-switch-engineering',
+    component: () => import('@/views/FullstackTenantSwitchEngineeringView.vue'),
+    meta: {
+      title: '前端租户切换工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

@@ -535,6 +535,10 @@ const menuCards = [
     path: '/fullstack-guide/tree-data-engineering',
     title: '前端大数据树形组件工程',
   },
+  {
+    path: '/fullstack-guide/tenant-switch-engineering',
+    title: '前端租户切换工程',
+  },
 ];
 </script>
 
