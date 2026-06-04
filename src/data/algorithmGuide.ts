@@ -20198,4 +20198,99 @@ WHERE o.id IS NULL;`,
       },
     ],
   },
+  {
+    id: 'department-highest-salary',
+    label: '184. LeetCode 184. 部门工资最高的员工',
+    difficulty: '中等',
+    description:
+      '这题是在练分组最大值和明细行回查。真正关键不是先把工资排序，而是先求出每个部门的最高工资，再把这个最高值和员工明细对齐。',
+    outcome:
+      '你能掌握“先聚合、再回连明细”的 SQL 结构，理解为什么单纯 `GROUP BY departmentId` 不足以直接拿到员工姓名，并能处理并列最高工资的情况。',
+    sections: [
+      {
+        id: 'department-highest-summary',
+        title: '题目在问什么',
+        summary: '给定员工表和部门表，返回每个部门里工资最高的员工姓名和工资。',
+        bullets: [
+          '需要部门名。',
+          '需要员工名。',
+          '需要最高工资值。',
+          '同部门可能有并列第一。',
+        ],
+      },
+      {
+        id: 'department-highest-aggregate',
+        title: '先聚合出“每个部门的最高工资”，再找对应员工',
+        summary:
+          '如果直接在员工表里分组，虽然能拿到 `MAX(salary)`，但拿不到和它严格对应的员工姓名。更稳的方式，是先做一张子查询表：每个部门对应一个最高工资值。',
+        bullets: [
+          '聚合负责算最高工资。',
+          '明细负责拿员工姓名。',
+          '两层职责要分开。',
+          '这是 SQL 很常见的结构。',
+        ],
+      },
+      {
+        id: 'department-highest-join-back',
+        title: '聚合结果还要回连员工表，才能拿到真正的员工记录',
+        summary:
+          '子查询里只有 `departmentId` 和 `maxSalary`，没有员工姓名。因此必须把这张聚合表再和员工表按“部门相同 + 工资相同”回连，才能找出对应员工。',
+        bullets: [
+          '回连条件是部门和工资双匹配。',
+          '单靠部门 id 不够。',
+          '这是“明细行回查”的典型套路。',
+          '非常适合复用到 TopN 类题目。',
+        ],
+      },
+      {
+        id: 'department-highest-tie',
+        title: '并列最高不能丢，因为题目要的是“最高的员工”，不是“随便一个”',
+        summary:
+          '如果一个部门里有两个员工工资都等于最高值，正确结果应该返回两行，而不是只保留其中一个。这也是回连写法比强行排序取第一更稳的原因之一。',
+        bullets: [
+          '并列第一要全部返回。',
+          '不能只取一个样本。',
+          '回连天然支持并列情况。',
+          '这点是题目隐藏考点。',
+        ],
+        callout:
+          '很多 SQL 题表面像“取最大值”，实际上是在考你能不能把“聚合结果”和“对应明细”重新对齐。这个意识非常关键。',
+      },
+      {
+        id: 'department-highest-solution',
+        title: '标准解法：聚合最高工资后回连员工和部门',
+        summary:
+          '先对子查询按部门求出最高工资，再和员工表按部门与工资回连，最后再接上部门表拿到部门名。这样就能输出部门、员工和工资三列。',
+        bullets: [
+          '结构清楚，兼容并列最高。',
+          '是最常见标准答案。',
+          '部门名来自 Department 表。',
+          '适合同类“组内极值”题迁移。',
+        ],
+        code: `SELECT d.name AS Department, e.name AS Employee, e.salary AS Salary
+FROM Employee AS e
+JOIN (
+  SELECT departmentId, MAX(salary) AS maxSalary
+  FROM Employee
+  GROUP BY departmentId
+) AS t
+  ON e.departmentId = t.departmentId
+ AND e.salary = t.maxSalary
+JOIN Department AS d
+  ON e.departmentId = d.id;`,
+      },
+      {
+        id: 'department-highest-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只写了 `MAX(salary)` 却直接去取员工姓名，结果在标准 SQL 语义下并不成立，或者并列第一时漏人。',
+        bullets: [
+          '易错点 1：聚合后直接拿非分组字段。',
+          '易错点 2：回连条件不完整。',
+          '易错点 3：并列最高只保留一行。',
+          '延伸方向：组内 TopN、窗口函数排名、明细回查。',
+        ],
+      },
+    ],
+  },
 ];
