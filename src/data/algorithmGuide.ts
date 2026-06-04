@@ -20108,4 +20108,94 @@ HAVING COUNT(*) > 1;`,
       },
     ],
   },
+  {
+    id: 'customers-who-never-order',
+    label: '183. LeetCode 183. 从不订购的客户',
+    difficulty: '简单',
+    description:
+      '这题是在练最基础的“主表保留 + 反向筛空”查询。真正关键不是把两张表连起来，而是理解怎样找出“存在于客户表、但不存在于订单表”的人。',
+    outcome:
+      '你能掌握用 `LEFT JOIN ... IS NULL` 查缺失关系的写法，理解它和 `NOT IN`、`NOT EXISTS` 的语义关系，并能分清“没下单”和“订单字段为空”不是一回事。',
+    sections: [
+      {
+        id: 'customers-never-order-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `Customers` 和 `Orders` 两张表，找出那些从来没有产生过订单的客户姓名。',
+        bullets: [
+          '客户是主表。',
+          '订单是关联表。',
+          '结果要保留没下单的人。',
+          '本质是查缺失关联。',
+        ],
+      },
+      {
+        id: 'customers-never-order-left-join',
+        title: '最稳的思路是先保留所有客户，再看谁没匹配到订单',
+        summary:
+          '因为题目关心的是“谁没下单”，所以先把所有客户保留下来最自然。`LEFT JOIN` 后，没订单的客户在订单侧字段会是 `NULL`，这时再做筛选即可。',
+        bullets: [
+          '主表应该是 Customers。',
+          '缺失关系很适合 `LEFT JOIN`。',
+          '右表为空就是关键线索。',
+          '思路比语法更重要。',
+        ],
+      },
+      {
+        id: 'customers-never-order-null',
+        title: '这里筛的是“订单没有匹配到”，不是客户字段为空',
+        summary:
+          '很多人第一次写会不小心判断错字段。真正要判断的是订单表那一侧的主键或外键是否为空，因为那代表这位客户没有任何订单命中。',
+        bullets: [
+          '判空要判订单侧字段。',
+          '不要误判客户姓名或客户 id。',
+          '空值代表“没有匹配行”。',
+          '字段位置不能搞反。',
+        ],
+      },
+      {
+        id: 'customers-never-order-alt',
+        title: '这题也可以写成 `NOT EXISTS`，但入门阶段先把 `LEFT JOIN` 吃透',
+        summary:
+          '从语义上说，这题也可以理解为“找出不存在关联订单的客户”。`NOT EXISTS` 同样能做，但对入门者来说，`LEFT JOIN + IS NULL` 更直观，更容易建立关系型思维。',
+        bullets: [
+          '`NOT EXISTS` 也是合法方案。',
+          '入门更推荐先掌握 `LEFT JOIN`。',
+          '先能看懂，再追求写法变化。',
+          '同题多解有助于巩固语义。',
+        ],
+        callout:
+          'SQL 初学阶段不要急着收集一堆写法。先把“为什么这张表该放左边，为什么这里要判空”说清楚，真正值钱的是这个判断过程。',
+      },
+      {
+        id: 'customers-never-order-solution',
+        title: '标准解法：左连接订单后筛空',
+        summary:
+          '把客户表作为左表，订单表作为右表，用客户 id 和订单里的客户 id 关联。再筛掉那些成功匹配到订单的行，留下订单侧为空的客户。',
+        bullets: [
+          '写法短，语义清楚。',
+          '非常适合表达“缺失关系”。',
+          '结果只需输出客户姓名。',
+          '是 SQL 入门经典题。',
+        ],
+        code: `SELECT c.name AS Customers
+FROM Customers AS c
+LEFT JOIN Orders AS o
+  ON c.id = o.customerId
+WHERE o.id IS NULL;`,
+      },
+      {
+        id: 'customers-never-order-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把 `LEFT JOIN` 写成 `INNER JOIN`，或者判空字段写错，结果反而把没下单的客户过滤掉了。',
+        bullets: [
+          '易错点 1：误用 `INNER JOIN`。',
+          '易错点 2：判空字段写错。',
+          '易错点 3：输出了多余字段。',
+          '延伸方向：`NOT EXISTS`、反连接、主从表缺失检测。',
+        ],
+      },
+    ],
+  },
 ];
