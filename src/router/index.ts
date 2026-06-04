@@ -1394,6 +1394,17 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/notification-preference-engineering',
+    name: 'fullstack-notification-preference-engineering',
+    component: () =>
+      import('@/views/FullstackNotificationPreferenceEngineeringView.vue'),
+    meta: {
+      title: '前端通知偏好中心工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

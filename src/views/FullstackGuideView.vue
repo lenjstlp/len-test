@@ -539,6 +539,10 @@ const menuCards = [
     path: '/fullstack-guide/tenant-switch-engineering',
     title: '前端租户切换工程',
   },
+  {
+    path: '/fullstack-guide/notification-preference-engineering',
+    title: '前端通知偏好中心工程',
+  },
 ];
 </script>
 
