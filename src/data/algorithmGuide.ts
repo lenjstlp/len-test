@@ -20392,4 +20392,109 @@ WHERE t.salaryRank <= 3;`,
       },
     ],
   },
+  {
+    id: 'reverse-words-in-a-string-ii',
+    label: '186. LeetCode 186. 翻转字符串里的单词 II',
+    difficulty: '中等',
+    description:
+      '这题是在练原地翻转技巧。真正关键不是把单词拆出来再重组，而是先整体翻转，再逐个单词翻转，从而在原数组上完成操作。',
+    outcome:
+      '你能掌握“整体翻转 + 局部翻转”的原地算法套路，理解为什么它能在不借助额外数组的情况下完成单词顺序反转，并写出双指针版本。',
+    sections: [
+      {
+        id: 'reverse-words2-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符数组，原地翻转其中单词的顺序，要求空间复杂度尽量低。',
+        bullets: [
+          '输入是字符数组。',
+          '要原地修改。',
+          '反转的是单词顺序。',
+          '单词内部字母最终顺序要正确。',
+        ],
+      },
+      {
+        id: 'reverse-words2-two-reverse',
+        title: '最核心的思路，是两次翻转',
+        summary:
+          '先把整个字符数组整体翻转，这时单词顺序被反过来了，但每个单词内部也倒了。接着再逐个把每个单词翻转一次，就能恢复单词内部顺序。',
+        bullets: [
+          '整体翻转改变单词顺序。',
+          '局部翻转修复单词内部字符。',
+          '两步组合后结果刚好正确。',
+          '这是典型原地算法套路。',
+        ],
+      },
+      {
+        id: 'reverse-words2-why-array',
+        title: '为什么输入是字符数组：题目在强调“原地”而不是字符串 API',
+        summary:
+          '如果输入是普通字符串，很多语言里字符串不可变，题目就没法真正考原地操作。因此它把输入设计成字符数组，本质上是在考你对区间翻转和指针扫描的掌握。',
+        bullets: [
+          '字符数组可原地交换。',
+          '题目重点是空间优化。',
+          '不是考 split 和 join。',
+          '数据结构设计本身就在提示解法方向。',
+        ],
+      },
+      {
+        id: 'reverse-words2-scan',
+        title: '翻完整体后，要靠双指针扫描每个单词边界',
+        summary:
+          '整体翻转之后，再从左到右扫描。遇到空格就知道一个单词结束了，这时把这个单词对应的区间再翻转一次。最后别忘了处理数组末尾那个单词。',
+        bullets: [
+          '空格是天然分隔符。',
+          '每个单词都是一个区间。',
+          '末尾单词要单独收尾。',
+          '区间翻转是重复动作。',
+        ],
+        callout:
+          '原地题最怕“思路知道了，边界处理没收干净”。像最后一个单词、连续空格是否存在、左右指针何时更新，都是这类题的失分点。',
+      },
+      {
+        id: 'reverse-words2-solution',
+        title: '标准解法：整体翻转后逐词翻转',
+        summary:
+          '先写一个 `reverse` 辅助函数。先翻转整个数组，再扫描每个单词区间并局部翻转。这样既能原地完成，又能保持时间复杂度线性。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '本质是区间翻转模板题。',
+          '非常适合理解原地字符串处理。',
+        ],
+        code: `function reverseWords(chars: string[]): void {
+  const reverse = (left: number, right: number) => {
+    while (left < right) {
+      ;[chars[left], chars[right]] = [chars[right], chars[left]]
+      left += 1
+      right -= 1
+    }
+  }
+
+  reverse(0, chars.length - 1)
+
+  let start = 0
+
+  for (let index = 0; index <= chars.length; index += 1) {
+    if (index === chars.length || chars[index] === ' ') {
+      reverse(start, index - 1)
+      start = index + 1
+    }
+  }
+}`,
+      },
+      {
+        id: 'reverse-words2-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是知道要翻转两次，但不会正确处理每个单词边界，尤其是最后一个单词经常漏翻。',
+        bullets: [
+          '易错点 1：漏掉最后一个单词。',
+          '易错点 2：区间边界写错。',
+          '易错点 3：把题做成额外数组拷贝。',
+          '延伸方向：区间反转、原地数组变换、字符串双指针。',
+        ],
+      },
+    ],
+  },
 ];
