@@ -20293,4 +20293,103 @@ JOIN Department AS d
       },
     ],
   },
+  {
+    id: 'department-top-three-salaries',
+    label: '185. LeetCode 185. 部门工资前三高的员工',
+    difficulty: '困难',
+    description:
+      '这题是在把“每组最高值”升级成“每组前 N 高值”。真正关键不是简单排序，而是给每个部门内部做排名，并保留前 3 个工资档位对应的员工。',
+    outcome:
+      '你能掌握分组内排名的 SQL 建模方式，理解 `DENSE_RANK` 在组内 TopN 场景的价值，并分清“前三条记录”和“前三高工资档位”的区别。',
+    sections: [
+      {
+        id: 'department-top3-summary',
+        title: '题目在问什么',
+        summary: '返回每个部门里工资前三高的员工姓名、工资和部门名。',
+        bullets: [
+          '按部门内部比较。',
+          '关注前三高工资档位。',
+          '并列工资要正确处理。',
+          '结果要带部门名。',
+        ],
+      },
+      {
+        id: 'department-top3-dense-rank',
+        title: '这题本质是“每个部门内部做 dense rank，再取 rank <= 3”',
+        summary:
+          '如果同一部门有两个人工资相同，他们应该共享同一档位。因此这题本质上不是取前三条记录，而是取前三个不同工资档位，对应的就是组内 `DENSE_RANK`。',
+        bullets: [
+          '排名是按部门分区做。',
+          '相同工资共享同一名次。',
+          '取的是前三个工资档位。',
+          '`DENSE_RANK` 非常贴题。',
+        ],
+      },
+      {
+        id: 'department-top3-partition',
+        title: '难点不在连接部门表，而在先把“组内排名”算出来',
+        summary:
+          '很多人会把注意力放在三表怎么连，其实真正决定成败的是：能不能先在员工表内部按 `departmentId` 分区、按工资降序排名。排名算对了，后面接部门表只是收尾。',
+        bullets: [
+          '先处理员工表内部排名。',
+          '部门表只是补名称。',
+          '分区和排序顺序都不能错。',
+          '先主后次，逻辑会清晰很多。',
+        ],
+      },
+      {
+        id: 'department-top3-tie',
+        title: '并列工资会让结果行数超过 3，这是正常的',
+        summary:
+          '如果某部门第三高工资有多人并列，那么这些人都应该出现在结果里。所以“前三高员工”不一定只有三行，而可能更多。这是 dense rank 题很容易被误解的地方。',
+        bullets: [
+          '前三高是前三档，不是固定三人。',
+          '并列会扩张结果行数。',
+          '这不是 bug，而是题意要求。',
+          '理解这一点才能写对筛选条件。',
+        ],
+        callout:
+          '做 TopN 题时，一定先问自己：N 指的是 N 行，还是 N 个不同值档位？这一句想清楚，很多 SQL 题会瞬间简单一半。',
+      },
+      {
+        id: 'department-top3-solution',
+        title: '标准解法：窗口函数分区排名后过滤',
+        summary:
+          '先在子查询里对员工表按部门分区、按工资降序做 `DENSE_RANK()`，再保留排名不超过 3 的记录，最后接上部门表拿部门名。',
+        bullets: [
+          '是最符合题意的现代写法。',
+          '结构清楚，扩展到 Top5 也很方便。',
+          '窗口函数是关键能力点。',
+          '输出层只负责整理字段。',
+        ],
+        code: `SELECT d.name AS Department, t.name AS Employee, t.salary AS Salary
+FROM (
+  SELECT
+    name,
+    salary,
+    departmentId,
+    DENSE_RANK() OVER (
+      PARTITION BY departmentId
+      ORDER BY salary DESC
+    ) AS salaryRank
+  FROM Employee
+) AS t
+JOIN Department AS d
+  ON t.departmentId = d.id
+WHERE t.salaryRank <= 3;`,
+      },
+      {
+        id: 'department-top3-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它写成“每组排序后只取前三条”，结果并列工资场景就会和题意不一致。',
+        bullets: [
+          '易错点 1：把 `DENSE_RANK` 写成 `ROW_NUMBER`。',
+          '易错点 2：误解“前三高”的语义。',
+          '易错点 3：没按部门分区排名。',
+          '延伸方向：组内 TopK、窗口函数、排行榜查询。',
+        ],
+      },
+    ],
+  },
 ];
