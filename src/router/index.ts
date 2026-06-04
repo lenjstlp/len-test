@@ -1405,6 +1405,16 @@ const constantRoutes = [
       menuVisible: false,
     },
   },
+  {
+    path: '/fullstack-guide/file-version-engineering',
+    name: 'fullstack-file-version-engineering',
+    component: () => import('@/views/FullstackFileVersionEngineeringView.vue'),
+    meta: {
+      title: '前端文件版本治理工程',
+      standaloneLayout: true,
+      menuVisible: false,
+    },
+  },
 ];
 
 const router = createRouter({

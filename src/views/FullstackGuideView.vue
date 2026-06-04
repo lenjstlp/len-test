@@ -543,6 +543,10 @@ const menuCards = [
     path: '/fullstack-guide/notification-preference-engineering',
     title: '前端通知偏好中心工程',
   },
+  {
+    path: '/fullstack-guide/file-version-engineering',
+    title: '前端文件版本治理工程',
+  },
 ];
 </script>
 
