@@ -21749,4 +21749,123 @@ WHERE w1.temperature > w2.temperature;`,
       },
     ],
   },
+  {
+    id: 'number-of-islands',
+    label: '200. LeetCode 200. 岛屿数量',
+    difficulty: '中等',
+    description:
+      '这题是在练网格搜索里的连通块统计。真正关键不是看到一个陆地就加一，而是每次发现新岛屿后，要把和它连通的整片陆地一次性标记掉。',
+    outcome:
+      '你能掌握二维网格 DFS/BFS 的基本模板，理解为什么答案等于连通块个数，并能写出标准的岛屿计数解法。',
+    sections: [
+      {
+        id: 'number-of-islands-summary',
+        title: '题目在问什么',
+        summary:
+          '给定由 `1` 和 `0` 组成的二维网格，`1` 表示陆地，`0` 表示水域，求网格中岛屿的数量。',
+        bullets: [
+          '上下左右相连的陆地属于同一岛屿。',
+          '对角线不算连通。',
+          '目标是统计岛屿个数。',
+          '本质是二维连通块计数。',
+        ],
+      },
+      {
+        id: 'number-of-islands-component',
+        title: '答案不是“陆地格子数”，而是“陆地连通块数”',
+        summary:
+          '很多人一开始会盯着有多少个 `1`，但题目真正问的是有多少片彼此连通的陆地。也就是说，每遇到一个还没访问过的陆地，就代表发现了一整片新的连通块。',
+        bullets: [
+          '连通块是核心概念。',
+          '每片岛屿只应计数一次。',
+          '不能按单个格子累加答案。',
+          '这是 DFS/BFS 网格题的基本抽象。',
+        ],
+      },
+      {
+        id: 'number-of-islands-flood-fill',
+        title: '发现新岛屿后，要立刻把整片陆地“淹没”或标记掉',
+        summary:
+          '当你在扫描中遇到一个新陆地时，答案应该先加 1，然后立刻用 DFS 或 BFS 把与它相连的所有陆地全部访问并标记，避免后续再次重复计数。',
+        bullets: [
+          '先计数，再扩散标记。',
+          '标记的目的就是去重。',
+          '这一步通常叫 flood fill。',
+          '是岛屿系列题的标准动作。',
+        ],
+      },
+      {
+        id: 'number-of-islands-grid-dfs',
+        title: 'DFS 模板本质上就是四个方向持续扩展',
+        summary:
+          '从当前陆地出发，沿着上、下、左、右四个方向递归扩展。只要越界、遇到水域或访问过的格子，就停止；否则继续向外搜索，直到整片岛屿都被覆盖。',
+        bullets: [
+          '四方向是固定模板。',
+          '越界和水域是递归终止条件。',
+          '访问标记必须及时做。',
+          '这类模板后面会大量复用。',
+        ],
+        callout:
+          '网格题常常看起来不同，但一旦你能把题目翻译成“从某个起点出发把一整片连通区域走完”，DFS/BFS 模板就会非常稳定。',
+      },
+      {
+        id: 'number-of-islands-solution',
+        title: '标准解法：遍历网格，遇到新陆地就 DFS 清空整片岛屿',
+        summary:
+          '逐格扫描网格。当发现一个值为 `1` 的位置时，先让答案加 1，再启动 DFS 把这片岛屿所有相连陆地标记为已访问。最终答案就是触发 DFS 的次数。',
+        bullets: [
+          '时间复杂度是 `O(mn)`。',
+          '每个格子最多访问一次。',
+          'DFS/BFS 都可以实现。',
+          '是图搜索入门高频题。',
+        ],
+        code: `function numIslands(grid: string[][]): number {
+  const rows = grid.length
+  const columns = grid[0].length
+  let count = 0
+
+  const dfs = (row: number, column: number) => {
+    if (
+      row < 0 ||
+      row >= rows ||
+      column < 0 ||
+      column >= columns ||
+      grid[row][column] !== '1'
+    ) {
+      return
+    }
+
+    grid[row][column] = '0'
+    dfs(row + 1, column)
+    dfs(row - 1, column)
+    dfs(row, column + 1)
+    dfs(row, column - 1)
+  }
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      if (grid[row][column] === '1') {
+        count += 1
+        dfs(row, column)
+      }
+    }
+  }
+
+  return count
+}`,
+      },
+      {
+        id: 'number-of-islands-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是发现陆地后只把当前格子标记掉，却没把整片岛屿走完，导致同一片陆地被重复计数。',
+        bullets: [
+          '易错点 1：没有完整标记整片岛屿。',
+          '易错点 2：把对角线误算为连通。',
+          '易错点 3：递归前后忘了做访问标记。',
+          '延伸方向：最大岛屿面积、封闭岛屿、网格 BFS/DFS 模板。',
+        ],
+      },
+    ],
+  },
 ];
