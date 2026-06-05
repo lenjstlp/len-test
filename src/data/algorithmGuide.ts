@@ -21634,4 +21634,119 @@ WHERE w1.temperature > w2.temperature;`,
       },
     ],
   },
+  {
+    id: 'binary-tree-right-side-view',
+    label: '199. LeetCode 199. 二叉树的右视图',
+    difficulty: '中等',
+    description:
+      '这题是在练树的层序观察。真正关键不是把所有节点都按顺序记下来，而是理解“右视图”只关心每一层最右边能看到的那个节点。',
+    outcome:
+      '你能掌握按层遍历二叉树的标准写法，理解为什么每层最后一个节点就是右视图结果，并能区分 BFS 与 DFS 两种解题思路。',
+    sections: [
+      {
+        id: 'binary-tree-right-side-view-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，站在它的右侧，从上到下返回每一层能看到的节点值。',
+        bullets: [
+          '每层只保留一个值。',
+          '保留的是右侧可见节点。',
+          '结果按从上到下输出。',
+          '本质是分层观察问题。',
+        ],
+      },
+      {
+        id: 'binary-tree-right-side-view-level',
+        title: '最自然的思路，是先把树按层拆开',
+        summary:
+          '右视图的定义本身就依赖“层”这个概念，所以最自然的做法是使用层序遍历。每处理完一层，就能明确知道这一层有哪些节点、最右边的是哪一个。',
+        bullets: [
+          '层序遍历天然匹配题意。',
+          '每层边界清晰。',
+          '便于直接取最右节点。',
+          '是最容易讲清楚的方案。',
+        ],
+      },
+      {
+        id: 'binary-tree-right-side-view-last-node',
+        title: '为什么每层最后出队的节点就是右视图节点',
+        summary:
+          '在标准 BFS 中，队列会按从左到右的顺序处理当前层节点。因此每层最后一个被处理到的节点，就是站在右侧时能看到的那个节点，直接收集即可。',
+        bullets: [
+          '关键在于每层的处理顺序。',
+          '最后一个节点对应最右位置。',
+          '不需要真的“模拟视角”。',
+          '题目本质是层末元素提取。',
+        ],
+      },
+      {
+        id: 'binary-tree-right-side-view-dfs',
+        title: 'DFS 也能做，但要优先走右子树并记录首次到达的深度',
+        summary:
+          '如果用 DFS，可以先访问右子树，再访问左子树。这样每个深度第一次遇到的节点，就是这一层最右边能看到的节点。不过相比 BFS，解释成本会更高一些。',
+        bullets: [
+          'DFS 更依赖遍历顺序设计。',
+          '首次到达某深度就是答案。',
+          '右先左后是关键。',
+          '适合展示遍历思维灵活性。',
+        ],
+        callout:
+          '树题很多时候不止一种解法。真正拉开差距的，不是你知道多少种，而是你能不能解释清楚为什么这道题“按层取最后一个”正好对应右视图。',
+      },
+      {
+        id: 'binary-tree-right-side-view-solution',
+        title: '标准解法：层序遍历，记录每层最后一个节点',
+        summary:
+          '使用队列做 BFS。每次先记录当前层节点数量，然后依次弹出这一层的所有节点；当遍历到本层最后一个节点时，把它的值加入答案数组。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '思路直接，代码稳定。',
+          '是面试中最推荐的写法。',
+        ],
+        code: `function rightSideView(root: TreeNode | null): number[] {
+  if (root === null) {
+    return []
+  }
+
+  const result: number[] = []
+  const queue: TreeNode[] = [root]
+
+  while (queue.length > 0) {
+    const size = queue.length
+
+    for (let index = 0; index < size; index += 1) {
+      const node = queue.shift()!
+
+      if (index === size - 1) {
+        result.push(node.val)
+      }
+
+      if (node.left !== null) {
+        queue.push(node.left)
+      }
+
+      if (node.right !== null) {
+        queue.push(node.right)
+      }
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'binary-tree-right-side-view-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有区分层边界，导致拿到的只是整棵树最后一个节点；或者 DFS 时先走左子树，结果把左视图误当成右视图。',
+        bullets: [
+          '易错点 1：没按层处理队列。',
+          '易错点 2：取成每层第一个而不是最后一个。',
+          '易错点 3：DFS 顺序写反。',
+          '延伸方向：左视图、层序遍历、树的按层统计题。',
+        ],
+      },
+    ],
+  },
 ];
