@@ -22173,4 +22173,114 @@ WHERE w1.temperature > w2.temperature;`,
       },
     ],
   },
+  {
+    id: 'count-primes',
+    label: '204. LeetCode 204. 计数质数',
+    difficulty: '中等',
+    description:
+      '这题是在练筛法思想。真正关键不是对每个数单独判断是不是质数，而是从“批量排除合数”的角度，把所有非质数一次次筛掉。',
+    outcome:
+      '你能掌握埃氏筛的核心思路，理解为什么要从质数的倍数开始标记合数，并能写出标准的质数计数解法。',
+    sections: [
+      {
+        id: 'count-primes-summary',
+        title: '题目在问什么',
+        summary: '给定整数 `n`，返回所有小于 `n` 的质数数量。',
+        bullets: [
+          '统计范围是小于 `n`，不包含 `n`。',
+          '目标是数量，不是列出所有质数。',
+          '本质是区间内批量筛选。',
+          '是筛法入门代表题。',
+        ],
+      },
+      {
+        id: 'count-primes-bruteforce',
+        title: '暴力逐个判断可行，但不是这题想考的重点',
+        summary:
+          '如果对每个数都单独试除，虽然理论上能做出来，但整体效率会比较差。这题更核心的考点，是你能不能把“重复判断合数”转成“统一筛掉合数”。',
+        bullets: [
+          '逐个试除会重复很多工作。',
+          '同一个合数会被多次判断。',
+          '筛法强调批量排除。',
+          '这是效率提升的关键转变。',
+        ],
+      },
+      {
+        id: 'count-primes-sieve',
+        title: '埃氏筛的核心，是用已知质数去标记它的倍数',
+        summary:
+          '当你确认一个数是质数后，它的 2 倍、3 倍、4 倍等都一定不是质数。于是可以用一个布尔数组记录哪些数已经被标记为合数，逐步把区间里的非质数全部筛掉。',
+        bullets: [
+          '质数本身保留。',
+          '它的倍数统一标记为合数。',
+          '布尔数组适合记录筛选状态。',
+          '这是最经典的质数筛法。',
+        ],
+      },
+      {
+        id: 'count-primes-start-square',
+        title: '为什么通常从 `i * i` 开始标记，而不是从 `2 * i` 开始',
+        summary:
+          '比 `i * i` 更小的倍数，例如 `2 * i`、`3 * i`，在处理更小质数时往往已经被标记过了。从 `i * i` 开始可以避免重复工作，这是埃氏筛高效的关键细节。',
+        bullets: [
+          '更小倍数通常已被更小质数处理过。',
+          '从平方开始能减少重复标记。',
+          '这是筛法的性能优化重点。',
+          '面试里经常会追问原因。',
+        ],
+        callout:
+          '筛法真正体现的不是“会写循环”，而是你能不能看出哪些工作已经被前面的步骤覆盖了。避免重复，是这类算法优化的本质。',
+      },
+      {
+        id: 'count-primes-solution',
+        title: '标准解法：用埃氏筛批量标记合数',
+        summary:
+          '创建长度为 `n` 的布尔数组，初始都视为可能是质数。从 2 开始遍历，如果当前数还没被标记为合数，就把它计入答案，并从它的平方开始标记所有倍数。',
+        bullets: [
+          '时间复杂度约为 `O(n log log n)`。',
+          '空间复杂度是 `O(n)`。',
+          '是最经典的标准筛法。',
+          '适合衔接线性筛等进阶内容。',
+        ],
+        code: `function countPrimes(n: number): number {
+  if (n <= 2) {
+    return 0
+  }
+
+  const isComposite = Array(n).fill(false)
+  let count = 0
+
+  for (let value = 2; value < n; value += 1) {
+    if (isComposite[value]) {
+      continue
+    }
+
+    count += 1
+
+    if (value * value >= n) {
+      continue
+    }
+
+    for (let multiple = value * value; multiple < n; multiple += value) {
+      isComposite[multiple] = true
+    }
+  }
+
+  return count
+}`,
+      },
+      {
+        id: 'count-primes-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把题目理解成“判断一个数是否为质数”，从而写成逐个试除；或者虽然知道筛法，却不明白为什么从平方开始标记。',
+        bullets: [
+          '易错点 1：把计数题写成单点判断题。',
+          '易错点 2：从 `2 * i` 开始导致重复标记过多。',
+          '易错点 3：把 `n` 本身也错误统计进去。',
+          '延伸方向：线性筛、质因数分解、数论基础筛法。',
+        ],
+      },
+    ],
+  },
 ];
