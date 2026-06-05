@@ -21170,4 +21170,106 @@ WHERE t.salaryRank <= 3;`,
       },
     ],
   },
+  {
+    id: 'transpose-file',
+    label: '194. LeetCode 194. 转置文件',
+    difficulty: '中等',
+    description:
+      '这题是在练 Shell 对二维文本的重组能力。真正关键不是逐字符硬处理，而是先把每一行看成一组字段，再按列索引重新拼接输出。',
+    outcome:
+      '你能掌握用 `awk` 做行列转置的基本思路，理解为什么要先缓存所有单元格，再按列优先输出，并能独立处理规则矩阵类文本题。',
+    sections: [
+      {
+        id: 'transpose-file-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `file.txt`，每行包含相同数量的单词，要求输出它的转置结果，也就是把原来的列变成行。',
+        bullets: [
+          '输入本质是一张文本表格。',
+          '每行字段数相同。',
+          '输出是行列互换后的文本。',
+          '重点是 Shell 文本重组。',
+        ],
+      },
+      {
+        id: 'transpose-file-cache',
+        title: '先按行读取并缓存每个位置的值',
+        summary:
+          'Shell 本身不擅长随机访问二维结构，所以要借助 `awk` 在扫描每一行时，把第 `i` 行第 `j` 列的内容先缓存起来，后面再按列顺序统一输出。',
+        bullets: [
+          '`awk` 天然适合按字段读取。',
+          '缓存后才能完成列优先遍历。',
+          '这是从流式读取转成结构化处理。',
+          '适合二维文本题的标准套路。',
+        ],
+      },
+      {
+        id: 'transpose-file-column-first',
+        title: '输出阶段要按列遍历，而不是按原行遍历',
+        summary:
+          '转置后的第 1 行其实是原来的第 1 列，所以输出时必须外层循环列、内层循环行。只有遍历顺序反过来，才能真正完成行列互换。',
+        bullets: [
+          '外层列循环决定输出行数。',
+          '内层行循环负责拼接原列数据。',
+          '遍历顺序就是转置的核心。',
+          '这是最容易讲错的地方。',
+        ],
+      },
+      {
+        id: 'transpose-file-awk',
+        title: '为什么这题更适合用 `awk` 而不是 `tr` 或 `cut`',
+        summary:
+          '`tr` 更适合字符替换，`cut` 更适合单列提取，但转置需要同时记住全部单元格并重排输出，`awk` 既能按字段读取，也能写双层循环，所以最自然。',
+        bullets: [
+          '`awk` 兼顾读取、存储和拼接。',
+          '适合处理规则字段型文本。',
+          '比多命令拼接更清晰。',
+          '是这题最主流的解法。',
+        ],
+        callout:
+          'Shell 题不要一上来就背答案，先判断问题属于“替换、过滤、分组”还是“重组”。像转置这种题，本质是重组，工具选择就应该偏向 `awk`。',
+      },
+      {
+        id: 'transpose-file-solution',
+        title: '标准解法：用 `awk` 缓存后按列输出',
+        summary:
+          '扫描文件时，把每个字段缓存到二维数组里，并记录总行数和总列数。最后在 `END` 阶段按列优先遍历输出，就能得到转置结果。',
+        bullets: [
+          '思路清晰，结构稳定。',
+          '字段数一致时最容易实现。',
+          '是典型的 `awk` 二维处理题。',
+          '适合延伸到 CSV 类文本操作。',
+        ],
+        code: `awk '{
+  for (column = 1; column <= NF; column += 1) {
+    table[NR, column] = $column
+  }
+  if (NF > maxColumn) {
+    maxColumn = NF
+  }
+}
+END {
+  for (column = 1; column <= maxColumn; column += 1) {
+    line = table[1, column]
+    for (row = 2; row <= NR; row += 1) {
+      line = line " " table[row, column]
+    }
+    print line
+  }
+}' file.txt`,
+      },
+      {
+        id: 'transpose-file-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是输出阶段仍按行循环，导致只是原样打印；或者忘了缓存全部数据，读到后面时拿不到前面的列信息。',
+        bullets: [
+          '易错点 1：行列循环顺序写反。',
+          '易错点 2：没缓存二维数据。',
+          '易错点 3：拼接空格时多出多余分隔符。',
+          '延伸方向：CSV 处理、矩阵打印、awk 二维数组。',
+        ],
+      },
+    ],
+  },
 ];
