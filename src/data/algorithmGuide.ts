@@ -22071,4 +22071,106 @@ WHERE w1.temperature > w2.temperature;`,
       },
     ],
   },
+  {
+    id: 'remove-linked-list-elements',
+    label: '203. LeetCode 203. 移除链表元素',
+    difficulty: '简单',
+    description:
+      '这题是在练链表删除里的指针衔接。真正关键不是找到某个节点就删，而是稳定处理“头节点也可能被删”的情况，并始终维护前驱和当前节点的关系。',
+    outcome:
+      '你能掌握链表删除的标准模板，理解为什么虚拟头节点能统一边界情况，并能写出稳定的遍历删除解法。',
+    sections: [
+      {
+        id: 'remove-linked-list-elements-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个链表头节点和目标值 `val`，删除链表中所有值等于 `val` 的节点，并返回新的头节点。',
+        bullets: [
+          '删除条件是节点值等于 `val`。',
+          '可能删除多个节点。',
+          '头节点本身也可能被删掉。',
+          '本质是链表指针重连。',
+        ],
+      },
+      {
+        id: 'remove-linked-list-elements-dummy',
+        title: '虚拟头节点能把“删头节点”和“删中间节点”统一起来',
+        summary:
+          '如果直接从原头节点开始处理，那么一旦头节点要删，逻辑就会变复杂。加一个虚拟头节点后，不管删的是原头节点还是中间节点，本质都变成“让前驱跳过当前节点”。',
+        bullets: [
+          '虚拟头节点是链表删除高频技巧。',
+          '它能统一各种边界情况。',
+          '避免专门为头节点写分支。',
+          '让代码明显更稳定。',
+        ],
+      },
+      {
+        id: 'remove-linked-list-elements-pointer',
+        title: '遍历时真正需要维护的，是“前驱的 next 应该指向谁”',
+        summary:
+          '当当前节点值等于目标值时，不能简单地把当前指针后移，而应该修改前驱节点的 `next`，让它直接跳过当前节点。只有值不等于目标时，前驱才真正向前推进。',
+        bullets: [
+          '删除操作发生在前驱的 `next` 上。',
+          '删除时前驱通常不前进。',
+          '保留节点时前驱才同步前进。',
+          '这是链表删除模板的核心细节。',
+        ],
+      },
+      {
+        id: 'remove-linked-list-elements-why',
+        title: '为什么删除时前驱不能一起前进',
+        summary:
+          '如果当前节点被删掉，而前驱也跟着前进，就可能跳过后面连续多个待删节点。正确做法是删除后让前驱停在原地，继续检查新的 `next` 是否还需要删除。',
+        bullets: [
+          '连续删除场景最能暴露这个问题。',
+          '删除后前驱位置应保持不变。',
+          '继续检查新的后继节点。',
+          '这是初学者最容易错的点。',
+        ],
+        callout:
+          '链表题经常让人觉得“指针很绕”，其实关键就一句话：你到底在改谁的 `next`。一旦这个问题想清楚，很多删除题都会变得规律。',
+      },
+      {
+        id: 'remove-linked-list-elements-solution',
+        title: '标准解法：虚拟头节点加单指针遍历删除',
+        summary:
+          '创建虚拟头节点指向原链表，然后用一个指针遍历前驱节点。如果前驱的下一个节点值等于目标值，就让前驱跳过它；否则前驱向前移动。最后返回虚拟头节点的下一个节点。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '是最推荐的标准模板。',
+          '适合延伸到更多链表删除题。',
+        ],
+        code: `function removeElements(
+  head: ListNode | null,
+  val: number,
+): ListNode | null {
+  const dummy = new ListNode(0, head)
+  let current = dummy
+
+  while (current.next !== null) {
+    if (current.next.val === val) {
+      current.next = current.next.next
+    } else {
+      current = current.next
+    }
+  }
+
+  return dummy.next
+}`,
+      },
+      {
+        id: 'remove-linked-list-elements-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有用虚拟头节点导致删头节点很乱，或者删除后错误地同时移动前驱，结果漏删连续重复值。',
+        bullets: [
+          '易错点 1：没处理头节点删除。',
+          '易错点 2：删除后前驱错误前进。',
+          '易错点 3：直接操作当前节点而不是前驱关系。',
+          '延伸方向：删除倒数第 N 个节点、去重链表、链表反转题。',
+        ],
+      },
+    ],
+  },
 ];
