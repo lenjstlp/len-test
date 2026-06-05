@@ -21868,4 +21868,100 @@ WHERE w1.temperature > w2.temperature;`,
       },
     ],
   },
+  {
+    id: 'bitwise-and-of-numbers-range',
+    label: '201. LeetCode 201. 数字范围按位与',
+    difficulty: '中等',
+    description:
+      '这题是在练位运算里的公共前缀。真正关键不是把区间内所有数字都真的算一遍，而是意识到只要某一位在区间中发生过 0 和 1 的切换，这一位结果一定变成 0。',
+    outcome:
+      '你能掌握区间按位与的本质规律，理解为什么答案等于左右端点的公共二进制前缀，并能写出高效的位移解法。',
+    sections: [
+      {
+        id: 'bitwise-and-of-numbers-range-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个整数 `left` 和 `right`，返回区间 `[left, right]` 内所有数字按位与的结果。',
+        bullets: [
+          '区间包含左右端点。',
+          '不是只与两个端点相与。',
+          '目标是整体区间结果。',
+          '本质是位模式收缩问题。',
+        ],
+      },
+      {
+        id: 'bitwise-and-of-numbers-range-common-prefix',
+        title: '区间按位与最后只会保留左右端点的公共高位前缀',
+        summary:
+          '只要区间跨度足够覆盖某一位的变化，那么这位一定既出现过 0 又出现过 1，按位与后就只能是 0。最终还能保留下来的，只可能是左端点和右端点完全相同的那段高位前缀。',
+        bullets: [
+          '变化过的位一定归零。',
+          '只有稳定不变的高位能保留。',
+          '公共前缀是这题的核心抽象。',
+          '理解这点后就不需要枚举区间。',
+        ],
+      },
+      {
+        id: 'bitwise-and-of-numbers-range-shift',
+        title: '最常见的做法，是不断右移直到左右端点相等',
+        summary:
+          '当 `left` 和 `right` 不相等时，说明至少在某一位上存在变化。不断同时右移两者，相当于不断剥掉那些不稳定的低位。直到两者相等时，剩下的就是公共前缀。',
+        bullets: [
+          '右移是在剥离不稳定低位。',
+          '相等时说明只剩公共前缀。',
+          '需要记录总共右移了多少次。',
+          '最后再左移还原位置。',
+        ],
+      },
+      {
+        id: 'bitwise-and-of-numbers-range-why',
+        title: '为什么这种位移法等价于求公共前缀',
+        summary:
+          '二进制右移本质上是在丢掉最低位。只要 `left` 和 `right` 还不同，就说明当前保留下来的前缀还没完全重合；一旦相等，说明剩余部分已经是两者共享的最高位结构。',
+        bullets: [
+          '位移法本质是前缀对齐。',
+          '不相等就继续删低位。',
+          '相等时即可停止。',
+          '这是区间位运算的典型思路。',
+        ],
+        callout:
+          '位运算题经常看起来很“算术”，但真正高效的解法往往不是算，而是观察二进制结构有没有稳定规律。这题就是公共前缀模型的代表。',
+      },
+      {
+        id: 'bitwise-and-of-numbers-range-solution',
+        title: '标准解法：同步右移求公共前缀，再左移恢复',
+        summary:
+          '初始化位移次数为 0。只要 `left` 不等于 `right`，就让它们同时右移一位并增加计数。循环结束后，把相等的结果左移回原位，得到最终答案。',
+        bullets: [
+          '时间复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(1)`。',
+          '代码短而且非常稳定。',
+          '是最推荐的标准解法。',
+        ],
+        code: `function rangeBitwiseAnd(left: number, right: number): number {
+  let shifts = 0
+
+  while (left !== right) {
+    left >>= 1
+    right >>= 1
+    shifts += 1
+  }
+
+  return left << shifts
+}`,
+      },
+      {
+        id: 'bitwise-and-of-numbers-range-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是真的从 `left` 枚举到 `right` 做按位与，导致复杂度失控；或者虽然听说过公共前缀，但解释不清楚为什么变化位一定归零。',
+        bullets: [
+          '易错点 1：暴力枚举整个区间。',
+          '易错点 2：没记录位移次数。',
+          '易错点 3：公共前缀原理理解不透。',
+          '延伸方向：位前缀、区间异或、二进制结构观察题。',
+        ],
+      },
+    ],
+  },
 ];
