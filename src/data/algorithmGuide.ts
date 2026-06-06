@@ -22843,4 +22843,126 @@ class Trie {
       },
     ],
   },
+  {
+    id: 'course-schedule-ii',
+    label: '210. LeetCode 210. 课程表 II',
+    difficulty: '中等',
+    description:
+      '这题是在上一题基础上继续练拓扑排序输出序列。真正关键不是只判断能不能学完，而是把“被释放出来的课程顺序”真实收集下来。',
+    outcome:
+      '你能掌握返回拓扑序列的标准写法，理解为什么处理顺序本身就是一种可行选课方案，并能在有环时正确返回空数组。',
+    sections: [
+      {
+        id: 'course-schedule-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定课程总数和先修关系，返回一种可行的修课顺序；如果不存在这样的顺序，则返回空数组。',
+        bullets: [
+          '目标从布尔判断升级为返回顺序。',
+          '返回任意一种合法顺序即可。',
+          '有环时必须返回空数组。',
+          '本质仍然是拓扑排序。',
+        ],
+      },
+      {
+        id: 'course-schedule-ii-same-core',
+        title: '这题和课程表 I 的核心完全一样，只是多了“记录顺序”',
+        summary:
+          '依赖关系还是有向图，是否可完成还是看能否消掉所有入度。区别只在于：每次从队列里拿出一门可学课程时，不仅要处理它的后继，还要把它记进答案数组。',
+        bullets: [
+          '建图方式与上一题一致。',
+          '入度数组和队列仍然是核心。',
+          '新增的只是结果收集。',
+          '本质模板没有变化。',
+        ],
+      },
+      {
+        id: 'course-schedule-ii-order',
+        title: '为什么队列弹出的顺序就是一个合法修课顺序',
+        summary:
+          '因为只有入度为 0 的课程才会入队，而入度为 0 恰好表示它当前没有未完成的前置依赖。按这个顺序依次学习，天然符合所有先修约束。',
+        bullets: [
+          '入队条件本身就保证合法性。',
+          '每次出队的课程都可以立刻学习。',
+          '顺序合法来自依赖已被清空。',
+          '这就是拓扑序的实际含义。',
+        ],
+      },
+      {
+        id: 'course-schedule-ii-empty',
+        title: '最后仍然要看是否处理完全部课程，否则答案必须清空',
+        summary:
+          '如果图中存在环，队列会在某个时刻提前耗尽，但仍有课程未被处理。这时虽然答案数组里已经有一部分课程顺序，但它不是完整可行解，必须返回空数组而不是半成品。',
+        bullets: [
+          '不能返回部分顺序冒充完整答案。',
+          '处理数量仍然是最终判定依据。',
+          '环会导致剩余课程永远无法入队。',
+          '这是很多人会漏掉的细节。',
+        ],
+        callout:
+          '很多图题的“返回路径/顺序”版本，本质上只是判断题多了一步“把过程结果记录下来”。先抓住模板主干，再加输出，就不容易慌。',
+      },
+      {
+        id: 'course-schedule-ii-solution',
+        title: '标准解法：拓扑排序过程中同步收集课程顺序',
+        summary:
+          '先建邻接表和入度数组，把所有入度为 0 的课程放进队列。每次出队一门课程就放入答案，并降低其后继课程入度；后继课程入度降为 0 时入队。最后若答案长度等于课程总数，则返回答案，否则返回空数组。',
+        bullets: [
+          '时间复杂度是 `O(V + E)`。',
+          '空间复杂度是 `O(V + E)`。',
+          '是返回拓扑序的标准写法。',
+          '与课程表 I 可以一起记忆。',
+        ],
+        code: `function findOrder(
+  numCourses: number,
+  prerequisites: number[][],
+): number[] {
+  const graph = Array.from({ length: numCourses }, () => [] as number[])
+  const indegree = Array(numCourses).fill(0)
+
+  for (const [course, prerequisite] of prerequisites) {
+    graph[prerequisite].push(course)
+    indegree[course] += 1
+  }
+
+  const queue: number[] = []
+
+  for (let course = 0; course < numCourses; course += 1) {
+    if (indegree[course] === 0) {
+      queue.push(course)
+    }
+  }
+
+  const order: number[] = []
+
+  while (queue.length > 0) {
+    const course = queue.shift()!
+    order.push(course)
+
+    for (const nextCourse of graph[course]) {
+      indegree[nextCourse] -= 1
+
+      if (indegree[nextCourse] === 0) {
+        queue.push(nextCourse)
+      }
+    }
+  }
+
+  return order.length === numCourses ? order : []
+}`,
+      },
+      {
+        id: 'course-schedule-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是拿到部分拓扑序后就直接返回，忘了判断是否覆盖全部课程；或者边方向建错，导致生成的“顺序”其实不满足先修约束。',
+        bullets: [
+          '易错点 1：返回部分顺序而不是完整合法顺序。',
+          '易错点 2：建图方向与依赖含义不一致。',
+          '易错点 3：没同步维护入度变化。',
+          '延伸方向：外星词典、任务依赖排序、图的 DFS 拓扑序。',
+        ],
+      },
+    ],
+  },
 ];
