@@ -23097,4 +23097,175 @@ class WordDictionary {
       },
     ],
   },
+  {
+    id: 'word-search-ii',
+    label: '212. LeetCode 212. 单词搜索 II',
+    difficulty: '困难',
+    description:
+      '这题是在练 Trie 和网格 DFS 的组合搜索。真正关键不是对每个单词都单独跑一遍回溯，而是把所有单词先合并进一棵前缀树，再在棋盘上同步剪枝搜索。',
+    outcome:
+      '你能掌握 Trie 加回溯搜索的组合思路，理解为什么要利用前缀树提前剪枝，并能写出避免重复收集单词的标准解法。',
+    sections: [
+      {
+        id: 'word-search-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符网格和一个单词列表，找出所有能在网格中通过上下左右相邻字符拼出的单词。',
+        bullets: [
+          '每个单词都来自给定列表。',
+          '字符必须沿相邻格子连续走。',
+          '同一个格子在一条路径里不能重复使用。',
+          '本质是多模式网格搜索。',
+        ],
+      },
+      {
+        id: 'word-search-ii-bruteforce',
+        title: '如果对每个单词都单独回溯，重复搜索成本会非常高',
+        summary:
+          '单词数量一多，很多单词前缀其实是重叠的。若你把每个单词拆开单独去棋盘里搜，就会在相同前缀路径上重复做大量工作，因此暴力思路通常撑不住。',
+        bullets: [
+          '重复前缀会导致大量重复搜索。',
+          '单词越多，暴力越低效。',
+          '必须把“多单词搜索”合并处理。',
+          '这是这题与单词搜索 I 的关键差异。',
+        ],
+      },
+      {
+        id: 'word-search-ii-trie',
+        title: 'Trie 能把所有目标单词压成一棵前缀树，搜索时可即时剪枝',
+        summary:
+          '把所有单词先插入 Trie 后，棋盘 DFS 每走到一个字符，都可以立刻判断当前路径是否仍然是某个单词前缀。如果连前缀都对不上，就可以当场停止，不必继续向四周扩展。',
+        bullets: [
+          'Trie 负责合并相同前缀。',
+          '路径一旦不在 Trie 中就能立即剪枝。',
+          '剪枝是性能提升的核心来源。',
+          '这是“多模式匹配”思维的体现。',
+        ],
+      },
+      {
+        id: 'word-search-ii-backtracking',
+        title: 'DFS 仍然要做回溯，但状态同时包含棋盘位置和 Trie 节点',
+        summary:
+          '与普通网格 DFS 不同，这里每次递归不仅要知道当前在棋盘哪个格子，还要知道当前匹配到 Trie 的哪个节点。只有这两个状态一起推进，才能判断后续路径是否还有意义。',
+        bullets: [
+          '棋盘坐标决定可走位置。',
+          'Trie 节点决定剩余可匹配前缀。',
+          '回溯时要恢复访问标记。',
+          '这是组合搜索题的标准状态设计。',
+        ],
+      },
+      {
+        id: 'word-search-ii-deduplicate',
+        title: '找到单词后要去重，最常见做法是把终点单词置空',
+        summary:
+          '同一个单词可能从不同路径被再次搜到。如果 Trie 节点里保存完整单词，那么第一次命中后就可以把这个单词清空，既完成收集，也避免重复加入答案。',
+        bullets: [
+          '去重必须在搜索过程中处理。',
+          '清空终点标记是最常见技巧。',
+          '能避免额外的结果集合判重成本。',
+          '也是 Trie 搜索题的常见优化点。',
+        ],
+        callout:
+          '组合题看起来复杂，通常是因为它把两个模板叠在一起。先拆成“Trie 做前缀剪枝”和“DFS 做网格回溯”，再看它们如何共享状态，难度就会明显下降。',
+      },
+      {
+        id: 'word-search-ii-solution',
+        title: '标准解法：先建 Trie，再从每个格子出发做 DFS 剪枝搜索',
+        summary:
+          '将所有单词插入 Trie。随后从棋盘每个位置出发 DFS：根据当前字符查 Trie 子节点，不存在就剪枝；存在则继续向四个方向扩展，并用访问标记避免重复用格子。若 Trie 节点保存了完整单词，就加入答案并清空该单词防重。',
+        bullets: [
+          'Trie 负责前缀共享与剪枝。',
+          'DFS 负责路径枚举。',
+          '综合复杂度远优于逐词暴搜。',
+          '是这题的标准高频解法。',
+        ],
+        code: `class WordSearchTrieNode {
+  children = new Map<string, WordSearchTrieNode>()
+  word = ''
+}
+
+function findWords(board: string[][], words: string[]): string[] {
+  const root = new WordSearchTrieNode()
+
+  for (const word of words) {
+    let node = root
+
+    for (const char of word) {
+      if (!node.children.has(char)) {
+        node.children.set(char, new WordSearchTrieNode())
+      }
+
+      node = node.children.get(char)!
+    }
+
+    node.word = word
+  }
+
+  const rows = board.length
+  const columns = board[0].length
+  const result: string[] = []
+
+  const dfs = (row: number, column: number, node: WordSearchTrieNode) => {
+    const char = board[row][column]
+    const nextNode = node.children.get(char)
+
+    if (nextNode === undefined) {
+      return
+    }
+
+    if (nextNode.word !== '') {
+      result.push(nextNode.word)
+      nextNode.word = ''
+    }
+
+    board[row][column] = '#'
+
+    const directions = [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ]
+
+    for (const [deltaRow, deltaColumn] of directions) {
+      const nextRow = row + deltaRow
+      const nextColumn = column + deltaColumn
+
+      if (
+        nextRow >= 0 &&
+        nextRow < rows &&
+        nextColumn >= 0 &&
+        nextColumn < columns &&
+        board[nextRow][nextColumn] !== '#'
+      ) {
+        dfs(nextRow, nextColumn, nextNode)
+      }
+    }
+
+    board[row][column] = char
+  }
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      dfs(row, column, root)
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'word-search-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是仍按“每个单词独立回溯”去做，导致性能很差；或者虽然用了 Trie，却没有在搜索中及时剪枝和去重，效果大打折扣。',
+        bullets: [
+          '易错点 1：逐单词暴力回溯而不是合并前缀搜索。',
+          '易错点 2：路径访问标记没有及时恢复。',
+          '易错点 3：找到单词后没有去重，导致重复收集。',
+          '延伸方向：Trie 剪枝搜索、网格回溯、字符串字典搜索综合题。',
+        ],
+      },
+    ],
+  },
 ];
