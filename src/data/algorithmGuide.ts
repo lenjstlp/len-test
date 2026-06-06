@@ -22741,4 +22741,106 @@ class Trie {
       },
     ],
   },
+  {
+    id: 'minimum-size-subarray-sum',
+    label: '209. LeetCode 209. 长度最小的子数组',
+    difficulty: '中等',
+    description:
+      '这题是在练滑动窗口收缩。真正关键不是枚举所有子数组，而是在右边不断扩张满足条件后，马上从左边收缩到最短。',
+    outcome:
+      '你能掌握正整数数组上的滑动窗口模板，理解为什么满足条件后应该持续收缩左边界，并能写出线性时间的最优解。',
+    sections: [
+      {
+        id: 'minimum-size-subarray-sum-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个正整数数组和目标值 `target`，找出和大于等于 `target` 的最短连续子数组长度。',
+        bullets: [
+          '子数组必须连续。',
+          '要求和至少达到目标值。',
+          '目标是最短长度。',
+          '本质是窗口收缩优化问题。',
+        ],
+      },
+      {
+        id: 'minimum-size-subarray-sum-positive',
+        title: '这题能用滑动窗口，核心前提是数组元素全为正数',
+        summary:
+          '因为全是正数，所以右边界右移时窗口和只会变大，左边界右移时窗口和只会变小。正是这个单调性，让我们能安全地用双指针维护一个可收缩窗口。',
+        bullets: [
+          '正数保证窗口和变化方向稳定。',
+          '没有这个前提，滑动窗口就不可靠。',
+          '双指针依赖单调性才能成立。',
+          '这是这题最本质的性质。',
+        ],
+      },
+      {
+        id: 'minimum-size-subarray-sum-expand-shrink',
+        title: '窗口策略非常明确：先扩到满足条件，再尽可能缩短',
+        summary:
+          '右指针负责把窗口扩到“和已经够大”，一旦满足条件，就不断右移左指针，看能否在仍然满足条件的前提下把窗口缩得更短。这个过程正好对应“找最短”的目标。',
+        bullets: [
+          '扩张负责达标。',
+          '收缩负责最优化长度。',
+          '每次收缩前都要更新答案。',
+          '是滑动窗口最经典的模式之一。',
+        ],
+      },
+      {
+        id: 'minimum-size-subarray-sum-why',
+        title: '为什么一旦达标就要立刻收缩，而不是继续扩张',
+        summary:
+          '因为我们要的是最短长度。当前窗口既然已经满足条件，再继续扩张只会让窗口更长，不可能得到更优答案。真正有价值的动作，是尽可能删掉左侧冗余元素。',
+        bullets: [
+          '目标决定策略。',
+          '达标后继续扩张没有优化意义。',
+          '收缩是在消除冗余。',
+          '这是很多人第一次做窗口题的思维转折点。',
+        ],
+        callout:
+          '滑动窗口不是“左右各走各的”，而是由目标函数驱动的。求最短，就在达标后缩；求最长，往往就会有另一套维护逻辑。',
+      },
+      {
+        id: 'minimum-size-subarray-sum-solution',
+        title: '标准解法：双指针维护最短达标窗口',
+        summary:
+          '用两个指针表示窗口边界，并维护当前窗口和。右指针逐步扩张窗口，当窗口和大于等于 `target` 时，更新最短长度，并持续右移左指针进行收缩。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '每个元素最多进出窗口一次。',
+          '空间复杂度是 `O(1)`。',
+          '是正整数窗口题的标准模板。',
+        ],
+        code: `function minSubArrayLen(target: number, nums: number[]): number {
+  let left = 0
+  let sum = 0
+  let minLength = Number.POSITIVE_INFINITY
+
+  for (let right = 0; right < nums.length; right += 1) {
+    sum += nums[right]
+
+    while (sum >= target) {
+      minLength = Math.min(minLength, right - left + 1)
+      sum -= nums[left]
+      left += 1
+    }
+  }
+
+  return minLength === Number.POSITIVE_INFINITY ? 0 : minLength
+}`,
+      },
+      {
+        id: 'minimum-size-subarray-sum-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是达标后没有持续收缩，只更新一次答案就继续扩张，结果错过更短窗口；或者没意识到这套方法依赖“全为正数”的前提。',
+        bullets: [
+          '易错点 1：达标后没有持续收缩。',
+          '易错点 2：忘了处理不存在解时返回 0。',
+          '易错点 3：忽略正数前提导致乱套模板。',
+          '延伸方向：乘积小于 K 的子数组、最短覆盖子串、滑动窗口总览题。',
+        ],
+      },
+    ],
+  },
 ];
