@@ -22283,4 +22283,110 @@ WHERE w1.temperature > w2.temperature;`,
       },
     ],
   },
+  {
+    id: 'isomorphic-strings',
+    label: '205. LeetCode 205. 同构字符串',
+    difficulty: '简单',
+    description:
+      '这题是在练双向映射约束。真正关键不是只看字符出现次数，而是保证一个字符串里的每个字符都稳定映射到另一个字符串中的唯一字符，而且反过来也不能冲突。',
+    outcome:
+      '你能掌握同构字符串的判定逻辑，理解为什么必须做双向约束，并能写出基于哈希映射的标准解法。',
+    sections: [
+      {
+        id: 'isomorphic-strings-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个字符串 `s` 和 `t`，判断是否可以把 `s` 中的字符一一替换后得到 `t`。',
+        bullets: [
+          '替换后字符顺序不能变。',
+          '同一个字符必须始终映射到同一目标字符。',
+          '不同字符不能映射到同一个目标字符。',
+          '本质是双向一一映射判断。',
+        ],
+      },
+      {
+        id: 'isomorphic-strings-direction',
+        title: '只检查单向映射不够，必须同时限制反向唯一性',
+        summary:
+          '如果只检查 `s -> t` 是否稳定，就可能出现 `a -> x`、`b -> x` 这种冲突，它在单向上看似合法，但实际上不是一一映射。所以还要同时保证 `t` 里的字符也只能对应一个 `s` 字符。',
+        bullets: [
+          '单向稳定不代表双向唯一。',
+          '反向约束用来防止多对一。',
+          '这题真正考的是双射关系。',
+          '双向检查是标准解法关键。',
+        ],
+      },
+      {
+        id: 'isomorphic-strings-map',
+        title: '最直接的做法，是维护两张映射表同步校验',
+        summary:
+          '遍历字符串时，一张表记录 `s` 中字符映射到 `t` 的结果，另一张表记录 `t` 中字符映射回 `s` 的结果。每读到一个位置，就同时验证这两个方向是否一致。',
+        bullets: [
+          '两张映射表分别负责两个方向。',
+          '遍历时可同步完成检查。',
+          '一旦冲突就能立即返回。',
+          '时间复杂度保持在线性级别。',
+        ],
+      },
+      {
+        id: 'isomorphic-strings-pattern',
+        title: '为什么“模式相同”不等于“字符频次相同”',
+        summary:
+          '同构看的是位置模式，而不是单纯统计某个字符出现了几次。比如 `egg` 和 `add` 合法，是因为重复关系一致；而 `foo` 和 `bar` 不合法，是因为重复模式对不上。',
+        bullets: [
+          '核心是重复位置结构一致。',
+          '频次只能提供弱线索。',
+          '模式对齐比计数更本质。',
+          '这类题要抓住结构，而不是表面统计。',
+        ],
+        callout:
+          '字符串映射题很容易被做成“数次数”。真正更稳的判断方式，是先问自己：题目约束的是数量，还是位置关系。这题显然是后者。',
+      },
+      {
+        id: 'isomorphic-strings-solution',
+        title: '标准解法：双哈希映射同步校验',
+        summary:
+          '遍历两个字符串的每个位置。如果当前字符之前建立过映射，就验证是否一致；如果没有，就在两个方向上同时建立映射。整个过程没有冲突就返回 `true`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(Σ)`。',
+          '思路清晰，容易解释。',
+          '是这题最标准的写法。',
+        ],
+        code: `function isIsomorphic(s: string, t: string): boolean {
+  const mapST = new Map<string, string>()
+  const mapTS = new Map<string, string>()
+
+  for (let index = 0; index < s.length; index += 1) {
+    const source = s[index]
+    const target = t[index]
+
+    if (
+      (mapST.has(source) && mapST.get(source) !== target) ||
+      (mapTS.has(target) && mapTS.get(target) !== source)
+    ) {
+      return false
+    }
+
+    mapST.set(source, target)
+    mapTS.set(target, source)
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'isomorphic-strings-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只做了单向映射检查，结果把多对一映射误判为合法；或者虽然会写代码，却说不清为什么必须做双向校验。',
+        bullets: [
+          '易错点 1：漏掉反向约束。',
+          '易错点 2：把问题错误简化成字符频次统计。',
+          '易错点 3：映射冲突时没有及时返回。',
+          '延伸方向：单词规律、模式匹配、双射约束字符串题。',
+        ],
+      },
+    ],
+  },
 ];
