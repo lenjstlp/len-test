@@ -22965,4 +22965,136 @@ class Trie {
       },
     ],
   },
+  {
+    id: 'design-add-and-search-words-data-structure',
+    label: '211. LeetCode 211. 添加与搜索单词 - 数据结构设计',
+    difficulty: '中等',
+    description:
+      '这题是在 Trie 基础上加入通配符搜索。真正关键不是把 `.` 当普通字符处理，而是理解它代表“这一层可以匹配任意一个子节点”，因此搜索必须带分支。',
+    outcome:
+      '你能掌握支持通配符查询的 Trie 设计，理解为什么 `.` 会把单一路径查询变成分支搜索，并能写出递归搜索的标准解法。',
+    sections: [
+      {
+        id: 'design-add-and-search-words-data-structure-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个支持 `addWord` 和 `search` 的数据结构，其中 `search` 支持 `.` 通配符，表示任意一个字母。',
+        bullets: [
+          '要支持普通单词插入。',
+          '要支持普通精确搜索。',
+          '还要支持带 `.` 的模糊搜索。',
+          '本质是 Trie 加分支匹配。',
+        ],
+      },
+      {
+        id: 'design-add-and-search-words-data-structure-trie',
+        title: '插入部分和普通 Trie 完全一致，关键难点全在搜索',
+        summary:
+          '`addWord` 只是按字符逐层创建路径，并在结尾打上结束标记，这和 Trie 基础题没有本质区别。真正复杂的地方，是查询时遇到 `.` 该怎么走。',
+        bullets: [
+          '插入仍然是路径构建。',
+          '结束标记仍然必不可少。',
+          '难点集中在搜索逻辑。',
+          '先分清主次，思路才不会乱。',
+        ],
+      },
+      {
+        id: 'design-add-and-search-words-data-structure-dot',
+        title: '一旦遇到 `.`，就不能只走一条路，而要尝试当前节点的所有子节点',
+        summary:
+          '普通字符只会把搜索路径固定到唯一子节点，但 `.` 能匹配任意字母，因此必须枚举当前节点的所有孩子，只要其中任意一条路径后续能够匹配成功，整个搜索就成立。',
+        bullets: [
+          '`.` 会把线性搜索变成分支搜索。',
+          '只要有一条路径成功即可返回。',
+          '这天然适合递归实现。',
+          '是这题最核心的转折点。',
+        ],
+      },
+      {
+        id: 'design-add-and-search-words-data-structure-recursion',
+        title: '递归最适合表达“当前位置加剩余模式串”的搜索状态',
+        summary:
+          '每次递归只需要关心两件事：当前处在哪个 Trie 节点，以及当前匹配到模式串的哪个位置。遇到普通字符就走唯一分支，遇到 `.` 就对子节点递归尝试。',
+        bullets: [
+          '状态表达很自然。',
+          '递归能优雅处理分支展开。',
+          '终止条件是模式串走完时检查结束标记。',
+          '比手写栈更直观。',
+        ],
+        callout:
+          '当查询从“唯一路径”升级为“可能多路径”时，递归往往不是为了炫技巧，而是因为它最贴合问题本身的分支结构。',
+      },
+      {
+        id: 'design-add-and-search-words-data-structure-solution',
+        title: '标准解法：Trie 插入加递归搜索通配符分支',
+        summary:
+          '用 Trie 存储全部单词。`addWord` 与普通 Trie 相同；`search` 时写一个递归函数，参数是当前节点和搜索下标，普通字符走唯一子节点，`.` 则遍历所有子节点并递归尝试。',
+        bullets: [
+          '插入时间复杂度与单词长度成正比。',
+          '搜索在最坏情况下会发生分支扩展。',
+          '结构清晰，功能完整。',
+          '是这题最主流的解法。',
+        ],
+        code: `class WordDictionaryNode {
+  children = new Map<string, WordDictionaryNode>()
+  isEnd = false
+}
+
+class WordDictionary {
+  private root = new WordDictionaryNode()
+
+  addWord(word: string): void {
+    let node = this.root
+
+    for (const char of word) {
+      if (!node.children.has(char)) {
+        node.children.set(char, new WordDictionaryNode())
+      }
+
+      node = node.children.get(char)!
+    }
+
+    node.isEnd = true
+  }
+
+  search(word: string): boolean {
+    const dfs = (node: WordDictionaryNode, index: number): boolean => {
+      if (index === word.length) {
+        return node.isEnd
+      }
+
+      const char = word[index]
+
+      if (char === '.') {
+        for (const child of node.children.values()) {
+          if (dfs(child, index + 1)) {
+            return true
+          }
+        }
+
+        return false
+      }
+
+      const nextNode = node.children.get(char)
+      return nextNode !== undefined && dfs(nextNode, index + 1)
+    }
+
+    return dfs(this.root, 0)
+  }
+}`,
+      },
+      {
+        id: 'design-add-and-search-words-data-structure-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把 `.` 当成普通字符存或查，导致通配功能失效；或者虽然知道要分支搜索，却没有在任一分支成功时及时返回。',
+        bullets: [
+          '易错点 1：没有为 `.` 做分支匹配。',
+          '易错点 2：递归终点不检查结束标记。',
+          '易错点 3：任一分支成功后没有及时停止。',
+          '延伸方向：单词搜索 II、自动补全、带通配符字典查询。',
+        ],
+      },
+    ],
+  },
 ];
