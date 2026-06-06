@@ -22389,4 +22389,101 @@ WHERE w1.temperature > w2.temperature;`,
       },
     ],
   },
+  {
+    id: 'reverse-linked-list',
+    label: '206. LeetCode 206. 反转链表',
+    difficulty: '简单',
+    description:
+      '这题是在练链表指针翻转。真正关键不是把值取出来倒序重建，而是原地改变每个节点的指向关系，让链表方向整体反过来。',
+    outcome:
+      '你能掌握链表原地反转的标准模板，理解 `prev`、`current`、`next` 三指针各自的职责，并能稳定处理空链表和单节点链表。',
+    sections: [
+      {
+        id: 'reverse-linked-list-summary',
+        title: '题目在问什么',
+        summary: '给定一个单链表的头节点，返回反转后的链表头节点。',
+        bullets: [
+          '要求把链表方向整体反过来。',
+          '通常不需要新建整条链表。',
+          '返回新的头节点。',
+          '本质是指针重连。',
+        ],
+      },
+      {
+        id: 'reverse-linked-list-pointer-role',
+        title: '反转链表最核心的问题，是改指针前先保住后继节点',
+        summary:
+          '当前节点一旦把 `next` 指向前一个节点，原本的后继就会丢失。所以每轮操作前，必须先用一个临时变量保存 `next`，然后才能安全地改方向。',
+        bullets: [
+          '先存后继，再改指针。',
+          '否则链表后半段会丢失。',
+          '这是整道题最基础的安全前提。',
+          '所有链表反转题都离不开这个动作。',
+        ],
+      },
+      {
+        id: 'reverse-linked-list-three-pointers',
+        title: '三指针模板里，每个变量的职责都非常明确',
+        summary:
+          '`prev` 表示已经反转好的前缀头部，`current` 表示当前正在处理的节点，`next` 用来临时保存尚未处理的后续链表。每轮完成后，这三个角色依次向前推进。',
+        bullets: [
+          '`prev` 负责承接已反转部分。',
+          '`current` 是当前操作节点。',
+          '`next` 用来保护未处理链表。',
+          '角色清晰后，代码就不会乱。',
+        ],
+      },
+      {
+        id: 'reverse-linked-list-iteration',
+        title: '迭代法比递归法更适合作为第一标准答案',
+        summary:
+          '递归也能反转链表，但它更依赖调用栈和返回阶段的指针修复。迭代法逻辑更直接、空间更省，也更适合在面试里快速稳定地写对。',
+        bullets: [
+          '迭代法控制感更强。',
+          '空间复杂度更优。',
+          '更适合作为通用模板记忆。',
+          '递归可作为进阶补充。',
+        ],
+        callout:
+          '链表题真正难的往往不是思路，而是你能不能在纸上把指针变化顺序写对。顺序一旦乱，代码就很容易“看着像对的，跑起来断链”。',
+      },
+      {
+        id: 'reverse-linked-list-solution',
+        title: '标准解法：三指针迭代原地反转',
+        summary:
+          '初始化 `prev` 为 `null`，`current` 指向头节点。每轮先保存 `current.next`，再把当前节点指向 `prev`，随后整体向前推进。循环结束后，`prev` 就是新头节点。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '代码短而稳定。',
+          '是链表题的基础模板之一。',
+        ],
+        code: `function reverseList(head: ListNode | null): ListNode | null {
+  let prev: ListNode | null = null
+  let current = head
+
+  while (current !== null) {
+    const next = current.next
+    current.next = prev
+    prev = current
+    current = next
+  }
+
+  return prev
+}`,
+      },
+      {
+        id: 'reverse-linked-list-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是改指针前没有保存后继节点，导致链表后半段直接丢失；或者变量推进顺序写反，最终形成环或断链。',
+        bullets: [
+          '易错点 1：没先保存 `next`。',
+          '易错点 2：指针推进顺序写错。',
+          '易错点 3：返回了旧头节点而不是新头节点。',
+          '延伸方向：反转链表 II、K 个一组翻转、递归反转链表。',
+        ],
+      },
+    ],
+  },
 ];
