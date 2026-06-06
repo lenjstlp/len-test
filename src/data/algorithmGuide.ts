@@ -22608,4 +22608,137 @@ WHERE w1.temperature > w2.temperature;`,
       },
     ],
   },
+  {
+    id: 'implement-trie-prefix-tree',
+    label: '208. LeetCode 208. 实现 Trie (前缀树)',
+    difficulty: '中等',
+    description:
+      '这题是在练前缀树的数据组织方式。真正关键不是把单词简单丢进数组里查，而是按字符逐层展开，让相同前缀共享路径。',
+    outcome:
+      '你能掌握 Trie 的节点结构设计，理解插入、完整单词查询和前缀查询分别依赖哪些信息，并能实现基础版本的前缀树。',
+    sections: [
+      {
+        id: 'implement-trie-prefix-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个支持 `insert`、`search` 和 `startsWith` 的 Trie 数据结构。',
+        bullets: [
+          '要支持单词插入。',
+          '要支持完整单词查询。',
+          '要支持前缀查询。',
+          '本质是字符路径共享结构。',
+        ],
+      },
+      {
+        id: 'implement-trie-prefix-tree-share-path',
+        title: 'Trie 的核心价值，是让相同前缀共用同一段路径',
+        summary:
+          '例如 `apple` 和 `app`，它们前面的 `a -> p -> p` 可以完全复用，只有后面的路径不同。这样做既体现了前缀信息，也让前缀查询天然高效。',
+        bullets: [
+          '公共前缀只存一次。',
+          '路径结构天然表达单词关系。',
+          '前缀查询不需要扫描全部单词。',
+          '这是 Trie 区别于普通集合的关键。',
+        ],
+      },
+      {
+        id: 'implement-trie-prefix-tree-node',
+        title:
+          '一个 Trie 节点至少要知道两件事：有哪些子节点、自己是否是单词结尾',
+        summary:
+          '子节点决定了接下来还能沿哪些字符继续走，而 `isEnd` 这样的标记决定了当前路径是否刚好构成一个完整单词。没有结束标记，就无法区分 `app` 和 `apple`。',
+        bullets: [
+          '子节点通常用映射表存储。',
+          '结束标记用来区分前缀和完整单词。',
+          '这两个信息缺一不可。',
+          '是 Trie 节点设计的基本模板。',
+        ],
+      },
+      {
+        id: 'implement-trie-prefix-tree-operations',
+        title: '三种操作本质上都是“按字符往下走”，区别只在终点如何判定',
+        summary:
+          '插入时，如果路径不存在就新建节点；完整查询时，必须走完整个单词并检查终点是否是单词结尾；前缀查询时，只要路径存在即可，不要求终点是结束标记。',
+        bullets: [
+          '插入关注建路径。',
+          '搜索关注终点是否为完整单词。',
+          '前缀查询只关注路径是否存在。',
+          '三者共享同一套遍历骨架。',
+        ],
+        callout:
+          '很多数据结构题的关键，不是操作有多复杂，而是你能不能看出这些操作是否共享同一套底层路径逻辑。Trie 就是典型例子。',
+      },
+      {
+        id: 'implement-trie-prefix-tree-solution',
+        title: '标准解法：节点存 children 和 isEnd，按字符逐层处理',
+        summary:
+          '定义 Trie 节点结构，包含 `children` 和 `isEnd`。插入时逐字符创建路径；搜索时逐字符下探，最终根据是否到达结束标记判断；前缀查询则只需确认路径存在。',
+        bullets: [
+          '单次操作时间复杂度与字符串长度成正比。',
+          '结构清晰，扩展性好。',
+          '是 Trie 的最基础实现。',
+          '适合继续衔接字典搜索类题目。',
+        ],
+        code: `class TrieNode {
+  children = new Map<string, TrieNode>()
+  isEnd = false
+}
+
+class Trie {
+  private root = new TrieNode()
+
+  insert(word: string): void {
+    let node = this.root
+
+    for (const char of word) {
+      if (!node.children.has(char)) {
+        node.children.set(char, new TrieNode())
+      }
+
+      node = node.children.get(char)!
+    }
+
+    node.isEnd = true
+  }
+
+  search(word: string): boolean {
+    const node = this.findNode(word)
+    return node !== null && node.isEnd
+  }
+
+  startsWith(prefix: string): boolean {
+    return this.findNode(prefix) !== null
+  }
+
+  private findNode(text: string): TrieNode | null {
+    let node = this.root
+
+    for (const char of text) {
+      const nextNode = node.children.get(char)
+
+      if (nextNode === undefined) {
+        return null
+      }
+
+      node = nextNode
+    }
+
+    return node
+  }
+}`,
+      },
+      {
+        id: 'implement-trie-prefix-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只存路径不存结束标记，导致无法区分完整单词和前缀；或者把三种操作写成三套完全独立逻辑，代码重复且容易不一致。',
+        bullets: [
+          '易错点 1：漏掉单词结束标记。',
+          '易错点 2：搜索和前缀查询判定条件混淆。',
+          '易错点 3：没有抽公共路径查找函数。',
+          '延伸方向：单词搜索 II、自动补全、字典树优化题。',
+        ],
+      },
+    ],
+  },
 ];
