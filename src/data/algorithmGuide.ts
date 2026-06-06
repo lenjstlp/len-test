@@ -22486,4 +22486,126 @@ WHERE w1.temperature > w2.temperature;`,
       },
     ],
   },
+  {
+    id: 'course-schedule',
+    label: '207. LeetCode 207. 课程表',
+    difficulty: '中等',
+    description:
+      '这题是在练有向图环检测。真正关键不是把先修关系当成普通数组处理，而是把它看成依赖图，再判断这个图里是否存在环。',
+    outcome:
+      '你能掌握课程依赖问题的图建模方式，理解拓扑排序为什么能判断是否存在环，并能写出基于入度和队列的标准解法。',
+    sections: [
+      {
+        id: 'course-schedule-summary',
+        title: '题目在问什么',
+        summary:
+          '给定课程总数和先修关系 `prerequisites`，判断是否可以学完所有课程。',
+        bullets: [
+          '每对关系表示一门课依赖另一门课。',
+          '目标是判断是否能完成全部课程。',
+          '不能完成通常意味着依赖成环。',
+          '本质是有向图环检测。',
+        ],
+      },
+      {
+        id: 'course-schedule-graph',
+        title: '这题必须先建图：课程是节点，先修关系是有向边',
+        summary:
+          '如果课程 `a` 依赖 `b`，就可以理解为图里存在一条 `b -> a` 的边，表示学完 `b` 后才能学 `a`。只有先把问题翻译成有向图，后面的拓扑排序才有意义。',
+        bullets: [
+          '课程对应节点。',
+          '依赖关系对应有向边。',
+          '边方向决定学习顺序。',
+          '建图是后续算法的前提。',
+        ],
+      },
+      {
+        id: 'course-schedule-topological',
+        title: '能学完所有课程，本质上等价于图存在完整拓扑序',
+        summary:
+          '如果图里没有环，就总能找到至少一个入度为 0 的节点先学，然后逐步删边，最终处理完所有节点。反过来，如果存在环，那么环中的课程永远都等不到入度变成 0。',
+        bullets: [
+          '入度为 0 表示当前无前置依赖。',
+          '不断移除入度为 0 的节点就是拓扑排序。',
+          '环会阻塞课程被释放。',
+          '这是判断可完成性的核心逻辑。',
+        ],
+      },
+      {
+        id: 'course-schedule-count',
+        title: '真正需要看的不是队列过程本身，而是最后处理了多少门课',
+        summary:
+          '拓扑排序过程中，把所有能学的课程依次出队并统计数量。若最终统计数量等于课程总数，说明所有课程都被成功释放；否则说明还有成环课程残留。',
+        bullets: [
+          '统计已处理课程数是最终判定依据。',
+          '不能只看队列是否为空。',
+          '残留未处理节点往往就是环所在位置。',
+          '这是结果收敛的关键一步。',
+        ],
+        callout:
+          '图题最容易卡住的，不是代码，而是建模。只要你把“课程依赖”翻译成“有向图是否有环”，整道题就从业务描述题变成了标准模板题。',
+      },
+      {
+        id: 'course-schedule-solution',
+        title: '标准解法：入度数组加队列做拓扑排序',
+        summary:
+          '先建邻接表和入度数组，再把所有入度为 0 的课程放进队列。循环取出队首课程，减少其后继课程的入度；若某门后继课程入度降为 0，就入队。最终判断处理数量是否等于课程总数。',
+        bullets: [
+          '时间复杂度是 `O(V + E)`。',
+          '空间复杂度是 `O(V + E)`。',
+          '是课程依赖题的标准解法。',
+          '非常适合顺手延伸到返回拓扑序的题目。',
+        ],
+        code: `function canFinish(
+  numCourses: number,
+  prerequisites: number[][],
+): boolean {
+  const graph = Array.from({ length: numCourses }, () => [] as number[])
+  const indegree = Array(numCourses).fill(0)
+
+  for (const [course, prerequisite] of prerequisites) {
+    graph[prerequisite].push(course)
+    indegree[course] += 1
+  }
+
+  const queue: number[] = []
+
+  for (let course = 0; course < numCourses; course += 1) {
+    if (indegree[course] === 0) {
+      queue.push(course)
+    }
+  }
+
+  let completed = 0
+
+  while (queue.length > 0) {
+    const course = queue.shift()!
+    completed += 1
+
+    for (const nextCourse of graph[course]) {
+      indegree[nextCourse] -= 1
+
+      if (indegree[nextCourse] === 0) {
+        queue.push(nextCourse)
+      }
+    }
+  }
+
+  return completed === numCourses
+}`,
+      },
+      {
+        id: 'course-schedule-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是边方向建反，导致入度含义全错；或者做完拓扑过程后没有比较最终处理数量，漏掉了图中残留的环。',
+        bullets: [
+          '易错点 1：先修边方向写反。',
+          '易错点 2：没有维护正确的入度数组。',
+          '易错点 3：忘了用处理数量做最终判断。',
+          '延伸方向：课程表 II、任务调度、图的 DFS 判环。',
+        ],
+      },
+    ],
+  },
 ];
