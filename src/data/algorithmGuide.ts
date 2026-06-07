@@ -23603,4 +23603,116 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'combination-sum-iii',
+    label: '216. LeetCode 216. 组合总和 III',
+    difficulty: '中等',
+    description:
+      '这题是在练受限回溯。真正关键不是把所有组合都枚举出来再筛，而是在搜索过程中同时维护“元素范围、元素个数、元素和”三重约束，及时剪枝。',
+    outcome:
+      '你能掌握组合型回溯的基本写法，理解为什么搜索空间可以通过起点、剩余和与剩余个数不断收紧，并能写出结构清晰的回溯解法。',
+    sections: [
+      {
+        id: 'combination-sum-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '从 `1` 到 `9` 中选出 `k` 个不同数字，使它们的和等于 `n`，返回所有可能组合。',
+        bullets: [
+          '数字范围固定在 `1~9`。',
+          '每个数字最多使用一次。',
+          '必须恰好选 `k` 个数。',
+          '本质是受限组合搜索。',
+        ],
+      },
+      {
+        id: 'combination-sum-iii-constraints',
+        title: '这题不是普通回溯，而是同时受“个数”和“总和”双重约束',
+        summary:
+          '只满足和不够，还得保证选中的数字个数恰好是 `k`；反过来，个数够了但和不对也不行。因此递归状态里至少要跟踪当前路径、剩余和、以及下一个可选起点。',
+        bullets: [
+          '个数和目标值都要同步维护。',
+          '状态设计必须覆盖这两个条件。',
+          '约束越明确，剪枝越容易做。',
+          '这是组合题的基础抽象。',
+        ],
+      },
+      {
+        id: 'combination-sum-iii-no-repeat',
+        title: '因为数字不能重复使用，所以每层递归都要从更大的起点继续',
+        summary:
+          '如果当前已经选了某个数字，后续搜索就只能从它后面的数字继续，这样天然避免重复选择和重复排列。也正因此，这题搜的是组合而不是排列。',
+        bullets: [
+          '起点递增能防止重复使用同一数字。',
+          '也能避免同一组合的不同顺序重复出现。',
+          '是组合回溯最常见的去重方式。',
+          '思路比事后去重更干净。',
+        ],
+      },
+      {
+        id: 'combination-sum-iii-pruning',
+        title: '剪枝的关键，是一旦个数超了或剩余和小于 0 就立刻停止',
+        summary:
+          '因为所有候选数字都为正数，所以一旦当前和已经超过目标，再往后选只会更糟。同样，如果当前路径长度已经超过 `k`，这条分支也不可能再变成合法答案。',
+        bullets: [
+          '正数条件让剩余和剪枝成立。',
+          '路径长度也是天然剪枝条件。',
+          '剪枝越早，搜索树越小。',
+          '这是回溯性能优化的核心。',
+        ],
+        callout:
+          '回溯题做得顺不顺，往往就看你是不是一边搜一边剪，而不是“先全搜完再过滤”。会剪枝，才算真正理解搜索空间。',
+      },
+      {
+        id: 'combination-sum-iii-solution',
+        title: '标准解法：递增起点的回溯搜索',
+        summary:
+          '使用一个路径数组保存当前选择结果。递归时从当前起点开始尝试数字，把它加入路径后继续搜索；若路径长度等于 `k` 且剩余和为 0，就收集答案，否则在不合法时及时回溯剪枝。',
+        bullets: [
+          '时间复杂度取决于搜索树规模。',
+          '空间复杂度主要来自递归栈和路径。',
+          '结构标准，便于复用到其它组合题。',
+          '是这题最推荐的写法。',
+        ],
+        code: `function combinationSum3(k: number, n: number): number[][] {
+  const result: number[][] = []
+  const path: number[] = []
+
+  const dfs = (start: number, remaining: number) => {
+    if (path.length === k) {
+      if (remaining === 0) {
+        result.push([...path])
+      }
+
+      return
+    }
+
+    for (let value = start; value <= 9; value += 1) {
+      if (remaining - value < 0) {
+        break
+      }
+
+      path.push(value)
+      dfs(value + 1, remaining - value)
+      path.pop()
+    }
+  }
+
+  dfs(1, n)
+  return result
+}`,
+      },
+      {
+        id: 'combination-sum-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把组合题写成排列题，导致结果重复；或者虽然会回溯，却没有利用剩余和和路径长度做早停剪枝。',
+        bullets: [
+          '易错点 1：起点不递增导致重复结果。',
+          '易错点 2：个数满足但和不满足时也误收答案。',
+          '易错点 3：没有及时剪枝，搜索量过大。',
+          '延伸方向：组合总和系列、子集问题、回溯剪枝模板。',
+        ],
+      },
+    ],
+  },
 ];
