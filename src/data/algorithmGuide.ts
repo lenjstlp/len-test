@@ -23812,4 +23812,173 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'the-skyline-problem',
+    label: '218. LeetCode 218. 天际线问题',
+    difficulty: '困难',
+    description:
+      '这题是在练扫描线和动态最大值维护。真正关键不是把建筑一段段画出来，而是把所有“高度发生变化的关键位置”抽成事件，再在扫描过程中持续维护当前最高楼。',
+    outcome:
+      '你能掌握天际线问题的扫描线建模方式，理解为什么要把建筑拆成进入事件和离开事件，并能结合最大堆写出标准解法。',
+    sections: [
+      {
+        id: 'the-skyline-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干建筑，每个建筑由左边界、右边界和高度表示，返回由这些建筑共同形成的天际线关键点。',
+        bullets: [
+          '输出的是关键转折点。',
+          '不是返回整段连续曲线。',
+          '多个建筑可能重叠覆盖。',
+          '本质是高度轮廓变化检测。',
+        ],
+      },
+      {
+        id: 'the-skyline-problem-events',
+        title: '最关键的建模，是把每栋建筑拆成“进入”和“离开”两个事件',
+        summary:
+          '天际线只会在建筑开始或结束的位置发生变化，因此没必要逐单位扫描整条 x 轴。更高效的方式，是把每栋建筑转成两个关键事件：左边界表示一种高度进入，右边界表示一种高度离开。',
+        bullets: [
+          '变化只发生在边界点。',
+          '进入和离开决定高度集合变化。',
+          '扫描线的核心就是按事件推进。',
+          '这是把几何题转成序列处理题的关键。',
+        ],
+      },
+      {
+        id: 'the-skyline-problem-max-height',
+        title: '扫描过程中真正要维护的，是“当前覆盖到这里的最高高度”',
+        summary:
+          '当扫描线从左往右移动时，会有建筑加入当前活跃集合，也会有建筑离开。每走到一个事件点，都要知道此刻活跃建筑里的最大高度，因为它决定了当前天际线的垂直位置。',
+        bullets: [
+          '活跃集合表示当前仍覆盖扫描线的建筑。',
+          '最大高度决定当前轮廓高度。',
+          '高度变化才会产生新的关键点。',
+          '这是数据结构选择的直接依据。',
+        ],
+      },
+      {
+        id: 'the-skyline-problem-heap',
+        title: '最大堆适合维护当前最高楼，但离开的建筑需要懒删除处理',
+        summary:
+          '进入事件可以直接把建筑高度和右边界加入最大堆。离开时，不一定能在堆中 O(log n) 精确删除某一项，因此常见做法是懒删除：在扫描到新位置时，把所有右边界已经不再覆盖当前位置的堆顶元素不断弹出。',
+        bullets: [
+          '堆顶始终尝试表示当前最高楼。',
+          '过期建筑通过懒删除清理。',
+          '右边界决定建筑何时失效。',
+          '这是扫描线题里的常见堆技巧。',
+        ],
+        callout:
+          '困难题往往不是难在代码长，而是难在你能不能把“动态变化的全局状态”提炼成一个合适的数据结构。天际线的那个状态，就是当前活跃建筑的最高高度。',
+      },
+      {
+        id: 'the-skyline-problem-solution',
+        title: '标准解法：事件排序加最大堆维护活跃建筑',
+        summary:
+          '先把每栋建筑拆成左边界进入事件和右边界离开事件，并按横坐标排序处理。扫描时，把新进入的建筑压入最大堆，再不断弹出已经失效的堆顶建筑。若当前最大高度与上一个关键点高度不同，就记录一个新关键点。',
+        bullets: [
+          '时间复杂度通常是 `O(n log n)`。',
+          '核心数据结构是排序后的事件和最大堆。',
+          '高度变化才输出关键点。',
+          '是这题最经典的标准方案。',
+        ],
+        code: `function getSkyline(buildings: number[][]): number[][] {
+  const events: [number, number, number][] = []
+
+  for (const [left, right, height] of buildings) {
+    events.push([left, -height, right])
+    events.push([right, 0, 0])
+  }
+
+  events.sort((a, b) => {
+    if (a[0] !== b[0]) {
+      return a[0] - b[0]
+    }
+
+    return a[1] - b[1]
+  })
+
+  const heap: [number, number][] = [[0, Number.POSITIVE_INFINITY]]
+  const result: number[][] = []
+
+  const heapPush = (item: [number, number]) => {
+    heap.push(item)
+    let index = heap.length - 1
+
+    while (index > 1) {
+      const parent = Math.floor(index / 2)
+
+      if (heap[parent][0] >= heap[index][0]) {
+        break
+      }
+
+      ;[heap[parent], heap[index]] = [heap[index], heap[parent]]
+      index = parent
+    }
+  }
+
+  const heapPop = () => {
+    heap[1] = heap[heap.length - 1]
+    heap.pop()
+    let index = 1
+
+    while (true) {
+      let largest = index
+      const left = index * 2
+      const right = left + 1
+
+      if (left < heap.length && heap[left][0] > heap[largest][0]) {
+        largest = left
+      }
+
+      if (right < heap.length && heap[right][0] > heap[largest][0]) {
+        largest = right
+      }
+
+      if (largest === index) {
+        break
+      }
+
+      ;[heap[index], heap[largest]] = [heap[largest], heap[index]]
+      index = largest
+    }
+  }
+
+  heap.length = 1
+  heap[0] = [0, Number.POSITIVE_INFINITY]
+  heapPush([0, Number.POSITIVE_INFINITY])
+
+  for (const [x, negativeHeight, right] of events) {
+    while (heap.length > 1 && heap[1][1] <= x) {
+      heapPop()
+    }
+
+    if (negativeHeight !== 0) {
+      heapPush([-negativeHeight, right])
+    }
+
+    const currentHeight = heap[1][0]
+
+    if (result.length === 0 || result[result.length - 1][1] !== currentHeight) {
+      result.push([x, currentHeight])
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'the-skyline-problem-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有把事件统一排序处理，导致重叠区间顺序混乱；或者堆里过期建筑没有及时清理，结果当前最高高度判断错误。',
+        bullets: [
+          '易错点 1：事件排序规则写错。',
+          '易错点 2：堆中过期建筑未懒删除。',
+          '易错点 3：高度没变时仍重复输出关键点。',
+          '延伸方向：扫描线、区间并集、动态最大值维护题。',
+        ],
+      },
+    ],
+  },
 ];
