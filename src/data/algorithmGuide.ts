@@ -23981,4 +23981,104 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'contains-duplicate-ii',
+    label: '219. LeetCode 219. 存在重复元素 II',
+    difficulty: '简单',
+    description:
+      '这题是在普通判重上再加一个索引距离约束。真正关键不是只判断值是否重复，而是同时记住这个值上一次出现的位置，看距离是否在 `k` 之内。',
+    outcome:
+      '你能掌握带位置约束的哈希判重思路，理解为什么要记录最近一次出现下标，并能写出线性时间的一遍扫描解法。',
+    sections: [
+      {
+        id: 'contains-duplicate-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组和整数 `k`，判断是否存在两个不同下标 `i`、`j`，满足 `nums[i] === nums[j]` 且 `|i - j| <= k`。',
+        bullets: [
+          '不仅要求值相同。',
+          '还要求下标距离不超过 `k`。',
+          '存在任意一对即可返回 `true`。',
+          '本质是带索引约束的判重。',
+        ],
+      },
+      {
+        id: 'contains-duplicate-ii-last-index',
+        title: '和上一题相比，新增的信息只有一个：这个值上次出现在哪里',
+        summary:
+          '如果当前值以前没出现过，那当然不能构成答案；如果出现过，就只需要看它最近一次出现的位置与当前下标的差值是否不超过 `k`。因此记录“最近一次下标”就足够了。',
+        bullets: [
+          '只记录最近位置即可。',
+          '更早的位置没有最近位置更有用。',
+          '状态依然非常紧凑。',
+          '这让题目仍能在线性时间解决。',
+        ],
+      },
+      {
+        id: 'contains-duplicate-ii-why-latest',
+        title: '为什么只保留最近一次出现位置就够了',
+        summary:
+          '假设某个值出现过多次，那么离当前下标最近的那次出现，最有可能满足距离限制。如果最近的一次都超过了 `k`，更早的那些位置只会更远，因此不可能更优。',
+        bullets: [
+          '最近位置总是最有希望命中约束。',
+          '更早位置不会提供更小距离。',
+          '这就是可以覆盖更新的原因。',
+          '是状态压缩背后的逻辑依据。',
+        ],
+      },
+      {
+        id: 'contains-duplicate-ii-hash',
+        title: '哈希表最适合做“值 -> 最近下标”的映射',
+        summary:
+          '遍历数组时，用哈希表把每个值映射到它最近一次出现的下标。每遇到一个值，就先检查哈希表中是否已有记录并计算距离，随后更新为当前位置。',
+        bullets: [
+          '查找和值更新都很直接。',
+          '遍历过程天然是一遍流式处理。',
+          '满足条件可立即返回。',
+          '是最简洁的标准方案。',
+        ],
+        callout:
+          '很多简单哈希题真正想练的，是你能不能在原题基础上补足“还差哪一个状态”。这题从“值是否见过”升级到“值最近在哪里见过”，就是典型的状态升级。',
+      },
+      {
+        id: 'contains-duplicate-ii-solution',
+        title: '标准解法：哈希表记录最近出现下标',
+        summary:
+          '创建一个映射表，键是数组值，值是该值最近一次出现的下标。遍历数组时，若当前值已在表中且当前下标与上次下标差不超过 `k`，则返回 `true`；否则更新其最近位置。遍历完成仍未命中则返回 `false`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '写法短，逻辑非常直接。',
+          '是这题最推荐的标准答案。',
+        ],
+        code: `function containsNearbyDuplicate(nums: number[], k: number): boolean {
+  const lastIndex = new Map<number, number>()
+
+  for (let index = 0; index < nums.length; index += 1) {
+    const value = nums[index]
+
+    if (lastIndex.has(value) && index - lastIndex.get(value)! <= k) {
+      return true
+    }
+
+    lastIndex.set(value, index)
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'contains-duplicate-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是发现重复值后不比较索引距离，直接返回 `true`；或者记录了某个值第一次出现的位置却不更新，导致错过更近的合法配对。',
+        bullets: [
+          '易错点 1：只判重不判距离。',
+          '易错点 2：没有更新最近出现位置。',
+          '易错点 3：把绝对值距离问题想复杂。',
+          '延伸方向：滑动窗口去重、存在重复元素 III、索引约束哈希题。',
+        ],
+      },
+    ],
+  },
 ];
