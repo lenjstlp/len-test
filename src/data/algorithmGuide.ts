@@ -23482,4 +23482,125 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'kth-largest-element-in-an-array',
+    label: '215. LeetCode 215. 数组中的第K个最大元素',
+    difficulty: '中等',
+    description:
+      '这题是在练选择问题。真正关键不是把整个数组完全排好序，而是只定位第 `k` 大元素所在的位置，用部分有序就解决问题。',
+    outcome:
+      '你能掌握用堆或快速选择求第 `k` 大元素的思路，理解为什么完整排序在这里是过度工作，并能写出高效的快速选择解法。',
+    sections: [
+      {
+        id: 'kth-largest-element-in-an-array-summary',
+        title: '题目在问什么',
+        summary: '给定一个无序数组和整数 `k`，返回数组中第 `k` 大的元素。',
+        bullets: [
+          '求的是排序后第 `k` 大的值。',
+          '不要求返回完整排序结果。',
+          '允许数组中存在重复值。',
+          '本质是选择问题而不是排序问题。',
+        ],
+      },
+      {
+        id: 'kth-largest-element-in-an-array-sort',
+        title: '完整排序当然能做，但它做了很多题目并不需要的工作',
+        summary:
+          '如果把整个数组排好序，再取第 `k` 大，思路很直观，但你其实只关心一个位置的元素。那些和答案无关的相对顺序，都是多做的工作。',
+        bullets: [
+          '排序能解，但不是最精炼的思路。',
+          '我们只需要一个目标位置。',
+          '这类题更适合用选择算法。',
+          '要学会识别“部分有序即可”的场景。',
+        ],
+      },
+      {
+        id: 'kth-largest-element-in-an-array-partition',
+        title: '快速选择的核心，是一次分区后就能确定目标在哪一侧',
+        summary:
+          '和快速排序一样，先选一个基准，把数组分成比它小和比它大的两边。分区完成后，基准的最终位置就确定了。若这个位置恰好是目标位置，答案直接找到；否则只需要继续在目标所在的一侧递归或迭代。',
+        bullets: [
+          '一次分区会固定一个元素的最终位置。',
+          '另一侧元素可以完全忽略。',
+          '这就是选择比排序更高效的原因。',
+          '关键是会把第 `k` 大转成目标下标问题。',
+        ],
+      },
+      {
+        id: 'kth-largest-element-in-an-array-index',
+        title: '第 `k` 大常常先转成升序下标 `n - k` 来处理',
+        summary:
+          '如果按升序分区逻辑来写，第 `k` 大元素在数组中的目标下标其实是 `nums.length - k`。这样你就能直接沿用常见的快速选择模板，而不用反着想比较方向。',
+        bullets: [
+          '目标下标转换能统一思路。',
+          '升序模板更容易复用。',
+          '避免在比较逻辑上来回翻转。',
+          '这是实现层面的常用技巧。',
+        ],
+        callout:
+          '很多数组题真正考的不是代码量，而是你能不能先把目标翻译成“我到底要找哪个位置”。一旦位置定义清楚，后面的模板就很顺。',
+      },
+      {
+        id: 'kth-largest-element-in-an-array-solution',
+        title: '标准解法：快速选择定位目标下标',
+        summary:
+          '把第 `k` 大转成目标下标 `n - k`。然后不断分区：若基准位置小于目标下标，就去右边继续找；若大于目标下标，就去左边；若相等，直接返回该位置元素。',
+        bullets: [
+          '平均时间复杂度是 `O(n)`。',
+          '最坏情况是 `O(n^2)`。',
+          '空间复杂度可做到 `O(1)` 额外空间。',
+          '是这题最常见的高效解法。',
+        ],
+        code: `function findKthLargest(nums: number[], k: number): number {
+  const target = nums.length - k
+
+  const partition = (left: number, right: number): number => {
+    const pivot = nums[right]
+    let storeIndex = left
+
+    for (let index = left; index < right; index += 1) {
+      if (nums[index] < pivot) {
+        ;[nums[storeIndex], nums[index]] = [nums[index], nums[storeIndex]]
+        storeIndex += 1
+      }
+    }
+
+    ;[nums[storeIndex], nums[right]] = [nums[right], nums[storeIndex]]
+    return storeIndex
+  }
+
+  let left = 0
+  let right = nums.length - 1
+
+  while (left <= right) {
+    const pivotIndex = partition(left, right)
+
+    if (pivotIndex === target) {
+      return nums[pivotIndex]
+    }
+
+    if (pivotIndex < target) {
+      left = pivotIndex + 1
+    } else {
+      right = pivotIndex - 1
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'kth-largest-element-in-an-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把第 `k` 大和第 `k` 小的下标关系搞混；或者分区后没有只进入一侧，结果又退化回快速排序的全量递归。',
+        bullets: [
+          '易错点 1：目标下标算错。',
+          '易错点 2：分区比较方向写反。',
+          '易错点 3：忘了只在一侧继续查找。',
+          '延伸方向：Top K、最小堆、快速选择模板题。',
+        ],
+      },
+    ],
+  },
 ];
