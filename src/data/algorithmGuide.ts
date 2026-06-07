@@ -23268,4 +23268,109 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'house-robber-ii',
+    label: '213. LeetCode 213. 打家劫舍 II',
+    difficulty: '中等',
+    description:
+      '这题是在上一题线性 DP 的基础上加入环形约束。真正关键不是重新发明一套状态，而是看出首尾相邻会让问题拆成两个互斥的线性子问题。',
+    outcome:
+      '你能掌握环形数组上的状态拆分思路，理解为什么要分成“偷第一家”和“不偷第一家”对应的两个区间，并能复用打家劫舍 I 的模板解题。',
+    sections: [
+      {
+        id: 'house-robber-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一圈房屋，每间房都有金额，相邻房屋不能同时偷，求不触发警报时的最大收益。',
+        bullets: [
+          '房屋排列成环。',
+          '首尾两家也算相邻。',
+          '目标仍是最大收益。',
+          '本质是环形版本的打家劫舍。',
+        ],
+      },
+      {
+        id: 'house-robber-ii-ring',
+        title: '环形约束真正新增的麻烦，是第一家和最后一家不能同时选',
+        summary:
+          '在线性版本里，首尾互不影响；但一旦成环，第一家和最后一家之间多出一条相邻约束。因此不能再直接套用一维 DP，而要先处理这组冲突。',
+        bullets: [
+          '新增冲突只发生在首尾之间。',
+          '中间部分的结构并没有改变。',
+          '核心难点是如何消掉这条环边。',
+          '这是从线性问题转成环形问题的典型手法。',
+        ],
+      },
+      {
+        id: 'house-robber-ii-split',
+        title: '最自然的拆法，是把环拆成两个线性区间',
+        summary:
+          '因为首尾不能同时偷，所以合法方案一定落在两类情况之一：要么不考虑最后一家，只在 `[0, n-2]` 里做线性打家劫舍；要么不考虑第一家，只在 `[1, n-1]` 里做。两者取最大即可。',
+        bullets: [
+          '两个子问题互斥但覆盖全部合法方案。',
+          '每个子问题都退化成线性版本。',
+          '能直接复用上一题模板。',
+          '这是这题最关键的拆分思路。',
+        ],
+      },
+      {
+        id: 'house-robber-ii-reuse',
+        title: '拆开之后，不要重写新 DP，直接复用线性打家劫舍函数',
+        summary:
+          '一旦区间固定成线性结构，状态转移和上一题完全一样。工程上最稳的做法，是抽一个“求线性区间最优值”的函数，让主函数只负责首尾拆分和特殊边界处理。',
+        bullets: [
+          '复用能降低出错概率。',
+          '主函数只处理环形逻辑。',
+          '子函数负责线性 DP。',
+          '结构清晰，便于讲解。',
+        ],
+        callout:
+          '很多看似“新题”的难点，其实不在新算法，而在于能不能把新约束剥离掉，再退回你已经会的模板。这题就是很典型的例子。',
+      },
+      {
+        id: 'house-robber-ii-solution',
+        title: '标准解法：拆成两个线性区间后分别求最优',
+        summary:
+          '先处理房屋数量为 1 的特殊情况。否则定义一个线性打家劫舍函数，分别计算 `[0, n-2]` 和 `[1, n-1]` 两段区间的最大收益，最终返回两者较大值。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '核心是区间拆分而不是新状态。',
+          '是环形 DP 题的经典套路。',
+        ],
+        code: `function rob(nums: number[]): number {
+  if (nums.length === 1) {
+    return nums[0]
+  }
+
+  const robRange = (start: number, end: number): number => {
+    let prevTwo = 0
+    let prevOne = 0
+
+    for (let index = start; index <= end; index += 1) {
+      const current = Math.max(prevOne, prevTwo + nums[index])
+      prevTwo = prevOne
+      prevOne = current
+    }
+
+    return prevOne
+  }
+
+  return Math.max(robRange(0, nums.length - 2), robRange(1, nums.length - 1))
+}`,
+      },
+      {
+        id: 'house-robber-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忘记首尾相邻这一条环形约束，直接套上线性模板；或者拆分区间时边界写错，漏掉了某一端的合法方案。',
+        bullets: [
+          '易错点 1：把环形题直接当线性题做。',
+          '易错点 2：区间边界写成 `[0, n-1]` 和 `[1, n-2]`。',
+          '易错点 3：漏掉只有 1 间房的特殊情况。',
+          '延伸方向：环形 DP、树形打家劫舍、状态拆分题。',
+        ],
+      },
+    ],
+  },
 ];
