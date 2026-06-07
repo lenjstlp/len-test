@@ -23373,4 +23373,113 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'shortest-palindrome',
+    label: '214. LeetCode 214. 最短回文串',
+    difficulty: '困难',
+    description:
+      '这题是在练字符串前缀匹配。真正关键不是从中间乱试回文，而是找到“以首字符开头的最长回文前缀”，剩下的后缀反转后补到前面即可。',
+    outcome:
+      '你能掌握最短回文串的构造核心，理解为什么问题会收敛成“最长回文前缀”查找，并能写出基于 KMP 前缀函数的高效解法。',
+    sections: [
+      {
+        id: 'shortest-palindrome-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串，只允许在它前面添加字符，返回能构成回文串的最短结果。',
+        bullets: [
+          '只能在前面补字符。',
+          '目标是得到最短回文串。',
+          '原字符串必须完整保留在后部。',
+          '本质是最小前缀补全构造。',
+        ],
+      },
+      {
+        id: 'shortest-palindrome-prefix',
+        title: '题目真正等价于：找出最长回文前缀',
+        summary:
+          '因为只能往前面补字符，所以原字符串的某个前缀必须原样成为结果回文的前半部分。能保留下来最多的，显然是“从开头开始的最长回文前缀”。其余后缀只能被镜像补回前面。',
+        bullets: [
+          '只能前补意味着必须保住原前缀结构。',
+          '最长回文前缀越长，需要补的字符越少。',
+          '后缀部分要被反转补到前面。',
+          '这是整道题的核心化简。',
+        ],
+      },
+      {
+        id: 'shortest-palindrome-kmp',
+        title: '高效关键在于，用 KMP 前缀函数找“原串与反串”的最长公共前后缀',
+        summary:
+          '把字符串记为 `s`，再构造 `s + # + reverse(s)`。在这个新串上计算前缀函数，最后一个值就对应 `s` 的最长回文前缀长度。这样能在线性时间内完成查找。',
+        bullets: [
+          '拼接串把回文前缀问题转成前后缀匹配。',
+          '`#` 用来阻断跨边界误匹配。',
+          '前缀函数能线性求解最长匹配长度。',
+          '这是这题最经典的高效做法。',
+        ],
+      },
+      {
+        id: 'shortest-palindrome-build',
+        title: '找到最长回文前缀后，构造答案其实非常直接',
+        summary:
+          '设最长回文前缀长度为 `L`，那么剩余后缀是 `s[L:]`。只要把这段后缀反转，再拼到原字符串前面，就得到最短回文串，因为我们已经最大化了保留下来的前缀长度。',
+        bullets: [
+          '后缀就是必须补回去的部分。',
+          '补法是简单镜像反转。',
+          '构造步骤本身不难。',
+          '难点在于准确找到 `L`。',
+        ],
+        callout:
+          '很多字符串构造题最后的“拼结果”都不难，真正拉开差距的，是能不能先把问题压缩成一个可高效求解的核心量。这题里那个核心量就是最长回文前缀长度。',
+      },
+      {
+        id: 'shortest-palindrome-solution',
+        title: '标准解法：KMP 求最长回文前缀，再反转后缀前插',
+        summary:
+          '先求字符串反转结果，构造 `s + # + reversed`，在其上计算前缀函数，得到最长回文前缀长度。然后把原串剩余后缀反转后拼到前面，形成最短回文串。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '是这题最主流的高效解法。',
+          '适合顺手复习 KMP 前缀函数。',
+        ],
+        code: `function shortestPalindrome(s: string): string {
+  const reversed = s.split('').reverse().join('')
+  const combined = \`\${s}#\${reversed}\`
+  const lps = Array(combined.length).fill(0)
+
+  for (let index = 1; index < combined.length; index += 1) {
+    let length = lps[index - 1]
+
+    while (length > 0 && combined[index] !== combined[length]) {
+      length = lps[length - 1]
+    }
+
+    if (combined[index] === combined[length]) {
+      length += 1
+    }
+
+    lps[index] = length
+  }
+
+  const longestPrefixLength = lps[lps.length - 1]
+  const suffix = s.slice(longestPrefixLength)
+
+  return suffix.split('').reverse().join('') + s
+}`,
+      },
+      {
+        id: 'shortest-palindrome-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是去找任意最长回文子串，而不是最长回文前缀；或者知道要用 KMP，却没理解拼接串为什么能对应回文前缀匹配。',
+        bullets: [
+          '易错点 1：把目标错做成最长回文子串。',
+          '易错点 2：拼接串边界分隔符漏掉。',
+          '易错点 3：前缀函数含义没有真正理解。',
+          '延伸方向：KMP、回文构造、Manacher 对比题。',
+        ],
+      },
+    ],
+  },
 ];
