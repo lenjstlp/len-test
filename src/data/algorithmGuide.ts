@@ -24081,4 +24081,147 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'contains-duplicate-iii',
+    label: '220. LeetCode 220. 存在重复元素 III',
+    difficulty: '困难',
+    description:
+      '这题是在“重复元素 II”的基础上再加入数值差约束。真正关键不是只记最近位置，而是要在一个长度受限的滑动窗口里，快速判断是否存在与当前值足够接近的数字。',
+    outcome:
+      '你能掌握这题的桶划分思路，理解为什么同桶或相邻桶就足以覆盖 `t` 范围判断，并能写出线性时间的滑动窗口解法。',
+    sections: [
+      {
+        id: 'contains-duplicate-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组，以及整数 `indexDiff` 和 `valueDiff`，判断是否存在两个不同下标 `i`、`j`，满足 `|i - j| <= indexDiff` 且 `|nums[i] - nums[j]| <= valueDiff`。',
+        bullets: [
+          '同时有下标距离约束。',
+          '同时有数值差约束。',
+          '只要存在一对满足条件即可。',
+          '本质是窗口内近邻搜索问题。',
+        ],
+      },
+      {
+        id: 'contains-duplicate-iii-window',
+        title: '先抓住第一层约束：只需要关心长度不超过 `indexDiff` 的滑动窗口',
+        summary:
+          '因为题目要求下标差不超过 `indexDiff`，所以当你扫描到当前位置时，只需要和前面最近的 `indexDiff` 个元素比较。更早的元素即使数值再接近，也已经不合法。',
+        bullets: [
+          '下标约束天然对应滑动窗口。',
+          '窗口外元素可以直接丢弃。',
+          '这是搜索范围收缩的第一步。',
+          '没有必要全局比较所有元素。',
+        ],
+      },
+      {
+        id: 'contains-duplicate-iii-bucket',
+        title: '数值差约束的高效处理方式，是按桶宽 `valueDiff + 1` 做分桶',
+        summary:
+          '如果两个数的差值不超过 `valueDiff`，那么它们要么落在同一个桶里，要么落在相邻桶里。只要把桶宽设为 `valueDiff + 1`，同一桶内就绝不可能容纳两个差值大于 `valueDiff` 的合法候选。',
+        bullets: [
+          '桶宽设计直接服务于数值差判断。',
+          '同桶必然足够接近。',
+          '跨得更远的桶一定不可能满足约束。',
+          '这是把“近邻搜索”降成常数检查的关键。',
+        ],
+      },
+      {
+        id: 'contains-duplicate-iii-neighbor-buckets',
+        title: '为什么只检查当前桶和左右相邻桶就够了',
+        summary:
+          '当前数所在桶如果已有元素，那么两者差值一定不超过 `valueDiff`。若当前桶为空，仍可能和左邻桶或右邻桶中的边界元素足够接近；但再远的桶之间，最小差值都已经超过 `valueDiff`，无需再看。',
+        bullets: [
+          '同桶是直接命中。',
+          '邻桶用于覆盖边界跨桶情况。',
+          '更远的桶天然不合法。',
+          '这就是检查范围只剩 3 个桶的原因。',
+        ],
+      },
+      {
+        id: 'contains-duplicate-iii-slide',
+        title: '窗口右移时，要同步删除已经滑出 `indexDiff` 范围的旧元素桶',
+        summary:
+          '桶方法只在“当前哈希表里保存的都是合法窗口元素”这个前提下才成立。因此每次下标前进后，如果窗口大小超过 `indexDiff`，就必须把最左边那个旧元素对应的桶记录删掉。',
+        bullets: [
+          '桶表必须始终与窗口同步。',
+          '删除过期元素是下标约束成立的保障。',
+          '否则会误把过远元素当成合法匹配。',
+          '这是实现里最容易漏掉的地方。',
+        ],
+        callout:
+          '这类“双重约束题”最容易乱的地方，是只盯着某一个条件。真正稳的做法，是先让一个结构负责窗口范围，再让另一个结构负责数值接近，职责分开后思路就清楚了。',
+      },
+      {
+        id: 'contains-duplicate-iii-solution',
+        title: '标准解法：滑动窗口加桶映射',
+        summary:
+          '设桶宽为 `valueDiff + 1`。遍历数组时，先计算当前值所在桶编号；如果当前桶已存在元素，直接返回 `true`；否则检查左右相邻桶中的元素是否与当前值差不超过 `valueDiff`。完成检查后把当前值放入桶中，并在窗口超出 `indexDiff` 时删除最旧元素所在桶。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(min(n, indexDiff))`。',
+          '是这题最经典的高效解法。',
+          '核心在桶宽设计与过期删除。',
+        ],
+        code: `function containsNearbyAlmostDuplicate(
+  nums: number[],
+  indexDiff: number,
+  valueDiff: number,
+): boolean {
+  if (indexDiff < 1 || valueDiff < 0) {
+    return false
+  }
+
+  const bucketSize = valueDiff + 1
+  const buckets = new Map<number, number>()
+
+  const getBucketId = (value: number): number => {
+    return value >= 0
+      ? Math.floor(value / bucketSize)
+      : Math.floor((value + 1) / bucketSize) - 1
+  }
+
+  for (let index = 0; index < nums.length; index += 1) {
+    const value = nums[index]
+    const bucketId = getBucketId(value)
+
+    if (buckets.has(bucketId)) {
+      return true
+    }
+
+    const left = buckets.get(bucketId - 1)
+    if (left !== undefined && Math.abs(value - left) <= valueDiff) {
+      return true
+    }
+
+    const right = buckets.get(bucketId + 1)
+    if (right !== undefined && Math.abs(value - right) <= valueDiff) {
+      return true
+    }
+
+    buckets.set(bucketId, value)
+
+    if (index >= indexDiff) {
+      const expiredBucketId = getBucketId(nums[index - indexDiff])
+      buckets.delete(expiredBucketId)
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'contains-duplicate-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是桶宽设错导致同桶不再代表合法差值；或者窗口滑动时没有及时删除过期元素，结果把下标差超限的数字也算进去了。',
+        bullets: [
+          '易错点 1：桶宽不是 `valueDiff + 1`。',
+          '易错点 2：负数桶编号处理错误。',
+          '易错点 3：窗口超限后没有删除旧桶。',
+          '延伸方向：有序集合解法、滑动窗口近邻搜索、哈希分桶技巧。',
+        ],
+      },
+    ],
+  },
 ];
