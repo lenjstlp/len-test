@@ -24224,4 +24224,116 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'maximal-square',
+    label: '221. LeetCode 221. 最大正方形',
+    difficulty: '中等',
+    description:
+      '这题是在练二维 DP 的状态延续。真正关键不是对每个点向四周暴力扩正方形，而是把“以当前位置为右下角的最大正方形边长”递推出来。',
+    outcome:
+      '你能掌握二维网格上的 DP 状态设计，理解为什么当前位置的正方形边长由上、左、左上三个方向共同决定，并能写出标准解法。',
+    sections: [
+      {
+        id: 'maximal-square-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0` 和 `1` 的矩阵，找出只由 `1` 组成的最大正方形，并返回其面积。',
+        bullets: [
+          '目标是最大正方形，不是最大矩形。',
+          '正方形内部必须全是 `1`。',
+          '返回的是面积，不是边长。',
+          '本质是网格上的最优子结构问题。',
+        ],
+      },
+      {
+        id: 'maximal-square-state',
+        title: '最自然的状态，是“以当前格子为右下角的最大正方形边长”',
+        summary:
+          '如果直接问“当前位置能不能扩成多大的正方形”，那它天然依赖左边、上边和左上角的连续结构。因此把 `dp[row][col]` 定义成“以当前格子结尾的最大正方形边长”，状态就会非常自然。',
+        bullets: [
+          '右下角定位能把问题局部化。',
+          '状态定义直接服务于转移。',
+          '二维 DP 常用“以当前点结尾”的方式建模。',
+          '理解状态比记公式更重要。',
+        ],
+      },
+      {
+        id: 'maximal-square-transition',
+        title: '当前位置想形成更大正方形，三个方向必须同时够大',
+        summary:
+          '如果当前格子是 `1`，它能形成的最大边长取决于上方、左方和左上方三个位置能形成的最大正方形。因为缺任何一角，正方形都无法完整扩展，所以转移是三者最小值再加 1。',
+        bullets: [
+          '上、左、左上缺一不可。',
+          '取最小值体现“短板决定上限”。',
+          '当前格子为 `0` 时状态直接为 0。',
+          '这是这题最核心的转移逻辑。',
+        ],
+      },
+      {
+        id: 'maximal-square-why-min',
+        title: '为什么不是取最大值，而一定要取最小值',
+        summary:
+          '正方形需要三个方向同时支撑同样的边长。哪怕左边能扩到 4、上边能扩到 4，但左上角只能扩到 2，那么当前点最多也只能形成边长 3 的正方形。限制来自最弱那一侧。',
+        bullets: [
+          '正方形要求结构完整闭合。',
+          '任何一侧不足都会卡住扩展。',
+          '最小值体现的是共同可行边长。',
+          '这是公式背后的几何含义。',
+        ],
+        callout:
+          '很多 DP 题最难的不是写代码，而是把公式和结构直觉对应起来。你一旦理解了“正方形由最短短板决定”，这个转移就不会再是死记硬背。',
+      },
+      {
+        id: 'maximal-square-solution',
+        title: '标准解法：二维 DP 递推最大边长',
+        summary:
+          '遍历矩阵。若当前格子是 `1`，则 `dp[row][col] = min(上, 左, 左上) + 1`；若是 `0`，状态为 0。遍历过程中持续更新最大边长，最后返回其平方作为面积。',
+        bullets: [
+          '时间复杂度是 `O(mn)`。',
+          '空间复杂度是 `O(mn)`，可优化到一维。',
+          '是网格 DP 的经典题型。',
+          '结果记得返回面积而不是边长。',
+        ],
+        code: `function maximalSquare(matrix: string[][]): number {
+  const rows = matrix.length
+  const columns = matrix[0].length
+  const dp = Array.from({ length: rows }, () => Array(columns).fill(0))
+  let maxSide = 0
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      if (matrix[row][column] === '1') {
+        if (row === 0 || column === 0) {
+          dp[row][column] = 1
+        } else {
+          dp[row][column] =
+            Math.min(
+              dp[row - 1][column],
+              dp[row][column - 1],
+              dp[row - 1][column - 1],
+            ) + 1
+        }
+
+        maxSide = Math.max(maxSide, dp[row][column])
+      }
+    }
+  }
+
+  return maxSide * maxSide
+}`,
+      },
+      {
+        id: 'maximal-square-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它和最大矩形混淆，或者虽然写出了转移公式，却没理解为什么要取三个方向的最小值。',
+        bullets: [
+          '易错点 1：结果返回成边长而不是面积。',
+          '易错点 2：把转移误写成取最大值。',
+          '易错点 3：首行首列边界单独处理不清。',
+          '延伸方向：最大矩形、二维 DP、滚动数组优化。',
+        ],
+      },
+    ],
+  },
 ];
