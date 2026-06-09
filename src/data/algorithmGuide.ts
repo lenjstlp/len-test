@@ -24456,4 +24456,108 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'rectangle-area',
+    label: '223. LeetCode 223. 矩形面积',
+    difficulty: '中等',
+    description:
+      '这题是在练几何面积拆分。真正关键不是分别算两个矩形面积后直接相加，而是意识到重叠部分会被重复计算一次，需要再减掉交集面积。',
+    outcome:
+      '你能掌握平面矩形面积的拆分思路，理解交集宽高如何计算，并能写出简洁稳定的公式解法。',
+    sections: [
+      {
+        id: 'rectangle-area-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个轴对齐矩形的左下角和右上角坐标，返回它们覆盖的总面积。',
+        bullets: [
+          '矩形边与坐标轴平行。',
+          '要求的是并集面积。',
+          '可能重叠，也可能完全分离。',
+          '本质是面积并集计算。',
+        ],
+      },
+      {
+        id: 'rectangle-area-add-minus',
+        title: '最基本的思路，是先相加再减重叠',
+        summary:
+          '两个矩形各自面积很容易算，但若它们有交集，那么交集区域会在“面积 1 + 面积 2”中被重复计算两次，所以最终答案应为两者面积之和减去交集面积。',
+        bullets: [
+          '并集面积 = 面积和 - 交集面积。',
+          '不重叠时交集面积自然为 0。',
+          '这是集合并集题的常见套路。',
+          '关键难点转成“怎么求交集面积”。',
+        ],
+      },
+      {
+        id: 'rectangle-area-overlap',
+        title: '交集宽度和高度，本质上都是“两段区间重叠长度”',
+        summary:
+          '在 x 轴上，交集宽度等于 `min(右边界) - max(左边界)`；在 y 轴上，交集高度等于 `min(上边界) - max(下边界)`。但如果结果为负，说明根本没有重叠，应按 0 处理。',
+        bullets: [
+          'x 方向和 y 方向分别独立处理。',
+          '最小右边界与最大左边界决定重叠段。',
+          '负值表示分离，不是负面积。',
+          '要用 `max(0, overlap)` 压回合法范围。',
+        ],
+      },
+      {
+        id: 'rectangle-area-no-overlap',
+        title: '为什么不重叠时只要把交集宽高压成 0 就够了',
+        summary:
+          '如果两个矩形在某个方向没有重叠，那么那一维的重叠长度会是负数或 0。此时交集面积应为 0，而不是负值。把宽高分别压成不小于 0，就能同时兼容重叠和不重叠两种情况。',
+        bullets: [
+          '交集面积不能出现负数。',
+          '零表示恰好接触或完全分离。',
+          '这种写法能统一所有边界情况。',
+          '是实现上最稳的处理方式。',
+        ],
+        callout:
+          '几何题经常看起来很像画图题，但真正实现时往往只是几条区间关系。把二维问题拆成 x、y 两个一维区间，很多公式会立刻清晰。',
+      },
+      {
+        id: 'rectangle-area-solution',
+        title: '标准解法：矩形面积相加后减去交集',
+        summary:
+          '先分别计算两个矩形面积，再分别求出 x、y 方向的重叠长度，并由此得到交集面积。最后用两矩形面积之和减去交集面积，得到总覆盖面积。',
+        bullets: [
+          '时间复杂度是 `O(1)`。',
+          '空间复杂度是 `O(1)`。',
+          '几何意义直接，代码很短。',
+          '是这题最标准的公式写法。',
+        ],
+        code: `function computeArea(
+  ax1: number,
+  ay1: number,
+  ax2: number,
+  ay2: number,
+  bx1: number,
+  by1: number,
+  bx2: number,
+  by2: number,
+): number {
+  const areaA = (ax2 - ax1) * (ay2 - ay1)
+  const areaB = (bx2 - bx1) * (by2 - by1)
+
+  const overlapWidth = Math.max(0, Math.min(ax2, bx2) - Math.max(ax1, bx1))
+  const overlapHeight = Math.max(0, Math.min(ay2, by2) - Math.max(ay1, by1))
+  const overlapArea = overlapWidth * overlapHeight
+
+  return areaA + areaB - overlapArea
+}`,
+      },
+      {
+        id: 'rectangle-area-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忘了减去重叠面积，或者计算交集时没有把负重叠长度压成 0，结果在不相交情况下得到错误答案。',
+        bullets: [
+          '易错点 1：面积相加后忘记减重叠。',
+          '易错点 2：重叠宽高为负时没有归零。',
+          '易错点 3：边界接触时误算成有面积重叠。',
+          '延伸方向：矩形并集、扫描线、区间交集几何题。',
+        ],
+      },
+    ],
+  },
 ];
