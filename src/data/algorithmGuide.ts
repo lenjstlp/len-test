@@ -24677,4 +24677,112 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'implement-stack-using-queues',
+    label: '225. LeetCode 225. 用队列实现栈',
+    difficulty: '简单',
+    description:
+      '这题是在练数据结构接口模拟。真正关键不是追求“表面上像栈”，而是搞清楚栈的核心行为是后进先出，然后用队列操作把这个顺序人工调整出来。',
+    outcome:
+      '你能掌握用队列模拟栈的基本思路，理解为什么要通过轮转把最新入队元素挪到队首，并能实现标准接口。',
+    sections: [
+      {
+        id: 'implement-stack-using-queues-summary',
+        title: '题目在问什么',
+        summary:
+          '只使用队列的标准操作，实现一个后进先出行为的栈，支持 `push`、`pop`、`top` 和 `empty`。',
+        bullets: [
+          '底层只能用队列操作。',
+          '对外行为必须像栈。',
+          '关键差异在访问顺序。',
+          '本质是接口行为模拟题。',
+        ],
+      },
+      {
+        id: 'implement-stack-using-queues-core',
+        title: '栈和队列最大的差别，只在“谁先出来”',
+        summary:
+          '队列是先进先出，而栈是后进先出。要想用队列模拟栈，本质上就是要让最新加入的元素，在后续弹出时总能排到最前面。',
+        bullets: [
+          '栈关注最后加入的元素。',
+          '队列默认保留加入顺序。',
+          '模拟的核心就是改造顺序。',
+          '这决定了实现策略。',
+        ],
+      },
+      {
+        id: 'implement-stack-using-queues-rotate',
+        title: '最常见的单队列做法，是每次 `push` 后把前面的元素轮转到后面',
+        summary:
+          '先把新元素正常入队，然后把它前面已经存在的所有元素依次出队再入队一次。这样新元素就会被旋转到队首，后续 `pop` 和 `top` 都能直接取到它。',
+        bullets: [
+          '新元素入队后通过轮转到达队首。',
+          '队首就对应栈顶。',
+          '这样 `pop` 与 `top` 都会变简单。',
+          '是这题最主流的写法。',
+        ],
+      },
+      {
+        id: 'implement-stack-using-queues-tradeoff',
+        title: '这个方案的本质，是把复杂度集中到 `push` 上',
+        summary:
+          '为了让 `pop` 和 `top` 变成直接读取队首，单队列方案把顺序调整工作都放在 `push` 阶段完成。这是一种典型的“提前整理，后续读取更快”的权衡。',
+        bullets: [
+          '`push` 更贵，但 `pop`/`top` 更直接。',
+          '是典型的复杂度分摊选择。',
+          '理解权衡比记实现更重要。',
+          '这也是数据结构设计题的训练点。',
+        ],
+        callout:
+          '数据结构模拟题最值得练的，不是哪种方案更炫，而是你是否清楚：我到底把成本放在了哪个操作上，为什么这样分配是合理的。',
+      },
+      {
+        id: 'implement-stack-using-queues-solution',
+        title: '标准解法：单队列加轮转维护栈顶在队首',
+        summary:
+          '使用一个队列保存数据。执行 `push` 时先入队，再把之前的元素依次出队并重新入队，使新元素移动到队首。这样 `pop` 直接出队、`top` 直接读队首、`empty` 判断队列是否为空即可。',
+        bullets: [
+          '`push` 时间复杂度是 `O(n)`。',
+          '`pop`、`top`、`empty` 都是 `O(1)`。',
+          '代码短且接口语义清晰。',
+          '是这题最常见的标准实现。',
+        ],
+        code: `class MyStack {
+  private queue: number[] = []
+
+  push(x: number): void {
+    this.queue.push(x)
+
+    for (let count = 0; count < this.queue.length - 1; count += 1) {
+      this.queue.push(this.queue.shift()!)
+    }
+  }
+
+  pop(): number {
+    return this.queue.shift()!
+  }
+
+  top(): number {
+    return this.queue[0]
+  }
+
+  empty(): boolean {
+    return this.queue.length === 0
+  }
+}`,
+      },
+      {
+        id: 'implement-stack-using-queues-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是虽然用了队列，却没有在 `push` 后做轮转，结果 `pop` 出来的仍然是最早入队元素，行为其实还是队列而不是栈。',
+        bullets: [
+          '易错点 1：忘记轮转旧元素。',
+          '易错点 2：`top` 读成队尾而不是当前维护好的队首。',
+          '易错点 3：没有想清复杂度集中在哪个操作上。',
+          '延伸方向：用栈实现队列、双端队列模拟、接口行为题。',
+        ],
+      },
+    ],
+  },
 ];
