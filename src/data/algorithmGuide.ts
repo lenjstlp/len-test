@@ -25231,4 +25231,116 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'kth-smallest-element-in-a-bst',
+    label: '230. LeetCode 230. 二叉搜索树中第K小的元素',
+    difficulty: '中等',
+    description:
+      '这题是在练 BST 的有序性质。真正关键不是把所有值取出来再乱序处理，而是利用中序遍历天然升序这一结构，直接在遍历过程中定位第 `k` 个节点。',
+    outcome:
+      '你能掌握二叉搜索树中序遍历与有序性的关系，理解为什么中序访问顺序就是从小到大，并能写出第 `k` 小元素的标准解法。',
+    sections: [
+      {
+        id: 'kth-smallest-element-in-a-bst-summary',
+        title: '题目在问什么',
+        summary: '给定一棵二叉搜索树和整数 `k`，返回其中第 `k` 小的元素值。',
+        bullets: [
+          '树保证是二叉搜索树。',
+          '求的是有序后第 `k` 小。',
+          '不要求输出全部排序结果。',
+          '本质是利用 BST 有序性做定位。',
+        ],
+      },
+      {
+        id: 'kth-smallest-element-in-a-bst-bst',
+        title: 'BST 最重要的性质，是左子树更小、右子树更大',
+        summary:
+          '因为 BST 满足左子树所有节点值都小于根，右子树所有节点值都大于根，所以按“左 -> 根 -> 右”的顺序访问时，节点值会天然从小到大出现。',
+        bullets: [
+          '有序性来自 BST 定义本身。',
+          '左根右就是升序遍历。',
+          '这是中序遍历在 BST 上的特殊价值。',
+          '整题核心都建立在这个性质上。',
+        ],
+      },
+      {
+        id: 'kth-smallest-element-in-a-bst-inorder',
+        title: '中序遍历时，第 `k` 次访问到的节点就是答案',
+        summary:
+          '既然中序遍历结果是升序，那么第 1 次访问到的是最小值，第 2 次访问到的是第二小值，以此类推。因此只要在遍历过程中计数，数到第 `k` 个时就可以返回。',
+        bullets: [
+          '不需要把所有节点都存入数组。',
+          '计数即可完成定位。',
+          '这是“顺序访问直接命中目标”的典型用法。',
+          '比全量收集更节省。',
+        ],
+      },
+      {
+        id: 'kth-smallest-element-in-a-bst-early-stop',
+        title: '这题的优化点在于：一旦找到第 `k` 个，就可以提前停止',
+        summary:
+          '如果只是为了求一个位置，不必坚持走完整棵树。中序遍历计数到第 `k` 个后，答案已经确定，后面的更大元素都不再相关，提前返回会更直接。',
+        bullets: [
+          '目标只是单点定位。',
+          '后续遍历没有信息增益。',
+          '提前停止体现目标意识。',
+          '是实现中很自然的优化。',
+        ],
+        callout:
+          '树题很多时候不是“你会不会遍历”，而是“你知不知道为什么这个遍历顺序正好贴合题目目标”。BST 的中序升序，就是最值得优先想到的结构特征。',
+      },
+      {
+        id: 'kth-smallest-element-in-a-bst-solution',
+        title: '标准解法：中序遍历计数到第 `k` 个节点',
+        summary:
+          '对 BST 做中序遍历，并维护访问计数。每访问一个节点就把计数加 1，当计数等于 `k` 时记录答案并提前结束。由于中序顺序就是升序，所以这一刻访问到的节点值就是第 `k` 小元素。',
+        bullets: [
+          '时间复杂度平均是 `O(H + k)`，最坏 `O(n)`。',
+          '空间复杂度取决于递归栈深度。',
+          '是这题最标准的写法。',
+          '也可用显式栈改成迭代版。',
+        ],
+        code: `function kthSmallest(root: TreeNode | null, k: number): number {
+  let count = 0
+  let answer = 0
+
+  const inorder = (node: TreeNode | null): void => {
+    if (node === null || count >= k) {
+      return
+    }
+
+    inorder(node.left)
+
+    if (count >= k) {
+      return
+    }
+
+    count += 1
+
+    if (count === k) {
+      answer = node.val
+      return
+    }
+
+    inorder(node.right)
+  }
+
+  inorder(root)
+  return answer
+}`,
+      },
+      {
+        id: 'kth-smallest-element-in-a-bst-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是虽然知道 BST 有序，却写成前序或后序遍历；或者把所有值收集完再排序，错过了题目真正想考的结构利用。',
+        bullets: [
+          '易错点 1：遍历顺序写错，不再是升序。',
+          '易错点 2：不会在找到答案后提前停止。',
+          '易错点 3：把结构题做成普通排序题。',
+          '延伸方向：第 K 大元素、BST 迭代器、树的有序遍历题。',
+        ],
+      },
+    ],
+  },
 ];
