@@ -25101,4 +25101,134 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'majority-element-ii',
+    label: '229. LeetCode 229. 多数元素 II',
+    difficulty: '中等',
+    description:
+      '这题是在练 Boyer-Moore 投票法的扩展。真正关键不是用哈希表硬统计，而是利用“出现次数超过 `n/3` 的元素最多只有两个”这个性质，把候选人数量压到两个。',
+    outcome:
+      '你能掌握多数投票法在 `n/3` 场景下的扩展思路，理解为什么候选人最多只有两个，并能写出两轮扫描的标准解法。',
+    sections: [
+      {
+        id: 'majority-element-ii-summary',
+        title: '题目在问什么',
+        summary: '给定整数数组，找出所有出现次数超过 `⌊n / 3⌋` 的元素。',
+        bullets: [
+          '结果可能有 0 个、1 个或 2 个。',
+          '阈值是超过 `n/3`。',
+          '不是只找一个最大频次元素。',
+          '本质是受上界约束的多数候选筛选。',
+        ],
+      },
+      {
+        id: 'majority-element-ii-at-most-two',
+        title: '第一关键结论：出现次数超过 `n/3` 的元素最多只能有两个',
+        summary:
+          '因为如果有三个不同元素都超过 `n/3`，它们的总出现次数就会超过 `n`，这显然不可能。所以这题不需要维护很多候选，只需要关注最多两个可能答案。',
+        bullets: [
+          '上界结论直接决定候选数量。',
+          '这是投票法能扩展到这题的核心前提。',
+          '候选数从无限压到 2。',
+          '先理解这个结论，再看算法才顺。',
+        ],
+      },
+      {
+        id: 'majority-element-ii-vote',
+        title: '投票过程的本质，是让不同元素彼此抵消，保留强势候选',
+        summary:
+          '当当前数字与已有候选不同且两个候选计数都不为 0 时，就同时减少两个计数，相当于当前这个新元素与两个候选各抵消一次。最终能留下来的，才有资格成为真实答案候选。',
+        bullets: [
+          '计数代表当前候选的相对优势。',
+          '不同元素会互相抵消。',
+          '第一轮只能得到候选，不保证一定合法。',
+          '这是投票法的核心直觉。',
+        ],
+      },
+      {
+        id: 'majority-element-ii-verify',
+        title: '为什么必须做第二轮计数验证',
+        summary:
+          '第一轮投票只是在不断抵消中筛掉不可能的元素，留下最多两个候选。但候选并不一定真的超过 `n/3`，所以还要再扫一遍数组，精确统计它们的真实出现次数。',
+        bullets: [
+          '第一轮是筛候选。',
+          '第二轮才是验真伪。',
+          '不能把候选直接当答案。',
+          '这是实现里最容易省错的一步。',
+        ],
+        callout:
+          '投票法这类题最容易让人误以为“最后剩下的就是答案”。其实很多时候最后剩下的只是值得验证的候选，真正严谨的算法必须补上验证环节。',
+      },
+      {
+        id: 'majority-element-ii-solution',
+        title: '标准解法：两候选投票筛选，加一轮验证',
+        summary:
+          '第一轮维护两个候选值和对应计数，按投票法规则进行更新与抵消；第二轮重新统计这两个候选的真实出现次数，最后筛出超过 `⌊n/3⌋` 的元素返回。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '是这题最经典的最优解法。',
+          '适合和 `n/2` 版本一起记忆。',
+        ],
+        code: `function majorityElement(nums: number[]): number[] {
+  let candidate1 = 0
+  let candidate2 = 0
+  let count1 = 0
+  let count2 = 0
+
+  for (const num of nums) {
+    if (count1 > 0 && num === candidate1) {
+      count1 += 1
+    } else if (count2 > 0 && num === candidate2) {
+      count2 += 1
+    } else if (count1 === 0) {
+      candidate1 = num
+      count1 = 1
+    } else if (count2 === 0) {
+      candidate2 = num
+      count2 = 1
+    } else {
+      count1 -= 1
+      count2 -= 1
+    }
+  }
+
+  count1 = 0
+  count2 = 0
+
+  for (const num of nums) {
+    if (num === candidate1) {
+      count1 += 1
+    } else if (num === candidate2) {
+      count2 += 1
+    }
+  }
+
+  const result: number[] = []
+
+  if (count1 > Math.floor(nums.length / 3)) {
+    result.push(candidate1)
+  }
+
+  if (count2 > Math.floor(nums.length / 3)) {
+    result.push(candidate2)
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'majority-element-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是不知道为什么候选只有两个，或者第一轮筛完后不做第二轮验证，直接把候选返回成答案。',
+        bullets: [
+          '易错点 1：没有理解“最多两个”这一上界。',
+          '易错点 2：省略最终验证。',
+          '易错点 3：两个候选更新顺序写乱。',
+          '延伸方向：多数元素 I、Boyer-Moore 投票法、频次上界题。',
+        ],
+      },
+    ],
+  },
 ];
