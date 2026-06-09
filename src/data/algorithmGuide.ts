@@ -24336,4 +24336,124 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'count-complete-tree-nodes',
+    label: '222. LeetCode 222. 完全二叉树的节点个数',
+    difficulty: '简单',
+    description:
+      '这题是在练树结构上的性质利用。真正关键不是老老实实遍历每个节点计数，而是看出完全二叉树中某些子树可能天然就是满二叉树，可以直接用公式算。',
+    outcome:
+      '你能掌握完全二叉树与满二叉树的关系，理解如何通过左右高度判断某棵子树是否已满，并能写出优于普通遍历的解法。',
+    sections: [
+      {
+        id: 'count-complete-tree-nodes-summary',
+        title: '题目在问什么',
+        summary: '给定一棵完全二叉树，返回其中节点的总数。',
+        bullets: [
+          '树保证是完全二叉树。',
+          '目标是统计节点总数。',
+          '题目暗示可利用特殊结构优化。',
+          '本质是树性质判断加递归。',
+        ],
+      },
+      {
+        id: 'count-complete-tree-nodes-complete',
+        title: '完全二叉树的价值，在于它和满二叉树只差“最后一层不满”',
+        summary:
+          '完全二叉树意味着除了最后一层，前面各层都填满，而且最后一层从左往右连续排列。这让很多局部子树在某些情况下其实已经是满二叉树，可以直接公式求节点数。',
+        bullets: [
+          '完全二叉树结构很接近满二叉树。',
+          '差异集中在最后一层。',
+          '局部可能整棵已满。',
+          '优化就来自这个性质。',
+        ],
+      },
+      {
+        id: 'count-complete-tree-nodes-height',
+        title: '判断一棵子树是否满，最常见的方法是比较最左高度和最右高度',
+        summary:
+          '如果一棵树沿左边一路走到底的高度，和沿右边一路走到底的高度相同，那么这棵树一定是满二叉树。因为完全二叉树不可能中间缺洞，只要最右高度也到位，就说明这一层完整填满了。',
+        bullets: [
+          '左高右高相等意味着该子树已满。',
+          '满二叉树节点数可直接公式计算。',
+          '否则说明最后一层仍有缺口。',
+          '这是这题的关键判定技巧。',
+        ],
+      },
+      {
+        id: 'count-complete-tree-nodes-formula',
+        title: '一旦判定为满二叉树，节点数就能直接用 `2^h - 1` 算出',
+        summary:
+          '对于满二叉树，不需要再递归到每个节点。只要知道高度为 `h`，节点数就是 `2^h - 1`。如果当前子树不是满的，再递归统计左右子树即可。',
+        bullets: [
+          '公式替代遍历是性能提升关键。',
+          '只有不满时才继续拆分。',
+          '递归深度明显降低。',
+          '这比普通 DFS 更聪明。',
+        ],
+        callout:
+          '很多树题并不是靠新模板取胜，而是靠你能不能读懂题目给的“特殊树类型”。一旦把完全二叉树的结构优势用起来，复杂度就会明显下降。',
+      },
+      {
+        id: 'count-complete-tree-nodes-solution',
+        title: '标准解法：比较左右高度，满树走公式，否则递归',
+        summary:
+          '对当前根节点，分别计算沿左边走到底的高度和沿右边走到底的高度。若两者相等，直接返回 `2^h - 1`；否则返回 `1 + 左子树节点数 + 右子树节点数`。',
+        bullets: [
+          '时间复杂度优于普通 `O(n)` 遍历。',
+          '核心成本在每层的高度计算。',
+          '是利用完全二叉树性质的经典写法。',
+          '代码不长但思路很有代表性。',
+        ],
+        code: `function countNodes(root: TreeNode | null): number {
+  if (root === null) {
+    return 0
+  }
+
+  const getLeftHeight = (node: TreeNode | null): number => {
+    let height = 0
+
+    while (node !== null) {
+      height += 1
+      node = node.left
+    }
+
+    return height
+  }
+
+  const getRightHeight = (node: TreeNode | null): number => {
+    let height = 0
+
+    while (node !== null) {
+      height += 1
+      node = node.right
+    }
+
+    return height
+  }
+
+  const leftHeight = getLeftHeight(root)
+  const rightHeight = getRightHeight(root)
+
+  if (leftHeight === rightHeight) {
+    return 2 ** leftHeight - 1
+  }
+
+  return 1 + countNodes(root.left) + countNodes(root.right)
+}`,
+      },
+      {
+        id: 'count-complete-tree-nodes-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把完全二叉树和满二叉树概念混淆，或者只会普通遍历计数，没真正利用结构性质做优化。',
+        bullets: [
+          '易错点 1：完全二叉树与满二叉树概念混淆。',
+          '易错点 2：左右高度计算方向写错。',
+          '易错点 3：高度相等时仍然继续递归浪费性能。',
+          '延伸方向：二分定位最后一层、树性质优化题、完全二叉树结构题。',
+        ],
+      },
+    ],
+  },
 ];
