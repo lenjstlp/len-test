@@ -24997,4 +24997,108 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'summary-ranges',
+    label: '228. LeetCode 228. 汇总区间',
+    difficulty: '简单',
+    description:
+      '这题是在练有序数组的连续段分组。真正关键不是逐个数字单独输出，而是把相邻且连续递增 1 的元素压成同一段区间。',
+    outcome:
+      '你能掌握扫描有序数组时的分段思路，理解如何确定每段区间的起点和终点，并能写出简洁稳定的解法。',
+    sections: [
+      {
+        id: 'summary-ranges-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个无重复且升序排列的整数数组，返回最小数量的区间，恰好覆盖数组中的所有数字。',
+        bullets: [
+          '数组已升序且无重复。',
+          '连续数字要合并成区间。',
+          '单个数字单独表示。',
+          '本质是连续段压缩。',
+        ],
+      },
+      {
+        id: 'summary-ranges-segment',
+        title: '核心思路就是：扫描时持续延长当前连续段',
+        summary:
+          '当后一个数字恰好等于前一个数字加 1 时，说明它还属于当前区间；一旦不连续，当前区间就该结束并输出，然后从新数字重新开始下一段。',
+        bullets: [
+          '连续性由相差 1 决定。',
+          '不连续就是分段边界。',
+          '每个数字只会参与一段。',
+          '这是标准的线性分组过程。',
+        ],
+      },
+      {
+        id: 'summary-ranges-start-end',
+        title: '每一段真正需要记录的，只有起点和终点',
+        summary:
+          '因为区间内部所有数字都是连续的，所以中间值不需要逐个保存。只要知道这段从哪里开始、到哪里结束，就能唯一表达整段信息。',
+        bullets: [
+          '起点和终点足以描述整段。',
+          '中间元素不必重复输出。',
+          '这体现了区间压缩思想。',
+          '也是结果格式设计的关键。',
+        ],
+      },
+      {
+        id: 'summary-ranges-format',
+        title: '输出格式的区别只在于：单点还是区间',
+        summary:
+          '如果某一段起点和终点相同，说明这段只有一个数字，直接输出该数字字符串；若不同，则输出 `start->end`。逻辑上先确定一段，再决定它的展示方式。',
+        bullets: [
+          '单元素段单独显示。',
+          '多元素段显示成箭头区间。',
+          '格式判断发生在分段结束时。',
+          '不要边扫边拼接得过早。',
+        ],
+        callout:
+          '很多数组题表面看是字符串输出题，实质上是先把结构分出来。只要“分段”这件事想明白，最后的格式拼接通常都很简单。',
+      },
+      {
+        id: 'summary-ranges-solution',
+        title: '标准解法：双指针或单扫描维护连续段',
+        summary:
+          '从左到右扫描数组，每次把当前位置当作新区间起点，然后持续向右扩展直到不再连续。此时得到一个完整区间，再按单点或范围格式加入答案，继续处理后面的数字。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度不计结果时为 `O(1)`。',
+          '代码很短，但分段思路很典型。',
+          '适合延伸到区间合并类题目。',
+        ],
+        code: `function summaryRanges(nums: number[]): string[] {
+  const result: string[] = []
+  let index = 0
+
+  while (index < nums.length) {
+    const start = nums[index]
+    let end = start
+
+    while (index + 1 < nums.length && nums[index + 1] === nums[index] + 1) {
+      index += 1
+      end = nums[index]
+    }
+
+    result.push(start === end ? String(start) : \`\${start}->\${end}\`)
+    index += 1
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'summary-ranges-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是分段结束条件写错，导致连续区间被截断；或者输出时把单点区间也错误写成了 `x->x`。',
+        bullets: [
+          '易错点 1：连续判断条件写错。',
+          '易错点 2：单点区间格式处理错误。',
+          '易错点 3：扫描结束后漏输出最后一段。',
+          '延伸方向：合并区间、插入区间、数组分段压缩题。',
+        ],
+      },
+    ],
+  },
 ];
