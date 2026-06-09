@@ -24882,4 +24882,119 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'basic-calculator-ii',
+    label: '227. LeetCode 227. 基本计算器 II',
+    difficulty: '中等',
+    description:
+      '这题是在基础表达式解析上加入乘除优先级。真正关键不是等全部读完再统一从左到右算，而是把乘除在当前层立刻折叠，只把加减项留到最后汇总。',
+    outcome:
+      '你能掌握带乘除优先级的线性扫描方法，理解为什么乘除要即时计算、加减可以延后入栈，并能写出标准解法。',
+    sections: [
+      {
+        id: 'basic-calculator-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含非负整数、空格和 `+ - * /` 的字符串表达式，返回其计算结果。',
+        bullets: [
+          '表达式不含括号。',
+          '需要处理乘除优先级。',
+          '整数除法向 0 截断。',
+          '本质是带优先级的线性解析。',
+        ],
+      },
+      {
+        id: 'basic-calculator-ii-priority',
+        title: '这题和基本计算器 I 的最大区别，是乘除不能等到最后统一处理',
+        summary:
+          '加减项可以先分开记录，因为它们优先级相同；但乘除会直接影响当前项的值，所以一旦读到乘除，就必须立即和前一项结合，不能拖到后面再算。',
+        bullets: [
+          '乘除优先级更高。',
+          '加减可以视为项之间的拼接。',
+          '乘除必须在当前项内部立刻结算。',
+          '这决定了解法结构。',
+        ],
+      },
+      {
+        id: 'basic-calculator-ii-stack',
+        title: '最经典的做法，是用栈保存已经确定符号的“项”',
+        summary:
+          '扫描数字时持续构造当前数。每当遇到新运算符，就根据上一个运算符处理当前数：若是 `+` 就把当前数入栈，若是 `-` 就把负数入栈，若是 `*` 或 `/` 就把栈顶与当前数立刻计算后再压回栈顶。',
+        bullets: [
+          '栈里存的是已经处理过乘除的项。',
+          '加减只是决定项的正负。',
+          '乘除通过改写栈顶完成优先级折叠。',
+          '最后把所有项相加即可。',
+        ],
+      },
+      {
+        id: 'basic-calculator-ii-why',
+        title: '为什么最终只需要把栈求和',
+        summary:
+          '因为所有乘除都已经在入栈前和栈顶即时合并完成了，所以栈里不会再残留高优先级运算。剩下的只是带符号的若干项，把它们加起来就是最终答案。',
+        bullets: [
+          '乘除已被提前消化。',
+          '栈中只剩等优先级的加减项。',
+          '求和就等价于完成最后的加减。',
+          '这就是“即时折叠”的价值。',
+        ],
+        callout:
+          '表达式题很多时候不是靠复杂语法分析器取胜，而是靠你能不能把优先级拆成“哪些操作必须立刻处理，哪些可以推迟”。这题非常典型。',
+      },
+      {
+        id: 'basic-calculator-ii-solution',
+        title: '标准解法：线性扫描配合栈即时处理乘除',
+        summary:
+          '维护当前数字和上一个运算符。扫描到运算符或字符串末尾时，根据上一个运算符处理当前数字：加减直接入栈，乘除与栈顶即时运算后回写。遍历结束后，对栈中所有项求和得到答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '是这题最常见的标准写法。',
+          '比先转后缀表达式更直接。',
+        ],
+        code: `function calculate(s: string): number {
+  const stack: number[] = []
+  let number = 0
+  let operator = '+'
+
+  for (let index = 0; index < s.length; index += 1) {
+    const char = s[index]
+
+    if (char >= '0' && char <= '9') {
+      number = number * 10 + Number(char)
+    }
+
+    if ((char !== ' ' && (char < '0' || char > '9')) || index === s.length - 1) {
+      if (operator === '+') {
+        stack.push(number)
+      } else if (operator === '-') {
+        stack.push(-number)
+      } else if (operator === '*') {
+        stack.push(stack.pop()! * number)
+      } else {
+        stack.push(Math.trunc(stack.pop()! / number))
+      }
+
+      operator = char
+      number = 0
+    }
+  }
+
+  return stack.reduce((sum, value) => sum + value, 0)
+}`,
+      },
+      {
+        id: 'basic-calculator-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有在读到乘除时立刻处理，导致优先级错乱；或者整数除法使用了向下取整而不是向 0 截断。',
+        bullets: [
+          '易错点 1：把所有运算都延后，破坏乘除优先级。',
+          '易错点 2：最后一个数字未触发结算。',
+          '易错点 3：除法截断规则写错。',
+          '延伸方向：基本计算器 I/III、逆波兰表达式、表达式求值题。',
+        ],
+      },
+    ],
+  },
 ];
