@@ -24560,4 +24560,121 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'basic-calculator',
+    label: '224. LeetCode 224. 基本计算器',
+    difficulty: '困难',
+    description:
+      '这题是在练表达式解析中的括号与符号上下文。真正关键不是靠 `eval` 或强行拆字符串，而是自己维护当前结果、当前数字和括号前的符号环境。',
+    outcome:
+      '你能掌握只含加减和括号的表达式求值思路，理解为什么括号需要把外层结果和符号压栈保存，并能写出标准栈解法。',
+    sections: [
+      {
+        id: 'basic-calculator-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含数字、空格、加号、减号和括号的合法表达式，返回它的计算结果。',
+        bullets: [
+          '只涉及加减和括号。',
+          '表达式保证合法。',
+          '没有乘除优先级问题。',
+          '本质是带括号的线性解析。',
+        ],
+      },
+      {
+        id: 'basic-calculator-number-sign',
+        title: '最基础的解析状态只有三个：当前数字、当前符号、当前累计结果',
+        summary:
+          '从左到右扫描时，数字需要连续拼出来；遇到加减号时，再把当前数字按已有符号结算进结果，并更新新符号。因此结果、符号、数字是整个线性解析的基本状态。',
+        bullets: [
+          '数字要按位累计构造。',
+          '符号决定数字进结果时的正负。',
+          '结果保存当前层的累计值。',
+          '这是无括号部分的解析骨架。',
+        ],
+      },
+      {
+        id: 'basic-calculator-parentheses',
+        title: '括号的本质，是把当前解析层级暂存起来，先去算内部子表达式',
+        summary:
+          '遇到左括号时，当前结果和当前符号都不能丢，因为括号计算完成后还要接回外层。因此需要把这两个状态压栈保存，然后在括号内部重新开始累计。',
+        bullets: [
+          '括号会开启新的局部计算环境。',
+          '外层结果和符号必须保存。',
+          '内部算完后再回到外层合并。',
+          '这就是栈存在的原因。',
+        ],
+      },
+      {
+        id: 'basic-calculator-pop',
+        title: '右括号出现时，当前层结果要先乘外层符号，再加回外层结果',
+        summary:
+          '括号内部算出的值，不是简单替换，而是一个“整体项”。因此弹栈时，要先取出进入括号前的符号，把当前层结果乘上它，再与进入括号前累计的外层结果相加。',
+        bullets: [
+          '括号内结果是一个整体数值。',
+          '外层符号决定它最终正负。',
+          '外层累计结果决定它最终位置。',
+          '这是很多人第一次写会错的地方。',
+        ],
+        callout:
+          '表达式题真正要学会的，不是某道题的栈模板，而是你要能说清楚：我现在这个结果属于哪一层，遇到括号时到底保存了什么，恢复时又怎样合并回来。',
+      },
+      {
+        id: 'basic-calculator-solution',
+        title: '标准解法：结果、符号、数字配合栈维护括号上下文',
+        summary:
+          '扫描字符串时，数字连续构造；遇到 `+` 或 `-` 就把当前数字按符号结算进结果；遇到 `(` 时把当前结果和符号压栈；遇到 `)` 时先结算括号内部最后一个数字，再弹出外层符号与结果进行合并。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`，主要来自括号栈。',
+          '是这题最标准的解析写法。',
+          '结构适合继续扩展到更复杂表达式。',
+        ],
+        code: `function calculate(s: string): number {
+  let result = 0
+  let number = 0
+  let sign = 1
+  const stack: number[] = []
+
+  for (const char of s) {
+    if (char >= '0' && char <= '9') {
+      number = number * 10 + Number(char)
+    } else if (char === '+') {
+      result += sign * number
+      number = 0
+      sign = 1
+    } else if (char === '-') {
+      result += sign * number
+      number = 0
+      sign = -1
+    } else if (char === '(') {
+      stack.push(result)
+      stack.push(sign)
+      result = 0
+      sign = 1
+    } else if (char === ')') {
+      result += sign * number
+      number = 0
+      result *= stack.pop()!
+      result += stack.pop()!
+    }
+  }
+
+  return result + sign * number
+}`,
+      },
+      {
+        id: 'basic-calculator-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是括号结束时没有先结算当前数字，或者压栈时漏掉了当前符号，导致括号前面的负号不能正确作用到整段子表达式。',
+        bullets: [
+          '易错点 1：遇到 `)` 前忘记先结算当前数字。',
+          '易错点 2：只保存结果，不保存进入括号前的符号。',
+          '易错点 3：多位数拼接处理不完整。',
+          '延伸方向：基本计算器 II、逆波兰表达式、表达式解析题。',
+        ],
+      },
+    ],
+  },
 ];
