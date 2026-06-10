@@ -25430,4 +25430,121 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'implement-queue-using-stacks',
+    label: '232. LeetCode 232. 用栈实现队列',
+    difficulty: '简单',
+    description:
+      '这题是在练数据结构行为转换。真正关键不是用一个栈硬凑，而是把一个栈负责输入、另一个栈负责输出，通过两次逆序恢复队列的先进先出特性。',
+    outcome:
+      '你能掌握用两个栈模拟队列的核心思路，理解为什么元素搬运后顺序会反转回来，并能写出支持摊还 `O(1)` 出队的标准解法。',
+    sections: [
+      {
+        id: 'implement-queue-using-stacks-summary',
+        title: '题目在问什么',
+        summary:
+          '只使用栈的标准操作，实现一个先进先出行为的队列，支持 `push`、`pop`、`peek` 和 `empty`。',
+        bullets: [
+          '底层只能用栈操作。',
+          '对外行为必须像队列。',
+          '关键是先进先出顺序。',
+          '本质是接口模拟题。',
+        ],
+      },
+      {
+        id: 'implement-queue-using-stacks-two-stacks',
+        title: '两个栈的职责要分清：一个负责收集输入，一个负责提供输出',
+        summary:
+          '入队时，元素先正常压入输入栈；出队时，如果输出栈为空，就把输入栈中的元素逐个弹出再压入输出栈。这样最早进入输入栈的元素，会在输出栈栈顶最先被弹出。',
+        bullets: [
+          '输入栈负责收集新元素。',
+          '输出栈负责恢复队列顺序。',
+          '两栈分工清楚后逻辑很自然。',
+          '这是最经典的模拟方案。',
+        ],
+      },
+      {
+        id: 'implement-queue-using-stacks-reverse',
+        title: '为什么搬运一次就能把顺序变成 FIFO',
+        summary:
+          '元素进入输入栈时顺序被反了一次；当它们再从输入栈弹出并压入输出栈时，又被反一次。两次反转后，最早入队的元素就会来到输出栈顶，从而满足先进先出。',
+        bullets: [
+          '一次压栈会反转顺序。',
+          '第二次压栈再反转回来。',
+          '双反转恢复了 FIFO。',
+          '这是这个技巧最核心的直觉。',
+        ],
+      },
+      {
+        id: 'implement-queue-using-stacks-lazy-transfer',
+        title: '搬运不该每次都做，只在输出栈为空时再统一转移',
+        summary:
+          '如果每次出队都立刻搬运，会造成很多重复操作。更高效的做法是懒转移：只在输出栈为空时，才把输入栈整批倒过去。这样每个元素最多被搬一次，复杂度更优。',
+        bullets: [
+          '懒转移能避免重复搬运。',
+          '每个元素最多经历一次整批转移。',
+          '这就是摊还复杂度变好的原因。',
+          '是实现中最值得强调的优化点。',
+        ],
+        callout:
+          '数据结构题很多时候不是会不会模拟，而是有没有把操作分摊想清楚。只在真正需要的时候搬运，是这题最重要的工程意识。',
+      },
+      {
+        id: 'implement-queue-using-stacks-solution',
+        title: '标准解法：输入栈加输出栈，按需转移',
+        summary:
+          '维护 `input` 和 `output` 两个栈。`push` 直接压入 `input`；`pop` 和 `peek` 在 `output` 非空时直接使用，否则先把 `input` 全部倒入 `output` 再操作；`empty` 则检查两个栈是否都为空。',
+        bullets: [
+          '`push` 是 `O(1)`。',
+          '`pop` 与 `peek` 摊还复杂度是 `O(1)`。',
+          '空间复杂度是 `O(n)`。',
+          '是这题最标准的实现方案。',
+        ],
+        code: `class MyQueue {
+  private input: number[] = []
+  private output: number[] = []
+
+  push(x: number): void {
+    this.input.push(x)
+  }
+
+  pop(): number {
+    this.moveIfNeeded()
+    return this.output.pop()!
+  }
+
+  peek(): number {
+    this.moveIfNeeded()
+    return this.output[this.output.length - 1]
+  }
+
+  empty(): boolean {
+    return this.input.length === 0 && this.output.length === 0
+  }
+
+  private moveIfNeeded(): void {
+    if (this.output.length > 0) {
+      return
+    }
+
+    while (this.input.length > 0) {
+      this.output.push(this.input.pop()!)
+    }
+  }
+}`,
+      },
+      {
+        id: 'implement-queue-using-stacks-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是每次 `pop`/`peek` 都重复搬运所有元素，导致复杂度变差；或者只用一个栈硬做，最终行为根本无法满足先进先出。',
+        bullets: [
+          '易错点 1：没有做懒转移。',
+          '易错点 2：搬运方向理解错误。',
+          '易错点 3：`peek` 和 `pop` 没有共用同一套取前元素逻辑。',
+          '延伸方向：用队列实现栈、双栈最小栈、摊还分析题。',
+        ],
+      },
+    ],
+  },
 ];
