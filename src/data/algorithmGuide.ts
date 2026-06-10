@@ -25547,4 +25547,120 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'number-of-digit-one',
+    label: '233. LeetCode 233. 数字 1 的个数',
+    difficulty: '困难',
+    description:
+      '这题是在练数位拆分统计。真正关键不是从 `1` 暴力枚举到 `n` 去数，而是按个位、十位、百位逐位统计每一位上 `1` 出现了多少次。',
+    outcome:
+      '你能掌握数位 DP 里的经典分位统计思路，理解高位、当前位、低位如何共同决定某一位上 `1` 的贡献，并能写出标准公式解法。',
+    sections: [
+      {
+        id: 'number-of-digit-one-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数 `n`，统计从 `0` 到 `n` 的所有整数中，数字 `1` 总共出现了多少次。',
+        bullets: [
+          '统计范围是 `0` 到 `n`。',
+          '要数的是数字字符 `1` 的总次数。',
+          '不是只判断某个数里有几个 `1`。',
+          '本质是数位贡献统计。',
+        ],
+      },
+      {
+        id: 'number-of-digit-one-bruteforce',
+        title: '暴力从 `1` 数到 `n` 显然能做，但题目真正想考的是按位拆解',
+        summary:
+          '如果逐个数字去拆位统计，逻辑上没问题，但当 `n` 很大时效率明显不理想。这题更关键的突破点，是把问题从“按数字枚举”转成“按位统计贡献”。',
+        bullets: [
+          '暴力会重复处理大量结构相似的数字。',
+          '效率瓶颈来自逐数遍历。',
+          '按位统计能一次处理成批数字。',
+          '这是复杂度优化的根本方向。',
+        ],
+      },
+      {
+        id: 'number-of-digit-one-position',
+        title: '核心思路是固定某一位，统计这一位上出现 `1` 的次数',
+        summary:
+          '例如只看个位、只看十位、只看百位。对于每一位，我们都问同一个问题：在 `0` 到 `n` 的所有数里，这一位有多少次等于 `1`。把所有位的结果加起来，就是总答案。',
+        bullets: [
+          '每一位的贡献可以独立计算。',
+          '总答案等于各位贡献之和。',
+          '这是典型的分治式数位分析。',
+          '先拆位，再汇总。',
+        ],
+      },
+      {
+        id: 'number-of-digit-one-high-cur-low',
+        title: '每一位的贡献，取决于高位、当前位和低位三部分',
+        summary:
+          '设当前处理的位权为 `factor`。把 `n` 拆成高位 `high`、当前位 `current`、低位 `low`。若当前位为 0，这一位上出现 `1` 的次数由高位决定；若当前位为 1，则是高位完整轮次再加低位部分；若当前位大于 1，则多出一个完整轮次。',
+        bullets: [
+          '高位决定完整轮次数量。',
+          '当前位决定当前轮是否补额外贡献。',
+          '低位决定当前位等于 1 时的尾部数量。',
+          '这是整题公式的来源。',
+        ],
+      },
+      {
+        id: 'number-of-digit-one-formula',
+        title: '三种情况要分开记：当前位是 0、1、还是大于 1',
+        summary:
+          '若 `current === 0`，贡献是 `high * factor`；若 `current === 1`，贡献是 `high * factor + low + 1`；若 `current > 1`，贡献是 `(high + 1) * factor`。逐位套这三种情况即可完成统计。',
+        bullets: [
+          '当前位为 0 时没有额外尾部贡献。',
+          '当前位为 1 时要补上低位范围。',
+          '当前位大于 1 时当前轮已经完整覆盖。',
+          '记住这三个分支就能写出解法。',
+        ],
+        callout:
+          '数位统计题难的不是代码，而是第一次看时公式像天外来物。真正把高位、当前位、低位各自代表什么想清楚后，公式就会变得非常自然。',
+      },
+      {
+        id: 'number-of-digit-one-solution',
+        title: '标准解法：按位权循环，累加每一位上的 `1` 的贡献',
+        summary:
+          '从个位开始，令位权 `factor` 依次乘 10。每轮根据 `high`、`current` 和 `low` 的取值，按三种情况累计当前位贡献。位权超过 `n` 后停止，最终总和就是答案。',
+        bullets: [
+          '时间复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(1)`。',
+          '是这题最经典的高效解法。',
+          '也是很多数位题的基础模板。',
+        ],
+        code: `function countDigitOne(n: number): number {
+  let count = 0
+
+  for (let factor = 1; factor <= n; factor *= 10) {
+    const low = n % factor
+    const current = Math.floor(n / factor) % 10
+    const high = Math.floor(n / (factor * 10))
+
+    if (current === 0) {
+      count += high * factor
+    } else if (current === 1) {
+      count += high * factor + low + 1
+    } else {
+      count += (high + 1) * factor
+    }
+  }
+
+  return count
+}`,
+      },
+      {
+        id: 'number-of-digit-one-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是公式里把 `high`、`current`、`low` 的含义混淆；或者只记住公式却说不清为什么当前位等于 1 时要额外加上 `low + 1`。',
+        bullets: [
+          '易错点 1：高低位拆分写错。',
+          '易错点 2：当前位为 1 的补偿项理解不清。',
+          '易错点 3：位权循环边界处理不稳。',
+          '延伸方向：数位 DP、统计数字 2、区间数位计数题。',
+        ],
+      },
+    ],
+  },
 ];
