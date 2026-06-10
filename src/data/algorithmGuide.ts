@@ -25663,4 +25663,137 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'palindrome-linked-list',
+    label: '234. LeetCode 234. 回文链表',
+    difficulty: '简单',
+    description:
+      '这题是在练链表中段定位与后半段反转。真正关键不是把整条链表复制成数组再判断，而是原地找到中点，把后半段翻转后做两端比较。',
+    outcome:
+      '你能掌握用快慢指针定位链表中点、原地反转后半段并逐节点比较的方法，理解为什么这三步足以判断回文。',
+    sections: [
+      {
+        id: 'palindrome-linked-list-summary',
+        title: '题目在问什么',
+        summary: '给定一个单链表，判断它是否是回文链表。',
+        bullets: [
+          '回文要求正读反读相同。',
+          '链表不能随机访问。',
+          '目标是返回真假。',
+          '本质是链表对称性判断。',
+        ],
+      },
+      {
+        id: 'palindrome-linked-list-middle',
+        title: '第一步先找中点，因为回文比较本质上是前后两半一一对应',
+        summary:
+          '链表无法像数组那样直接从两端夹逼，所以要先通过快慢指针找到中点，把问题拆成前半段和后半段。这样才能建立“谁和谁比较”的对应关系。',
+        bullets: [
+          '快慢指针是找中点的标准工具。',
+          '中点把链表分成两半。',
+          '后续比较必须建立在这个拆分上。',
+          '这是整题的第一关键步。',
+        ],
+      },
+      {
+        id: 'palindrome-linked-list-reverse',
+        title: '第二步要把后半段翻转，才能和前半段顺向逐节点比较',
+        summary:
+          '前半段从左往右走，后半段原本也是从左往右存储，但我们需要的是从右往左比较。把后半段原地反转后，两边就都可以沿 `next` 方向同步前进，比较会非常自然。',
+        bullets: [
+          '翻转后半段是把“逆向比较”变成“顺向比较”。',
+          '避免了随机访问需求。',
+          '这一步是链表题里很经典的技巧。',
+          '与数组双指针形成鲜明对照。',
+        ],
+      },
+      {
+        id: 'palindrome-linked-list-compare',
+        title: '第三步只要逐节点比较前半段和翻转后的后半段',
+        summary:
+          '从头节点和翻转后的后半段头节点同时出发，只要任意一对值不同，就不是回文；若后半段全部比较通过，则链表满足回文性质。因为后半段长度不可能长于前半段，所以比较到后半段结束即可。',
+        bullets: [
+          '值不同立即返回 `false`。',
+          '后半段走完即可说明匹配成功。',
+          '奇数长度中点可以自然被忽略。',
+          '这是最终判定动作。',
+        ],
+      },
+      {
+        id: 'palindrome-linked-list-restore',
+        title: '恢复链表不是这题必需，但工程上经常会被追问',
+        summary:
+          '题目通常只问是否为回文，不强制要求恢复原链表。不过在真实工程或面试追问中，常常会进一步要求你在判断后把后半段再反转回去，以保证输入结构不被破坏。',
+        bullets: [
+          '题目本身通常不强制恢复。',
+          '恢复是额外工程意识。',
+          '知道这一点能应对追问。',
+          '但标准解核心仍在前三步。',
+        ],
+        callout:
+          '链表题经常不是难在公式，而是难在你是否能把“访问限制”转成结构变换。找到中点、翻后半段，就是把不能逆向访问的问题改造成能顺向比较的问题。',
+      },
+      {
+        id: 'palindrome-linked-list-solution',
+        title: '标准解法：快慢指针找中点，翻转后半段，再做双指针比较',
+        summary:
+          '先用快慢指针找到链表中点，然后翻转从慢指针开始的后半段。接着用两个指针分别从头部和翻转后半段头部开始比较，若所有对应值都相同则返回 `true`，否则返回 `false`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '额外空间复杂度是 `O(1)`。',
+          '是这题最经典的最优做法。',
+          '很好地串起了中点、反转、比较三类链表基础技巧。',
+        ],
+        code: `function isPalindrome(head: ListNode | null): boolean {
+  if (head === null || head.next === null) {
+    return true
+  }
+
+  let slow: ListNode | null = head
+  let fast: ListNode | null = head
+
+  while (fast !== null && fast.next !== null) {
+    slow = slow!.next
+    fast = fast.next.next
+  }
+
+  let prev: ListNode | null = null
+  let current = slow
+
+  while (current !== null) {
+    const next = current.next
+    current.next = prev
+    prev = current
+    current = next
+  }
+
+  let left: ListNode | null = head
+  let right: ListNode | null = prev
+
+  while (right !== null) {
+    if (left!.val !== right.val) {
+      return false
+    }
+
+    left = left!.next
+    right = right.next
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'palindrome-linked-list-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是中点找错导致比较错位，或者后半段翻转后没有从正确位置开始比较，尤其在奇偶长度链表上容易出边界错误。',
+        bullets: [
+          '易错点 1：快慢指针停位理解不清。',
+          '易错点 2：后半段翻转起点选错。',
+          '易错点 3：比较终止条件写错。',
+          '延伸方向：重排链表、链表中点题、链表反转综合题。',
+        ],
+      },
+    ],
+  },
 ];
