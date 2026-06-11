@@ -26405,4 +26405,130 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'different-ways-to-add-parentheses',
+    label: '241. LeetCode 241. 为运算表达式设计优先级',
+    difficulty: '中等',
+    description:
+      '这题是在练分治枚举。真正关键不是固定一种运算顺序去算，而是把每个运算符都当成可能的最后一步，把左右子表达式的所有结果组合起来。',
+    outcome:
+      '你能掌握表达式分治求值的思路，理解为什么每个运算符都可以作为切分点，并能写出带记忆化的标准解法。',
+    sections: [
+      {
+        id: 'different-ways-to-add-parentheses-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含数字和 `+ - *` 的字符串表达式，返回通过不同加括号方式能得到的所有结果。',
+        bullets: [
+          '同一个表达式有多种计算顺序。',
+          '要返回所有可能结果。',
+          '不是只求一个最终值。',
+          '本质是枚举所有二叉划分。',
+        ],
+      },
+      {
+        id: 'different-ways-to-add-parentheses-split',
+        title: '每个运算符都可以被看作“最后执行的一步”',
+        summary:
+          '如果把某个运算符当作最后一步，那么它左边和右边就变成两个独立子表达式。只要分别算出左右所有可能结果，再两两组合，就能得到以这个运算符为根的所有结果。',
+        bullets: [
+          '运算符天然是切分点。',
+          '左右子问题结构和原问题相同。',
+          '组合左右结果就是分治核心。',
+          '这是递归建模的关键。',
+        ],
+      },
+      {
+        id: 'different-ways-to-add-parentheses-recursion',
+        title: '如果一段子表达式里没有运算符，它本身就是递归终点',
+        summary:
+          '当某个子串已经只剩下纯数字时，就没有继续拆分的必要了，它的所有可能结果只有自己一个。这个终点条件保证分治能够收敛。',
+        bullets: [
+          '纯数字子串直接转成整数。',
+          '不需要继续拆分。',
+          '这是分治递归的叶子节点。',
+          '终点条件很清晰。',
+        ],
+      },
+      {
+        id: 'different-ways-to-add-parentheses-memo',
+        title: '记忆化很重要，因为同一个子表达式会被反复计算',
+        summary:
+          '不同的切分方式可能会多次遇到相同子串。如果每次都重新递归展开，会造成明显重复计算。把某个子串对应的所有结果缓存起来，后续直接复用会更高效。',
+        bullets: [
+          '重叠子问题很明显。',
+          '缓存能显著减少重复递归。',
+          '是这题的常见优化点。',
+          '分治和记忆化经常配套出现。',
+        ],
+        callout:
+          '分治题一旦开始枚举“所有切分方式”，就很容易出现重复子问题。能及时看出缓存价值，是把暴力递归升级成可用解法的重要一步。',
+      },
+      {
+        id: 'different-ways-to-add-parentheses-solution',
+        title: '标准解法：按运算符切分并递归组合左右结果',
+        summary:
+          '递归扫描表达式，遇到运算符就把字符串切成左右两段，分别求出所有结果，再根据当前运算符做两两组合；若整段没有运算符，则直接返回数字。配合记忆化可避免重复求解相同子串。',
+        bullets: [
+          '时间复杂度与结果组合规模相关。',
+          '记忆化可显著减小重复计算。',
+          '是这题最经典的标准解法。',
+          '很适合训练“枚举最后一步”的分治思维。',
+        ],
+        code: `function diffWaysToCompute(expression: string): number[] {
+  const memo = new Map<string, number[]>()
+
+  const dfs = (expr: string): number[] => {
+    if (memo.has(expr)) {
+      return memo.get(expr)!
+    }
+
+    const result: number[] = []
+
+    for (let index = 0; index < expr.length; index += 1) {
+      const char = expr[index]
+
+      if (char === '+' || char === '-' || char === '*') {
+        const leftResults = dfs(expr.slice(0, index))
+        const rightResults = dfs(expr.slice(index + 1))
+
+        for (const left of leftResults) {
+          for (const right of rightResults) {
+            if (char === '+') {
+              result.push(left + right)
+            } else if (char === '-') {
+              result.push(left - right)
+            } else {
+              result.push(left * right)
+            }
+          }
+        }
+      }
+    }
+
+    if (result.length === 0) {
+      result.push(Number(expr))
+    }
+
+    memo.set(expr, result)
+    return result
+  }
+
+  return dfs(expression)
+}`,
+      },
+      {
+        id: 'different-ways-to-add-parentheses-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把题目做成固定优先级计算器，或者递归时只取左右一个结果，忘了真正要枚举的是左右结果的所有组合。',
+        bullets: [
+          '易错点 1：误做成唯一值求解。',
+          '易错点 2：没把每个运算符都当切分点。',
+          '易错点 3：忽略记忆化导致重复计算过多。',
+          '延伸方向：分治表达式题、括号枚举、区间 DP 对照题。',
+        ],
+      },
+    ],
+  },
 ];
