@@ -26531,4 +26531,112 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'valid-anagram',
+    label: '242. LeetCode 242. 有效的字母异位词',
+    difficulty: '简单',
+    description:
+      '这题是在练频次一致性判断。真正关键不是看字符集合是否一样，而是每个字符的出现次数也必须完全对应。',
+    outcome:
+      '你能掌握用计数表判断两个字符串是否互为异位词的思路，理解为什么仅仅比较去重后的字符集合并不够，并能写出线性解法。',
+    sections: [
+      {
+        id: 'valid-anagram-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个字符串 `s` 和 `t`，判断 `t` 是否是 `s` 的字母异位词。',
+        bullets: [
+          '异位词要求字符种类一致。',
+          '还要求每种字符出现次数一致。',
+          '顺序可以不同。',
+          '本质是频次数组比较。',
+        ],
+      },
+      {
+        id: 'valid-anagram-frequency',
+        title: '异位词判断的本质，不是看有哪些字母，而是看每种字母出现了几次',
+        summary:
+          '例如 `aab` 和 `ab` 的字符集合都包含 `a`、`b`，但它们显然不是异位词。真正决定性的不是集合，而是每个字符的频次分布。',
+        bullets: [
+          '字符存在与否只是第一层条件。',
+          '频次完全相同才成立。',
+          '这是题目真正考的对象。',
+          '要避免把问题误做成集合比较。',
+        ],
+      },
+      {
+        id: 'valid-anagram-count',
+        title: '最直接的做法，就是用一个计数结构记录字符收支',
+        summary:
+          '先遍历 `s` 给每个字符记正向计数，再遍历 `t` 做反向扣减。最终如果所有字符计数都回到 0，就说明两个字符串在频次上完全一致。',
+        bullets: [
+          '加和减是一种很自然的对账方式。',
+          '最后全为 0 就代表完全抵消。',
+          '这比排序更直接。',
+          '也是最常见的标准思路。',
+        ],
+      },
+      {
+        id: 'valid-anagram-length',
+        title: '长度判断可以作为最早的一层剪枝',
+        summary:
+          '如果两个字符串长度都不同，就不可能是异位词，因为总字符数都对不上。这一步虽然简单，却是非常直接有效的早停条件。',
+        bullets: [
+          '长度不同直接返回 `false`。',
+          '能省掉后续无意义统计。',
+          '这是最自然的边界剪枝。',
+          '体现了先做低成本判断的习惯。',
+        ],
+        callout:
+          '简单哈希题真正要练的是“先判断什么最便宜、最确定”。先看长度，再看频次，是这类题非常典型的思考顺序。',
+      },
+      {
+        id: 'valid-anagram-solution',
+        title: '标准解法：长度剪枝加哈希计数',
+        summary:
+          '若 `s` 与 `t` 长度不同，直接返回 `false`。否则用一个映射表统计 `s` 中每个字符出现次数，再遍历 `t` 做扣减。扣减后若有任一字符计数不匹配，则返回 `false`；全部匹配则返回 `true`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度与字符集大小相关。',
+          '是这题最标准的写法。',
+          '也能很自然扩展到 Unicode 场景。',
+        ],
+        code: `function isAnagram(s: string, t: string): boolean {
+  if (s.length !== t.length) {
+    return false
+  }
+
+  const count = new Map<string, number>()
+
+  for (const char of s) {
+    count.set(char, (count.get(char) ?? 0) + 1)
+  }
+
+  for (const char of t) {
+    const frequency = count.get(char)
+
+    if (frequency === undefined || frequency === 0) {
+      return false
+    }
+
+    count.set(char, frequency - 1)
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'valid-anagram-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只比较字符集合不比较频次，或者虽然做了计数，却忘了先判断长度，导致逻辑绕远。',
+        bullets: [
+          '易错点 1：误做成集合相等判断。',
+          '易错点 2：计数扣减时未处理不存在字符。',
+          '易错点 3：边界条件过度复杂。',
+          '延伸方向：字母异位词分组、字符频次统计、哈希计数题。',
+        ],
+      },
+    ],
+  },
 ];
