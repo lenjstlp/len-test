@@ -26747,4 +26747,124 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'shortest-word-distance-ii',
+    label: '244. LeetCode 244. 最短单词距离 II',
+    difficulty: '中等',
+    description:
+      '这题是在上一题基础上练多次查询优化。真正关键不是每查一次就重新扫整段数组，而是先把每个单词的所有位置建索引，再用双指针在线性时间内回答一对单词的最短距离。',
+    outcome:
+      '你能掌握针对重复查询做预处理的思路，理解为什么位置列表天然有序，并能用双指针高效求两组位置的最小差值。',
+    sections: [
+      {
+        id: 'shortest-word-distance-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个数据结构，先接收单词列表，之后多次查询任意两个单词之间的最短距离。',
+        bullets: [
+          '这是多次查询场景。',
+          '同一个词表会被反复复用。',
+          '查询目标仍是最短下标距离。',
+          '本质是预处理加快速查询。',
+        ],
+      },
+      {
+        id: 'shortest-word-distance-ii-preprocess',
+        title: '多次查询场景的核心，是把昂贵工作前置到初始化阶段',
+        summary:
+          '如果每次查询都重新扫数组，单次是线性的，多次累积就很浪费。更合理的做法是在构造阶段就把每个单词出现的位置全部记录下来，后续查询直接基于位置索引进行。',
+        bullets: [
+          '预处理换查询速度。',
+          '单词到位置列表的映射是最自然索引。',
+          '这是典型的离线换在线优化。',
+          '数据结构设计题常见套路。',
+        ],
+      },
+      {
+        id: 'shortest-word-distance-ii-two-pointers',
+        title: '两组位置列表都是有序的，所以最短距离适合用双指针',
+        summary:
+          '每个单词在原数组中出现的位置天然按递增顺序记录。比较两个有序列表时，不需要做两两组合，只要用双指针像归并一样推进，就能在线性时间里找到最小差。',
+        bullets: [
+          '位置列表天然有序。',
+          '双指针能避免平方级比较。',
+          '每次只移动较小位置那一侧。',
+          '这是查询优化的关键。',
+        ],
+      },
+      {
+        id: 'shortest-word-distance-ii-why-move-smaller',
+        title: '为什么总是移动较小下标的那个指针',
+        summary:
+          '当前两位置差值若想变小，较大的那一侧不动时，只能期待较小那一侧往前靠近。移动较大的一侧只会让它更远，所以双指针自然总推进较小下标那边。',
+        bullets: [
+          '目标是缩小两者差距。',
+          '较小侧前进才有可能靠近较大侧。',
+          '这是双指针正确性的直觉来源。',
+          '和归并类问题很相似。',
+        ],
+        callout:
+          '多次查询题最值得训练的，不是把某次查询做快，而是先问自己：哪些信息值得预处理，哪些结构会在后续被重复利用。',
+      },
+      {
+        id: 'shortest-word-distance-ii-solution',
+        title: '标准解法：构造词到位置列表的映射，查询时双指针扫描',
+        summary:
+          '初始化时遍历单词列表，把每个单词出现的下标依次存入映射表。查询时取出两个单词对应的位置列表，用双指针线性扫描并实时更新最小差值。',
+        bullets: [
+          '初始化复杂度是 `O(n)`。',
+          '单次查询复杂度是 `O(m + n)`，这里指两列表长度之和。',
+          '空间复杂度取决于索引总长度。',
+          '是这题最标准的数据结构方案。',
+        ],
+        code: `class WordDistance {
+  private positions = new Map<string, number[]>()
+
+  constructor(wordsDict: string[]) {
+    for (let index = 0; index < wordsDict.length; index += 1) {
+      const word = wordsDict[index]
+
+      if (!this.positions.has(word)) {
+        this.positions.set(word, [])
+      }
+
+      this.positions.get(word)!.push(index)
+    }
+  }
+
+  shortest(word1: string, word2: string): number {
+    const list1 = this.positions.get(word1)!
+    const list2 = this.positions.get(word2)!
+    let pointer1 = 0
+    let pointer2 = 0
+    let answer = Number.POSITIVE_INFINITY
+
+    while (pointer1 < list1.length && pointer2 < list2.length) {
+      answer = Math.min(answer, Math.abs(list1[pointer1] - list2[pointer2]))
+
+      if (list1[pointer1] < list2[pointer2]) {
+        pointer1 += 1
+      } else {
+        pointer2 += 1
+      }
+    }
+
+    return answer
+  }
+}`,
+      },
+      {
+        id: 'shortest-word-distance-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是明明有多次查询却仍然每次重扫原数组；或者预处理后没有利用有序位置列表做双指针，而是又退化成双重循环。',
+        bullets: [
+          '易错点 1：忽视多次查询场景的预处理价值。',
+          '易错点 2：位置列表比较写成平方级枚举。',
+          '易错点 3：双指针推进方向搞错。',
+          '延伸方向：倒排索引、最短单词距离 III、预处理型查询题。',
+        ],
+      },
+    ],
+  },
 ];
