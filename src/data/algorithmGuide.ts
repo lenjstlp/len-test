@@ -25796,4 +25796,108 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'lowest-common-ancestor-of-a-binary-search-tree',
+    label: '235. LeetCode 235. 二叉搜索树的最近公共祖先',
+    difficulty: '中等',
+    description:
+      '这题是在练 BST 的有序剪枝。真正关键不是把整棵树全遍历一遍，而是利用左小右大的性质，快速判断目标节点同时落在哪一侧。',
+    outcome:
+      '你能掌握在 BST 上定位最近公共祖先的思路，理解为什么只要比较当前节点与两个目标值的大小关系，就能决定向左、向右还是直接命中答案。',
+    sections: [
+      {
+        id: 'lowest-common-ancestor-of-a-binary-search-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉搜索树和其中两个节点 `p`、`q`，找到它们的最近公共祖先。',
+        bullets: [
+          '树保证是 BST。',
+          '目标是最近公共祖先。',
+          '两个节点都存在于树中。',
+          '本质是利用有序结构做定位。',
+        ],
+      },
+      {
+        id: 'lowest-common-ancestor-of-a-binary-search-tree-bst',
+        title: 'BST 的有序性，直接决定了搜索方向',
+        summary:
+          '如果当前节点值比 `p`、`q` 都大，说明两个目标都在左子树；如果当前节点值比它们都小，说明两个目标都在右子树。只有分居两侧，或者当前节点等于其中之一时，当前节点才会成为答案。',
+        bullets: [
+          '左小右大是判断方向的根本依据。',
+          '同侧就继续下探。',
+          '分叉点就是公共祖先。',
+          '这是 BST 版 LCA 的核心简化。',
+        ],
+      },
+      {
+        id: 'lowest-common-ancestor-of-a-binary-search-tree-split',
+        title: '最近公共祖先本质上就是两条搜索路径第一次分叉的位置',
+        summary:
+          '从根往下找时，只要 `p` 和 `q` 还落在同一侧，就说明当前节点还不是它们“最近”汇合的位置。第一次出现一左一右，或者其中一个就是当前节点时，这个位置就恰好是最近公共祖先。',
+        bullets: [
+          '“最近”强调的是最低的那个公共点。',
+          '同侧说明还能继续往下逼近。',
+          '分叉说明再往下不可能同时覆盖两者。',
+          '这个直觉比背答案更重要。',
+        ],
+      },
+      {
+        id: 'lowest-common-ancestor-of-a-binary-search-tree-iterative',
+        title: '因为每一步只会走一个方向，所以迭代写法尤其自然',
+        summary:
+          '这题不像普通二叉树那样需要同时搜索左右子树。在 BST 里，你每次都能明确只去一边，因此用循环一路往下走就足够了，代码甚至比递归更直观。',
+        bullets: [
+          '每步都只有唯一前进方向。',
+          '不需要回溯合并结果。',
+          '迭代能把逻辑写得很清楚。',
+          '这是 BST 结构题常见优势。',
+        ],
+        callout:
+          '树题不一定都要先想递归。只要结构足够强，像 BST 这种有序树，很多问题都能被压成一条单路径搜索。',
+      },
+      {
+        id: 'lowest-common-ancestor-of-a-binary-search-tree-solution',
+        title: '标准解法：按 BST 有序性一路下探到分叉点',
+        summary:
+          '从根节点开始，比较当前节点值与 `p.val`、`q.val`。若当前值同时大于两者，则去左子树；若同时小于两者，则去右子树；否则当前节点就是最近公共祖先。',
+        bullets: [
+          '时间复杂度与树高相关。',
+          '平均为 `O(log n)`，最坏为 `O(n)`。',
+          '空间复杂度迭代写法是 `O(1)`。',
+          '是这题最直接的标准答案。',
+        ],
+        code: `function lowestCommonAncestor(
+  root: TreeNode | null,
+  p: TreeNode,
+  q: TreeNode,
+): TreeNode | null {
+  let node = root
+
+  while (node !== null) {
+    if (node.val > p.val && node.val > q.val) {
+      node = node.left
+    } else if (node.val < p.val && node.val < q.val) {
+      node = node.right
+    } else {
+      return node
+    }
+  }
+
+  return null
+}`,
+      },
+      {
+        id: 'lowest-common-ancestor-of-a-binary-search-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是明明题目给了 BST 却仍按普通二叉树去全量递归搜索，白白丢掉了有序性带来的剪枝优势。',
+        bullets: [
+          '易错点 1：没有利用 BST 有序性。',
+          '易错点 2：比较大小时没有统一处理 `p`、`q` 顺序。',
+          '易错点 3：漏掉当前节点等于 `p` 或 `q` 的情况。',
+          '延伸方向：普通二叉树最近公共祖先、BST 搜索题、树上路径定位。',
+        ],
+      },
+    ],
+  },
 ];
