@@ -26193,4 +26193,110 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'sliding-window-maximum',
+    label: '239. LeetCode 239. 滑动窗口最大值',
+    difficulty: '困难',
+    description:
+      '这题是在练滑动窗口中的单调队列。真正关键不是每次窗口滑动都重新扫一遍找最大值，而是维护一个始终可能成为最大值候选的下标队列。',
+    outcome:
+      '你能掌握单调队列维护窗口最大值的思路，理解为什么队列要保持单调递减，并能写出线性时间解法。',
+    sections: [
+      {
+        id: 'sliding-window-maximum-summary',
+        title: '题目在问什么',
+        summary: '给定一个数组和窗口大小 `k`，返回每次窗口滑动后的最大值。',
+        bullets: [
+          '窗口长度固定为 `k`。',
+          '每次只向右滑动一格。',
+          '每个窗口都要输出最大值。',
+          '本质是动态窗口最值维护。',
+        ],
+      },
+      {
+        id: 'sliding-window-maximum-bruteforce',
+        title: '暴力法每滑一次都重扫窗口，真正浪费在重复比较',
+        summary:
+          '相邻窗口之间重叠了大量元素，但暴力做法会把这些重叠部分一次次重复扫描。题目的突破点就在于：既然窗口是连续平移的，最大值候选信息也应该被复用。',
+        bullets: [
+          '窗口之间存在大量重叠。',
+          '暴力法重复工作很多。',
+          '我们需要维护候选而不是重算全部。',
+          '这是单调队列出场的背景。',
+        ],
+      },
+      {
+        id: 'sliding-window-maximum-monotonic',
+        title: '队列里真正要保留的，是“仍有资格成为窗口最大值”的下标',
+        summary:
+          '如果一个新元素比队尾对应值更大，那么队尾那个更小的元素在当前及未来一段窗口中都不可能再成为最大值，可以直接弹掉。这样队列中的值会保持单调递减，队首自然就是当前最大值。',
+        bullets: [
+          '更小且更旧的元素会被新大值淘汰。',
+          '队列按值单调递减维护。',
+          '队首始终对应当前窗口最大值。',
+          '这是算法正确性的核心。',
+        ],
+      },
+      {
+        id: 'sliding-window-maximum-expire',
+        title: '除了维护单调性，还要及时清理已经滑出窗口的下标',
+        summary:
+          '即使某个元素值很大，只要它的下标已经不在当前窗口范围内，就不能再参与答案。因此每次窗口右移后，要先检查队首是否过期，若过期就把它弹出。',
+        bullets: [
+          '下标决定元素是否合法留在窗口内。',
+          '过期元素必须及时移除。',
+          '单调性和窗口范围两个条件都要满足。',
+          '这是实现里容易漏掉的细节。',
+        ],
+        callout:
+          '单调队列题的难点，从来不只是“维护大小顺序”，而是同时维护两个维度：值的优先级和下标的有效范围。两者缺一不可。',
+      },
+      {
+        id: 'sliding-window-maximum-solution',
+        title: '标准解法：维护单调递减下标队列',
+        summary:
+          '遍历数组时，先清理队首中过期下标，再把所有比当前值小的队尾下标弹出，然后把当前下标入队。当窗口长度达到 `k` 时，队首对应值就是当前窗口最大值。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '每个下标最多进出队一次。',
+          '空间复杂度是 `O(k)`。',
+          '是滑动窗口最值题的经典模板。',
+        ],
+        code: `function maxSlidingWindow(nums: number[], k: number): number[] {
+  const deque: number[] = []
+  const result: number[] = []
+
+  for (let index = 0; index < nums.length; index += 1) {
+    while (deque.length > 0 && deque[0] <= index - k) {
+      deque.shift()
+    }
+
+    while (deque.length > 0 && nums[deque[deque.length - 1]] <= nums[index]) {
+      deque.pop()
+    }
+
+    deque.push(index)
+
+    if (index >= k - 1) {
+      result.push(nums[deque[0]])
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'sliding-window-maximum-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只维护了单调性却忘了清理过期下标，或者清理顺序写反，导致队首虽然很大但已经不属于当前窗口。',
+        bullets: [
+          '易错点 1：过期下标未及时删除。',
+          '易错点 2：单调队列方向维护反了。',
+          '易错点 3：窗口还没形成就提前输出答案。',
+          '延伸方向：最小值窗口、队列最大值、单调队列模板题。',
+        ],
+      },
+    ],
+  },
 ];
