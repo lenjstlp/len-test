@@ -25900,4 +25900,107 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'lowest-common-ancestor-of-a-binary-tree',
+    label: '236. LeetCode 236. 二叉树的最近公共祖先',
+    difficulty: '中等',
+    description:
+      '这题是在练树上信息回传。真正关键不是从根一路单向往下找，而是让左右子树分别告诉你“目标节点在不在我这里”，再由当前节点决定自己是不是公共祖先。',
+    outcome:
+      '你能掌握普通二叉树最近公共祖先的递归思路，理解左右子树返回值分别代表什么，并能写出标准后序递归解法。',
+    sections: [
+      {
+        id: 'lowest-common-ancestor-of-a-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵普通二叉树和其中两个节点 `p`、`q`，找到它们的最近公共祖先。',
+        bullets: [
+          '树不再保证是 BST。',
+          '目标仍是最近公共祖先。',
+          '两个节点都存在于树中。',
+          '本质是树上信息汇总问题。',
+        ],
+      },
+      {
+        id: 'lowest-common-ancestor-of-a-binary-tree-no-order',
+        title: '因为没有 BST 有序性，所以不能靠大小关系剪枝',
+        summary:
+          '在普通二叉树里，节点值不再决定位置关系，因此无法像 BST 那样一眼判断往左还是往右。要找 `p` 和 `q`，只能真正让左右子树各自去尝试，并把搜索结果带回来。',
+        bullets: [
+          '值大小不再提供方向信息。',
+          '左右子树都可能藏着目标节点。',
+          '问题会变成“左右各自找到了什么”。',
+          '这就是后序递归出场的原因。',
+        ],
+      },
+      {
+        id: 'lowest-common-ancestor-of-a-binary-tree-return',
+        title: '递归返回值的含义要想清：我这棵子树里到底找到了谁',
+        summary:
+          '对于每个节点，递归可以返回三种重要信息：没找到任何目标，找到了 `p/q` 其中之一，或者左右两边分别找到了两个目标。当前节点要根据左右返回结果判断自己是否成为公共祖先。',
+        bullets: [
+          '返回值不是随便回一个节点。',
+          '它在表达“子树搜索结果”。',
+          '左右结果合并才会形成祖先判断。',
+          '这是整题最关键的递归语义。',
+        ],
+      },
+      {
+        id: 'lowest-common-ancestor-of-a-binary-tree-postorder',
+        title: '这题最自然的遍历顺序是后序，因为必须先知道左右子树各自结果',
+        summary:
+          '只有当左子树和右子树都已经把“找没找到目标”这件事反馈回来后，当前节点才有资格判断自己是不是最低公共祖先。所以这题天然适合后序递归。',
+        bullets: [
+          '先问左右，再决定当前。',
+          '这是典型的后序决策结构。',
+          '前序或中序都不自然。',
+          '理解这一点有助于统一很多树题。',
+        ],
+        callout:
+          '普通二叉树的 LCA 是特别适合训练“递归返回值语义”的题。你一旦能讲清楚每层返回的到底是什么，代码就会顺很多。',
+      },
+      {
+        id: 'lowest-common-ancestor-of-a-binary-tree-solution',
+        title: '标准解法：后序递归汇总左右子树搜索结果',
+        summary:
+          '若当前节点为空，返回 `null`；若当前节点就是 `p` 或 `q`，直接返回自己。递归搜索左右子树后，若两边都非空，说明当前节点就是最近公共祖先；若只有一边非空，就把那一边结果向上返回。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度取决于递归栈深度。',
+          '是这题最经典的标准解法。',
+          '代码短，但递归含义要讲透。',
+        ],
+        code: `function lowestCommonAncestor(
+  root: TreeNode | null,
+  p: TreeNode,
+  q: TreeNode,
+): TreeNode | null {
+  if (root === null || root === p || root === q) {
+    return root
+  }
+
+  const left = lowestCommonAncestor(root.left, p, q)
+  const right = lowestCommonAncestor(root.right, p, q)
+
+  if (left !== null && right !== null) {
+    return root
+  }
+
+  return left ?? right
+}`,
+      },
+      {
+        id: 'lowest-common-ancestor-of-a-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把 BST 解法硬套到普通二叉树，或者递归返回值语义不清，导致明明找到一个目标节点却没有正确向上返回。',
+        bullets: [
+          '易错点 1：误用 BST 剪枝思路。',
+          '易错点 2：命中 `p`/`q` 时没有及时返回当前节点。',
+          '易错点 3：左右都非空时没有识别当前节点为答案。',
+          '延伸方向：多节点公共祖先、树上路径问题、递归信息汇总题。',
+        ],
+      },
+    ],
+  },
 ];
