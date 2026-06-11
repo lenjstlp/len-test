@@ -26639,4 +26639,112 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'shortest-word-distance',
+    label: '243. LeetCode 243. 最短单词距离',
+    difficulty: '简单',
+    description:
+      '这题是在练流式位置比较。真正关键不是把两个单词出现位置都存下来再两两比较，而是一边扫描一边维护最近位置，实时更新最小距离。',
+    outcome:
+      '你能掌握一次遍历求两类目标最近距离的思路，理解为什么只需要记录最近一次出现位置，并能写出线性解法。',
+    sections: [
+      {
+        id: 'shortest-word-distance-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个单词数组和两个不同的单词 `word1`、`word2`，返回它们在数组中的最短距离。',
+        bullets: [
+          '距离按下标差计算。',
+          '`word1` 和 `word2` 不同。',
+          '数组按顺序扫描即可。',
+          '本质是最近位置更新问题。',
+        ],
+      },
+      {
+        id: 'shortest-word-distance-latest',
+        title: '核心状态只有两个：两个目标单词最近一次出现的位置',
+        summary:
+          '当你扫描到 `word1` 时，就更新 `word1` 的最近位置；扫描到 `word2` 时，就更新 `word2` 的最近位置。只要两者最近位置都已存在，就可以立刻算出当前可能的最短距离。',
+        bullets: [
+          '最近位置比更早位置更有价值。',
+          '每次命中都可能改写最优答案。',
+          '状态量非常小。',
+          '这让线性扫描成为自然选择。',
+        ],
+      },
+      {
+        id: 'shortest-word-distance-why',
+        title: '为什么只记最近位置就足够了',
+        summary:
+          '对于某个单词来说，离当前位置最近的那次出现，才最有可能与另一个单词形成更短距离。更早的出现只会更远，因此无需完整保留历史位置列表。',
+        bullets: [
+          '最近位置天然最有竞争力。',
+          '更老的位置不会带来更短当前距离。',
+          '这就是状态能被压缩的原因。',
+          '体现了在线更新最优值的思路。',
+        ],
+      },
+      {
+        id: 'shortest-word-distance-stream',
+        title: '这题本质上就是一个在线处理过程',
+        summary:
+          '每往右读一个单词，就更新对应最近位置，并尝试刷新答案。你不需要先完整预处理再算，因为当前信息已经足够支持最优值递推。',
+        bullets: [
+          '扫描过程本身就是计算过程。',
+          '无需额外存全部位置信息。',
+          '非常适合一遍遍历解决。',
+          '是很多数组距离题的基本模式。',
+        ],
+        callout:
+          '很多“最短距离”题其实都不是图论，而是流式状态维护。只要问题允许按顺序扫描，常常就能用非常少的状态把答案持续逼近出来。',
+      },
+      {
+        id: 'shortest-word-distance-solution',
+        title: '标准解法：一遍扫描维护两个单词最近下标',
+        summary:
+          '遍历数组，遇到 `word1` 就更新 `index1`，遇到 `word2` 就更新 `index2`。只要两个下标都已初始化，就计算它们的差值并更新全局最小距离。遍历结束后返回答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '代码极短但思路很典型。',
+          '适合继续延伸到同类距离题。',
+        ],
+        code: `function shortestDistance(
+  wordsDict: string[],
+  word1: string,
+  word2: string,
+): number {
+  let index1 = -1
+  let index2 = -1
+  let answer = Number.POSITIVE_INFINITY
+
+  for (let index = 0; index < wordsDict.length; index += 1) {
+    if (wordsDict[index] === word1) {
+      index1 = index
+    } else if (wordsDict[index] === word2) {
+      index2 = index
+    }
+
+    if (index1 !== -1 && index2 !== -1) {
+      answer = Math.min(answer, Math.abs(index1 - index2))
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'shortest-word-distance-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把所有位置都存起来再做双重比较，思路太重；或者更新了某个单词位置后没有立刻尝试刷新当前最优答案。',
+        bullets: [
+          '易错点 1：过度存储全部下标。',
+          '易错点 2：答案更新时机放错。',
+          '易错点 3：初始化值处理不稳。',
+          '延伸方向：最短单词距离 II/III、流式最优值题、位置差维护题。',
+        ],
+      },
+    ],
+  },
 ];
