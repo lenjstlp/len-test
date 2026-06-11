@@ -26092,4 +26092,105 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'product-of-array-except-self',
+    label: '238. LeetCode 238. 除自身以外数组的乘积',
+    difficulty: '中等',
+    description:
+      '这题是在练前后缀分解。真正关键不是对每个位置都重新把其它元素乘一遍，而是把“左边乘积”和“右边乘积”拆开，最后在当前位置合并。',
+    outcome:
+      '你能掌握数组前后缀积的构造思路，理解为什么每个位置答案都可以写成左积乘右积，并能写出不使用除法的标准解法。',
+    sections: [
+      {
+        id: 'product-of-array-except-self-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个数组，返回一个新数组，其中每个位置等于原数组除自身以外所有元素的乘积。',
+        bullets: [
+          '不能把当前位置自己乘进去。',
+          '不能使用除法。',
+          '要求整体时间复杂度较优。',
+          '本质是前后缀贡献拆分。',
+        ],
+      },
+      {
+        id: 'product-of-array-except-self-left-right',
+        title: '每个位置的答案，天然可以拆成“左边所有数的积”乘“右边所有数的积”',
+        summary:
+          '对任意下标 `i`，除了自己以外的所有元素，刚好由左边一段和右边一段组成。只要能快速得到这两段的乘积，当前位置答案就能直接拼出来。',
+        bullets: [
+          '当前位置把数组自然分成左右两部分。',
+          '两部分相互独立。',
+          '答案由两个区间贡献组成。',
+          '这是这题最核心的化简。',
+        ],
+      },
+      {
+        id: 'product-of-array-except-self-prefix-suffix',
+        title: '最稳的做法，是先记录前缀积，再反向补上后缀积',
+        summary:
+          '第一遍从左到右，让 `answer[i]` 先存左边所有元素乘积；第二遍从右到左，维护一个滚动的右侧乘积，再把它乘到 `answer[i]` 上。这样就避免了额外的完整后缀数组。',
+        bullets: [
+          '前缀积先解决左侧贡献。',
+          '滚动后缀积再补右侧贡献。',
+          '空间可以压到只用结果数组。',
+          '这是最常见的标准写法。',
+        ],
+      },
+      {
+        id: 'product-of-array-except-self-no-division',
+        title: '为什么这题强调不能用除法',
+        summary:
+          '如果数组中有 0，除法方案会非常麻烦，而且题目本身就是在考你是否能把全局乘积问题拆成局部前后缀贡献。禁用除法是为了逼出这个结构化思路。',
+        bullets: [
+          '0 会让除法方案失去普适性。',
+          '前后缀法更稳也更通用。',
+          '题目真正考的是分解能力。',
+          '不要被“总乘积”表面误导。',
+        ],
+        callout:
+          '很多数组题的关键突破，都是把“全局看起来很难一次求出”的量拆成两个或多个方向的局部贡献。前后缀分解是最值得熟练掌握的模板之一。',
+      },
+      {
+        id: 'product-of-array-except-self-solution',
+        title: '标准解法：结果数组先存左积，再乘滚动右积',
+        summary:
+          '先遍历数组，把每个位置左边元素的乘积写入结果数组。随后从右往左维护 `suffixProduct`，并把它乘到当前结果上。最终得到每个位置除自身外的乘积。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '额外空间复杂度是 `O(1)`，不计返回数组。',
+          '是这题最经典的最优解。',
+          '前后缀思想非常有代表性。',
+        ],
+        code: `function productExceptSelf(nums: number[]): number[] {
+  const answer = Array(nums.length).fill(1)
+
+  for (let index = 1; index < nums.length; index += 1) {
+    answer[index] = answer[index - 1] * nums[index - 1]
+  }
+
+  let suffixProduct = 1
+
+  for (let index = nums.length - 1; index >= 0; index -= 1) {
+    answer[index] *= suffixProduct
+    suffixProduct *= nums[index]
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'product-of-array-except-self-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把当前位置自己也乘进去了，或者第二遍补后缀积时更新顺序写反，导致右积污染当前结果。',
+        bullets: [
+          '易错点 1：前后缀定义把当前元素误包含进去。',
+          '易错点 2：补后缀积的顺序写错。',
+          '易错点 3：又绕回使用除法。',
+          '延伸方向：前后缀数组、接雨水、区间贡献拆分题。',
+        ],
+      },
+    ],
+  },
 ];
