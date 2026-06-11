@@ -26299,4 +26299,110 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'search-a-2d-matrix-ii',
+    label: '240. LeetCode 240. 搜索二维矩阵 II',
+    difficulty: '中等',
+    description:
+      '这题是在练二维有序结构的剪枝搜索。真正关键不是把矩阵全扫一遍，而是利用行列都有序这一性质，从某个角落开始逐步排除整行或整列。',
+    outcome:
+      '你能掌握二维有序矩阵的角落搜索法，理解为什么从右上角或左下角出发可以每步排除一整行或一整列，并能写出线性级别解法。',
+    sections: [
+      {
+        id: 'search-a-2d-matrix-ii-summary',
+        title: '题目在问什么',
+        summary: '给定一个每行递增、每列也递增的二维矩阵，判断目标值是否存在。',
+        bullets: [
+          '每行从左到右递增。',
+          '每列从上到下递增。',
+          '只需要返回真假。',
+          '本质是二维有序搜索。',
+        ],
+      },
+      {
+        id: 'search-a-2d-matrix-ii-corner',
+        title: '最好的起点不是左上角，而是能同时控制两种方向的角落',
+        summary:
+          '左上角的右边和下边都更大，无法根据比较结果明确排除一大片区域；但右上角左边更小、下边更大，比较一次后就能明确下一步该往哪走，因此它是非常理想的起点。',
+        bullets: [
+          '起点必须让两个方向信息相反。',
+          '右上角和左下角都满足这个要求。',
+          '这样单次比较才有强剪枝能力。',
+          '这是这题最关键的观察。',
+        ],
+      },
+      {
+        id: 'search-a-2d-matrix-ii-prune',
+        title: '在右上角比较时，小了往下，大了往左，每步都能排除一整行或一整列',
+        summary:
+          '如果当前值大于目标，说明当前列下面的元素只会更大，所以当前列不可能包含目标，应向左移动；如果当前值小于目标，说明当前行左边都更小，不可能命中，应向下移动。',
+        bullets: [
+          '比较结果直接对应排除方向。',
+          '不是只排掉一个格子，而是一整段区域。',
+          '剪枝效率来自行列双有序性。',
+          '这使得复杂度明显优于暴力搜索。',
+        ],
+      },
+      {
+        id: 'search-a-2d-matrix-ii-linear',
+        title: '为什么整体复杂度只到 `O(m + n)`',
+        summary:
+          '因为指针每一步不是左移就是下移，不会回头。最多左移 `n` 次、下移 `m` 次，所以总步数上界是 `m + n`，比逐格遍历的 `mn` 小得多。',
+        bullets: [
+          '每一步都在缩小未搜索区域。',
+          '行和列方向都只走一遍。',
+          '不会出现回溯或重复访问。',
+          '这是复杂度分析的关键。',
+        ],
+        callout:
+          '有序矩阵题特别适合训练“从结构里找移动规则”的能力。只要一个比较能同时决定两个方向中的一个，问题规模就会收缩得很快。',
+      },
+      {
+        id: 'search-a-2d-matrix-ii-solution',
+        title: '标准解法：从右上角开始做线性剪枝搜索',
+        summary:
+          '从矩阵右上角出发。若当前值等于目标，直接返回 `true`；若当前值大于目标，就左移一列；若当前值小于目标，就下移一行。直到越界仍未找到，则返回 `false`。',
+        bullets: [
+          '时间复杂度是 `O(m + n)`。',
+          '空间复杂度是 `O(1)`。',
+          '是这题最经典的最优思路。',
+          '代码短但依赖结构观察。',
+        ],
+        code: `function searchMatrix(matrix: number[][], target: number): boolean {
+  const rows = matrix.length
+  const columns = matrix[0].length
+  let row = 0
+  let column = columns - 1
+
+  while (row < rows && column >= 0) {
+    const value = matrix[row][column]
+
+    if (value === target) {
+      return true
+    }
+
+    if (value > target) {
+      column -= 1
+    } else {
+      row += 1
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'search-a-2d-matrix-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是从左上角开始却无法稳定决定方向，最后又退化成暴力；或者虽然知道从角落走，但比较后移动方向写反了。',
+        bullets: [
+          '易错点 1：起点选错，失去剪枝能力。',
+          '易错点 2：大于目标时方向移动写反。',
+          '易错点 3：忘了矩阵可能为空的边界处理。',
+          '延伸方向：二维矩阵查找、Young Tableau、结构化搜索题。',
+        ],
+      },
+    ],
+  },
 ];
