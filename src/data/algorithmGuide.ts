@@ -26867,4 +26867,129 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'shortest-word-distance-iii',
+    label: '245. LeetCode 245. 最短单词距离 III',
+    difficulty: '中等',
+    description:
+      '这题是在最短单词距离基础上加入“两个单词可能相同”的特殊条件。真正关键不是照搬上一题，而是当 `word1 === word2` 时，要把问题改成同一单词相邻两次出现之间的最短距离。',
+    outcome:
+      '你能掌握在同词和异词两种情况下分别维护最近位置的思路，理解为什么同词场景要滚动记录上一次出现位置，并能写出统一解法。',
+    sections: [
+      {
+        id: 'shortest-word-distance-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定单词数组和两个单词 `word1`、`word2`，返回它们的最短距离；与前题不同的是，这两个单词可能相同。',
+        bullets: [
+          '仍然求最短下标距离。',
+          '但两个目标单词可能一样。',
+          '同词场景会改变状态维护方式。',
+          '本质是条件分支下的最近距离更新。',
+        ],
+      },
+      {
+        id: 'shortest-word-distance-iii-different',
+        title: '当两个单词不同，这题和 243 题没有本质区别',
+        summary:
+          '如果 `word1 !== word2`，我们仍然只需要分别记录两个单词最近一次出现的位置，并在扫描过程中持续更新最小距离。这部分可以直接沿用最基本的单遍扫描思路。',
+        bullets: [
+          '异词场景仍是双位置维护。',
+          '思路与 243 题完全一致。',
+          '没有新的结构困难。',
+          '重点只在新增同词分支。',
+        ],
+      },
+      {
+        id: 'shortest-word-distance-iii-same',
+        title: '当两个单词相同时，问题变成“同一单词连续两次出现的最短距离”',
+        summary:
+          '如果 `word1 === word2`，那就不能再把它当成两个独立目标来看。每次遇到这个单词时，只需要和它上一次出现的位置比较，就能得到一个候选距离，持续取最小值即可。',
+        bullets: [
+          '同词时只有一个位置状态需要维护。',
+          '比较对象变成前一次出现位置。',
+          '这相当于求相邻命中的最短间距。',
+          '状态反而更简单。',
+        ],
+      },
+      {
+        id: 'shortest-word-distance-iii-unify',
+        title: '实现上最稳的方式，是先按“同词/异词”把逻辑分清',
+        summary:
+          '很多人会试图写一个完全统一的流程，结果把状态绕乱。更清楚的做法是先判断 `word1` 和 `word2` 是否相同：相同就走单位置更新，不同就走双位置更新。',
+        bullets: [
+          '先分情况，代码语义更稳。',
+          '不同情况的状态定义并不一样。',
+          '不要为了统一而牺牲清晰度。',
+          '这是这题实现上的关键决策。',
+        ],
+        callout:
+          '很多题目的难点不是算法本身，而是你愿不愿意正视“这是两个不同子问题”。先把分支拆对，往往比硬凑统一模板更高级。',
+      },
+      {
+        id: 'shortest-word-distance-iii-solution',
+        title: '标准解法：同词走单位置滚动，异词走双位置维护',
+        summary:
+          '若 `word1 === word2`，遍历数组时每次命中该词就和上一次位置比较并更新答案；若两词不同，则维护两个最近下标，像 243 题那样在命中任一单词时刷新最短距离。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '分支逻辑清楚且容易验证。',
+          '是这题最常见的标准写法。',
+        ],
+        code: `function shortestWordDistance(
+  wordsDict: string[],
+  word1: string,
+  word2: string,
+): number {
+  let answer = Number.POSITIVE_INFINITY
+
+  if (word1 === word2) {
+    let previous = -1
+
+    for (let index = 0; index < wordsDict.length; index += 1) {
+      if (wordsDict[index] === word1) {
+        if (previous !== -1) {
+          answer = Math.min(answer, index - previous)
+        }
+
+        previous = index
+      }
+    }
+
+    return answer
+  }
+
+  let index1 = -1
+  let index2 = -1
+
+  for (let index = 0; index < wordsDict.length; index += 1) {
+    if (wordsDict[index] === word1) {
+      index1 = index
+    } else if (wordsDict[index] === word2) {
+      index2 = index
+    }
+
+    if (index1 !== -1 && index2 !== -1) {
+      answer = Math.min(answer, Math.abs(index1 - index2))
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'shortest-word-distance-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忽略了 `word1 === word2` 的情况，仍然按双位置去写，结果会错误地把同一个位置拿来和自己比较。',
+        bullets: [
+          '易错点 1：没单独处理同词场景。',
+          '易错点 2：同词时错误比较同一下标。',
+          '易错点 3：分支拆出来后复用状态不当。',
+          '延伸方向：最近距离系列、流式状态维护、条件分支题。',
+        ],
+      },
+    ],
+  },
 ];
