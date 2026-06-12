@@ -27786,4 +27786,155 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'meeting-rooms-ii',
+    label: '253. LeetCode 253. 会议室 II',
+    difficulty: '中等',
+    description:
+      '这题是在上一题基础上从“是否冲突”升级到“最少需要几个房间”。真正关键不是遇到冲突就直接加房间，而是持续维护当前正在使用会议室的结束时间。',
+    outcome:
+      '你能掌握求最少会议室数量的思路，理解为什么按开始时间排序后结合最小堆维护最早结束会议，就能得到最优答案。',
+    sections: [
+      {
+        id: 'meeting-rooms-ii-summary',
+        title: '题目在问什么',
+        summary: '给定一组会议时间区间，返回安排所有会议所需的最少会议室数量。',
+        bullets: [
+          '这次不是判断能否全参加。',
+          '要求的是最小房间数。',
+          '多个会议可同时进行。',
+          '本质是同时活动区间数量的峰值。',
+        ],
+      },
+      {
+        id: 'meeting-rooms-ii-sort',
+        title: '仍然先按开始时间排序，因为新会议是按时间线陆续到来的',
+        summary:
+          '排序后，你可以把每个新会议看成按时间顺序到达的请求。此时只需要知道：当前最早结束的那个会议室，能不能腾出来接待新会议。',
+        bullets: [
+          '排序让决策按时间自然展开。',
+          '每次只处理“下一个开始的会议”。',
+          '这非常适合配合堆做动态管理。',
+          '是会议室系列题的统一起点。',
+        ],
+      },
+      {
+        id: 'meeting-rooms-ii-heap',
+        title: '最小堆最适合维护“当前占用中最早结束的会议”',
+        summary:
+          '如果当前最早结束的会议都还没结束，那新会议就只能新开房间；如果它已经结束，则可以复用那个房间。最小堆能让你每次以最快速度拿到当前最早结束时间。',
+        bullets: [
+          '堆顶就是最早空出来的房间。',
+          '它直接决定当前是否可复用。',
+          '最小堆非常贴合这个决策点。',
+          '这是这题的核心数据结构选择。',
+        ],
+      },
+      {
+        id: 'meeting-rooms-ii-reuse',
+        title:
+          '遇到新会议时，如果最早结束时间小于等于当前开始时间，就能复用房间',
+        summary:
+          '这说明前一个会议已经结束，房间腾出来了。此时可以把那个结束时间从堆里移除，再把当前会议的结束时间压入堆中，相当于同一个房间被重新占用。',
+        bullets: [
+          '结束早于或等于开始说明无重叠。',
+          '复用动作体现了贪心思想。',
+          '堆中始终保存当前正在占用的房间结束时间。',
+          '房间数就是堆的峰值大小。',
+        ],
+        callout:
+          '很多区间资源题的核心都不是“怎么数”，而是“怎么复用”。只要你能抓住最早释放资源的那个对象，贪心结构往往就会很自然。',
+      },
+      {
+        id: 'meeting-rooms-ii-solution',
+        title: '标准解法：排序后用最小堆维护占用会议室结束时间',
+        summary:
+          '先按开始时间排序。遍历每个会议时，若堆顶结束时间小于等于当前开始时间，就弹出堆顶表示房间复用；然后把当前会议结束时间压入最小堆。遍历结束过程中，堆的最大尺寸就是所需最少房间数。',
+        bullets: [
+          '时间复杂度是 `O(n log n)`。',
+          '堆操作复杂度是 `O(log n)`。',
+          '是这题最标准的最优解法。',
+          '也能自然延伸到更多资源分配题。',
+        ],
+        code: `function minMeetingRooms(intervals: number[][]): number {
+  if (intervals.length === 0) {
+    return 0
+  }
+
+  intervals.sort((a, b) => a[0] - b[0])
+  const minHeap: number[] = []
+
+  const heapPush = (value: number) => {
+    minHeap.push(value)
+    let index = minHeap.length - 1
+
+    while (index > 0) {
+      const parent = Math.floor((index - 1) / 2)
+
+      if (minHeap[parent] <= minHeap[index]) {
+        break
+      }
+
+      ;[minHeap[parent], minHeap[index]] = [minHeap[index], minHeap[parent]]
+      index = parent
+    }
+  }
+
+  const heapPop = (): number => {
+    const top = minHeap[0]
+    minHeap[0] = minHeap[minHeap.length - 1]
+    minHeap.pop()
+    let index = 0
+
+    while (true) {
+      let smallest = index
+      const left = index * 2 + 1
+      const right = left + 1
+
+      if (left < minHeap.length && minHeap[left] < minHeap[smallest]) {
+        smallest = left
+      }
+
+      if (right < minHeap.length && minHeap[right] < minHeap[smallest]) {
+        smallest = right
+      }
+
+      if (smallest === index) {
+        break
+      }
+
+      ;[minHeap[index], minHeap[smallest]] = [minHeap[smallest], minHeap[index]]
+      index = smallest
+    }
+
+    return top
+  }
+
+  heapPush(intervals[0][1])
+
+  for (let index = 1; index < intervals.length; index += 1) {
+    if (minHeap[0] <= intervals[index][0]) {
+      heapPop()
+    }
+
+    heapPush(intervals[index][1])
+  }
+
+  return minHeap.length
+}`,
+      },
+      {
+        id: 'meeting-rooms-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是虽然想到了堆，但维护成了最大堆，结果拿不到最早结束会议；或者最终错误地返回了遍历结束时堆大小，而没有意识到它代表的正是同时占用峰值。',
+        bullets: [
+          '易错点 1：堆方向写错，没维护最早结束时间。',
+          '易错点 2：复用条件边界写错。',
+          '易错点 3：没理解堆中元素语义是“当前占用房间的结束时间”。',
+          '延伸方向：CPU 调度、最小资源分配、区间峰值题。',
+        ],
+      },
+    ],
+  },
 ];
