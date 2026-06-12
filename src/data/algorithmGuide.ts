@@ -27463,4 +27463,119 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'count-univalue-subtrees',
+    label: '250. LeetCode 250. 统计同值子树',
+    difficulty: '中等',
+    description:
+      '这题是在练树上条件汇总。真正关键不是对每棵子树都重新遍历检查，而是让递归直接返回“这棵子树是不是同值子树”，并在回溯时顺手统计。',
+    outcome:
+      '你能掌握用后序递归判断子树性质的思路，理解为什么当前节点是否构成同值子树取决于左右子树结果与子节点值，并能写出标准解法。',
+    sections: [
+      {
+        id: 'count-univalue-subtrees-summary',
+        title: '题目在问什么',
+        summary: '给定一棵二叉树，统计其中所有节点值都相同的子树数量。',
+        bullets: [
+          '单个节点本身也算同值子树。',
+          '子树要求整棵都同值。',
+          '目标是统计数量。',
+          '本质是树上性质判定与计数。',
+        ],
+      },
+      {
+        id: 'count-univalue-subtrees-postorder',
+        title:
+          '最自然的遍历顺序是后序，因为当前节点是否成立依赖左右子树先判断完',
+        summary:
+          '只有当你已经知道左子树和右子树是不是同值子树后，才有资格判断当前节点能不能和它们一起组成一个更大的同值子树。因此这题天然适合后序递归。',
+        bullets: [
+          '先问左右，再定当前。',
+          '是典型的树上信息汇总模式。',
+          '后序顺序让判断逻辑最顺。',
+          '很多树性质题都遵循这个结构。',
+        ],
+      },
+      {
+        id: 'count-univalue-subtrees-condition',
+        title: '当前节点想成为同值子树，必须同时满足三件事',
+        summary:
+          '第一，左子树本身是同值子树；第二，右子树本身也是同值子树；第三，如果左右孩子存在，它们的值还必须等于当前节点值。缺任何一个条件，当前节点都不能作为同值子树根。',
+        bullets: [
+          '左右子树合法性是前提。',
+          '孩子值与当前值一致是必要条件。',
+          '空子树可视作天然合法。',
+          '这是完整判断公式。',
+        ],
+      },
+      {
+        id: 'count-univalue-subtrees-count',
+        title: '统计动作其实很顺：一旦当前子树合法，就顺手加一',
+        summary:
+          '递归函数可以返回布尔值表示“当前子树是否为同值子树”。如果是，就在外层累加计数。这样判断与统计合二为一，不需要额外再遍历一遍。',
+        bullets: [
+          '返回值负责判断。',
+          '外部计数负责累积结果。',
+          '判断与计数可以同步完成。',
+          '这是实现上最稳的结构。',
+        ],
+        callout:
+          '很多树题最有价值的设计，不是返回一个最终答案，而是返回一个“能帮助父节点继续判断”的中间语义。这题返回布尔值就是典型例子。',
+      },
+      {
+        id: 'count-univalue-subtrees-solution',
+        title: '标准解法：后序递归返回同值标记并同步计数',
+        summary:
+          '递归检查左右子树是否为同值子树。若任一侧不合法，直接返回 `false`；若存在孩子且孩子值与当前节点不同，也返回 `false`。若条件全部满足，则当前节点构成同值子树，计数加一并返回 `true`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度取决于递归栈深度。',
+          '是这题最标准的后序写法。',
+          '很好地训练树上布尔语义回传。',
+        ],
+        code: `function countUnivalSubtrees(root: TreeNode | null): number {
+  let count = 0
+
+  const dfs = (node: TreeNode | null): boolean => {
+    if (node === null) {
+      return true
+    }
+
+    const leftValid = dfs(node.left)
+    const rightValid = dfs(node.right)
+
+    if (!leftValid || !rightValid) {
+      return false
+    }
+
+    if (node.left !== null && node.left.val !== node.val) {
+      return false
+    }
+
+    if (node.right !== null && node.right.val !== node.val) {
+      return false
+    }
+
+    count += 1
+    return true
+  }
+
+  dfs(root)
+  return count
+}`,
+      },
+      {
+        id: 'count-univalue-subtrees-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只比较当前节点和左右孩子值，却没先确认左右子树自身是不是同值子树；或者把空子树错误当成不合法，导致叶子节点也无法计数。',
+        bullets: [
+          '易错点 1：忽略左右子树自身合法性。',
+          '易错点 2：空子树基底返回值写错。',
+          '易错点 3：叶子节点没被算作同值子树。',
+          '延伸方向：同值路径、树上条件统计、后序信息汇总题。',
+        ],
+      },
+    ],
+  },
 ];
