@@ -27103,4 +27103,117 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'strobogrammatic-number-ii',
+    label: '247. LeetCode 247. 中心对称数 II',
+    difficulty: '中等',
+    description:
+      '这题是在上一题基础上做构造。真正关键不是暴力枚举所有数字再过滤，而是直接从内向外按合法映射对称扩展，只生成可能正确的结果。',
+    outcome:
+      '你能掌握中心对称数的递归构造思路，理解为什么应当从长度更小的问题向外包裹合法数对，并能写出标准生成解法。',
+    sections: [
+      {
+        id: 'strobogrammatic-number-ii-summary',
+        title: '题目在问什么',
+        summary: '给定整数 `n`，返回所有长度为 `n` 的中心对称数。',
+        bullets: [
+          '要求生成所有合法结果。',
+          '长度固定为 `n`。',
+          '不能包含前导零，除非整体长度就是 1。',
+          '本质是合法对称字符串构造。',
+        ],
+      },
+      {
+        id: 'strobogrammatic-number-ii-inside-out',
+        title: '最自然的构造方式，是从中间开始向两侧包裹',
+        summary:
+          '因为中心对称数的合法性完全由首尾映射关系决定，所以最适合的做法不是从左往右填，而是先构造更短的中心对称数，再在它外层包上合法字符对。',
+        bullets: [
+          '问题天然适合递归缩短长度。',
+          '首尾一对字符一起决定合法性。',
+          '从内向外包裹比从左往右试更自然。',
+          '这是这题的结构核心。',
+        ],
+      },
+      {
+        id: 'strobogrammatic-number-ii-base',
+        title: '递归终点只有两种：长度为 0 和长度为 1',
+        summary:
+          '长度为 0 时，可以把空串视为一个可继续外包的合法核心；长度为 1 时，只能是 `0`、`1`、`8` 这三个自映射字符。所有更长结果都从这两个基底扩展出来。',
+        bullets: [
+          '空串是偶数长度构造的基础。',
+          '单字符基底是奇数长度构造的基础。',
+          '终点定义清楚后递归会非常稳定。',
+          '这是实现正确性的关键。',
+        ],
+      },
+      {
+        id: 'strobogrammatic-number-ii-leading-zero',
+        title: '最外层不能包 `0...0`，否则会产生非法前导零',
+        summary:
+          '虽然 `0-0` 是合法映射对，但如果当前构造的是最终最外层，外面再包 `0` 就会得到以 `0` 开头的多位数，这是不合法的。因此只有在内部递归层才允许用 `0-0` 包裹。',
+        bullets: [
+          '前导零限制只作用于最外层。',
+          '内部层允许 `0-0` 保持结构完整。',
+          '区分“总长度”和“当前递归长度”很重要。',
+          '这是这题最容易出错的边界。',
+        ],
+        callout:
+          '构造题最常见的坑，不是不会生成，而是不会控制“哪些生成结果在最终层是非法的”。前导零就是这题必须额外拦住的一类结果。',
+      },
+      {
+        id: 'strobogrammatic-number-ii-solution',
+        title: '标准解法：递归生成更短结果，再外层包合法映射对',
+        summary:
+          '定义递归函数生成当前长度的所有中心对称数。先拿到长度减 2 的所有合法核心，再在两侧分别包上 `1-1`、`6-9`、`8-8`、`9-6`，以及在非最外层可用的 `0-0`。最终得到所有长度为 `n` 的答案。',
+        bullets: [
+          '时间复杂度与结果数量成正比。',
+          '结构清晰，非常适合递归生成。',
+          '是这题最经典的标准写法。',
+          '和上一题的判断题刚好形成一对。',
+        ],
+        code: `function findStrobogrammatic(n: number): string[] {
+  const build = (length: number, totalLength: number): string[] => {
+    if (length === 0) {
+      return ['']
+    }
+
+    if (length === 1) {
+      return ['0', '1', '8']
+    }
+
+    const middle = build(length - 2, totalLength)
+    const result: string[] = []
+
+    for (const core of middle) {
+      if (length !== totalLength) {
+        result.push(\`0\${core}0\`)
+      }
+
+      result.push(\`1\${core}1\`)
+      result.push(\`6\${core}9\`)
+      result.push(\`8\${core}8\`)
+      result.push(\`9\${core}6\`)
+    }
+
+    return result
+  }
+
+  return build(n, n)
+}`,
+      },
+      {
+        id: 'strobogrammatic-number-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是最外层错误地也允许 `0-0`，从而生成带前导零的非法结果；或者递归基底没分清奇偶长度，导致结果缺失。',
+        bullets: [
+          '易错点 1：前导零控制错误。',
+          '易错点 2：长度 0 和长度 1 的基底写乱。',
+          '易错点 3：合法映射对漏写或写反。',
+          '延伸方向：中心对称数范围统计、对称构造题、递归生成题。',
+        ],
+      },
+    ],
+  },
 ];
