@@ -28245,4 +28245,110 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'binary-tree-paths',
+    label: '257. LeetCode 257. 二叉树的所有路径',
+    difficulty: '简单',
+    description:
+      '这题是在练树上的路径收集。真正关键不是只做遍历，而是沿着递归过程维护从根到当前节点的路径，并在到达叶子时把这条路径输出出来。',
+    outcome:
+      '你能掌握根到叶路径收集的递归写法，理解为什么叶子节点是结果落点，并能写出标准 DFS 解法。',
+    sections: [
+      {
+        id: 'binary-tree-paths-summary',
+        title: '题目在问什么',
+        summary: '给定一棵二叉树，返回所有从根节点到叶子节点的路径字符串。',
+        bullets: [
+          '路径必须从根开始。',
+          '终点必须是叶子节点。',
+          '每条路径按 `a->b->c` 格式输出。',
+          '本质是树上路径枚举。',
+        ],
+      },
+      {
+        id: 'binary-tree-paths-path-state',
+        title: '路径题最核心的状态，就是“当前这条根到当前位置的路径”',
+        summary:
+          '递归向下走时，不仅要知道当前节点是谁，还要知道走到这里为止路径上经过了哪些节点。只有这条路径状态被带着走，到叶子时才能完整输出。',
+        bullets: [
+          '节点状态和路径状态必须一起维护。',
+          '路径是逐层扩展出来的。',
+          '这是和普通遍历最大区别。',
+          '状态设计决定输出是否自然。',
+        ],
+      },
+      {
+        id: 'binary-tree-paths-leaf',
+        title: '为什么结果只在叶子节点收集',
+        summary:
+          '题目要求的是根到叶子的完整路径，而不是到任意中间节点的前缀路径。只有当一个节点左右孩子都为空时，才说明当前路径真正走到了一个完整终点。',
+        bullets: [
+          '叶子节点定义了路径终止条件。',
+          '中间节点路径还未结束。',
+          '这是结果收集时机的关键。',
+          '很多树路径题都以叶子为落点。',
+        ],
+      },
+      {
+        id: 'binary-tree-paths-recursion',
+        title: '递归天然适合做“走一条路、扩一段路径、遇终点就收集”',
+        summary:
+          '每进入一个节点，就把它加入当前路径；若不是叶子，就继续往左右孩子递归。由于递归本身就代表沿一条路径不断深入，所以它和这类题的结构高度一致。',
+        bullets: [
+          '递归深度天然对应路径长度。',
+          '左右分支对应不同路径展开。',
+          '非常适合路径枚举类问题。',
+          '代码会很直观。',
+        ],
+        callout:
+          '树上的路径题往往不是难在搜索，而是难在“路径状态怎么带”。一旦你把路径状态和节点状态一起递归传递，很多题都会顺起来。',
+      },
+      {
+        id: 'binary-tree-paths-solution',
+        title: '标准解法：DFS 递归维护路径字符串或路径数组',
+        summary:
+          '从根节点开始 DFS。每到一个节点，就把当前路径延长到包含它；若该节点是叶子，则把路径加入答案；否则继续递归访问左右子树。最终收集到的所有路径就是结果。',
+        bullets: [
+          '时间复杂度与节点数和输出总长度相关。',
+          '空间复杂度取决于树高与路径存储。',
+          '是这题最标准的 DFS 写法。',
+          '也可以用路径数组最后再 `join`。',
+        ],
+        code: `function binaryTreePaths(root: TreeNode | null): string[] {
+  const result: string[] = []
+
+  const dfs = (node: TreeNode | null, path: string) => {
+    if (node === null) {
+      return
+    }
+
+    const currentPath = path === '' ? String(node.val) : \`\${path}->\${node.val}\`
+
+    if (node.left === null && node.right === null) {
+      result.push(currentPath)
+      return
+    }
+
+    dfs(node.left, currentPath)
+    dfs(node.right, currentPath)
+  }
+
+  dfs(root, '')
+  return result
+}`,
+      },
+      {
+        id: 'binary-tree-paths-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是在非叶子节点就提前收集路径，或者路径拼接状态没有在递归中正确传递，导致答案缺节点或格式混乱。',
+        bullets: [
+          '易错点 1：叶子判断时机错误。',
+          '易错点 2：路径状态拼接不完整。',
+          '易错点 3：空树边界处理漏掉。',
+          '延伸方向：路径总和、根到叶数字之和、树上路径 DFS 题。',
+        ],
+      },
+    ],
+  },
 ];
