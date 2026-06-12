@@ -27937,4 +27937,109 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'factor-combinations',
+    label: '254. LeetCode 254. 因子的组合',
+    difficulty: '中等',
+    description:
+      '这题是在练受限回溯与整数分解。真正关键不是把所有乘法拆法乱试一遍，而是只从不递减因子开始搜索，避免重复排列。',
+    outcome:
+      '你能掌握用回溯枚举整数因子组合的思路，理解为什么需要保证因子递增，以及如何利用整除性做剪枝。',
+    sections: [
+      {
+        id: 'factor-combinations-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个正整数 `n`，返回所有由大于 1 且小于 `n` 的因子组成的组合，使这些因子的乘积等于 `n`。',
+        bullets: [
+          '每个因子必须在 `(1, n)` 之间。',
+          '组合按乘积等于 `n` 定义。',
+          '不同顺序不应重复出现。',
+          '本质是因子分解的组合枚举。',
+        ],
+      },
+      {
+        id: 'factor-combinations-order',
+        title: '去重的关键，是让后续因子始终不小于当前已选因子',
+        summary:
+          '例如 `2 * 6` 和 `6 * 2` 本质是同一组组合。如果回溯时始终要求下一层选择的因子不小于当前起点，就能天然保证组合按非降序生成，从源头避免排列重复。',
+        bullets: [
+          '排序约束替代事后去重。',
+          '组合题常用“起点递增”技巧。',
+          '这是避免重复的核心。',
+          '能让结果结构更稳定。',
+        ],
+      },
+      {
+        id: 'factor-combinations-divisibility',
+        title: '只有当前候选因子能整除剩余值时，分支才有继续搜索的意义',
+        summary:
+          '如果当前数不能整除剩余目标，那么把它加入路径后乘积一定不可能精确凑到 `n`。因此整除判断就是最直接的剪枝条件，可以大幅减少无效搜索。',
+        bullets: [
+          '整除性是分支合法性的第一前提。',
+          '不整除的候选可直接跳过。',
+          '这是非常强的搜索剪枝。',
+          '和组合总和类题目不同，这里剪枝依赖乘法结构。',
+        ],
+      },
+      {
+        id: 'factor-combinations-stop',
+        title: '为什么通常只枚举到平方根，并把对应商一并作为结果补进来',
+        summary:
+          '如果某个因子大于平方根，那与它配对的另一个因子必然小于平方根，前面已经搜索过了。所以回溯时只需要试到平方根，一旦命中，就可以把当前因子和对应商组成一组候选。',
+        bullets: [
+          '平方根是因子配对的对称分界线。',
+          '超过平方根的情况会重复。',
+          '这是剪枝与完整性兼顾的关键。',
+          '很多因数题都有这个上界。',
+        ],
+        callout:
+          '整数分解题最值得训练的，是先看数学结构有没有天然上界。平方根剪枝往往能把回溯题从“能做”提升到“做得漂亮”。',
+      },
+      {
+        id: 'factor-combinations-solution',
+        title: '标准解法：按非降序因子回溯搜索',
+        summary:
+          '递归函数维护当前剩余值和下一层可选因子起点。对于每个可整除的因子，把它加入路径，并把当前剩余值除以该因子继续搜索；同时把当前因子与剩余商组成的组合收进结果。',
+        bullets: [
+          '时间复杂度取决于分解树规模。',
+          '空间复杂度主要来自递归栈和路径。',
+          '是这题最常见的标准回溯写法。',
+          '体现了数学剪枝与组合搜索结合。',
+        ],
+        code: `function getFactors(n: number): number[][] {
+  const result: number[][] = []
+  const path: number[] = []
+
+  const dfs = (start: number, remain: number) => {
+    for (let factor = start; factor * factor <= remain; factor += 1) {
+      if (remain % factor !== 0) {
+        continue
+      }
+
+      path.push(factor)
+      result.push([...path, Math.floor(remain / factor)])
+      dfs(factor, Math.floor(remain / factor))
+      path.pop()
+    }
+  }
+
+  dfs(2, n)
+  return result
+}`,
+      },
+      {
+        id: 'factor-combinations-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有维持因子非降序，导致同一组合以不同顺序重复出现；或者没利用平方根与整除剪枝，搜索量明显偏大。',
+        bullets: [
+          '易错点 1：回溯起点没控制，结果重复。',
+          '易错点 2：整除判断和递归剩余值更新写错。',
+          '易错点 3：把 `n` 自己错误当成单独因子加入。',
+          '延伸方向：组合分解、整数划分、带数学剪枝的回溯题。',
+        ],
+      },
+    ],
+  },
 ];
