@@ -28145,4 +28145,104 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'paint-house',
+    label: '256. LeetCode 256. 粉刷房子',
+    difficulty: '中等',
+    description:
+      '这题是在练线性 DP 的状态转移。真正关键不是枚举所有刷法，而是看出每个房子的某种颜色成本，只依赖前一个房子刷另外两种颜色的最优值。',
+    outcome:
+      '你能掌握按房子顺序递推的 DP 建模方式，理解为什么当前颜色只能接前一间房的另外两种颜色，并能写出标准解法。',
+    sections: [
+      {
+        id: 'paint-house-summary',
+        title: '题目在问什么',
+        summary:
+          '有一排房子，每间房涂成红、蓝、绿三种颜色之一，且相邻房子颜色不能相同，求最小总成本。',
+        bullets: [
+          '每间房三选一。',
+          '相邻房子不能同色。',
+          '目标是总成本最小。',
+          '本质是相邻约束下的线性 DP。',
+        ],
+      },
+      {
+        id: 'paint-house-state',
+        title: '最自然的状态，就是“刷到当前房子且当前房子刷某种颜色的最小成本”',
+        summary:
+          '如果把 `dp[i][color]` 定义成刷完前 `i` 间房且第 `i` 间房颜色固定为某色的最小成本，那么相邻约束会直接体现在转移里：当前颜色只能接前一间的其它颜色。',
+        bullets: [
+          '状态要把“当前房子颜色”显式带出来。',
+          '这样相邻约束能直接落到转移上。',
+          '是非常标准的线性 DP 状态定义。',
+          '理解状态比记公式更重要。',
+        ],
+      },
+      {
+        id: 'paint-house-transition',
+        title: '当前房子刷某色时，只能从前一间房另外两种颜色转移过来',
+        summary:
+          '例如当前刷红色，那么前一间只能是蓝色或绿色，因此当前红色成本等于当前刷红的费用加上前一间刷蓝或刷绿的较小值。其它颜色同理。',
+        bullets: [
+          '转移完全由相邻不能同色决定。',
+          '每种颜色都只看前一间的另外两色。',
+          '这让公式非常清晰。',
+          '是整题的核心转移关系。',
+        ],
+      },
+      {
+        id: 'paint-house-rolling',
+        title: '因为每一间房只依赖前一间，所以可以把 DP 压成三个滚动变量',
+        summary:
+          '你不需要保留整个二维数组，因为第 `i` 间房只会用到第 `i-1` 间房的三种状态。用三个变量保存上一间房刷三种颜色的最优值，就足够递推到最后。',
+        bullets: [
+          '依赖范围固定在上一间房。',
+          '滚动变量能压缩空间。',
+          '代码会更简洁。',
+          '是线性 DP 常见优化。',
+        ],
+        callout:
+          '很多 DP 题并不是要你背公式，而是要你先把“当前决策依赖哪些历史状态”讲明白。依赖只到上一层时，滚动优化通常就很自然。',
+      },
+      {
+        id: 'paint-house-solution',
+        title: '标准解法：按房子顺序递推三种颜色的最小成本',
+        summary:
+          '从第一间房开始初始化三种颜色成本，随后逐间更新当前刷红、蓝、绿的最优值。每次更新都基于上一间房另外两种颜色的较小值。最终三种状态中的最小值就是答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '是这题最标准的滚动 DP 写法。',
+          '也适合继续扩展到更多颜色版本。',
+        ],
+        code: `function minCost(costs: number[][]): number {
+  let [red, blue, green] = costs[0]
+
+  for (let index = 1; index < costs.length; index += 1) {
+    const nextRed = costs[index][0] + Math.min(blue, green)
+    const nextBlue = costs[index][1] + Math.min(red, green)
+    const nextGreen = costs[index][2] + Math.min(red, blue)
+
+    red = nextRed
+    blue = nextBlue
+    green = nextGreen
+  }
+
+  return Math.min(red, blue, green)
+}`,
+      },
+      {
+        id: 'paint-house-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是当前颜色错误地允许接前一间相同颜色，或者滚动变量更新时直接覆盖旧值，导致后面状态读取到已经被污染的新结果。',
+        bullets: [
+          '易错点 1：转移时没排除相同颜色。',
+          '易错点 2：滚动更新顺序写错。',
+          '易错点 3：空数组边界未处理。',
+          '延伸方向：粉刷房子 II、线性 DP、相邻约束最优化题。',
+        ],
+      },
+    ],
+  },
 ];
