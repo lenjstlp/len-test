@@ -27216,4 +27216,135 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'strobogrammatic-number-iii',
+    label: '248. LeetCode 248. 中心对称数 III',
+    difficulty: '困难',
+    description:
+      '这题是在上一题构造基础上再加范围约束。真正关键不是从 `low` 枚举到 `high` 去判断，而是按长度生成所有可能的中心对称数，再过滤掉不在区间内的结果。',
+    outcome:
+      '你能掌握利用中心对称数递归生成进行区间计数的思路，理解为什么按长度分层生成更自然，并能写出标准解法。',
+    sections: [
+      {
+        id: 'strobogrammatic-number-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个字符串表示的整数 `low` 和 `high`，返回位于闭区间 `[low, high]` 内的中心对称数个数。',
+        bullets: [
+          '区间上下界可能很大，用字符串表示。',
+          '要统计数量，不是列出全部。',
+          '数必须同时满足中心对称和区间约束。',
+          '本质是按长度生成加边界过滤。',
+        ],
+      },
+      {
+        id: 'strobogrammatic-number-iii-generate',
+        title: '区间计数的第一步，仍然是先会生成某一长度的所有中心对称数',
+        summary:
+          '因为中心对称数的结构规则很强，最稳的方式还是沿用上一题的递归生成。只不过这次生成出来后，不是全部返回，而是只统计落在指定范围内的那些结果。',
+        bullets: [
+          '结构生成能力是基础。',
+          '计数是在生成结果上再做过滤。',
+          '先有候选，后做范围判断。',
+          '和上一题是一脉相承的。',
+        ],
+      },
+      {
+        id: 'strobogrammatic-number-iii-length',
+        title: '区间用字符串给出，所以最自然的外层枚举维度就是长度',
+        summary:
+          '任何落在 `[low, high]` 里的合法数，长度一定在 `low.length` 到 `high.length` 之间。因此可以先按长度从小到大生成，再对同长度边界做字符串比较过滤。',
+        bullets: [
+          '长度本身就是第一层强约束。',
+          '长度之外的数字天然不可能落入区间。',
+          '这能大幅缩小候选空间。',
+          '也是字符串边界比较的自然切分方式。',
+        ],
+      },
+      {
+        id: 'strobogrammatic-number-iii-filter',
+        title:
+          '边界过滤时，只在与 `low` 或 `high` 同长度时才需要比较字符串大小',
+        summary:
+          '如果某个候选长度严格介于 `low.length` 和 `high.length` 之间，那它一定在区间范围内，无需再比具体值。只有长度等于边界长度时，才需要额外判断是否越过了 `low` 或 `high`。',
+        bullets: [
+          '长度先决定大部分合法性。',
+          '同长度才需要做字典序比较。',
+          '字符串比较在等长数字下等价于数值比较。',
+          '这是实现简洁的关键。',
+        ],
+        callout:
+          '很多“大整数区间题”真正难的不是数本身，而是你是否能先用长度把问题切开。长度一旦切好，很多比较就会变得非常简单。',
+      },
+      {
+        id: 'strobogrammatic-number-iii-solution',
+        title: '标准解法：按长度生成中心对称数，再按边界过滤计数',
+        summary:
+          '递归生成所有长度在 `low.length` 到 `high.length` 之间的中心对称数。对每个候选，若其长度等于 `low.length` 且小于 `low`，则跳过；若其长度等于 `high.length` 且大于 `high`，也跳过；其余合法候选计数加一。',
+        bullets: [
+          '时间复杂度与候选生成规模相关。',
+          '生成和过滤职责分明。',
+          '是这题最常见的标准写法。',
+          '很好地体现了构造题与范围题的结合。',
+        ],
+        code: `function strobogrammaticInRange(low: string, high: string): number {
+  const build = (length: number, totalLength: number): string[] => {
+    if (length === 0) {
+      return ['']
+    }
+
+    if (length === 1) {
+      return ['0', '1', '8']
+    }
+
+    const middle = build(length - 2, totalLength)
+    const result: string[] = []
+
+    for (const core of middle) {
+      if (length !== totalLength) {
+        result.push(\`0\${core}0\`)
+      }
+
+      result.push(\`1\${core}1\`)
+      result.push(\`6\${core}9\`)
+      result.push(\`8\${core}8\`)
+      result.push(\`9\${core}6\`)
+    }
+
+    return result
+  }
+
+  let count = 0
+
+  for (let length = low.length; length <= high.length; length += 1) {
+    for (const candidate of build(length, length)) {
+      if (length === low.length && candidate < low) {
+        continue
+      }
+
+      if (length === high.length && candidate > high) {
+        continue
+      }
+
+      count += 1
+    }
+  }
+
+  return count
+}`,
+      },
+      {
+        id: 'strobogrammatic-number-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有按长度先过滤，导致边界比较写得很乱；或者最外层仍错误允许前导零，结果把非法候选也统计进去了。',
+        bullets: [
+          '易错点 1：前导零控制和上一题处理不一致。',
+          '易错点 2：边界比较时忽略长度条件。',
+          '易错点 3：把字符串比较错误用于不同长度情况。',
+          '延伸方向：大整数字符串范围题、递归生成计数题、对称数系列题。',
+        ],
+      },
+    ],
+  },
 ];
