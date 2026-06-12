@@ -27347,4 +27347,120 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'group-shifted-strings',
+    label: '249. LeetCode 249. 移位字符串分组',
+    difficulty: '中等',
+    description:
+      '这题是在练模式归一化。真正关键不是直接比较字符串本身，而是把每个字符串转换成一个“相邻字符位移模式”的标准表示，再按这个表示分组。',
+    outcome:
+      '你能掌握对字符串做结构归一化分组的思路，理解为什么位移差模式可以唯一刻画同一组字符串，并能写出哈希分组解法。',
+    sections: [
+      {
+        id: 'group-shifted-strings-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一组小写字符串，把所有能够通过整体循环位移互相转换的字符串分到同一组。',
+        bullets: [
+          '每组内字符串长度相同。',
+          '转换规则是每个字符同时往后移同样的步数。',
+          '超过 `z` 要回到 `a`。',
+          '本质是按位移模式分组。',
+        ],
+      },
+      {
+        id: 'group-shifted-strings-pattern',
+        title: '真正决定是否同组的，不是具体字母，而是相邻字符之间的差值模式',
+        summary:
+          '例如 `abc`、`bcd`、`xyz` 虽然字母不同，但它们相邻字符差值都一样，所以属于同一组。只要把字符串映射成这种差值序列，就能把“整体平移”后的等价关系抓住。',
+        bullets: [
+          '整体平移不会改变相邻差值模式。',
+          '差值模式比原字符串更本质。',
+          '这是一种典型的归一化思路。',
+          '抓到不变量就能稳定分组。',
+        ],
+      },
+      {
+        id: 'group-shifted-strings-wrap',
+        title: '差值计算必须考虑字母环绕，所以要对 26 取模',
+        summary:
+          '像 `az` 到 `ba` 这类情况，简单减法会出现负数或不一致。正确做法是把差值统一放到模 26 的循环字母表里处理，这样环绕关系也能被正确归一化。',
+        bullets: [
+          '字母表是循环结构，不是线性结构。',
+          '取模是处理环绕的关键。',
+          '否则 `z` 到 `a` 会出错。',
+          '这是实现里最重要的边界点。',
+        ],
+      },
+      {
+        id: 'group-shifted-strings-key',
+        title: '把差值序列编码成键，就能直接用哈希表做分组',
+        summary:
+          '对每个字符串，计算相邻字符差值并拼成一个唯一的键。具有相同键的字符串一定属于同一组。这样问题就从“复杂关系判断”变成了“按键聚类”。',
+        bullets: [
+          '键是分组的桥梁。',
+          '相同键意味着结构同型。',
+          '哈希表非常适合承接这种归一化结果。',
+          '实现会很直接。',
+        ],
+        callout:
+          '分组题最值得训练的，不是把元素硬凑进桶，而是先问自己：有没有一个更稳定的不变量，能把“本质相同”的对象映射成同一个键。',
+      },
+      {
+        id: 'group-shifted-strings-solution',
+        title: '标准解法：计算差值模式键并用哈希表聚类',
+        summary:
+          '遍历每个字符串，若长度为 1，可直接视为同一类模式；否则依次计算相邻字符差值 `(当前 - 前一个 + 26) % 26`，把整段差值序列编码成键。最后按键把字符串放入对应数组中即可。',
+        bullets: [
+          '时间复杂度与所有字符串总长度成正比。',
+          '空间复杂度取决于哈希分组结果。',
+          '是这题最标准的归一化分组写法。',
+          '非常适合类比异位词分组题。',
+        ],
+        code: `function groupStrings(strings: string[]): string[][] {
+  const groups = new Map<string, string[]>()
+
+  const getKey = (word: string): string => {
+    if (word.length === 1) {
+      return 'single'
+    }
+
+    const parts: string[] = []
+
+    for (let index = 1; index < word.length; index += 1) {
+      const diff =
+        (word.charCodeAt(index) - word.charCodeAt(index - 1) + 26) % 26
+      parts.push(String(diff))
+    }
+
+    return parts.join(',')
+  }
+
+  for (const word of strings) {
+    const key = getKey(word)
+
+    if (!groups.has(key)) {
+      groups.set(key, [])
+    }
+
+    groups.get(key)!.push(word)
+  }
+
+  return [...groups.values()]
+}`,
+      },
+      {
+        id: 'group-shifted-strings-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接拿首字符归一化但没处理环绕一致性；或者差值计算忘了取模，导致跨 `z` 到 `a` 的字符串被错误分开。',
+        bullets: [
+          '易错点 1：差值忘了模 26。',
+          '易错点 2：键设计不能稳定表示整串模式。',
+          '易错点 3：长度 1 字符串分类处理不清。',
+          '延伸方向：字符串归一化、哈希分组、模式不变量题。',
+        ],
+      },
+    ],
+  },
 ];
