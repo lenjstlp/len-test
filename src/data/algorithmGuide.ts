@@ -27578,4 +27578,117 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'flatten-2d-vector',
+    label: '251. LeetCode 251. 展开二维向量',
+    difficulty: '中等',
+    description:
+      '这题是在练迭代器状态维护。真正关键不是预先把二维数组拍平成一维，而是维护行列指针，在需要时跳过空行并定位下一个有效元素。',
+    outcome:
+      '你能掌握二维结构按顺序迭代的状态设计，理解为什么 `hasNext` 应负责把指针推进到合法位置，并能写出标准实现。',
+    sections: [
+      {
+        id: 'flatten-2d-vector-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个迭代器，按顺序遍历二维向量中的所有元素，支持 `next` 和 `hasNext`。',
+        bullets: [
+          '遍历顺序按行从左到右、从上到下。',
+          '二维向量中可能包含空行。',
+          '接口重点是 `next` 与 `hasNext` 的配合。',
+          '本质是迭代状态维护。',
+        ],
+      },
+      {
+        id: 'flatten-2d-vector-state',
+        title: '最自然的状态就是两个指针：当前行和当前列',
+        summary:
+          '因为数据结构本身就是二维的，所以直接维护 `row` 和 `column` 两个位置就足够描述当前遍历状态。无需额外复制数据，也不必预处理成一维数组。',
+        bullets: [
+          '二维位置直接映射原始结构。',
+          '状态足够且最小。',
+          '避免预展开带来的额外空间。',
+          '是最贴题的设计。',
+        ],
+      },
+      {
+        id: 'flatten-2d-vector-empty-rows',
+        title: '真正麻烦的不是取值，而是空行和行尾后的跳转',
+        summary:
+          '当当前列已经走到行尾，或者当前行本身就是空的，就需要不断把行指针往后推进，并把列指针重置到 0。只有这样，才能保证后续 `next` 真正拿到的是一个有效元素。',
+        bullets: [
+          '空行必须被主动跳过。',
+          '行尾后要切到下一行开头。',
+          '无效位置清理是实现重点。',
+          '这一步最适合集中放到 `hasNext` 里做。',
+        ],
+      },
+      {
+        id: 'flatten-2d-vector-hasnext',
+        title: '为什么 `hasNext` 最好承担“指针归位”职责',
+        summary:
+          '如果让 `next` 里到处补跳空行逻辑，代码会变乱，而且 `hasNext` 的结果也可能不可靠。把所有“推进到下一个合法元素”的工作统一放在 `hasNext` 中，接口语义会更清晰。',
+        bullets: [
+          '`hasNext` 负责判断前先修正状态。',
+          '`next` 就能专注于取值并前进一步。',
+          '两接口职责更清楚。',
+          '这是迭代器题常见设计方式。',
+        ],
+        callout:
+          '很多设计题的关键不是能不能跑通，而是状态修正应该落在哪个接口里。职责分清楚，代码会稳定很多。',
+      },
+      {
+        id: 'flatten-2d-vector-solution',
+        title: '标准解法：行列双指针配合 `hasNext` 跳过无效位置',
+        summary:
+          '维护当前行列索引。`hasNext` 循环跳过所有空行或已走完的行，把指针推进到下一个合法元素；`next` 在确认存在元素后返回当前值，并让列指针右移一格。',
+        bullets: [
+          '初始化成本很低。',
+          '额外空间复杂度是 `O(1)`。',
+          '接口语义清晰稳定。',
+          '是这题最标准的实现方案。',
+        ],
+        code: `class Vector2D {
+  private row = 0
+  private column = 0
+
+  constructor(private vec: number[][]) {}
+
+  next(): number {
+    if (!this.hasNext()) {
+      return -1
+    }
+
+    const value = this.vec[this.row][this.column]
+    this.column += 1
+    return value
+  }
+
+  hasNext(): boolean {
+    while (
+      this.row < this.vec.length &&
+      this.column >= this.vec[this.row].length
+    ) {
+      this.row += 1
+      this.column = 0
+    }
+
+    return this.row < this.vec.length
+  }
+}`,
+      },
+      {
+        id: 'flatten-2d-vector-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没处理空行导致 `hasNext` 错判，或者把状态推进分散在 `next` 和 `hasNext` 两边，结果边界行为不一致。',
+        bullets: [
+          '易错点 1：空行跳过逻辑不完整。',
+          '易错点 2：`next` 前未确认当前位置有效。',
+          '易错点 3：行尾后列指针忘记归零。',
+          '延伸方向：Zigzag 迭代器、嵌套列表迭代器、状态机式迭代题。',
+        ],
+      },
+    ],
+  },
 ];
