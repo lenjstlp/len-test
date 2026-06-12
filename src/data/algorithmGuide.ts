@@ -28042,4 +28042,107 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'verify-preorder-sequence-in-binary-search-tree',
+    label: '255. LeetCode 255. 验证前序遍历序列二叉搜索树',
+    difficulty: '中等',
+    description:
+      '这题是在练利用遍历顺序反推树结构。真正关键不是把树真的建出来，而是用一个栈模拟从根向右子树切换时的路径变化，并维护当前允许的最小下界。',
+    outcome:
+      '你能掌握 BST 前序序列验证的单调栈思路，理解下界为何代表“已经进入某个右子树后不能再回头小于它”，并能写出线性解法。',
+    sections: [
+      {
+        id: 'verify-preorder-sequence-in-binary-search-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组，判断它是否可能是一棵二叉搜索树的前序遍历结果。',
+        bullets: [
+          '不需要真的构造整棵树。',
+          '只需判断序列是否合法。',
+          'BST 与前序遍历两个条件同时生效。',
+          '本质是结构约束验证。',
+        ],
+      },
+      {
+        id: 'verify-preorder-sequence-in-binary-search-tree-preorder',
+        title: '前序遍历顺序是“根 -> 左 -> 右”，BST 又要求左小右大',
+        summary:
+          '这意味着序列一开始会不断进入左子树，直到某个时刻开始转向右子树。一旦进入某个祖先节点的右子树，后面再出现比这个祖先还小的值，就一定违法。',
+        bullets: [
+          '前序决定访问顺序。',
+          'BST 决定大小约束。',
+          '关键在于“何时从左切到右”。',
+          '违法情况通常表现为越过下界后又回头变小。',
+        ],
+      },
+      {
+        id: 'verify-preorder-sequence-in-binary-search-tree-stack',
+        title: '栈里保存的，是一条仍可能继续回到其左侧的祖先路径',
+        summary:
+          '扫描序列时，如果当前值比栈顶大，说明我们要从某个节点的左侧回到它的右侧，因此不断弹栈，直到当前值不再大于栈顶。最后被弹出的那个值，就形成了新的下界。',
+        bullets: [
+          '栈模拟从根到当前节点的路径。',
+          '弹栈表示开始进入某个祖先的右子树。',
+          '被弹出的祖先值会成为下界。',
+          '这是算法状态的核心语义。',
+        ],
+      },
+      {
+        id: 'verify-preorder-sequence-in-binary-search-tree-lower-bound',
+        title: '下界的意义，是“后续所有值都不能再小于这个祖先”',
+        summary:
+          '一旦我们已经进入某个节点的右子树，根据 BST 性质，后面遇到的所有节点值都必须大于该节点。所以维护一个 `lowerBound`，只要当前值小于它，就说明序列非法。',
+        bullets: [
+          '下界来自最近一次进入右子树的祖先。',
+          '它代表了全局不能回退的最小限制。',
+          '任何小于下界的值都会破坏 BST 结构。',
+          '这是正确性判断的核心。',
+        ],
+        callout:
+          '这类验证题的本质，往往不是记模板，而是搞懂每个状态变量的语义。栈和下界一旦能说清楚，整道题就会非常顺。',
+      },
+      {
+        id: 'verify-preorder-sequence-in-binary-search-tree-solution',
+        title: '标准解法：单调栈模拟路径，并维护当前下界',
+        summary:
+          '遍历前序序列。若当前值小于下界，直接返回 `false`；否则，当它大于栈顶时不断弹栈，并把最后弹出的值更新为下界。然后把当前值压栈继续。若全部通过，则说明序列合法。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '每个元素最多进栈出栈一次。',
+          '空间复杂度是 `O(n)`。',
+          '是这题最经典的标准解法。',
+        ],
+        code: `function verifyPreorder(preorder: number[]): boolean {
+  const stack: number[] = []
+  let lowerBound = Number.NEGATIVE_INFINITY
+
+  for (const value of preorder) {
+    if (value < lowerBound) {
+      return false
+    }
+
+    while (stack.length > 0 && value > stack[stack.length - 1]) {
+      lowerBound = stack.pop()!
+    }
+
+    stack.push(value)
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'verify-preorder-sequence-in-binary-search-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是知道要用栈却说不清下界意义，导致比较条件写乱；或者弹栈后没有及时更新下界，错过非法序列。',
+        bullets: [
+          '易错点 1：下界语义理解不清。',
+          '易错点 2：弹栈时没有更新最近祖先下界。',
+          '易错点 3：误把栈当成单纯的递增/递减序列工具。',
+          '延伸方向：BST 后序验证、单调栈结构验证题、树序列重建题。',
+        ],
+      },
+    ],
+  },
 ];
