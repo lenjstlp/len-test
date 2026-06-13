@@ -29316,4 +29316,151 @@ ORDER BY t.request_at;`,
       },
     ],
   },
+  {
+    id: 'palindrome-permutation-ii',
+    label: '267. LeetCode 267. 回文排列 II',
+    difficulty: '中等',
+    description:
+      '这题从“能不能排成回文”进一步升级到“把所有可行回文都构造出来”。重点是先解决结构合法性，再用半边字符串做去重排列。',
+    outcome:
+      '你能独立写出这题的回溯解法，理解为什么只排列半边字符串，再镜像补全，就能高效生成所有回文结果。',
+    sections: [
+      {
+        id: 'palindrome-permutation-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串 `s`，返回所有可能的回文排列。如果无法形成回文，返回空数组。',
+        bullets: [
+          '不是只判断存在性。',
+          '要返回所有不同答案。',
+          '重复字符会导致重复排列。',
+          '因此需要构造和去重同时处理。',
+        ],
+      },
+      {
+        id: 'palindrome-permutation-ii-check',
+        title: '第一步仍然是检查是否存在回文结构',
+        summary:
+          '如果出现奇数次的字符超过 1 个，就不可能构成回文，直接返回空数组。只有通过这个合法性检查，后续构造才有意义。',
+        bullets: [
+          '奇数次字符最多只能有一个。',
+          '若存在，它只能放在中间。',
+          '其它字符都要左右对称成对出现。',
+          '这是所有构造的前提。',
+        ],
+      },
+      {
+        id: 'palindrome-permutation-ii-half',
+        title: '真正要排列的只是一半字符',
+        summary:
+          '回文的右半部分由左半部分镜像得到，所以只需把每个字符的一半数量拿出来，组成一个“半边字符串”。回溯时对这半边做全排列，再把结果拼成 `left + middle + reversed(left)` 即可。',
+        bullets: [
+          '每个字符取 `count / 2` 个进入左半边。',
+          '中间字符单独记录。',
+          '完整答案由半边镜像生成。',
+          '这样比直接排列整个字符串高效得多。',
+        ],
+      },
+      {
+        id: 'palindrome-permutation-ii-deduplicate',
+        title: '半边排列仍会有重复，所以回溯要做去重',
+        summary:
+          '如果半边中有多个相同字符，普通全排列会产生重复答案。常见做法是先排序，再在同一层递归里跳过相邻重复值，或者直接按字符频次回溯。',
+        bullets: [
+          '排序后更容易做同层去重。',
+          '`used` 数组配合相邻判重是经典模板。',
+          '也可以用计数表回溯，思路同样成立。',
+          '核心是避免生成重复半边。',
+        ],
+        callout:
+          '很多“结果去重”题，最稳的做法不是事后用 `Set` 去重，而是在搜索树展开阶段就阻止重复分支出现。这既更高效，也更符合回溯的基本训练目标。',
+      },
+      {
+        id: 'palindrome-permutation-ii-solution',
+        title: '标准解法：半边字符串回溯 + 镜像补全',
+        summary:
+          '先统计频次，检查奇数项是否合法。构造排序后的半边字符数组与中间字符，再用 `used` 数组回溯生成所有不重复的左半边。每得到一个左半边，就拼出完整回文串放入答案。',
+        bullets: [
+          '时间复杂度主要取决于半边排列数量。',
+          '空间复杂度来自回溯栈和答案集。',
+          '是这题最清晰直观的标准写法。',
+          '训练重点在“结构拆半”的建模能力。',
+        ],
+        code: `function generatePalindromes(s: string): string[] {
+  const counts = new Map<string, number>()
+
+  for (const char of s) {
+    counts.set(char, (counts.get(char) ?? 0) + 1)
+  }
+
+  let middle = ''
+  const halfChars: string[] = []
+
+  for (const [char, count] of counts) {
+    if (count % 2 === 1) {
+      if (middle !== '') {
+        return []
+      }
+
+      middle = char
+    }
+
+    for (let index = 0; index < Math.floor(count / 2); index += 1) {
+      halfChars.push(char)
+    }
+  }
+
+  halfChars.sort()
+
+  const used = Array(halfChars.length).fill(false)
+  const path: string[] = []
+  const result: string[] = []
+
+  const backtrack = (): void => {
+    if (path.length === halfChars.length) {
+      const left = path.join('')
+      const right = [...path].reverse().join('')
+      result.push(left + middle + right)
+      return
+    }
+
+    for (let index = 0; index < halfChars.length; index += 1) {
+      if (used[index]) {
+        continue
+      }
+
+      if (
+        index > 0 &&
+        halfChars[index] === halfChars[index - 1] &&
+        !used[index - 1]
+      ) {
+        continue
+      }
+
+      used[index] = true
+      path.push(halfChars[index])
+      backtrack()
+      path.pop()
+      used[index] = false
+    }
+  }
+
+  backtrack()
+  return result
+}`,
+      },
+      {
+        id: 'palindrome-permutation-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最常见的错误，是明明已经知道回文可以由半边镜像得到，却仍然对整个字符串做全排列，导致复杂度和重复结果都完全失控。',
+        bullets: [
+          '易错点 1：忘了先做合法性检查。',
+          '易错点 2：直接排列全串而不是半串。',
+          '易错点 3：回溯判重条件写错，导致漏解或重解。',
+          '延伸方向：全排列去重、回文构造、字符频次回溯。',
+        ],
+      },
+    ],
+  },
 ];
