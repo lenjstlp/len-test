@@ -29712,4 +29712,107 @@ ORDER BY t.request_at;`,
       },
     ],
   },
+  {
+    id: 'closest-bst-value',
+    label: '270. LeetCode 270. 最接近的二叉搜索树值',
+    difficulty: '简单',
+    description:
+      '这题看起来是树题，核心其实是用好二叉搜索树的有序性。重点不是遍历整棵树，而是像二分一样根据目标值决定往左还是往右走。',
+    outcome:
+      '你能利用 BST 性质在单条路径上找到最接近目标值的节点，并理解为什么这比全树遍历更自然也更高效。',
+    sections: [
+      {
+        id: 'closest-bst-value-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉搜索树的根节点 `root` 和一个浮点数 `target`，返回树中与 `target` 最接近的节点值。',
+        bullets: [
+          '返回的是节点值，不是节点本身。',
+          '目标值可能不在树中。',
+          '二叉搜索树满足左小右大。',
+          '要找绝对差最小的那个值。',
+        ],
+      },
+      {
+        id: 'closest-bst-value-bruteforce',
+        title: '遍历整棵树当然能做，但没有利用 BST 的排序结构',
+        summary:
+          '如果把每个节点都看一遍，持续维护当前最接近 `target` 的值，最后也能得到答案。但 BST 最有价值的地方就是它提供了方向信息，不应该浪费。',
+        bullets: [
+          '全树遍历时间复杂度是 `O(n)`。',
+          '适用于普通二叉树，但不够贴题。',
+          'BST 给出了剪枝和定向搜索的机会。',
+          '更优思路应该只走一条搜索路径。',
+        ],
+      },
+      {
+        id: 'closest-bst-value-direction',
+        title: '关键判断：当前值和目标比较后，下一步方向是确定的',
+        summary:
+          '若当前节点值大于 `target`，更接近的候选只可能出现在左子树；若当前值小于 `target`，则更可能在右子树。因此可以像二分查找那样逐步逼近目标。',
+        bullets: [
+          '每到一个节点都更新当前最佳答案。',
+          '再依据 BST 性质决定搜索方向。',
+          '不需要回头遍历另一侧整棵子树。',
+          '这是 BST 查询题的典型模式。',
+        ],
+      },
+      {
+        id: 'closest-bst-value-update',
+        title: '沿途持续维护“当前最接近值”即可',
+        summary:
+          '初始化答案为根节点值。每访问到一个新节点，就比较它与当前答案谁更接近目标，如果更优就更新。最终走到空节点时，手里的答案就是全路径最优值。',
+        bullets: [
+          '比较标准是绝对差值大小。',
+          '相等时通常保留当前值即可。',
+          '实现可以写成迭代，更直观。',
+          '树高平衡时复杂度接近 `O(log n)`。',
+        ],
+        callout:
+          'BST 题最重要的训练目标之一，是把“树结构”自动转换成“有序决策树”。只要题目问的是大小关系、范围、最接近、前驱后继，第一反应都应该是能否利用左小右大的性质剪枝。',
+      },
+      {
+        id: 'closest-bst-value-solution',
+        title: '标准解法：沿 BST 搜索路径迭代逼近',
+        summary:
+          '从根节点出发，初始化答案为根值。每到一个节点，先尝试更新最接近值，再根据 `target` 与当前节点值的大小关系，决定往左还是往右继续搜索。直到节点为空为止。',
+        bullets: [
+          '时间复杂度平均为 `O(h)`，`h` 是树高。',
+          '空间复杂度是 `O(1)`，采用迭代写法。',
+          '实现短小，且充分利用 BST 特性。',
+          '是这题最标准的解法。',
+        ],
+        code: `function closestValue(root: TreeNode | null, target: number): number {
+  let current = root
+  let closest = root!.val
+
+  while (current !== null) {
+    if (Math.abs(current.val - target) < Math.abs(closest - target)) {
+      closest = current.val
+    }
+
+    if (target < current.val) {
+      current = current.left
+    } else {
+      current = current.right
+    }
+  }
+
+  return closest
+}`,
+      },
+      {
+        id: 'closest-bst-value-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题容易犯的错，是知道 BST 有序，却又担心漏掉答案，最后还是把整棵树都遍历了。那样虽然正确，但没有体现出对数据结构性质的利用能力。',
+        bullets: [
+          '易错点 1：把 BST 做成普通树遍历题。',
+          '易错点 2：更新最优值时比较条件写错。',
+          '易错点 3：忘记目标值可能是浮点数。',
+          '延伸方向：BST 前驱后继、最近 K 个值、范围搜索。',
+        ],
+      },
+    ],
+  },
 ];
