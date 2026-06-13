@@ -28657,4 +28657,118 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'graph-valid-tree',
+    label: '261. LeetCode 261. 以图判树',
+    difficulty: '中等',
+    description:
+      '这题是在练无向图树结构判定。真正关键不是只检查有没有环，而是同时满足“边数恰好为 `n - 1`”和“整张图连通”这两个条件。',
+    outcome:
+      '你能掌握无向图判树的核心条件，理解为什么树必须无环且连通，并能写出基于并查集或 DFS 的标准解法。',
+    sections: [
+      {
+        id: 'graph-valid-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `n` 个节点和若干无向边，判断它们是否共同构成一棵合法的树。',
+        bullets: [
+          '图是无向图。',
+          '要判断整体是否是一棵树。',
+          '既不能有环，也不能断开。',
+          '本质是树性质验证。',
+        ],
+      },
+      {
+        id: 'graph-valid-tree-two-conditions',
+        title: '判一张无向图是不是树，核心就两条：连通且无环',
+        summary:
+          '树的定义本身就要求所有节点连成一体，而且任意两点之间路径唯一，所以不能出现环。只满足其中一条都不够，比如森林无环但不连通，环图连通但不是树。',
+        bullets: [
+          '连通性保证整张图是一体的。',
+          '无环性保证结构不多余。',
+          '两条缺一不可。',
+          '这是整题的理论基础。',
+        ],
+      },
+      {
+        id: 'graph-valid-tree-edge-count',
+        title: '一个非常强的先验条件是：树的边数必须恰好等于 `n - 1`',
+        summary:
+          '若边数少于 `n - 1`，图不可能连通；若边数多于 `n - 1`，无向图一定会形成环。因此在正式遍历前，先用边数做剪枝能快速排掉很多非法情况。',
+        bullets: [
+          '`n - 1` 是树的边数刚性条件。',
+          '这一步能快速剪枝。',
+          '既能排除断图，也能排除明显成环图。',
+          '是实现中的天然早停条件。',
+        ],
+      },
+      {
+        id: 'graph-valid-tree-union-find',
+        title:
+          '并查集非常适合做这题：合并边时一旦两个端点已连通，就说明出现了环',
+        summary:
+          '遍历每条边时，如果这条边连接的两个节点本来就在同一连通分量里，那么再加这条边就一定形成环；否则把它们合并。配合边数条件，就能高效完成判断。',
+        bullets: [
+          '并查集天然适合处理无向图连通性。',
+          '同集合再连边意味着成环。',
+          '合并操作用于维护分量关系。',
+          '这是这题最常见的数据结构解法。',
+        ],
+        callout:
+          '图判树题的难点往往不是代码，而是你要把“树”这件事拆成可以程序化验证的条件。边数、连通、无环，就是最核心的三个关键词。',
+      },
+      {
+        id: 'graph-valid-tree-solution',
+        title: '标准解法：先判边数，再用并查集检查是否成环',
+        summary:
+          '先判断边数是否等于 `n - 1`；若不等，直接返回 `false`。否则遍历每条边，用并查集判断两端点是否已连通；若已连通则成环返回 `false`，否则合并。全部通过后即可返回 `true`。',
+        bullets: [
+          '时间复杂度接近 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '是这题最标准的高效解法。',
+          '也很适合作为并查集入门题。',
+        ],
+        code: `function validTree(n: number, edges: number[][]): boolean {
+  if (edges.length !== n - 1) {
+    return false
+  }
+
+  const parent = Array.from({ length: n }, (_, index) => index)
+
+  const find = (x: number): number => {
+    if (parent[x] !== x) {
+      parent[x] = find(parent[x])
+    }
+
+    return parent[x]
+  }
+
+  for (const [a, b] of edges) {
+    const rootA = find(a)
+    const rootB = find(b)
+
+    if (rootA === rootB) {
+      return false
+    }
+
+    parent[rootA] = rootB
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'graph-valid-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只检查了无环却忘了连通，或者虽然知道树边数是 `n - 1`，却没有把它当作最先使用的剪枝条件。',
+        bullets: [
+          '易错点 1：只判环不判连通。',
+          '易错点 2：边数条件理解不透。',
+          '易错点 3：并查集路径压缩写错。',
+          '延伸方向：连通分量、最小生成树、并查集判环题。',
+        ],
+      },
+    ],
+  },
 ];
