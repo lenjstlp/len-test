@@ -30094,4 +30094,156 @@ ORDER BY t.request_at;`,
       },
     ],
   },
+  {
+    id: 'integer-to-english-words',
+    label: '273. LeetCode 273. 整数转换英文表示',
+    difficulty: '困难',
+    description:
+      '这题是典型的字符串模拟与分治题。重点不是死记硬背英文单词，而是把数字按三位一组拆解，再复用“处理 0 到 999”的子问题。',
+    outcome:
+      '你能把任意非负整数拆成 Billion、Million、Thousand、Hundred 等层级来处理，写出结构清晰、可维护的转换逻辑。',
+    sections: [
+      {
+        id: 'integer-to-english-words-summary',
+        title: '题目在问什么',
+        summary: '给定一个非负整数 `num`，把它转换成对应的英文单词表示。',
+        bullets: [
+          '返回的是英文短语。',
+          '输入范围包含 0。',
+          '数字可能很大，需要按位分层处理。',
+          '本质是字符串构造题。',
+        ],
+      },
+      {
+        id: 'integer-to-english-words-group',
+        title: '英语读数的天然结构是每三位一组',
+        summary:
+          '英文数字表达通常按照 3 位分组，如 `1234567` 会拆成 `1 million`、`234 thousand`、`567`。因此这题最自然的建模方式，就是把整数按千进制拆成若干块分别处理。',
+        bullets: [
+          '三位一组对应一个单位层级。',
+          '层级依次是 Thousand、Million、Billion。',
+          '每组内部的读法规则相同。',
+          '这非常适合分治和模板复用。',
+        ],
+      },
+      {
+        id: 'integer-to-english-words-helper',
+        title: '真正的核心函数是“把 0 到 999 转成英文”',
+        summary:
+          '如果你能写出一个辅助函数处理三位以内的数字，那么大数部分就只是在这个函数结果后面加上单位名词。比如 `234` 转成 `Two Hundred Thirty Four`，再加 `Thousand` 即可。',
+        bullets: [
+          '小于 20 的英文需要单独表。',
+          '整十也需要单独表。',
+          '百位以上采用递归或分段拼接。',
+          '这个 helper 决定了整体代码质量。',
+        ],
+      },
+      {
+        id: 'integer-to-english-words-build',
+        title: '从低位往高位逐组三位处理，再按顺序拼接结果',
+        summary:
+          '每次取 `num % 1000` 得到当前三位组，若该组不为 0，就把它转换为英文并加上对应单位。随后令 `num = Math.floor(num / 1000)` 进入下一组，直到数字耗尽。',
+        bullets: [
+          '只处理非零组，避免多余单位。',
+          '可以把每组结果头插到数组里。',
+          '最后用空格拼接成完整句子。',
+          '整体结构非常规整。',
+        ],
+        callout:
+          '遇到大输入格式化题时，最有价值的能力往往不是硬写条件分支，而是先发现它是否能被拆成重复的小模块。只要子问题结构统一，主流程就会非常干净。',
+      },
+      {
+        id: 'integer-to-english-words-solution',
+        title: '标准解法：三位分组 + 辅助函数递归转换',
+        summary:
+          '先处理 `0` 的特判。准备个位到十九、整十和单位名称数组。循环按三位取组，调用 `convertChunk` 把每一组转成英文，并拼接对应层级单位。最后把所有部分用空格连接。',
+        bullets: [
+          '时间复杂度近似是 `O(log num)`。',
+          '空间复杂度主要来自结果字符串构造。',
+          '更重要的是代码结构是否清晰。',
+          '这是这题最主流的写法。',
+        ],
+        code: `function numberToWords(num: number): string {
+  if (num === 0) {
+    return 'Zero'
+  }
+
+  const belowTwenty = [
+    '',
+    'One',
+    'Two',
+    'Three',
+    'Four',
+    'Five',
+    'Six',
+    'Seven',
+    'Eight',
+    'Nine',
+    'Ten',
+    'Eleven',
+    'Twelve',
+    'Thirteen',
+    'Fourteen',
+    'Fifteen',
+    'Sixteen',
+    'Seventeen',
+    'Eighteen',
+    'Nineteen',
+  ]
+
+  const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety']
+  const thousands = ['', 'Thousand', 'Million', 'Billion']
+
+  const convertChunk = (value: number): string => {
+    if (value === 0) {
+      return ''
+    }
+
+    if (value < 20) {
+      return belowTwenty[value]
+    }
+
+    if (value < 100) {
+      const tail = convertChunk(value % 10)
+      return tail === '' ? tens[Math.floor(value / 10)] : \`\${tens[Math.floor(value / 10)]} \${tail}\`
+    }
+
+    const tail = convertChunk(value % 100)
+    const head = \`\${belowTwenty[Math.floor(value / 100)]} Hundred\`
+    return tail === '' ? head : \`\${head} \${tail}\`
+  }
+
+  const parts: string[] = []
+  let groupIndex = 0
+
+  while (num > 0) {
+    const chunk = num % 1000
+
+    if (chunk !== 0) {
+      const words = convertChunk(chunk)
+      const suffix = thousands[groupIndex]
+      parts.unshift(suffix === '' ? words : \`\${words} \${suffix}\`)
+    }
+
+    num = Math.floor(num / 1000)
+    groupIndex += 1
+  }
+
+  return parts.join(' ')
+}`,
+      },
+      {
+        id: 'integer-to-english-words-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的错误，是试图从最高位一路硬拆条件，结果分支特别乱。更稳的方式始终是三位分组，把复杂问题压缩成统一子问题。',
+        bullets: [
+          '易错点 1：没有处理 `0`。',
+          '易错点 2：十几和整十英文规则混淆。',
+          '易错点 3：多余空格和空单位拼接错误。',
+          '延伸方向：数字格式化、字符串模拟、递归拆分。',
+        ],
+      },
+    ],
+  },
 ];
