@@ -29559,4 +29559,157 @@ ORDER BY t.request_at;`,
       },
     ],
   },
+  {
+    id: 'alien-dictionary',
+    label: '269. LeetCode 269. 火星词典',
+    difficulty: '困难',
+    description:
+      '这题本质是“由有序单词表反推出字符顺序”，是图论和拓扑排序的经典训练题。重点不是代码模板，而是知道边应该从哪里提取，以及什么时候输入本身就是非法的。',
+    outcome:
+      '你能把单词之间的相对顺序抽象成有向图，写出拓扑排序解法，并识别前缀冲突这种无解情况。',
+    sections: [
+      {
+        id: 'alien-dictionary-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一组已经按火星字典序排好的单词，推导出火星字母表的一种合法顺序。如果不存在合法顺序，返回空字符串。',
+        bullets: [
+          '输入是有序单词列表。',
+          '输出是字符顺序，不是单词顺序。',
+          '可能有多种合法答案，返回任意一种即可。',
+          '若约束冲突，则要返回空串。',
+        ],
+      },
+      {
+        id: 'alien-dictionary-graph',
+        title: '核心建模：从相邻单词中提取“谁必须排在谁前面”',
+        summary:
+          '比较相邻两个单词，找到第一个不同字符。若前者该位置是 `a`，后者是 `b`，就说明字母顺序里必须满足 `a -> b`。因为决定字典序的就是第一个不同位置。',
+        bullets: [
+          '只比较相邻单词就够了。',
+          '只取第一个不同字符建立约束。',
+          '后续字符不再影响这对单词的顺序。',
+          '这样可以逐步构建有向图。',
+        ],
+      },
+      {
+        id: 'alien-dictionary-invalid',
+        title: '前缀冲突是最容易忽略的无解情况',
+        summary:
+          '如果前一个单词比后一个长，且后一个单词是前一个的前缀，比如 `abc` 在 `ab` 前面，那无论字符顺序如何都不可能成立，这种情况必须直接返回空串。',
+        bullets: [
+          '这是输入本身不合法。',
+          '与图里是否有环无关。',
+          '很多人只检查拓扑环，漏掉这个条件。',
+          '面试里这是重点追问点。',
+        ],
+      },
+      {
+        id: 'alien-dictionary-topo',
+        title: '图建好之后，用拓扑排序恢复一种合法字符顺序',
+        summary:
+          '把所有出现过的字符都放进图中，并统计入度。然后用队列执行 Kahn 拓扑排序，每次取入度为 0 的字符输出，再削减它指向节点的入度。若最终输出字符数不足，说明图中有环。',
+        bullets: [
+          '入度为 0 的字符当前可确定排在前面。',
+          '每条边只会被处理一次。',
+          '若存在环，就不可能排出完整顺序。',
+          '这是拓扑排序最标准的工程写法。',
+        ],
+        callout:
+          '这题训练的是“从排序结果反推偏序关系”。很多看似字符串的题，真正落点其实是图建模。只要识别出约束之间存在先后依赖，拓扑排序就会自然浮现。',
+      },
+      {
+        id: 'alien-dictionary-solution',
+        title: '标准解法：建图 + 入度统计 + Kahn 拓扑排序',
+        summary:
+          '先初始化所有出现过的字符，再逐对比较相邻单词建立边和入度，期间检查前缀冲突。之后对入度为 0 的字符做拓扑排序，若结果长度等于图中字符数则返回结果，否则返回空串。',
+        bullets: [
+          '时间复杂度约为 `O(C)`，`C` 是所有字符总长度。',
+          '空间复杂度约为 `O(V + E)`。',
+          '建模和边界判断比代码本身更关键。',
+          '是图论面试中的高频经典题。',
+        ],
+        code: `function alienOrder(words: string[]): string {
+  const graph = new Map<string, Set<string>>()
+  const indegree = new Map<string, number>()
+
+  for (const word of words) {
+    for (const char of word) {
+      if (!graph.has(char)) {
+        graph.set(char, new Set<string>())
+      }
+
+      if (!indegree.has(char)) {
+        indegree.set(char, 0)
+      }
+    }
+  }
+
+  for (let index = 0; index < words.length - 1; index += 1) {
+    const first = words[index]
+    const second = words[index + 1]
+
+    if (first.length > second.length && first.startsWith(second)) {
+      return ''
+    }
+
+    const length = Math.min(first.length, second.length)
+
+    for (let offset = 0; offset < length; offset += 1) {
+      const from = first[offset]
+      const to = second[offset]
+
+      if (from === to) {
+        continue
+      }
+
+      if (!graph.get(from)!.has(to)) {
+        graph.get(from)!.add(to)
+        indegree.set(to, indegree.get(to)! + 1)
+      }
+
+      break
+    }
+  }
+
+  const queue: string[] = []
+
+  for (const [char, degree] of indegree) {
+    if (degree === 0) {
+      queue.push(char)
+    }
+  }
+
+  let result = ''
+
+  while (queue.length > 0) {
+    const char = queue.shift()!
+    result += char
+
+    for (const next of graph.get(char)!) {
+      indegree.set(next, indegree.get(next)! - 1)
+
+      if (indegree.get(next) === 0) {
+        queue.push(next)
+      }
+    }
+  }
+
+  return result.length === graph.size ? result : ''
+}`,
+      },
+      {
+        id: 'alien-dictionary-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把所有不同字符都两两比较建边，导致约束过多甚至错误。真正有效的信息，只来自相邻单词的第一个不同位置。',
+        bullets: [
+          '易错点 1：忘记处理前缀冲突。',
+          '易错点 2：边提取位置不对。',
+          '易错点 3：漏掉图中孤立字符的初始化。',
+          '延伸方向：课程表、拓扑排序、偏序约束建模。',
+        ],
+      },
+    ],
+  },
 ];
