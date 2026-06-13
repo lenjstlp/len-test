@@ -28771,4 +28771,105 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: 'trips-and-users',
+    label: '262. LeetCode 262. 行程和用户',
+    difficulty: '困难',
+    description:
+      '这题是在练 SQL 条件筛选与分组统计。真正关键不是先把所有表都胡乱 join 在一起，而是先明确哪些订单应被计入、哪些用户状态要被排除，再按日期统计取消率。',
+    outcome:
+      '你能掌握按条件过滤后做分组聚合的 SQL 思路，理解取消率分子分母分别是什么，并能写出标准查询。',
+    sections: [
+      {
+        id: 'trips-and-users-summary',
+        title: '题目在问什么',
+        summary:
+          '给定行程表和用户表，计算指定日期范围内、未被封禁用户参与的订单取消率，按天输出。',
+        bullets: [
+          '需要按天统计。',
+          '分母只算合法订单总数。',
+          '分子只算被取消的合法订单数。',
+          '本质是条件过滤后的比率聚合。',
+        ],
+      },
+      {
+        id: 'trips-and-users-filter',
+        title: '第一步先明确哪些订单有资格参与统计',
+        summary:
+          '题目要求乘客和司机都必须是未封禁用户，因此只有同时满足这两个条件的行程才能进入分母。若先把这个过滤条件想清楚，后面的统计口径才不会乱。',
+        bullets: [
+          '司机和乘客都要检查封禁状态。',
+          '被封禁用户参与的订单要整体排除。',
+          '这是分母口径的前提。',
+          '先筛选后统计是正确顺序。',
+        ],
+      },
+      {
+        id: 'trips-and-users-cancel-rate',
+        title: '取消率的本质，就是“取消订单数 / 合法订单总数”',
+        summary:
+          '在剩下的合法订单里，只要状态不是 `completed` 就算取消。分母是每天所有合法订单数量，分子是其中取消的那部分，最后按天求比值并四舍五入到两位小数。',
+        bullets: [
+          '分母和分子都必须基于同一批合法订单。',
+          '取消判断要基于状态字段。',
+          '按天做聚合是最后一步。',
+          '这类题最怕分子分母口径不一致。',
+        ],
+      },
+      {
+        id: 'trips-and-users-join',
+        title: '连接用户表时，司机和乘客其实是同一张表的两次角色化引用',
+        summary:
+          '因为 `Users` 表同时存储司机和乘客，所以查询里通常要分别给它起两个别名，一次对应乘客、一次对应司机。这样才能同时检查两种角色的封禁状态。',
+        bullets: [
+          '同一张表承担两个业务角色。',
+          '别名是 SQL 里处理这种场景的标准方式。',
+          '否则条件会写不清。',
+          '这是结构理解上的关键。',
+        ],
+        callout:
+          'SQL 题很多时候难的不是函数，而是你有没有先把业务角色和统计口径拆对。角色一旦混了，查询看起来能跑，结果却很容易错。',
+      },
+      {
+        id: 'trips-and-users-solution',
+        title: '标准解法：双别名过滤合法用户后按天聚合取消率',
+        summary:
+          '把 `Trips` 分别与乘客和司机对应的 `Users` 记录连接，过滤出两端都未封禁且日期落在指定范围内的订单。然后按请求日期分组，用条件求和统计取消订单数，再除以总订单数并四舍五入。',
+        bullets: [
+          '核心是角色化 join 与条件聚合。',
+          '时间复杂度取决于连接与分组规模。',
+          '是这题最经典的 SQL 写法。',
+          '适合顺带复习条件聚合语法。',
+        ],
+        code: `SELECT
+  t.request_at AS Day,
+  ROUND(
+    SUM(CASE WHEN t.status != 'completed' THEN 1 ELSE 0 END) / COUNT(*),
+    2
+  ) AS 'Cancellation Rate'
+FROM Trips AS t
+JOIN Users AS client
+  ON t.client_id = client.users_id
+JOIN Users AS driver
+  ON t.driver_id = driver.users_id
+WHERE client.banned = 'No'
+  AND driver.banned = 'No'
+  AND t.request_at BETWEEN '2013-10-01' AND '2013-10-03'
+GROUP BY t.request_at
+ORDER BY t.request_at;`,
+      },
+      {
+        id: 'trips-and-users-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只过滤了乘客没过滤司机，或者取消率分子分母口径不统一；另外日期范围和结果四舍五入要求也很容易被忽略。',
+        bullets: [
+          '易错点 1：角色过滤条件漏掉一侧。',
+          '易错点 2：取消状态判断写得不完整。',
+          '易错点 3：分组和舍入格式不符合要求。',
+          '延伸方向：条件聚合、角色化 join、SQL 比率统计题。',
+        ],
+      },
+    ],
+  },
 ];
