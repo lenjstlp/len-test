@@ -30346,4 +30346,106 @@ ORDER BY t.request_at;`,
       },
     ],
   },
+  {
+    id: 'h-index-ii',
+    label: '275. LeetCode 275. H 指数 II',
+    difficulty: '中等',
+    description:
+      '这题和上一题定义完全相同，但输入已经按升序排好，因此最重要的提升点是把线性扫描进一步优化成二分查找。',
+    outcome:
+      '你能把 H 指数定义和有序数组下标关系结合起来，用二分在 `O(log n)` 时间内求解。',
+    sections: [
+      {
+        id: 'h-index-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个已经按升序排列的引用次数数组 `citations`，返回研究者的 H 指数。',
+        bullets: [
+          '定义和上一题完全一样。',
+          '区别只在于数组已排好序。',
+          '这给了我们二分查找空间。',
+          '目标仍是最大合法 `h`。',
+        ],
+      },
+      {
+        id: 'h-index-ii-monotonic',
+        title: '排序后条件 `citations[i] >= n - i` 具有单调性',
+        summary:
+          '随着 `i` 向右移动，`citations[i]` 非递减，而 `n - i` 非递增。因此一旦某个位置满足 `citations[i] >= n - i`，它右边的位置也会更容易满足。这说明答案位置可以二分查找。',
+        bullets: [
+          '左边更难满足，右边更容易满足。',
+          '这是典型的单调布尔条件。',
+          '我们要找最左侧满足条件的位置。',
+          '该位置决定最终 H 指数。',
+        ],
+      },
+      {
+        id: 'h-index-ii-binary-search',
+        title: '找到最左满足位置后，答案就是 `n - index`',
+        summary:
+          '如果二分找到最左的下标 `i` 使得 `citations[i] >= n - i`，那么右边总共有 `n - i` 篇论文，每篇引用数都至少为 `citations[i]`，自然也至少达到 `n - i`，因此答案就是 `n - i`。',
+        bullets: [
+          '这和上一题排序扫描的结论完全一致。',
+          '只是查找位置从线性变成了二分。',
+          '若不存在满足位置，则答案为 0。',
+          '关键是把定义转成单调谓词。',
+        ],
+      },
+      {
+        id: 'h-index-ii-implementation',
+        title: '二分模板里，区间收缩方向必须明确',
+        summary:
+          '若 `citations[mid] >= n - mid` 成立，说明答案可能在 `mid` 或更左边，因此收缩右边界；否则说明左边都不够，需要收缩左边界。最终 `left` 会停在最左满足位置。',
+        bullets: [
+          '这是标准的“找最左满足”模板。',
+          '条件成立时不能直接返回。',
+          '要继续向左逼近边界。',
+          '边界写法比题意更容易出错。',
+        ],
+        callout:
+          '很多二分题的本质不是找某个值，而是找某个条件第一次成立的位置。只要能把题意转成单调真假区间，剩下就是标准边界搜索。',
+      },
+      {
+        id: 'h-index-ii-solution',
+        title: '标准解法：二分查找最左满足位置',
+        summary:
+          '用两个指针维护搜索区间 `[left, right]`。每次取中点 `mid`，检查是否满足 `citations[mid] >= n - mid`。若满足，就保留左半区继续搜；否则丢掉左半区。最后根据 `left` 是否越界决定返回 `0` 或 `n - left`。',
+        bullets: [
+          '时间复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(1)`。',
+          '比上一题在线性扫描上更进一步。',
+          '是“定义 + 单调性 + 二分”的标准训练题。',
+        ],
+        code: `function hIndex(citations: number[]): number {
+  const n = citations.length
+  let left = 0
+  let right = n - 1
+
+  while (left <= right) {
+    const mid = left + Math.floor((right - left) / 2)
+
+    if (citations[mid] >= n - mid) {
+      right = mid - 1
+    } else {
+      left = mid + 1
+    }
+  }
+
+  return left === n ? 0 : n - left
+}`,
+      },
+      {
+        id: 'h-index-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题常见问题不是不知道能二分，而是没把“找最大 H”正确转成“找最左满足位置”，导致左右边界更新方向写反。',
+        bullets: [
+          '易错点 1：条件成立时错误地向右收缩。',
+          '易错点 2：最后答案返回公式写错。',
+          '易错点 3：把上一题线性思路照搬，没利用已排序条件。',
+          '延伸方向：边界二分、单调谓词查找、排名类问题。',
+        ],
+      },
+    ],
+  },
 ];
