@@ -28443,4 +28443,112 @@ function findWords(board: string[][], words: string[]): string[] {
       },
     ],
   },
+  {
+    id: '3sum-smaller',
+    label: '259. LeetCode 259. 较小的三数之和',
+    difficulty: '中等',
+    description:
+      '这题是在练排序加双指针计数。真正关键不是三重循环枚举所有三元组，而是排序后利用单调性，一次性统计一整段都合法的组合数。',
+    outcome:
+      '你能掌握三数和计数类题目的双指针思路，理解为什么当某个三元组和小于目标时，中间整段组合都成立，并能写出标准解法。',
+    sections: [
+      {
+        id: '3sum-smaller-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组和目标值 `target`，统计满足 `nums[i] + nums[j] + nums[k] < target` 的三元组数量。',
+        bullets: [
+          '需要统计数量，不是返回具体三元组。',
+          '下标必须满足 `i < j < k`。',
+          '核心条件是三数和小于目标。',
+          '本质是排序后的批量计数问题。',
+        ],
+      },
+      {
+        id: '3sum-smaller-sort',
+        title: '排序是关键前置，因为它让双指针具有可利用的单调性',
+        summary:
+          '未排序时，一个三元组和小于目标，并不能推导出相邻其它组合也合法；排序后，指针移动带来的和变化就有了明确方向，才能批量统计而不是逐个验证。',
+        bullets: [
+          '排序建立了大小有序关系。',
+          '后续和的变化变得可预测。',
+          '这是双指针能成立的前提。',
+          '区分暴力和优化的关键就在这里。',
+        ],
+      },
+      {
+        id: '3sum-smaller-batch-count',
+        title:
+          '当固定一个左端后，如果 `nums[left] + nums[mid] + nums[right] < target`，那么 `mid...right-1` 都合法',
+        summary:
+          '因为数组已排序，保持 `left` 和 `mid` 不变时，把 `right` 往左移只会让和更小。所以一旦当前最右端都满足条件，那么从 `mid+1` 到 `right` 之间所有位置与 `left`、`mid` 形成的三元组都成立，可以一次性累加 `right - mid` 个。',
+        bullets: [
+          '合法后能批量计数，而不是只记一个。',
+          '这是复杂度从三重循环降下来的核心。',
+          '单调性直接转化成计数捷径。',
+          '必须真正理解这一点。',
+        ],
+      },
+      {
+        id: '3sum-smaller-pointer-move',
+        title: '不满足时右指针左移，满足时左侧内指针右移继续扩展',
+        summary:
+          '如果当前和已经不小于目标，说明最大项太大，应该缩小右指针；如果当前和小于目标，则已经统计了一批合法组合，此时需要把中间指针右移，尝试新的更大第二项组合。',
+        bullets: [
+          '不满足时缩右边，压低总和。',
+          '满足时统计并推进中间指针。',
+          '移动策略完全由排序后的单调性决定。',
+          '这是实现层面的关键动作。',
+        ],
+        callout:
+          '双指针题真正值得练的，不是“会不会左右移动”，而是你能不能说清：某个条件成立时，为什么能一次性排除或统计一整段。',
+      },
+      {
+        id: '3sum-smaller-solution',
+        title: '标准解法：排序后固定一位，双指针计数剩余两位',
+        summary:
+          '先排序数组。然后固定第一位 `i`，在右侧区间用双指针 `left` 和 `right` 搜索：若三数和小于目标，则累加 `right - left` 并让 `left` 右移；否则让 `right` 左移。最终得到所有合法三元组数量。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度主要取决于排序实现。',
+          '是这题最常见的标准解法。',
+          '也为 3Sum、4Sum 类题目打基础。',
+        ],
+        code: `function threeSumSmaller(nums: number[], target: number): number {
+  nums.sort((a, b) => a - b)
+  let count = 0
+
+  for (let index = 0; index < nums.length - 2; index += 1) {
+    let left = index + 1
+    let right = nums.length - 1
+
+    while (left < right) {
+      const sum = nums[index] + nums[left] + nums[right]
+
+      if (sum < target) {
+        count += right - left
+        left += 1
+      } else {
+        right -= 1
+      }
+    }
+  }
+
+  return count
+}`,
+      },
+      {
+        id: '3sum-smaller-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是在满足条件时只把当前组合加一，而不是一次性累加 `right - left`；或者指针移动方向写反，导致计数逻辑失效。',
+        bullets: [
+          '易错点 1：漏掉批量计数。',
+          '易错点 2：排序后仍按暴力思维逐个判断。',
+          '易错点 3：左、右指针移动条件写反。',
+          '延伸方向：3Sum、4Sum、排序双指针计数题。',
+        ],
+      },
+    ],
+  },
 ];
