@@ -29815,4 +29815,116 @@ ORDER BY t.request_at;`,
       },
     ],
   },
+  {
+    id: 'encode-and-decode-strings',
+    label: '271. LeetCode 271. 字符串的编码与解码',
+    difficulty: '中等',
+    description:
+      '这题是非常典型的序列化设计题。重点不在某种固定格式，而在于你能不能设计出一个无歧义、可逆、可扩展的编码协议。',
+    outcome:
+      '你能独立设计并实现字符串列表的编码与解码方案，理解为什么长度前缀协议比分隔符协议更稳健。',
+    sections: [
+      {
+        id: 'encode-and-decode-strings-summary',
+        title: '题目在问什么',
+        summary:
+          '设计两个函数：一个把字符串数组编码成单个字符串，另一个把该字符串解码回原数组。',
+        bullets: [
+          '编码和解码必须互逆。',
+          '原字符串可能包含任意字符。',
+          '不能依赖全局状态或额外数据结构。',
+          '核心在于协议设计是否无歧义。',
+        ],
+      },
+      {
+        id: 'encode-and-decode-strings-delimiter',
+        title: '直接用分隔符拼接看似简单，但遇到原字符串里也有分隔符就会失效',
+        summary:
+          '如果用类似 `a#b#c` 这种格式编码，那么当原字符串里本身包含 `#` 时，解码阶段就无法判断哪些 `#` 是内容，哪些 `#` 是边界。除非再引入转义规则，否则协议不可靠。',
+        bullets: [
+          '分隔符方案容易与内容冲突。',
+          '补转义规则会让协议复杂很多。',
+          '设计题里更推荐结构稳定的格式。',
+          '这类问题本质是边界识别不可靠。',
+        ],
+      },
+      {
+        id: 'encode-and-decode-strings-length-prefix',
+        title: '最稳妥的方案是“长度前缀 + 内容”',
+        summary:
+          '对每个字符串，先写入它的长度，再写一个固定分隔标记，最后紧跟原内容。比如 `4#leet5#code`。解码时先读出长度，再按长度精确切片，就不会受到内容字符的影响。',
+        bullets: [
+          '长度信息决定内容边界。',
+          '固定标记只负责分隔长度和内容。',
+          '原内容可以包含任意字符。',
+          '协议天然可逆，鲁棒性很高。',
+        ],
+      },
+      {
+        id: 'encode-and-decode-strings-decode',
+        title: '解码时本质是在字符串上做指针扫描',
+        summary:
+          '从左到右扫描编码串，先找到 `#`，截取前面的数字作为长度，再从后面读取对应长度的字符作为一个原始字符串。然后把指针移动到下一个片段继续解析。',
+        bullets: [
+          '每次都严格消费一个完整片段。',
+          '长度控制了解析边界。',
+          '不会因为内容里有特殊字符而出错。',
+          '实现起来很像一个简单协议解析器。',
+        ],
+        callout:
+          '这类题真正训练的是“协议意识”。很多工程问题不是算法难，而是输入输出格式设计得不严谨，导致数据传输、持久化或解析阶段出现歧义。',
+      },
+      {
+        id: 'encode-and-decode-strings-solution',
+        title: '标准解法：长度前缀协议',
+        summary:
+          '编码时把每个字符串转换为 `长度#内容` 并拼接起来。解码时用指针依次读取长度、截取内容、推进游标，直到整个编码串解析完毕。',
+        bullets: [
+          '编码时间复杂度是 `O(totalLength)`。',
+          '解码时间复杂度是 `O(totalLength)`。',
+          '协议简单但足够稳固。',
+          '是这题最经典的面试答案。',
+        ],
+        code: `class Codec {
+  encode(strs: string[]): string {
+    return strs.map((str) => \`\${str.length}#\${str}\`).join('')
+  }
+
+  decode(s: string): string[] {
+    const result: string[] = []
+    let index = 0
+
+    while (index < s.length) {
+      let separator = index
+
+      while (s[separator] !== '#') {
+        separator += 1
+      }
+
+      const length = Number(s.slice(index, separator))
+      const start = separator + 1
+      const end = start + length
+
+      result.push(s.slice(start, end))
+      index = end
+    }
+
+    return result
+  }
+}`,
+      },
+      {
+        id: 'encode-and-decode-strings-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易出错的地方，是协议看似能跑通几个样例，却没有考虑空字符串、特殊字符、数字字符等真实输入，导致编码方案并不通用。',
+        bullets: [
+          '易错点 1：使用简单分隔符但没做转义。',
+          '易错点 2：空字符串长度处理不清楚。',
+          '易错点 3：解码游标推进位置算错。',
+          '延伸方向：文件协议、网络报文、序列化设计。',
+        ],
+      },
+    ],
+  },
 ];
