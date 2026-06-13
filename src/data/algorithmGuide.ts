@@ -29098,4 +29098,124 @@ ORDER BY t.request_at;`,
       },
     ],
   },
+  {
+    id: 'paint-house-ii',
+    label: '265. LeetCode 265. 粉刷房子 II',
+    difficulty: '困难',
+    description:
+      '这题是在粉刷房子的基础上，把颜色数量从 3 扩展到 `k`。重点不是背一个二维 DP，而是理解如何把“上一行除了自己之外的最小值”优化到 `O(1)` 查询。',
+    outcome:
+      '你能写出这题的标准动态规划，并理解为什么记录上一行最小值和次小值后，复杂度可以从 `O(n * k²)` 降到 `O(n * k)`。',
+    sections: [
+      {
+        id: 'paint-house-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `n` 间房子和 `k` 种颜色，`costs[i][j]` 表示第 `i` 间房子刷成第 `j` 种颜色的成本。相邻两间房子的颜色不能相同，返回最小总成本。',
+        bullets: [
+          '房子必须全部刷完。',
+          '相邻房子颜色不能相同。',
+          '每间房子可选 `k` 种颜色。',
+          '目标是求最小总成本。',
+        ],
+      },
+      {
+        id: 'paint-house-ii-dp',
+        title: '最直接的状态定义仍然是“刷到当前位置并以某颜色结尾的最小成本”',
+        summary:
+          '设 `dp[i][j]` 表示刷完前 `i` 间房子，且第 `i` 间房子颜色为 `j` 的最小成本。转移时要从上一间房子的所有其他颜色里找最小值，然后再加上当前颜色成本。',
+        bullets: [
+          '状态定义本身并不复杂。',
+          '难点是转移时不能选相同颜色。',
+          '朴素转移需要遍历上一行全部颜色。',
+          '因此会出现 `O(n * k²)` 的复杂度。',
+        ],
+      },
+      {
+        id: 'paint-house-ii-optimize',
+        title: '优化关键是维护上一行的最小值和次小值',
+        summary:
+          '如果我们知道上一行的最小成本来自哪个颜色 `minIndex`，以及次小成本是多少，那么转移到当前颜色 `j` 时，只需判断 `j` 是否等于 `minIndex`。若不同，直接用最小值；若相同，只能用次小值。',
+        bullets: [
+          '每行只需知道两个代表值：最小和次小。',
+          '转移时不再遍历整行。',
+          '这让每个格子的计算变成 `O(1)`。',
+          '整体复杂度降为 `O(n * k)`。',
+        ],
+      },
+      {
+        id: 'paint-house-ii-row-update',
+        title: '每处理完一行，都要重新计算新的最小值和次小值',
+        summary:
+          '当前行每个颜色的成本算出来后，需要扫描一遍，更新本行最小值、次小值以及最小值所在下标，供下一行继续使用。这样整个过程就是一层层滚动推进。',
+        bullets: [
+          '上一行信息只服务下一行。',
+          '可以用滚动变量节省空间。',
+          '每一行只扫描两遍也足够快。',
+          '这是这题工程上最稳妥的写法。',
+        ],
+        callout:
+          '很多 DP 优化题，真正要学的不是某个结论，而是“原转移里哪一步在重复做同样的事”。一旦识别出重复查询的是“除了自己之外的最小值”，优化方向就非常明确了。',
+      },
+      {
+        id: 'paint-house-ii-solution',
+        title: '标准解法：最小值与次小值优化动态规划',
+        summary:
+          '初始化上一行最小值、次小值和最小值颜色下标。遍历每一行时，针对每个颜色决定应接最小值还是次小值，然后同步维护当前行新的最小值体系。最后返回最后一行的最小值即可。',
+        bullets: [
+          '时间复杂度是 `O(n * k)`。',
+          '空间复杂度是 `O(k)`，只保留当前行成本。',
+          '适合颜色数量很多的场景。',
+          '是这题最主流的面试写法。',
+        ],
+        code: `function minCostII(costs: number[][]): number {
+  if (costs.length === 0 || costs[0].length === 0) {
+    return 0
+  }
+
+  const colorCount = costs[0].length
+  let prevMin = 0
+  let prevSecondMin = 0
+  let prevMinIndex = -1
+
+  for (const row of costs) {
+    let currentMin = Number.POSITIVE_INFINITY
+    let currentSecondMin = Number.POSITIVE_INFINITY
+    let currentMinIndex = -1
+
+    for (let color = 0; color < colorCount; color += 1) {
+      const baseCost = color === prevMinIndex ? prevSecondMin : prevMin
+      const totalCost = row[color] + baseCost
+
+      if (totalCost < currentMin) {
+        currentSecondMin = currentMin
+        currentMin = totalCost
+        currentMinIndex = color
+      } else if (totalCost < currentSecondMin) {
+        currentSecondMin = totalCost
+      }
+    }
+
+    prevMin = currentMin
+    prevSecondMin = currentSecondMin
+    prevMinIndex = currentMinIndex
+  }
+
+  return prevMin
+}`,
+      },
+      {
+        id: 'paint-house-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最常见的错误，是虽然知道要记录最小值和次小值，却没把“最小值对应的颜色下标”一起记录，导致无法判断当前颜色能不能直接接最小值。',
+        bullets: [
+          '易错点 1：忘了区分最小值来自哪种颜色。',
+          '易错点 2：次小值更新逻辑写乱。',
+          '易错点 3：空数组和空颜色边界没处理。',
+          '延伸方向：房屋粉刷系列、滚动 DP、状态转移优化。',
+        ],
+      },
+    ],
+  },
 ];
