@@ -30448,4 +30448,110 @@ ORDER BY t.request_at;`,
       },
     ],
   },
+  {
+    id: 'paint-fence',
+    label: '276. LeetCode 276. 栅栏涂色',
+    difficulty: '中等',
+    description:
+      '这题是一个非常适合训练状态拆分的动态规划题。重点在于把“最后两根是否同色”拆成两个状态，而不是直接笼统地统计所有方案。',
+    outcome:
+      '你能独立推导出这题的状态转移，理解为什么维护“最后两根同色”和“最后两根异色”能让问题清晰落地。',
+    sections: [
+      {
+        id: 'paint-fence-summary',
+        title: '题目在问什么',
+        summary:
+          '有 `n` 根栅栏和 `k` 种颜色，要求每根栅栏都刷色，且不能出现超过两根连续同色的栅栏，返回总方案数。',
+        bullets: [
+          '每根栅栏都要选一种颜色。',
+          '允许两根连续同色。',
+          '但不允许三根及以上连续同色。',
+          '目标是统计合法方案总数。',
+        ],
+      },
+      {
+        id: 'paint-fence-state',
+        title: '关键拆分：最后两根同色和最后两根异色',
+        summary:
+          '如果只统计“前 `i` 根有多少种刷法”，转移会比较模糊。更好的办法，是把状态拆成两类：`same` 表示前 `i` 根中最后两根同色的方案数，`different` 表示最后两根异色的方案数。',
+        bullets: [
+          '状态拆分后，连续限制就变得可描述。',
+          '同色和异色对应不同转移来源。',
+          '这是这题最核心的建模步骤。',
+          '很多计数 DP 题都靠这种状态细分来落地。',
+        ],
+      },
+      {
+        id: 'paint-fence-transition',
+        title: '转移关系来自“当前这根是否和前一根同色”',
+        summary:
+          '若第 `i` 根想和第 `i - 1` 根同色，那么前 `i - 1` 根必须处于 `different` 状态，否则会形成三连同色，所以 `same = previousDifferent`。若当前根想与前一根异色，则前 `i - 1` 根无论是 `same` 还是 `different` 都可以接上 `k - 1` 种新颜色，所以 `different = (previousSame + previousDifferent) * (k - 1)`。',
+        bullets: [
+          '同色只能接在前两根异色的状态后面。',
+          '异色可以接在任何合法状态后面。',
+          '乘上 `k - 1` 是因为不能和前一根颜色相同。',
+          '这组转移就是整题核心公式。',
+        ],
+      },
+      {
+        id: 'paint-fence-base-case',
+        title: '初始化时先把前一根和前两根情况说清楚',
+        summary:
+          '当 `n = 1` 时，答案显然是 `k`。当处理到第二根时，`same = k`，因为两根都刷同一种颜色有 `k` 种；`different = k * (k - 1)`，因为第一根任意、第二根需不同。',
+        bullets: [
+          '边界条件决定后续滚动是否正确。',
+          '很多错误都出在 `n = 1`、`n = 2` 的初始化。',
+          '理清第二根时的状态最重要。',
+          '之后即可按公式滚动推进。',
+        ],
+        callout:
+          '动态规划最怕的是状态设计看上去差不多，但其实无法表达限制条件。这题一旦把“最后两根是否同色”拆开，连续约束就被准确编码进状态里了，转移会非常顺畅。',
+      },
+      {
+        id: 'paint-fence-solution',
+        title: '标准解法：双状态滚动动态规划',
+        summary:
+          '处理 `n = 1` 的特判后，初始化第二根时的 `same` 与 `different`。随后从第三根开始迭代：新的 `same` 等于旧的 `different`，新的 `different` 等于旧状态总数乘以 `k - 1`。最终返回两者之和。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '状态少而清晰，非常适合面试推导。',
+          '是这题最标准的写法。',
+        ],
+        code: `function numWays(n: number, k: number): number {
+  if (n === 0 || k === 0) {
+    return 0
+  }
+
+  if (n === 1) {
+    return k
+  }
+
+  let same = k
+  let different = k * (k - 1)
+
+  for (let fence = 3; fence <= n; fence += 1) {
+    const nextSame = different
+    const nextDifferent = (same + different) * (k - 1)
+    same = nextSame
+    different = nextDifferent
+  }
+
+  return same + different
+}`,
+      },
+      {
+        id: 'paint-fence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的错误，是把“不能超过两根连续同色”误读成“相邻不能同色”，那样就会把允许的双连同色情况错误排除掉。',
+        bullets: [
+          '易错点 1：把题意误解成经典染色相邻不同题。',
+          '易错点 2：`same` 与 `different` 的定义不一致。',
+          '易错点 3：`n = 1`、`n = 2` 初始化错误。',
+          '延伸方向：计数 DP、滚动状态、连续约束建模。',
+        ],
+      },
+    ],
+  },
 ];
