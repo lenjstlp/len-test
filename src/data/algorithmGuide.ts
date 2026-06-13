@@ -29927,4 +29927,171 @@ ORDER BY t.request_at;`,
       },
     ],
   },
+  {
+    id: 'closest-bst-value-ii',
+    label: '272. LeetCode 272. 最接近的二叉搜索树值 II',
+    difficulty: '困难',
+    description:
+      '这题是在最接近 BST 值的基础上升级到“最接近的 `k` 个值”。重点在于不要把整棵树拍平成数组后再暴力处理，而是要利用中序有序性和双栈前驱后继思想。',
+    outcome:
+      '你能理解并实现用前驱栈与后继栈按需取数的解法，知道为什么它能在不遍历全部节点的情况下得到最接近的 `k` 个值。',
+    sections: [
+      {
+        id: 'closest-bst-value-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉搜索树、一个目标值 `target` 和整数 `k`，返回树中与 `target` 最接近的 `k` 个节点值。',
+        bullets: [
+          '返回的是值集合。',
+          '目标不是单个最接近，而是前 `k` 个最接近值。',
+          'BST 仍然具备左小右大的有序性质。',
+          '输出顺序通常不限。',
+        ],
+      },
+      {
+        id: 'closest-bst-value-ii-flatten',
+        title: '中序遍历转有序数组可以做，但没有把 BST 查询优势发挥到位',
+        summary:
+          '把整棵树中序遍历成升序数组，再用双指针找离 `target` 最近的 `k` 个元素，当然可行。但这样要先遍历所有节点，空间也更大，不够贴近题目对 BST 的利用。',
+        bullets: [
+          '整树中序复杂度是 `O(n)`。',
+          '额外数组空间也是 `O(n)`。',
+          '适合入门理解，但不是更优方案。',
+          '更好的思路是只取真正需要的邻近值。',
+        ],
+      },
+      {
+        id: 'closest-bst-value-ii-two-stacks',
+        title: '核心思路：分别维护目标值左侧前驱栈和右侧后继栈',
+        summary:
+          '可以把 BST 看成一个有序集合。相对于 `target`，小于等于它的候选可以按前驱顺序弹出，大于它的候选可以按后继顺序弹出。我们分别构建两个栈，随后每次比较两边栈顶谁更接近，就取谁。',
+        bullets: [
+          '前驱栈提供“往小处走”的下一个值。',
+          '后继栈提供“往大处走”的下一个值。',
+          '每次只消费一个最优候选。',
+          '这是按需生成最接近元素的典型做法。',
+        ],
+      },
+      {
+        id: 'closest-bst-value-ii-build',
+        title: '初始化栈时，要沿着搜索路径把可能成为前驱或后继的节点压进去',
+        summary:
+          '从根节点开始，如果当前值小于等于 `target`，它可能成为前驱，就压入前驱栈并尝试向右走；如果当前值大于 `target`，它可能成为后继，就压入后继栈并尝试向左走。这样能快速锁定最接近目标的两侧边界。',
+        bullets: [
+          '构建过程类似一次带记忆的 BST 搜索。',
+          '前驱与后继分开维护。',
+          '后续弹栈时还要继续走子树补齐栈。',
+          '本质是模拟中序前驱和后继迭代器。',
+        ],
+        callout:
+          '很多树题不是把数据一次性全部取出来，而是把遍历过程做成“迭代器”。当题目只需要一部分结果时，按需生成通常比全量展开更符合工程和算法直觉。',
+      },
+      {
+        id: 'closest-bst-value-ii-solution',
+        title: '标准解法：前驱栈与后继栈逐步择优弹出',
+        summary:
+          '先分别构建前驱栈和后继栈。然后循环 `k` 次：若某一边为空，就从另一边取；若两边都存在，则比较各自栈顶与 `target` 的距离，选择更近的一侧弹出并加入答案。弹出后需要沿对应方向继续补栈。',
+        bullets: [
+          '初始化复杂度是 `O(h)`。',
+          '每次取值均摊复杂度接近 `O(1)` 到 `O(h)`。',
+          '总复杂度常写作 `O(h + k)` 均摊。',
+          '适合训练 BST 迭代器思维。',
+        ],
+        code: `function closestKValues(
+  root: TreeNode | null,
+  target: number,
+  k: number,
+): number[] {
+  const predecessors: TreeNode[] = []
+  const successors: TreeNode[] = []
+
+  const pushPredecessors = (node: TreeNode | null): void => {
+    while (node !== null) {
+      if (node.val <= target) {
+        predecessors.push(node)
+        node = node.right
+      } else {
+        node = node.left
+      }
+    }
+  }
+
+  const pushSuccessors = (node: TreeNode | null): void => {
+    while (node !== null) {
+      if (node.val > target) {
+        successors.push(node)
+        node = node.left
+      } else {
+        node = node.right
+      }
+    }
+  }
+
+  const getNextPredecessor = (): number => {
+    const node = predecessors.pop()!
+    let current = node.left
+
+    while (current !== null) {
+      predecessors.push(current)
+      current = current.right
+    }
+
+    return node.val
+  }
+
+  const getNextSuccessor = (): number => {
+    const node = successors.pop()!
+    let current = node.right
+
+    while (current !== null) {
+      successors.push(current)
+      current = current.left
+    }
+
+    return node.val
+  }
+
+  pushPredecessors(root)
+  pushSuccessors(root)
+
+  const result: number[] = []
+
+  while (result.length < k) {
+    if (predecessors.length === 0) {
+      result.push(getNextSuccessor())
+      continue
+    }
+
+    if (successors.length === 0) {
+      result.push(getNextPredecessor())
+      continue
+    }
+
+    const predecessorDiff = Math.abs(predecessors[predecessors.length - 1].val - target)
+    const successorDiff = Math.abs(successors[successors.length - 1].val - target)
+
+    if (predecessorDiff <= successorDiff) {
+      result.push(getNextPredecessor())
+    } else {
+      result.push(getNextSuccessor())
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'closest-bst-value-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的错误，是前驱和后继的补栈方向写反，导致结果不是按正确的相邻顺序弹出。因为这里本质上是在模拟中序遍历的前驱迭代器和后继迭代器。',
+        bullets: [
+          '易错点 1：前驱后继初始化条件写错。',
+          '易错点 2：弹出后补栈方向反了。',
+          '易错点 3：没有处理某一边先耗尽的情况。',
+          '延伸方向：BST 迭代器、前驱后继、Top K 邻近值。',
+        ],
+      },
+    ],
+  },
 ];
