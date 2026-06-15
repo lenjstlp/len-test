@@ -30554,4 +30554,112 @@ ORDER BY t.request_at;`,
       },
     ],
   },
+  {
+    id: 'find-the-celebrity',
+    label: '277. LeetCode 277. 搜寻名人',
+    difficulty: '中等',
+    description:
+      '这题是非常经典的“先淘汰候选，再做验证”的题。重点不在 API 调用本身，而在于理解为什么一次线性扫描就能把候选人缩到只剩一个。',
+    outcome:
+      '你能独立写出这题的两阶段解法，理解如何用排除法在线性时间内锁定唯一候选，并完成最终校验。',
+    sections: [
+      {
+        id: 'find-the-celebrity-summary',
+        title: '题目在问什么',
+        summary:
+          '有 `n` 个人，存在一个 API `knows(a, b)` 表示 `a` 是否认识 `b`。如果存在名人，那么名人满足“所有人都认识他，而他谁都不认识”。请找出这个名人，不存在则返回 `-1`。',
+        bullets: [
+          '名人的定义包含两个方向的条件。',
+          '他不认识任何其他人。',
+          '其他所有人都认识他。',
+          '要尽量减少 `knows` 调用次数。',
+        ],
+      },
+      {
+        id: 'find-the-celebrity-eliminate',
+        title: '核心观察：任取两个人，至少有一个不可能是名人',
+        summary:
+          '如果 `a` 认识 `b`，那 `a` 一定不是名人；如果 `a` 不认识 `b`，那 `b` 一定不是名人。也就是说，只要比较两个人，就至少能淘汰一个候选。',
+        bullets: [
+          '认识别人就不符合名人定义。',
+          '不被某人认识，也不可能是名人。',
+          '每次比较都会减少候选空间。',
+          '这让线性淘汰成为可能。',
+        ],
+      },
+      {
+        id: 'find-the-celebrity-candidate',
+        title: '线性扫描后，最多只会剩下一个可能的候选人',
+        summary:
+          '从 `0` 号开始作为候选人，依次和后面的人比较。如果当前候选认识某人，就把候选改成那个人；否则保持不变。扫描结束后，留下的只是“没有被排除掉的人”。',
+        bullets: [
+          '这个人不一定真是名人。',
+          '但其他人都已经在比较中被淘汰。',
+          '所以后续只需验证这一个人。',
+          '这是把 `O(n²)` 搜索压成 `O(n)` 候选筛选的关键。',
+        ],
+      },
+      {
+        id: 'find-the-celebrity-verify',
+        title: '筛出候选人后，必须做一次完整验证',
+        summary:
+          '线性淘汰只能保证“别人更不可能是名人”，却不能证明最后的候选一定满足条件。因此还要再次遍历所有人，检查两件事：候选是否认识别人，以及别人是否都认识候选。',
+        bullets: [
+          '少任意一个验证条件都不完整。',
+          '候选认识别人则直接失败。',
+          '若有人不认识候选也失败。',
+          '验证阶段也是线性的。',
+        ],
+        callout:
+          '很多面试题的高效做法不是一步到位求答案，而是先用弱条件快速收缩候选范围，再用强条件少量验证。这种“筛选 + 验证”的套路很常见。',
+      },
+      {
+        id: 'find-the-celebrity-solution',
+        title: '标准解法：先淘汰候选，再二次校验',
+        summary:
+          '第一轮扫描用排除法找出唯一候选。第二轮遍历所有人，校验候选是否满足“自己不认识任何人，且所有人都认识自己”。若全部通过则返回候选编号，否则返回 `-1`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '调用 API 次数也控制在合理范围内。',
+          '是这题最标准的解法。',
+        ],
+        code: `declare function knows(a: number, b: number): boolean
+
+function findCelebrity(n: number): number {
+  let candidate = 0
+
+  for (let person = 1; person < n; person += 1) {
+    if (knows(candidate, person)) {
+      candidate = person
+    }
+  }
+
+  for (let person = 0; person < n; person += 1) {
+    if (person === candidate) {
+      continue
+    }
+
+    if (knows(candidate, person) || !knows(person, candidate)) {
+      return -1
+    }
+  }
+
+  return candidate
+}`,
+      },
+      {
+        id: 'find-the-celebrity-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易出错的地方，是把第一轮筛出来的候选直接返回，忘了它只是“没有被排除”，并不等于已经满足全部名人条件。',
+        bullets: [
+          '易错点 1：缺少最终验证。',
+          '易错点 2：没理解淘汰规则的对偶性。',
+          '易错点 3：验证时漏掉“候选不认识别人”这一半条件。',
+          '延伸方向：双指针淘汰、候选筛选、关系矩阵问题。',
+        ],
+      },
+    ],
+  },
 ];
