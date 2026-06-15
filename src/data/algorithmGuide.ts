@@ -31080,4 +31080,145 @@ function solution(isBadVersion: (version: number) => boolean) {
       },
     ],
   },
+  {
+    id: 'expression-add-operators',
+    label: '282. LeetCode 282. 给表达式添加运算符',
+    difficulty: '困难',
+    description:
+      '这题是回溯里的经典难题。难点不在枚举切分，而在于乘法优先级会打破简单的从左到右累加，因此必须额外记录“上一段乘数贡献”。',
+    outcome:
+      '你能理解并实现这题的回溯解法，知道为什么需要同时维护当前表达式值和上一段操作数，才能正确处理乘法。',
+    sections: [
+      {
+        id: 'expression-add-operators-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个仅含数字的字符串 `num` 和目标值 `target`，在数字之间插入 `+`、`-`、`*` 运算符，返回所有结果等于目标值的合法表达式。',
+        bullets: [
+          '原始数字顺序不能改变。',
+          '可以选择不切某些位置，形成多位数。',
+          '表达式要满足正常运算优先级。',
+          '目标是返回所有合法字符串。',
+        ],
+      },
+      {
+        id: 'expression-add-operators-split',
+        title: '第一层枚举是“当前要截取几位作为下一个数”',
+        summary:
+          '从某个位置出发，可以截取 `1` 位、`2` 位……直到末尾作为当前操作数。每种截取都会形成一条新的搜索分支，再决定前面连接什么运算符。',
+        bullets: [
+          '这是典型的切分型回溯。',
+          '每一段切出来都要转成数字。',
+          '后续搜索继续从剩余字符串展开。',
+          '表达式字符串也在递归中逐步拼接。',
+        ],
+      },
+      {
+        id: 'expression-add-operators-leading-zero',
+        title: '多位数不能有前导零，这是必须提前剪枝的约束',
+        summary:
+          '如果当前截取片段以 `0` 开头且长度大于 1，比如 `05`，那它不是合法数字表示，应当立即停止继续向更长片段扩展。',
+        bullets: [
+          '单独的 `0` 是合法的。',
+          '但 `05`、`00` 这样的多位前导零不合法。',
+          '这是非常高频的剪枝条件。',
+          '忽略它会产生大量错误答案。',
+        ],
+      },
+      {
+        id: 'expression-add-operators-multiply',
+        title: '真正难点是乘法优先级，不能简单把当前值直接乘上去',
+        summary:
+          '例如表达式 `1+2*3`，当处理到 `*3` 时，正确结果应为 `1 + (2*3)`，而不是 `(1+2)*3`。因此回溯中除了维护当前总值 `currentValue`，还要维护上一个操作数 `lastOperand`，以便在乘法时执行“撤销上次贡献，再加入乘法后的新贡献”。',
+        bullets: [
+          '加减法可以直接更新当前总值。',
+          '乘法需要回退上一个操作数对总值的影响。',
+          '新总值是 `currentValue - lastOperand + lastOperand * currentNumber`。',
+          '这是这题最核心的技巧。',
+        ],
+        callout:
+          '很多复杂回溯题真正难的不是搜索树，而是搜索过程中要携带哪些状态。只要状态设计不够完整，表达式虽然枚举出来了，数值却根本算不对。',
+      },
+      {
+        id: 'expression-add-operators-solution',
+        title: '标准解法：回溯枚举切分，并携带当前值与上一操作数',
+        summary:
+          '递归参数包含当前位置、当前表达式字符串、当前表达式值以及上一段操作数。首段数字不加运算符，后续每次尝试加 `+`、`-`、`*` 三种操作并更新状态。到达字符串末尾时，若当前值等于目标值，就把表达式加入答案。',
+        bullets: [
+          '时间复杂度取决于搜索树规模，最坏较高。',
+          '空间复杂度来自递归深度和结果集。',
+          '这是回溯与表达式求值结合的经典题。',
+          '重点是状态维护正确，而不是盲目枚举。',
+        ],
+        code: `function addOperators(num: string, target: number): string[] {
+  const result: string[] = []
+
+  const backtrack = (
+    index: number,
+    expression: string,
+    currentValue: number,
+    lastOperand: number,
+  ): void => {
+    if (index === num.length) {
+      if (currentValue === target) {
+        result.push(expression)
+      }
+
+      return
+    }
+
+    for (let end = index; end < num.length; end += 1) {
+      if (end > index && num[index] === '0') {
+        break
+      }
+
+      const currentString = num.slice(index, end + 1)
+      const currentNumber = Number(currentString)
+
+      if (index === 0) {
+        backtrack(end + 1, currentString, currentNumber, currentNumber)
+        continue
+      }
+
+      backtrack(
+        end + 1,
+        \`\${expression}+\${currentString}\`,
+        currentValue + currentNumber,
+        currentNumber,
+      )
+
+      backtrack(
+        end + 1,
+        \`\${expression}-\${currentString}\`,
+        currentValue - currentNumber,
+        -currentNumber,
+      )
+
+      backtrack(
+        end + 1,
+        \`\${expression}*\${currentString}\`,
+        currentValue - lastOperand + lastOperand * currentNumber,
+        lastOperand * currentNumber,
+      )
+    }
+  }
+
+  backtrack(0, '', 0, 0)
+  return result
+}`,
+      },
+      {
+        id: 'expression-add-operators-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的错误，是把表达式边构造边直接从左到右计算，导致乘法优先级完全错误。只要没有额外保存上一段操作数，几乎不可能把乘法处理对。',
+        bullets: [
+          '易错点 1：乘法优先级处理错误。',
+          '易错点 2：漏掉前导零剪枝。',
+          '易错点 3：首段数字错误地前置运算符。',
+          '延伸方向：表达式生成、回溯剪枝、带状态搜索。',
+        ],
+      },
+    ],
+  },
 ];
