@@ -30662,4 +30662,109 @@ function findCelebrity(n: number): number {
       },
     ],
   },
+  {
+    id: 'first-bad-version',
+    label: '278. LeetCode 278. 第一个错误的版本',
+    difficulty: '简单',
+    description:
+      '这题本质是一个标准的边界二分题。重点不在 API，而在于把“从某个位置开始条件恒为真”的结构看出来，然后稳定地写出找最左真值的位置。',
+    outcome:
+      '你能把这题抽象成单调布尔数组上的二分边界搜索，并写出不死循环、不越界的最左满足模板。',
+    sections: [
+      {
+        id: 'first-bad-version-summary',
+        title: '题目在问什么',
+        summary:
+          '给定版本号 `1` 到 `n`，并提供 `isBadVersion(version)` API。某个版本开始之后所有版本都是错误的，要求找出第一个错误版本。',
+        bullets: [
+          '坏版本具有前假后真的单调结构。',
+          '目标是找第一个为真的位置。',
+          '不能线性一个个试。',
+          '典型解法是二分查找。',
+        ],
+      },
+      {
+        id: 'first-bad-version-monotonic',
+        title: '题目已经天然给出了单调性',
+        summary:
+          '如果某个版本是错误的，那么它后面的所有版本也都是错误的。这意味着版本状态在某个分界点之前全是 `false`，之后全是 `true`，非常适合做边界二分。',
+        bullets: [
+          '这是标准的单调布尔序列。',
+          '分界点就是答案。',
+          '二分能把查询次数降到 `O(log n)`。',
+          '关键是找边界，不是找某个确切值。',
+        ],
+      },
+      {
+        id: 'first-bad-version-left-boundary',
+        title: '我们要找的是“最左侧的坏版本”',
+        summary:
+          '当 `mid` 已经是坏版本时，不能直接返回，因为左边可能还有更早的坏版本。正确做法是保留 `mid` 作为候选，并继续向左收缩区间。',
+        bullets: [
+          '条件成立时要压缩右边界。',
+          '条件不成立时再压缩左边界。',
+          '这就是标准的找最左满足位置。',
+          '理解这一点比背模板更重要。',
+        ],
+      },
+      {
+        id: 'first-bad-version-template',
+        title: '写法上最稳的是闭区间二分模板',
+        summary:
+          '用 `[left, right]` 表示当前候选区间。每次取中点，如果 `mid` 是坏版本，就令 `right = mid`；否则令 `left = mid + 1`。当两端收敛时，`left` 就是答案。',
+        bullets: [
+          '由于 `mid` 可能就是答案，所以不能写成 `mid - 1`。',
+          '循环条件通常用 `left < right`。',
+          '收敛后左右会落在同一个分界点。',
+          '这是这题最常见的稳健写法。',
+        ],
+        callout:
+          '边界二分最常见的错误，不是不会写，而是没先想清楚 `mid` 命中目标条件后要不要保留。只要把“答案会不会被当前 `mid` 吃掉”想清楚，区间更新就自然了。',
+      },
+      {
+        id: 'first-bad-version-solution',
+        title: '标准解法：二分查找最左坏版本',
+        summary:
+          '初始化 `left = 1`、`right = n`。循环中取中点并调用 `isBadVersion`。若中点是坏版本，则把右边界收缩到 `mid`；否则说明答案在右半区，左边界移动到 `mid + 1`。循环结束后返回 `left`。',
+        bullets: [
+          '时间复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(1)`。',
+          'API 调用次数远少于线性扫描。',
+          '是边界二分的代表入门题。',
+        ],
+        code: `declare function isBadVersion(version: number): boolean
+
+function solution(isBadVersion: (version: number) => boolean) {
+  return function firstBadVersion(n: number): number {
+    let left = 1
+    let right = n
+
+    while (left < right) {
+      const mid = left + Math.floor((right - left) / 2)
+
+      if (isBadVersion(mid)) {
+        right = mid
+      } else {
+        left = mid + 1
+      }
+    }
+
+    return left
+  }
+}`,
+      },
+      {
+        id: 'first-bad-version-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易写错的地方，是把 `mid` 判坏后写成 `right = mid - 1`，这样会把答案本身丢掉，尤其在分界点恰好是 `mid` 时直接出错。',
+        bullets: [
+          '易错点 1：错误丢弃 `mid`。',
+          '易错点 2：循环条件和区间更新不匹配导致死循环。',
+          '易错点 3：把找边界写成找某个值。',
+          '延伸方向：第一个大于等于、最后一个小于等于、单调条件二分。',
+        ],
+      },
+    ],
+  },
 ];
