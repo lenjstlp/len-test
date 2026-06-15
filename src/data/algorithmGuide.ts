@@ -30767,4 +30767,102 @@ function solution(isBadVersion: (version: number) => boolean) {
       },
     ],
   },
+  {
+    id: 'perfect-squares',
+    label: '279. LeetCode 279. 完全平方数',
+    difficulty: '中等',
+    description:
+      '这题是典型的完全背包型动态规划。重点不是记住“平方数”三个字，而是识别出它其实是在问：若若干个可重复使用的候选数之和等于 `n`，最少需要几个。',
+    outcome:
+      '你能把这题转成“最少物品数”的动态规划，写出标准转移，并理解为什么它本质上属于完全背包一类问题。',
+    sections: [
+      {
+        id: 'perfect-squares-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数 `n`，返回若干个完全平方数之和等于 `n` 时，所需完全平方数的最少数量。',
+        bullets: [
+          '完全平方数如 `1、4、9、16`。',
+          '同一个平方数可以重复使用。',
+          '目标是数量最少，不是方案总数。',
+          '结果一定存在，因为 `1` 可以无限使用。',
+        ],
+      },
+      {
+        id: 'perfect-squares-dp-state',
+        title: '最自然的状态是“凑出某个和所需的最少数量”',
+        summary:
+          '设 `dp[value]` 表示和为 `value` 时最少需要多少个完全平方数。这样目标就是求 `dp[n]`，而转移时要考虑最后选用了哪一个平方数。',
+        bullets: [
+          '状态定义直接对应题目目标。',
+          '这是典型的最优值 DP。',
+          '需要从更小的状态递推到更大状态。',
+          '非常适合一维数组实现。',
+        ],
+      },
+      {
+        id: 'perfect-squares-transition',
+        title: '转移方式是枚举最后一个使用的平方数',
+        summary:
+          '若最后一个使用的平方数是 `square = i * i`，那么前面的部分需要凑成 `value - square`。于是有转移：`dp[value] = min(dp[value], dp[value - square] + 1)`。',
+        bullets: [
+          '“最后一步”思维是 DP 常见切入点。',
+          '每个平方数都可以重复使用。',
+          '因此当前状态可以从自身之前很多位置转来。',
+          '这正是完全背包的特征。',
+        ],
+      },
+      {
+        id: 'perfect-squares-complete-knapsack',
+        title: '为什么说它本质上是完全背包',
+        summary:
+          '候选物品是所有不超过 `n` 的平方数，每个物品都可以无限次使用，目标是凑出容量 `n` 且使物品数量最少。这与完全背包“物品可重复选”的结构完全一致。',
+        bullets: [
+          '候选集合固定且可重复。',
+          '目标是最少件数而非最大价值。',
+          '外层遍历容量或物品都能写出正确解。',
+          '识别题型后就不容易卡住。',
+        ],
+        callout:
+          '很多题表面包装成数论或字符串，但真正落地时还是老题型。能把新题翻译成你熟悉的 DP 模板，往往比死记某道题的结论更重要。',
+      },
+      {
+        id: 'perfect-squares-solution',
+        title: '标准解法：一维动态规划',
+        summary:
+          '先把 `dp` 初始化为一个很大的值，令 `dp[0] = 0`。然后从 `1` 遍历到 `n`，对每个值枚举所有不超过它的平方数，并用 `dp[value - square] + 1` 尝试更新最优答案。',
+        bullets: [
+          '时间复杂度约为 `O(n * sqrt(n))`。',
+          '空间复杂度是 `O(n)`。',
+          '实现稳定，适合作为主解。',
+          '也是这题最经典的面试写法。',
+        ],
+        code: `function numSquares(n: number): number {
+  const dp = Array(n + 1).fill(Number.POSITIVE_INFINITY)
+  dp[0] = 0
+
+  for (let value = 1; value <= n; value += 1) {
+    for (let base = 1; base * base <= value; base += 1) {
+      const square = base * base
+      dp[value] = Math.min(dp[value], dp[value - square] + 1)
+    }
+  }
+
+  return dp[n]
+}`,
+      },
+      {
+        id: 'perfect-squares-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题常见问题，是虽然会写转移，但说不清为什么状态这样定义、为什么平方数可以重复使用。面试里如果只会背代码，往往说明题型识别还不够扎实。',
+        bullets: [
+          '易错点 1：没识别出完全背包结构。',
+          '易错点 2：`dp` 初值设得不合理。',
+          '易错点 3：枚举平方数时边界写错。',
+          '延伸方向：零钱兑换、完全背包、最少拆分问题。',
+        ],
+      },
+    ],
+  },
 ];
