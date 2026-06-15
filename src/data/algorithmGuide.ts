@@ -30962,4 +30962,122 @@ function solution(isBadVersion: (version: number) => boolean) {
       },
     ],
   },
+  {
+    id: 'zigzag-iterator',
+    label: '281. LeetCode 281. 锯齿迭代器',
+    difficulty: '中等',
+    description:
+      '这题是很典型的设计题。重点不在迭代器语法，而在于如何组织“还有剩余元素的序列”，让它们按轮转顺序依次产出值。',
+    outcome:
+      '你能写出基于队列的锯齿迭代器，理解为什么把“当前数组及其读取位置”入队出队，是最自然也最可扩展的设计。',
+    sections: [
+      {
+        id: 'zigzag-iterator-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个数组 `v1` 和 `v2`，设计一个迭代器，使其按交替顺序依次返回元素，例如 `v1[0] -> v2[0] -> v1[1] -> v2[1] ...`。',
+        bullets: [
+          '本质是轮流从多个序列取元素。',
+          '某个序列耗尽后要自动跳过。',
+          '需要实现 `next` 和 `hasNext`。',
+          '这是一个状态管理题。',
+        ],
+      },
+      {
+        id: 'zigzag-iterator-direct',
+        title: '只写两个指针可以解两数组版本，但不够通用',
+        summary:
+          '如果只针对两个数组，可以维护两个下标和一个标记位，轮流尝试从两个数组取数。但这种写法一旦扩展到多个数组，会迅速变得混乱，所以更好的思路是抽象成统一的轮转队列。',
+        bullets: [
+          '两数组特判写法不具备扩展性。',
+          '题目虽然给两个数组，但模式可以泛化。',
+          '设计题更看重抽象是否稳定。',
+          '队列模型更贴近轮询本质。',
+        ],
+      },
+      {
+        id: 'zigzag-iterator-queue',
+        title: '核心思路：队列里存“还没读完的序列状态”',
+        summary:
+          '把每个非空数组的当前读取状态表示为 `[array, index]`，放进队列。每次 `next` 时，从队首取一个状态，返回当前位置的元素；如果该数组还有后续元素，就把更新后的状态重新放回队尾。',
+        bullets: [
+          '谁先入队，谁先被消费。',
+          '读完一个元素后再排到队尾。',
+          '耗尽的序列不再入队。',
+          '这正好模拟轮流取数。',
+        ],
+      },
+      {
+        id: 'zigzag-iterator-generalization',
+        title: '这种设计天然支持从两个数组扩展到多个数组',
+        summary:
+          '因为队列只关心“当前还有没有剩余元素”，完全不关心来源是第几个数组。所以即便题目以后变成 `k` 个数组，也只是初始化时多入几个队列节点而已。',
+        bullets: [
+          '抽象能力是设计题的重点。',
+          '统一状态结构能减少分支判断。',
+          '多路轮询问题常用队列建模。',
+          '这比写死两个数组更有工程价值。',
+        ],
+        callout:
+          '设计题最值得练的，不是把样例跑通，而是能否找到一个在规模变化时仍然稳定的状态模型。只要状态抽象对了，题目从 2 路扩展到 k 路通常都不需要重写核心逻辑。',
+      },
+      {
+        id: 'zigzag-iterator-solution',
+        title: '标准解法：队列维护数组与当前索引',
+        summary:
+          '初始化时把所有非空数组的 `[数组, 当前索引]` 状态放入队列。`next` 时弹出队首，读取元素，如果该数组还有剩余元素则把更新后状态入队。`hasNext` 只需判断队列是否为空。',
+        bullets: [
+          '时间复杂度均摊为 `O(1)` 每次调用。',
+          '空间复杂度与活跃序列数相关。',
+          '实现清晰，且容易扩展。',
+          '是这题最推荐的写法。',
+        ],
+        code: `class ZigzagIterator {
+  private queue: Array<{ values: number[]; index: number }>
+
+  constructor(v1: number[], v2: number[]) {
+    this.queue = []
+
+    if (v1.length > 0) {
+      this.queue.push({ values: v1, index: 0 })
+    }
+
+    if (v2.length > 0) {
+      this.queue.push({ values: v2, index: 0 })
+    }
+  }
+
+  next(): number {
+    const current = this.queue.shift()!
+    const value = current.values[current.index]
+
+    if (current.index + 1 < current.values.length) {
+      this.queue.push({
+        values: current.values,
+        index: current.index + 1,
+      })
+    }
+
+    return value
+  }
+
+  hasNext(): boolean {
+    return this.queue.length > 0
+  }
+}`,
+      },
+      {
+        id: 'zigzag-iterator-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是每次都试图用大量条件分支判断应该从哪个数组取值，导致某个数组提前耗尽时逻辑变得非常脆弱。队列模型能自然规避这些分支爆炸。',
+        bullets: [
+          '易错点 1：写死双数组切换逻辑，扩展性差。',
+          '易错点 2：数组耗尽后仍继续参与轮换。',
+          '易错点 3：`next` 与 `hasNext` 状态不一致。',
+          '延伸方向：多路合并、轮询调度、迭代器设计。',
+        ],
+      },
+    ],
+  },
 ];
