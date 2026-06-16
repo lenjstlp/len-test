@@ -31537,4 +31537,137 @@ class PeekingIterator {
       },
     ],
   },
+  {
+    id: 'walls-and-gates',
+    label: '286. LeetCode 286. 墙与门',
+    difficulty: '中等',
+    description:
+      '这题表面上是网格填值，核心其实是多源 BFS。重点不在从每个空房间去找最近的门，而在于反过来从所有门同时扩散出去。',
+    outcome:
+      '你能识别这题的多源最短路结构，写出从所有门同时出发的 BFS，并理解为什么这比逐个房间搜索高效得多。',
+    sections: [
+      {
+        id: 'walls-and-gates-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个二维网格，`-1` 表示墙，`0` 表示门，`INF` 表示空房间。要求把每个空房间填成它到最近门的距离，若不可达则保持 `INF`。',
+        bullets: [
+          '墙不能通过。',
+          '门本身距离是 0。',
+          '空房间要填最近门距离。',
+          '本质是最短路径问题。',
+        ],
+      },
+      {
+        id: 'walls-and-gates-naive',
+        title: '从每个空房间单独去找门会重复做大量搜索',
+        summary:
+          '如果对每个空房间都跑一次 BFS 去找最近门，当然能得到答案，但会把同一片区域反复遍历很多次，复杂度明显过高。',
+        bullets: [
+          '空房间数量可能很多。',
+          '每个房间独立搜索会重复扫图。',
+          '这类“最近某类点”问题应优先考虑反向扩散。',
+          '真正关键是避免重复搜索。',
+        ],
+      },
+      {
+        id: 'walls-and-gates-multi-source',
+        title: '正确方向是把所有门当作 BFS 的共同起点',
+        summary:
+          '既然每个房间只关心离它最近的门，那不如把所有门同时放进队列，从它们一起往外一层层扩散。谁先到达某个空房间，谁就给出了最短距离。',
+        bullets: [
+          '多个门同时作为起点。',
+          'BFS 天然按距离层次扩展。',
+          '第一次到达就是最短路径。',
+          '这是多源 BFS 的标准模型。',
+        ],
+      },
+      {
+        id: 'walls-and-gates-update',
+        title: '只有还未填过距离的空房间才需要入队继续扩散',
+        summary:
+          '遍历四个方向时，如果邻格仍是 `INF`，说明还没有被任何门以更短路径到达过，就把它更新为当前距离加一，并加入队列继续向外扩散。',
+        bullets: [
+          '已更新过的格子无需重复入队。',
+          '墙和门都不会继续被处理。',
+          '每个空房间最多进队一次。',
+          '因此总复杂度是线性的。',
+        ],
+        callout:
+          '网格最短路题里，判断“应该从目标反推，还是从起点正推”非常关键。只要题目问的是“每个点到最近某类点的距离”，多源 BFS 通常就是首选。',
+      },
+      {
+        id: 'walls-and-gates-solution',
+        title: '标准解法：多源 BFS',
+        summary:
+          '先扫描网格，把所有门的位置加入队列。然后做 BFS，每次从队首弹出一个格子，尝试更新四邻接中仍为 `INF` 的房间为当前距离加一，并入队。最终原地完成答案填充。',
+        bullets: [
+          '时间复杂度是 `O(m * n)`。',
+          '空间复杂度最坏是 `O(m * n)`。',
+          '每个格子最多处理一次。',
+          '是这题最标准的解法。',
+        ],
+        code: `function wallsAndGates(rooms: number[][]): void {
+  if (rooms.length === 0 || rooms[0].length === 0) {
+    return
+  }
+
+  const rowCount = rooms.length
+  const colCount = rooms[0].length
+  const queue: Array<[number, number]> = []
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+
+  for (let row = 0; row < rowCount; row += 1) {
+    for (let col = 0; col < colCount; col += 1) {
+      if (rooms[row][col] === 0) {
+        queue.push([row, col])
+      }
+    }
+  }
+
+  let head = 0
+
+  while (head < queue.length) {
+    const [row, col] = queue[head]
+    head += 1
+
+    for (const [deltaRow, deltaCol] of directions) {
+      const nextRow = row + deltaRow
+      const nextCol = col + deltaCol
+
+      if (
+        nextRow < 0 ||
+        nextRow >= rowCount ||
+        nextCol < 0 ||
+        nextCol >= colCount ||
+        rooms[nextRow][nextCol] !== 2147483647
+      ) {
+        continue
+      }
+
+      rooms[nextRow][nextCol] = rooms[row][col] + 1
+      queue.push([nextRow, nextCol])
+    }
+  }
+}`,
+      },
+      {
+        id: 'walls-and-gates-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是方向想反了，从每个房间去找门。那样虽然能做，但复杂度和题型识别都不够好。',
+        bullets: [
+          '易错点 1：把多源问题写成多次单源搜索。',
+          '易错点 2：更新条件没限制在 `INF`，导致重复覆盖。',
+          '易错点 3：忘了墙和门不需要继续扩散。',
+          '延伸方向：腐烂的橘子、01 矩阵、最近目标多源 BFS。',
+        ],
+      },
+    ],
+  },
 ];
