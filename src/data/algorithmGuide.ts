@@ -31321,4 +31321,117 @@ function solution(isBadVersion: (version: number) => boolean) {
       },
     ],
   },
+  {
+    id: 'peeking-iterator',
+    label: '284. LeetCode 284. 顶端迭代器',
+    difficulty: '中等',
+    description:
+      '这题是一个很标准的迭代器包装设计题。重点不是把 `peek` 临时写出来，而是理解为什么要额外缓存“下一个元素”，让 `peek` 和 `next` 都能稳定工作。',
+    outcome:
+      '你能写出基于预读缓存的迭代器封装，理解 `peek`、`next`、`hasNext` 三者之间的状态协同关系。',
+    sections: [
+      {
+        id: 'peeking-iterator-summary',
+        title: '题目在问什么',
+        summary:
+          '在普通迭代器 `Iterator` 的基础上，再实现一个 `peek()` 方法，使其能够查看下一个元素但不推进迭代位置。',
+        bullets: [
+          '`peek` 只能看，不能消耗元素。',
+          '`next` 仍然要正常前进。',
+          '`hasNext` 也要保持正确。',
+          '本质是状态缓存设计题。',
+        ],
+      },
+      {
+        id: 'peeking-iterator-buffer',
+        title: '最稳的思路是始终缓存“下一个要返回的值”',
+        summary:
+          '只要额外维护一个缓存值 `nextValue`，那么 `peek()` 直接返回它，`next()` 返回它之后再从底层迭代器预读下一个值填回缓存，就能让语义保持清晰稳定。',
+        bullets: [
+          '缓存让 `peek` 不再依赖临时回退。',
+          '`next` 只负责消费当前缓存。',
+          '消费后立即补上新缓存。',
+          '这就是典型的预读模型。',
+        ],
+      },
+      {
+        id: 'peeking-iterator-init',
+        title: '构造时就要把第一份缓存准备好',
+        summary:
+          '如果等到第一次 `peek` 或 `next` 再去初始化缓存，逻辑会变得分散。更自然的做法，是在构造函数中就尝试从底层迭代器读取第一个值，统一建立初始状态。',
+        bullets: [
+          '初始化后，三个方法逻辑都更统一。',
+          '空迭代器时缓存应为空。',
+          '后续只需要维护“缓存是否存在”。',
+          '设计题里初始化策略很关键。',
+        ],
+      },
+      {
+        id: 'peeking-iterator-state',
+        title: '`hasNext` 实际上判断的是缓存是否为空',
+        summary:
+          '因为我们始终保证缓存里存着“下一次 `next` 将要返回的元素”，所以是否还有下一个元素，不需要再问底层迭代器，而是直接看缓存状态即可。',
+        bullets: [
+          '缓存是真正的单一可信状态源。',
+          '避免多个来源判断不一致。',
+          '状态集中后实现会更简洁。',
+          '这也是封装设计的基本原则。',
+        ],
+        callout:
+          '设计题经常不是功能难，而是状态管理容易散。只要能找到一个稳定的中心状态，把所有对外方法都围绕它组织，代码通常就会很顺。',
+      },
+      {
+        id: 'peeking-iterator-solution',
+        title: '标准解法：预读缓存一个元素',
+        summary:
+          '构造时读取底层迭代器的第一个元素到缓存。`peek()` 直接返回缓存；`next()` 返回缓存值，并尝试从底层迭代器继续预读下一个值填回缓存；`hasNext()` 判断缓存是否非空。',
+        bullets: [
+          '每次调用均摊复杂度是 `O(1)`。',
+          '额外空间复杂度是 `O(1)`。',
+          '实现短小，语义也最稳定。',
+          '是这题最经典的设计方式。',
+        ],
+        code: `interface Iterator<T> {
+  hasNext(): boolean
+  next(): T
+}
+
+class PeekingIterator {
+  private iterator: Iterator<number>
+  private nextValue: number | null
+
+  constructor(iterator: Iterator<number>) {
+    this.iterator = iterator
+    this.nextValue = iterator.hasNext() ? iterator.next() : null
+  }
+
+  peek(): number {
+    return this.nextValue!
+  }
+
+  next(): number {
+    const current = this.nextValue!
+    this.nextValue = this.iterator.hasNext() ? this.iterator.next() : null
+    return current
+  }
+
+  hasNext(): boolean {
+    return this.nextValue !== null
+  }
+}`,
+      },
+      {
+        id: 'peeking-iterator-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题常见问题，是试图在 `peek` 时临时调用一次 `next` 再想办法塞回去，这会把底层迭代器状态弄乱。正确方向是提前缓存，而不是事后回滚。',
+        bullets: [
+          '易错点 1：`peek` 错误推进了底层迭代器。',
+          '易错点 2：初始化时没准备缓存，导致方法逻辑分裂。',
+          '易错点 3：`hasNext` 与缓存状态不一致。',
+          '延伸方向：迭代器封装、流式读取、预读缓冲设计。',
+        ],
+      },
+    ],
+  },
 ];
