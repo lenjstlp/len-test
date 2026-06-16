@@ -31434,4 +31434,107 @@ class PeekingIterator {
       },
     ],
   },
+  {
+    id: 'inorder-successor-in-bst',
+    label: '285. LeetCode 285. 二叉搜索树中的中序后继',
+    difficulty: '中等',
+    description:
+      '这题的关键不是把整棵树中序遍历出来，而是利用 BST 的有序性直接缩小搜索范围。重点在于分清：当前节点比目标大时，它可能成为后继；比目标小时，它一定不可能成为后继。',
+    outcome:
+      '你能利用 BST 性质在单条搜索路径上找到中序后继，并说清楚为什么候选答案只会在某些转向过程中产生。',
+    sections: [
+      {
+        id: 'inorder-successor-in-bst-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉搜索树 `root` 和树中某个节点 `p`，返回其中序遍历意义下 `p` 的下一个节点。如果不存在后继，返回 `null`。',
+        bullets: [
+          '题目问的是中序后继，不是右孩子。',
+          '后继指中序遍历序列里的下一个节点。',
+          '树满足 BST 左小右大。',
+          '目标是找节点而非下标。',
+        ],
+      },
+      {
+        id: 'inorder-successor-in-bst-cases',
+        title: '后继的来源分两类：右子树，或者某个祖先节点',
+        summary:
+          '如果 `p` 有右子树，那么后继一定是右子树里最左边的节点；如果没有右子树，那么后继只能是从根往下搜索 `p` 的过程中，最后一个比 `p.val` 大的祖先节点。',
+        bullets: [
+          '右子树存在时，答案在右子树内部。',
+          '右子树不存在时，要往祖先里找。',
+          'BST 性质保证了这个祖先候选的正确性。',
+          '这两个情况构成完整分类。',
+        ],
+      },
+      {
+        id: 'inorder-successor-in-bst-search',
+        title: '更统一的写法是从根开始维护一个后继候选',
+        summary:
+          '从根节点开始搜索 `p.val`。若当前节点值大于 `p.val`，说明它可能成为后继，于是先记录它，再尝试去左子树找更小但仍大于 `p.val` 的节点；若当前值小于等于 `p.val`，则只能去右子树继续找。',
+        bullets: [
+          '值更大的节点才有资格成为后继。',
+          '记录候选后继续向左逼近更优解。',
+          '小于等于目标的节点都不可能是后继。',
+          '这让搜索路径非常明确。',
+        ],
+      },
+      {
+        id: 'inorder-successor-in-bst-why',
+        title: '为什么记录“最后一个比它大的节点”就够了',
+        summary:
+          '因为 BST 中所有比 `p.val` 大的值，如果想成为最近的后继，就必须尽可能小。搜索过程中，每次往左走时遇到的“大于 `p.val`”节点，都会比先前候选更接近目标，所以保留最后一个即可。',
+        bullets: [
+          '候选会不断被更小的合法值替换。',
+          '搜索结束后留下的就是最近的大值。',
+          '这和找上界的思路完全一致。',
+          '本质是 BST 上的边界搜索。',
+        ],
+        callout:
+          '很多 BST 题都可以翻译成“找第一个大于某值”或“找最后一个小于某值”。只要你能把树结构转成有序边界查找，思路就会非常统一。',
+      },
+      {
+        id: 'inorder-successor-in-bst-solution',
+        title: '标准解法：BST 路径搜索并维护后继候选',
+        summary:
+          '从根节点出发，初始化 `successor = null`。若当前节点值大于 `p.val`，更新 `successor` 并向左走；否则向右走。遍历结束后返回 `successor`。若题目需要处理右子树分支，这套写法也自然覆盖。',
+        bullets: [
+          '时间复杂度平均为 `O(h)`，`h` 为树高。',
+          '空间复杂度是 `O(1)`。',
+          '不需要完整中序遍历。',
+          '是最符合 BST 特性的解法。',
+        ],
+        code: `function inorderSuccessor(
+  root: TreeNode | null,
+  p: TreeNode | null,
+): TreeNode | null {
+  let current = root
+  let successor: TreeNode | null = null
+
+  while (current !== null) {
+    if (current.val > p!.val) {
+      successor = current
+      current = current.left
+    } else {
+      current = current.right
+    }
+  }
+
+  return successor
+}`,
+      },
+      {
+        id: 'inorder-successor-in-bst-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只记住“后继是右子树最左节点”这一半情况，忽略了无右子树时要回溯祖先候选。那样会漏掉很多答案。',
+        bullets: [
+          '易错点 1：只会处理右子树存在的情况。',
+          '易错点 2：把“大于”写成“大于等于”。',
+          '易错点 3：把普通树做成完整中序遍历，没利用 BST 性质。',
+          '延伸方向：前驱节点、上下界搜索、BST 迭代器。',
+        ],
+      },
+    ],
+  },
 ];
