@@ -32139,4 +32139,137 @@ class PeekingIterator {
       },
     ],
   },
+  {
+    id: 'word-pattern-ii',
+    label: '291. LeetCode 291. 单词规律 II',
+    difficulty: '中等',
+    description:
+      '这题是单词规律的一次升级：不再按空格切分，而是要把整个字符串动态划分给模式字符。重点从哈希映射一致性升级成“回溯 + 双向映射 + 切分枚举”。',
+    outcome:
+      '你能理解并实现这题的回溯解法，知道如何在枚举字符串切分时同步维护字符到子串的双向映射关系。',
+    sections: [
+      {
+        id: 'word-pattern-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定模式串 `pattern` 和字符串 `s`，判断是否存在一种映射，使 `pattern` 中每个字符都能对应到 `s` 的某个非空子串，并且整个 `pattern` 按顺序展开后恰好等于 `s`。',
+        bullets: [
+          '每个模式字符映射到一个非空字符串。',
+          '相同字符必须映射到同一子串。',
+          '不同字符不能映射到同一子串。',
+          '要同时决定切分位置和映射关系。',
+        ],
+      },
+      {
+        id: 'word-pattern-ii-backtracking',
+        title: '这是一个典型的回溯搜索题',
+        summary:
+          '模式串当前位置和目标串当前位置共同决定当前状态。若当前模式字符已有映射，就必须验证它是否与 `s` 当前前缀匹配；若还没有映射，就要枚举接下来截取多长的子串来建立新映射。',
+        bullets: [
+          '状态由两个游标和映射表组成。',
+          '已有映射时走验证分支。',
+          '无映射时走枚举切分分支。',
+          '这是回溯问题的标准结构。',
+        ],
+      },
+      {
+        id: 'word-pattern-ii-bijection',
+        title: '双向映射仍然是必须的',
+        summary:
+          '即使字符到字符串的映射看起来成立，也必须防止两个不同字符映射到同一个子串。因此除了 `char -> word`，还要维护一个 `usedWords` 集合或反向映射，保证双射关系。',
+        bullets: [
+          '单向映射只能保证同字符一致。',
+          '反向约束才能阻止不同字符共用子串。',
+          '这是和上一题一脉相承的核心要求。',
+          '只是这次映射对象变成了动态切分出的子串。',
+        ],
+      },
+      {
+        id: 'word-pattern-ii-pruning',
+        title: '回溯里最重要的是及时剪枝',
+        summary:
+          '如果某个字符已有映射但当前前缀对不上，立刻返回 `false`。如果枚举新子串时该子串已被别的字符占用，也立刻跳过。这些剪枝虽然简单，但对搜索规模影响很大。',
+        bullets: [
+          '前缀不匹配必须立即剪掉。',
+          '已被占用的子串不能重复绑定。',
+          '模式或字符串任一先耗尽都要检查是否同步结束。',
+          '回溯题的效率很依赖这些局部判断。',
+        ],
+        callout:
+          '回溯题不是靠“暴力枚举得更快”取胜，而是靠状态设计完整、剪枝条件准确。只要约束一旦被违反就立刻停下，搜索树规模通常会显著下降。',
+      },
+      {
+        id: 'word-pattern-ii-solution',
+        title: '标准解法：双向映射 + 递归枚举切分',
+        summary:
+          '递归参数包含模式下标和字符串下标。若当前模式字符已有映射，就验证是否与 `s` 的当前位置匹配；若没有映射，就枚举从当前位置开始的所有可能非空子串，尝试建立映射并继续递归。任一成功分支即可返回 `true`。',
+        bullets: [
+          '最坏复杂度较高，属于指数级搜索。',
+          '空间复杂度来自递归栈与映射表。',
+          '关键不在复杂度公式，而在状态与剪枝是否正确。',
+          '是这题最标准的思路。',
+        ],
+        code: `function wordPatternMatch(pattern: string, s: string): boolean {
+  const charToWord = new Map<string, string>()
+  const usedWords = new Set<string>()
+
+  const backtrack = (patternIndex: number, stringIndex: number): boolean => {
+    if (patternIndex === pattern.length && stringIndex === s.length) {
+      return true
+    }
+
+    if (patternIndex === pattern.length || stringIndex === s.length) {
+      return false
+    }
+
+    const char = pattern[patternIndex]
+
+    if (charToWord.has(char)) {
+      const word = charToWord.get(char)!
+
+      if (!s.startsWith(word, stringIndex)) {
+        return false
+      }
+
+      return backtrack(patternIndex + 1, stringIndex + word.length)
+    }
+
+    for (let end = stringIndex + 1; end <= s.length; end += 1) {
+      const word = s.slice(stringIndex, end)
+
+      if (usedWords.has(word)) {
+        continue
+      }
+
+      charToWord.set(char, word)
+      usedWords.add(word)
+
+      if (backtrack(patternIndex + 1, end)) {
+        return true
+      }
+
+      charToWord.delete(char)
+      usedWords.delete(word)
+    }
+
+    return false
+  }
+
+  return backtrack(0, 0)
+}`,
+      },
+      {
+        id: 'word-pattern-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只会枚举切分，却忘了维护双向唯一映射，最后让两个不同字符绑定到了同一个子串上。',
+        bullets: [
+          '易错点 1：没有维护反向唯一性。',
+          '易错点 2：已有映射时没做前缀校验。',
+          '易错点 3：递归终止条件不完整。',
+          '延伸方向：模式匹配、字符串切分、双向约束回溯。',
+        ],
+      },
+    ],
+  },
 ];
