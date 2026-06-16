@@ -32460,4 +32460,117 @@ class PeekingIterator {
       },
     ],
   },
+  {
+    id: 'flip-game-ii',
+    label: '294. LeetCode 294. 翻转游戏 II',
+    difficulty: '中等',
+    description:
+      '这题是在上一题状态生成基础上的博弈升级版。重点不在列出所有下一步，而在于判断：是否存在某一步能把对手送入必败态。',
+    outcome:
+      '你能把这题建模为标准的先手必胜/必败递归搜索，理解为什么“存在一步让对手输”就是当前状态必胜的充分必要条件。',
+    sections: [
+      {
+        id: 'flip-game-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个由 `+` 和 `-` 组成的字符串，双方轮流把任意一对连续的 `++` 翻成 `--`。无法行动者输。判断先手是否必胜。',
+        bullets: [
+          '这是一个双人轮流博弈。',
+          '可行动作与上一题相同。',
+          '输赢由“无法行动”决定。',
+          '目标是判断当前状态是否先手必胜。',
+        ],
+      },
+      {
+        id: 'flip-game-ii-recursion',
+        title: '标准博弈递归定义：只要存在一步能让对手输，我就赢',
+        summary:
+          '对于当前状态，枚举所有合法翻转。如果某次翻转之后得到的新状态会让下一位玩家处于必败态，那么当前状态就是必胜态；反之，如果所有下一步都让对手有必胜策略，那么当前状态就是必败态。',
+        bullets: [
+          '这就是最基本的极小化极大思想。',
+          '当前玩家只需要找到一个致胜分支。',
+          '如果找不到，说明无论怎么走都输。',
+          '这是很多组合博弈题的统一判断方式。',
+        ],
+      },
+      {
+        id: 'flip-game-ii-search-space',
+        title: '朴素递归能做，但会重复计算相同状态',
+        summary:
+          '同一个字符串状态可能从不同搜索路径多次出现。如果每次都重新递归判断，会产生大量重复子问题。因此非常自然的优化是用记忆化缓存状态结果。',
+        bullets: [
+          '状态空间由字符串局面决定。',
+          '不同路径可能汇聚到同一局面。',
+          '这是典型的搜索 + 记忆化问题。',
+          '缓存能显著减少重复递归。',
+        ],
+      },
+      {
+        id: 'flip-game-ii-memo',
+        title: '记忆化的键就是当前局面字符串',
+        summary:
+          '每次判断一个状态是否必胜后，就把结果存进 `Map<string, boolean>`。以后再次遇到同样状态，直接返回缓存值，不再重复展开搜索树。',
+        bullets: [
+          '字符串天然可作为状态键。',
+          '缓存的是“当前玩家在此局面是否能赢”。',
+          '重复子问题被完全消除。',
+          '实现也非常直接。',
+        ],
+        callout:
+          '很多博弈题和回溯题表面是搜索，实质上往往都带有强重复子问题。只要状态可哈希，记忆化通常就是从“能做”到“能高效做”的关键一步。',
+      },
+      {
+        id: 'flip-game-ii-solution',
+        title: '标准解法：递归搜索 + 记忆化',
+        summary:
+          '定义函数 `canWin(state)` 表示当前玩家面对 `state` 时是否必胜。遍历所有 `++` 位置生成下一状态，只要有一个下一状态使 `canWin(nextState)` 为 `false`，当前就返回 `true`。若所有下一状态都为 `true`，则当前返回 `false`。同时把结果记忆化。',
+        bullets: [
+          '最坏复杂度仍与状态数有关。',
+          '记忆化能显著减少重复计算。',
+          '这是这题最主流也最清晰的解法。',
+          '重点是理解必胜/必败递归关系。',
+        ],
+        code: `function canWin(currentState: string): boolean {
+  const memo = new Map<string, boolean>()
+
+  const dfs = (state: string): boolean => {
+    if (memo.has(state)) {
+      return memo.get(state)!
+    }
+
+    for (let index = 0; index < state.length - 1; index += 1) {
+      if (state[index] !== '+' || state[index + 1] !== '+') {
+        continue
+      }
+
+      const nextState =
+        state.slice(0, index) + '--' + state.slice(index + 2)
+
+      if (!dfs(nextState)) {
+        memo.set(state, true)
+        return true
+      }
+    }
+
+    memo.set(state, false)
+    return false
+  }
+
+  return dfs(currentState)
+}`,
+      },
+      {
+        id: 'flip-game-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的错误，是把“存在一个必胜分支”误写成“所有分支都必须赢”，从而把博弈递归关系彻底写反。',
+        bullets: [
+          '易错点 1：必胜/必败递归关系写反。',
+          '易错点 2：没做记忆化导致大量重复搜索。',
+          '易错点 3：状态生成时漏掉某些 `++` 位置。',
+          '延伸方向：Sprague-Grundy、博弈搜索、记忆化 DFS。',
+        ],
+      },
+    ],
+  },
 ];
