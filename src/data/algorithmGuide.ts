@@ -31894,4 +31894,136 @@ class PeekingIterator {
       },
     ],
   },
+  {
+    id: 'game-of-life',
+    label: '289. LeetCode 289. 生命游戏',
+    difficulty: '中等',
+    description:
+      '这题的重点不在规则本身，而在于如何原地更新。因为每个格子的下一状态依赖周围格子的旧状态，所以必须想办法在不丢失旧信息的前提下记录新状态。',
+    outcome:
+      '你能写出原地更新生命游戏的解法，理解为什么需要用过渡状态同时编码“旧状态”和“新状态”。',
+    sections: [
+      {
+        id: 'game-of-life-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个二维网格表示当前细胞状态，`1` 为活、`0` 为死。根据生命游戏规则，计算下一轮状态，并要求尽量原地更新。',
+        bullets: [
+          '每个格子的下一状态看周围八邻域。',
+          '规则由活邻居数量决定。',
+          '所有格子应同时更新。',
+          '难点是原地更新时不能提前污染旧状态。',
+        ],
+      },
+      {
+        id: 'game-of-life-synchronous',
+        title: '为什么不能边算边直接改成最终值',
+        summary:
+          '因为一个格子的下一状态需要依赖周围格子的旧状态。如果你先把某个邻居改掉，后续其他格子在统计活邻居时就会读到错误的新值，破坏“同时更新”的前提。',
+        bullets: [
+          '题目要求的是同步演化。',
+          '局部提前改写会污染邻域统计。',
+          '所以必须区分旧状态和新状态。',
+          '这正是原地更新题的核心矛盾。',
+        ],
+      },
+      {
+        id: 'game-of-life-transition-state',
+        title: '常见技巧是用中间状态同时保留旧值与新值信息',
+        summary:
+          '可以约定：`-1` 表示原来是活的、之后会死；`2` 表示原来是死的、之后会活。这样在第一轮扫描中既能写入新趋势，又能通过数值符号反推出旧状态。',
+        bullets: [
+          '`1` 和 `-1` 都代表“旧状态是活”。',
+          '`0` 和 `2` 都代表“旧状态是死”。',
+          '第一轮负责打标记。',
+          '第二轮再统一收敛成 `0/1`。',
+        ],
+      },
+      {
+        id: 'game-of-life-neighbors',
+        title: '统计邻居时，只看“旧状态是否为活”',
+        summary:
+          '在第一轮扫描时，周围格子可能已经被标成 `-1` 或 `2`。此时判断一个邻居旧状态是否为活，只需看它是否等于 `1` 或 `-1`。',
+        bullets: [
+          '不能直接只看是否等于 `1`。',
+          '过渡状态 `-1` 仍代表旧时活着。',
+          '这是计数正确性的关键。',
+          '很多实现错误都出在这里。',
+        ],
+        callout:
+          '原地状态机题常见套路，是把有限的几个过渡阶段编码进同一个格子里。只要新旧信息能共存一次扫描，问题就能被拆成“标记”和“收尾”两个阶段。',
+      },
+      {
+        id: 'game-of-life-solution',
+        title: '标准解法：两轮扫描 + 过渡状态编码',
+        summary:
+          '第一轮遍历每个格子，统计旧状态下的活邻居数，并按规则把需要变化的格子标记为 `-1` 或 `2`。第二轮再把所有正数收敛成 `1`，其余收敛成 `0`。',
+        bullets: [
+          '时间复杂度是 `O(m * n)`。',
+          '空间复杂度是 `O(1)` 额外空间。',
+          '满足原地更新要求。',
+          '是这题最常见的标准解法。',
+        ],
+        code: `function gameOfLife(board: number[][]): void {
+  const rowCount = board.length
+  const colCount = board[0].length
+  const directions = [
+    [-1, -1], [-1, 0], [-1, 1],
+    [0, -1],           [0, 1],
+    [1, -1],  [1, 0],  [1, 1],
+  ]
+
+  for (let row = 0; row < rowCount; row += 1) {
+    for (let col = 0; col < colCount; col += 1) {
+      let liveNeighbors = 0
+
+      for (const [deltaRow, deltaCol] of directions) {
+        const nextRow = row + deltaRow
+        const nextCol = col + deltaCol
+
+        if (
+          nextRow < 0 ||
+          nextRow >= rowCount ||
+          nextCol < 0 ||
+          nextCol >= colCount
+        ) {
+          continue
+        }
+
+        if (board[nextRow][nextCol] === 1 || board[nextRow][nextCol] === -1) {
+          liveNeighbors += 1
+        }
+      }
+
+      if (board[row][col] === 1 && (liveNeighbors < 2 || liveNeighbors > 3)) {
+        board[row][col] = -1
+      }
+
+      if (board[row][col] === 0 && liveNeighbors === 3) {
+        board[row][col] = 2
+      }
+    }
+  }
+
+  for (let row = 0; row < rowCount; row += 1) {
+    for (let col = 0; col < colCount; col += 1) {
+      board[row][col] = board[row][col] > 0 ? 1 : 0
+    }
+  }
+}`,
+      },
+      {
+        id: 'game-of-life-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是已经用了过渡状态，却在统计邻居时仍然只把 `1` 当作旧活细胞，导致后面统计全错。',
+        bullets: [
+          '易错点 1：邻居统计没把 `-1` 视为旧活。',
+          '易错点 2：第一轮直接改成最终值。',
+          '易错点 3：规则边界数量判断写错。',
+          '延伸方向：原地状态压缩、细胞自动机、二维模拟。',
+        ],
+      },
+    ],
+  },
 ];
