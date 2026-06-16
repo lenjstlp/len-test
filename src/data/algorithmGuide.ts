@@ -31670,4 +31670,107 @@ class PeekingIterator {
       },
     ],
   },
+  {
+    id: 'find-the-duplicate-number',
+    label: '287. LeetCode 287. 寻找重复数',
+    difficulty: '中等',
+    description:
+      '这题最有价值的地方，是它逼你放弃常见的排序和哈希做法，转而从数据结构映射角度思考。重点在于把数组下标和值关系看成一个链表，再用环检测找重复数。',
+    outcome:
+      '你能理解并实现 Floyd 判圈解法，知道为什么数组中的重复值会在“下标到值”的映射里形成环。',
+    sections: [
+      {
+        id: 'find-the-duplicate-number-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个包含 `n + 1` 个整数的数组 `nums`，所有数字都在 `1..n` 范围内，且只有一个重复数字，要求在不修改数组、只用常数额外空间的前提下找出这个重复值。',
+        bullets: [
+          '数组长度比取值范围多 1。',
+          '至少存在一个重复数。',
+          '不能修改原数组。',
+          '额外空间要求是常数级。',
+        ],
+      },
+      {
+        id: 'find-the-duplicate-number-pigeonhole',
+        title: '长度比范围多一位，说明一定发生了“指向冲突”',
+        summary:
+          '数组里有 `n + 1` 个位置，却只能填 `1..n` 这 `n` 个值，所以至少两个位置会指向同一个值。这个“多个位置指向同一下一跳”的结构，正是形成环的根源。',
+        bullets: [
+          '这是抽屉原理的直接体现。',
+          '重复值意味着路径会汇合。',
+          '路径一旦继续延伸，就会进入环。',
+          '这为判圈提供了结构基础。',
+        ],
+      },
+      {
+        id: 'find-the-duplicate-number-linked-list',
+        title: '把数组看成“下标指向值”的链表映射',
+        summary:
+          '把每个下标当成一个节点，把 `nums[index]` 当成它的 next 指针。由于值域在 `1..n`，这些 next 一定合法。重复数的存在意味着多个节点会指向同一个节点，从而在整体结构中形成一个环。',
+        bullets: [
+          '这是题目的关键建模转换。',
+          '数组被映射成函数图结构。',
+          '重复数对应环的入口。',
+          '一旦看成链表，Floyd 就能直接上场。',
+        ],
+      },
+      {
+        id: 'find-the-duplicate-number-floyd',
+        title: 'Floyd 判圈分两步：先相遇，再找入口',
+        summary:
+          '先用快慢指针在环中相遇。相遇后，把一个指针放回起点，两个指针每次都走一步，再次相遇的位置就是环入口，也就是重复数字本身。',
+        bullets: [
+          '第一阶段证明存在环并找到相遇点。',
+          '第二阶段利用距离关系定位环入口。',
+          '环入口对应重复值。',
+          '这是链表判圈题的经典结论。',
+        ],
+        callout:
+          '很多“数组题”其实可以通过重建隐含结构转成别的经典问题。真正重要的不是记住这题等于判圈，而是学会在题目条件受限时主动寻找更深一层的数据结构模型。',
+      },
+      {
+        id: 'find-the-duplicate-number-solution',
+        title: '标准解法：Floyd 快慢指针找环入口',
+        summary:
+          '先令快慢指针都从 `nums[0]` 出发，快指针每次走两步，慢指针每次走一步，直到相遇。随后把一个指针移回 `nums[0]`，两个指针都改为一步一步走，再次相遇时的值就是重复数。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '满足题目不修改数组的要求。',
+          '是这题最经典也最有代表性的解法。',
+        ],
+        code: `function findDuplicate(nums: number[]): number {
+  let slow = nums[0]
+  let fast = nums[0]
+
+  do {
+    slow = nums[slow]
+    fast = nums[nums[fast]]
+  } while (slow !== fast)
+
+  slow = nums[0]
+
+  while (slow !== fast) {
+    slow = nums[slow]
+    fast = nums[fast]
+  }
+
+  return slow
+}`,
+      },
+      {
+        id: 'find-the-duplicate-number-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易卡住的地方，不是代码，而是根本想不到“数组能转成链表”。如果建模没迈过去，后面的 Floyd 模板再熟也用不上。',
+        bullets: [
+          '易错点 1：不会把数组映射成 next 关系。',
+          '易错点 2：第一阶段相遇后不知道为什么还能找入口。',
+          '易错点 3：误以为必须排序或哈希。',
+          '延伸方向：寻找缺失/重复、环检测、函数图问题。',
+        ],
+      },
+    ],
+  },
 ];
