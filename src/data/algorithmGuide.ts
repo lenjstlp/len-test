@@ -31773,4 +31773,125 @@ class PeekingIterator {
       },
     ],
   },
+  {
+    id: 'unique-word-abbreviation',
+    label: '288. LeetCode 288. 单词的唯一缩写',
+    difficulty: '中等',
+    description:
+      '这题是一个偏工程感的数据结构设计题。重点不是会不会写缩写函数，而是如何快速判断某个单词的缩写是否在字典里保持唯一。',
+    outcome:
+      '你能设计出基于哈希映射的数据结构，快速判断一个单词缩写在给定字典语境下是否唯一。',
+    sections: [
+      {
+        id: 'unique-word-abbreviation-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个 `ValidWordAbbr` 类。给定字典初始化后，支持 `isUnique(word)`，判断某个单词的缩写是否唯一。',
+        bullets: [
+          '缩写规则是首字母 + 中间省略个数 + 尾字母。',
+          '长度不超过 2 的单词缩写为自身。',
+          '唯一性是相对字典而言的。',
+          '本质是建立缩写到单词集合的映射。',
+        ],
+      },
+      {
+        id: 'unique-word-abbreviation-key',
+        title: '核心在于把每个单词规整成统一缩写键',
+        summary:
+          '只要能写出一个稳定的 `getAbbr(word)` 函数，题目就会转成标准哈希问题：某个缩写键在字典中关联了哪些单词。',
+        bullets: [
+          '缩写函数是整个设计的基础。',
+          '相同缩写的单词会被映射到同一桶里。',
+          '后续唯一性判断只需看这个桶。',
+          '题目难点更多在设计而不是算法复杂度。',
+        ],
+      },
+      {
+        id: 'unique-word-abbreviation-map',
+        title: '最直接的数据结构是“缩写 -> 单词集合”',
+        summary:
+          '初始化时遍历字典，把每个单词的缩写算出来，并记录到映射中。这样 `isUnique(word)` 时，只需要查询这个缩写对应的集合，看集合是否为空，或是否只包含它自己。',
+        bullets: [
+          '集合天然支持去重。',
+          '字典中重复单词不会干扰判断。',
+          '查询时无需扫描整个字典。',
+          '时间复杂度非常稳定。',
+        ],
+      },
+      {
+        id: 'unique-word-abbreviation-judge',
+        title: '唯一性的判断有两种合法情况',
+        summary:
+          '若某个缩写在映射中不存在，说明没人占用它，自然唯一；若存在，则只有当映射集合里恰好只包含当前单词本身时，才仍然算唯一。只要还有别的单词共享该缩写，就不唯一。',
+        bullets: [
+          '空集合意味着没人冲突。',
+          '单元素且等于自己也合法。',
+          '多元素必然冲突。',
+          '这就是判断逻辑的全部。',
+        ],
+        callout:
+          '很多设计题并不复杂，真正要练的是你能不能先把查询条件抽象成一个足够稳定的键，再围绕这个键组织数据结构。',
+      },
+      {
+        id: 'unique-word-abbreviation-solution',
+        title: '标准解法：缩写映射到单词集合',
+        summary:
+          '构造函数中预处理字典，把每个缩写映射到对应单词集合。查询时取出该缩写的集合，若不存在则返回 `true`；若集合大小为 1 且只含当前单词，则返回 `true`；否则返回 `false`。',
+        bullets: [
+          '构建时间复杂度是 `O(n * l)`。',
+          '查询时间复杂度接近 `O(1)`。',
+          '空间复杂度与字典规模相关。',
+          '是这题最自然的实现。',
+        ],
+        code: `class ValidWordAbbr {
+  private abbrMap: Map<string, Set<string>>
+
+  constructor(dictionary: string[]) {
+    this.abbrMap = new Map()
+
+    for (const word of dictionary) {
+      const abbr = this.getAbbr(word)
+
+      if (!this.abbrMap.has(abbr)) {
+        this.abbrMap.set(abbr, new Set<string>())
+      }
+
+      this.abbrMap.get(abbr)!.add(word)
+    }
+  }
+
+  isUnique(word: string): boolean {
+    const abbr = this.getAbbr(word)
+    const words = this.abbrMap.get(abbr)
+
+    if (!words) {
+      return true
+    }
+
+    return words.size === 1 && words.has(word)
+  }
+
+  private getAbbr(word: string): string {
+    if (word.length <= 2) {
+      return word
+    }
+
+    return \`\${word[0]}\${word.length - 2}\${word[word.length - 1]}\`
+  }
+}`,
+      },
+      {
+        id: 'unique-word-abbreviation-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易搞错的地方，是把“字典里出现过相同单词”也当成冲突。实际上相同单词不应破坏唯一性，所以集合去重非常重要。',
+        bullets: [
+          '易错点 1：没处理字典重复单词。',
+          '易错点 2：长度不超过 2 的缩写规则写错。',
+          '易错点 3：唯一性条件理解不完整。',
+          '延伸方向：字符串哈希设计、键映射、词典索引。',
+        ],
+      },
+    ],
+  },
 ];
