@@ -32026,4 +32026,117 @@ class PeekingIterator {
       },
     ],
   },
+  {
+    id: 'word-pattern',
+    label: '290. LeetCode 290. 单词规律',
+    difficulty: '简单',
+    description:
+      '这题本质是双向映射一致性判断。重点不是把字符映射到单词就结束，而是要同时保证“一个字符不能对应多个单词，一个单词也不能对应多个字符”。',
+    outcome:
+      '你能写出这题的双哈希映射解法，并理解为什么只做单向映射检查是不完整的。',
+    sections: [
+      {
+        id: 'word-pattern-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个模式串 `pattern` 和一个以空格分隔的字符串 `s`，判断 `s` 是否遵循同样的模式映射关系。',
+        bullets: [
+          '每个模式字符要映射到一个单词。',
+          '相同字符必须对应相同单词。',
+          '不同字符不能对应同一个单词。',
+          '本质是双射关系判断。',
+        ],
+      },
+      {
+        id: 'word-pattern-length',
+        title: '第一步先检查元素个数是否一致',
+        summary:
+          '先把 `s` 按空格拆成单词数组。如果单词数和 `pattern` 长度不同，映射关系根本无从建立，可以直接返回 `false`。',
+        bullets: [
+          '长度不一致一定不匹配。',
+          '这是最简单也最必要的剪枝。',
+          '能提前排除很多无效输入。',
+          '后续遍历才有意义。',
+        ],
+      },
+      {
+        id: 'word-pattern-two-maps',
+        title: '只做字符到单词的映射不够，还要反向验证',
+        summary:
+          '如果只记录 `patternChar -> word`，那么像 `abba` 对应 `dog dog dog dog` 时，前向映射并不会报错。但实际上两个不同字符不能映射到同一个单词，所以必须再维护 `word -> patternChar`。',
+        bullets: [
+          '单向映射只能保证“一对多”不发生。',
+          '反向映射才能阻止“多对一”。',
+          '双向一致才是完整的双射。',
+          '这是这题最关键的判断点。',
+        ],
+      },
+      {
+        id: 'word-pattern-scan',
+        title: '逐位置扫描时，只要有任一方向冲突就立即失败',
+        summary:
+          '遍历模式字符和单词数组的每一对位置。如果字符已映射但结果不一致，或单词已映射但结果不一致，直接返回 `false`；否则建立新映射继续推进。',
+        bullets: [
+          '每一步都做局部一致性检查。',
+          '冲突一旦出现无需继续。',
+          '新键值对则同步记录两张表。',
+          '实现简单且清晰。',
+        ],
+        callout:
+          '很多映射题的坑都在“约束其实是双向的”。如果你只验证其中一个方向，代码可能能过部分样例，但逻辑其实并不完整。',
+      },
+      {
+        id: 'word-pattern-solution',
+        title: '标准解法：双向哈希映射',
+        summary:
+          '先拆分单词并检查长度。然后用两张 `Map` 分别记录字符到单词、单词到字符的映射。遍历过程中只要任一方向发生冲突就返回 `false`，全部通过则返回 `true`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '思路清晰，非常适合作为哈希映射入门题。',
+          '是这题最标准的写法。',
+        ],
+        code: `function wordPattern(pattern: string, s: string): boolean {
+  const words = s.split(' ')
+
+  if (words.length !== pattern.length) {
+    return false
+  }
+
+  const charToWord = new Map<string, string>()
+  const wordToChar = new Map<string, string>()
+
+  for (let index = 0; index < pattern.length; index += 1) {
+    const char = pattern[index]
+    const word = words[index]
+
+    if (charToWord.has(char) && charToWord.get(char) !== word) {
+      return false
+    }
+
+    if (wordToChar.has(word) && wordToChar.get(word) !== char) {
+      return false
+    }
+
+    charToWord.set(char, word)
+    wordToChar.set(word, char)
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'word-pattern-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的错误，就是只维护了字符到单词的映射，忘了单词到字符也必须唯一，导致多字符指向同一单词的情况漏检。',
+        bullets: [
+          '易错点 1：只校验单向映射。',
+          '易错点 2：忘记先检查长度。',
+          '易错点 3：拆词方式不统一导致边界问题。',
+          '延伸方向：同构字符串、双射映射、哈希一致性判断。',
+        ],
+      },
+    ],
+  },
 ];
