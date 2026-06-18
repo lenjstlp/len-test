@@ -33719,4 +33719,119 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'range-sum-query-2d-immutable',
+    label: '304. LeetCode 304. 二维区域和检索 - 矩阵不可变',
+    difficulty: '中等',
+    description:
+      '这题是一维前缀和在二维场景下的自然升级。重点不是机械背公式，而是理解一个子矩阵和可以通过一个大矩形减去两条边再加回重叠区域得到。',
+    outcome:
+      '你能掌握二维前缀和的构造和查询公式，并清楚解释为什么查询结果需要“减两次，加一次”。',
+    sections: [
+      {
+        id: 'range-sum-query-2d-immutable-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个类，给定不可变二维矩阵后，支持多次查询任意子矩阵 `(row1, col1)` 到 `(row2, col2)` 的元素和。',
+        bullets: [
+          '矩阵初始化后不再修改。',
+          '子矩阵查询会反复出现。',
+          '暴力每次遍历子矩阵代价高。',
+          '这是二维前缀和的标准应用场景。',
+        ],
+      },
+      {
+        id: 'range-sum-query-2d-immutable-prefix',
+        title: '二维前缀和表示从左上角到当前位置的总和',
+        summary:
+          '定义 `prefix[r + 1][c + 1]` 表示原矩阵从 `(0,0)` 到 `(r,c)` 的矩形元素和。这样任意查询矩形都能通过几个大矩形的组合来得到。',
+        bullets: [
+          '二维前缀和是矩形累计信息。',
+          '同样通常多开一行一列。',
+          '这样边界查询更统一。',
+          '和一维前缀和思想完全一致。',
+        ],
+      },
+      {
+        id: 'range-sum-query-2d-immutable-formula',
+        title: '查询公式为什么是“大矩形减两条边再加回重叠角”',
+        summary:
+          '目标矩形可由左上到右下的大矩形开始，再减去上方多余部分和左侧多余部分。但这两个减法会把左上角重叠区域减掉两次，所以要再补加一次。',
+        bullets: [
+          '这是典型的容斥原理。',
+          '先取总覆盖，再去掉多余。',
+          '重叠区域要补回来。',
+          '二维前缀和公式本质上就是矩形版容斥。',
+        ],
+      },
+      {
+        id: 'range-sum-query-2d-immutable-build',
+        title: '构造二维前缀和时也要用一遍容斥',
+        summary:
+          '构建 `prefix[r + 1][c + 1]` 时，可以用 `prefix[r][c + 1] + prefix[r + 1][c] - prefix[r][c] + matrix[r][c]`。这表示上方矩形加左方矩形，减掉被重复算的左上角，再加当前格子。',
+        bullets: [
+          '构造公式和查询公式同源。',
+          '每个格子只处理一次。',
+          '多开一行一列能让公式非常整齐。',
+          '这是二维前缀和实现的固定模板。',
+        ],
+        callout:
+          '二维前缀和最值得理解的不是模板本身，而是容斥关系。一旦能想清楚“为什么减两次还要加回来”，后续任何矩形累计题都会容易很多。',
+      },
+      {
+        id: 'range-sum-query-2d-immutable-solution',
+        title: '标准解法：构造二维前缀和矩阵',
+        summary:
+          '初始化时构建 `prefix` 矩阵。查询 `sumRegion(row1, col1, row2, col2)` 时，返回 `prefix[row2 + 1][col2 + 1] - prefix[row1][col2 + 1] - prefix[row2 + 1][col1] + prefix[row1][col1]`。',
+        bullets: [
+          '初始化复杂度是 `O(m * n)`。',
+          '查询复杂度是 `O(1)`。',
+          '空间复杂度是 `O(m * n)`。',
+          '是这题最标准的写法。',
+        ],
+        code: `class NumMatrix {
+  private prefix: number[][]
+
+  constructor(matrix: number[][]) {
+    const rowCount = matrix.length
+    const colCount = rowCount === 0 ? 0 : matrix[0].length
+    this.prefix = Array.from({ length: rowCount + 1 }, () =>
+      Array(colCount + 1).fill(0),
+    )
+
+    for (let row = 0; row < rowCount; row += 1) {
+      for (let col = 0; col < colCount; col += 1) {
+        this.prefix[row + 1][col + 1] =
+          this.prefix[row][col + 1] +
+          this.prefix[row + 1][col] -
+          this.prefix[row][col] +
+          matrix[row][col]
+      }
+    }
+  }
+
+  sumRegion(row1: number, col1: number, row2: number, col2: number): number {
+    return (
+      this.prefix[row2 + 1][col2 + 1] -
+      this.prefix[row1][col2 + 1] -
+      this.prefix[row2 + 1][col1] +
+      this.prefix[row1][col1]
+    )
+  }
+}`,
+      },
+      {
+        id: 'range-sum-query-2d-immutable-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的错误，是查询公式少减或少加一个角，结果某些区域会被重复统计或漏统计。归根到底还是容斥关系没想明白。',
+        bullets: [
+          '易错点 1：容斥公式符号写错。',
+          '易错点 2：前缀矩阵未多开一行一列，导致边界处理混乱。',
+          '易错点 3：构造公式与查询公式不一致。',
+          '延伸方向：二维差分、积分图、矩形统计问题。',
+        ],
+      },
+    ],
+  },
 ];
