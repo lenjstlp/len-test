@@ -33834,4 +33834,147 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'additive-number',
+    label: '305. LeetCode 305. 累加数',
+    difficulty: '中等',
+    description:
+      '这题的关键不是大数加法本身，而是前两段一旦确定，后面的序列就完全被决定。重点在于枚举前两个数，并按字符串方式验证后续是否持续满足累加关系。',
+    outcome:
+      '你能写出这题的枚举 + 验证解法，理解为什么只需尝试前两个数的切分，并用字符串加法规避大整数溢出问题。',
+    sections: [
+      {
+        id: 'additive-number-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含数字的字符串，判断它能否拆分成至少三个数，使得从第三个数开始，每个数都等于前两个数之和。',
+        bullets: [
+          '序列长度至少为 3。',
+          '必须完整覆盖整个字符串。',
+          '数字顺序不能改变。',
+          '本质是切分后验证数列关系。',
+        ],
+      },
+      {
+        id: 'additive-number-first-two',
+        title: '前两个数一旦确定，后续序列就没有自由度了',
+        summary:
+          '累加数列的定义决定了第三个数及之后的所有数都由前两个数唯一确定。因此题目真正的搜索空间只在前两个数的切分方式上。',
+        bullets: [
+          '先手枚举只需要考虑前两个数。',
+          '后续只能顺着定义往下验证。',
+          '这让原问题从“整串任意切分”变成“枚举前缀 + 线性检查”。',
+          '识别这一点能大幅简化思路。',
+        ],
+      },
+      {
+        id: 'additive-number-leading-zero',
+        title: '前导零是必须提前处理的硬约束',
+        summary:
+          '如果一个数字片段长度超过 1，却以 `0` 开头，那么它就是非法的，比如 `01`。因此枚举前两个数和后续匹配时，都必须遵守这个规则。',
+        bullets: [
+          '单独的 `0` 是合法数字。',
+          '多位数字不能以 `0` 开头。',
+          '这个约束能剪掉大量无效分支。',
+          '也是面试里常见追问点。',
+        ],
+      },
+      {
+        id: 'additive-number-string-add',
+        title: '为了规避整数溢出，可以直接用字符串做加法',
+        summary:
+          '当前两个数可能非常长，超过语言整数范围。最稳妥的方式是实现一个字符串加法函数，得到它们的和，再检查原字符串当前位置是否以该和作为前缀。',
+        bullets: [
+          '避免依赖大整数库。',
+          '字符串加法逻辑相对直接。',
+          '匹配失败就说明这组前缀切分不成立。',
+          '这是工程上最稳的做法。',
+        ],
+        callout:
+          '很多字符串数值题真正重要的不是会不会转数字，而是知道什么时候不该转。只要数据范围可能失控，直接在字符串层面做运算往往更可靠。',
+      },
+      {
+        id: 'additive-number-solution',
+        title: '标准解法：枚举前两个数，再按定义线性验证',
+        summary:
+          '双层循环枚举前两个数的结束位置，跳过带非法前导零的情况。对每组候选，用字符串加法不断生成下一项，并检查原串当前剩余部分是否以该结果开头。若能正好消耗完整个字符串，则返回 `true`。',
+        bullets: [
+          '外层是前两个数的切分枚举。',
+          '内层是顺着定义做线性验证。',
+          '时间复杂度主要取决于前缀枚举数量。',
+          '是这题最常见的写法。',
+        ],
+        code: `function isAdditiveNumber(num: string): boolean {
+  const addStrings = (first: string, second: string): string => {
+    let index1 = first.length - 1
+    let index2 = second.length - 1
+    let carry = 0
+    const digits: string[] = []
+
+    while (index1 >= 0 || index2 >= 0 || carry > 0) {
+      const digit1 = index1 >= 0 ? Number(first[index1]) : 0
+      const digit2 = index2 >= 0 ? Number(second[index2]) : 0
+      const sum = digit1 + digit2 + carry
+      digits.push(String(sum % 10))
+      carry = Math.floor(sum / 10)
+      index1 -= 1
+      index2 -= 1
+    }
+
+    return digits.reverse().join('')
+  }
+
+  for (let end1 = 0; end1 < num.length - 2; end1 += 1) {
+    const first = num.slice(0, end1 + 1)
+
+    if (first.length > 1 && first[0] === '0') {
+      break
+    }
+
+    for (let end2 = end1 + 1; end2 < num.length - 1; end2 += 1) {
+      const second = num.slice(end1 + 1, end2 + 1)
+
+      if (second.length > 1 && second[0] === '0') {
+        break
+      }
+
+      let previous = first
+      let current = second
+      let index = end2 + 1
+
+      while (index < num.length) {
+        const next = addStrings(previous, current)
+
+        if (!num.startsWith(next, index)) {
+          break
+        }
+
+        index += next.length
+        previous = current
+        current = next
+      }
+
+      if (index === num.length) {
+        return true
+      }
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'additive-number-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把前两个数之外的后续部分也继续暴力枚举切分，导致逻辑冗余又容易错。其实一旦前两个数定了，后面的序列就没有选择空间。',
+        bullets: [
+          '易错点 1：没抓住“前两项决定全局”。',
+          '易错点 2：前导零处理不完整。',
+          '易错点 3：直接转数字导致溢出风险。',
+          '延伸方向：字符串大数加法、斐波那契拆分、前缀枚举验证题。',
+        ],
+      },
+    ],
+  },
 ];
