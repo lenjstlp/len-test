@@ -33105,4 +33105,117 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'bulls-and-cows',
+    label: '299. LeetCode 299. 猜数字游戏',
+    difficulty: '中等',
+    description:
+      '这题的关键不在字符串遍历本身，而在于正确区分“位置和数字都对”的公牛与“数字对但位置不对”的奶牛。重点是避免重复计数。',
+    outcome:
+      '你能写出这题的线性解法，准确统计公牛和奶牛数量，并理解为什么需要把同位置匹配与异位置匹配分开处理。',
+    sections: [
+      {
+        id: 'bulls-and-cows-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个等长字符串 `secret` 和 `guess`，统计其中“数字和位置都相同”的个数作为公牛数，以及“数字相同但位置不同”的个数作为奶牛数，按 `xAyB` 格式返回结果。',
+        bullets: [
+          '公牛要求数字和位置都一致。',
+          '奶牛只要求数字一致但位置不同。',
+          '每个字符最多被统计一次。',
+          '本质是带去重的匹配计数题。',
+        ],
+      },
+      {
+        id: 'bulls-and-cows-bulls-first',
+        title: '第一步先把所有公牛挑出来',
+        summary:
+          '若某个位置 `secret[i] === guess[i]`，那它毫无争议属于公牛，并且这个字符就不应再参与奶牛统计。因此最稳妥的做法，是先单独数公牛，再处理其余位置。',
+        bullets: [
+          '公牛优先级最高。',
+          '公牛位置必须排除出后续奶牛匹配。',
+          '先分层处理能减少混乱。',
+          '这是避免重复计数的关键。',
+        ],
+      },
+      {
+        id: 'bulls-and-cows-cows',
+        title: '奶牛统计本质是“剩余字符频次的交集”',
+        summary:
+          '把所有未成为公牛的位置拿出来后，只需比较 `secret` 和 `guess` 剩余字符的频次重叠量。某个数字最终能贡献多少奶牛，取决于它在双方剩余部分中出现次数的较小值。',
+        bullets: [
+          '奶牛不看原位置，只看剩余频次。',
+          '重复数字要按次数限制。',
+          '频次交集天然避免超计。',
+          '这让问题转成简单哈希统计。',
+        ],
+      },
+      {
+        id: 'bulls-and-cows-one-pass',
+        title: '也可以一趟遍历完成：用计数数组实时平衡欠账',
+        summary:
+          '更高效的写法是在遍历非公牛位置时，用一个计数数组记录某数字在 `secret` 和 `guess` 间的数量差。若当前 `secret` 数字此前在 `guess` 中已有欠账，就能补成一头奶牛；反之亦然。',
+        bullets: [
+          '计数正负值表示两边余额。',
+          '一边补掉另一边之前多出的数字时就形成奶牛。',
+          '这样能做到单趟遍历。',
+          '是这题很经典的技巧写法。',
+        ],
+        callout:
+          '很多计数匹配题都适合用“差分频次”的思路来做。只要你能把“还欠多少、已经多了多少”表达成一个数组或哈希表，重复统计问题通常会自然消失。',
+      },
+      {
+        id: 'bulls-and-cows-solution',
+        title: '标准解法：一趟遍历统计公牛并用频次差记录奶牛',
+        summary:
+          '遍历两个字符串。若当前字符相同，直接记为公牛；否则对 `secret` 当前数字和 `guess` 当前数字分别在计数数组里做增减，并根据变更前的符号判断是否形成新的奶牛。最后按格式拼接答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`，因为数字字符只有 10 种。',
+          '不需要二次扫描剩余频次。',
+          '是这题最精炼的写法之一。',
+        ],
+        code: `function getHint(secret: string, guess: string): string {
+  let bulls = 0
+  let cows = 0
+  const counts = Array(10).fill(0)
+
+  for (let index = 0; index < secret.length; index += 1) {
+    const secretDigit = Number(secret[index])
+    const guessDigit = Number(guess[index])
+
+    if (secretDigit === guessDigit) {
+      bulls += 1
+      continue
+    }
+
+    if (counts[secretDigit] < 0) {
+      cows += 1
+    }
+
+    if (counts[guessDigit] > 0) {
+      cows += 1
+    }
+
+    counts[secretDigit] += 1
+    counts[guessDigit] -= 1
+  }
+
+  return \`\${bulls}A\${cows}B\`
+}`,
+      },
+      {
+        id: 'bulls-and-cows-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的错误，是没先把公牛剥离出来，结果某些本该算公牛的数字又被重复算成奶牛。',
+        bullets: [
+          '易错点 1：公牛和奶牛重复计数。',
+          '易错点 2：重复数字频次处理错误。',
+          '易错点 3：把奶牛理解成“任意出现过就算一次”。',
+          '延伸方向：频次匹配、哈希计数、字符串统计题。',
+        ],
+      },
+    ],
+  },
 ];
