@@ -34144,4 +34144,130 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'range-sum-query-mutable',
+    label: '307. LeetCode 307. 区域和检索 - 数组可修改',
+    difficulty: '中等',
+    description:
+      '这题是在前缀和题基础上的升级：数组不再不可变，所以静态前缀和会失效。重点在于选择一种既能高效单点更新、又能高效区间求和的数据结构。',
+    outcome:
+      '你能理解树状数组的核心结构与低位元操作，写出支持 `update` 和 `sumRange` 的标准实现。',
+    sections: [
+      {
+        id: 'range-sum-query-mutable-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个类，支持数组的单点更新 `update(index, val)`，以及多次区间和查询 `sumRange(left, right)`。',
+        bullets: [
+          '数组会动态修改。',
+          '区间查询会频繁发生。',
+          '静态前缀和不再够用。',
+          '本质是动态区间和维护问题。',
+        ],
+      },
+      {
+        id: 'range-sum-query-mutable-why-not-prefix',
+        title: '普通前缀和在更新场景下代价太高',
+        summary:
+          '若仍然使用前缀和数组，每次修改一个元素，都需要把后面所有前缀值重新更新一遍，单次更新会退化到 `O(n)`。这在大量操作场景下不可接受。',
+        bullets: [
+          '查询快，但更新太慢。',
+          '题目要求的是更新和查询都兼顾。',
+          '所以需要一种动态维护前缀信息的结构。',
+          '树状数组和线段树都是经典选择。',
+        ],
+      },
+      {
+        id: 'range-sum-query-mutable-bit',
+        title: '树状数组本质是在数组上分层维护若干前缀块和',
+        summary:
+          '树状数组 `bit[i]` 维护一段特定长度区间的和，这个长度由 `i` 的最低位决定。通过这些重叠的区间块，我们既能快速向上更新，也能快速向前累加前缀和。',
+        bullets: [
+          '每个位置对应一个固定覆盖范围。',
+          '范围大小由最低位控制。',
+          '更新和查询都只走少量跳跃位置。',
+          '这是树状数组高效的根本原因。',
+        ],
+      },
+      {
+        id: 'range-sum-query-mutable-lowbit',
+        title: '`index & -index` 是树状数组的核心跳转规则',
+        summary:
+          '最低位的 1 表示当前节点负责的区间长度。更新时不断加上 lowbit 向后跳，表示把影响传播到更大的块；查询前缀和时不断减去 lowbit 向前跳，表示把需要的块逐个累加起来。',
+        bullets: [
+          'lowbit 决定区间块长度。',
+          '加 lowbit 用于更新传播。',
+          '减 lowbit 用于前缀求和回溯。',
+          '理解这一步，树状数组就不再神秘。',
+        ],
+        callout:
+          '树状数组最值得真正理解的不是模板，而是“为什么这些跳跃能刚好覆盖所有需要的区间”。只要明白它在分层维护前缀块，更新和查询公式就会自然很多。',
+      },
+      {
+        id: 'range-sum-query-mutable-solution',
+        title: '标准解法：树状数组维护动态前缀和',
+        summary:
+          '初始化时把原数组值逐个加入树状数组。更新时先算出新旧值差额，再把差额沿着树状数组向上传播。查询区间和时，先求 `prefix(right)`，再减去 `prefix(left - 1)`。',
+        bullets: [
+          '单次更新复杂度是 `O(log n)`。',
+          '单次查询复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(n)`。',
+          '是这题最经典的实现之一。',
+        ],
+        code: `class NumArray {
+  private nums: number[]
+  private bit: number[]
+
+  constructor(nums: number[]) {
+    this.nums = Array(nums.length).fill(0)
+    this.bit = Array(nums.length + 1).fill(0)
+
+    for (let index = 0; index < nums.length; index += 1) {
+      this.update(index, nums[index])
+    }
+  }
+
+  update(index: number, val: number): void {
+    const delta = val - this.nums[index]
+    this.nums[index] = val
+
+    let position = index + 1
+
+    while (position < this.bit.length) {
+      this.bit[position] += delta
+      position += position & -position
+    }
+  }
+
+  sumRange(left: number, right: number): number {
+    return this.prefixSum(right + 1) - this.prefixSum(left)
+  }
+
+  private prefixSum(length: number): number {
+    let sum = 0
+    let position = length
+
+    while (position > 0) {
+      sum += this.bit[position]
+      position -= position & -position
+    }
+
+    return sum
+  }
+}`,
+      },
+      {
+        id: 'range-sum-query-mutable-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是更新时直接把新值写进树状数组，而不是传播新旧值的差额，结果会把之前贡献重复累加。',
+        bullets: [
+          '易错点 1：更新时没算 delta。',
+          '易错点 2：1-based 下标和 0-based 下标混淆。',
+          '易错点 3：区间和公式没用前缀差。',
+          '延伸方向：线段树、二维树状数组、动态区间统计。',
+        ],
+      },
+    ],
+  },
 ];
