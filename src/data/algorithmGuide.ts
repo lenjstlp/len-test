@@ -32871,4 +32871,129 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'serialize-and-deserialize-binary-tree',
+    label: '297. LeetCode 297. 二叉树的序列化与反序列化',
+    difficulty: '困难',
+    description:
+      '这题的核心不是 DFS 还是 BFS，而是协议设计：你要把一棵树稳定地编码成字符串，再无歧义地还原回来。只要空节点信息丢了，结构就不可能完整恢复。',
+    outcome:
+      '你能设计出带空节点占位的树序列化协议，并写出与之严格对称的反序列化过程。',
+    sections: [
+      {
+        id: 'serialize-and-deserialize-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '设计两个函数：一个把二叉树序列化成字符串，另一个把字符串反序列化回原始二叉树。',
+        bullets: [
+          '序列化与反序列化必须互逆。',
+          '树结构不能丢失。',
+          '空节点信息必须被编码。',
+          '本质是树结构的协议设计题。',
+        ],
+      },
+      {
+        id: 'serialize-and-deserialize-binary-tree-null',
+        title: '想完整恢复树结构，空节点占位信息是必须的',
+        summary:
+          '如果只记录非空节点值，比如前序遍历时只写数字，不写空节点，那么很多不同形状的树都会得到同样的序列，反序列化时就无法判断子树边界。',
+        bullets: [
+          '数值本身不足以描述完整结构。',
+          '空节点是结构信息的一部分。',
+          '省略空节点会产生歧义。',
+          '这是协议设计最关键的约束。',
+        ],
+      },
+      {
+        id: 'serialize-and-deserialize-binary-tree-preorder',
+        title: '前序遍历配合空节点标记，是最直观的一套方案',
+        summary:
+          '序列化时按“根-左-右”的顺序遍历。遇到空节点就写入一个特殊标记，比如 `#`。这样整棵树会被展开成一个线性序列，而序列中的位置关系刚好足够支持递归还原。',
+        bullets: [
+          '根节点先出现，方便反序列化递归消费。',
+          '空节点用占位符明确标识。',
+          '结果通常用逗号拼接成字符串。',
+          '这是这题最常见的协议设计。',
+        ],
+      },
+      {
+        id: 'serialize-and-deserialize-binary-tree-build',
+        title: '反序列化本质是按同样顺序消费序列并递归建树',
+        summary:
+          '反序列化时，用一个游标从前到后读取序列。若读到 `#`，说明当前节点为空，直接返回 `null`；否则创建节点，再递归构造左子树和右子树。因为消费顺序与序列化完全一致，所以结构会一一对应。',
+        bullets: [
+          '读取顺序必须和写入顺序严格对称。',
+          '每读一个值就消费一个位置。',
+          '空节点会自然终止递归分支。',
+          '这是协议互逆性的根本保障。',
+        ],
+        callout:
+          '很多序列化题本质不是数据结构难，而是编码协议有没有做到“无歧义且可逆”。一旦协议不对称，反序列化就不可能稳定。',
+      },
+      {
+        id: 'serialize-and-deserialize-binary-tree-solution',
+        title: '标准解法：前序遍历 + 空节点占位符',
+        summary:
+          '序列化时做前序遍历，把节点值写入数组，空节点写 `#`，最后用逗号连接。反序列化时按逗号切分数组，递归读取；遇到 `#` 返回空，否则创建节点并继续递归构造左右子树。',
+        bullets: [
+          '序列化和反序列化都是 `O(n)`。',
+          '空间复杂度也是 `O(n)`。',
+          '协议简单且非常稳健。',
+          '是这题最主流的实现方案。',
+        ],
+        code: `class Codec {
+  serialize(root: TreeNode | null): string {
+    const values: string[] = []
+
+    const preorder = (node: TreeNode | null): void => {
+      if (node === null) {
+        values.push('#')
+        return
+      }
+
+      values.push(String(node.val))
+      preorder(node.left)
+      preorder(node.right)
+    }
+
+    preorder(root)
+    return values.join(',')
+  }
+
+  deserialize(data: string): TreeNode | null {
+    const values = data.split(',')
+    let index = 0
+
+    const build = (): TreeNode | null => {
+      const value = values[index]
+      index += 1
+
+      if (value === '#') {
+        return null
+      }
+
+      const node = new TreeNode(Number(value))
+      node.left = build()
+      node.right = build()
+      return node
+    }
+
+    return build()
+  }
+}`,
+      },
+      {
+        id: 'serialize-and-deserialize-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的错误，是序列化时没写空节点，或者反序列化时消费顺序和序列化顺序不一致。这两种问题都会直接破坏协议可逆性。',
+        bullets: [
+          '易错点 1：漏掉空节点占位。',
+          '易错点 2：反序列化游标推进不一致。',
+          '易错点 3：字符串切分后边界处理不严谨。',
+          '延伸方向：N 叉树序列化、BFS 协议、结构编码设计。',
+        ],
+      },
+    ],
+  },
 ];
