@@ -34270,4 +34270,155 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'range-sum-query-2d-mutable',
+    label: '308. LeetCode 308. 二维区域和检索 - 可变',
+    difficulty: '困难',
+    description:
+      '这题是二维前缀和与动态更新场景的结合。重点在于意识到静态二维前缀和无法支撑单点更新，因此需要二维树状数组来同时兼顾更新和区域求和。',
+    outcome:
+      '你能理解二维树状数组的结构，把一维 lowbit 逻辑推广到二维，并实现单点更新与子矩阵求和查询。',
+    sections: [
+      {
+        id: 'range-sum-query-2d-mutable-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个类，支持二维矩阵的单点更新 `update(row, col, val)`，以及任意子矩阵和查询 `sumRegion(row1, col1, row2, col2)`。',
+        bullets: [
+          '矩阵内容会动态改变。',
+          '子矩阵查询会频繁出现。',
+          '静态二维前缀和不再够用。',
+          '这是二维动态区间和维护题。',
+        ],
+      },
+      {
+        id: 'range-sum-query-2d-mutable-why-not-prefix',
+        title: '二维前缀和在更新场景下会退化得更严重',
+        summary:
+          '如果某个格子被更新，所有覆盖它的二维前缀值都要重新计算，影响范围会扩散到右下整片区域。单次更新代价接近 `O(m * n)`，显然不适合多次操作。',
+        bullets: [
+          '静态结构查询虽快，更新却太慢。',
+          '二维场景下重算代价比一维更高。',
+          '必须使用动态维护结构。',
+          '二维树状数组是这题的经典答案。',
+        ],
+      },
+      {
+        id: 'range-sum-query-2d-mutable-bit2d',
+        title: '二维树状数组就是把一维 lowbit 跳跃扩展到行和列两个方向',
+        summary:
+          '在二维树状数组中，`bit[row][col]` 表示一个由行 lowbit 和列 lowbit 决定的子矩形块和。更新时在两个维度上不断向右下跳；查询前缀和时在两个维度上不断向左上回溯。',
+        bullets: [
+          '一维树状数组维护前缀块。',
+          '二维版本维护矩形块。',
+          '两个维度都遵循 lowbit 规则。',
+          '思路是一维版本的直接推广。',
+        ],
+      },
+      {
+        id: 'range-sum-query-2d-mutable-query',
+        title: '子矩阵和查询仍然靠二维容斥',
+        summary:
+          '虽然底层结构变成了动态树状数组，但查询公式并没有变。仍然是先求四个前缀矩形和，再做容斥：右下大块减去上边和左边，再加回左上重叠部分。',
+        bullets: [
+          '动态结构只改变前缀和获取方式。',
+          '容斥关系与静态二维前缀和完全一致。',
+          '所以 `sumRegion` 思维上仍是矩形减法。',
+          '这让查询接口非常统一。',
+        ],
+        callout:
+          '很多数据结构题真正的升级，不是把公式全推倒重来，而是把“如何拿到某个前缀信息”从静态数组换成动态结构。查询关系本身 often 不变。',
+      },
+      {
+        id: 'range-sum-query-2d-mutable-solution',
+        title: '标准解法：二维树状数组 + 容斥查询',
+        summary:
+          '维护原矩阵副本和二维树状数组。更新时先算当前格子的新旧差值，再把差值沿二维树状数组向右下传播。查询某子矩形和时，通过四次前缀和查询做容斥得到结果。',
+        bullets: [
+          '单次更新复杂度是 `O(log m * log n)`。',
+          '单次查询复杂度是 `O(log m * log n)`。',
+          '空间复杂度是 `O(m * n)`。',
+          '是这题最主流的解法。',
+        ],
+        code: `class NumMatrix {
+  private matrix: number[][]
+  private bit: number[][]
+  private rowCount: number
+  private colCount: number
+
+  constructor(matrix: number[][]) {
+    this.rowCount = matrix.length
+    this.colCount = this.rowCount === 0 ? 0 : matrix[0].length
+    this.matrix = Array.from({ length: this.rowCount }, (_, row) =>
+      Array.from({ length: this.colCount }, (_, col) => matrix[row][col]),
+    )
+    this.bit = Array.from({ length: this.rowCount + 1 }, () =>
+      Array(this.colCount + 1).fill(0),
+    )
+
+    for (let row = 0; row < this.rowCount; row += 1) {
+      for (let col = 0; col < this.colCount; col += 1) {
+        this.add(row, col, matrix[row][col])
+      }
+    }
+  }
+
+  update(row: number, col: number, val: number): void {
+    const delta = val - this.matrix[row][col]
+    this.matrix[row][col] = val
+    this.add(row, col, delta)
+  }
+
+  sumRegion(row1: number, col1: number, row2: number, col2: number): number {
+    return (
+      this.prefixSum(row2 + 1, col2 + 1) -
+      this.prefixSum(row1, col2 + 1) -
+      this.prefixSum(row2 + 1, col1) +
+      this.prefixSum(row1, col1)
+    )
+  }
+
+  private add(row: number, col: number, delta: number): void {
+    for (
+      let rowIndex = row + 1;
+      rowIndex <= this.rowCount;
+      rowIndex += rowIndex & -rowIndex
+    ) {
+      for (
+        let colIndex = col + 1;
+        colIndex <= this.colCount;
+        colIndex += colIndex & -colIndex
+      ) {
+        this.bit[rowIndex][colIndex] += delta
+      }
+    }
+  }
+
+  private prefixSum(row: number, col: number): number {
+    let sum = 0
+
+    for (let rowIndex = row; rowIndex > 0; rowIndex -= rowIndex & -rowIndex) {
+      for (let colIndex = col; colIndex > 0; colIndex -= colIndex & -colIndex) {
+        sum += this.bit[rowIndex][colIndex]
+      }
+    }
+
+    return sum
+  }
+}`,
+      },
+      {
+        id: 'range-sum-query-2d-mutable-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是更新时直接把新值写进二维树状数组，而不是传播差值，导致同一个格子的贡献被重复累计。',
+        bullets: [
+          '易错点 1：没维护原矩阵副本来计算 delta。',
+          '易错点 2：二维 lowbit 循环边界写错。',
+          '易错点 3：容斥公式与前缀查询坐标不统一。',
+          '延伸方向：二维线段树、动态积分图、矩形更新查询题。',
+        ],
+      },
+    ],
+  },
 ];
