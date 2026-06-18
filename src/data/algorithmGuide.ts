@@ -32996,4 +32996,113 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'binary-tree-longest-consecutive-sequence',
+    label: '298. LeetCode 298. 二叉树最长连续序列',
+    difficulty: '中等',
+    description:
+      '这题的关键不是在树上做复杂 DP，而是搞清楚“连续”只要求父子相差 1 且方向必须向下延伸。重点是递归时维护当前连续长度，并在断开时重置。',
+    outcome:
+      '你能写出这题的 DFS 解法，理解如何沿着根到叶的路径动态维护连续长度并更新全局最优值。',
+    sections: [
+      {
+        id: 'binary-tree-longest-consecutive-sequence-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，找出最长的连续序列长度。连续的定义是：从父节点到子节点，值恰好增加 1，且路径必须自上而下。',
+        bullets: [
+          '路径方向必须从父到子。',
+          '要求值连续递增 1。',
+          '不允许跨层乱连。',
+          '答案是最长长度，不是路径本身。',
+        ],
+      },
+      {
+        id: 'binary-tree-longest-consecutive-sequence-path',
+        title: '连续性只和当前节点与父节点的关系有关',
+        summary:
+          '判断当前路径能否继续，并不需要知道整棵树的复杂结构，只需要看当前节点值是否等于父节点值加一。若满足，则当前连续长度加一；否则从当前节点重新开始计数。',
+        bullets: [
+          '局部关系决定是否续接。',
+          '断开后只能从当前节点重新开链。',
+          '这说明 DFS 非常适合这题。',
+          '不需要额外复杂状态。',
+        ],
+      },
+      {
+        id: 'binary-tree-longest-consecutive-sequence-dfs',
+        title: 'DFS 时把“父值”和“当前连续长度”一起传下去',
+        summary:
+          '递归到某个节点时，先根据它和父节点的关系算出当前长度，再更新全局最大值，然后把新的父值和当前长度继续传给左右子树。',
+        bullets: [
+          '递归参数非常自然。',
+          '每个节点只会被访问一次。',
+          '长度更新逻辑集中在当前层。',
+          '实现比树形 DP 更直接。',
+        ],
+      },
+      {
+        id: 'binary-tree-longest-consecutive-sequence-reset',
+        title: '遇到不连续节点时，要果断重置长度为 1',
+        summary:
+          '一旦当前节点不等于父节点值加一，之前那条连续链就结束了。此时从当前节点重新开始，长度记为 1，因为它本身仍可作为新的起点。',
+        bullets: [
+          '不能把断开的长度继续带下去。',
+          '当前节点单独成链长度为 1。',
+          '这是最常见的实现细节。',
+          '重置逻辑决定答案是否正确。',
+        ],
+        callout:
+          '树路径题很多时候不需要把所有历史都带下去，只需要带“当前路径是否还有效、有效到什么程度”。一旦路径条件断掉，及时重置往往是最关键的动作。',
+      },
+      {
+        id: 'binary-tree-longest-consecutive-sequence-solution',
+        title: '标准解法：DFS 维护当前连续长度',
+        summary:
+          '定义一个递归函数，参数为当前节点、父节点值和当前连续长度。若当前节点与父值连续，则长度加一，否则置为 1。每次更新全局答案后，继续递归左右子树。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是递归栈 `O(h)`。',
+          '代码结构清晰，面试表达也直接。',
+          '是这题最常用的写法。',
+        ],
+        code: `function longestConsecutive(root: TreeNode | null): number {
+  let answer = 0
+
+  const dfs = (
+    node: TreeNode | null,
+    parentValue: number,
+    currentLength: number,
+  ): void => {
+    if (node === null) {
+      return
+    }
+
+    const nextLength =
+      node.val === parentValue + 1 ? currentLength + 1 : 1
+
+    answer = Math.max(answer, nextLength)
+
+    dfs(node.left, node.val, nextLength)
+    dfs(node.right, node.val, nextLength)
+  }
+
+  dfs(root, Number.NEGATIVE_INFINITY, 0)
+  return answer
+}`,
+      },
+      {
+        id: 'binary-tree-longest-consecutive-sequence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的错误，是把“连续”理解成任意方向的相邻值连续，或者允许路径拐弯。实际上题目只允许从父到子的单向向下路径。',
+        bullets: [
+          '易错点 1：误以为可以左右子树拼接。',
+          '易错点 2：不连续时忘记重置为 1。',
+          '易错点 3：把父子差值条件写错。',
+          '延伸方向：树路径 DP、递增递减路径、LeetCode 549。',
+        ],
+      },
+    ],
+  },
 ];
