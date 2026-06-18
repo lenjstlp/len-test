@@ -32751,4 +32751,124 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'best-meeting-point',
+    label: '296. LeetCode 296. 最佳的碰头地点',
+    difficulty: '困难',
+    description:
+      '这题表面上像二维最短路，实际上核心是曼哈顿距离可拆分。重点不是在平面上暴力枚举每个点，而是把二维问题拆成两个一维中位数问题。',
+    outcome:
+      '你能利用曼哈顿距离的可分解性，把这题转换成行列坐标分别求中位数的最优聚点问题。',
+    sections: [
+      {
+        id: 'best-meeting-point-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0/1` 的二维网格，`1` 表示有人居住。要求找一个碰头点，使所有人到该点的曼哈顿距离总和最小，返回这个最小总距离。',
+        bullets: [
+          '距离度量是曼哈顿距离。',
+          '目标是总距离最小。',
+          '碰头点可以选在任意网格位置。',
+          '本质是聚点优化问题。',
+        ],
+      },
+      {
+        id: 'best-meeting-point-split',
+        title: '曼哈顿距离可以拆成横向和纵向两个独立问题',
+        summary:
+          '两点间曼哈顿距离是 `|x1 - x2| + |y1 - y2|`。因此总距离最小化可以分成：分别找一个最佳行坐标和一个最佳列坐标，使横向距离和与纵向距离和各自最小。',
+        bullets: [
+          '二维问题被拆成两个一维问题。',
+          '行坐标和列坐标互不干扰。',
+          '总最优等于两个局部最优之和。',
+          '这是题目的关键数学结构。',
+        ],
+      },
+      {
+        id: 'best-meeting-point-median',
+        title: '一维上使绝对距离和最小的点，是中位数',
+        summary:
+          '对于一组数值，选择其中位数可以使所有元素到该点的绝对距离总和最小。因此只要分别收集所有人的行坐标和列坐标，再选两组坐标的中位数作为碰头点即可。',
+        bullets: [
+          '这是绝对值距离优化的经典结论。',
+          '不需要均值，而是中位数。',
+          '奇偶个元素都能自然处理。',
+          '理解这一点，整题就被完全降维了。',
+        ],
+      },
+      {
+        id: 'best-meeting-point-collect',
+        title: '行坐标天然有序收集，列坐标可以按列扫描保证有序',
+        summary:
+          '如果先按行遍历网格收集行坐标，它们天然是有序的。列坐标则可以按列遍历收集，也能天然有序。这样就不必额外排序，直接取中位位置即可。',
+        bullets: [
+          '有序收集能省掉显式排序。',
+          '行与列各自独立收集。',
+          '中位数直接取中间元素。',
+          '这是实现层面的一个小优化。',
+        ],
+        callout:
+          '很多二维题如果距离公式能拆开，就要第一时间想能不能降成多个一维问题。只要维度间相互独立，往往就没必要在平面上做暴力搜索。',
+      },
+      {
+        id: 'best-meeting-point-solution',
+        title: '标准解法：收集行列坐标并取中位数',
+        summary:
+          '遍历网格收集所有 `1` 的行坐标和列坐标。取行坐标的中位数与列坐标的中位数组成碰头点，再分别累加所有行、列坐标到各自中位数的绝对距离，二者相加即为答案。',
+        bullets: [
+          '时间复杂度是 `O(m * n)`。',
+          '空间复杂度是 `O(k)`，`k` 为人数。',
+          '核心在于数学建模而不是复杂数据结构。',
+          '是这题最经典的解法。',
+        ],
+        code: `function minTotalDistance(grid: number[][]): number {
+  const rows: number[] = []
+  const cols: number[] = []
+
+  for (let row = 0; row < grid.length; row += 1) {
+    for (let col = 0; col < grid[0].length; col += 1) {
+      if (grid[row][col] === 1) {
+        rows.push(row)
+      }
+    }
+  }
+
+  for (let col = 0; col < grid[0].length; col += 1) {
+    for (let row = 0; row < grid.length; row += 1) {
+      if (grid[row][col] === 1) {
+        cols.push(col)
+      }
+    }
+  }
+
+  const rowMedian = rows[Math.floor(rows.length / 2)]
+  const colMedian = cols[Math.floor(cols.length / 2)]
+
+  let distance = 0
+
+  for (const row of rows) {
+    distance += Math.abs(row - rowMedian)
+  }
+
+  for (const col of cols) {
+    distance += Math.abs(col - colMedian)
+  }
+
+  return distance
+}`,
+      },
+      {
+        id: 'best-meeting-point-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是一看到网格就往 BFS、最短路上靠，结果把一个中位数优化题做复杂了。真正难点在于识别曼哈顿距离的拆分结构。',
+        bullets: [
+          '易错点 1：把题目误建模成图搜索。',
+          '易错点 2：用平均值替代中位数。',
+          '易错点 3：列坐标未排序时直接取中位位置。',
+          '延伸方向：绝对值优化、曼哈顿距离、坐标降维问题。',
+        ],
+      },
+    ],
+  },
 ];
