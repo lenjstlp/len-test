@@ -34421,4 +34421,111 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'best-time-to-buy-and-sell-stock-with-cooldown',
+    label: '309. LeetCode 309. 最佳买卖股票时机含冷冻期',
+    difficulty: '中等',
+    description:
+      '这题的重点不是简单记住三种状态，而是理解交易行为如何限制第二天能不能买。冷冻期的本质，是卖出后的第二天必须进入“不可买入”的过渡状态。',
+    outcome:
+      '你能写出这题的状态机 DP，理解持有、卖出、冷冻/休息三种状态之间的转移关系。',
+    sections: [
+      {
+        id: 'best-time-to-buy-and-sell-stock-with-cooldown-summary',
+        title: '题目在问什么',
+        summary:
+          '给定每天的股价数组，可以进行多次买卖，但卖出股票后的第二天不能立即买入，求最大利润。',
+        bullets: [
+          '一次交易必须先买后卖。',
+          '同一时刻最多持有一股。',
+          '卖出后有一天冷冻期。',
+          '目标是最大总利润。',
+        ],
+      },
+      {
+        id: 'best-time-to-buy-and-sell-stock-with-cooldown-states',
+        title: '这题最自然的建模是三个状态',
+        summary:
+          '每天结束时，可能处于三种状态：`hold` 表示手里持有股票；`sold` 表示今天刚卖出；`rest` 表示今天未持股且不处于刚卖出的冷冻动作中。不同状态决定了第二天能做什么。',
+        bullets: [
+          '持有状态说明已买入但未卖出。',
+          '卖出状态表示刚完成一次交易。',
+          '休息状态表示当前可自由选择是否买入。',
+          '冷冻期约束就体现在状态转移里。',
+        ],
+      },
+      {
+        id: 'best-time-to-buy-and-sell-stock-with-cooldown-transitions',
+        title: '每个状态只会从有限几个前态转移而来',
+        summary:
+          '`hold` 可以由昨天已经持有，或昨天处于 `rest` 今天买入得到；`sold` 只能由昨天 `hold` 今天卖出得到；`rest` 则可以由昨天已经 `rest`，或昨天 `sold` 经过一天冷冻后转来。',
+        bullets: [
+          '买入不能从 `sold` 直接来。',
+          '这正是冷冻期生效的位置。',
+          '卖出只能建立在已有持仓上。',
+          '状态机关系非常清晰。',
+        ],
+      },
+      {
+        id: 'best-time-to-buy-and-sell-stock-with-cooldown-rolling',
+        title: '因为每一天只依赖前一天，所以可以滚动更新状态',
+        summary:
+          '不需要完整 DP 数组，只需保留昨天的三个状态值。每天按转移公式算出新的 `hold`、`sold`、`rest`，再整体推进到下一天即可。',
+        bullets: [
+          '状态数量固定且很少。',
+          '滚动变量能把空间压到 `O(1)`。',
+          '这类股票题常常适合状态压缩。',
+          '实现起来也更利于面试书写。',
+        ],
+        callout:
+          '股票题最重要的不是背具体公式，而是把题目的交易限制翻译成“每天结束时允许处于哪些状态”。一旦状态设计正确，转移往往就是顺着题意自然写出来。',
+      },
+      {
+        id: 'best-time-to-buy-and-sell-stock-with-cooldown-solution',
+        title: '标准解法：三状态滚动 DP',
+        summary:
+          '初始化第一天：`hold = -prices[0]`，`sold = -Infinity`，`rest = 0`。之后每天根据前一日状态更新：新的 `hold = max(oldHold, oldRest - price)`，新的 `sold = oldHold + price`，新的 `rest = max(oldRest, oldSold)`。最终答案是 `max(sold, rest)`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '状态少、转移清楚，是这题最主流的写法。',
+          '也适合作为股票 DP 模板题。',
+        ],
+        code: `function maxProfit(prices: number[]): number {
+  if (prices.length === 0) {
+    return 0
+  }
+
+  let hold = -prices[0]
+  let sold = Number.NEGATIVE_INFINITY
+  let rest = 0
+
+  for (let index = 1; index < prices.length; index += 1) {
+    const price = prices[index]
+    const previousHold = hold
+    const previousSold = sold
+    const previousRest = rest
+
+    hold = Math.max(previousHold, previousRest - price)
+    sold = previousHold + price
+    rest = Math.max(previousRest, previousSold)
+  }
+
+  return Math.max(sold, rest)
+}`,
+      },
+      {
+        id: 'best-time-to-buy-and-sell-stock-with-cooldown-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是买入时错误地从“昨天刚卖出”的状态直接转移过来，等于把冷冻期完全绕过去了。',
+        bullets: [
+          '易错点 1：`hold` 错误地从 `sold` 转移而来。',
+          '易错点 2：三种状态的业务含义没分清。',
+          '易错点 3：最终答案错误地返回 `hold`。',
+          '延伸方向：股票系列 DP、状态机建模、滚动优化。',
+        ],
+      },
+    ],
+  },
 ];
