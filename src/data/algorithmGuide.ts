@@ -33324,4 +33324,147 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'remove-invalid-parentheses',
+    label: '301. LeetCode 301. 删除无效的括号',
+    difficulty: '困难',
+    description:
+      '这题的难点不是括号是否合法，而是要在“删除数量最少”的前提下，返回所有不同结果。重点在于先确定最少必须删多少左括号和右括号，再带着预算做回溯。',
+    outcome:
+      '你能写出这题的最小删除回溯解法，理解如何同时控制删除预算、剪枝重复结果，并验证最终字符串合法性。',
+    sections: [
+      {
+        id: 'remove-invalid-parentheses-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个包含括号和字母的字符串，删除最少数量的无效括号，使结果括号有效，并返回所有可能结果。',
+        bullets: [
+          '只能删除字符，不能重排。',
+          '必须保证删除数量最少。',
+          '需要返回所有不同答案。',
+          '这是约束较强的回溯搜索题。',
+        ],
+      },
+      {
+        id: 'remove-invalid-parentheses-budget',
+        title: '先算出最少必须删除多少左括号和右括号',
+        summary:
+          '先线性扫描一遍字符串。遇到 `(` 就增加左括号计数；遇到 `)` 时，如果当前有未匹配的左括号就抵消一个，否则说明这个右括号多余，必须删除。扫描结束后剩余未匹配的左括号也必须删除。',
+        bullets: [
+          '这一步给出了最少删除预算。',
+          '左删和右删数量要分别记录。',
+          '后续搜索不能超预算。',
+          '这是避免做无效搜索的关键准备。',
+        ],
+      },
+      {
+        id: 'remove-invalid-parentheses-backtrack',
+        title: '回溯时同时决定“删还是留”，并维护当前括号平衡',
+        summary:
+          '从左到右处理每个字符。若是普通字母，直接保留；若是括号，则可以在预算允许时选择删除，也可以选择保留。保留时需要维护当前未匹配左括号数量，确保任何前缀都不会出现右括号过多。',
+        bullets: [
+          '普通字符没有分支。',
+          '括号字符会产生删/留分支。',
+          '保留右括号前必须保证有左括号可配。',
+          '这能大幅剪掉非法前缀。',
+        ],
+      },
+      {
+        id: 'remove-invalid-parentheses-deduplicate',
+        title: '结果需要去重，所以答案容器通常用 Set',
+        summary:
+          '不同删除路径可能生成相同字符串，比如多个相同括号的删除顺序不同。因此最终结果最好放进 `Set` 去重，最后再转数组返回。',
+        bullets: [
+          '路径不同不代表结果不同。',
+          '重复结果在这题里很常见。',
+          'Set 是最直接稳妥的处理方式。',
+          '也可以用跳过重复字符的剪枝进一步优化。',
+        ],
+        callout:
+          '这类“最小修改 + 返回所有结果”的题目，通常都需要同时解决三个问题：最优性、合法性和去重。只解决其中一两个，答案就不完整。',
+      },
+      {
+        id: 'remove-invalid-parentheses-solution',
+        title: '标准解法：先算最少删除预算，再 DFS 回溯',
+        summary:
+          '先预处理得到 `removeLeft` 和 `removeRight`。随后做 DFS，参数包括当前位置、当前构造串、剩余删除预算和当前括号平衡数。遍历结束时，若预算正好用完且平衡为 0，就把结果加入答案集。',
+        bullets: [
+          '核心不是复杂数据结构，而是状态设计完整。',
+          '预算与平衡数共同决定搜索是否合法。',
+          '结果集通常需要去重。',
+          '是这题最常见的主流写法。',
+        ],
+        code: `function removeInvalidParentheses(s: string): string[] {
+  let removeLeft = 0
+  let removeRight = 0
+
+  for (const char of s) {
+    if (char === '(') {
+      removeLeft += 1
+    } else if (char === ')') {
+      if (removeLeft > 0) {
+        removeLeft -= 1
+      } else {
+        removeRight += 1
+      }
+    }
+  }
+
+  const result = new Set<string>()
+
+  const dfs = (
+    index: number,
+    path: string,
+    leftToRemove: number,
+    rightToRemove: number,
+    balance: number,
+  ): void => {
+    if (index === s.length) {
+      if (leftToRemove === 0 && rightToRemove === 0 && balance === 0) {
+        result.add(path)
+      }
+
+      return
+    }
+
+    const char = s[index]
+
+    if (char === '(' && leftToRemove > 0) {
+      dfs(index + 1, path, leftToRemove - 1, rightToRemove, balance)
+    }
+
+    if (char === ')' && rightToRemove > 0) {
+      dfs(index + 1, path, leftToRemove, rightToRemove - 1, balance)
+    }
+
+    if (char !== '(' && char !== ')') {
+      dfs(index + 1, path + char, leftToRemove, rightToRemove, balance)
+      return
+    }
+
+    if (char === '(') {
+      dfs(index + 1, path + char, leftToRemove, rightToRemove, balance + 1)
+    } else if (balance > 0) {
+      dfs(index + 1, path + char, leftToRemove, rightToRemove, balance - 1)
+    }
+  }
+
+  dfs(0, '', removeLeft, removeRight, 0)
+  return [...result]
+}`,
+      },
+      {
+        id: 'remove-invalid-parentheses-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接暴力删字符而不先确定最少删除预算，结果虽然也能搜出合法答案，但无法保证“删得最少”。',
+        bullets: [
+          '易错点 1：没先求最少删除预算。',
+          '易错点 2：前缀右括号过多时没及时剪枝。',
+          '易错点 3：结果去重处理不完整。',
+          '延伸方向：括号生成、最小修改回溯、BFS 分层最优搜索。',
+        ],
+      },
+    ],
+  },
 ];
