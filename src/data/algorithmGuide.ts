@@ -33619,4 +33619,104 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'range-sum-query-immutable',
+    label: '303. LeetCode 303. 区域和检索 - 数组不可变',
+    difficulty: '简单',
+    description:
+      '这题是前缀和入门题。重点不是会不会求区间和，而是意识到“多次查询、数组不变”意味着应该把重复计算前移到初始化阶段。',
+    outcome:
+      '你能掌握一维前缀和的标准设计方式，并理解为什么 `sumRange(left, right)` 可以被转成两个前缀值之差。',
+    sections: [
+      {
+        id: 'range-sum-query-immutable-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个类，给定整数数组后，支持多次查询任意闭区间 `[left, right]` 的元素和。',
+        bullets: [
+          '数组初始化后不会修改。',
+          '查询会执行很多次。',
+          '每次都暴力求和会重复工作。',
+          '这是典型的预处理换查询效率的题。',
+        ],
+      },
+      {
+        id: 'range-sum-query-immutable-prefix',
+        title: '一维前缀和正是这种“多次区间查询”场景的标准答案',
+        summary:
+          '定义 `prefix[i]` 表示前 `i` 个元素的总和。这样任意区间 `[left, right]` 的和，都能通过 `prefix[right + 1] - prefix[left]` 在 `O(1)` 时间得到。',
+        bullets: [
+          '前缀和把局部区间和转成整体差值。',
+          '查询时不再遍历数组片段。',
+          '初始化多做一次线性扫描。',
+          '非常适合不可变数组。',
+        ],
+      },
+      {
+        id: 'range-sum-query-immutable-indexing',
+        title: '前缀和数组通常多开一位，能让边界处理更干净',
+        summary:
+          '若令 `prefix[0] = 0`，则 `prefix[i + 1] = prefix[i] + nums[i]`。这样从第 0 位开始的区间也能统一用差值公式计算，不需要额外判断。',
+        bullets: [
+          '多开一位是经典技巧。',
+          '避免 `left = 0` 时特判。',
+          '公式始终统一。',
+          '代码可读性会更好。',
+        ],
+      },
+      {
+        id: 'range-sum-query-immutable-tradeoff',
+        title: '这是典型的“用空间换查询时间”',
+        summary:
+          '初始化阶段花 `O(n)` 构建前缀和数组，之后每次查询只要 `O(1)`。如果查询次数远大于 1，这种预处理收益就非常明显。',
+        bullets: [
+          '初始化一次，查询多次。',
+          '额外空间换极快查询。',
+          '这类模型在工程里很常见。',
+          '是很多更复杂区间题的基础。',
+        ],
+        callout:
+          '前缀和最值得建立的直觉是：当数组不变、查询很多时，不要每次从头算。把公共部分提前累计，后续查询就能变成简单的减法。',
+      },
+      {
+        id: 'range-sum-query-immutable-solution',
+        title: '标准解法：构造一维前缀和数组',
+        summary:
+          '构造函数里创建 `prefix` 数组，并令 `prefix[i + 1] = prefix[i] + nums[i]`。查询 `sumRange(left, right)` 时，直接返回 `prefix[right + 1] - prefix[left]`。',
+        bullets: [
+          '初始化复杂度是 `O(n)`。',
+          '查询复杂度是 `O(1)`。',
+          '空间复杂度是 `O(n)`。',
+          '是这题最标准的写法。',
+        ],
+        code: `class NumArray {
+  private prefix: number[]
+
+  constructor(nums: number[]) {
+    this.prefix = Array(nums.length + 1).fill(0)
+
+    for (let index = 0; index < nums.length; index += 1) {
+      this.prefix[index + 1] = this.prefix[index] + nums[index]
+    }
+  }
+
+  sumRange(left: number, right: number): number {
+    return this.prefix[right + 1] - this.prefix[left]
+  }
+}`,
+      },
+      {
+        id: 'range-sum-query-immutable-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的错误，是前缀和下标偏移没统一，导致区间公式写成 `prefix[right] - prefix[left - 1]` 一类需要额外特判的版本，最后边界容易乱。',
+        bullets: [
+          '易错点 1：前缀数组下标定义不统一。',
+          '易错点 2：遗漏多开一位导致边界特判过多。',
+          '易错点 3：区间右端点是否包含理解错误。',
+          '延伸方向：二维前缀和、差分数组、区间查询结构。',
+        ],
+      },
+    ],
+  },
 ];
