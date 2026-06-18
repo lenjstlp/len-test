@@ -33467,4 +33467,156 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'smallest-rectangle-enclosing-black-pixels',
+    label: '302. LeetCode 302. 包含全部黑色像素的最小矩形',
+    difficulty: '困难',
+    description:
+      '这题的关键不是 flood fill，而是识别黑色像素在行和列上的分布都呈连续区间。重点在于利用这个单调性，通过二分找上下左右边界。',
+    outcome:
+      '你能把这题建模成四次边界二分，理解为什么只要某一行或列存在黑像素，就能据此判断边界搜索方向。',
+    sections: [
+      {
+        id: 'smallest-rectangle-enclosing-black-pixels-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0/1` 的二维图像，所有黑色像素 `1` 彼此连通，并给定其中一个黑像素坐标 `(x, y)`。要求找出包含全部黑色像素的最小轴对齐矩形面积。',
+        bullets: [
+          '矩形边必须平行于坐标轴。',
+          '所有黑像素都要被包住。',
+          '已知至少一个黑像素位置。',
+          '目标是最小面积。',
+        ],
+      },
+      {
+        id: 'smallest-rectangle-enclosing-black-pixels-interval',
+        title: '黑色像素连通意味着它们覆盖的行区间和列区间是连续的',
+        summary:
+          '既然所有黑像素连通，那么在最小包围矩形内，从最上到最下、从最左到最右之间的相关行列一定形成连续区间。于是问题变成找最上、最下、最左、最右四条边界。',
+        bullets: [
+          '边界外的整行整列都没有黑像素。',
+          '边界内一定至少包含部分黑像素。',
+          '这让搜索目标转成边界定位问题。',
+          '核心是识别这种单调性。',
+        ],
+      },
+      {
+        id: 'smallest-rectangle-enclosing-black-pixels-binary-search',
+        title: '每条边界都可以通过二分判断某行/列是否存在黑像素',
+        summary:
+          '对于上边界，可以在 `[0, x]` 上二分找第一个含黑像素的行；下边界则在 `[x + 1, rowCount)` 上找第一个不含黑像素的行。左右边界对列做同样的事情。',
+        bullets: [
+          '判定函数是“这一行/列是否含黑像素”。',
+          '左/上边界找第一个满足的位置。',
+          '右/下边界找第一个不满足的位置。',
+          '总共四次边界二分。',
+        ],
+      },
+      {
+        id: 'smallest-rectangle-enclosing-black-pixels-check',
+        title: '判定某一行或某一列是否含黑像素，只需线性扫另一维',
+        summary:
+          '在二分某一行时，检查该行是否存在 `1`；在二分某一列时，检查该列是否存在 `1`。虽然单次检查要线性扫一整行或一整列，但整体复杂度仍优于遍历整图后再暴力找边界。',
+        bullets: [
+          '行检查扫列，列检查扫行。',
+          '判定函数实现简单明确。',
+          '二分减少了边界枚举次数。',
+          '这是这题最常见的解法结构。',
+        ],
+        callout:
+          '很多矩形边界题如果已知目标区域具有连续性，就应该优先想到边界二分，而不是先把所有目标点都搜出来再做统计。',
+      },
+      {
+        id: 'smallest-rectangle-enclosing-black-pixels-solution',
+        title: '标准解法：四次边界二分',
+        summary:
+          '分别对上、下、左、右边界做二分。辅助函数判断指定行或列是否含黑像素。得到 `top`、`bottom`、`left`、`right` 后，面积就是 `(bottom - top) * (right - left)`。',
+        bullets: [
+          '时间复杂度约为 `O(m log n + n log m)`。',
+          '空间复杂度是 `O(1)`。',
+          '不需要额外访问标记数组。',
+          '是这题最经典的解法。',
+        ],
+        code: `function minArea(image: string[], x: number, y: number): number {
+  const rowCount = image.length
+  const colCount = image[0].length
+
+  const rowHasBlack = (row: number): boolean => {
+    for (let col = 0; col < colCount; col += 1) {
+      if (image[row][col] === '1') {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  const colHasBlack = (col: number): boolean => {
+    for (let row = 0; row < rowCount; row += 1) {
+      if (image[row][col] === '1') {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  const searchFirstTrue = (
+    left: number,
+    right: number,
+    predicate: (index: number) => boolean,
+  ): number => {
+    while (left < right) {
+      const mid = left + Math.floor((right - left) / 2)
+
+      if (predicate(mid)) {
+        right = mid
+      } else {
+        left = mid + 1
+      }
+    }
+
+    return left
+  }
+
+  const searchFirstFalse = (
+    left: number,
+    right: number,
+    predicate: (index: number) => boolean,
+  ): number => {
+    while (left < right) {
+      const mid = left + Math.floor((right - left) / 2)
+
+      if (predicate(mid)) {
+        left = mid + 1
+      } else {
+        right = mid
+      }
+    }
+
+    return left
+  }
+
+  const top = searchFirstTrue(0, x, rowHasBlack)
+  const bottom = searchFirstFalse(x + 1, rowCount, rowHasBlack)
+  const left = searchFirstTrue(0, y, colHasBlack)
+  const right = searchFirstFalse(y + 1, colCount, colHasBlack)
+
+  return (bottom - top) * (right - left)
+}`,
+      },
+      {
+        id: 'smallest-rectangle-enclosing-black-pixels-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没看出边界单调性，直接对整张图做 DFS/BFS 后再统计边界。那样虽能做，但没有利用好题目给出的连通和已知黑点条件。',
+        bullets: [
+          '易错点 1：方向判断写反，边界二分错位。',
+          '易错点 2：行列检查函数混淆。',
+          '易错点 3：右下边界返回值没按开区间处理。',
+          '延伸方向：边界二分、图像包围盒、单调判定搜索。',
+        ],
+      },
+    ],
+  },
 ];
