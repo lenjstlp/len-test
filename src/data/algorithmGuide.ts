@@ -33977,4 +33977,171 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'number-of-islands-ii',
+    label: '306. LeetCode 306. 岛屿数量 II',
+    difficulty: '困难',
+    description:
+      '这题是动态连通性问题的典型代表。重点不是每次加一个陆地后重新整图 DFS，而是用并查集在局部合并中维护当前岛屿数量。',
+    outcome:
+      '你能把这题建模为在线并查集问题，理解每次加点时为什么只需要和四邻域做合并并动态维护岛屿计数。',
+    sections: [
+      {
+        id: 'number-of-islands-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个最初全是水的 `m x n` 网格，以及若干次把某个位置变成陆地的操作。每次操作后，返回当前岛屿数量。',
+        bullets: [
+          '网格是动态变化的。',
+          '每次只新增陆地，不会删陆地。',
+          '查询要在每次操作后给出。',
+          '这是在线连通块维护问题。',
+        ],
+      },
+      {
+        id: 'number-of-islands-ii-why-not-dfs',
+        title: '每次加点后重跑整图 DFS 太浪费',
+        summary:
+          '如果每次新增一个陆地都重新扫描整张网格去数岛屿，复杂度会非常高，因为大部分区域在连续操作中并没有变化。真正需要更新的，只是新陆地及其附近的连通关系。',
+        bullets: [
+          '整图重算会重复做大量无效工作。',
+          '操作是增量式的，不是全量重建。',
+          '因此应使用支持动态合并的数据结构。',
+          '并查集正适合这种场景。',
+        ],
+      },
+      {
+        id: 'number-of-islands-ii-dsu',
+        title: '并查集能高效维护陆地之间的连通块',
+        summary:
+          '把每个格子映射成一维编号。初始时所有位置都视为无效水域。每次把某格变成陆地时，先令岛屿数量加一，再检查四个方向中已存在的陆地，若它们属于不同集合，就执行合并并把岛屿数量减一。',
+        bullets: [
+          '新增陆地先自成一个岛。',
+          '与相邻陆地合并会减少岛屿数。',
+          '只有根不同才真正发生合并。',
+          '这就是计数更新的核心逻辑。',
+        ],
+      },
+      {
+        id: 'number-of-islands-ii-duplicate',
+        title: '如果同一个位置被重复加入，要直接沿用当前答案',
+        summary:
+          '题目操作中可能会重复出现同一个坐标。若该位置已经是陆地，再次加入不应改变连通结构，也不应让岛屿数增加，直接把当前岛屿数量加入结果即可。',
+        bullets: [
+          '重复操作是重要边界情况。',
+          '不能重复创建节点或重复计数。',
+          '这类题很容易在这里出错。',
+          '需要显式用激活数组或集合记录陆地状态。',
+        ],
+        callout:
+          '并查集题真正容易出错的，往往不是 `find` 和 `union` 模板本身，而是“什么时候应该合并、什么时候其实什么都不该做”的状态边界判断。',
+      },
+      {
+        id: 'number-of-islands-ii-solution',
+        title: '标准解法：并查集维护动态岛屿数量',
+        summary:
+          '准备 `parent`、`rank` 和 `land` 数组。每次激活一个新位置时，岛屿数先加一；然后检查四邻域，若邻居是陆地且属于不同集合，就合并并将岛屿数减一。每次操作后的岛屿数加入结果数组。',
+        bullets: [
+          '单次操作均摊复杂度接近常数。',
+          '总复杂度约为 `O(k * α(mn))`。',
+          '空间复杂度是 `O(m * n)`。',
+          '是这题最标准的解法。',
+        ],
+        code: `function numIslands2(
+  m: number,
+  n: number,
+  positions: number[][],
+): number[] {
+  const parent = Array(m * n).fill(-1)
+  const rank = Array(m * n).fill(0)
+  const result: number[] = []
+  let islandCount = 0
+
+  const find = (node: number): number => {
+    if (parent[node] !== node) {
+      parent[node] = find(parent[node])
+    }
+
+    return parent[node]
+  }
+
+  const union = (a: number, b: number): boolean => {
+    let rootA = find(a)
+    let rootB = find(b)
+
+    if (rootA === rootB) {
+      return false
+    }
+
+    if (rank[rootA] < rank[rootB]) {
+      ;[rootA, rootB] = [rootB, rootA]
+    }
+
+    parent[rootB] = rootA
+
+    if (rank[rootA] === rank[rootB]) {
+      rank[rootA] += 1
+    }
+
+    return true
+  }
+
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+
+  for (const [row, col] of positions) {
+    const id = row * n + col
+
+    if (parent[id] !== -1) {
+      result.push(islandCount)
+      continue
+    }
+
+    parent[id] = id
+    islandCount += 1
+
+    for (const [deltaRow, deltaCol] of directions) {
+      const nextRow = row + deltaRow
+      const nextCol = col + deltaCol
+
+      if (
+        nextRow < 0 ||
+        nextRow >= m ||
+        nextCol < 0 ||
+        nextCol >= n
+      ) {
+        continue
+      }
+
+      const neighborId = nextRow * n + nextCol
+
+      if (parent[neighborId] !== -1 && union(id, neighborId)) {
+        islandCount -= 1
+      }
+    }
+
+    result.push(islandCount)
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'number-of-islands-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是每次相邻就直接把岛屿数减一，却没先判断两个位置是否已经在同一个连通块里，结果会把岛屿数减过头。',
+        bullets: [
+          '易错点 1：合并前没判断根是否相同。',
+          '易错点 2：重复加点处理错误。',
+          '易错点 3：二维坐标转一维编号算错。',
+          '延伸方向：动态连通性、并查集计数、地图增量建模。',
+        ],
+      },
+    ],
+  },
 ];
