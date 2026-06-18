@@ -33218,4 +33218,110 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'longest-increasing-subsequence',
+    label: '300. LeetCode 300. 最长递增子序列',
+    difficulty: '中等',
+    description:
+      '这题是动态规划与贪心二分结合的经典题。重点不只是会写 `O(n²)` DP，而是理解为什么用“长度相同情况下尽量让结尾更小”的策略，能把复杂度降到 `O(n log n)`。',
+    outcome:
+      '你能掌握这题的 DP 基础解和贪心 + 二分优化解，并说清楚 `tails` 数组为什么能正确代表不同长度递增子序列的最优结尾。',
+    sections: [
+      {
+        id: 'longest-increasing-subsequence-summary',
+        title: '题目在问什么',
+        summary: '给定一个整数数组 `nums`，求其中最长严格递增子序列的长度。',
+        bullets: [
+          '子序列不要求连续。',
+          '但顺序必须保持不变。',
+          '要求是严格递增，不是非递减。',
+          '返回的是最大长度。',
+        ],
+      },
+      {
+        id: 'longest-increasing-subsequence-dp',
+        title: '最直观的想法是以每个位置为结尾做动态规划',
+        summary:
+          '设 `dp[i]` 表示以 `nums[i]` 结尾的最长递增子序列长度。枚举 `i` 之前所有位置 `j`，如果 `nums[j] < nums[i]`，就可以尝试从 `dp[j]` 转移到 `dp[i]`。',
+        bullets: [
+          '状态定义非常自然。',
+          '转移条件是前一个值更小。',
+          '答案是所有 `dp[i]` 的最大值。',
+          '这个版本时间复杂度是 `O(n²)`。',
+        ],
+      },
+      {
+        id: 'longest-increasing-subsequence-greedy',
+        title: '更高效的思路是只关心“某个长度的递增序列最小可能结尾”',
+        summary:
+          '如果两个长度相同的递增子序列，一个结尾更小，那么它未来更容易接上更多更大的数。所以对每种长度，我们只需要保留当前最小的结尾值即可。',
+        bullets: [
+          '结尾越小，后续扩展空间越大。',
+          '同长度下，大结尾没有保留价值。',
+          '这就是贪心优化的核心。',
+          '它把问题从“所有序列”压缩成“每个长度一个代表结尾”。',
+        ],
+      },
+      {
+        id: 'longest-increasing-subsequence-tails',
+        title: '`tails[length]` 维护长度为 `length + 1` 的最小结尾值',
+        summary:
+          '遍历数组时，对每个数字，用二分找到它在 `tails` 中第一个大于等于自己的位置并替换。若它比所有结尾都大，就追加到末尾，表示找到了更长的递增子序列。',
+        bullets: [
+          '`tails` 本身保持递增。',
+          '替换不会破坏已有长度答案。',
+          '追加意味着最长长度增加。',
+          '二分查找让每步处理降为 `O(log n)`。',
+        ],
+        callout:
+          '这题最值得真正理解的，不是代码模板，而是“为什么替换更小结尾不会让答案变差”。只要明白 `tails` 存的是最优代表，而不是实际完整序列，整套优化逻辑就会很清晰。',
+      },
+      {
+        id: 'longest-increasing-subsequence-solution',
+        title: '标准解法：贪心维护结尾数组 + 二分查找',
+        summary:
+          '维护一个 `tails` 数组，表示不同长度递增子序列的最小结尾。遍历每个数时，用二分找到应替换的位置；若找不到更大的结尾，就追加。最终 `tails.length` 就是最长递增子序列长度。',
+        bullets: [
+          '时间复杂度是 `O(n log n)`。',
+          '空间复杂度是 `O(n)`。',
+          '是这题最经典的优化解法。',
+          '非常适合作为 DP 到贪心二分的进阶训练。',
+        ],
+        code: `function lengthOfLIS(nums: number[]): number {
+  const tails: number[] = []
+
+  for (const num of nums) {
+    let left = 0
+    let right = tails.length
+
+    while (left < right) {
+      const mid = left + Math.floor((right - left) / 2)
+
+      if (tails[mid] < num) {
+        left = mid + 1
+      } else {
+        right = mid
+      }
+    }
+
+    tails[left] = num
+  }
+
+  return tails.length
+}`,
+      },
+      {
+        id: 'longest-increasing-subsequence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把 `tails` 误认为某条真实的最长递增子序列，进而无法理解为什么中途替换值不会出错。实际上它只是各长度的最优结尾摘要。',
+        bullets: [
+          '易错点 1：没分清真实序列和结尾摘要。',
+          '易错点 2：二分条件把严格递增写成了非递减。',
+          '易错点 3：只会背 `O(n log n)` 写法，不理解其正确性。',
+          '延伸方向：俄罗斯套娃信封、最长非递减子序列、序列优化 DP。',
+        ],
+      },
+    ],
+  },
 ];
