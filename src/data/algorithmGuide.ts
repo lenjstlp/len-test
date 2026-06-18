@@ -32573,4 +32573,182 @@ class PeekingIterator {
       },
     ],
   },
+  {
+    id: 'find-median-from-data-stream',
+    label: '295. LeetCode 295. 数据流的中位数',
+    difficulty: '困难',
+    description:
+      '这题是堆结构设计题的经典代表。重点不是会不会求中位数，而是如何在数据持续流入时，始终把序列维持成“左半部分”和“右半部分”两个平衡区域。',
+    outcome:
+      '你能理解双堆维护中位数的核心不变量，并写出支持持续插入与实时查询中位数的数据结构。',
+    sections: [
+      {
+        id: 'find-median-from-data-stream-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个数据结构，支持不断插入整数，并在任意时刻返回当前所有数字的中位数。',
+        bullets: [
+          '数据会持续动态加入。',
+          '不是一次性给完整数组。',
+          '中位数查询会多次发生。',
+          '重点是插入和查询都要高效。',
+        ],
+      },
+      {
+        id: 'find-median-from-data-stream-split',
+        title: '中位数天然把数据分成“左半边”和“右半边”',
+        summary:
+          '如果能始终维护一半较小的数和一半较大的数，那么中位数就只和这两个边界有关。奇数个元素时，中位数是多出来那一边的堆顶；偶数个元素时，中位数是两边堆顶的平均值。',
+        bullets: [
+          '左边保存较小的一半。',
+          '右边保存较大的一半。',
+          '中位数只依赖分界位置。',
+          '因此核心是维护分界，而不是全局有序。',
+        ],
+      },
+      {
+        id: 'find-median-from-data-stream-two-heaps',
+        title: '最经典的结构是“大根堆 + 小根堆”',
+        summary:
+          '用大根堆保存左半边，让堆顶成为左边最大值；用小根堆保存右半边，让堆顶成为右边最小值。这样中位数始终落在两个堆顶附近。',
+        bullets: [
+          '大根堆负责左半边最大值。',
+          '小根堆负责右半边最小值。',
+          '堆顶就是真正关键的边界信息。',
+          '插入与调整都能保持对数复杂度。',
+        ],
+      },
+      {
+        id: 'find-median-from-data-stream-balance',
+        title: '双堆要维护两个不变量：大小平衡、左堆元素不大于右堆元素',
+        summary:
+          '每次插入新数后，都要保证左堆大小要么等于右堆，要么只比右堆多 1。同时左堆中所有元素都不能大于右堆中的任一元素。常见做法是先插入一边，再把堆顶挪给另一边，最后必要时做一次平衡。',
+        bullets: [
+          '左堆可以比右堆多一个元素。',
+          '两边大小差不能超过 1。',
+          '左堆最大值不能超过右堆最小值。',
+          '这两个约束决定了查询公式。',
+        ],
+        callout:
+          '很多数据结构设计题真正要记住的，不是操作顺序，而是不变量。只要大小关系和顺序关系始终成立，`findMedian` 就会自然变成一个非常简单的读取操作。',
+      },
+      {
+        id: 'find-median-from-data-stream-solution',
+        title: '标准解法：双堆维护左右两半数据',
+        summary:
+          '插入时先把数字放进左侧大根堆，再把左堆堆顶移到右侧小根堆，保证顺序关系；若此时右堆元素比左堆多，就再把右堆堆顶移回左堆，恢复大小平衡。查询时若左堆更大，中位数就是左堆堆顶，否则是两堆堆顶均值。',
+        bullets: [
+          '插入复杂度是 `O(log n)`。',
+          '查询复杂度是 `O(1)`。',
+          '这是这题最主流的实现方案。',
+          '重点在于堆的平衡逻辑。',
+        ],
+        code: `class Heap {
+  private data: number[] = []
+  private compare: (a: number, b: number) => boolean
+
+  constructor(compare: (a: number, b: number) => boolean) {
+    this.compare = compare
+  }
+
+  size(): number {
+    return this.data.length
+  }
+
+  peek(): number {
+    return this.data[0]
+  }
+
+  push(value: number): void {
+    this.data.push(value)
+    this.bubbleUp(this.data.length - 1)
+  }
+
+  pop(): number {
+    const top = this.data[0]
+    const last = this.data.pop()!
+
+    if (this.data.length > 0) {
+      this.data[0] = last
+      this.bubbleDown(0)
+    }
+
+    return top
+  }
+
+  private bubbleUp(index: number): void {
+    while (index > 0) {
+      const parent = Math.floor((index - 1) / 2)
+
+      if (this.compare(this.data[parent], this.data[index])) {
+        break
+      }
+
+      ;[this.data[parent], this.data[index]] = [this.data[index], this.data[parent]]
+      index = parent
+    }
+  }
+
+  private bubbleDown(index: number): void {
+    const length = this.data.length
+
+    while (true) {
+      let candidate = index
+      const left = index * 2 + 1
+      const right = index * 2 + 2
+
+      if (left < length && !this.compare(this.data[candidate], this.data[left])) {
+        candidate = left
+      }
+
+      if (right < length && !this.compare(this.data[candidate], this.data[right])) {
+        candidate = right
+      }
+
+      if (candidate === index) {
+        break
+      }
+
+      ;[this.data[index], this.data[candidate]] = [this.data[candidate], this.data[index]]
+      index = candidate
+    }
+  }
+}
+
+class MedianFinder {
+  private lower = new Heap((a, b) => a >= b)
+  private upper = new Heap((a, b) => a <= b)
+
+  addNum(num: number): void {
+    this.lower.push(num)
+    this.upper.push(this.lower.pop())
+
+    if (this.upper.size() > this.lower.size()) {
+      this.lower.push(this.upper.pop())
+    }
+  }
+
+  findMedian(): number {
+    if (this.lower.size() > this.upper.size()) {
+      return this.lower.peek()
+    }
+
+    return (this.lower.peek() + this.upper.peek()) / 2
+  }
+}`,
+      },
+      {
+        id: 'find-median-from-data-stream-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的错误，是只顾着平衡堆大小，却忘了保证左堆中的数都不大于右堆。大小平衡和顺序平衡缺一不可。',
+        bullets: [
+          '易错点 1：堆大小平衡了，但元素顺序错了。',
+          '易错点 2：偶数个元素时中位数计算错误。',
+          '易错点 3：堆实现细节导致 push/pop 不稳定。',
+          '延伸方向：滑动窗口中位数、Top K、双堆设计题。',
+        ],
+      },
+    ],
+  },
 ];
