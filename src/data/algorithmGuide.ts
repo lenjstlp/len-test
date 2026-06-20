@@ -35365,4 +35365,161 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'shortest-distance-from-all-buildings',
+    label: '317. LeetCode 317. 离建筑物最近的距离',
+    difficulty: '困难',
+    description:
+      '这题看起来像“从每个空地去找所有建筑”，但真正高效的方向是反过来：从每栋建筑出发 BFS，把它对所有可达空地的距离贡献累加起来。',
+    outcome:
+      '你能写出这题的多轮 BFS 叠加解法，理解为什么需要同时维护总距离和可达建筑数量，才能筛出真正可用的空地。',
+    sections: [
+      {
+        id: 'shortest-distance-from-all-buildings-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个网格，其中 `0` 表示空地，`1` 表示建筑，`2` 表示障碍。要求找到一块空地，使它到所有建筑的曼哈顿距离总和最小；若不存在这样的空地，返回 `-1`。',
+        bullets: [
+          '目标空地必须能到达所有建筑。',
+          '障碍不可穿越。',
+          '求的是所有建筑距离之和最小值。',
+          '这是带可达性约束的最短路汇总题。',
+        ],
+      },
+      {
+        id: 'shortest-distance-from-all-buildings-why-not-each-empty',
+        title: '从每块空地去搜所有建筑会重复做大量 BFS',
+        summary:
+          '如果对每个空地都跑一次 BFS 去统计所有建筑距离，不仅复杂度高，而且很多路径会被重复探索。更合理的方式是从建筑出发，把它对所有空地的贡献一次性扩散出去。',
+        bullets: [
+          '空地通常比建筑更多。',
+          '逐空地搜索重复率很高。',
+          '反向扩散能复用单栋建筑的信息。',
+          '这类“汇总到所有目标”的题很适合逐源叠加。',
+        ],
+      },
+      {
+        id: 'shortest-distance-from-all-buildings-accumulate',
+        title: '每栋建筑 BFS 一次，并把距离累加到可达空地上',
+        summary:
+          '对每栋建筑单独做 BFS，遍历到某个空地时，把当前距离加到 `distanceSum[row][col]`，同时把 `reachCount[row][col]` 加一，表示又多了一栋建筑能到达这里。',
+        bullets: [
+          '距离总和负责优化目标。',
+          '可达计数负责合法性验证。',
+          '两者都必须维护。',
+          '这是整题状态设计的核心。',
+        ],
+      },
+      {
+        id: 'shortest-distance-from-all-buildings-final-check',
+        title: '最后只有被所有建筑都访问到的空地才有资格参与答案',
+        summary:
+          'BFS 全部完成后，遍历所有空地，只有 `reachCount[row][col] === buildingCount` 的位置才说明它能触达所有建筑。再在这些位置里取 `distanceSum` 最小值，就是最终答案。',
+        bullets: [
+          '部分可达的空地不能作为候选。',
+          '最优值只在全可达位置中选。',
+          '若没有任何全可达空地，就返回 `-1`。',
+          '这是结果筛选阶段的关键。',
+        ],
+        callout:
+          '这类多源累计题里，光维护“最小距离和”是不够的，必须再带一个“被多少源覆盖到”的维度。否则你可能会错误地选择一个根本到不了全部目标的位置。',
+      },
+      {
+        id: 'shortest-distance-from-all-buildings-solution',
+        title: '标准解法：从每栋建筑出发 BFS，累加距离与可达次数',
+        summary:
+          '先统计建筑总数。对每一栋建筑执行 BFS，访问到空地时更新距离和与可达计数。全部 BFS 结束后，扫描所有空地，在能被所有建筑到达的位置中取最小距离和；若不存在则返回 `-1`。',
+        bullets: [
+          '时间复杂度约为 `O(buildings * m * n)`。',
+          '空间复杂度是 `O(m * n)`。',
+          '是这题最主流的解法。',
+          '关键是“逐建筑叠加贡献”的思路。',
+        ],
+        code: `function shortestDistance(grid: number[][]): number {
+  const rowCount = grid.length
+  const colCount = grid[0].length
+  const distanceSum = Array.from({ length: rowCount }, () =>
+    Array(colCount).fill(0),
+  )
+  const reachCount = Array.from({ length: rowCount }, () =>
+    Array(colCount).fill(0),
+  )
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+
+  let buildingCount = 0
+
+  for (let row = 0; row < rowCount; row += 1) {
+    for (let col = 0; col < colCount; col += 1) {
+      if (grid[row][col] !== 1) {
+        continue
+      }
+
+      buildingCount += 1
+      const visited = Array.from({ length: rowCount }, () =>
+        Array(colCount).fill(false),
+      )
+      const queue: Array<[number, number, number]> = [[row, col, 0]]
+      visited[row][col] = true
+      let head = 0
+
+      while (head < queue.length) {
+        const [currentRow, currentCol, distance] = queue[head]
+        head += 1
+
+        for (const [deltaRow, deltaCol] of directions) {
+          const nextRow = currentRow + deltaRow
+          const nextCol = currentCol + deltaCol
+
+          if (
+            nextRow < 0 ||
+            nextRow >= rowCount ||
+            nextCol < 0 ||
+            nextCol >= colCount ||
+            visited[nextRow][nextCol] ||
+            grid[nextRow][nextCol] !== 0
+          ) {
+            continue
+          }
+
+          visited[nextRow][nextCol] = true
+          distanceSum[nextRow][nextCol] += distance + 1
+          reachCount[nextRow][nextCol] += 1
+          queue.push([nextRow, nextCol, distance + 1])
+        }
+      }
+    }
+  }
+
+  let answer = Number.POSITIVE_INFINITY
+
+  for (let row = 0; row < rowCount; row += 1) {
+    for (let col = 0; col < colCount; col += 1) {
+      if (grid[row][col] === 0 && reachCount[row][col] === buildingCount) {
+        answer = Math.min(answer, distanceSum[row][col])
+      }
+    }
+  }
+
+  return answer === Number.POSITIVE_INFINITY ? -1 : answer
+}`,
+      },
+      {
+        id: 'shortest-distance-from-all-buildings-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只累计距离和却不记录有多少建筑能到达该空地，结果可能错误选择一个并不能连通所有建筑的位置。',
+        bullets: [
+          '易错点 1：遗漏 reachCount 维度。',
+          '易错点 2：BFS 时错误穿过建筑或障碍。',
+          '易错点 3：每栋建筑的 visited 没有独立重置。',
+          '延伸方向：多源 BFS、距离叠加、设施选址问题。',
+        ],
+      },
+    ],
+  },
 ];
