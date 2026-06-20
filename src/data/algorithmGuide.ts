@@ -35720,4 +35720,108 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'generalized-abbreviation',
+    label: '320. LeetCode 320. 列举单词的全部缩写',
+    difficulty: '中等',
+    description:
+      '这题是典型的回溯枚举题。重点不是把字母换成数字这么简单，而是如何在递归过程中把连续省略的字符数合并成一个数字输出，而不是拆成很多段。',
+    outcome:
+      '你能写出这题的回溯解法，理解如何用一个“当前已连续省略多少字符”的计数器来统一处理缩写段。',
+    sections: [
+      {
+        id: 'generalized-abbreviation-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个单词 `word`，返回它的所有广义缩写形式。每个位置可以选择保留原字母，或把连续若干个字母缩写成一个数字。',
+        bullets: [
+          '每个字符都有“保留”或“缩写”两种选择。',
+          '连续缩写应合并为一个数字。',
+          '需要返回全部可能结果。',
+          '本质是带状态的二叉回溯树。',
+        ],
+      },
+      {
+        id: 'generalized-abbreviation-choice',
+        title: '对每个字符，其实只有两类决策：缩写它，或者保留它',
+        summary:
+          '遍历单词时，每来到一个字符，递归上只有两种分支：一是把它计入当前缩写长度，不立即输出；二是结束当前缩写段（如果有），把计数写进结果，再保留这个字符本身。',
+        bullets: [
+          '缩写分支只增加计数器。',
+          '保留分支会把待输出数字结算掉。',
+          '这就是整棵搜索树的结构。',
+          '关键在于延迟输出缩写长度。',
+        ],
+      },
+      {
+        id: 'generalized-abbreviation-count',
+        title: '连续被缩写的字符数应该累积，而不是每次都单独输出',
+        summary:
+          '如果连续三个字符都选择缩写，结果应写成 `3`，而不是 `111`。因此递归中需要单独维护一个 `count`，表示最近连续省略了多少字符；只有在决定保留字符或递归结束时，才把这个数字真正写入当前构造串。',
+        bullets: [
+          '缩写计数要延迟结算。',
+          '保留字符时是一个自然结算点。',
+          '递归末尾也必须做最后一次结算。',
+          '这是这题最容易写错的细节。',
+        ],
+      },
+      {
+        id: 'generalized-abbreviation-backtrack',
+        title: '回溯状态通常包含当前位置、当前结果串和待结算计数',
+        summary:
+          '递归函数可以携带三个核心信息：当前处理到的下标、已经构造出的结果前缀，以及当前连续缩写长度 `count`。这样每次分支都能明确知道是否需要结算数字。',
+        bullets: [
+          '下标决定还剩多少字符。',
+          '结果串承载已完成前缀。',
+          '计数器承载尚未输出的缩写长度。',
+          '状态定义完整后实现会非常直观。',
+        ],
+        callout:
+          '很多回溯题真正难的不是分支多，而是“有些信息什么时候该输出、什么时候该暂存”。一旦你把待输出信息单独存成状态，递归逻辑就会顺很多。',
+      },
+      {
+        id: 'generalized-abbreviation-solution',
+        title: '标准解法：回溯枚举保留/缩写两种选择',
+        summary:
+          '递归到每个位置时，先尝试缩写当前字符，即 `count + 1` 进入下一层；再尝试保留当前字符，此时若 `count > 0` 要先把数字写入结果，再追加字符本身并把 `count` 重置为 0。递归结束时若 `count > 0`，还需把它补到结果末尾。',
+        bullets: [
+          '总结果数量是 `2^n` 级别。',
+          '时间复杂度与答案总数成正比。',
+          '空间复杂度来自递归栈和结果集。',
+          '是这题最标准的写法。',
+        ],
+        code: `function generateAbbreviations(word: string): string[] {
+  const result: string[] = []
+
+  const backtrack = (index: number, path: string, count: number): void => {
+    if (index === word.length) {
+      result.push(count > 0 ? path + String(count) : path)
+      return
+    }
+
+    backtrack(index + 1, path, count + 1)
+
+    const nextPath =
+      count > 0 ? path + String(count) + word[index] : path + word[index]
+    backtrack(index + 1, nextPath, 0)
+  }
+
+  backtrack(0, '', 0)
+  return result
+}`,
+      },
+      {
+        id: 'generalized-abbreviation-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是一遇到缩写就立刻把 `1` 写进字符串，结果连续缩写无法合并，输出形式全部错掉。',
+        bullets: [
+          '易错点 1：没有延迟结算缩写计数。',
+          '易错点 2：递归结束时忘记补上最后的 count。',
+          '易错点 3：保留字符分支没有重置计数器。',
+          '延伸方向：位掩码枚举、回溯状态设计、字符串生成题。',
+        ],
+      },
+    ],
+  },
 ];
