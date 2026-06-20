@@ -34767,4 +34767,111 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'burst-balloons',
+    label: '312. LeetCode 312. 戳气球',
+    difficulty: '困难',
+    description:
+      '这题最难的地方，是正着想“先戳哪个气球”会让左右边界不断变化，状态非常混乱。关键突破点在于反过来想：区间里最后一个被戳破的是谁。',
+    outcome:
+      '你能把这题转成区间 DP，理解为什么枚举“最后戳破的气球”能固定边界，从而写出标准的区间转移。',
+    sections: [
+      {
+        id: 'burst-balloons-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个数组 `nums` 表示一排气球上的数字。戳破第 `i` 个气球可获得 `nums[left] * nums[i] * nums[right]` 个硬币，其中 `left`、`right` 是当前仍未戳破的相邻气球。求最多能获得多少硬币。',
+        bullets: [
+          '每次戳破后，邻居关系会变化。',
+          '收益依赖当前左右边界。',
+          '目标是全局最大总收益。',
+          '是典型的“顺序影响状态”的题。',
+        ],
+      },
+      {
+        id: 'burst-balloons-why-hard',
+        title: '正着枚举第一个戳谁，会让后续状态很难描述',
+        summary:
+          '如果你先决定戳破某个气球，剩下的气球会重新拼接，后续的左右边界都会变化，导致子问题边界不稳定，很难形成清晰 DP 状态。',
+        bullets: [
+          '正向思考时边界会不断移动。',
+          '同样的剩余集合不容易用简单下标表达。',
+          '子问题缺乏稳定结构。',
+          '这说明需要换个视角建模。',
+        ],
+      },
+      {
+        id: 'burst-balloons-last',
+        title: '反过来想“最后一个被戳破的气球”就能固定区间边界',
+        summary:
+          '假设在某个开区间 `(left, right)` 内，最后一个被戳的是 `k`。那在戳 `k` 时，区间内部其他气球都已经没了，所以它的左右邻居必然固定为 `left` 和 `right`。这样收益就变得可计算，子问题也自然拆成左右两个更小区间。',
+        bullets: [
+          '最后一个气球的左右边界是稳定的。',
+          '收益可以直接写成 `values[left] * values[k] * values[right]`。',
+          '左区间和右区间互相独立。',
+          '这就是区间 DP 的切入点。',
+        ],
+      },
+      {
+        id: 'burst-balloons-padding',
+        title: '在两侧补上 1，可以统一处理边界气球',
+        summary:
+          '把原数组变成 `values = [1, ...nums, 1]`。这样无论最外侧气球何时作为区间最后一个被戳，它的外侧边界都能统一写成 1，不需要专门分情况讨论。',
+        bullets: [
+          '补 1 是非常经典的边界技巧。',
+          '让公式在所有区间都保持一致。',
+          '减少大量 if 特判。',
+          '也更方便定义开区间 DP。',
+        ],
+        callout:
+          '很多区间 DP 难的不是转移本身，而是边界一多就容易乱。只要能通过补哨兵把边界统一掉，状态定义和转移都会一下子清爽很多。',
+      },
+      {
+        id: 'burst-balloons-solution',
+        title: '标准解法：区间 DP 枚举最后一个被戳破的气球',
+        summary:
+          '设 `dp[left][right]` 表示开区间 `(left, right)` 内所有气球都被戳破时能获得的最大硬币数。枚举区间内最后一个戳破的 `k`，转移为 `dp[left][k] + dp[k][right] + values[left] * values[k] * values[right]`。按区间长度从小到大填表即可。',
+        bullets: [
+          '时间复杂度是 `O(n³)`。',
+          '空间复杂度是 `O(n²)`。',
+          '是这题最经典的 DP 方案。',
+          '关键在于“最后戳破”这个逆向建模。',
+        ],
+        code: `function maxCoins(nums: number[]): number {
+  const values = [1, ...nums, 1]
+  const size = values.length
+  const dp = Array.from({ length: size }, () => Array(size).fill(0))
+
+  for (let length = 2; length < size; length += 1) {
+    for (let left = 0; left + length < size; left += 1) {
+      const right = left + length
+
+      for (let mid = left + 1; mid < right; mid += 1) {
+        dp[left][right] = Math.max(
+          dp[left][right],
+          dp[left][mid] +
+            dp[mid][right] +
+            values[left] * values[mid] * values[right],
+        )
+      }
+    }
+  }
+
+  return dp[0][size - 1]
+}`,
+      },
+      {
+        id: 'burst-balloons-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是虽然知道要做区间 DP，却仍然按“第一个戳谁”来写状态，最后发现边界根本不稳定。正确方向一定是枚举最后一个动作。',
+        bullets: [
+          '易错点 1：正向枚举首个操作导致状态难以定义。',
+          '易错点 2：漏掉两端补 1 的哨兵。',
+          '易错点 3：区间定义开闭不清导致转移错位。',
+          '延伸方向：矩阵链乘、区间合并 DP、逆向建模。',
+        ],
+      },
+    ],
+  },
 ];
