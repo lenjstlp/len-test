@@ -35110,4 +35110,143 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'count-of-smaller-numbers-after-self',
+    label: '315. LeetCode 315. 计算右侧小于当前元素的个数',
+    difficulty: '困难',
+    description:
+      '这题看起来像简单计数，真正难点在于需要同时保留原始顺序并统计“右侧比我小”的数量。重点是用归并排序在合并过程中顺手累计跨区间贡献。',
+    outcome:
+      '你能把这题转成带索引的归并排序计数问题，理解为什么在归并时统计右半段先出列的元素个数，就能得到每个位置右侧更小元素的数量。',
+    sections: [
+      {
+        id: 'count-of-smaller-numbers-after-self-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组 `nums`，返回一个新数组 `counts`，其中 `counts[i]` 表示 `nums[i]` 右侧有多少个元素小于 `nums[i]`。',
+        bullets: [
+          '只统计严格小于当前值的元素。',
+          '统计范围仅限右侧。',
+          '结果需要对每个位置都给出。',
+          '本质是按位置计数的逆序关系问题。',
+        ],
+      },
+      {
+        id: 'count-of-smaller-numbers-after-self-bruteforce',
+        title: '双重循环当然能做，但复杂度太高',
+        summary:
+          '最直接的办法是对每个位置向右遍历，数有多少个更小值。这个思路简单，但时间复杂度是 `O(n²)`，当数组长度较大时显然不够高效。',
+        bullets: [
+          '每个位置都重复扫描后缀。',
+          '复杂度随规模快速恶化。',
+          '需要利用排序或树状结构复用信息。',
+          '这是典型的计数优化题。',
+        ],
+      },
+      {
+        id: 'count-of-smaller-numbers-after-self-merge',
+        title: '归并排序天然适合统计“跨左右两段”的有序关系',
+        summary:
+          '当左右两半都已经有序时，归并过程中可以顺手判断：右半段有多少元素会在当前左元素之前被放进结果数组。这些提前出列的右元素，正是“右侧比当前左元素小”的贡献。',
+        bullets: [
+          '左右子问题先各自排好序。',
+          '归并时只需关心跨区间比较。',
+          '计数和排序可以同步完成。',
+          '这是这题最经典的核心技巧。',
+        ],
+      },
+      {
+        id: 'count-of-smaller-numbers-after-self-index',
+        title: '为了把统计结果写回原位置，排序时必须带着原始下标',
+        summary:
+          '普通归并排序只关心值，但这题答案要回填到原数组位置。因此可以把每个元素表示为 `(value, index)`，归并时按 value 比较，同时把累积计数加到对应的原始 index 上。',
+        bullets: [
+          '值负责排序比较。',
+          '原始下标负责结果回填。',
+          '两者缺一不可。',
+          '这是实现层面的关键细节。',
+        ],
+        callout:
+          '很多“对每个位置统计某种右侧信息”的题，最关键的不是再造一个复杂结构，而是学会在排序过程中顺手把跨区间贡献记下来。排序本身就是在组织全局关系。',
+      },
+      {
+        id: 'count-of-smaller-numbers-after-self-solution',
+        title: '标准解法：带索引的归并排序计数',
+        summary:
+          '把数组元素包装成 `{ value, index }`。递归排序左右两段后，在合并阶段维护右侧已经先放入结果数组的元素数量 `rightCount`。当某个左元素被放入时，把 `rightCount` 加到它的答案上。最后返回按原始顺序填好的计数数组。',
+        bullets: [
+          '时间复杂度是 `O(n log n)`。',
+          '空间复杂度是 `O(n)`。',
+          '是这题最经典、最稳定的解法。',
+          '关键是理解归并阶段的计数含义。',
+        ],
+        code: `function countSmaller(nums: number[]): number[] {
+  const counts = Array(nums.length).fill(0)
+  const pairs = nums.map((value, index) => ({ value, index }))
+  const temp = Array(pairs.length)
+
+  const sort = (left: number, right: number): void => {
+    if (right - left <= 1) {
+      return
+    }
+
+    const mid = left + Math.floor((right - left) / 2)
+    sort(left, mid)
+    sort(mid, right)
+
+    let index = left
+    let leftIndex = left
+    let rightIndex = mid
+    let rightCount = 0
+
+    while (leftIndex < mid && rightIndex < right) {
+      if (pairs[rightIndex].value < pairs[leftIndex].value) {
+        temp[index] = pairs[rightIndex]
+        rightCount += 1
+        rightIndex += 1
+      } else {
+        counts[pairs[leftIndex].index] += rightCount
+        temp[index] = pairs[leftIndex]
+        leftIndex += 1
+      }
+
+      index += 1
+    }
+
+    while (leftIndex < mid) {
+      counts[pairs[leftIndex].index] += rightCount
+      temp[index] = pairs[leftIndex]
+      leftIndex += 1
+      index += 1
+    }
+
+    while (rightIndex < right) {
+      temp[index] = pairs[rightIndex]
+      rightIndex += 1
+      index += 1
+    }
+
+    for (let current = left; current < right; current += 1) {
+      pairs[current] = temp[current]
+    }
+  }
+
+  sort(0, pairs.length)
+  return counts
+}`,
+      },
+      {
+        id: 'count-of-smaller-numbers-after-self-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是归并时只顾着排好序，却没搞清楚 `rightCount` 代表什么，结果统计时机写错，答案就会整体偏大或偏小。',
+        bullets: [
+          '易错点 1：没带原始下标，无法正确回填答案。',
+          '易错点 2：`rightCount` 更新和累加时机写错。',
+          '易错点 3：相等元素处理成了“小于”，导致严格性出错。',
+          '延伸方向：逆序对、树状数组离散化、顺序统计问题。',
+        ],
+      },
+    ],
+  },
 ];
