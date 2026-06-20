@@ -34874,4 +34874,115 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'super-ugly-number',
+    label: '313. LeetCode 313. 超级丑数',
+    difficulty: '中等',
+    description:
+      '这题是丑数 II 的自然扩展。重点不是重新回到暴力判断，而是把“多个质因子来源共同生成有序序列”的多指针思想推广到任意质数列表。',
+    outcome:
+      '你能把三指针丑数生成法推广成 `k` 指针版本，理解为什么所有命中当前最小值的指针都必须同步前进。',
+    sections: [
+      {
+        id: 'super-ugly-number-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数 `n` 和一个质数数组 `primes`，定义只由这些质数因子组成的正整数为超级丑数。返回第 `n` 个超级丑数。',
+        bullets: [
+          '第一个超级丑数固定是 1。',
+          '允许重复使用给定质数。',
+          '目标是有序地找到第 `n` 个值。',
+          '本质是受限因子数列生成问题。',
+        ],
+      },
+      {
+        id: 'super-ugly-number-generate',
+        title: '高效做法仍然是直接生成序列，而不是枚举普通整数',
+        summary:
+          '既然所有超级丑数都来自更小超级丑数乘上某个 `prime`，那就没必要一个个试整数是否合格。更自然的方式，是只沿着合法来源不断生成新的合法数。',
+        bullets: [
+          '这仍是构造型问题，不是筛选型问题。',
+          '合法数只会由合法数继续扩展出来。',
+          '候选来源集合是固定的。',
+          '思路和丑数 II 完全同源。',
+        ],
+      },
+      {
+        id: 'super-ugly-number-pointers',
+        title: '每个质数都配一个指针，表示它当前要乘哪个已有丑数',
+        summary:
+          '如果有 `k` 个质数，就维护 `k` 个指针。第 `i` 个指针当前候选值是 `uglies[pointers[i]] * primes[i]`。每轮从所有候选值中选最小的作为下一个超级丑数。',
+        bullets: [
+          '一个质数对应一条生成通道。',
+          '候选值都来自已有序列。',
+          '多条通道共同竞争下一个答案。',
+          '这是算法状态的主体。',
+        ],
+      },
+      {
+        id: 'super-ugly-number-deduplicate',
+        title: '若多个通道同时生成同一个值，相关指针都必须一起前进',
+        summary:
+          '例如某个数可能既由 `2 * something` 生成，也由 `7 * somethingElse` 生成。如果只推进一个指针，就会在后面重复得到同一个值。因此所有候选值等于当前最小值的通道都要同步后移。',
+        bullets: [
+          '重复来源是不同质数路径汇合。',
+          '同步推进是去重关键。',
+          '否则序列会出现重复值。',
+          '这是实现里最容易漏掉的细节。',
+        ],
+        callout:
+          '很多序列生成题的核心不是“会不会找最小值”，而是你能不能准确处理不同生成路径汇合时的去重问题。只要去重漏了，整个序列就会错位。',
+      },
+      {
+        id: 'super-ugly-number-solution',
+        title: '标准解法：多指针动态生成超级丑数',
+        summary:
+          '维护超级丑数数组 `uglies` 和与质数数量相同的指针数组。每轮计算所有候选值，选最小值作为新丑数，再把所有命中该值的指针同步前移。循环直到得到第 `n` 个值。',
+        bullets: [
+          '时间复杂度约为 `O(n * k)`。',
+          '空间复杂度是 `O(n + k)`。',
+          '思路清晰，适合从丑数 II 迁移过来。',
+          '是这题最标准的写法。',
+        ],
+        code: `function nthSuperUglyNumber(n: number, primes: number[]): number {
+  const uglies = Array(n).fill(0)
+  const pointers = Array(primes.length).fill(0)
+  uglies[0] = 1
+
+  for (let index = 1; index < n; index += 1) {
+    let nextUgly = Number.POSITIVE_INFINITY
+
+    for (let primeIndex = 0; primeIndex < primes.length; primeIndex += 1) {
+      nextUgly = Math.min(
+        nextUgly,
+        uglies[pointers[primeIndex]] * primes[primeIndex],
+      )
+    }
+
+    uglies[index] = nextUgly
+
+    for (let primeIndex = 0; primeIndex < primes.length; primeIndex += 1) {
+      if (uglies[pointers[primeIndex]] * primes[primeIndex] === nextUgly) {
+        pointers[primeIndex] += 1
+      }
+    }
+  }
+
+  return uglies[n - 1]
+}`,
+      },
+      {
+        id: 'super-ugly-number-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是看见质数列表变长就回退到暴力判断。其实题型完全没变，只是从 3 条生成通道扩展成了 `k` 条生成通道。',
+        bullets: [
+          '易错点 1：没有把丑数 II 的三指针推广成多指针。',
+          '易错点 2：重复值时只推进一个指针。',
+          '易错点 3：候选最小值初始化和比较逻辑写错。',
+          '延伸方向：数列构造、多指针 DP、最小生成序列问题。',
+        ],
+      },
+    ],
+  },
 ];
