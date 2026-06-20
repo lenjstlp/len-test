@@ -35522,4 +35522,114 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'maximum-product-of-word-lengths',
+    label: '318. LeetCode 318. 最大单词长度乘积',
+    difficulty: '中等',
+    description:
+      '这题的关键不是暴力比较字符串字符，而是把“是否包含某字母”压缩进位掩码。重点在于两个单词没有公共字母，等价于它们的字母集合位与结果为 0。',
+    outcome:
+      '你能用位运算把字符串字符集合压缩成整数掩码，并高效判断两个单词是否存在公共字母。',
+    sections: [
+      {
+        id: 'maximum-product-of-word-lengths-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串数组 `words`，找到两个没有公共字母的单词，使它们长度乘积最大，返回这个最大值。',
+        bullets: [
+          '要求两单词字符集合不相交。',
+          '目标是最大长度乘积。',
+          '需要比较很多单词对。',
+          '关键在于快速判断公共字母。',
+        ],
+      },
+      {
+        id: 'maximum-product-of-word-lengths-naive',
+        title: '如果每对单词都逐字符建集合比较，会有很多重复工作',
+        summary:
+          '最直接的思路是枚举所有单词对，然后把字符放进集合里比较是否相交。这样能做，但每次比较都会重新处理字符信息，重复开销较大。',
+        bullets: [
+          '单词对数量本就很多。',
+          '字符集合若反复构建会浪费时间。',
+          '需要一种更紧凑的表示。',
+          '题目字符集固定是小写字母，适合位压缩。',
+        ],
+      },
+      {
+        id: 'maximum-product-of-word-lengths-bitmask',
+        title: '26 个小写字母可以压缩进一个 32 位整数',
+        summary:
+          '对每个单词，创建一个位掩码：若包含某字母，就把对应位设为 1。这样一个单词的字符集合就被压成了一个整数。两个单词是否有公共字母，只需看两个掩码按位与是否为 0。',
+        bullets: [
+          '每一位对应一个字母是否出现。',
+          '集合判断变成整数运算。',
+          '位与为 0 表示完全不相交。',
+          '这是这题最核心的优化点。',
+        ],
+      },
+      {
+        id: 'maximum-product-of-word-lengths-check',
+        title: '掩码预处理一次后，比较阶段会非常轻',
+        summary:
+          '先为每个单词预处理好掩码和长度。之后枚举单词对时，只要判断 `(mask[i] & mask[j]) === 0`，若成立就尝试更新长度乘积最大值。',
+        bullets: [
+          '字符信息不再重复解析。',
+          '每次比较几乎是常数时间。',
+          '乘积计算也很直接。',
+          '整体性能显著优于集合逐次构建。',
+        ],
+        callout:
+          '位运算最适合处理“小而固定”的布尔特征集合。只要元素种类不多，集合关系往往都能被压成几个整数运算来完成。',
+      },
+      {
+        id: 'maximum-product-of-word-lengths-solution',
+        title: '标准解法：位掩码预处理 + 枚举单词对',
+        summary:
+          '先遍历 `words`，为每个单词计算字母位掩码。然后双重循环枚举所有单词对，若两个掩码按位与为 0，则它们没有公共字母，用长度乘积更新答案。',
+        bullets: [
+          '预处理复杂度是 `O(totalChars)`。',
+          '比较阶段复杂度是 `O(n²)`。',
+          '空间复杂度是 `O(n)`。',
+          '是这题最经典的写法。',
+        ],
+        code: `function maxProduct(words: string[]): number {
+  const masks = Array(words.length).fill(0)
+
+  for (let index = 0; index < words.length; index += 1) {
+    let mask = 0
+
+    for (const char of words[index]) {
+      mask |= 1 << (char.charCodeAt(0) - 97)
+    }
+
+    masks[index] = mask
+  }
+
+  let answer = 0
+
+  for (let left = 0; left < words.length; left += 1) {
+    for (let right = left + 1; right < words.length; right += 1) {
+      if ((masks[left] & masks[right]) === 0) {
+        answer = Math.max(answer, words[left].length * words[right].length)
+      }
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'maximum-product-of-word-lengths-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是看见字符串就默认用集合，而没有意识到字符集大小是固定的，完全可以做位压缩。这样会错过题目的最优解法。',
+        bullets: [
+          '易错点 1：没有利用固定字符集做位掩码。',
+          '易错点 2：位下标映射字母时偏移写错。',
+          '易错点 3：把“有公共字母”与位与判断逻辑写反。',
+          '延伸方向：位运算集合、字符串特征压缩、状态压缩 DP。',
+        ],
+      },
+    ],
+  },
 ];
