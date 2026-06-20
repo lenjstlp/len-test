@@ -34985,4 +34985,129 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'binary-tree-vertical-order-traversal',
+    label: '314. LeetCode 314. 二叉树的垂直遍历',
+    difficulty: '中等',
+    description:
+      '这题的重点不在树遍历本身，而在于给每个节点附上“列坐标”概念。只要横坐标定义清楚，再用 BFS 保证同层从左到右顺序，结果就会自然成形。',
+    outcome:
+      '你能写出这题的 BFS 解法，理解如何按列收集节点，并保持题目要求的上下、左右遍历顺序。',
+    sections: [
+      {
+        id: 'binary-tree-vertical-order-traversal-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，按垂直方向输出节点。根节点列号为 0，左孩子列号减 1，右孩子列号加 1。同一列中的节点按从上到下、从左到右顺序输出。',
+        bullets: [
+          '输出按列分组。',
+          '列号由左右移动决定。',
+          '同列要保留层次顺序。',
+          '答案从最左列到最右列排列。',
+        ],
+      },
+      {
+        id: 'binary-tree-vertical-order-traversal-columns',
+        title: '核心建模是给每个节点附带一个列坐标',
+        summary:
+          '只要把根节点视为列 0，那么沿左边走列号减 1，沿右边走列号加 1。这样整棵树就从纯结构问题变成了“节点值按列号分桶”的问题。',
+        bullets: [
+          '列号是这题的核心辅助信息。',
+          '每个节点的归属列唯一确定。',
+          '分桶后再按列输出即可。',
+          '真正难点转成顺序维护。',
+        ],
+      },
+      {
+        id: 'binary-tree-vertical-order-traversal-bfs',
+        title: '为了保证同层从左到右的顺序，BFS 比 DFS 更自然',
+        summary:
+          '如果用 BFS 按层推进，先入队的左节点一定先于右节点处理，因此同一列中同层节点的顺序就天然符合题意。DFS 则需要额外记录层号甚至顺序信息，处理更绕。',
+        bullets: [
+          'BFS 天然保留层序顺序。',
+          '左孩子先入队可保证左右先后。',
+          '同列节点按访问顺序追加即可。',
+          '这是这题最直接的做法。',
+        ],
+      },
+      {
+        id: 'binary-tree-vertical-order-traversal-range',
+        title: '收集过程中同步维护最小列和最大列，便于最后按顺序输出',
+        summary:
+          '遍历时把每一列的节点值放进 `Map<column, number[]>`，同时记录目前出现过的最小列号和最大列号。最后只需从最小列一路扫到最大列，就能得到按列排序的答案。',
+        bullets: [
+          '不一定需要额外排序所有键。',
+          '范围记录让输出更直接。',
+          '实现层面简单且稳定。',
+          '适合这类列号连续分布的问题。',
+        ],
+        callout:
+          '树遍历题很多时候不是遍历难，而是遍历时要额外携带哪种位置信息。只要位置信息选对，剩下往往就是普通的 BFS 或 DFS。',
+      },
+      {
+        id: 'binary-tree-vertical-order-traversal-solution',
+        title: '标准解法：BFS 携带列号并按列分桶',
+        summary:
+          '队列中存 `(node, column)`。每次弹出一个节点，把它加入对应列的数组，再把左右孩子连同更新后的列号入队。遍历结束后，从最小列到最大列依次读取分桶结果。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '是这题最主流的写法。',
+          '关键在于 BFS 与列号绑定。',
+        ],
+        code: `function verticalOrder(root: TreeNode | null): number[][] {
+  if (root === null) {
+    return []
+  }
+
+  const columnMap = new Map<number, number[]>()
+  const queue: Array<[TreeNode, number]> = [[root, 0]]
+  let minColumn = 0
+  let maxColumn = 0
+  let head = 0
+
+  while (head < queue.length) {
+    const [node, column] = queue[head]
+    head += 1
+
+    if (!columnMap.has(column)) {
+      columnMap.set(column, [])
+    }
+
+    columnMap.get(column)!.push(node.val)
+    minColumn = Math.min(minColumn, column)
+    maxColumn = Math.max(maxColumn, column)
+
+    if (node.left !== null) {
+      queue.push([node.left, column - 1])
+    }
+
+    if (node.right !== null) {
+      queue.push([node.right, column + 1])
+    }
+  }
+
+  const result: number[][] = []
+
+  for (let column = minColumn; column <= maxColumn; column += 1) {
+    result.push(columnMap.get(column) ?? [])
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'binary-tree-vertical-order-traversal-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是使用 DFS 直接按列收集，结果同层左右顺序被打乱。题目并不只是“同列分组”，还隐含要求保持层序稳定。',
+        bullets: [
+          '易错点 1：DFS 造成同层顺序不稳。',
+          '易错点 2：列号更新方向写反。',
+          '易错点 3：最后输出列顺序没处理好。',
+          '延伸方向：top view、bottom view、垂直排序变体。',
+        ],
+      },
+    ],
+  },
 ];
