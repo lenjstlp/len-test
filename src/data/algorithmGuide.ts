@@ -34656,4 +34656,115 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'sparse-matrix-multiplication',
+    label: '311. LeetCode 311. 稀疏矩阵的乘法',
+    difficulty: '中等',
+    description:
+      '这题的重点不是矩阵乘法公式本身，而是识别“稀疏”意味着大量 0 根本不值得参与运算。真正高效的做法是只沿着非零项传播贡献。',
+    outcome:
+      '你能写出利用稀疏性优化的矩阵乘法，理解为什么只遍历非零元素就能显著减少无效计算。',
+    sections: [
+      {
+        id: 'sparse-matrix-multiplication-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个矩阵 `mat1` 和 `mat2`，返回它们的乘积矩阵。题目特别强调矩阵是稀疏矩阵。',
+        bullets: [
+          '乘法规则与普通矩阵相同。',
+          '稀疏表示大多数元素是 0。',
+          '目标是利用这一性质优化计算。',
+          '本质是减少无效乘法次数。',
+        ],
+      },
+      {
+        id: 'sparse-matrix-multiplication-naive',
+        title: '普通三重循环当然能做，但会反复乘大量的 0',
+        summary:
+          '标准矩阵乘法用三重循环枚举 `(i, k, j)`，复杂度是 `O(m * n * p)`。当矩阵非常稀疏时，大部分乘法都是 `0 * something`，纯属浪费。',
+        bullets: [
+          '公式没问题，但效率不贴合数据分布。',
+          '0 元素不应参与实际贡献传播。',
+          '稀疏题的关键就是跳过无效项。',
+          '这要求我们重新组织循环顺序。',
+        ],
+      },
+      {
+        id: 'sparse-matrix-multiplication-nonzero',
+        title: '只要 `mat1[i][k]` 为 0，这一整条贡献链都可以跳过',
+        summary:
+          '矩阵乘法里，`result[i][j] += mat1[i][k] * mat2[k][j]`。如果 `mat1[i][k]` 为 0，那么无论 `mat2[k][j]` 是什么，对整行 `j` 都没有贡献，所以可以直接跳过这一层。',
+        bullets: [
+          '先筛掉左矩阵中的 0。',
+          '剩下的非零项才有传播价值。',
+          '这会大量减少内层循环触发次数。',
+          '是最直接的稀疏优化点。',
+        ],
+      },
+      {
+        id: 'sparse-matrix-multiplication-propagate',
+        title: '对于一个非零 `mat1[i][k]`，只需把它乘到 `mat2` 的第 `k` 行上',
+        summary:
+          '一旦确定 `mat1[i][k]` 非零，它只会影响结果矩阵第 `i` 行，而影响方式正是把它和 `mat2[k][j]` 的各列相乘再累加。因此我们可以把这个非零值当作一个系数，向右传播整行贡献。',
+        bullets: [
+          '左矩阵非零值像一个权重。',
+          '右矩阵对应行提供实际扩散方向。',
+          '结果矩阵只更新必要位置。',
+          '这比盲目枚举所有三元组更合理。',
+        ],
+        callout:
+          '很多性能优化题最重要的不是换算法，而是先搞清楚“哪些循环根本没必要发生”。一旦你能准确识别无贡献路径，代码自然会瘦下来。',
+      },
+      {
+        id: 'sparse-matrix-multiplication-solution',
+        title: '标准解法：跳过左矩阵的零元素并传播贡献',
+        summary:
+          '遍历 `mat1` 的每个元素。若 `mat1[i][k]` 为 0，就直接跳过；否则遍历 `mat2[k]` 这一行，把非零贡献累计到 `result[i][j]`。这样能避免大量无意义运算。',
+        bullets: [
+          '最坏复杂度仍受矩阵大小影响。',
+          '但在稀疏场景下通常明显更快。',
+          '空间复杂度是结果矩阵本身。',
+          '是这题最常见的工程写法。',
+        ],
+        code: `function multiply(mat1: number[][], mat2: number[][]): number[][] {
+  const rowCount = mat1.length
+  const colCount = mat2[0].length
+  const sharedSize = mat2.length
+  const result = Array.from({ length: rowCount }, () =>
+    Array(colCount).fill(0),
+  )
+
+  for (let row = 0; row < rowCount; row += 1) {
+    for (let mid = 0; mid < sharedSize; mid += 1) {
+      if (mat1[row][mid] === 0) {
+        continue
+      }
+
+      for (let col = 0; col < colCount; col += 1) {
+        if (mat2[mid][col] === 0) {
+          continue
+        }
+
+        result[row][col] += mat1[row][mid] * mat2[mid][col]
+      }
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'sparse-matrix-multiplication-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是虽然知道矩阵稀疏，却仍然完整跑三重循环，只在乘法前加个 `if`，优化效果很有限。真正重要的是减少进入内层的机会。',
+        bullets: [
+          '易错点 1：没有真正利用稀疏结构。',
+          '易错点 2：矩阵维度关系写错。',
+          '易错点 3：结果矩阵行列大小初始化错误。',
+          '延伸方向：CSR/CSC 存储、稀疏向量点积、矩阵优化。',
+        ],
+      },
+    ],
+  },
 ];
