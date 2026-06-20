@@ -34528,4 +34528,132 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'minimum-height-trees',
+    label: '310. LeetCode 310. 最小高度树',
+    difficulty: '中等',
+    description:
+      '这题表面看是树高计算，真正高效的做法却不是从每个点都做一遍 BFS。重点在于把树不断从叶子往里剥，最后剩下的中心点就是最小高度树的根。',
+    outcome:
+      '你能理解树中心与最小高度树的关系，写出按层删除叶子的拓扑式解法，并知道为什么最终只会剩 1 到 2 个答案。',
+    sections: [
+      {
+        id: 'minimum-height-trees-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `n` 个节点和一棵无向树的边集，要求找出所有可以作为根、并使整棵树高度最小的节点。',
+        bullets: [
+          '图保证是一棵树。',
+          '根不同，树高可能不同。',
+          '答案可能有一个或两个节点。',
+          '目标是返回所有最优根。',
+        ],
+      },
+      {
+        id: 'minimum-height-trees-bruteforce',
+        title: '从每个点都做一次 BFS/DFS 能做，但复杂度太差',
+        summary:
+          '如果把每个节点都当根，重新计算一次整棵树高度，当然可以得到正确答案。但这样需要重复遍历整张树，复杂度会退化到 `O(n²)` 级别，不适合大输入。',
+        bullets: [
+          '每个节点都重算高度非常浪费。',
+          '树的结构信息没有被充分利用。',
+          '需要找一个更全局的视角。',
+          '真正关键是最优根具备什么共性。',
+        ],
+      },
+      {
+        id: 'minimum-height-trees-centers',
+        title: '最小高度树的根一定是树的中心',
+        summary:
+          '树的最长路径两端是直径端点，而最优根会落在这条最长路径的中间位置，也就是树的中心。若直径长度为偶数，中心只有一个；若为奇数，中心会有两个。',
+        bullets: [
+          '离所有叶子尽量均衡的位置才最优。',
+          '中心点让最大深度最小。',
+          '这解释了为什么答案至多两个。',
+          '接下来问题变成如何找中心。',
+        ],
+      },
+      {
+        id: 'minimum-height-trees-peeling',
+        title: '不断删除叶子，本质上就是从外向内逼近中心',
+        summary:
+          '所有度为 1 的节点都是叶子。若把当前所有叶子同时删掉，树的“外壳”就被剥去一层。不断重复这个过程，最后剩下的 1 或 2 个节点，就是树的中心，也就是所有最小高度树的根。',
+        bullets: [
+          '每轮删除当前所有叶子。',
+          '邻居度数降到 1 时会成为新叶子。',
+          '过程很像图上的分层拓扑删除。',
+          '最终残留节点就是答案。',
+        ],
+        callout:
+          '树题很多时候不一定要从根往下想，也可以从边缘往中心想。只要你发现答案应该在“最内层”，就要考虑是否能用逐层剥离的方式反推。',
+      },
+      {
+        id: 'minimum-height-trees-solution',
+        title: '标准解法：队列分层删除叶子节点',
+        summary:
+          '先构建邻接表和度数组，把所有初始叶子加入队列。每轮取出整层叶子并删除，同时更新相邻节点度数；新的度为 1 的节点进入下一层。循环直到剩余节点数不超过 2，队列中的节点就是答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '这是这题最经典的解法。',
+          '本质是树中心的层层收缩。',
+        ],
+        code: `function findMinHeightTrees(n: number, edges: number[][]): number[] {
+  if (n === 1) {
+    return [0]
+  }
+
+  const graph = Array.from({ length: n }, () => new Set<number>())
+  const degree = Array(n).fill(0)
+
+  for (const [a, b] of edges) {
+    graph[a].add(b)
+    graph[b].add(a)
+    degree[a] += 1
+    degree[b] += 1
+  }
+
+  let leaves: number[] = []
+
+  for (let node = 0; node < n; node += 1) {
+    if (degree[node] === 1) {
+      leaves.push(node)
+    }
+  }
+
+  let remaining = n
+
+  while (remaining > 2) {
+    remaining -= leaves.length
+    const nextLeaves: number[] = []
+
+    for (const leaf of leaves) {
+      for (const neighbor of graph[leaf]) {
+        degree[neighbor] -= 1
+        if (degree[neighbor] === 1) {
+          nextLeaves.push(neighbor)
+        }
+      }
+    }
+
+    leaves = nextLeaves
+  }
+
+  return leaves
+}`,
+      },
+      {
+        id: 'minimum-height-trees-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是虽然知道要删叶子，却按一个个顺序删，而不是一整层同时删。那样会破坏“同一层叶子一起剥离”的含义。',
+        bullets: [
+          '易错点 1：没按层删除叶子。',
+          '易错点 2：`n = 1` 的边界漏掉。',
+          '易错点 3：把答案误以为永远只有一个节点。',
+          '延伸方向：树中心、树直径、图分层剥离问题。',
+        ],
+      },
+    ],
+  },
 ];
