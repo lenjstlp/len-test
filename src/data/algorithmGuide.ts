@@ -35249,4 +35249,120 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'remove-duplicate-letters',
+    label: '316. LeetCode 316. 去除重复字母',
+    difficulty: '中等',
+    description:
+      '这题的重点不是单纯去重，而是在去重的同时保证结果字典序最小。关键做法是用单调栈，在确保后面还能再拿到某个字符的前提下，尽量把更大的字符弹掉。',
+    outcome:
+      '你能写出这题的单调栈解法，理解“能弹栈的前提是后面还会再出现该字符”这一核心约束。',
+    sections: [
+      {
+        id: 'remove-duplicate-letters-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串 `s`，删除重复字母，使得每个字母只出现一次，并且结果字典序最小。',
+        bullets: [
+          '每种字符最终只能保留一个。',
+          '相对顺序必须来自原串子序列。',
+          '在所有合法结果中取字典序最小。',
+          '本质是带约束的最优子序列构造题。',
+        ],
+      },
+      {
+        id: 'remove-duplicate-letters-why-hard',
+        title: '这题难在两个目标要同时满足：去重和字典序最小',
+        summary:
+          '如果只要求去重，随便保留第一次或最后一次出现都能做；如果只要求字典序小，也可以贪心挑最小字符。但现在两者叠在一起，就必须在“现在删掉某字符是否还能在后面补回来”这个条件下做决策。',
+        bullets: [
+          '去重本身不难。',
+          '字典序优化本身也不难。',
+          '难点是二者必须同时成立。',
+          '这提示我们要维护可回退的贪心结构。',
+        ],
+      },
+      {
+        id: 'remove-duplicate-letters-last-index',
+        title: '要想安全弹出一个字符，必须知道它后面还会不会再出现',
+        summary:
+          '如果当前栈顶字符比新字符大，理论上为了更小字典序应该弹掉栈顶。但只有当这个栈顶字符后面还会再出现时，弹掉才安全，否则会导致该字符彻底丢失。',
+        bullets: [
+          '后续是否还能补回来是弹栈前提。',
+          '因此需要先记录每个字符最后一次出现的位置。',
+          '没有未来补位能力就不能贪心弹出。',
+          '这就是算法正确性的关键约束。',
+        ],
+      },
+      {
+        id: 'remove-duplicate-letters-monotonic-stack',
+        title: '单调栈负责维护当前构造结果尽量小',
+        summary:
+          '遍历字符串时，如果字符已经在栈中，就跳过；否则尝试把栈顶中那些字典序更大、且后面还会再出现的字符弹出，再把当前字符压栈。这样得到的序列在每一步都尽量靠前地变小。',
+        bullets: [
+          '栈中字符始终保持唯一。',
+          '遇到更优字符时尝试向前调整。',
+          '弹栈依赖“更大且可补回”两个条件。',
+          '最后栈内容就是答案。',
+        ],
+        callout:
+          '很多“字典序最小”的题，不是单纯一味选最小，而是要在未来可修复的前提下做局部替换。单调栈本质上就是把这种可回退贪心显式化。',
+      },
+      {
+        id: 'remove-duplicate-letters-solution',
+        title: '标准解法：最后出现位置 + 单调栈 + 在栈标记',
+        summary:
+          '先记录每个字符最后出现的位置。遍历字符串时，若字符已在栈中则跳过；否则在满足“栈顶更大且后面还会再出现”的条件下不断弹栈，并更新在栈标记，随后把当前字符入栈。最后把栈拼成字符串返回。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)` 到 `O(k)`，`k` 为字符集大小。',
+          '是这题最经典的写法。',
+          '核心在于弹栈条件必须完整。',
+        ],
+        code: `function removeDuplicateLetters(s: string): string {
+  const lastIndex = new Map<string, number>()
+
+  for (let index = 0; index < s.length; index += 1) {
+    lastIndex.set(s[index], index)
+  }
+
+  const stack: string[] = []
+  const inStack = new Set<string>()
+
+  for (let index = 0; index < s.length; index += 1) {
+    const char = s[index]
+
+    if (inStack.has(char)) {
+      continue
+    }
+
+    while (
+      stack.length > 0 &&
+      stack[stack.length - 1] > char &&
+      lastIndex.get(stack[stack.length - 1])! > index
+    ) {
+      inStack.delete(stack.pop()!)
+    }
+
+    stack.push(char)
+    inStack.add(char)
+  }
+
+  return stack.join('')
+}`,
+      },
+      {
+        id: 'remove-duplicate-letters-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的错误，是只根据字典序大小弹栈，却没检查栈顶字符后面是否还会再出现，结果把某些必须保留的字符永久删掉了。',
+        bullets: [
+          '易错点 1：弹栈时没检查最后出现位置。',
+          '易错点 2：忘了维护“字符是否已在栈中”的标记。',
+          '易错点 3：把相对顺序问题做成了简单排序去重。',
+          '延伸方向：最小子序列、单调栈、字典序优化题。',
+        ],
+      },
+    ],
+  },
 ];
