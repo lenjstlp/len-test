@@ -36756,4 +36756,144 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'longest-increasing-path-in-a-matrix',
+    label: '329. LeetCode 329. 矩阵中的最长递增路径',
+    difficulty: '困难',
+    description:
+      '这题表面是网格搜索，核心其实是有向无环图上的最长路径。重点在于看出“只能往更大值走”意味着不会形成环，因此 DFS + 记忆化非常合适。',
+    outcome:
+      '你能把矩阵递增路径题转成 DAG 最长路问题，写出 DFS + 记忆化搜索，并理解为什么每个格子的答案只需算一次。',
+    sections: [
+      {
+        id: 'longest-increasing-path-in-a-matrix-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数矩阵，找出其中最长递增路径的长度。每次只能向上、下、左、右四个方向移动，且下一格必须严格更大。',
+        bullets: [
+          '只能走四联通方向。',
+          '路径要求严格递增。',
+          '不要求起点固定。',
+          '目标是最大路径长度。',
+        ],
+      },
+      {
+        id: 'longest-increasing-path-in-a-matrix-graph',
+        title: '把每个格子看成节点，往更大值方向连边，就得到一张 DAG',
+        summary:
+          '如果从值较小的格子能走到值更大的格子，就等价于从前者向后者连一条有向边。由于值必须严格递增，不可能绕一圈回到原点，因此这张图不会有环。',
+        bullets: [
+          '严格递增保证了有向无环。',
+          '问题变成 DAG 上的最长路径。',
+          '图结构其实隐含在矩阵里。',
+          '这为记忆化搜索提供了理论基础。',
+        ],
+      },
+      {
+        id: 'longest-increasing-path-in-a-matrix-dfs',
+        title: '以每个格子为起点求最长递增路径，但必须做记忆化',
+        summary:
+          '定义 `dfs(row, col)` 表示从该格子出发的最长递增路径长度。它会尝试走向所有更大的邻居，取最大值再加 1。由于很多路径会反复访问同一格子，所以必须用记忆化缓存结果。',
+        bullets: [
+          '每个格子都是一个子问题。',
+          '搜索方向只指向更大邻居。',
+          '重复子问题非常明显。',
+          '记忆化能把指数搜索降到线性级别。',
+        ],
+      },
+      {
+        id: 'longest-increasing-path-in-a-matrix-base',
+        title: '如果一个格子四周都走不出去，它的答案就是 1',
+        summary:
+          '当某个格子没有任何更大邻居时，以它为起点的最长递增路径只包含它自己，因此长度为 1。这是所有递归向上的基础情况。',
+        bullets: [
+          '最短合法路径就是单个节点。',
+          '递归返回值至少为 1。',
+          '这让转移公式更自然。',
+          '也简化了代码初始化。',
+        ],
+        callout:
+          '很多矩阵 DFS 题一旦带上“严格递增/递减”这类单向约束，就很可能具备 DAG 结构。只要无环，记忆化 DFS 往往就是最顺手的套路。',
+      },
+      {
+        id: 'longest-increasing-path-in-a-matrix-solution',
+        title: '标准解法：DFS + 记忆化',
+        summary:
+          '对每个格子执行一次 DFS，递归尝试四个方向中所有更大的邻居，取其最长路径加 1 作为当前答案，并写入 `memo`。遍历所有格子后取最大值即为最终结果。',
+        bullets: [
+          '时间复杂度是 `O(m * n)`。',
+          '空间复杂度是 `O(m * n)`。',
+          '每个格子只会被完整求解一次。',
+          '是这题最经典的解法。',
+        ],
+        code: `function longestIncreasingPath(matrix: number[][]): number {
+  if (matrix.length === 0 || matrix[0].length === 0) {
+    return 0
+  }
+
+  const rowCount = matrix.length
+  const colCount = matrix[0].length
+  const memo = Array.from({ length: rowCount }, () =>
+    Array(colCount).fill(0),
+  )
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+
+  const dfs = (row: number, col: number): number => {
+    if (memo[row][col] !== 0) {
+      return memo[row][col]
+    }
+
+    let best = 1
+
+    for (const [deltaRow, deltaCol] of directions) {
+      const nextRow = row + deltaRow
+      const nextCol = col + deltaCol
+
+      if (
+        nextRow < 0 ||
+        nextRow >= rowCount ||
+        nextCol < 0 ||
+        nextCol >= colCount ||
+        matrix[nextRow][nextCol] <= matrix[row][col]
+      ) {
+        continue
+      }
+
+      best = Math.max(best, 1 + dfs(nextRow, nextCol))
+    }
+
+    memo[row][col] = best
+    return best
+  }
+
+  let answer = 0
+
+  for (let row = 0; row < rowCount; row += 1) {
+    for (let col = 0; col < colCount; col += 1) {
+      answer = Math.max(answer, dfs(row, col))
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'longest-increasing-path-in-a-matrix-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是担心 DFS 会有环，所以加了多余的 visited 回溯控制。其实严格递增已经保证了无环，真正需要的是 memo，而不是路径去重标记。',
+        bullets: [
+          '易错点 1：没有记忆化，导致重复搜索爆炸。',
+          '易错点 2：把无环结构误判成普通图环问题。',
+          '易错点 3：相邻比较条件把严格大于写成大于等于。',
+          '延伸方向：记忆化搜索、DAG 最长路、网格 DP。',
+        ],
+      },
+    ],
+  },
 ];
