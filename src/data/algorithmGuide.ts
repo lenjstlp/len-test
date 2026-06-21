@@ -36493,4 +36493,162 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'count-of-range-sum',
+    label: '327. LeetCode 327. 区间和的个数',
+    difficulty: '困难',
+    description:
+      '这题的难点不在区间和公式，而在于如何高效统计有多少对前缀和差值落在一个范围内。关键做法是把问题转成有序前缀和之间的区间计数，再借助归并排序边排边数。',
+    outcome:
+      '你能把这题转成前缀和差值计数问题，并理解如何在归并排序过程中用双指针统计满足范围条件的前缀和对数。',
+    sections: [
+      {
+        id: 'count-of-range-sum-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums` 和两个整数 `lower`、`upper`，统计有多少个区间和落在 `[lower, upper]` 范围内。',
+        bullets: [
+          '区间必须连续。',
+          '要求统计个数，不是找最值。',
+          '数组可能有负数。',
+          '本质是区间和落入范围的计数问题。',
+        ],
+      },
+      {
+        id: 'count-of-range-sum-prefix',
+        title: '区间和天然适合改写成两个前缀和之差',
+        summary:
+          '若 `prefix[i]` 表示前 `i` 个元素的和，那么区间 `(j .. i - 1)` 的和是 `prefix[i] - prefix[j]`。题目要求这个差值落在 `[lower, upper]`，也就是要统计满足 `lower <= prefix[i] - prefix[j] <= upper` 的前缀和对数。',
+        bullets: [
+          '前缀和把区间问题转成点对差值问题。',
+          '目标变成统计满足范围条件的 `(j, i)` 对。',
+          '这是整题最核心的等价变换。',
+          '后续所有优化都围绕它展开。',
+        ],
+      },
+      {
+        id: 'count-of-range-sum-merge-count',
+        title: '当左右前缀和都排好序后，可以线性统计跨区间有效对数',
+        summary:
+          '在归并排序的某一层，左半部分和右半部分前缀和都已经有序。对左侧某个值 `x`，只需在右半部分找到满足 `lower <= y - x <= upper` 的那段连续区间。由于右半有序，这一段可以用两个单调前进的指针维护。',
+        bullets: [
+          '排序让范围计数变成滑动边界问题。',
+          '对每个左值不需要重新从头扫描右半。',
+          '两个指针都只会前进。',
+          '这是 `O(n log n)` 解法的关键。',
+        ],
+      },
+      {
+        id: 'count-of-range-sum-why-merge',
+        title: '归并排序同时满足“分治子问题”和“跨区间有序统计”两种需求',
+        summary:
+          '单纯排序后虽然值有序了，但原问题的左右先后关系也很重要。归并排序正好可以先递归解决左右子区间内部答案，再在合并时只统计跨越左右两半的答案，既不重不漏。',
+        bullets: [
+          '分治保证计数分层完整。',
+          '合并阶段负责跨区间贡献。',
+          '排序是为了支持高效边界滑动。',
+          '这是这题最经典的整体框架。',
+        ],
+        callout:
+          '很多“统计满足某条件的区间/点对个数”问题，真正的突破点不是暴力加哈希，而是先问：如果这些数有序了，条件会不会更容易数？一旦答案是会，归并排序往往就是天然容器。',
+      },
+      {
+        id: 'count-of-range-sum-solution',
+        title: '标准解法：前缀和 + 归并排序范围计数',
+        summary:
+          '先构造前缀和数组。递归排序前缀和的同时，在每次合并前用两个指针统计：对左半每个前缀值，右半中有多少值满足差值落在 `[lower, upper]`。统计完成后再完成标准归并。最终返回总计数。',
+        bullets: [
+          '时间复杂度是 `O(n log n)`。',
+          '空间复杂度是 `O(n)`。',
+          '是这题最经典的高效解法。',
+          '关键在于边数边归并，不要分成两个割裂步骤。',
+        ],
+        code: `function countRangeSum(
+  nums: number[],
+  lower: number,
+  upper: number,
+): number {
+  const prefix = Array(nums.length + 1).fill(0)
+
+  for (let index = 0; index < nums.length; index += 1) {
+    prefix[index + 1] = prefix[index] + nums[index]
+  }
+
+  const temp = Array(prefix.length).fill(0)
+
+  const sortAndCount = (left: number, right: number): number => {
+    if (right - left <= 1) {
+      return 0
+    }
+
+    const mid = left + Math.floor((right - left) / 2)
+    let count = sortAndCount(left, mid) + sortAndCount(mid, right)
+
+    let start = mid
+    let end = mid
+
+    for (let index = left; index < mid; index += 1) {
+      while (start < right && prefix[start] - prefix[index] < lower) {
+        start += 1
+      }
+
+      while (end < right && prefix[end] - prefix[index] <= upper) {
+        end += 1
+      }
+
+      count += end - start
+    }
+
+    let i = left
+    let j = mid
+    let position = left
+
+    while (i < mid && j < right) {
+      if (prefix[i] <= prefix[j]) {
+        temp[position] = prefix[i]
+        i += 1
+      } else {
+        temp[position] = prefix[j]
+        j += 1
+      }
+
+      position += 1
+    }
+
+    while (i < mid) {
+      temp[position] = prefix[i]
+      i += 1
+      position += 1
+    }
+
+    while (j < right) {
+      temp[position] = prefix[j]
+      j += 1
+      position += 1
+    }
+
+    for (let index = left; index < right; index += 1) {
+      prefix[index] = temp[index]
+    }
+
+    return count
+  }
+
+  return sortAndCount(0, prefix.length)
+}`,
+      },
+      {
+        id: 'count-of-range-sum-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是归并阶段先把左右两边混起来再统计，结果原本应该基于“左半在前、右半在后”的配对关系被破坏。计数必须发生在真正归并之前。',
+        bullets: [
+          '易错点 1：统计时机放错，先归并后计数。',
+          '易错点 2：上下边界 `<` / `<=` 写错。',
+          '易错点 3：前缀和数组长度和含义处理不清。',
+          '延伸方向：逆序对、范围对数统计、归并计数技巧。',
+        ],
+      },
+    ],
+  },
 ];
