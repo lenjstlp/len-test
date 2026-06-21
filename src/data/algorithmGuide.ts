@@ -35824,4 +35824,157 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'create-maximum-number',
+    label: '321. LeetCode 321. 拼接最大数',
+    difficulty: '困难',
+    description:
+      '这题的难点不在于拼接两个数组，而在于同时解决三个子问题：从每个数组中挑最优子序列、在不同拆分方案间比较、以及把两个最优子序列按字典序最大方式归并。',
+    outcome:
+      '你能把这题拆成“单数组取最大子序列 + 双序列最大归并 + 枚举拆分长度”的组合解法，并解释每一层为什么正确。',
+    sections: [
+      {
+        id: 'create-maximum-number-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个数组 `nums1`、`nums2`，它们都由数字 `0-9` 组成。要求从两个数组中总共选出 `k` 个数字，保持各自原有相对顺序，拼成字典序最大的长度为 `k` 的数组。',
+        bullets: [
+          '两个数组内部顺序都不能打乱。',
+          '总共选 `k` 个数字。',
+          '目标是最终序列字典序最大。',
+          '这是多个贪心子问题叠加的题。',
+        ],
+      },
+      {
+        id: 'create-maximum-number-split',
+        title: '第一层枚举：从第一个数组取多少个，从第二个数组取多少个',
+        summary:
+          '若总共取 `k` 个数，那么可以枚举 `take1`，表示从 `nums1` 里取多少个；对应地从 `nums2` 里取 `k - take1` 个。只要这个拆分在两个数组长度范围内合法，就可以继续求这一拆分下的最优答案。',
+        bullets: [
+          '拆分方案数量是有限的。',
+          '每种拆分都对应一个独立候选答案。',
+          '最终答案是所有拆分中的最大者。',
+          '这一步奠定了整体框架。',
+        ],
+      },
+      {
+        id: 'create-maximum-number-max-subsequence',
+        title: '单数组中取固定长度的字典序最大子序列，可以用单调栈完成',
+        summary:
+          '若从一个数组中取 `t` 个数，本质是删掉 `length - t` 个数，让剩下的序列尽量大。经典做法是用单调栈，在还能删除的前提下，尽量弹掉前面较小的元素。',
+        bullets: [
+          '这一步是独立的局部最优子问题。',
+          '删除额度决定能否弹栈。',
+          '保留下来的序列就是该数组最优子序列。',
+          '这是整题第一个核心组件。',
+        ],
+      },
+      {
+        id: 'create-maximum-number-merge',
+        title: '合并两个最优子序列时，不能只比当前位，要比较后缀字典序',
+        summary:
+          '当两个序列当前位相等时，应该选择后缀字典序更大的那一边先出列。否则可能会在后面丢掉更优的整体排列。因此归并函数实质上是在做“按剩余后缀大小取更大序列”的过程。',
+        bullets: [
+          '当前位相等时不能随便选。',
+          '决定权来自剩余后缀整体大小。',
+          '这是整题第二个关键难点。',
+          '错误的归并会让整体答案偏小。',
+        ],
+        callout:
+          '很多字典序题都不是“逐位局部最大”这么简单。一旦当前位相同，真正比较的其实是未来整段后缀。只看眼前一位，贪心就会失效。',
+      },
+      {
+        id: 'create-maximum-number-solution',
+        title: '标准解法：枚举拆分 + 单调栈取最优子序列 + 后缀比较归并',
+        summary:
+          '枚举从 `nums1` 取 `take1` 个、从 `nums2` 取 `take2` 个。分别用单调栈求出两个数组的最优子序列，再用“比较剩余后缀字典序”的归并方式拼成长度为 `k` 的候选答案。最后在所有候选中取字典序最大的结果。',
+        bullets: [
+          '时间复杂度较高，但在题目规模下可接受。',
+          '关键在于三个子步骤都正确。',
+          '是这题最经典的写法。',
+          '适合作为综合贪心题训练。',
+        ],
+        code: `function maxNumber(nums1: number[], nums2: number[], k: number): number[] {
+  const pickMax = (nums: number[], count: number): number[] => {
+    const stack: number[] = []
+    let drop = nums.length - count
+
+    for (const num of nums) {
+      while (drop > 0 && stack.length > 0 && stack[stack.length - 1] < num) {
+        stack.pop()
+        drop -= 1
+      }
+
+      stack.push(num)
+    }
+
+    return stack.slice(0, count)
+  }
+
+  const greater = (
+    numsA: number[],
+    indexA: number,
+    numsB: number[],
+    indexB: number,
+  ): boolean => {
+    while (
+      indexA < numsA.length &&
+      indexB < numsB.length &&
+      numsA[indexA] === numsB[indexB]
+    ) {
+      indexA += 1
+      indexB += 1
+    }
+
+    return indexB === numsB.length || (indexA < numsA.length && numsA[indexA] > numsB[indexB])
+  }
+
+  const merge = (numsA: number[], numsB: number[]): number[] => {
+    const result: number[] = []
+    let indexA = 0
+    let indexB = 0
+
+    while (indexA < numsA.length || indexB < numsB.length) {
+      if (greater(numsA, indexA, numsB, indexB)) {
+        result.push(numsA[indexA])
+        indexA += 1
+      } else {
+        result.push(numsB[indexB])
+        indexB += 1
+      }
+    }
+
+    return result
+  }
+
+  let answer: number[] = []
+  const start = Math.max(0, k - nums2.length)
+  const end = Math.min(k, nums1.length)
+
+  for (let take1 = start; take1 <= end; take1 += 1) {
+    const take2 = k - take1
+    const candidate = merge(pickMax(nums1, take1), pickMax(nums2, take2))
+
+    if (greater(candidate, 0, answer, 0)) {
+      answer = candidate
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'create-maximum-number-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是合并时只看当前位，不比较后缀，导致当前看起来不差，但整体拼接结果并不是最大字典序。',
+        bullets: [
+          '易错点 1：归并时没比较后缀整体大小。',
+          '易错点 2：单数组取最大子序列的删除额度处理错误。',
+          '易错点 3：拆分范围枚举不完整。',
+          '延伸方向：单调栈、字典序比较、组合贪心题。',
+        ],
+      },
+    ],
+  },
 ];
