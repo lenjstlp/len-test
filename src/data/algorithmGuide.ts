@@ -35977,4 +35977,103 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'coin-change',
+    label: '322. LeetCode 322. 零钱兑换',
+    difficulty: '中等',
+    description:
+      '这题是完全背包型动态规划的代表题。重点不是会不会枚举硬币，而是理解“凑出某个金额所需最少硬币数”这种最优子结构该如何定义和转移。',
+    outcome:
+      '你能写出这题的一维 DP 解法，理解为什么它本质上属于完全背包，并正确处理无解情况。',
+    sections: [
+      {
+        id: 'coin-change-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干硬币面额 `coins` 和总金额 `amount`，求凑出该金额所需的最少硬币数。若无法凑出，返回 `-1`。',
+        bullets: [
+          '每种硬币可以使用无限次。',
+          '目标是硬币数量最少。',
+          '不是求方案数。',
+          '无解情况要显式返回 `-1`。',
+        ],
+      },
+      {
+        id: 'coin-change-state',
+        title: '最自然的状态是“凑出某金额的最少硬币数”',
+        summary:
+          '设 `dp[value]` 表示凑出金额 `value` 所需的最少硬币数。这样答案就是 `dp[amount]`，而转移则来自最后使用的那一枚硬币。',
+        bullets: [
+          '状态直接对应题目目标。',
+          '是典型的最优值 DP。',
+          '每个状态依赖更小金额。',
+          '适合用一维数组实现。',
+        ],
+      },
+      {
+        id: 'coin-change-transition',
+        title: '转移方式是枚举最后使用的硬币',
+        summary:
+          '若最后使用的硬币面额是 `coin`，那么之前必须先凑出 `value - coin`。因此有转移 `dp[value] = min(dp[value], dp[value - coin] + 1)`。',
+        bullets: [
+          '最后一步思维是这类题的标准入口。',
+          '硬币可重复使用，所以可从同一数组反复转移。',
+          '这正是完全背包的特征。',
+          '所有面额都要参与比较。',
+        ],
+      },
+      {
+        id: 'coin-change-init',
+        title: '初始化时要用一个“不可能的大值”表示暂不可达',
+        summary:
+          '除 `dp[0] = 0` 外，其余状态初始都设为一个很大的数，如 `amount + 1`。这样如果最终 `dp[amount]` 仍未被更新，就说明目标金额无法凑出。',
+        bullets: [
+          '`dp[0] = 0` 表示凑出 0 元不用硬币。',
+          '大值初始化便于后续取最小。',
+          '无解判断也会更自然。',
+          '这是实现里非常重要的细节。',
+        ],
+        callout:
+          '很多背包题真正重要的不是循环顺序本身，而是你有没有先把“状态含义”和“不可达状态如何表示”说清楚。初始化一乱，后面的转移就很难正确。',
+      },
+      {
+        id: 'coin-change-solution',
+        title: '标准解法：一维完全背包 DP',
+        summary:
+          '初始化 `dp[0] = 0`，其余为大值。随后从 `1` 到 `amount` 枚举金额，并对每个金额尝试所有面额，若当前硬币能使用，就用 `dp[value - coin] + 1` 更新最优值。最后根据结果是否仍为大值决定返回答案或 `-1`。',
+        bullets: [
+          '时间复杂度是 `O(amount * coins.length)`。',
+          '空间复杂度是 `O(amount)`。',
+          '是这题最主流的解法。',
+          '适合作为完全背包入门模板。',
+        ],
+        code: `function coinChange(coins: number[], amount: number): number {
+  const dp = Array(amount + 1).fill(amount + 1)
+  dp[0] = 0
+
+  for (let value = 1; value <= amount; value += 1) {
+    for (const coin of coins) {
+      if (coin <= value) {
+        dp[value] = Math.min(dp[value], dp[value - coin] + 1)
+      }
+    }
+  }
+
+  return dp[amount] === amount + 1 ? -1 : dp[amount]
+}`,
+      },
+      {
+        id: 'coin-change-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它和“零钱兑换 II（求方案数）”混淆，结果状态定义和转移目标都写错了。这里求的是最少个数，不是组合数量。',
+        bullets: [
+          '易错点 1：把最优值题做成计数题。',
+          '易错点 2：不可达状态初始化错误。',
+          '易错点 3：无解判断漏掉。',
+          '延伸方向：完全背包、最小拆分、零钱兑换系列题。',
+        ],
+      },
+    ],
+  },
 ];
