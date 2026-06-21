@@ -36076,4 +36076,118 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'number-of-connected-components-in-an-undirected-graph',
+    label: '323. LeetCode 323. 无向图中连通分量的数目',
+    difficulty: '中等',
+    description:
+      '这题的核心不是图遍历模板本身，而是理解“连通分量”就是从某个未访问节点出发能一次性覆盖到的一整片区域。重点在于每启动一次新的 DFS/BFS，答案就应加一。',
+    outcome:
+      '你能用 DFS、BFS 或并查集求出无向图连通分量数量，并说清楚为什么每次从未访问节点启动搜索都对应一个新分量。',
+    sections: [
+      {
+        id: 'number-of-connected-components-in-an-undirected-graph-summary',
+        title: '题目在问什么',
+        summary: '给定 `n` 个节点和若干无向边，求整张图里有多少个连通分量。',
+        bullets: [
+          '图不一定完全连通。',
+          '边是无向的。',
+          '每个分量内部任意点都可互达。',
+          '目标是统计分量个数。',
+        ],
+      },
+      {
+        id: 'number-of-connected-components-in-an-undirected-graph-build',
+        title: '先把边构造成邻接表，图结构才适合遍历',
+        summary:
+          '无向边 `[a, b]` 需要同时加入 `a -> b` 和 `b -> a`。构好邻接表后，就能方便地从一个点找到所有直接相邻节点。',
+        bullets: [
+          '无向图需要双向建边。',
+          '邻接表更适合稀疏图。',
+          '后续 DFS/BFS 都依赖它。',
+          '这是图题的标准准备步骤。',
+        ],
+      },
+      {
+        id: 'number-of-connected-components-in-an-undirected-graph-components',
+        title: '每次从未访问节点出发，都会覆盖掉一个完整连通分量',
+        summary:
+          '如果某个节点还没访问过，以它为起点做一次 DFS 或 BFS，就会把与它连通的所有节点全部标记掉。这整个搜索覆盖的区域，正好就是一个连通分量。',
+        bullets: [
+          '已访问节点不需要重复开新搜索。',
+          '一次搜索覆盖一个完整分量。',
+          '新搜索次数就是答案。',
+          '这是最核心的计数逻辑。',
+        ],
+      },
+      {
+        id: 'number-of-connected-components-in-an-undirected-graph-traversal',
+        title: 'DFS 和 BFS 都可以，关键是 visited 不能漏',
+        summary:
+          '无论用递归 DFS、显式栈 DFS 还是队列 BFS，本质都一样：把当前分量中的节点全部走完。只要 `visited` 标记维护正确，就不会重复计数。',
+        bullets: [
+          '遍历方式不是重点。',
+          '访问标记才决定正确性。',
+          '重复搜索会让答案偏大。',
+          '漏标记会导致死循环或重复入队。',
+        ],
+        callout:
+          '连通分量题最该形成的直觉是：图遍历不是为了“看一遍所有点”，而是为了按连通区域把整张图分批吃掉。每批吃掉一片，答案就加一。',
+      },
+      {
+        id: 'number-of-connected-components-in-an-undirected-graph-solution',
+        title: '标准解法：邻接表 + DFS 计数',
+        summary:
+          '构建邻接表后，遍历所有节点。遇到未访问节点就启动一次 DFS，把整片连通区域全部标记，并把答案加一。遍历结束后返回计数值。',
+        bullets: [
+          '时间复杂度是 `O(n + e)`。',
+          '空间复杂度是 `O(n + e)`。',
+          '是这题最常见的解法。',
+          '并查集也可以做，但 DFS/BFS 更直观。',
+        ],
+        code: `function countComponents(n: number, edges: number[][]): number {
+  const graph = Array.from({ length: n }, () => [] as number[])
+
+  for (const [from, to] of edges) {
+    graph[from].push(to)
+    graph[to].push(from)
+  }
+
+  const visited = Array(n).fill(false)
+  let components = 0
+
+  const dfs = (node: number): void => {
+    visited[node] = true
+
+    for (const neighbor of graph[node]) {
+      if (!visited[neighbor]) {
+        dfs(neighbor)
+      }
+    }
+  }
+
+  for (let node = 0; node < n; node += 1) {
+    if (!visited[node]) {
+      components += 1
+      dfs(node)
+    }
+  }
+
+  return components
+}`,
+      },
+      {
+        id: 'number-of-connected-components-in-an-undirected-graph-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是无向边只建了一个方向，结果图被错误拆碎，连通分量数自然会算大。',
+        bullets: [
+          '易错点 1：无向边忘记双向建图。',
+          '易错点 2：visited 标记时机错误。',
+          '易错点 3：遇到已访问点还重复计数。',
+          '延伸方向：岛屿问题、并查集、图连通性判断。',
+        ],
+      },
+    ],
+  },
 ];
