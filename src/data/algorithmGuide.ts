@@ -36291,4 +36291,110 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'maximum-size-subarray-sum-equals-k',
+    label: '325. LeetCode 325. 和等于 k 的最长子数组长度',
+    difficulty: '中等',
+    description:
+      '这题的关键不是把所有子数组都枚举出来，而是识别“子数组和”天然适合转成前缀和差值。重点在于只记录某个前缀和最早出现的位置，才能保证长度最大。',
+    outcome:
+      '你能用前缀和加哈希表在线性时间内找到最长目标子数组，并理解为什么哈希表必须保存最早下标。',
+    sections: [
+      {
+        id: 'maximum-size-subarray-sum-equals-k-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums` 和整数 `k`，找到一个和等于 `k` 的最长连续子数组，并返回其长度。',
+        bullets: [
+          '要求的是连续子数组。',
+          '目标是长度最大，而不是方案数量。',
+          '数组可能有负数，双指针不稳定。',
+          '本质是最长区间和问题。',
+        ],
+      },
+      {
+        id: 'maximum-size-subarray-sum-equals-k-prefix',
+        title: '子数组和等于 k，可以改写成两个前缀和之差等于 k',
+        summary:
+          '若 `prefix[i]` 表示前 `i` 个元素的和，那么子数组 `(j + 1 .. i)` 的和就是 `prefix[i] - prefix[j]`。题目要求它等于 `k`，也就是要找某个更早的 `prefix[j] = prefix[i] - k`。',
+        bullets: [
+          '前缀和把区间和变成差值。',
+          '目标转成查找历史前缀值。',
+          '这天然适合哈希表。',
+          '是这题最核心的等价变换。',
+        ],
+      },
+      {
+        id: 'maximum-size-subarray-sum-equals-k-earliest',
+        title: '为了让区间尽量长，同一个前缀和只需要保留最早出现的位置',
+        summary:
+          '如果某个前缀和在多个位置都出现过，那么用最早的那个位置去匹配当前下标，得到的子数组一定更长。因此哈希表中前缀和第一次出现时就要记录，后续不要覆盖。',
+        bullets: [
+          '最长目标决定了要保留最早位置。',
+          '后出现的位置只会让区间更短。',
+          '这是实现里最容易忽视的点。',
+          '覆盖旧位置会直接让答案变小。',
+        ],
+      },
+      {
+        id: 'maximum-size-subarray-sum-equals-k-init',
+        title: '初始化时把前缀和 0 放在下标 -1，可以统一处理前缀区间',
+        summary:
+          '如果从数组开头到当前下标的前缀和就已经等于 `k`，那么它对应的左边界应视为 `-1`。因此先把 `0 -> -1` 放进哈希表，就能让这类情况自动被统一公式覆盖。',
+        bullets: [
+          '避免单独处理从 0 开始的子数组。',
+          '哈希初始化会让逻辑更统一。',
+          '是前缀和题的经典技巧。',
+          '很多边界题都能这样处理。',
+        ],
+        callout:
+          '前缀和题最值得养成的习惯之一，是先想“需不需要把空前缀也放进状态里”。很多边界情况，只要补一个 `0 -> -1`，代码就会整洁很多。',
+      },
+      {
+        id: 'maximum-size-subarray-sum-equals-k-solution',
+        title: '标准解法：前缀和 + 最早位置哈希表',
+        summary:
+          '遍历数组时不断累加前缀和 `prefix`。每次检查哈希表中是否存在 `prefix - k`，若存在就能更新答案长度；随后若当前 `prefix` 从未出现过，则记录它的下标。最终返回最大长度。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '是这题最主流的写法。',
+          '关键在于“只记第一次出现”。',
+        ],
+        code: `function maxSubArrayLen(nums: number[], k: number): number {
+  const firstIndex = new Map<number, number>()
+  firstIndex.set(0, -1)
+
+  let prefix = 0
+  let answer = 0
+
+  for (let index = 0; index < nums.length; index += 1) {
+    prefix += nums[index]
+
+    if (firstIndex.has(prefix - k)) {
+      answer = Math.max(answer, index - firstIndex.get(prefix - k)!)
+    }
+
+    if (!firstIndex.has(prefix)) {
+      firstIndex.set(prefix, index)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'maximum-size-subarray-sum-equals-k-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把某个前缀和的下标不断覆盖成最新位置，结果本来能形成的最长区间被自己抹掉了。',
+        bullets: [
+          '易错点 1：前缀和位置被后续覆盖。',
+          '易错点 2：漏掉 `0 -> -1` 初始化。',
+          '易错点 3：把连续子数组和子序列混淆。',
+          '延伸方向：前缀和哈希、和为 k 的子数组、最长区间问题。',
+        ],
+      },
+    ],
+  },
 ];
