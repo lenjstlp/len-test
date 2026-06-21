@@ -36998,4 +36998,107 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'verify-preorder-serialization-of-a-binary-tree',
+    label: '331. LeetCode 331. 验证二叉树的前序序列化',
+    difficulty: '中等',
+    description:
+      '这题的关键不是去真的建树，而是理解序列化字符串里“节点会消耗一个槽位，并为子节点提供新槽位”的结构守恒关系。重点在于用槽位计数在线验证。',
+    outcome:
+      '你能不重建二叉树，直接在线验证前序序列化是否合法，并理解为什么槽位数一旦中途耗尽就说明结构已经不可能成立。',
+    sections: [
+      {
+        id: 'verify-preorder-serialization-of-a-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个逗号分隔的前序序列化字符串，其中非空节点是数字，空节点用 `#` 表示。判断该字符串是否能表示一棵合法的二叉树。',
+        bullets: [
+          '输入已经是前序顺序。',
+          '空节点显式写成 `#`。',
+          '不要求真的构造树。',
+          '目标只是验证结构是否合法。',
+        ],
+      },
+      {
+        id: 'verify-preorder-serialization-of-a-binary-tree-slots',
+        title: '最核心的观察是：每个节点都会占用一个可放置槽位',
+        summary:
+          '一棵树从根开始，最初只有 1 个槽位可供放节点。无论当前读到的是数字还是 `#`，它都必须先占用一个槽位；如果读到的是非空节点，则它又会为自己的左右孩子新增 2 个槽位。',
+        bullets: [
+          '槽位表示“这里还能接一个节点”。',
+          '每个 token 先消耗 1 个槽位。',
+          '非空节点再额外贡献 2 个新槽位。',
+          '这是整题最关键的不变量。',
+        ],
+      },
+      {
+        id: 'verify-preorder-serialization-of-a-binary-tree-invalid',
+        title: '如果还没读完序列，槽位却已经用光，就一定非法',
+        summary:
+          '当某一步处理 token 前发现槽位数为 0，说明当前树结构已经封闭完毕，不可能再接任何节点。若序列还有剩余内容，这些节点就无处安放，因此序列非法。',
+        bullets: [
+          '中途槽位耗尽是立即失败信号。',
+          '不需要等全部处理完再判断。',
+          '这是最强的早停剪枝。',
+          '也解释了很多看似接近合法的反例。',
+        ],
+      },
+      {
+        id: 'verify-preorder-serialization-of-a-binary-tree-end',
+        title: '全部处理完后，槽位必须恰好归零',
+        summary:
+          '如果最后槽位仍然大于 0，说明还有位置没填满，树结构不完整；如果中途出现负数则更早就已非法。只有正好用完全部槽位，才对应一棵完整合法的树。',
+        bullets: [
+          '归零表示结构刚好闭合。',
+          '大于 0 代表缺节点。',
+          '小于 0 代表节点过多。',
+          '终态判断和过程判断缺一不可。',
+        ],
+        callout:
+          '很多验证题其实不用还原原对象，只要你能抓住一种全局守恒量，就能在线完成校验。这里的守恒量就是“还有多少位置能放节点”。',
+      },
+      {
+        id: 'verify-preorder-serialization-of-a-binary-tree-solution',
+        title: '标准解法：槽位计数法',
+        summary:
+          '初始化槽位数为 1。按逗号切分字符串后逐个处理 token：先消耗一个槽位；若 token 不是 `#`，再补充两个新槽位。处理中若槽位为 0 却仍有 token，直接返回 `false`。最终槽位恰好为 0 时返回 `true`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度可视为 `O(1)` 除去切分开销。',
+          '不需要构建任何树节点。',
+          '是这题最经典的解法。',
+        ],
+        code: `function isValidSerialization(preorder: string): boolean {
+  const nodes = preorder.split(',')
+  let slots = 1
+
+  for (const node of nodes) {
+    if (slots === 0) {
+      return false
+    }
+
+    slots -= 1
+
+    if (node !== '#') {
+      slots += 2
+    }
+  }
+
+  return slots === 0
+}`,
+      },
+      {
+        id: 'verify-preorder-serialization-of-a-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只在最后检查槽位是否为 0，却没在遍历过程中检测槽位是否提前耗尽，导致一些明显非法的序列被误判为合法。',
+        bullets: [
+          '易错点 1：缺少中途 `slots === 0` 的提前失败判断。',
+          '易错点 2：把 `#` 也当成能新增子槽位的普通节点。',
+          '易错点 3：试图真的建树，结果把题做复杂。',
+          '延伸方向：栈消元法、树结构编码验证、序列合法性判断。',
+        ],
+      },
+    ],
+  },
 ];
