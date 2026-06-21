@@ -36651,4 +36651,109 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'odd-even-linked-list',
+    label: '328. LeetCode 328. 奇偶链表',
+    difficulty: '中等',
+    description:
+      '这题的重点不是节点值的奇偶，而是节点位置的奇偶。核心在于把原链表按位置拆成两条链，再把偶链接到奇链末尾。',
+    outcome:
+      '你能原地重排链表，把奇数位置节点集中到前面、偶数位置节点集中到后面，并保持各自相对顺序不变。',
+    sections: [
+      {
+        id: 'odd-even-linked-list-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个单链表，按节点在链表中的位置编号，从 1 开始。要求把所有奇数位置节点排到前面，偶数位置节点排到后面，并保持奇链和偶链内部的相对顺序。',
+        bullets: [
+          '看的是位置奇偶，不是值奇偶。',
+          '需要原地重排指针。',
+          '奇链内部顺序要保留。',
+          '偶链内部顺序也要保留。',
+        ],
+      },
+      {
+        id: 'odd-even-linked-list-split',
+        title: '最自然的思路是同步维护一条奇链和一条偶链',
+        summary:
+          '从头节点开始，奇数位节点天然构成一条链，偶数位节点也构成一条链。只要在遍历过程中交替更新奇指针和偶指针，就能把两条链分别串起来。',
+        bullets: [
+          '本质是一次链表拆分。',
+          '奇偶位置节点各自重连。',
+          '不需要创建新节点。',
+          '只调整 next 指针即可。',
+        ],
+      },
+      {
+        id: 'odd-even-linked-list-even-head',
+        title: '必须提前保存偶链头节点，最后才能接回去',
+        summary:
+          '在调整过程中，偶数位链表的头节点会一直往后延伸。如果不一开始保存它，最后奇链处理完后就无法再找到偶链的起点进行拼接。',
+        bullets: [
+          '偶链头是最终拼接点。',
+          '它在遍历过程中不能丢。',
+          '是实现里最关键的引用之一。',
+          '很多错误都来自这里没保住。',
+        ],
+      },
+      {
+        id: 'odd-even-linked-list-pointer-move',
+        title:
+          '循环中每次都把当前奇节点接到下一个奇节点，偶节点接到下一个偶节点',
+        summary:
+          '只要当前偶节点和它后面还存在节点，就可以让 `odd.next = even.next`，表示跳过当前偶位连到下一个奇位；再让 `even.next = odd.next.next`，表示偶链也跳过刚连接的奇位，连到下一个偶位。',
+        bullets: [
+          '更新顺序要稳定。',
+          '每次循环都会少看掉一对奇偶节点。',
+          '终止条件由偶链是否还能继续决定。',
+          '最后再统一把两条链接起来。',
+        ],
+        callout:
+          '链表题里很多“重排”问题，本质都不是移动节点，而是重新解释 next 指针。只要你先想清楚最后需要几条子链，再决定如何原地维护它们，题目就会简单很多。',
+      },
+      {
+        id: 'odd-even-linked-list-solution',
+        title: '标准解法：双指针维护奇链和偶链',
+        summary:
+          '初始化 `odd = head`、`even = head.next`，并保存 `evenHead = even`。循环中不断重连奇链与偶链，直到偶链无法继续。最后把奇链尾部接到 `evenHead`，返回头节点。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '是这题最标准的写法。',
+          '关键在于链表指针关系稳定。',
+        ],
+        code: `function oddEvenList(head: ListNode | null): ListNode | null {
+  if (head === null || head.next === null) {
+    return head
+  }
+
+  let odd = head
+  let even = head.next
+  const evenHead = even
+
+  while (even !== null && even.next !== null) {
+    odd.next = even.next
+    odd = odd.next
+    even.next = odd.next
+    even = even.next
+  }
+
+  odd.next = evenHead
+  return head
+}`,
+      },
+      {
+        id: 'odd-even-linked-list-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“节点值的奇偶”误当成题意，写成按值分类。题目真正考的是位置重排，不是值筛选。',
+        bullets: [
+          '易错点 1：把位置奇偶和数值奇偶搞混。',
+          '易错点 2：没保存 evenHead。',
+          '易错点 3：循环终止条件写错导致空指针。',
+          '延伸方向：链表重排、快慢双链维护、原地拆分题。',
+        ],
+      },
+    ],
+  },
 ];
