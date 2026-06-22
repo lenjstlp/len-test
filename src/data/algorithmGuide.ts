@@ -38104,4 +38104,120 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'flatten-nested-list-iterator',
+    label: '341. LeetCode 341. 扁平化嵌套列表迭代器',
+    difficulty: '中等',
+    description:
+      '这题是一个迭代器设计题。重点不在递归本身，而在于如何把“可能是整数，也可能是列表”的嵌套结构，转换成一个能连续 `next()` / `hasNext()` 的扁平遍历接口。',
+    outcome:
+      '你能实现一个支持惰性展开或预展开的嵌套列表迭代器，并说清楚为什么 `hasNext()` 需要负责把当前位置推进到下一个整数上。',
+    sections: [
+      {
+        id: 'flatten-nested-list-iterator-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个迭代器，输入是嵌套整数列表，输出时要按从左到右顺序依次返回所有整数，就像把多层嵌套完全摊平了一样。',
+        bullets: [
+          '输入元素可能是整数，也可能是列表。',
+          '输出必须是线性的整数流。',
+          '要实现 `next()` 和 `hasNext()`。',
+          '本质是惰性或预处理展开设计题。',
+        ],
+      },
+      {
+        id: 'flatten-nested-list-iterator-approaches',
+        title: '常见思路有两种：预展开，或者惰性栈展开',
+        summary:
+          '预展开做法是在构造时直接 DFS 得到完整整数数组，之后迭代器只是在数组上前进；惰性做法则用栈动态展开，直到栈顶变成整数才停止。两者都正确，只是时间与空间分布不同。',
+        bullets: [
+          '预展开实现更直观。',
+          '惰性展开更贴近真正迭代器语义。',
+          '题目通常两种都接受。',
+          '理解差异比死背一种实现更重要。',
+        ],
+      },
+      {
+        id: 'flatten-nested-list-iterator-stack',
+        title: '惰性展开的关键在于：栈里永远维护“下一批待处理元素”',
+        summary:
+          '可以把列表元素逆序压栈。每次 `hasNext()` 时检查栈顶：若是整数，就说明下一次 `next()` 可以直接返回；若是列表，就把该列表弹出并将其中元素逆序压回栈，继续展开。',
+        bullets: [
+          '逆序压栈是为了保持原始左到右顺序。',
+          '栈顶若是列表，就继续摊开。',
+          '只有栈顶变成整数时，迭代器才算准备好。',
+          '这就是惰性展开的核心机制。',
+        ],
+      },
+      {
+        id: 'flatten-nested-list-iterator-hasnext',
+        title: '`hasNext()` 不只是判断，还承担“推进到下一个整数”的职责',
+        summary:
+          '因为栈顶可能是列表而不是整数，所以 `hasNext()` 不能只检查栈是否非空。它需要在必要时持续展开嵌套，直到要么找到一个整数，要么栈被清空。',
+        bullets: [
+          '这是这题最容易忽略的设计点。',
+          '如果不推进，`next()` 就拿不到稳定结果。',
+          '`hasNext()` 和 `next()` 的职责需要配合。',
+          '很多迭代器题都会有类似结构。',
+        ],
+        callout:
+          '设计题里最重要的不是把接口名字写出来，而是想清楚每个接口真正负责维护什么不变量。这里的不变量就是：只要 `hasNext()` 返回 true，下一次 `next()` 就一定能安全拿到一个整数。',
+      },
+      {
+        id: 'flatten-nested-list-iterator-solution',
+        title: '标准解法：栈模拟惰性展开',
+        summary:
+          '构造时把初始列表逆序压栈。`hasNext()` 中不断检查栈顶：若是整数则返回 `true`；若是列表则弹出并把其元素逆序压栈继续展开。`next()` 调用前先保证 `hasNext()` 为真，再弹出栈顶整数返回。',
+        bullets: [
+          '均摊时间复杂度是线性的总展开成本。',
+          '空间复杂度取决于嵌套深度和待处理元素。',
+          '是这题最经典的惰性迭代器写法。',
+          '也能很好体现栈处理递归结构的能力。',
+        ],
+        code: `class NestedIterator {
+  private stack: NestedInteger[]
+
+  constructor(nestedList: NestedInteger[]) {
+    this.stack = [...nestedList].reverse()
+  }
+
+  hasNext(): boolean {
+    while (this.stack.length > 0) {
+      const top = this.stack[this.stack.length - 1]
+
+      if (top.isInteger()) {
+        return true
+      }
+
+      this.stack.pop()
+      const list = top.getList()!
+
+      for (let index = list.length - 1; index >= 0; index -= 1) {
+        this.stack.push(list[index])
+      }
+    }
+
+    return false
+  }
+
+  next(): number {
+    this.hasNext()
+    return this.stack.pop()!.getInteger()!
+  }
+}`,
+      },
+      {
+        id: 'flatten-nested-list-iterator-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把 `hasNext()` 写成简单的 `stack.length > 0`，结果栈顶若是列表就会让 `next()` 在错误时机取值。',
+        bullets: [
+          '易错点 1：`hasNext()` 没有真正推进到整数。',
+          '易错点 2：压栈顺序错误导致遍历顺序颠倒。',
+          '易错点 3：把惰性展开写成不完整的半预处理。',
+          '延伸方向：惰性求值、树迭代器、栈式展开题。',
+        ],
+      },
+    ],
+  },
 ];
