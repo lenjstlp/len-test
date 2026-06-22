@@ -37217,4 +37217,119 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'largest-bst-subtree',
+    label: '333. LeetCode 333. 最大 BST 子树',
+    difficulty: '中等',
+    description:
+      '这题看起来像“判断一棵树是不是 BST”的简单延伸，但真正难点在于每个节点都可能成为某棵 BST 子树的根。关键是自底向上返回足够的信息，让父节点能一眼判断当前整棵子树能否继续拼成 BST。',
+    outcome:
+      '你能写出这题的树形 DP 解法，理解为什么每个节点需要同时返回子树是否为 BST、最小值、最大值和最大 BST 大小。',
+    sections: [
+      {
+        id: 'largest-bst-subtree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，找出其中最大的二叉搜索树子树，并返回该子树的节点数。',
+        bullets: [
+          '子树必须是完整的某个节点及其全部后代。',
+          '只要满足 BST 条件即可。',
+          '答案是最大节点数。',
+          '不是要求整棵树本身一定是 BST。',
+        ],
+      },
+      {
+        id: 'largest-bst-subtree-why-bottom-up',
+        title: '父节点能否构成 BST，完全取决于左右子树返回的信息',
+        summary:
+          '若想判断以当前节点为根的整棵子树是不是 BST，需要知道左子树是否为 BST、右子树是否为 BST、左子树最大值是否小于当前值、右子树最小值是否大于当前值。这些信息都应由子节点先算好返回给父节点。',
+        bullets: [
+          '这是典型的后序遍历题。',
+          '父节点依赖左右子树汇总信息。',
+          '自顶向下很难直接判断全局合法性。',
+          '自底向上才最自然。',
+        ],
+      },
+      {
+        id: 'largest-bst-subtree-state',
+        title: '每个节点至少要返回四类信息',
+        summary:
+          '对于一棵子树，我们需要知道：它本身是否是 BST、它的最小值、它的最大值、以及这棵子树内最大 BST 的节点数。这样父节点既能判断“整棵能不能接”，又能在接不上时继承子树内部最优答案。',
+        bullets: [
+          '合法性决定能否向上拼接。',
+          '最小值和最大值用于边界比较。',
+          '大小用于更新全局最优答案。',
+          '这是树形 DP 的标准状态组合。',
+        ],
+      },
+      {
+        id: 'largest-bst-subtree-merge',
+        title: '只有左右子树都合法且边界满足时，当前节点才能形成新的 BST',
+        summary:
+          '若左子树是 BST、右子树是 BST，且 `left.max < node.val < right.min`，那么当前节点就能把左右子树拼成一棵更大的 BST，其大小为左右 BST 大小之和再加 1；否则当前节点这整棵子树不是 BST，只能把内部最大 BST 大小继续向上汇报。',
+        bullets: [
+          '边界严格不等号是 BST 定义核心。',
+          '能拼则生成更大的合法结构。',
+          '不能拼则保留子问题最优值。',
+          '这正是状态转移的关键。',
+        ],
+        callout:
+          '树形 DP 最重要的训练之一，就是学会为每个子树设计“父节点真正关心的信息”。信息多一点没关系，只要它能让父节点在 O(1) 内做出判断，就说明状态设计是对的。',
+      },
+      {
+        id: 'largest-bst-subtree-solution',
+        title: '标准解法：后序遍历返回 BST 状态摘要',
+        summary:
+          '后序递归处理左右子树。若当前能拼成 BST，就返回合法标记、更新后的最小值/最大值以及当前子树大小；否则返回非法标记，并保留其内部最大 BST 大小。整个过程中维护全局最大值即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是递归栈 `O(h)`。',
+          '是这题最经典的写法。',
+          '关键在于状态设计完整。',
+        ],
+        code: `function largestBSTSubtree(root: TreeNode | null): number {
+  let answer = 0
+
+  const dfs = (
+    node: TreeNode | null,
+  ): [isBST: boolean, min: number, max: number, size: number] => {
+    if (node === null) {
+      return [true, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, 0]
+    }
+
+    const [leftIsBST, leftMin, leftMax, leftSize] = dfs(node.left)
+    const [rightIsBST, rightMin, rightMax, rightSize] = dfs(node.right)
+
+    if (leftIsBST && rightIsBST && leftMax < node.val && node.val < rightMin) {
+      const size = leftSize + rightSize + 1
+      answer = Math.max(answer, size)
+      return [
+        true,
+        Math.min(leftMin, node.val),
+        Math.max(rightMax, node.val),
+        size,
+      ]
+    }
+
+    return [false, 0, 0, Math.max(leftSize, rightSize)]
+  }
+
+  dfs(root)
+  return answer
+}`,
+      },
+      {
+        id: 'largest-bst-subtree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只检查当前节点和左右孩子的大小关系，就误以为整棵子树是 BST。真正要比较的是整棵左子树最大值和整棵右子树最小值。',
+        bullets: [
+          '易错点 1：只看孩子值，不看整棵子树边界。',
+          '易错点 2：空树边界初始化不合理。',
+          '易错点 3：非法子树时最大 BST 大小传递错误。',
+          '延伸方向：验证 BST、最大 BST 路径、树形 DP 汇总题。',
+        ],
+      },
+    ],
+  },
 ];
