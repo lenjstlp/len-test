@@ -37548,4 +37548,142 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'palindrome-pairs',
+    label: '336. LeetCode 336. 回文对',
+    difficulty: '困难',
+    description:
+      '这题的难点不在回文判断本身，而在于如何高效找到两个单词拼接后成为回文的配对。关键是把每个单词切成左右两部分，利用反转串查找和“剩余部分本身为回文”这两个条件做匹配。',
+    outcome:
+      '你能写出这题的哈希 + 切分解法，理解为什么枚举分割点后，只需检查一边是否回文，另一边的反转是否存在即可。',
+    sections: [
+      {
+        id: 'palindrome-pairs-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串数组 `words`，找出所有不同下标对 `(i, j)`，使得 `words[i] + words[j]` 是回文串。',
+        bullets: [
+          '拼接顺序很重要。',
+          '下标必须不同。',
+          '结果可能有多对。',
+          '本质是拼接后回文条件匹配题。',
+        ],
+      },
+      {
+        id: 'palindrome-pairs-split',
+        title: '核心思路是枚举每个单词的切分点',
+        summary:
+          '把一个单词拆成 `left | right` 两段。如果 `left` 本身是回文，那么只要存在某个单词等于 `right` 的反转，就能放在前面形成回文；反过来，如果 `right` 是回文，那么只要存在某个单词等于 `left` 的反转，就能放在后面形成回文。',
+        bullets: [
+          '每个切分点都会产生两种可能的匹配方向。',
+          '一边负责承担中间可自由对称的部分。',
+          '另一边必须由外部单词补成镜像。',
+          '这是整题最关键的结构观察。',
+        ],
+      },
+      {
+        id: 'palindrome-pairs-why',
+        title: '为什么只要检查“剩余部分是否回文”就够了',
+        summary:
+          '若 `left` 是回文，那么想让 `X + left + right` 成为回文，`X` 必须正好补足 `right` 的镜像，即 `reverse(right)`；同理，若 `right` 是回文，则需要后缀单词等于 `reverse(left)`。因此所有合法答案都能在某个切分点被覆盖到。',
+        bullets: [
+          '回文的核心是左右镜像配对。',
+          '中间那段若已回文，就不再额外约束。',
+          '外侧只需补全另一段的反转。',
+          '这让搜索空间从所有单词对降为单词内部切分。',
+        ],
+      },
+      {
+        id: 'palindrome-pairs-hash',
+        title: '哈希表负责把“反转串是否存在”查询降到常数级',
+        summary:
+          '把每个单词映射到它的下标。这样枚举某个单词切分后，只要把对应需要的反转串拿出来查表，就能在 `O(1)` 左右确认是否存在匹配单词。',
+        bullets: [
+          '否则会退回到两两暴力比较。',
+          '哈希表让候选查找非常快。',
+          '切分点枚举与哈希查询相结合，就是主解结构。',
+          '还要注意避免把同一下标配给自己。',
+        ],
+        callout:
+          '很多字符串拼接题真正难的，不是写出一个匹配条件，而是如何把“所有可能配对”缩小成“只检查少量结构化候选”。这里的结构化候选就是每个切分点产生的镜像需求。',
+      },
+      {
+        id: 'palindrome-pairs-solution',
+        title: '标准解法：哈希表 + 枚举切分点 + 回文检查',
+        summary:
+          '先把所有单词存入哈希表。然后对每个单词枚举切分位置，得到 `left` 和 `right`。若 `left` 是回文，检查 `reverse(right)` 是否存在并可放在前面；若 `right` 是回文，检查 `reverse(left)` 是否存在并可放在后面。把所有合法下标对加入答案。',
+        bullets: [
+          '时间复杂度取决于总切分点和回文检查成本。',
+          '空间复杂度是哈希表存储开销。',
+          '是这题最经典的主流做法。',
+          '关键在于两种切分方向都不能漏。',
+        ],
+        code: `function palindromePairs(words: string[]): number[][] {
+  const indexMap = new Map<string, number>()
+  const result: number[][] = []
+
+  const isPalindrome = (text: string): boolean => {
+    let left = 0
+    let right = text.length - 1
+
+    while (left < right) {
+      if (text[left] !== text[right]) {
+        return false
+      }
+
+      left += 1
+      right -= 1
+    }
+
+    return true
+  }
+
+  for (let index = 0; index < words.length; index += 1) {
+    indexMap.set(words[index], index)
+  }
+
+  for (let index = 0; index < words.length; index += 1) {
+    const word = words[index]
+
+    for (let split = 0; split <= word.length; split += 1) {
+      const left = word.slice(0, split)
+      const right = word.slice(split)
+
+      if (isPalindrome(left)) {
+        const reversedRight = [...right].reverse().join('')
+        const match = indexMap.get(reversedRight)
+
+        if (match !== undefined && match !== index) {
+          result.push([match, index])
+        }
+      }
+
+      if (split < word.length && isPalindrome(right)) {
+        const reversedLeft = [...left].reverse().join('')
+        const match = indexMap.get(reversedLeft)
+
+        if (match !== undefined && match !== index) {
+          result.push([index, match])
+        }
+      }
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'palindrome-pairs-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只检查一种切分方向，结果漏掉另一半合法答案；或者没处理空串、完整切分等边界，导致部分特殊用例缺失。',
+        bullets: [
+          '易错点 1：只检查左回文或右回文中的一种情况。',
+          '易错点 2：`split = 0` 或 `split = word.length` 的边界漏掉。',
+          '易错点 3：没避免同一下标和自己配对。',
+          '延伸方向：字符串哈希、回文前后缀、字典树匹配题。',
+        ],
+      },
+    ],
+  },
 ];
