@@ -37433,4 +37433,119 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'self-crossing',
+    label: '335. LeetCode 335. 路径交叉',
+    difficulty: '困难',
+    description:
+      '这题的难点不在几何计算本身，而在于路径始终按“北西南东”循环转向，因此交叉模式只有少数几种局部形态。关键是把可能的自交情况归纳成固定的相邻边长度比较。',
+    outcome:
+      '你能用常数空间判断路径是否自交，并理解为什么只需检查有限个局部交叉模式而不必真的画出整条折线。',
+    sections: [
+      {
+        id: 'self-crossing-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个数组 `distance`，表示一条路径依次向北、西、南、东循环行走的步长。判断路径是否会与自己相交。',
+        bullets: [
+          '方向按固定顺序循环。',
+          '每步都是轴对齐直线段。',
+          '只需判断是否出现任意自交。',
+          '这是几何与模式归纳结合题。',
+        ],
+      },
+      {
+        id: 'self-crossing-patterns',
+        title: '由于转向固定，交叉只会发生在少数局部模式里',
+        summary:
+          '路径每次都左转 90 度，因此新线段只可能和前面若干条相邻“壳层”边发生交叉，不必和所有历史边逐一做通用线段相交判断。真正会出现的核心模式只有几类固定关系。',
+        bullets: [
+          '方向规律极大限制了交叉形态。',
+          '不需要全局几何扫描。',
+          '只需关注最近几条边长度关系。',
+          '这让问题降成有限模式匹配。',
+        ],
+      },
+      {
+        id: 'self-crossing-case1',
+        title: '最基础的交叉：当前边与前三条边相交',
+        summary:
+          '从第 4 条边开始，若当前边长度大于等于前两步的边，而前一步的边长度小于等于前三步的边，就会形成最典型的“向内一折”交叉。',
+        bullets: [
+          '这是最常见也最早出现的交叉情形。',
+          '只需比较四条边长度。',
+          '对应路径开始向内收缩时的交叉。',
+          '是实现中第一条判断规则。',
+        ],
+      },
+      {
+        id: 'self-crossing-case2and3',
+        title: '另外两类要处理“重叠边”和“更复杂的内卷交叉”',
+        summary:
+          '除了基础交叉，还要处理当前边与四步前边恰好重叠的情况，以及当前边与五步前边交叉的更复杂形态。这两类仍然可以只通过固定位置的长度比较来判断。',
+        bullets: [
+          '第二类是边界重叠型交叉。',
+          '第三类是六条边构成的更深层内卷交叉。',
+          '都能写成固定条件。',
+          '完整覆盖后即可常数空间判断。',
+        ],
+        callout:
+          '很多几何题并不一定要上通用模板。只要输入本身有强结构限制，最优解往往来自对有限局部模式的彻底归纳，而不是对所有情况一视同仁地处理。',
+      },
+      {
+        id: 'self-crossing-solution',
+        title: '标准解法：检查三类固定交叉模式',
+        summary:
+          '从第 4 段开始遍历。依次判断：当前段是否与前三段相交；是否与四步前边重叠；是否与五步前边构成更复杂交叉。若任一条件满足，就返回 `true`，否则遍历结束返回 `false`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '是这题最经典的模式归纳解法。',
+          '关键在于三类条件都不能漏。',
+        ],
+        code: `function isSelfCrossing(distance: number[]): boolean {
+  for (let index = 3; index < distance.length; index += 1) {
+    if (
+      distance[index] >= distance[index - 2] &&
+      distance[index - 1] <= distance[index - 3]
+    ) {
+      return true
+    }
+
+    if (
+      index >= 4 &&
+      distance[index - 1] === distance[index - 3] &&
+      distance[index] + distance[index - 4] >= distance[index - 2]
+    ) {
+      return true
+    }
+
+    if (
+      index >= 5 &&
+      distance[index - 2] >= distance[index - 4] &&
+      distance[index] + distance[index - 4] >= distance[index - 2] &&
+      distance[index - 1] <= distance[index - 3] &&
+      distance[index - 1] + distance[index - 5] >= distance[index - 3]
+    ) {
+      return true
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'self-crossing-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只记住最基础的四边交叉情况，却漏掉重叠边和六边内卷交叉，结果在一些特殊样例上误判为不相交。',
+        bullets: [
+          '易错点 1：三类模式覆盖不完整。',
+          '易错点 2：比较符号 `<` / `<=` 写错导致边界样例漏掉。',
+          '易错点 3：试图上通用线段相交模板把题做重。',
+          '延伸方向：局部模式归纳、轴对齐几何、路径分析题。',
+        ],
+      },
+    ],
+  },
 ];
