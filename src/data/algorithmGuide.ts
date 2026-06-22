@@ -37332,4 +37332,105 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'increasing-triplet-subsequence',
+    label: '334. LeetCode 334. 递增的三元子序列',
+    difficulty: '中等',
+    description:
+      '这题看起来像 LIS 的简化版，但真正高效的做法并不是完整 DP，而是只维护两个门槛值。重点在于一旦出现一个数能同时大于前两个门槛，就说明三元递增序列已经存在。',
+    outcome:
+      '你能用 `O(n)` 时间、`O(1)` 空间判断是否存在递增三元子序列，并解释两个门槛值的含义。',
+    sections: [
+      {
+        id: 'increasing-triplet-subsequence-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组，判断是否存在下标 `i < j < k`，使得 `nums[i] < nums[j] < nums[k]`。',
+        bullets: [
+          '只要判断存在性，不用返回具体三元组。',
+          '顺序必须按原数组下标递增。',
+          '要求严格递增。',
+          '目标是尽量高效地在线判断。',
+        ],
+      },
+      {
+        id: 'increasing-triplet-subsequence-lis-view',
+        title: '从本质上看，它是在问 LIS 是否至少达到 3',
+        summary:
+          '如果数组存在长度至少为 3 的严格递增子序列，那么题目答案就是 `true`。因此可以把它看作 LIS 问题的特化版本，只是这里不需要完整长度，只需确认是否达到 3。',
+        bullets: [
+          '这与 LIS 问题有直接联系。',
+          '但题目规模允许更轻量的状态。',
+          '不需要维护完整序列结构。',
+          '只要足够判断“是否能到 3”。',
+        ],
+      },
+      {
+        id: 'increasing-triplet-subsequence-two-thresholds',
+        title: '只维护当前最小的一号门槛和二号门槛就够了',
+        summary:
+          '设 `first` 表示目前见过的最小值，`second` 表示在它之后能够形成递增二元组的最小第二值。遍历时若当前数能小于等于 `first`，就更新 `first`；否则若能小于等于 `second`，就更新 `second`；若它比 `second` 还大，就已经找到三元组。',
+        bullets: [
+          '`first` 是最小起点。',
+          '`second` 是在某个更小前驱后最小的第二个值。',
+          '一旦出现比 `second` 更大的值，三元组成立。',
+          '这是这题最核心的不变量设计。',
+        ],
+      },
+      {
+        id: 'increasing-triplet-subsequence-why',
+        title: '不断把门槛压低，是为了给未来留出最大增长空间',
+        summary:
+          '如果当前出现更小的 `first`，它会让后面更容易找到更大的第二、第三个数；同理，如果能找到更小的 `second`，也会让第三个数更容易出现。因此虽然我们并不显式记录完整三元组，但始终在为未来保留最优增长余地。',
+        bullets: [
+          '门槛越低，未来越容易超越。',
+          '这和 LIS 中维护最小结尾的思想一致。',
+          '状态虽小，但代表的是最优潜力。',
+          '这也是正确性的直觉来源。',
+        ],
+        callout:
+          '很多存在性问题并不需要把完整结构都存下来，只要你能维护“达到下一层所需的最小门槛”，就足以判断目标是否会在未来某刻被突破。',
+      },
+      {
+        id: 'increasing-triplet-subsequence-solution',
+        title: '标准解法：维护两个最小门槛值',
+        summary:
+          '初始化 `first = Infinity`、`second = Infinity`。遍历数组时，若当前值小于等于 `first`，更新 `first`；否则若当前值小于等于 `second`，更新 `second`；否则说明它大于 `second`，已找到递增三元组，返回 `true`。遍历结束仍未命中则返回 `false`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '是这题最经典的解法。',
+          '本质上是 LIS 思想的常数状态特化。',
+        ],
+        code: `function increasingTriplet(nums: number[]): boolean {
+  let first = Number.POSITIVE_INFINITY
+  let second = Number.POSITIVE_INFINITY
+
+  for (const num of nums) {
+    if (num <= first) {
+      first = num
+    } else if (num <= second) {
+      second = num
+    } else {
+      return true
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'increasing-triplet-subsequence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把更新条件都写成严格小于，结果在有重复值时状态维护会偏移，导致本应保守更新的门槛没有被正确压低。',
+        bullets: [
+          '易错点 1：`<=` 和 `<` 条件写错。',
+          '易错点 2：误以为 first、second 必须来自固定同一组元素。',
+          '易错点 3：把题目复杂化成完整 DP。',
+          '延伸方向：LIS、递增 k 元组、最小结尾贪心。',
+        ],
+      },
+    ],
+  },
 ];
