@@ -37884,4 +37884,106 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'nested-list-weight-sum',
+    label: '339. LeetCode 339. 嵌套列表权重和',
+    difficulty: '简单',
+    description:
+      '这题的关键不在加法，而在于递归层级就是天然的权重。重点是遍历嵌套结构时，把当前深度一路传下去，让整数在被取到时按所在层级计入贡献。',
+    outcome:
+      '你能递归或迭代地遍历嵌套列表，正确累计每个整数乘以其深度后的总和。',
+    sections: [
+      {
+        id: 'nested-list-weight-sum-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个嵌套整数列表，其中元素要么是整数，要么是列表。每个整数的权重等于它所在的深度，求所有整数的加权和。',
+        bullets: [
+          '最外层深度为 1。',
+          '越往里嵌套深度越大。',
+          '每个整数都要乘对应深度。',
+          '本质是树状结构遍历题。',
+        ],
+      },
+      {
+        id: 'nested-list-weight-sum-structure',
+        title: '嵌套列表本质上就是一棵多叉树结构',
+        summary:
+          '每个列表可以看成一个内部节点，每个整数可以看成叶子节点。题目要做的就是在遍历这棵树时，把每个叶子的值乘上所在层级再求和。',
+        bullets: [
+          '列表和整数两种节点类型。',
+          '层级天然对应深度信息。',
+          '问题和普通树遍历高度相似。',
+          '这提示递归会非常自然。',
+        ],
+      },
+      {
+        id: 'nested-list-weight-sum-recursion',
+        title: '递归时只需要多带一个当前深度参数',
+        summary:
+          '遍历某一层列表时，若元素是整数，就把 `value * depth` 加入答案；若元素是子列表，就递归处理它，并把深度加一传给下一层。',
+        bullets: [
+          '整数直接结算贡献。',
+          '子列表递归向下展开。',
+          '深度参数始终随层级推进。',
+          '实现逻辑非常清晰。',
+        ],
+      },
+      {
+        id: 'nested-list-weight-sum-iterative',
+        title: '如果不想递归，也可以用队列按层处理',
+        summary:
+          '把当前层的嵌套元素放进队列或列表中，每处理完一层，深度加一。这种层序做法同样能正确计算权重和，只是代码结构会更偏 BFS。',
+        bullets: [
+          '递归和迭代都成立。',
+          '题目本身并不强制某种遍历方式。',
+          '层序迭代更显式地管理深度。',
+          '但递归通常更短更直观。',
+        ],
+        callout:
+          '很多“带深度权重”的结构题，本质都只是普通遍历外加一个深度参数。只要别被题目包装的接口形式吓到，核心逻辑往往非常基础。',
+      },
+      {
+        id: 'nested-list-weight-sum-solution',
+        title: '标准解法：递归 DFS 携带深度',
+        summary:
+          '定义递归函数处理某一层嵌套列表和当前深度。若遇到整数，直接累加 `integer * depth`；若遇到子列表，则递归处理并把深度加一。最终返回总和。',
+        bullets: [
+          '时间复杂度是 `O(n)`，`n` 为元素总数。',
+          '空间复杂度是递归栈深度。',
+          '是这题最常见的写法。',
+          '核心就是深度随递归层层传递。',
+        ],
+        code: `function depthSum(nestedList: NestedInteger[]): number {
+  const dfs = (list: NestedInteger[], depth: number): number => {
+    let sum = 0
+
+    for (const item of list) {
+      if (item.isInteger()) {
+        sum += item.getInteger()! * depth
+      } else {
+        sum += dfs(item.getList()!, depth + 1)
+      }
+    }
+
+    return sum
+  }
+
+  return dfs(nestedList, 1)
+}`,
+      },
+      {
+        id: 'nested-list-weight-sum-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是递归下去时忘了把深度加一，或者把最外层深度从 0 开始算，导致整体权重都偏小。',
+        bullets: [
+          '易错点 1：深度起点错设成 0。',
+          '易错点 2：递归子列表时没加深度。',
+          '易错点 3：整数和列表类型判断混乱。',
+          '延伸方向：反向权重和、嵌套结构遍历、树层级累计题。',
+        ],
+      },
+    ],
+  },
 ];
