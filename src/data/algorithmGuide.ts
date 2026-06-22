@@ -37986,4 +37986,122 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'longest-substring-with-at-most-k-distinct-characters',
+    label: '340. LeetCode 340. 至多包含 K 个不同字符的最长子串',
+    difficulty: '中等',
+    description:
+      '这题是滑动窗口的标准代表。重点不在枚举子串，而在于维护一个始终合法的窗口，使其最多只含 `k` 种字符，并在扩张和收缩中记录最大长度。',
+    outcome:
+      '你能写出这题的滑动窗口解法，理解什么时候扩右、什么时候缩左，以及哈希表在窗口中承担的角色。',
+    sections: [
+      {
+        id: 'longest-substring-with-at-most-k-distinct-characters-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s` 和整数 `k`，找出最多包含 `k` 个不同字符的最长子串长度。',
+        bullets: [
+          '子串必须连续。',
+          '不同字符种类数不能超过 `k`。',
+          '目标是最长长度。',
+          '本质是窗口约束最大化问题。',
+        ],
+      },
+      {
+        id: 'longest-substring-with-at-most-k-distinct-characters-window',
+        title: '“至多 k 个不同字符”天然适合滑动窗口',
+        summary:
+          '因为窗口右端扩大时，只会让字符种类数不变或增加；若超出 `k`，只需收缩左端直到重新合法。这个“窗口合法性可通过单调收缩恢复”的特征，正是滑动窗口最适用的信号。',
+        bullets: [
+          '窗口扩张时尝试纳入更多字符。',
+          '不合法时通过左移恢复。',
+          '每个字符进出窗口次数有限。',
+          '因此整体能做到线性复杂度。',
+        ],
+      },
+      {
+        id: 'longest-substring-with-at-most-k-distinct-characters-counts',
+        title: '哈希表用来维护窗口内每种字符的出现次数',
+        summary:
+          '右指针加入新字符时，在哈希表中增加其频次；左指针收缩窗口时，减少对应频次，若降为 0 就从表中删除。这样哈希表大小始终代表当前窗口内不同字符的种类数。',
+        bullets: [
+          '频次表负责支持合法性判断。',
+          '表大小就是 distinct count。',
+          '删除为 0 的键非常关键。',
+          '否则种类数会被错误高估。',
+        ],
+      },
+      {
+        id: 'longest-substring-with-at-most-k-distinct-characters-max',
+        title: '只要当前窗口合法，就可以尝试更新最大长度',
+        summary:
+          '当哈希表中的字符种类数不超过 `k` 时，当前窗口就是一个合法候选。此时窗口越大越好，因此在每次恢复合法后，都可以用 `right - left + 1` 更新答案。',
+        bullets: [
+          '合法窗口才有资格参与答案比较。',
+          '窗口长度由双指针直接给出。',
+          '无需枚举所有子串。',
+          '这是滑动窗口题的标准收尾动作。',
+        ],
+        callout:
+          '很多窗口题最重要的不是“记住模板”，而是先判断约束是否具备“超了就缩，缩了能恢复”的单调性。只要有这个特征，窗口基本就是首选。',
+      },
+      {
+        id: 'longest-substring-with-at-most-k-distinct-characters-solution',
+        title: '标准解法：双指针滑动窗口 + 频次哈希表',
+        summary:
+          '初始化左右指针和频次表。右指针不断扩张纳入字符；若种类数超过 `k`，就移动左指针并同步减少频次，直到窗口重新满足条件。过程中持续更新最大合法窗口长度。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(k)` 到字符集大小。',
+          '是这题最经典的写法。',
+          '关键是频次表与窗口同步更新。',
+        ],
+        code: `function lengthOfLongestSubstringKDistinct(
+  s: string,
+  k: number,
+): number {
+  if (k === 0) {
+    return 0
+  }
+
+  const counts = new Map<string, number>()
+  let left = 0
+  let answer = 0
+
+  for (let right = 0; right < s.length; right += 1) {
+    counts.set(s[right], (counts.get(s[right]) ?? 0) + 1)
+
+    while (counts.size > k) {
+      const leftChar = s[left]
+      const nextCount = counts.get(leftChar)! - 1
+
+      if (nextCount === 0) {
+        counts.delete(leftChar)
+      } else {
+        counts.set(leftChar, nextCount)
+      }
+
+      left += 1
+    }
+
+    answer = Math.max(answer, right - left + 1)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'longest-substring-with-at-most-k-distinct-characters-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是左指针收缩时忘了把频次减到 0 的字符从哈希表里删掉，导致 `counts.size` 永远偏大，窗口无法正确恢复合法性。',
+        bullets: [
+          '易错点 1：频次归零后没删键。',
+          '易错点 2：`k = 0` 的边界漏掉。',
+          '易错点 3：把子串误做成子序列问题。',
+          '延伸方向：至多 K 类窗口、最少覆盖子串、最长无重复子串。',
+        ],
+      },
+    ],
+  },
 ];
