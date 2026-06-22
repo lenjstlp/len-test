@@ -37686,4 +37686,108 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'house-robber-iii',
+    label: '337. LeetCode 337. 打家劫舍 III',
+    difficulty: '中等',
+    description:
+      '这题把经典打家劫舍搬到了树结构上。重点不再是线性相邻关系，而是父子节点不能同时选，因此每个节点都要考虑“选它”与“不选它”两种状态。',
+    outcome:
+      '你能写出这题的树形 DP 解法，理解为什么每个节点只需向父节点返回“偷当前节点”和“不偷当前节点”两种收益。',
+    sections: [
+      {
+        id: 'house-robber-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，每个节点代表一间房子的金额。相邻的父子节点不能在同一晚同时被偷，求最多能偷到多少钱。',
+        bullets: [
+          '限制关系从线性相邻变成父子相邻。',
+          '每个节点只与左右孩子直接冲突。',
+          '目标是全局最大收益。',
+          '本质是树上的状态选择问题。',
+        ],
+      },
+      {
+        id: 'house-robber-iii-state',
+        title: '每个节点最自然的状态就是“偷它”或“不偷它”',
+        summary:
+          '若当前节点被偷，那么它的左右孩子都不能偷；若当前节点不偷，那么左右孩子可各自自由选择最优状态。因此每个节点只需返回两个值：选当前节点的最大收益，以及不选当前节点的最大收益。',
+        bullets: [
+          '这是最贴题的状态拆分。',
+          '父节点决策只依赖孩子这两个值。',
+          '不需要更复杂的维度。',
+          '树形 DP 会因此非常简洁。',
+        ],
+      },
+      {
+        id: 'house-robber-iii-transition',
+        title: '转移关系直接来自父子不能同偷这一约束',
+        summary:
+          '若偷当前节点，收益是 `node.val + left.skip + right.skip`；若不偷当前节点，收益是 `max(left.rob, left.skip) + max(right.rob, right.skip)`。因为孩子此时可以各自独立决定偷或不偷。',
+        bullets: [
+          '偷当前节点时，孩子只能走“不偷”状态。',
+          '不偷当前节点时，孩子可自由取最优。',
+          '左右子树完全独立。',
+          '这是状态转移的全部内容。',
+        ],
+      },
+      {
+        id: 'house-robber-iii-postorder',
+        title: '后序遍历是最自然的求解顺序',
+        summary:
+          '父节点的两个状态都依赖左右子树先算好，因此必须先递归处理子节点，再回到当前节点汇总结果。这与后序遍历的执行顺序完全一致。',
+        bullets: [
+          '先子后父符合依赖关系。',
+          '每个节点只计算一次。',
+          '递归返回值正好承载状态摘要。',
+          '是这题最自然的遍历方式。',
+        ],
+        callout:
+          '树形 DP 很多时候并不难，关键是先问清楚“父节点真正关心孩子的哪几个信息”。只要这个接口设计对了，整棵树的转移关系往往会非常短。',
+      },
+      {
+        id: 'house-robber-iii-solution',
+        title: '标准解法：后序遍历返回偷/不偷两种收益',
+        summary:
+          '递归函数返回一个二元组 `[robCurrent, skipCurrent]`。先得到左右孩子的二元组，再按公式算出当前节点的两种状态值。最终答案是根节点这两种状态的较大者。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是递归栈 `O(h)`。',
+          '是这题最经典的写法。',
+          '不需要额外哈希缓存。',
+        ],
+        code: `function rob(root: TreeNode | null): number {
+  const dfs = (node: TreeNode | null): [number, number] => {
+    if (node === null) {
+      return [0, 0]
+    }
+
+    const [leftRob, leftSkip] = dfs(node.left)
+    const [rightRob, rightSkip] = dfs(node.right)
+
+    const robCurrent = node.val + leftSkip + rightSkip
+    const skipCurrent =
+      Math.max(leftRob, leftSkip) + Math.max(rightRob, rightSkip)
+
+    return [robCurrent, skipCurrent]
+  }
+
+  const [robRoot, skipRoot] = dfs(root)
+  return Math.max(robRoot, skipRoot)
+}`,
+      },
+      {
+        id: 'house-robber-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是仍然沿用线性 DP 视角，试图按层或按中序顺序处理。其实父子冲突是树结构关系，不是线性位置关系。',
+        bullets: [
+          '易错点 1：没拆出偷/不偷两个状态。',
+          '易错点 2：把树题错误线性化。',
+          '易错点 3：不偷当前节点时漏掉孩子可自由取最优这一点。',
+          '延伸方向：树形 DP、选点问题、独立集类题目。',
+        ],
+      },
+    ],
+  },
 ];
