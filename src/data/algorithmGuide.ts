@@ -37101,4 +37101,120 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'reconstruct-itinerary',
+    label: '332. LeetCode 332. 重新安排行程',
+    difficulty: '困难',
+    description:
+      '这题的难点不是图遍历本身，而是要同时满足“每张机票恰好用一次”和“结果字典序最小”。关键在于把它识别成欧拉路径问题，并用按字典序取边的 Hierholzer 算法来构造答案。',
+    outcome:
+      '你能把这题建模成有向图欧拉路径构造，理解为什么在 DFS 回溯时逆序加入答案，最终就能得到合法且字典序最小的行程。',
+    sections: [
+      {
+        id: 'reconstruct-itinerary-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一组机票 `tickets`，每张机票是 `[from, to]`，要求从 `JFK` 出发，使用所有机票恰好一次，返回字典序最小的完整行程。',
+        bullets: [
+          '每张机票必须用且只能用一次。',
+          '起点固定是 `JFK`。',
+          '答案一定存在。',
+          '若有多个合法方案，要取字典序最小。',
+        ],
+      },
+      {
+        id: 'reconstruct-itinerary-euler',
+        title: '“每条边恰好用一次”就是欧拉路径的典型特征',
+        summary:
+          '如果把机场看成图节点、机票看成有向边，那么题目要求的正是从 `JFK` 出发走一条覆盖所有边且每边只走一次的路径。这与欧拉路径问题完全一致。',
+        bullets: [
+          '节点是机场。',
+          '边是机票。',
+          '每边只使用一次就是欧拉路径定义。',
+          '识别题型后思路会立刻清晰很多。',
+        ],
+      },
+      {
+        id: 'reconstruct-itinerary-lexicographical',
+        title: '字典序最小要求体现在“出边选择顺序”上',
+        summary:
+          '若同一机场有多条可选出边，就应优先走字典序更小的目的地。为此可以把每个起点的邻接列表按字典序排序，再在遍历时总是优先取最小出边。',
+        bullets: [
+          '排序是字典序控制的基础。',
+          '每次取当前最小目的地。',
+          '这让候选路径尽量靠前变小。',
+          '但仅有贪心还不够，还需要正确的回路拼接方式。',
+        ],
+      },
+      {
+        id: 'reconstruct-itinerary-hierholzer',
+        title: 'Hierholzer 算法的关键是“走到不能走时再回收答案”',
+        summary:
+          '在欧拉路径构造中，不能简单地边走边把节点写进答案，否则可能过早固定顺序。正确做法是不断沿着当前最小出边深入 DFS，直到当前节点没有可用出边时，才把它加入答案。最后把答案逆序即可。',
+        bullets: [
+          '边会在 DFS 中被即时消耗。',
+          '无路可走时说明这个节点在最终路径中的位置已经确定。',
+          '后序加入答案是欧拉路径构造的核心技巧。',
+          '结果最后需要反转。',
+        ],
+        callout:
+          '很多图构造题不是“怎么找到一条路”，而是“怎么以正确时机把节点/边放进最终答案”。只要时机不对，路径看似走通了，结果顺序却可能完全错。',
+      },
+      {
+        id: 'reconstruct-itinerary-solution',
+        title: '标准解法：排序邻接表 + Hierholzer DFS',
+        summary:
+          '先为每个出发机场建立按字典序排序的邻接列表。DFS 时不断取出当前机场最小的下一站并递归访问；当当前机场已无可用机票时，把它加入答案数组。DFS 结束后反转答案，即为满足条件的最小字典序行程。',
+        bullets: [
+          '时间复杂度主要来自排序和边遍历。',
+          '每张机票只会被消耗一次。',
+          '是这题最经典的解法。',
+          '关键在于“后序收集答案”。',
+        ],
+        code: `function findItinerary(tickets: string[][]): string[] {
+  const graph = new Map<string, string[]>()
+
+  for (const [from, to] of tickets) {
+    if (!graph.has(from)) {
+      graph.set(from, [])
+    }
+
+    graph.get(from)!.push(to)
+  }
+
+  for (const destinations of graph.values()) {
+    destinations.sort().reverse()
+  }
+
+  const route: string[] = []
+
+  const dfs = (airport: string): void => {
+    const destinations = graph.get(airport)
+
+    while (destinations && destinations.length > 0) {
+      const nextAirport = destinations.pop()!
+      dfs(nextAirport)
+    }
+
+    route.push(airport)
+  }
+
+  dfs('JFK')
+  return route.reverse()
+}`,
+      },
+      {
+        id: 'reconstruct-itinerary-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它当成普通回溯路径题来做，结果复杂度高且容易在字典序和边使用顺序上出错。真正贴题的建模一定是欧拉路径。',
+        bullets: [
+          '易错点 1：没识别出“每边一次”是欧拉路径信号。',
+          '易错点 2：边走边直接写答案，时机错误。',
+          '易错点 3：邻接表排序方向和取边方式不一致。',
+          '延伸方向：欧拉回路、字符串重构、图路径构造题。',
+        ],
+      },
+    ],
+  },
 ];
