@@ -39203,4 +39203,122 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'data-stream-as-disjoint-intervals',
+    label: '352. LeetCode 352. 将数据流变为多个不相交区间',
+    difficulty: '困难',
+    description:
+      '这题表面是数据流题，核心其实是区间合并结构设计。重点在于每次插入一个数后，它可能单独成为新区间，也可能连接左区间、右区间，甚至把左右两个区间合并成一个。',
+    outcome:
+      '你能设计一个支持动态插入数字的数据结构，并正确维护一组按顺序排列且互不重叠的区间。',
+    sections: [
+      {
+        id: 'data-stream-as-disjoint-intervals-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个数据结构，持续接收整数数据流。每次插入后，需要把当前所有已出现数字压缩表示成若干个不相交且按起点升序排列的区间。',
+        bullets: [
+          '数字是动态到来的。',
+          '输出是区间集合，不是原始数组。',
+          '区间之间不能重叠。',
+          '本质是动态区间维护题。',
+        ],
+      },
+      {
+        id: 'data-stream-as-disjoint-intervals-cases',
+        title: '每次插入一个数字，实际只会遇到四种情况',
+        summary:
+          '新数字可能已经被某个区间覆盖；可能恰好接在某个区间右边；可能恰好接在某个区间左边；也可能同时连接左右两个区间，把它们合并起来；如果都不是，就单独形成新区间。',
+        bullets: [
+          '被覆盖时直接忽略。',
+          '只连左边时扩展左区间。',
+          '只连右边时扩展右区间。',
+          '同时连接左右时要做区间合并。',
+        ],
+      },
+      {
+        id: 'data-stream-as-disjoint-intervals-ordered',
+        title: '维护有序区间数组，查到插入位置后局部处理即可',
+        summary:
+          '实现上可以维护一个按起点升序的区间数组。插入新值时先找到第一个起点大于等于它的位置，然后只需和相邻区间比较关系。虽然不是最优树结构，但逻辑清晰，足以把题意讲明白。',
+        bullets: [
+          '有序结构是区间题的基础前提。',
+          '真正受影响的通常只有相邻几个区间。',
+          '局部调整比全量重建更合理。',
+          '这是从朴素到高级结构的过渡思路。',
+        ],
+        callout:
+          '设计题先把状态关系想清楚，比一上来追求最优复杂度更重要。只要能明确插入值和左右相邻区间的关系，后续换成 `TreeMap` 或平衡树只是工程实现升级。',
+      },
+      {
+        id: 'data-stream-as-disjoint-intervals-solution',
+        title: '标准思路：有序区间数组中插入并按邻居合并',
+        summary:
+          '维护 `intervals` 数组。插入 `value` 时，先跳过所有结束位置小于 `value - 1` 的区间，找到可能受影响的位置。若当前区间已覆盖 `value` 则直接返回；否则构造新区间 `[value, value]`，再与左邻或右邻按是否相邻进行合并，最后替换回数组。',
+        bullets: [
+          '单次插入最坏时间复杂度是 `O(n)`。',
+          '读取全部区间是 `O(n)`。',
+          '思路直观，适合教学版本。',
+          '更高阶实现可以换成有序映射结构。',
+        ],
+        code: `class SummaryRanges {
+  private intervals: number[][]
+
+  constructor() {
+    this.intervals = []
+  }
+
+  addNum(value: number): void {
+    let index = 0
+
+    while (index < this.intervals.length && this.intervals[index][1] < value - 1) {
+      index += 1
+    }
+
+    if (
+      index < this.intervals.length &&
+      this.intervals[index][0] <= value &&
+      this.intervals[index][1] >= value
+    ) {
+      return
+    }
+
+    let start = value
+    let end = value
+
+    if (index > 0 && this.intervals[index - 1][1] + 1 >= value) {
+      start = this.intervals[index - 1][0]
+      end = Math.max(end, this.intervals[index - 1][1])
+      this.intervals.splice(index - 1, 1)
+      index -= 1
+    }
+
+    while (index < this.intervals.length && this.intervals[index][0] <= end + 1) {
+      start = Math.min(start, this.intervals[index][0])
+      end = Math.max(end, this.intervals[index][1])
+      this.intervals.splice(index, 1)
+    }
+
+    this.intervals.splice(index, 0, [start, end])
+  }
+
+  getIntervals(): number[][] {
+    return this.intervals
+  }
+}`,
+      },
+      {
+        id: 'data-stream-as-disjoint-intervals-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是插入时只考虑左合并或右合并，漏掉“左右同时连通”的情况，导致区间没有真正压缩成最简表示。',
+        bullets: [
+          '易错点 1：没有处理已被区间覆盖的重复插入。',
+          '易错点 2：漏掉左右双向合并。',
+          '易错点 3：区间数组顺序被破坏。',
+          '延伸方向：插入区间、合并区间、日程表、TreeMap 设计题。',
+        ],
+      },
+    ],
+  },
 ];
