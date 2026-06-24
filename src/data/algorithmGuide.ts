@@ -38588,4 +38588,99 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'moving-average-from-data-stream',
+    label: '346. LeetCode 346. 数据流中的移动平均值',
+    difficulty: '简单',
+    description:
+      '这题是滑动窗口在数据流场景下的最基础应用。核心不是把所有数据都存下来，而是理解固定窗口下如何一边加入新值、一边移除旧值，并实时维护窗口和。',
+    outcome:
+      '你能设计一个支持持续 `next()` 调用的移动平均类，并说明为什么维护窗口和能把每次计算从 `O(k)` 降到 `O(1)`。',
+    sections: [
+      {
+        id: 'moving-average-from-data-stream-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个类，构造时给定窗口大小 `size`。之后每次调用 `next(val)`，都要返回最近 `size` 个元素的平均值；如果当前元素不足 `size` 个，就用现有全部元素求平均。',
+        bullets: [
+          '输入是一条持续到来的数据流。',
+          '窗口大小固定。',
+          '每次插入后都要立刻返回结果。',
+          '本质是定长滑动窗口设计题。',
+        ],
+      },
+      {
+        id: 'moving-average-from-data-stream-window',
+        title: '最直观的结构就是队列 + 当前窗口和',
+        summary:
+          '队列负责维护“窗口里还保留着哪些值”，而一个额外变量 `sum` 负责记录当前窗口总和。每来一个新值，就把它入队并累加到 `sum`；如果队列长度超过 `size`，就把最旧元素出队并从 `sum` 中减掉。',
+        bullets: [
+          '队列维护顺序。',
+          '`sum` 维护聚合信息。',
+          '超出容量就删最老元素。',
+          '这能避免每次重新遍历窗口。',
+        ],
+      },
+      {
+        id: 'moving-average-from-data-stream-why-o1',
+        title: '为什么维护窗口和能做到常数时间',
+        summary:
+          '如果每次 `next()` 都重新把窗口中的数全部加一遍，那么一次调用就是 `O(k)`。但有了累计和之后，每次只做一次加法和至多一次减法，最后除以当前窗口长度即可，因此单次更新能降到 `O(1)`。',
+        bullets: [
+          '新增值只影响一次加法。',
+          '被挤出的旧值只影响一次减法。',
+          '平均值通过 `sum / queue.length` 直接得到。',
+          '这就是滑窗优化的本质。',
+        ],
+        callout:
+          '滑动窗口里经常会问一个问题：窗口每移动一步，哪些信息可以被增量维护，而不用整体重算？和、频次、最大值候选、最小值候选，都是高频维护对象。',
+      },
+      {
+        id: 'moving-average-from-data-stream-solution',
+        title: '标准解法：队列维护窗口，变量维护总和',
+        summary:
+          '类中维护 `queue`、`sum` 和 `size`。调用 `next(val)` 时先把 `val` 入队并加到 `sum`，如果队列长度超限就弹出队头并同步减掉。最后返回 `sum / queue.length`。',
+        bullets: [
+          '单次 `next()` 时间复杂度是 `O(1)`。',
+          '空间复杂度是 `O(size)`。',
+          '非常适合作为滑动窗口设计题入门。',
+          '也能自然过渡到限流、缓存、监控指标题。',
+        ],
+        code: `class MovingAverage {
+  private readonly size: number
+  private readonly queue: number[]
+  private sum: number
+
+  constructor(size: number) {
+    this.size = size
+    this.queue = []
+    this.sum = 0
+  }
+
+  next(val: number): number {
+    this.queue.push(val)
+    this.sum += val
+
+    if (this.queue.length > this.size) {
+      this.sum -= this.queue.shift()!
+    }
+
+    return this.sum / this.queue.length
+  }
+}`,
+      },
+      {
+        id: 'moving-average-from-data-stream-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是每次都重新遍历整个窗口求和，或者忘了在移除旧元素时同步更新 `sum`，导致结果越来越偏。',
+        bullets: [
+          '易错点 1：没有维护累计和。',
+          '易错点 2：队列超长后忘记减掉移出值。',
+          '易错点 3：窗口未满时错误地除以固定 `size`。',
+          '延伸方向：滑动窗口最大值、限长日志、实时指标聚合。',
+        ],
+      },
+    ],
+  },
 ];
