@@ -39074,4 +39074,133 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'android-unlock-patterns',
+    label: '351. LeetCode 351. 安卓系统手势解锁',
+    difficulty: '中等',
+    description:
+      '这题表面像枚举路径，实际上考的是带约束的回溯搜索。重点不在“穷举所有路径”，而在于识别中间跳点规则，并利用对称性减少重复计算。',
+    outcome:
+      '你能用回溯统计合法解锁图案数量，并解释跳跃规则表和对称性优化分别解决了什么问题。',
+    sections: [
+      {
+        id: 'android-unlock-patterns-summary',
+        title: '题目在问什么',
+        summary:
+          '在 3x3 的九宫格上统计所有合法的解锁图案数量。图案长度需要在 `m` 到 `n` 之间，并且某些跨越移动只有在中间点已被访问过时才合法。',
+        bullets: [
+          '每个点最多访问一次。',
+          '图案长度有上下界。',
+          '跨过中间点时要满足访问约束。',
+          '本质是受限 DFS 回溯计数。',
+        ],
+      },
+      {
+        id: 'android-unlock-patterns-rule',
+        title: '最关键的是把“哪些跳跃需要中间点”建成规则表',
+        summary:
+          '例如从 1 到 3 必须经过 2，从 1 到 9 必须经过 5，从 2 到 8 也必须经过 5。可以用一个二维数组 `skip[a][b]` 表示从 `a` 到 `b` 时若存在必须先访问的中间点，它是谁；若不需要中间点，则为 0。',
+        bullets: [
+          '规则表把几何关系转换成离散判断。',
+          '合法性判断会变得非常直接。',
+          '回溯时只需查表，不必临时推导。',
+          '这是这题最核心的数据建模。',
+        ],
+      },
+      {
+        id: 'android-unlock-patterns-backtracking',
+        title: '回溯搜索时，每一步都检查“下一个点能不能走”',
+        summary:
+          '如果某个点还没被访问，并且 `skip[current][next]` 为 0，或者对应的中间点已经访问过，那么这一步就合法。于是可以标记访问、继续递归、再回溯撤销标记。',
+        bullets: [
+          '典型的选择、递归、撤销结构。',
+          '合法性由访问状态和规则表共同决定。',
+          '长度达到要求区间时就计入答案。',
+          '搜索空间虽然大，但九宫格规模可控。',
+        ],
+      },
+      {
+        id: 'android-unlock-patterns-symmetry',
+        title: '四个角、四条边、中心点具有对称性',
+        summary:
+          '从 1、3、7、9 出发的结果数量相同；从 2、4、6、8 出发的结果数量相同；只有 5 单独计算。因此可以只算 1、2、5 三种起点，再乘上对应系数，大幅减少重复搜索。',
+        bullets: [
+          '角点结果相同，可以乘 4。',
+          '边点结果相同，也可以乘 4。',
+          '中心点单独计算。',
+          '这是很典型的搜索对称性优化。',
+        ],
+        callout:
+          '回溯题并不总是只能暴力。只要状态空间存在旋转、镜像等对称关系，就要主动思考能否“算一类，乘系数”。这会让搜索效率提升非常明显。',
+      },
+      {
+        id: 'android-unlock-patterns-solution',
+        title: '标准解法：规则表 + 回溯 + 对称性优化',
+        summary:
+          '先建立 `skip` 表，记录所有必须经过中间点的跳跃关系。定义 DFS 统计从某个起点出发、还需选择若干步时的合法方案数。最终用 `dfs(1)` 的结果乘 4、`dfs(2)` 的结果乘 4，再加上 `dfs(5)`，即可得到总答案。',
+        bullets: [
+          '时间复杂度主要由搜索空间决定。',
+          '空间复杂度取决于递归深度和访问数组。',
+          '这题重点在建模而不是死记代码。',
+          '是受限回溯题中的经典代表。',
+        ],
+        code: `function numberOfPatterns(m: number, n: number): number {
+  const skip = Array.from({ length: 10 }, () => new Array<number>(10).fill(0))
+  const visited = new Array<boolean>(10).fill(false)
+
+  skip[1][3] = skip[3][1] = 2
+  skip[1][7] = skip[7][1] = 4
+  skip[3][9] = skip[9][3] = 6
+  skip[7][9] = skip[9][7] = 8
+  skip[1][9] = skip[9][1] = 5
+  skip[3][7] = skip[7][3] = 5
+  skip[4][6] = skip[6][4] = 5
+  skip[2][8] = skip[8][2] = 5
+
+  const dfs = (current: number, remaining: number): number => {
+    if (remaining === 0) {
+      return 1
+    }
+
+    let count = 0
+    visited[current] = true
+
+    for (let next = 1; next <= 9; next += 1) {
+      const middle = skip[current][next]
+
+      if (!visited[next] && (middle === 0 || visited[middle])) {
+        count += dfs(next, remaining - 1)
+      }
+    }
+
+    visited[current] = false
+
+    return count
+  }
+
+  let total = 0
+
+  for (let length = m; length <= n; length += 1) {
+    total += dfs(1, length - 1) * 4
+    total += dfs(2, length - 1) * 4
+    total += dfs(5, length - 1)
+  }
+
+  return total
+}`,
+      },
+      {
+        id: 'android-unlock-patterns-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忽略跳跃中间点规则，导致非法路径被算进答案；或者知道有对称性，却在访问状态共享上处理错误，导致重复计数。',
+        bullets: [
+          '易错点 1：没有建立完整的 `skip` 规则表。',
+          '易错点 2：回溯结束后忘记撤销访问状态。',
+          '易错点 3：对称性乘系数时起点分类搞错。',
+          '延伸方向：N 皇后、排列组合搜索、带约束路径枚举。',
+        ],
+      },
+    ],
+  },
 ];
