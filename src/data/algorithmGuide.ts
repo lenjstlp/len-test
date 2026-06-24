@@ -38491,4 +38491,101 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'reverse-vowels-of-a-string',
+    label: '345. LeetCode 345. 反转字符串中的元音字母',
+    difficulty: '简单',
+    description:
+      '这题和普通反转字符串很像，但多了“只处理特定字符”的筛选条件。重点是双指针不仅要会收缩，还要会在收缩过程中跳过无关元素。',
+    outcome:
+      '你能用双指针只交换字符串中的元音字符，并说清楚为什么左右指针需要先各自找到下一个元音，再执行交换。',
+    sections: [
+      {
+        id: 'reverse-vowels-of-a-string-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串 `s`，只反转其中所有元音字母的位置，其他字符顺序保持不变，返回处理后的新字符串。',
+        bullets: [
+          '不是整体反转字符串。',
+          '只有元音参与交换。',
+          '非元音原位置关系不变。',
+          '本质是带过滤条件的双指针。',
+        ],
+      },
+      {
+        id: 'reverse-vowels-of-a-string-key',
+        title: '双指针仍然有效，但指针不能盲目直接交换',
+        summary:
+          '左指针和右指针都要先移动到“元音位置”上，只有当两边都指向元音时才真正交换。否则如果碰到辅音就直接跳过，继续向中间靠拢。',
+        bullets: [
+          '左边负责找下一个元音。',
+          '右边负责找上一个元音。',
+          '找到后再交换。',
+          '这是一种“先过滤，后处理”的双指针模式。',
+        ],
+      },
+      {
+        id: 'reverse-vowels-of-a-string-vowels',
+        title: '先把“哪些是元音”判断写稳',
+        summary:
+          '英语元音通常包括 `a e i o u` 及其大写形式。实现时可以预先把它们放入集合中，这样每次判断某个字符是不是元音就能在常数时间内完成。',
+        bullets: [
+          '大小写都要覆盖。',
+          '集合判断可读性最好。',
+          '逻辑上比一长串 `||` 更清晰。',
+          '这能让主循环更干净。',
+        ],
+        callout:
+          '很多双指针题看起来考“移动过程”，其实一半稳定性来自辅助判断函数是否写得清楚。把“是否元音”单独定义好，主循环会简单很多。',
+      },
+      {
+        id: 'reverse-vowels-of-a-string-solution',
+        title: '标准解法：双指针 + 元音集合',
+        summary:
+          '先把字符串拆成字符数组，因为字符串不可变。之后用左右指针从两端向中间移动，分别跳过非元音字符，遇到两边都是元音时交换。最后把数组重新拼回字符串返回。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`，因为要转成数组。',
+          '主循环结构非常清晰。',
+          '是这题最稳定的写法。',
+        ],
+        code: `function reverseVowels(s: string): string {
+  const chars = s.split('')
+  const vowels = new Set(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U'])
+  let left = 0
+  let right = chars.length - 1
+
+  while (left < right) {
+    while (left < right && !vowels.has(chars[left])) {
+      left += 1
+    }
+
+    while (left < right && !vowels.has(chars[right])) {
+      right -= 1
+    }
+
+    if (left < right) {
+      ;[chars[left], chars[right]] = [chars[right], chars[left]]
+      left += 1
+      right -= 1
+    }
+  }
+
+  return chars.join('')
+}`,
+      },
+      {
+        id: 'reverse-vowels-of-a-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把所有字符都交换了，变成普通反转字符串，或者忘了处理大写元音，导致部分测试用例出错。',
+        bullets: [
+          '易错点 1：没有跳过非元音字符。',
+          '易错点 2：漏掉大写元音。',
+          '易错点 3：忘记字符串不可变，直接改字符串下标。',
+          '延伸方向：按条件过滤的双指针、回文清洗、字符分类题。',
+        ],
+      },
+    ],
+  },
 ];
