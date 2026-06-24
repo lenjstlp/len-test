@@ -38982,4 +38982,96 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'intersection-of-two-arrays-ii',
+    label: '350. LeetCode 350. 两个数组的交集 II',
+    difficulty: '简单',
+    description:
+      '这题和上一题只差一个后缀，但本质已经变了。重点不再是唯一元素，而是同一个数字在交集里可以出现几次，这就从集合题切换成了频次统计题。',
+    outcome:
+      '你能用哈希表统计频次求两个数组的交集，并说清楚为什么这题不能像上一题那样简单地只用集合处理。',
+    sections: [
+      {
+        id: 'intersection-of-two-arrays-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个整数数组 `nums1` 和 `nums2`，返回它们的交集。和上一题不同，结果中每个元素出现的次数，应该等于它在两个数组中都出现的最小次数。',
+        bullets: [
+          '交集允许重复元素。',
+          '重复次数有明确含义。',
+          '顺序通常不重要。',
+          '本质是频次对齐问题。',
+        ],
+      },
+      {
+        id: 'intersection-of-two-arrays-ii-frequency',
+        title: '一旦题目关心“出现几次”，集合就不够了',
+        summary:
+          '集合只能表示“有或没有”，无法表达某个元素还剩几次可匹配。因此需要用哈希表记录其中一个数组里每个数的剩余频次，然后遍历另一个数组时做匹配和扣减。',
+        bullets: [
+          '频次信息必须被保留下来。',
+          '`Map` 比 `Set` 更适合这题。',
+          '每成功匹配一次，就要消耗一次库存。',
+          '这是典型的计数哈希模型。',
+        ],
+      },
+      {
+        id: 'intersection-of-two-arrays-ii-counting',
+        title: '可以把一个数组看成库存表，另一个数组看成领用表',
+        summary:
+          '先统计 `nums1` 中每个数字出现的次数。遍历 `nums2` 时，如果当前数字在库存表中仍有剩余，就把它加入答案，并把库存减一。这样每个元素加入答案的次数，就自然被限制在两个数组的最小频次内。',
+        bullets: [
+          '先建库存，再做匹配。',
+          '频次归零后就不能再继续取用。',
+          '逻辑简单且非常符合题意。',
+          '适合迁移到字符串计数题中。',
+        ],
+        callout:
+          '很多哈希题都可以用“库存”视角理解。只要题目不是问“是否存在”，而是问“还能用几次”，就应该从 `Set` 切到 `Map`。',
+      },
+      {
+        id: 'intersection-of-two-arrays-ii-solution',
+        title: '标准解法：哈希表统计频次并逐步扣减',
+        summary:
+          '先遍历 `nums1` 建立频次表。然后遍历 `nums2`，若某个数字在表中的频次大于 0，就把它加入结果数组，并将该数字频次减一。最终结果数组就是题目要求的交集。',
+        bullets: [
+          '时间复杂度通常是 `O(m + n)`。',
+          '空间复杂度是 `O(min(m, n))` 到 `O(m)`，取决于实现。',
+          '是这题最主流的标准写法。',
+          '和上一题的差别主要就在“是否要保存次数”。',
+        ],
+        code: `function intersect(nums1: number[], nums2: number[]): number[] {
+  const counter = new Map<number, number>()
+  const result: number[] = []
+
+  for (const num of nums1) {
+    counter.set(num, (counter.get(num) ?? 0) + 1)
+  }
+
+  for (const num of nums2) {
+    const count = counter.get(num) ?? 0
+
+    if (count > 0) {
+      result.push(num)
+      counter.set(num, count - 1)
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'intersection-of-two-arrays-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是沿用上一题的集合思路，结果把重复次数全部丢掉，或者频次减到 0 以后还继续把元素放进答案。',
+        bullets: [
+          '易错点 1：误用集合，丢失重复次数信息。',
+          '易错点 2：匹配成功后忘记扣减频次。',
+          '易错点 3：和上一题的题意边界混淆。',
+          '延伸方向：字母异位词、最小覆盖子串、库存匹配类题目。',
+        ],
+      },
+    ],
+  },
 ];
