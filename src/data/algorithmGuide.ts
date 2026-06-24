@@ -38783,4 +38783,118 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'design-tic-tac-toe',
+    label: '348. LeetCode 348. 设计井字棋',
+    difficulty: '中等',
+    description:
+      '这题不是让你把棋盘画出来，而是让你设计一个高效判断胜负的数据结构。重点是避免每下一步都重新扫描整行、整列和对角线。',
+    outcome:
+      '你能设计一个 `move` 接口，在 `O(1)` 时间判断当前玩家是否获胜，并说明为什么行列计数比维护完整棋盘更高效。',
+    sections: [
+      {
+        id: 'design-tic-tac-toe-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个 `TicTacToe` 类，构造时给定棋盘大小 `n`。之后玩家轮流落子，每次调用 `move(row, col, player)` 都要返回当前是否有人获胜。',
+        bullets: [
+          '棋盘大小可变，不限于 3x3。',
+          '每次只会新增一个落子。',
+          '要快速判断当前步是否决出胜负。',
+          '本质是状态聚合设计题。',
+        ],
+      },
+      {
+        id: 'design-tic-tac-toe-naive',
+        title: '朴素做法是每次扫描整行整列，但这不够好',
+        summary:
+          '如果每次落子后都去检查一整行、一整列、两条对角线，那么单次 `move` 至少要 `O(n)`。题目的更优思路是提前维护聚合信息，这样当前落子时只更新受影响的几项即可。',
+        bullets: [
+          '重复扫描会浪费大量时间。',
+          '每一步其实只影响一行一列和至多两条对角线。',
+          '因此可以只维护这些聚合值。',
+          '这是增量更新的典型思路。',
+        ],
+      },
+      {
+        id: 'design-tic-tac-toe-counting',
+        title: '把玩家落子转成加减法，胜负就变成绝对值判断',
+        summary:
+          '可以规定玩家 1 记为 `+1`，玩家 2 记为 `-1`。这样每次落子时，给对应的行、列、主对角线、副对角线累加这个值。如果某一项的绝对值达到 `n`，说明某个玩家已经连成一线。',
+        bullets: [
+          '玩家差异被编码成符号。',
+          '行列对角线只需要一个整数计数。',
+          '绝对值等于 `n` 就表示全线同一玩家。',
+          '这是这题最巧的建模点。',
+        ],
+        callout:
+          '设计题的关键经常不在“存什么”，而在“怎么编码状态”。把两个玩家编码成 `+1/-1` 后，胜负判断从复杂的格子比较，变成了简单的数值绝对值比较。',
+      },
+      {
+        id: 'design-tic-tac-toe-solution',
+        title: '标准解法：维护行、列、两条对角线计数',
+        summary:
+          '类中维护 `rows`、`cols`、`diagonal`、`antiDiagonal`。每次落子根据玩家身份取 `+1` 或 `-1`，更新对应行列以及可能命中的对角线，然后检查这些计数的绝对值是否达到 `n`。若达到则返回当前玩家编号，否则返回 0。',
+        bullets: [
+          '单次 `move` 时间复杂度是 `O(1)`。',
+          '空间复杂度是 `O(n)`。',
+          '非常适合作为设计题和状态压缩题的入门案例。',
+          '不需要真的维护完整棋盘内容。',
+        ],
+        code: `class TicTacToe {
+  private readonly size: number
+  private readonly rows: number[]
+  private readonly cols: number[]
+  private diagonal: number
+  private antiDiagonal: number
+
+  constructor(n: number) {
+    this.size = n
+    this.rows = new Array<number>(n).fill(0)
+    this.cols = new Array<number>(n).fill(0)
+    this.diagonal = 0
+    this.antiDiagonal = 0
+  }
+
+  move(row: number, col: number, player: number): number {
+    const delta = player === 1 ? 1 : -1
+
+    this.rows[row] += delta
+    this.cols[col] += delta
+
+    if (row === col) {
+      this.diagonal += delta
+    }
+
+    if (row + col === this.size - 1) {
+      this.antiDiagonal += delta
+    }
+
+    if (
+      Math.abs(this.rows[row]) === this.size ||
+      Math.abs(this.cols[col]) === this.size ||
+      Math.abs(this.diagonal) === this.size ||
+      Math.abs(this.antiDiagonal) === this.size
+    ) {
+      return player
+    }
+
+    return 0
+  }
+}`,
+      },
+      {
+        id: 'design-tic-tac-toe-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是仍然按棋盘模拟去扫描整线，或者更新了行列却忘了同步更新对角线，导致部分胜利场景漏判。',
+        bullets: [
+          '易错点 1：把单次判断写成 `O(n)` 扫描。',
+          '易错点 2：副对角线条件写错。',
+          '易错点 3：没有利用 `+1/-1` 统一编码玩家。',
+          '延伸方向：状态压缩设计题、棋盘判定、增量统计结构。',
+        ],
+      },
+    ],
+  },
 ];
