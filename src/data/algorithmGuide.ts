@@ -39321,4 +39321,137 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'design-snake-game',
+    label: '353. LeetCode 353. 贪吃蛇',
+    difficulty: '中等',
+    description:
+      '这题不是图形题，而是一个状态模拟设计题。重点是同时维护蛇身顺序、头尾移动、食物推进以及碰撞检测这几件事，并让每次移动都稳定执行。',
+    outcome:
+      '你能设计一个贪吃蛇类，正确处理移动、吃食物、撞墙、撞身体等状态变化，并说明为什么队列和集合需要配合使用。',
+    sections: [
+      {
+        id: 'design-snake-game-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个贪吃蛇游戏，给定宽高和食物位置。每次调用 `move(direction)` 都要更新蛇的位置并返回当前得分；若撞墙或撞到自己，则返回 `-1`。',
+        bullets: [
+          '蛇是动态增长的。',
+          '食物按顺序出现。',
+          '每次都要判断是否死亡。',
+          '本质是队列 + 哈希模拟题。',
+        ],
+      },
+      {
+        id: 'design-snake-game-structure',
+        title: '蛇身顺序和快速碰撞判断需要两种结构配合',
+        summary:
+          '蛇身是一个有顺序的结构，因此适合用双端队列或数组模拟头尾；而判断某个位置是否已经被身体占据，又需要快速查询，因此还要配合一个集合保存所有身体格子坐标。',
+        bullets: [
+          '队列维护头尾顺序。',
+          '集合负责快速查重。',
+          '两者保存的是同一份状态的不同视角。',
+          '这是这题实现稳定的关键。',
+        ],
+      },
+      {
+        id: 'design-snake-game-tail',
+        title: '处理碰撞时，要特别注意尾巴可能先移走',
+        summary:
+          '如果本轮没有吃到食物，蛇尾会先离开原位置，因此蛇头即使走到旧尾巴位置，也不应被判为撞到自己。实现时通常先暂时移除尾巴占位，再做新的碰撞判断。',
+        bullets: [
+          '这是这题最容易出错的细节。',
+          '吃到食物时尾巴不移动。',
+          '没吃到食物时尾巴会腾出一个位置。',
+          '碰撞判断必须考虑这个先后顺序。',
+        ],
+        callout:
+          '很多模拟题难点不在主流程，而在时序。谁先删、谁后加、什么时候判断冲突，这些顺序一旦错了，代码看起来也许像对的，但行为会在边界上出错。',
+      },
+      {
+        id: 'design-snake-game-solution',
+        title: '标准解法：队列维护蛇身，集合维护占位',
+        summary:
+          '把每个格子编码成一个整数或字符串，蛇头放在队列头部，蛇尾在尾部。每次移动先算出新头坐标并检查边界；如果没吃到食物，就先移除蛇尾的占位；之后判断新头是否撞到身体，若没有则把新头加入队列和集合。吃到食物时分数加一，且尾巴不弹出。',
+        bullets: [
+          '单次移动时间复杂度是 `O(1)`。',
+          '空间复杂度与蛇身长度相关。',
+          '非常典型的模拟设计题。',
+          '也能训练你对状态变更顺序的把控。',
+        ],
+        code: `class SnakeGame {
+  private readonly width: number
+  private readonly height: number
+  private readonly food: number[][]
+  private readonly body: [number, number][]
+  private readonly occupied: Set<string>
+  private foodIndex: number
+
+  constructor(width: number, height: number, food: number[][]) {
+    this.width = width
+    this.height = height
+    this.food = food
+    this.body = [[0, 0]]
+    this.occupied = new Set(['0,0'])
+    this.foodIndex = 0
+  }
+
+  move(direction: string): number {
+    const [headRow, headCol] = this.body[0]
+    const directions: Record<string, [number, number]> = {
+      U: [-1, 0],
+      D: [1, 0],
+      L: [0, -1],
+      R: [0, 1],
+    }
+    const [deltaRow, deltaCol] = directions[direction]
+    const nextRow = headRow + deltaRow
+    const nextCol = headCol + deltaCol
+
+    if (nextRow < 0 || nextRow >= this.height || nextCol < 0 || nextCol >= this.width) {
+      return -1
+    }
+
+    const tail = this.body[this.body.length - 1]
+    const willEat =
+      this.foodIndex < this.food.length &&
+      this.food[this.foodIndex][0] === nextRow &&
+      this.food[this.foodIndex][1] === nextCol
+
+    if (!willEat) {
+      this.body.pop()
+      this.occupied.delete(String(tail[0]) + ',' + String(tail[1]))
+    }
+
+    const key = String(nextRow) + ',' + String(nextCol)
+
+    if (this.occupied.has(key)) {
+      return -1
+    }
+
+    this.body.unshift([nextRow, nextCol])
+    this.occupied.add(key)
+
+    if (willEat) {
+      this.foodIndex += 1
+    }
+
+    return this.body.length - 1
+  }
+}`,
+      },
+      {
+        id: 'design-snake-game-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把新头碰到旧尾巴也误判成撞自己，或者吃到食物时仍然把尾巴删掉，导致蛇长度和得分都不正确。',
+        bullets: [
+          '易错点 1：碰撞判断时没有先处理尾巴时序。',
+          '易错点 2：吃到食物时错误弹出尾巴。',
+          '易错点 3：只用数组，不做快速占位查询。',
+          '延伸方向：机器人模拟、网格状态机、游戏循环设计题。',
+        ],
+      },
+    ],
+  },
 ];
