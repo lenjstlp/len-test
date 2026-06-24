@@ -38897,4 +38897,89 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'intersection-of-two-arrays',
+    label: '349. LeetCode 349. 两个数组的交集',
+    difficulty: '简单',
+    description:
+      '这题不是考复杂算法，而是考你能否快速识别“去重 + 查询存在性”这类问题最适合用集合来做。重点是结果里每个元素只能出现一次。',
+    outcome:
+      '你能用集合求两个数组的交集，并清楚说明为什么题目要求“唯一元素”时应先去重再判断包含关系。',
+    sections: [
+      {
+        id: 'intersection-of-two-arrays-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个整数数组 `nums1` 和 `nums2`，返回它们的交集，结果中的每个元素只能出现一次，顺序通常不作要求。',
+        bullets: [
+          '求的是共同出现的元素。',
+          '结果必须去重。',
+          '顺序不重要。',
+          '本质是集合运算题。',
+        ],
+      },
+      {
+        id: 'intersection-of-two-arrays-set',
+        title: '只要看到“唯一元素 + 是否存在”，就该想到集合',
+        summary:
+          '把其中一个数组放进集合后，判断另一个数组里的元素是否出现过就会非常高效。同时，由于结果还要求去重，答案本身也可以用一个集合来收集。',
+        bullets: [
+          '集合天然支持去重。',
+          '集合查询平均复杂度低。',
+          '答案集合可以避免重复加入。',
+          '整体逻辑非常直接。',
+        ],
+      },
+      {
+        id: 'intersection-of-two-arrays-why-deduplicate',
+        title: '为什么不能直接双重循环收集答案',
+        summary:
+          '双重循环既慢，又容易把重复元素反复放进结果中。题目明确要求唯一元素，因此“先去重，再判断是否存在”会更贴合问题本质，也更易于实现正确性。',
+        bullets: [
+          '双重循环是 `O(mn)`。',
+          '重复值会制造很多冗余判断。',
+          '集合解法更清晰更稳。',
+          '这是典型的空间换时间。',
+        ],
+        callout:
+          '做题时不要只盯着“能做出来”，要训练对问题类型的敏感度。唯一性、存在性、频次性，这三个信号分别强烈对应 `Set`、`Set/Map`、`Map`。',
+      },
+      {
+        id: 'intersection-of-two-arrays-solution',
+        title: '标准解法：一个集合做查询，一个集合收答案',
+        summary:
+          '先把 `nums1` 转成集合 `set1`。遍历 `nums2` 时，若当前元素存在于 `set1` 中，就把它加入结果集合 `result`。最后把结果集合转成数组返回即可。',
+        bullets: [
+          '时间复杂度通常是 `O(m + n)`。',
+          '空间复杂度是 `O(m + n)`。',
+          '实现非常短，但思路很标准。',
+          '是集合题的典型入门案例。',
+        ],
+        code: `function intersection(nums1: number[], nums2: number[]): number[] {
+  const set1 = new Set(nums1)
+  const result = new Set<number>()
+
+  for (const num of nums2) {
+    if (set1.has(num)) {
+      result.add(num)
+    }
+  }
+
+  return [...result]
+}`,
+      },
+      {
+        id: 'intersection-of-two-arrays-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忘记结果要去重，或者明明用了集合，却又把结果塞回普通数组导致重复值重新出现。',
+        bullets: [
+          '易错点 1：结果未去重。',
+          '易错点 2：仍然使用双重循环，复杂度偏高。',
+          '易错点 3：把题目和“两个数组交集 II”混淆。',
+          '延伸方向：交集 II、并集、差集、哈希去重题。',
+        ],
+      },
+    ],
+  },
 ];
