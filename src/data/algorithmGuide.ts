@@ -38683,4 +38683,104 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'top-k-frequent-elements',
+    label: '347. LeetCode 347. 前 K 个高频元素',
+    difficulty: '中等',
+    description:
+      '这题表面是统计频次，真正训练的是“先聚合，再按频次选前 k”的建模能力。重点不是只会排序，而是理解频次统计、桶分组、堆排序这些方案分别适合什么场景。',
+    outcome:
+      '你能先用哈希表统计出现次数，再用桶排序或堆找出前 `k` 个高频元素，并清楚解释为什么这题不必真的把全部元素按频次完整排序。',
+    sections: [
+      {
+        id: 'top-k-frequent-elements-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组 `nums` 和整数 `k`，返回其中出现频率最高的 `k` 个元素，答案顺序通常不作严格要求。',
+        bullets: [
+          '先看的是频次，不是数值大小。',
+          '只要前 `k` 个，不要求完整有序。',
+          '数组中可能有重复元素。',
+          '本质是 Top K 频次问题。',
+        ],
+      },
+      {
+        id: 'top-k-frequent-elements-count',
+        title: '第一步一定是先把频次统计出来',
+        summary:
+          '用哈希表把每个数字出现了多少次记录下来。这样原数组就被压缩成“元素 -> 频次”的映射，后续所有选择操作都只基于这些频次展开。',
+        bullets: [
+          '哈希表是频次题的标准起手式。',
+          '统计完成后问题规模被大幅压缩。',
+          '后续只关心不同元素的频次。',
+          '这是后续优化的基础。',
+        ],
+      },
+      {
+        id: 'top-k-frequent-elements-bucket',
+        title: '因为频次上限不超过数组长度，所以桶排序很自然',
+        summary:
+          '一个元素最多出现 `nums.length` 次，因此可以创建按频次分组的桶数组。把每个元素放进对应频次的桶里，再从高频向低频倒着扫描，收集到 `k` 个元素就结束。',
+        bullets: [
+          '频次天然是有限范围整数。',
+          '桶排序能避免对所有键值对做全量比较排序。',
+          '从高到低扫描即可得到前 `k`。',
+          '非常契合这题的数据特征。',
+        ],
+        callout:
+          'Top K 题常见三条路线：全量排序、最小堆、桶排序。看到“频次范围明确且不大”时，要优先想到桶；看到“数据持续到来”时，要优先想到堆。',
+      },
+      {
+        id: 'top-k-frequent-elements-solution',
+        title: '标准解法：哈希表统计 + 桶排序收集',
+        summary:
+          '先用 `Map` 统计频次，再创建长度为 `nums.length + 1` 的桶数组。遍历频次表，把每个元素放进对应频次桶中。最后从高频桶向低频桶遍历，把元素加入答案，收集满 `k` 个就返回。',
+        bullets: [
+          '时间复杂度通常是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '比全量排序更贴合题意。',
+          '也是面试里很常见的高质量答案。',
+        ],
+        code: `function topKFrequent(nums: number[], k: number): number[] {
+  const counter = new Map<number, number>()
+
+  for (const num of nums) {
+    counter.set(num, (counter.get(num) ?? 0) + 1)
+  }
+
+  const buckets: number[][] = Array.from({ length: nums.length + 1 }, () => [])
+
+  for (const [num, count] of counter.entries()) {
+    buckets[count].push(num)
+  }
+
+  const result: number[] = []
+
+  for (let count = buckets.length - 1; count >= 0 && result.length < k; count -= 1) {
+    for (const num of buckets[count]) {
+      result.push(num)
+
+      if (result.length === k) {
+        return result
+      }
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'top-k-frequent-elements-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是统计完频次后直接按元素值排序，结果完全偏离了题目要求；或者用了完整排序却说不清为什么还可以更优。',
+        bullets: [
+          '易错点 1：按数值大小排序，而不是按频次排序。',
+          '易错点 2：桶的大小开错，漏掉最大频次。',
+          '易错点 3：收集到 `k` 个后没有及时停止。',
+          '延伸方向：Top K 问题、最小堆、桶排序、词频统计。',
+        ],
+      },
+    ],
+  },
 ];
