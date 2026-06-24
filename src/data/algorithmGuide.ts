@@ -39454,4 +39454,107 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'russian-doll-envelopes',
+    label: '354. LeetCode 354. 俄罗斯套娃信封问题',
+    difficulty: '困难',
+    description:
+      '这题表面在比较二维信封，核心其实是把二维偏序关系转换成一维最长递增子序列。重点不只是会排序，而是要理解“宽升序、高降序”这个关键预处理为什么必要。',
+    outcome:
+      '你能把信封嵌套问题转化为最长递增子序列，并清楚解释同宽时为什么必须按高度降序排序。',
+    sections: [
+      {
+        id: 'russian-doll-envelopes-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干个信封，每个信封有宽和高。只有当两个维度都严格更大时，外层信封才能套住内层信封。要求返回最多能形成多少层嵌套。',
+        bullets: [
+          '宽高都必须严格更大。',
+          '不是只比较面积。',
+          '要找的是最长可嵌套链。',
+          '本质是二维排序 + LIS。',
+        ],
+      },
+      {
+        id: 'russian-doll-envelopes-sort',
+        title: '先排序，但同宽时不能按高度升序排',
+        summary:
+          '如果宽度相同还按高度升序排，那么后续在高度上做 LIS 时，会错误地把同宽信封也串起来。但同宽信封实际上不能互相嵌套，所以必须把同宽项按高度降序排序，让它们不会同时进入严格递增序列。',
+        bullets: [
+          '宽度先升序，保证主维有序。',
+          '同宽高度降序，打断非法链路。',
+          '这是从二维转一维的关键一步。',
+          '也是这题最容易被忽略的技巧。',
+        ],
+      },
+      {
+        id: 'russian-doll-envelopes-lis',
+        title: '排序后，问题就变成在高度数组上求 LIS',
+        summary:
+          '当宽度顺序已经处理好后，只需要在高度序列上寻找最长严格递增子序列。因为同宽项已经被高度降序打散，所以高度上的严格递增就等价于原问题中的合法嵌套。',
+        bullets: [
+          '二维约束被压缩成一维约束。',
+          '高度 LIS 是求解核心。',
+          '这是一类非常经典的降维技巧。',
+          '很多二维偏序题都能这样转化。',
+        ],
+        callout:
+          '难题往往不在实现，而在变形。能把原题认成“排序之后做 LIS”，难度会立刻下降一大截。很多二维最优链问题，本质都是这个套路。',
+      },
+      {
+        id: 'russian-doll-envelopes-solution',
+        title: '标准解法：排序后用二分维护 LIS',
+        summary:
+          '先按宽度升序、同宽高度降序排序。然后遍历每个信封的高度，用 `tails` 数组维护长度为 `i + 1` 的递增子序列最小结尾。对每个高度执行二分查找：若能替换某个位置就替换，若比所有结尾都大就追加。最终 `tails.length` 就是答案。',
+        bullets: [
+          '时间复杂度是 `O(n log n)`。',
+          '空间复杂度是 `O(n)`。',
+          '这是这题最标准也最高效的写法。',
+          '关键在排序规则和二分 LIS 的结合。',
+        ],
+        code: `function maxEnvelopes(envelopes: number[][]): number {
+  envelopes.sort((first, second) => {
+    if (first[0] === second[0]) {
+      return second[1] - first[1]
+    }
+
+    return first[0] - second[0]
+  })
+
+  const tails: number[] = []
+
+  for (const [, height] of envelopes) {
+    let left = 0
+    let right = tails.length
+
+    while (left < right) {
+      const middle = Math.floor((left + right) / 2)
+
+      if (tails[middle] < height) {
+        left = middle + 1
+      } else {
+        right = middle
+      }
+    }
+
+    tails[left] = height
+  }
+
+  return tails.length
+}`,
+      },
+      {
+        id: 'russian-doll-envelopes-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是同宽时也按高度升序排序，结果让本不允许互套的信封被 LIS 错误串到一起，答案会偏大。',
+        bullets: [
+          '易错点 1：同宽排序方向写反。',
+          '易错点 2：把 LIS 写成非严格递增。',
+          '易错点 3：停留在 `O(n^2)` DP，却说不清更优做法。',
+          '延伸方向：最长递增子序列、区间链、二维偏序降维问题。',
+        ],
+      },
+    ],
+  },
 ];
