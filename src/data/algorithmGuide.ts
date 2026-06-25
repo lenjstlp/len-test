@@ -40298,4 +40298,100 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'design-hit-counter',
+    label: '362. LeetCode 362. 敲击计数器',
+    difficulty: '中等',
+    description:
+      '这题的核心是滑动时间窗口设计。重点不是把所有历史访问都保留，而是始终只关心最近 5 分钟内还有多少次命中。',
+    outcome:
+      '你能设计一个命中计数器，正确维护最近 300 秒内的请求数，并说明为什么过期数据要在查询时及时清理。',
+    sections: [
+      {
+        id: 'design-hit-counter-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个 `HitCounter`，支持 `hit(timestamp)` 和 `getHits(timestamp)`，其中 `getHits` 要返回最近 5 分钟，也就是最近 300 秒内的总命中次数。',
+        bullets: [
+          '命中是按时间戳记录的。',
+          '只统计最近 300 秒窗口。',
+          '旧数据应该自动失效。',
+          '本质是时间窗口计数题。',
+        ],
+      },
+      {
+        id: 'design-hit-counter-queue',
+        title: '最直观的结构就是按时间顺序保存命中事件',
+        summary:
+          '由于时间戳是递增到来的，可以把每次命中放进队列。查询时，把所有早于 `timestamp - 299` 的旧命中弹出，剩余队列长度就是最近 5 分钟的命中数。',
+        bullets: [
+          '时间天然有序，适合队列。',
+          '旧数据只会从队头过期。',
+          '新数据只会从队尾进入。',
+          '这是滑动窗口的标准模型。',
+        ],
+      },
+      {
+        id: 'design-hit-counter-cleanup',
+        title: '清理过期数据既可以在查询时做，也可以在写入时顺带做',
+        summary:
+          '本题最重要的是保证队列里永远只保留有效命中。实现上通常在 `hit` 和 `getHits` 前都调用一次清理逻辑，把时间窗口外的数据全部弹出，这样状态始终保持一致。',
+        bullets: [
+          '统一清理逻辑能减少重复代码。',
+          '状态越干净，查询越直接。',
+          '过期数据一定要及时剔除。',
+          '这是时间窗口结构的维护重点。',
+        ],
+        callout:
+          '很多实时统计题都会落到同一个问题：窗口外的数据什么时候删？答案通常不是“等以后再说”，而是尽量在每次访问时顺手清理，保证结构始终反映当前有效状态。',
+      },
+      {
+        id: 'design-hit-counter-solution',
+        title: '标准解法：队列保存命中时间，查询时弹出过期项',
+        summary:
+          '类中维护一个队列保存所有命中时间戳。`hit(timestamp)` 时先清理过期数据，再把新时间加入队尾；`getHits(timestamp)` 时同样先清理，再返回队列长度。这样剩余元素就始终对应最近 300 秒的命中记录。',
+        bullets: [
+          '均摊时间复杂度是 `O(1)`。',
+          '空间复杂度与最近窗口命中数相关。',
+          '实现稳定且非常符合题意。',
+          '是滑动时间窗口设计题的基础模板。',
+        ],
+        code: `class HitCounter {
+  private readonly hits: number[]
+
+  constructor() {
+    this.hits = []
+  }
+
+  private cleanup(timestamp: number): void {
+    while (this.hits.length > 0 && this.hits[0] <= timestamp - 300) {
+      this.hits.shift()
+    }
+  }
+
+  hit(timestamp: number): void {
+    this.cleanup(timestamp)
+    this.hits.push(timestamp)
+  }
+
+  getHits(timestamp: number): number {
+    this.cleanup(timestamp)
+    return this.hits.length
+  }
+}`,
+      },
+      {
+        id: 'design-hit-counter-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有及时清理过期命中，导致结果不断偏大；或者边界写错，把恰好 300 秒外的数据也错误保留了下来。',
+        bullets: [
+          '易错点 1：没有统一清理过期数据。',
+          '易错点 2：窗口边界条件写错。',
+          '易错点 3：为历史全量数据无限增长地占用空间。',
+          '延伸方向：滑动窗口统计、访问频控、实时监控计数。',
+        ],
+      },
+    ],
+  },
 ];
