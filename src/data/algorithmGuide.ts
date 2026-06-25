@@ -40394,4 +40394,133 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'max-sum-of-rectangle-no-larger-than-k',
+    label: '363. LeetCode 363. 矩形区域不超过 K 的最大数值和',
+    difficulty: '困难',
+    description:
+      '这题的关键是把二维子矩阵和问题压缩成一维“子数组和不超过 k 的最大值”问题。重点不只是前缀和，而是怎样在扫描过程中快速找到最优的历史前缀。',
+    outcome:
+      '你能用二维压缩加有序前缀和求出不超过 `k` 的最大子矩阵和，并解释一维子问题里为什么要找“最小的、但又至少是 `currentSum - k` 的前缀和”。',
+    sections: [
+      {
+        id: 'max-sum-of-rectangle-no-larger-than-k-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个矩阵和整数 `k`，要求找出某个矩形区域的元素和，使其不超过 `k`，并且尽可能大。',
+        bullets: [
+          '矩形必须连续。',
+          '和不能超过 `k`。',
+          '目标是尽量接近 `k`。',
+          '本质是二维最优子矩阵问题。',
+        ],
+      },
+      {
+        id: 'max-sum-of-rectangle-no-larger-than-k-compress',
+        title: '先固定左右边界，把二维矩阵压成一维数组',
+        summary:
+          '如果固定矩形的左边界和右边界，那么每一行在这两列之间的元素和就可以累加成一个一维数组。此时问题就变成：在这个一维数组里找一个连续子数组，使其和不超过 `k` 且尽量大。',
+        bullets: [
+          '二维转一维是核心降维步骤。',
+          '固定列边界后，行和决定矩形总和。',
+          '一维问题仍然不简单，但更可控。',
+          '这是很多子矩阵题的标准套路。',
+        ],
+      },
+      {
+        id: 'max-sum-of-rectangle-no-larger-than-k-prefix',
+        title: '一维子问题要用前缀和加有序集合找最优前缀',
+        summary:
+          '设当前前缀和为 `sum`，如果想找一个子数组和 `sum - prev <= k` 且尽量大，就需要找到一个历史前缀 `prev`，满足 `prev >= sum - k` 且尽量小。于是可以把历史前缀和维护在有序结构中，用二分查找这个候选前缀。',
+        bullets: [
+          '核心目标是让 `sum - prev` 尽量大但不超过 `k`。',
+          '因此 `prev` 既要足够大，又要尽量小。',
+          '这正是有序前缀集合存在的意义。',
+          '这是这题最难理解的地方。',
+        ],
+        callout:
+          '很多“和不超过 k 的最大值”问题，本质都不是在枚举答案，而是在问：当前累计值出来后，我最希望之前出现过一个什么样的前缀？一旦这个问题想明白，数据结构就自然浮现了。',
+      },
+      {
+        id: 'max-sum-of-rectangle-no-larger-than-k-solution',
+        title: '标准解法：列压缩 + 前缀和 + 有序查找',
+        summary:
+          '枚举左边界 `left`，再逐步扩展右边界 `right`，维护每一行在 `[left, right]` 范围内的累计和。对这组行和做一维扫描：维护当前前缀和 `sum` 和已排序的历史前缀数组，利用二分找到第一个大于等于 `sum - k` 的前缀，更新答案后再把 `sum` 插入有序位置。',
+        bullets: [
+          '时间复杂度通常是 `O(cols^2 * rows * log rows)`。',
+          '空间复杂度是 `O(rows)`。',
+          '是这题最经典的标准解。',
+          '难点主要在一维子问题的转化理解。',
+        ],
+        code: `function maxSumSubmatrix(matrix: number[][], k: number): number {
+  const rows = matrix.length
+  const cols = matrix[0].length
+  let answer = -Infinity
+
+  for (let left = 0; left < cols; left += 1) {
+    const sums = new Array<number>(rows).fill(0)
+
+    for (let right = left; right < cols; right += 1) {
+      for (let row = 0; row < rows; row += 1) {
+        sums[row] += matrix[row][right]
+      }
+
+      let prefix = 0
+      const sortedPrefixes = [0]
+
+      for (const value of sums) {
+        prefix += value
+
+        let low = 0
+        let high = sortedPrefixes.length
+
+        while (low < high) {
+          const middle = Math.floor((low + high) / 2)
+
+          if (sortedPrefixes[middle] < prefix - k) {
+            low = middle + 1
+          } else {
+            high = middle
+          }
+        }
+
+        if (low < sortedPrefixes.length) {
+          answer = Math.max(answer, prefix - sortedPrefixes[low])
+        }
+
+        low = 0
+        high = sortedPrefixes.length
+
+        while (low < high) {
+          const middle = Math.floor((low + high) / 2)
+
+          if (sortedPrefixes[middle] < prefix) {
+            low = middle + 1
+          } else {
+            high = middle
+          }
+        }
+
+        sortedPrefixes.splice(low, 0, prefix)
+      }
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'max-sum-of-rectangle-no-larger-than-k-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是二维压缩后仍然用 Kadane 求最大子数组和，但 Kadane 无法处理“不能超过 k”这个额外约束，因此会得到错误答案。',
+        bullets: [
+          '易错点 1：误用普通最大子数组和算法。',
+          '易错点 2：一维子问题里前缀查找方向理解反了。',
+          '易错点 3：有序前缀插入位置处理错误。',
+          '延伸方向：前缀和、有序集合、子矩阵优化题。',
+        ],
+      },
+    ],
+  },
 ];
