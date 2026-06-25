@@ -39557,4 +39557,128 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'design-twitter',
+    label: '355. LeetCode 355. 设计推特',
+    difficulty: '中等',
+    description:
+      '这题本质是一个小型信息流系统设计题。重点不在于接口名字，而在于如何组织“发文、关注、取时间线”这三类状态，并在拉取动态时只拿到最近的 10 条消息。',
+    outcome:
+      '你能设计一个支持发推文、关注、取动态流的类，并说清楚为什么时间戳和按用户归档的推文结构足以支撑题目要求。',
+    sections: [
+      {
+        id: 'design-twitter-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个 Twitter 类，支持 `postTweet`、`getNewsFeed`、`follow`、`unfollow` 四个接口，其中 `getNewsFeed` 要返回用户自己和其关注对象最近发布的 10 条推文。',
+        bullets: [
+          '用户可以发推。',
+          '用户可以关注和取关。',
+          '动态流只看最近 10 条。',
+          '本质是小型 feed 合并题。',
+        ],
+      },
+      {
+        id: 'design-twitter-storage',
+        title: '先把状态拆成两类：关注关系和用户推文',
+        summary:
+          '关注关系适合用 `Map<number, Set<number>>` 存储；每个用户的推文列表适合按时间顺序存储，列表中的每一项可以保存全局时间戳和推文 id。这样在拉取动态流时，只需要合并“自己 + 已关注用户”的最新内容即可。',
+        bullets: [
+          '关注关系用集合去重最方便。',
+          '推文要带全局时间戳。',
+          '按用户归档比全量堆在一起更合理。',
+          '这是后续合并 feed 的基础。',
+        ],
+      },
+      {
+        id: 'design-twitter-feed',
+        title: '拉取动态流的关键，是只取候选人的最近内容',
+        summary:
+          '题目只需要最近 10 条，因此不必真的把所有历史推文完全排序。一个直接可讲清楚的做法，是收集候选用户的所有推文后按时间戳降序排序，再截取前 10 条。若追求更优，还可以用堆做多路归并。',
+        bullets: [
+          '教学版可用排序实现。',
+          '工程优化版可用最大堆。',
+          '题目规模下直观实现已足够。',
+          '核心是理解 feed 的来源集合。',
+        ],
+        callout:
+          '设计题先把数据模型搭稳，再考虑局部优化。只要“用户有哪些推文、关注了谁、怎么确定最近”这三件事清楚，换排序还是换堆只是实现层选择。',
+      },
+      {
+        id: 'design-twitter-solution',
+        title: '标准解法：关注集合 + 用户推文列表 + 时间戳排序',
+        summary:
+          '类中维护 `follows`、`tweets` 和递增时间戳。发推时把 `(timestamp, tweetId)` 追加到用户推文列表；关注和取关时维护集合。读取动态流时，把自己和关注用户的推文合并后按时间戳从大到小排序，取前 10 条推文 id 返回。',
+        bullets: [
+          '发推和关注操作都很直接。',
+          '动态流拉取逻辑最重要。',
+          '时间复杂度主要消耗在 feed 合并排序。',
+          '是这题最稳定的入门设计答案。',
+        ],
+        code: `class Twitter {
+  private timestamp: number
+  private readonly follows: Map<number, Set<number>>
+  private readonly tweets: Map<number, Array<[number, number]>>
+
+  constructor() {
+    this.timestamp = 0
+    this.follows = new Map()
+    this.tweets = new Map()
+  }
+
+  postTweet(userId: number, tweetId: number): void {
+    if (!this.tweets.has(userId)) {
+      this.tweets.set(userId, [])
+    }
+
+    this.tweets.get(userId)!.push([this.timestamp, tweetId])
+    this.timestamp += 1
+  }
+
+  getNewsFeed(userId: number): number[] {
+    const users = new Set<number>([userId, ...(this.follows.get(userId) ?? [])])
+    const feed: Array<[number, number]> = []
+
+    for (const id of users) {
+      for (const tweet of this.tweets.get(id) ?? []) {
+        feed.push(tweet)
+      }
+    }
+
+    feed.sort((first, second) => second[0] - first[0])
+
+    return feed.slice(0, 10).map(([, tweetId]) => tweetId)
+  }
+
+  follow(followerId: number, followeeId: number): void {
+    if (followerId === followeeId) {
+      return
+    }
+
+    if (!this.follows.has(followerId)) {
+      this.follows.set(followerId, new Set())
+    }
+
+    this.follows.get(followerId)!.add(followeeId)
+  }
+
+  unfollow(followerId: number, followeeId: number): void {
+    this.follows.get(followerId)?.delete(followeeId)
+  }
+}`,
+      },
+      {
+        id: 'design-twitter-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忘了把用户自己的推文也放进动态流里，或者没有用时间戳，导致不同用户之间的推文无法比较先后。',
+        bullets: [
+          '易错点 1：动态流漏掉自己发的推文。',
+          '易错点 2：没有统一时间戳，无法跨用户排序。',
+          '易错点 3：允许用户关注自己，导致状态重复。',
+          '延伸方向：堆合并多个有序链表、社交 feed、消息流系统设计。',
+        ],
+      },
+    ],
+  },
 ];
