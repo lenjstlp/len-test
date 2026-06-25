@@ -39777,4 +39777,94 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'count-numbers-with-unique-digits',
+    label: '357. LeetCode 357. 统计各位数字都不同的数字个数',
+    difficulty: '中等',
+    description:
+      '这题表面像数位 DP，但在给定范围内其实更适合用排列组合递推。重点不是暴力枚举每个数，而是数清楚“长度为 k 的不重复数字有多少种选法”。',
+    outcome:
+      '你能用组合递推统计 `0 <= x < 10^n` 中各位数字互不相同的整数个数，并解释每一位可选数字为什么会逐步减少。',
+    sections: [
+      {
+        id: 'count-numbers-with-unique-digits-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数 `n`，求满足 `0 <= x < 10^n` 且每一位数字都互不相同的整数总数。',
+        bullets: [
+          '范围上界是 `10^n`。',
+          '数字可以是 0。',
+          '要求所有数位互不重复。',
+          '本质是排列计数题。',
+        ],
+      },
+      {
+        id: 'count-numbers-with-unique-digits-small',
+        title: '先从位数角度拆开来看会更清楚',
+        summary:
+          '长度为 1 的数有 10 个；长度为 2 的不重复数字，首位可以选 1 到 9，第二位可以选剩下的 9 个；长度为 3 时，再乘剩下的 8 个，以此类推。题目要求的是从 0 位到 n 位这些合法数量的总和。',
+        bullets: [
+          '按长度分组最自然。',
+          '首位不能为 0，但后续位可以。',
+          '每多一位，可选数字会减少 1。',
+          '这是典型的排列乘法原则。',
+        ],
+      },
+      {
+        id: 'count-numbers-with-unique-digits-recursion',
+        title: '长度为 k 的答案可以由长度为 k - 1 的乘积继续延伸',
+        summary:
+          '设当前要构造长度为 `k` 的数，第一位有 9 种，第二位有 9 种，之后依次是 8、7、6……因此可以用一个变量持续维护当前位数的新增方案数，再累加到总答案中。',
+        bullets: [
+          '不需要真的枚举数字。',
+          '新增一位只是在旧乘积上再乘一个可选数。',
+          '当 `n > 10` 时，答案不会再增长。',
+          '因为十个数字最多只能各用一次。',
+        ],
+        callout:
+          '很多计数题并不需要 DP 状态数组，只需要把“第 k 步新增多少种方案”维护出来即可。只要你能把结构拆成逐位选择，乘法原理往往比暴力搜索更直接。',
+      },
+      {
+        id: 'count-numbers-with-unique-digits-solution',
+        title: '标准解法：按位数递推新增方案数',
+        summary:
+          '当 `n = 0` 时，答案是 1。否则先把 1 位数答案 10 计入总数。之后从长度 2 开始，令 `current = 9 * 9`，表示两位数的新增方案数；每往后扩一位，就再乘上剩余可用数字个数 `available`，并把 `current` 加到答案中。',
+        bullets: [
+          '时间复杂度是 `O(min(n, 10))`。',
+          '空间复杂度是 `O(1)`。',
+          '实现短，但很考验组合建模能力。',
+          '是排列计数题的典型代表。',
+        ],
+        code: `function countNumbersWithUniqueDigits(n: number): number {
+  if (n === 0) {
+    return 1
+  }
+
+  let total = 10
+  let current = 9
+  let available = 9
+
+  for (let digits = 2; digits <= n && available > 0; digits += 1) {
+    current *= available
+    total += current
+    available -= 1
+  }
+
+  return total
+}`,
+      },
+      {
+        id: 'count-numbers-with-unique-digits-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把首位也当成 10 种选择，或者没有注意到 `n` 超过 10 后答案不再增长，导致计数逻辑出错。',
+        bullets: [
+          '易错点 1：首位错误允许为 0。',
+          '易错点 2：没区分总答案和当前位数新增答案。',
+          '易错点 3：`n > 10` 时继续错误扩展。',
+          '延伸方向：排列组合、数位计数、无重复数字题型。',
+        ],
+      },
+    ],
+  },
 ];
