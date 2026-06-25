@@ -39979,4 +39979,95 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'logger-rate-limiter',
+    label: '359. LeetCode 359. 日志速率限制器',
+    difficulty: '简单',
+    description:
+      '这题是一个典型的状态缓存设计题。重点不是限流概念本身，而是怎样用最少的信息判断某条消息在当前时间点是否允许打印。',
+    outcome:
+      '你能设计一个日志速率限制器，用哈希表记录每条消息上次打印时间，并说明为什么只保存最近一次时间就足够。',
+    sections: [
+      {
+        id: 'logger-rate-limiter-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个 `Logger` 类，支持 `shouldPrintMessage(timestamp, message)`。如果某条消息距离上次打印已满 10 秒，就返回 `true` 并允许打印，否则返回 `false`。',
+        bullets: [
+          '相同消息有 10 秒冷却期。',
+          '不同消息互不影响。',
+          '每次只判断当前这条消息能否打印。',
+          '本质是键值状态缓存题。',
+        ],
+      },
+      {
+        id: 'logger-rate-limiter-key',
+        title: '判断是否能打印，只需要记住它上次什么时候打印过',
+        summary:
+          '对于某条固定消息，是否允许再次打印只取决于“当前时间 - 上次打印时间”是否至少为 10。既不需要完整历史，也不需要队列，因此一个 `message -> lastTimestamp` 的映射就足够了。',
+        bullets: [
+          '状态最小化是设计题的关键。',
+          '只保留必要信息能让实现非常简单。',
+          '每条消息状态完全独立。',
+          '这是哈希缓存的标准场景。',
+        ],
+      },
+      {
+        id: 'logger-rate-limiter-update',
+        title: '只有真正允许打印时，才更新这条消息的时间',
+        summary:
+          '如果当前调用被拒绝，就不能把时间戳更新成当前时间，否则会把冷却窗口不断往后推，逻辑就错了。只有在返回 `true` 的时候，才说明这次打印真的发生了，此时才应覆盖记录的时间。',
+        bullets: [
+          '更新时机比数据结构更容易出错。',
+          '拒绝打印时状态应保持原样。',
+          '允许打印时才写入当前时间。',
+          '这是这题最常见的细节坑。',
+        ],
+        callout:
+          '很多状态题都不是“存什么”难，而是“什么时候更新状态”难。状态的写入时机本身就是业务规则的一部分，这一点要有意识地去检查。',
+      },
+      {
+        id: 'logger-rate-limiter-solution',
+        title: '标准解法：消息映射到最近一次成功打印时间',
+        summary:
+          '用 `Map<string, number>` 保存每条消息上次成功打印的时间。调用时先取出旧时间；如果不存在，或当前时间与旧时间之差至少为 10，就更新为当前时间并返回 `true`，否则返回 `false`。',
+        bullets: [
+          '单次调用时间复杂度是 `O(1)`。',
+          '空间复杂度取决于不同消息数量。',
+          '实现非常短，但很适合作为状态设计入门题。',
+          '核心是只保留必要历史信息。',
+        ],
+        code: `class Logger {
+  private readonly lastPrinted: Map<string, number>
+
+  constructor() {
+    this.lastPrinted = new Map()
+  }
+
+  shouldPrintMessage(timestamp: number, message: string): boolean {
+    const previous = this.lastPrinted.get(message)
+
+    if (previous === undefined || timestamp - previous >= 10) {
+      this.lastPrinted.set(message, timestamp)
+      return true
+    }
+
+    return false
+  }
+}`,
+      },
+      {
+        id: 'logger-rate-limiter-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是拒绝打印时也更新了时间戳，导致消息永远被延后；或者把“10 秒内不能打印”误写成严格大于 10 秒才能打印。',
+        bullets: [
+          '易错点 1：拒绝时错误更新时间。',
+          '易错点 2：边界条件写成 `> 10` 而不是 `>= 10`。',
+          '易错点 3：为每条消息保留了不必要的完整历史。',
+          '延伸方向：缓存设计、请求去重、限流与节流类题目。',
+        ],
+      },
+    ],
+  },
 ];
