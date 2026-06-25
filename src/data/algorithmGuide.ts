@@ -39681,4 +39681,100 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'line-reflection',
+    label: '356. LeetCode 356. 直线镜像',
+    difficulty: '中等',
+    description:
+      '这题看起来像几何题，但真正的核心是抽象出“所有点是否关于同一条竖直线成对出现”这个条件。重点不在画图，而在于找到一个统一的镜像轴表达方式。',
+    outcome:
+      '你能用集合和镜像轴判定一组点是否关于某条竖直线对称，并说明为什么只要固定 `minX + maxX` 就能统一验证所有点。',
+    sections: [
+      {
+        id: 'line-reflection-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干二维点，判断是否存在一条与 y 轴平行的直线，使得所有点都能关于这条直线成镜像对称。',
+        bullets: [
+          '镜像轴必须是竖直线。',
+          '每个点都要能找到对应镜像点。',
+          '点可以落在镜像轴上。',
+          '本质是坐标映射验证题。',
+        ],
+      },
+      {
+        id: 'line-reflection-axis',
+        title: '先找到可能的镜像轴，再验证每个点',
+        summary:
+          '如果一组点关于某条竖直线对称，那么最左点和最右点一定关于这条线对称，因此镜像轴的横坐标可以由 `minX` 和 `maxX` 决定。更方便的写法是不直接求轴，而是记录 `sum = minX + maxX`。',
+        bullets: [
+          '`sum` 避免了处理 0.5 这类小数轴。',
+          '镜像点横坐标满足 `x + mirrorX = sum`。',
+          '纵坐标必须保持不变。',
+          '这是全局一致的配对规则。',
+        ],
+      },
+      {
+        id: 'line-reflection-set',
+        title: '有了镜像规则后，用集合快速验证配对存在性',
+        summary:
+          '把所有点编码后放入集合。遍历每个点 `(x, y)` 时，只要检查 `(sum - x, y)` 是否也在集合中即可。若有任何一点找不到对应镜像点，就不满足对称条件。',
+        bullets: [
+          '集合适合做存在性查询。',
+          '镜像点检查是独立局部判断。',
+          '整体复杂度能做到线性级别。',
+          '是这题最稳的实现方式。',
+        ],
+        callout:
+          '这题很适合训练“先找全局不变量，再做局部验证”的思维。镜像轴就是全局不变量，点对检查就是局部验证。很多几何题本质都是这种结构。',
+      },
+      {
+        id: 'line-reflection-solution',
+        title: '标准解法：记录 `minX + maxX`，逐点检查镜像伙伴',
+        summary:
+          '先遍历所有点得到最小和最大横坐标，并把点放入集合。之后再次遍历每个点，对应镜像点的横坐标就是 `sum - x`。若集合中不存在 `(sum - x, y)`，则返回 `false`；全部存在则返回 `true`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '思路清晰，几乎不依赖复杂几何知识。',
+          '关键是正确提取镜像轴不变量。',
+        ],
+        code: `function isReflected(points: number[][]): boolean {
+  let minX = Infinity
+  let maxX = -Infinity
+  const pointSet = new Set<string>()
+
+  for (const [x, y] of points) {
+    minX = Math.min(minX, x)
+    maxX = Math.max(maxX, x)
+    pointSet.add(String(x) + ',' + String(y))
+  }
+
+  const sum = minX + maxX
+
+  for (const [x, y] of points) {
+    const mirrorKey = String(sum - x) + ',' + String(y)
+
+    if (!pointSet.has(mirrorKey)) {
+      return false
+    }
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'line-reflection-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把镜像轴误认为一定经过原点，或者只检查了部分点的配对关系，忽略了镜像轴必须对全体点统一成立。',
+        bullets: [
+          '易错点 1：没有先固定全局镜像轴。',
+          '易错点 2：镜像点纵坐标检查遗漏。',
+          '易错点 3：使用浮点轴导致判断绕远路。',
+          '延伸方向：对称图形、哈希坐标题、几何不变量问题。',
+        ],
+      },
+    ],
+  },
 ];
