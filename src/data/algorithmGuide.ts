@@ -39867,4 +39867,116 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'rearrange-string-k-distance-apart',
+    label: '358. LeetCode 358. K 距离间隔重排字符串',
+    difficulty: '困难',
+    description:
+      '这题本质是一个贪心调度题。重点不是简单重排字符，而是在每一步都优先放当前剩余最多的字符，同时保证相同字符之间至少隔开 `k` 个位置。',
+    outcome:
+      '你能用最大堆和冷却队列重排字符串，并解释为什么“先放高频字符、等冷却结束再回堆”能满足间隔约束。',
+    sections: [
+      {
+        id: 'rearrange-string-k-distance-apart-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串 `s` 和整数 `k`，要求重新排列字符串，使得相同字符之间的距离至少为 `k`。如果无法做到，则返回空字符串。',
+        bullets: [
+          '同字符必须至少隔开 `k` 个位置。',
+          '字符顺序可以重排。',
+          '无法满足时返回空串。',
+          '本质是带冷却时间的调度重排。',
+        ],
+      },
+      {
+        id: 'rearrange-string-k-distance-apart-greedy',
+        title: '高频字符最难安排，所以每次都该优先处理它们',
+        summary:
+          '如果高频字符不优先安排，越到后面越容易因为剩余空间不足而无法插开。因此这题很自然地要用最大堆，每一步都先取当前剩余次数最多的字符放入答案。',
+        bullets: [
+          '高频字符是排布风险最大的部分。',
+          '最大堆能持续给出当前最紧迫字符。',
+          '贪心目标是尽早消化高频负担。',
+          '这是调度题中的常见策略。',
+        ],
+      },
+      {
+        id: 'rearrange-string-k-distance-apart-cooldown',
+        title: '字符用过之后不能立刻再用，需要进入冷却区',
+        summary:
+          '某个字符刚被放入答案后，必须等待至少 `k - 1` 个其他字符插入后才能再次使用。因此可以用一个队列记录“某字符何时恢复可用”。当队头字符冷却结束，再把它重新放回最大堆参与竞争。',
+        bullets: [
+          '堆负责选当前可用字符中的最优项。',
+          '队列负责管理暂时不可用字符。',
+          '两者配合才能同时满足贪心和约束。',
+          '这和任务调度类问题的结构非常相似。',
+        ],
+        callout:
+          '很多看起来是字符串题的问题，实质上是调度问题。只要题目里出现“同类对象之间要间隔若干步”，就该想到优先队列加冷却队列这种模型。',
+      },
+      {
+        id: 'rearrange-string-k-distance-apart-solution',
+        title: '标准解法：最大堆选择字符，队列管理冷却',
+        summary:
+          '先统计字符频次，把所有字符按剩余次数放入最大堆。每次取出堆顶字符加入答案，并将其剩余次数减一后放入冷却队列。若某个字符在队列中等待满 `k` 轮且仍有剩余次数，就重新入堆。最终若答案长度等于原字符串长度则返回答案，否则返回空串。',
+        bullets: [
+          '时间复杂度通常是 `O(n log sigma)`。',
+          '空间复杂度与字符种类数有关。',
+          '思路统一，容易推广到任务调度题。',
+          '核心是“可用字符”和“冷却字符”分层管理。',
+        ],
+        code: `function rearrangeString(s: string, k: number): string {
+  if (k <= 1) {
+    return s
+  }
+
+  const counter = new Map<string, number>()
+
+  for (const char of s) {
+    counter.set(char, (counter.get(char) ?? 0) + 1)
+  }
+
+  const heap = [...counter.entries()].sort((first, second) => second[1] - first[1])
+  const waitQueue: Array<[string, number, number]> = []
+  let time = 0
+  let result = ''
+
+  while (heap.length > 0 || waitQueue.length > 0) {
+    while (waitQueue.length > 0 && waitQueue[0][2] <= time) {
+      const [char, count] = waitQueue.shift()!
+      heap.push([char, count])
+      heap.sort((first, second) => second[1] - first[1])
+    }
+
+    if (heap.length === 0) {
+      return ''
+    }
+
+    const [char, count] = heap.shift()!
+    result += char
+
+    if (count - 1 > 0) {
+      waitQueue.push([char, count - 1, time + k])
+    }
+
+    time += 1
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'rearrange-string-k-distance-apart-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只按频次排序一次后线性放置，结果无法动态处理冷却恢复；或者冷却时间计算错了，导致同字符间距不足。',
+        bullets: [
+          '易错点 1：没有动态维护当前可用字符集合。',
+          '易错点 2：冷却恢复时间算错。',
+          '易错点 3：堆空但仍有冷却字符时，没有及时返回失败。',
+          '延伸方向：任务调度器、重构字符串、优先队列贪心题。',
+        ],
+      },
+    ],
+  },
 ];
