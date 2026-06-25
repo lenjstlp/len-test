@@ -40070,4 +40070,118 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'sort-transformed-array',
+    label: '360. LeetCode 360. 有序转化数组',
+    difficulty: '中等',
+    description:
+      '这题的关键不在公式计算，而在于识别二次函数作用在有序数组上的形状特征。重点是利用抛物线的开口方向，在线性时间内直接构造有序结果。',
+    outcome:
+      '你能根据二次函数开口方向使用双指针生成有序结果，并解释为什么比较两端值就足够决定当前该放哪一个。',
+    sections: [
+      {
+        id: 'sort-transformed-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个升序数组 `nums` 以及二次函数 `f(x) = ax^2 + bx + c`，要求返回把数组中每个元素经过函数变换后的结果，并保持最终数组仍然有序。',
+        bullets: [
+          '原数组本身已升序。',
+          '变换函数是二次函数。',
+          '输出仍要有序。',
+          '本质是利用函数形状的双指针题。',
+        ],
+      },
+      {
+        id: 'sort-transformed-array-parabola',
+        title: '二次函数会把两端抬高或把两端压低',
+        summary:
+          '当 `a > 0` 时，抛物线开口向上，离顶点越远函数值越大，因此数组两端往往更大；当 `a < 0` 时，抛物线开口向下，两端往往更小。这个结构决定了可以从数组两端同时向中间比较。',
+        bullets: [
+          '开口方向决定大值在两端还是小值在两端。',
+          '顶点附近是拐点，但不需要显式求出。',
+          '只要知道两端谁更极端即可。',
+          '这是双指针成立的数学基础。',
+        ],
+      },
+      {
+        id: 'sort-transformed-array-build',
+        title: '根据开口方向，决定从结果数组哪一端开始填充',
+        summary:
+          '如果 `a > 0`，较大的变换值会优先出现在两端，因此应该从结果数组末尾向前填；如果 `a < 0`，较小的值先出现在两端，就从结果数组开头向后填。若 `a = 0`，它退化为一次函数，也仍能被这个思路统一处理。',
+        bullets: [
+          '结果写入方向和开口方向绑定。',
+          '每一步只需比较左右端变换值。',
+          '双指针每轮只推进一侧。',
+          '整个过程能在线性时间完成。',
+        ],
+        callout:
+          '不少题目看起来是数学题，但真正考的是能否把数学结构翻译成数据结构操作。这里的“抛物线开口方向”最终被翻译成了“结果从左填还是从右填”。',
+      },
+      {
+        id: 'sort-transformed-array-solution',
+        title: '标准解法：双指针比较两端函数值',
+        summary:
+          '定义函数 `transform(x)`。设置 `left`、`right` 指向原数组两端，再根据 `a >= 0` 还是 `a < 0` 决定写入指针 `index` 的起始方向。每次计算两端的变换值，挑选当前应放入结果的那个，并移动相应指针，直到处理完所有元素。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '比先变换再排序更高效。',
+          '关键在于利用原数组已有顺序和函数形状。',
+        ],
+        code: `function sortTransformedArray(
+  nums: number[],
+  a: number,
+  b: number,
+  c: number,
+): number[] {
+  const transform = (value: number) => a * value * value + b * value + c
+  const result = new Array<number>(nums.length)
+  let left = 0
+  let right = nums.length - 1
+  let index = a >= 0 ? nums.length - 1 : 0
+
+  while (left <= right) {
+    const leftValue = transform(nums[left])
+    const rightValue = transform(nums[right])
+
+    if (a >= 0) {
+      if (leftValue > rightValue) {
+        result[index] = leftValue
+        left += 1
+      } else {
+        result[index] = rightValue
+        right -= 1
+      }
+
+      index -= 1
+    } else {
+      if (leftValue < rightValue) {
+        result[index] = leftValue
+        left += 1
+      } else {
+        result[index] = rightValue
+        right -= 1
+      }
+
+      index += 1
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'sort-transformed-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有根据 `a` 的正负切换写入方向，导致结果顺序反了；或者直接先全部变换再排序，虽然能过但没有利用题目给的有序性质。',
+        bullets: [
+          '易错点 1：忽略开口方向，统一从一端填值。',
+          '易错点 2：边界条件写错，漏掉中间元素。',
+          '易错点 3：退化成 `O(n log n)` 排序解。',
+          '延伸方向：双指针、单峰函数、有序数组变形问题。',
+        ],
+      },
+    ],
+  },
 ];
