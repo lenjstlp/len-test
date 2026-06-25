@@ -40184,4 +40184,118 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'bomb-enemy',
+    label: '361. LeetCode 361. 轰炸敌人',
+    difficulty: '中等',
+    description:
+      '这题的核心不是暴力试每个空位往四个方向扫，而是复用行和列上的击杀结果。重点在于识别“墙会把连续区间切断”，从而按段统计敌人数量。',
+    outcome:
+      '你能在线性时间内求出某个空位放炸弹的最大击杀数，并清楚说明为什么行段和列段的统计可以被重复利用。',
+    sections: [
+      {
+        id: 'bomb-enemy-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个网格，包含敌人 `E`、墙 `W` 和空位 `0`。你可以在任意一个空位放一颗炸弹，炸弹会沿四个方向扩散直到遇到墙，求最多能炸死多少敌人。',
+        bullets: [
+          '只能把炸弹放在空位。',
+          '墙会阻挡爆炸传播。',
+          '上下左右方向都能击中敌人。',
+          '本质是网格分段统计题。',
+        ],
+      },
+      {
+        id: 'bomb-enemy-wall',
+        title: '墙会把整行整列切成多个独立区间',
+        summary:
+          '如果没有墙，那每个空位的答案就是所在行列敌人数的组合。但墙会阻断传播，所以真正有效的是“从某个位置开始，到下一堵墙前”的连续区间敌人数。只要在段的起点重新统计一次，这段中的多个位置都能复用结果。',
+        bullets: [
+          '墙是天然分隔符。',
+          '每段敌人数可以被该段内多个格子共享。',
+          '不必对每个空位重复扫描完整四个方向。',
+          '这是优化暴力的关键观察。',
+        ],
+      },
+      {
+        id: 'bomb-enemy-reuse',
+        title: '行统计和列统计可以分开缓存',
+        summary:
+          '遍历网格时，如果当前格子位于一段新行段开头，就向右扫描到墙为止统计本行段敌人数；如果位于一段新列段开头，就向下扫描统计本列段敌人数。之后对于当前空位，直接把这两个缓存值相加即可。',
+        bullets: [
+          '行段命中数按需刷新。',
+          '列段命中数可以存在数组里。',
+          '每个区间只会被统计一次。',
+          '整体复杂度能降到 `O(mn)`。',
+        ],
+        callout:
+          '网格题中只要出现“某种障碍物会切断连续区域”，就要警惕是否能把暴力扫描改成“按段复用”。这类思想在矩阵、字符串、图像扫描里都很常见。',
+      },
+      {
+        id: 'bomb-enemy-solution',
+        title: '标准解法：按墙分段刷新行计数和列计数',
+        summary:
+          '遍历每个格子。若当前位于新行段开头，就重新向右统计到墙前的敌人数，保存在 `rowHits`；若位于新列段开头，就重新向下统计到墙前的敌人数，保存在 `colHits[col]`。如果当前格子是空位，就用 `rowHits + colHits[col]` 更新答案。',
+        bullets: [
+          '时间复杂度是 `O(mn)`。',
+          '空间复杂度是 `O(n)`。',
+          '比逐空位四向暴力扫描高效很多。',
+          '核心是让每条连续段只统计一次。',
+        ],
+        code: `function maxKilledEnemies(grid: string[][]): number {
+  if (grid.length === 0 || grid[0].length === 0) {
+    return 0
+  }
+
+  const rows = grid.length
+  const cols = grid[0].length
+  const colHits = new Array<number>(cols).fill(0)
+  let rowHits = 0
+  let answer = 0
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      if (col === 0 || grid[row][col - 1] === 'W') {
+        rowHits = 0
+
+        for (let index = col; index < cols && grid[row][index] !== 'W'; index += 1) {
+          if (grid[row][index] === 'E') {
+            rowHits += 1
+          }
+        }
+      }
+
+      if (row === 0 || grid[row - 1][col] === 'W') {
+        colHits[col] = 0
+
+        for (let index = row; index < rows && grid[index][col] !== 'W'; index += 1) {
+          if (grid[index][col] === 'E') {
+            colHits[col] += 1
+          }
+        }
+      }
+
+      if (grid[row][col] === '0') {
+        answer = Math.max(answer, rowHits + colHits[col])
+      }
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'bomb-enemy-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是每个空位都重新向四个方向扫描一遍，导致复杂度过高；或者没有正确把墙当作分段起点，复用逻辑会失效。',
+        bullets: [
+          '易错点 1：对每个空位重复四向暴力扫描。',
+          '易错点 2：行段和列段刷新条件写错。',
+          '易错点 3：把敌人格也拿来更新答案。',
+          '延伸方向：矩阵前处理、连续段统计、障碍物切分题型。',
+        ],
+      },
+    ],
+  },
 ];
