@@ -40523,4 +40523,99 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'nested-list-weight-sum-ii',
+    label: '364. LeetCode 364. 加权嵌套序列和 II',
+    difficulty: '中等',
+    description:
+      '这题和普通嵌套列表权重和的区别在于权重方向反过来了。重点不是死记公式，而是理解如何在不知道最大深度的情况下，仍然把浅层元素累积出更大的最终权重。',
+    outcome:
+      '你能不用先求最大深度，直接按层遍历求出反向权重和，并解释“逐层累加未加权总和”为什么等价于浅层获得更高权重。',
+    sections: [
+      {
+        id: 'nested-list-weight-sum-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个嵌套整数列表，整数的权重不再是所在深度本身，而是“底层权重大、顶层权重小”的反向定义。要求返回所有整数乘以其反向权重后的总和。',
+        bullets: [
+          '越深层，权重越小的相反版本不对，这里是越浅层权重越大。',
+          '不能直接沿用普通深度加权公式。',
+          '本质是反向分层累计题。',
+          '重点在于如何绕开显式最大深度。',
+        ],
+      },
+      {
+        id: 'nested-list-weight-sum-ii-intuition',
+        title: '浅层元素应该被重复计入更多轮',
+        summary:
+          '如果按层从上往下遍历，浅层元素会比深层元素更早出现。只要我们把“当前已经见过的所有整数和”在每一层都累加进答案，那么浅层元素自然会被累计更多次，等价于获得更大的权重。',
+        bullets: [
+          '浅层先出现，能参与更多轮累计。',
+          '深层后出现，参与轮次更少。',
+          '这种重复累计正好模拟反向权重。',
+          '不需要事先知道最大深度。',
+        ],
+      },
+      {
+        id: 'nested-list-weight-sum-ii-layer',
+        title: '维护两个量：当前见过的整数和，与最终答案',
+        summary:
+          '遍历每一层时，把这一层所有整数加到 `unweighted` 中；然后把 `unweighted` 再加到总答案 `weighted` 中。这样以前层收集到的浅层元素会持续贡献，而新出现的深层元素只会从当前层开始贡献。',
+        bullets: [
+          '`unweighted` 表示到当前层为止的整数总和。',
+          '`weighted` 表示最终反向权重答案。',
+          '层次推进就是权重自动递增过程。',
+          '这是这题最精妙的转换。',
+        ],
+        callout:
+          '有些题最优雅的解法不是直接套定义，而是找到一个与定义等价、但更容易维护的过程。这里的“逐层重复累计”就是把反向权重定义转成了一个动态过程。',
+      },
+      {
+        id: 'nested-list-weight-sum-ii-solution',
+        title: '标准解法：层序遍历 + 未加权和重复累计',
+        summary:
+          '把当前层的嵌套列表放进数组中迭代。每一层遍历时，若遇到整数则加入 `unweighted`；若遇到列表，则收集到下一层数组。层处理结束后，把 `unweighted` 累加到 `weighted`。直到没有下一层为止，返回 `weighted`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度与当前层宽度相关。',
+          '避免了先求最大深度再二次遍历。',
+          '是这题最常见也最漂亮的答案。',
+        ],
+        code: `function depthSumInverse(nestedList: NestedInteger[]): number {
+  let currentLevel = nestedList
+  let unweighted = 0
+  let weighted = 0
+
+  while (currentLevel.length > 0) {
+    const nextLevel: NestedInteger[] = []
+
+    for (const item of currentLevel) {
+      if (item.isInteger()) {
+        unweighted += item.getInteger()!
+      } else {
+        nextLevel.push(...item.getList()!)
+      }
+    }
+
+    weighted += unweighted
+    currentLevel = nextLevel
+  }
+
+  return weighted
+}`,
+      },
+      {
+        id: 'nested-list-weight-sum-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是仍然沿用普通深度加权的思路，结果权重方向完全反了；或者理解不了为什么 `unweighted` 要在每一层重复累加到答案里。',
+        bullets: [
+          '易错点 1：把反向权重写成正向深度权重。',
+          '易错点 2：每层只累加当前层整数，而不是累加 `unweighted`。',
+          '易错点 3：先求最大深度时实现过于复杂。',
+          '延伸方向：层序遍历、嵌套结构、权重变形题。',
+        ],
+      },
+    ],
+  },
 ];
