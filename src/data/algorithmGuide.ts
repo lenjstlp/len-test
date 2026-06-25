@@ -40716,4 +40716,102 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'find-leaves-of-binary-tree',
+    label: '366. LeetCode 366. 寻找二叉树的叶子节点',
+    difficulty: '中等',
+    description:
+      '这题表面像要反复删除叶子节点，真正更高效的思路是一次 DFS 算出每个节点会在第几轮变成叶子。重点不是模拟删除过程，而是把“删除轮次”转成“子树高度”。',
+    outcome:
+      '你能用后序遍历一次性分组得到每轮会被删除的叶子节点，并解释为什么节点的删除轮次恰好等于它到底部叶子的高度。',
+    sections: [
+      {
+        id: 'find-leaves-of-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，要求你模拟不断删除当前叶子节点的过程，并按删除轮次返回每一轮被删除的节点值。',
+        bullets: [
+          '结果要按轮次分组。',
+          '每轮删除当前所有叶子。',
+          '删除后新的叶子会进入下一轮。',
+          '本质是分层删除问题。',
+        ],
+      },
+      {
+        id: 'find-leaves-of-binary-tree-observation',
+        title: '一个节点会在第几轮被删，取决于它离最近底层叶子有多高',
+        summary:
+          '真正的叶子节点会在第 0 轮删除；父节点会在其所有子节点删掉后成为新叶子，因此它会在第 1 轮删除；继续向上类推。于是节点的“删除轮次”其实就是它的高度定义：`max(leftHeight, rightHeight) + 1`。',
+        bullets: [
+          '叶子节点高度可以定义为 0。',
+          '父节点高度由孩子高度决定。',
+          '高度越大，删除轮次越晚。',
+          '这把动态删除转成了静态 DFS 计算。',
+        ],
+      },
+      {
+        id: 'find-leaves-of-binary-tree-grouping',
+        title: '只要算出高度，就能直接把节点放进对应分组',
+        summary:
+          '后序遍历时，先递归求左右子树高度，再得到当前节点高度。若结果数组中还没有对应高度的桶，就新建一个；然后把当前节点值放进该高度分组中。遍历结束后，结果数组天然就是按删除轮次组织好的答案。',
+        bullets: [
+          '后序遍历保证先知道孩子再知道父节点。',
+          '高度计算和分组动作能同步完成。',
+          '不需要真的修改树结构。',
+          '这是这题最优雅的实现方式。',
+        ],
+        callout:
+          '很多“反复删除”类题目，都不需要真的反复操作。只要你能找到一个静态属性来代表删除顺序，就可以把多轮模拟压缩成一次遍历。',
+      },
+      {
+        id: 'find-leaves-of-binary-tree-solution',
+        title: '标准解法：后序遍历求高度并按高度分组',
+        summary:
+          '定义 DFS 返回当前节点高度，空节点返回 `-1`。递归得到左右子树高度后，当前节点高度就是 `Math.max(left, right) + 1`。随后把当前节点值放进结果数组的对应下标位置。最终返回结果数组即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度取决于递归深度。',
+          '比分轮删除或拓扑模拟更直接。',
+          '核心是“删除轮次 = 高度”这个转换。',
+        ],
+        code: `function findLeaves(root: TreeNode | null): number[][] {
+  const result: number[][] = []
+
+  const dfs = (node: TreeNode | null): number => {
+    if (node === null) {
+      return -1
+    }
+
+    const leftHeight = dfs(node.left)
+    const rightHeight = dfs(node.right)
+    const height = Math.max(leftHeight, rightHeight) + 1
+
+    if (result.length === height) {
+      result.push([])
+    }
+
+    result[height].push(node.val)
+
+    return height
+  }
+
+  dfs(root)
+
+  return result
+}`,
+      },
+      {
+        id: 'find-leaves-of-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是真的去一轮一轮删除叶子，代码复杂且效率低；或者高度基线写错，导致所有节点分组整体偏移一层。',
+        bullets: [
+          '易错点 1：空节点高度基线没有设成 `-1`。',
+          '易错点 2：把题目做成多轮暴力删除模拟。',
+          '易错点 3：分组数组扩容条件写错。',
+          '延伸方向：树的高度、后序遍历、按层分组的树形题。',
+        ],
+      },
+    ],
+  },
 ];
