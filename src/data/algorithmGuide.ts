@@ -40618,4 +40618,102 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'water-and-jug-problem',
+    label: '365. LeetCode 365. 水壶问题',
+    difficulty: '中等',
+    description:
+      '这题表面像模拟倒水，真正的核心却是数论。重点不是把每一步倒水过程完整写出来，而是识别“哪些水量本质上可被两个壶容量线性组合出来”。',
+    outcome:
+      '你能用最大公约数判断目标水量是否可达，并清楚解释为什么问题最终会转化为裴蜀定理。',
+    sections: [
+      {
+        id: 'water-and-jug-problem-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个容量分别为 `jug1Capacity` 和 `jug2Capacity` 的水壶，以及目标容量 `targetCapacity`，判断是否能通过装满、倒空、互相倾倒这些操作，恰好得到目标水量。',
+        bullets: [
+          '操作包括装满、倒空、互倒。',
+          '目标是恰好得到指定水量。',
+          '不要求写出操作序列。',
+          '本质是可达性判断题。',
+        ],
+      },
+      {
+        id: 'water-and-jug-problem-observation',
+        title: '先看最基本的边界：目标不能超过总容量',
+        summary:
+          '如果目标水量已经大于两个壶容量之和，那无论如何操作都不可能得到。这个边界虽然简单，但能先排掉一类明显无解情况。',
+        bullets: [
+          '总容量是绝对上限。',
+          '超过上限立即无解。',
+          '这是最直接的可行性检查。',
+          '后续再进入核心数论判断。',
+        ],
+      },
+      {
+        id: 'water-and-jug-problem-gcd',
+        title: '真正的核心条件是：目标必须是容量最大公约数的倍数',
+        summary:
+          '通过互相倾倒，本质上可以构造出两个容量的整数线性组合。根据裴蜀定理，所有能表示出来的体积一定是 `gcd(jug1Capacity, jug2Capacity)` 的倍数；反过来，在不超过总容量的前提下，这些倍数也都可以被构造出来。',
+        bullets: [
+          '问题从操作模拟转成线性组合可达性。',
+          '最大公约数决定最小可分辨单位。',
+          '目标若不是该公约数倍数，就一定无解。',
+          '这是这题最核心的数学结论。',
+        ],
+        callout:
+          '很多题一开始会诱导你去做状态搜索，但真正高质量的解法往往是先问一句：这些操作最终改变了什么不变量？这题里的不变量，就是所有可达水量都受最大公约数约束。',
+      },
+      {
+        id: 'water-and-jug-problem-solution',
+        title: '标准解法：总容量边界 + 最大公约数判断',
+        summary:
+          '先判断 `targetCapacity === 0` 是否成立，成立则直接返回 `true`。若目标大于两个壶总容量，则返回 `false`。否则计算两个容量的最大公约数，只要 `targetCapacity % gcd === 0`，就返回 `true`，否则返回 `false`。',
+        bullets: [
+          '时间复杂度取决于欧几里得算法，通常是 `O(log n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现很短，但数学抽象非常关键。',
+          '比 BFS 搜索所有状态更本质也更高效。',
+        ],
+        code: `function canMeasureWater(
+  jug1Capacity: number,
+  jug2Capacity: number,
+  targetCapacity: number,
+): boolean {
+  if (targetCapacity === 0) {
+    return true
+  }
+
+  if (jug1Capacity + jug2Capacity < targetCapacity) {
+    return false
+  }
+
+  const gcd = (first: number, second: number): number => {
+    while (second !== 0) {
+      const remainder = first % second
+      first = second
+      second = remainder
+    }
+
+    return first
+  }
+
+  return targetCapacity % gcd(jug1Capacity, jug2Capacity) === 0
+}`,
+      },
+      {
+        id: 'water-and-jug-problem-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是陷入过程模拟而忽略了数论本质；或者只判断最大公约数倍数，却忘了先检查目标不能超过总容量。',
+        bullets: [
+          '易错点 1：只会暴力搜索状态，解释不清本质。',
+          '易错点 2：漏掉总容量上界判断。',
+          '易错点 3：对 `targetCapacity = 0` 的边界处理不稳。',
+          '延伸方向：最大公约数、裴蜀定理、状态搜索与数学优化题。',
+        ],
+      },
+    ],
+  },
 ];
