@@ -41012,4 +41012,100 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'plus-one-linked-list',
+    label: '369. LeetCode 369. 给单链表加一',
+    difficulty: '中等',
+    description:
+      '这题本质是在链表上处理“从低位向高位传播进位”。重点不是简单遍历，而是如何在单向链表里高效找到最后一个不为 9 的节点，从而避免整表反转或转数组。',
+    outcome:
+      '你能在不把链表转成数组的前提下完成加一，并解释为什么“最后一个不为 9 的节点”是这题的关键定位点。',
+    sections: [
+      {
+        id: 'plus-one-linked-list-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个非负整数的十进制链表表示，链表头是高位，尾部是低位。要求把这个数加一，并返回新的链表头。',
+        bullets: [
+          '链表顺序是高位到低位。',
+          '只做加一操作。',
+          '需要正确处理连续进位。',
+          '本质是链表进位处理题。',
+        ],
+      },
+      {
+        id: 'plus-one-linked-list-carry',
+        title: '问题的本质是：进位会从尾部往前传播',
+        summary:
+          '如果尾节点不是 9，那么直接加一就结束；如果尾部有连续多个 9，它们都会变成 0，并把进位继续往前传。所以真正重要的是找到“从后往前第一个不等于 9 的节点”。',
+        bullets: [
+          '不是所有节点都需要改动。',
+          '连续 9 是造成连锁进位的原因。',
+          '找到最后一个非 9 节点后，后面都能确定处理。',
+          '这是整题最核心的观察。',
+        ],
+      },
+      {
+        id: 'plus-one-linked-list-dummy',
+        title: '用哑节点能统一处理整个链表都是 9 的情况',
+        summary:
+          '若链表所有节点都是 9，比如 `9 -> 9 -> 9`，加一后会变成 `1 -> 0 -> 0 -> 0`，链表长度增加 1。给原链表前面先接一个值为 0 的哑节点，就能把这种情况和普通进位统一处理。',
+        bullets: [
+          '哑节点避免单独讨论头节点新增。',
+          '最后一个非 9 节点可能就是哑节点。',
+          '这样处理逻辑会更完整。',
+          '链表题里这是非常常见的技巧。',
+        ],
+        callout:
+          '链表题里，凡是结果可能改头节点，优先考虑哑节点。它不是“写起来方便”而已，而是能把特殊情况直接并回主流程。',
+      },
+      {
+        id: 'plus-one-linked-list-solution',
+        title: '标准解法：定位最后一个非 9 节点，再清零后缀',
+        summary:
+          '先创建哑节点指向原头。遍历链表时持续记录最后一个值不为 9 的节点。遍历结束后，把该节点值加一，然后把它后面的所有节点都置为 0。最后如果哑节点值变成了 1，就返回哑节点，否则返回原头节点。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '不需要反转链表，也不需要额外数组。',
+          '关键动作是“记最后一个非 9 节点”。',
+        ],
+        code: `function plusOne(head: ListNode | null): ListNode | null {
+  const dummy = new ListNode(0, head)
+  let lastNotNine: ListNode = dummy
+  let current = head
+
+  while (current !== null) {
+    if (current.val !== 9) {
+      lastNotNine = current
+    }
+
+    current = current.next
+  }
+
+  lastNotNine.val += 1
+  current = lastNotNine.next
+
+  while (current !== null) {
+    current.val = 0
+    current = current.next
+  }
+
+  return dummy.val === 0 ? dummy.next : dummy
+}`,
+      },
+      {
+        id: 'plus-one-linked-list-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是从头到尾线性处理却没法回头传递进位；或者处理全 9 链表时忘了新增头节点。',
+        bullets: [
+          '易错点 1：没有定位最后一个非 9 节点。',
+          '易错点 2：全 9 情况没用哑节点统一处理。',
+          '易错点 3：加一后忘记把后缀 9 全部改成 0。',
+          '延伸方向：链表加法、哑节点技巧、单向结构进位题。',
+        ],
+      },
+    ],
+  },
 ];
