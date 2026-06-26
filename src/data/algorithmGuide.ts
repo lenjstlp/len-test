@@ -40908,4 +40908,108 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'largest-divisible-subset',
+    label: '368. LeetCode 368. 最大整除子集',
+    difficulty: '中等',
+    description:
+      '这题的核心不是找任意子集，而是找一条满足整除关系的最长链。重点在于先排序，把“后面的数能否接在前面的数后面”变成一个标准的动态规划转移。',
+    outcome:
+      '你能用排序加动态规划求出最大整除子集，并说明为什么排序后只需要检查前面的数是否能整除当前数。',
+    sections: [
+      {
+        id: 'largest-divisible-subset-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一组互不相同的正整数，找出其中最大的子集，使得子集内任意两个数都满足较大的能被较小的整除。',
+        bullets: [
+          '要求的是子集，不是子序列输入顺序。',
+          '子集内部要满足整除链关系。',
+          '目标是元素个数最多。',
+          '本质是最长可连接链问题。',
+        ],
+      },
+      {
+        id: 'largest-divisible-subset-sort',
+        title: '先排序，整除关系就能自然朝一个方向检查',
+        summary:
+          '把数组升序排序后，如果 `nums[i]` 能接在某个数后面，那么那个候选数一定在它前面。这样一来，动态规划就只需要考虑“前面的哪个数能整除当前数，并且能给出最长链”。',
+        bullets: [
+          '排序把无序子集问题变成有方向的链问题。',
+          '只需从小到大构造答案。',
+          '后面的状态依赖前面的状态。',
+          '这是 DP 成立的前提。',
+        ],
+      },
+      {
+        id: 'largest-divisible-subset-dp',
+        title: '状态可以定义为：以当前数结尾的最长整除链长度',
+        summary:
+          '令 `dp[i]` 表示以 `nums[i]` 作为最后一个元素时，能得到的最大整除子集长度。同时维护 `previous[i]`，记录这条链的前驱位置。遍历到 `i` 时，枚举所有 `j < i`，若 `nums[i] % nums[j] === 0`，就尝试用 `dp[j] + 1` 更新 `dp[i]`。',
+        bullets: [
+          '长度状态负责找最优值。',
+          '前驱数组负责最后回溯出答案。',
+          '整除条件决定能否连边。',
+          '这是一道典型的 LIS 变体。',
+        ],
+        callout:
+          '只要题目形式是“找最大集合/最长链，并且当前元素能否接上只取决于前面某个元素”，就要警惕它可能是 LIS 式动态规划变形。',
+      },
+      {
+        id: 'largest-divisible-subset-solution',
+        title: '标准解法：排序后做 LIS 风格 DP，再回溯答案',
+        summary:
+          '先排序。初始化每个位置的链长为 1、前驱为 `-1`。之后从左到右枚举 `i`，向前扫描 `j`，满足整除关系且能让链更长时就更新 `dp[i]` 和 `previous[i]`。最后找到最长链结尾位置，按前驱一路回溯并翻转答案。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现清晰，适合讲解整除链 DP。',
+          '关键是排序和前驱回溯。',
+        ],
+        code: `function largestDivisibleSubset(nums: number[]): number[] {
+  nums.sort((first, second) => first - second)
+
+  const dp = new Array<number>(nums.length).fill(1)
+  const previous = new Array<number>(nums.length).fill(-1)
+  let bestLength = 0
+  let bestIndex = -1
+
+  for (let index = 0; index < nums.length; index += 1) {
+    for (let prev = 0; prev < index; prev += 1) {
+      if (nums[index] % nums[prev] === 0 && dp[prev] + 1 > dp[index]) {
+        dp[index] = dp[prev] + 1
+        previous[index] = prev
+      }
+    }
+
+    if (dp[index] > bestLength) {
+      bestLength = dp[index]
+      bestIndex = index
+    }
+  }
+
+  const result: number[] = []
+
+  while (bestIndex !== -1) {
+    result.push(nums[bestIndex])
+    bestIndex = previous[bestIndex]
+  }
+
+  return result.reverse()
+}`,
+      },
+      {
+        id: 'largest-divisible-subset-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是以为要检查任意两两组合而直接回溯暴搜；或者只算出了最长长度，却没有保存前驱，最后拿不出具体子集。',
+        bullets: [
+          '易错点 1：没有先排序，状态方向不清晰。',
+          '易错点 2：只求长度，不记录路径。',
+          '易错点 3：把它误做成普通集合搜索题。',
+          '延伸方向：最长递增子序列、链式 DP、可整除关系图问题。',
+        ],
+      },
+    ],
+  },
 ];
