@@ -41280,4 +41280,105 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'super-pow',
+    label: '372. LeetCode 372. 超级次方',
+    difficulty: '中等',
+    description:
+      '这题表面像大整数幂运算，真正的关键是把超长指数数组按十进制位拆开递推，并结合模运算把数值始终控制在很小范围内。重点不是硬算，而是利用幂的拆分公式。',
+    outcome:
+      '你能在模 `1337` 下计算超长指数的幂，并解释为什么可以按指数数组逐位递推 `a^(10x + d)` 的形式。',
+    sections: [
+      {
+        id: 'super-pow-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数 `a` 和一个由数字数组表示的超大指数 `b`，要求计算 `a^b mod 1337`。',
+        bullets: [
+          '指数非常大，不能直接转成普通整数。',
+          '结果只关心模 `1337`。',
+          '要利用模运算与幂运算性质。',
+          '本质是数论递推题。',
+        ],
+      },
+      {
+        id: 'super-pow-split',
+        title: '超长指数可以按十进制位递推展开',
+        summary:
+          '如果已经处理到某一部分指数值 `x`，再读入下一位数字 `d`，新的指数就是 `10x + d`。于是有 `a^(10x + d) = (a^x)^10 * a^d`。这让我们可以按数组从左到右逐步更新答案。',
+        bullets: [
+          '核心是指数的十进制展开。',
+          '新指数由旧指数乘 10 再加当前位构成。',
+          '幂的乘法性质把大问题拆成两个小幂。',
+          '这就是逐位处理的数学依据。',
+        ],
+      },
+      {
+        id: 'super-pow-mod',
+        title: '每一步都取模，数值才不会失控',
+        summary:
+          '因为最终只关心模 `1337` 的结果，所以中间每一步幂运算都可以在模 `1337` 下进行。这样无论 `a` 和指数有多大，实际参与运算的数都能保持在很小范围内。',
+        bullets: [
+          '模运算允许安全压缩中间结果。',
+          '不会影响最终答案正确性。',
+          '小规模快速幂就足够支撑每一步。',
+          '这是数论题的常见降维手段。',
+        ],
+        callout:
+          '看到“大指数 + 取模”时，不要想着把指数真的算出来，而要优先问：指数有没有可分解结构，模运算能不能把中间结果局部化。这题两者都满足。',
+      },
+      {
+        id: 'super-pow-solution',
+        title: '标准解法：逐位递推答案，内部用快速幂取模',
+        summary:
+          '维护当前答案 `result`，初始为 1。遍历指数数组中的每一位 `digit`，把答案更新为 `pow(result, 10) * pow(a, digit) mod 1337`。其中 `pow(base, exponent)` 用快速幂在模 `1337` 下计算即可。',
+        bullets: [
+          '时间复杂度与指数位数线性相关。',
+          '每次递推内部只做常数次小幂计算。',
+          '实现清晰，数学关系直接。',
+          '关键是把大指数拆成逐位更新。',
+        ],
+        code: `function superPow(a: number, b: number[]): number {
+  const MOD = 1337
+
+  const modPow = (base: number, exponent: number): number => {
+    let result = 1
+    let value = base % MOD
+    let power = exponent
+
+    while (power > 0) {
+      if ((power & 1) === 1) {
+        result = (result * value) % MOD
+      }
+
+      value = (value * value) % MOD
+      power >>= 1
+    }
+
+    return result
+  }
+
+  let result = 1
+
+  for (const digit of b) {
+    result = (modPow(result, 10) * modPow(a, digit)) % MOD
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'super-pow-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是试图先把指数数组转成一个完整整数，结果直接溢出；或者知道要逐位递推，却写不清 `10x + d` 这个幂拆分关系。',
+        bullets: [
+          '易错点 1：把超长指数强行转成普通数值。',
+          '易错点 2：忽略中间步骤及时取模。',
+          '易错点 3：递推公式写错成线性累加。',
+          '延伸方向：快速幂、模运算、欧拉定理相关数论题。',
+        ],
+      },
+    ],
+  },
 ];
