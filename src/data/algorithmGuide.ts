@@ -41381,4 +41381,103 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'find-k-pairs-with-smallest-sums',
+    label: '373. LeetCode 373. 查找和最小的 K 对数字',
+    difficulty: '中等',
+    description:
+      '这题的关键不是把所有数对都生成出来再排序，而是识别出“两个有序数组的数对和”也带有可扩展的有序结构。重点在于用堆逐步扩展最小候选。',
+    outcome:
+      '你能用最小堆按需生成前 `k` 个最小数对，并说明为什么每次只扩展当前弹出数对在第二个数组中的下一个位置就够了。',
+    sections: [
+      {
+        id: 'find-k-pairs-with-smallest-sums-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个升序数组 `nums1`、`nums2` 和整数 `k`，要求找出和最小的 `k` 个数对 `(u, v)`。',
+        bullets: [
+          '两个数组本身已升序。',
+          '数对和决定优先级。',
+          '只需要前 `k` 个，不需要全部。',
+          '本质是有序候选扩展题。',
+        ],
+      },
+      {
+        id: 'find-k-pairs-with-smallest-sums-bruteforce',
+        title: '暴力生成所有数对会把题目做坏',
+        summary:
+          '如果把 `nums1 × nums2` 所有数对都生成出来再排序，复杂度会非常高，尤其当两个数组都很长时完全没必要。题目只要前 `k` 个，因此应按需生成候选，而不是全量展开。',
+        bullets: [
+          '全量生成会产生大量无用候选。',
+          '题目明显更适合增量式搜索。',
+          '排序全部数对不符合 Top K 思路。',
+          '这类题通常要想到堆。',
+        ],
+      },
+      {
+        id: 'find-k-pairs-with-smallest-sums-heap',
+        title: '把每个 `nums1[i]` 和 `nums2[0]` 视作一条有序链的起点',
+        summary:
+          '固定 `nums1[i]` 后，与 `nums2` 组成的数对和会随着 `nums2` 下标增大而非递减。因此每个 `i` 都对应一条有序链：`(i,0) -> (i,1) -> (i,2)...`。只要把这些链头放进最小堆，就能像多路归并一样逐步取出全局最小候选。',
+        bullets: [
+          '每一行本身就是有序的。',
+          '最小堆负责在多条有序链之间选全局最小。',
+          '弹出一个后，只需补上它在本行的下一个候选。',
+          '这是这题最核心的建模方式。',
+        ],
+        callout:
+          '很多 Top K 题都不是“找最小值”本身难，而是要先看出候选集合里隐藏着哪些局部有序结构。只要结构被看出来，堆就会变得非常自然。',
+      },
+      {
+        id: 'find-k-pairs-with-smallest-sums-solution',
+        title: '标准解法：最小堆维护候选链头，弹出后扩展同行下一个',
+        summary:
+          '先把 `min(k, nums1.length)` 个初始候选 `(i, 0)` 放入最小堆，键值为 `nums1[i] + nums2[0]`。每次弹出堆顶，把对应数对加入答案；如果该候选在 `nums2` 中还有下一位，就把 `(i, j + 1)` 压回堆。重复直到收集满 `k` 个或堆为空。',
+        bullets: [
+          '时间复杂度大致是 `O(k log min(k, m))`。',
+          '空间复杂度与堆大小相关。',
+          '是多路归并思想在二维数对上的直接应用。',
+          '关键在于“弹一个，补一个”的按需扩展。',
+        ],
+        code: `function kSmallestPairs(nums1: number[], nums2: number[], k: number): number[][] {
+  if (nums1.length === 0 || nums2.length === 0 || k === 0) {
+    return []
+  }
+
+  const heap: Array<[number, number, number]> = []
+  const result: number[][] = []
+
+  for (let index = 0; index < Math.min(k, nums1.length); index += 1) {
+    heap.push([nums1[index] + nums2[0], index, 0])
+  }
+
+  heap.sort((first, second) => first[0] - second[0])
+
+  while (heap.length > 0 && result.length < k) {
+    const [, row, col] = heap.shift()!
+    result.push([nums1[row], nums2[col]])
+
+    if (col + 1 < nums2.length) {
+      heap.push([nums1[row] + nums2[col + 1], row, col + 1])
+      heap.sort((first, second) => first[0] - second[0])
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'find-k-pairs-with-smallest-sums-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把所有数对都丢进堆里，失去按需生成意义；或者弹出一个候选后错误地同时扩展两个方向，导致重复与复杂度失控。',
+        bullets: [
+          '易错点 1：全量生成所有数对再排序或入堆。',
+          '易错点 2：没有利用数组已排序性质。',
+          '易错点 3：扩展策略写成双向扩展造成重复。',
+          '延伸方向：合并 K 个有序链表、Top K、最小堆增量搜索。',
+        ],
+      },
+    ],
+  },
 ];
