@@ -40814,4 +40814,98 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'valid-perfect-square',
+    label: '367. LeetCode 367. 有效的完全平方数',
+    difficulty: '简单',
+    description:
+      '这题虽然可以直接调用库函数，但真正想考的是你是否理解“有序范围内找精确答案”的二分模型。重点不是开平方，而是判断某个整数是否恰好等于某个数的平方。',
+    outcome:
+      '你能不用内置开方函数，通过二分查找判断一个正整数是否是完全平方数，并清楚说明为什么这题本质是单调区间搜索。',
+    sections: [
+      {
+        id: 'valid-perfect-square-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个正整数 `num`，判断它是否能写成某个整数 `x` 的平方，也就是判断是否存在 `x * x === num`。',
+        bullets: [
+          '输入是正整数。',
+          '只返回真假。',
+          '不能依赖内置开方函数。',
+          '本质是精确命中搜索题。',
+        ],
+      },
+      {
+        id: 'valid-perfect-square-monotonic',
+        title: '平方值随着整数增大而单调递增',
+        summary:
+          '对于正整数区间来说，`1^2, 2^2, 3^2 ...` 是严格递增的。因此一旦某个中间值平方比 `num` 大，就说明真正答案只能在左边；如果平方比 `num` 小，答案只能在右边。这完全符合二分查找的前提。',
+        bullets: [
+          '单调性是二分成立的根本原因。',
+          '比较对象不是原值，而是平方结果。',
+          '大了往左，小了往右。',
+          '这是标准的数值二分模型。',
+        ],
+      },
+      {
+        id: 'valid-perfect-square-boundary',
+        title: '搜索边界通常可以设在 `1` 到 `num` 之间',
+        summary:
+          '因为若 `num` 是完全平方数，对应根一定不会超过 `num` 本身。实现中用左右指针夹住这个范围，不断取中点并比较 `middle * middle` 和 `num` 的关系即可。',
+        bullets: [
+          '边界简单直接。',
+          '无需提前估更紧上界。',
+          '注意乘法可能触及大数边界。',
+          '在 TypeScript 里数值范围仍足够处理本题。',
+        ],
+        callout:
+          '很多二分题的真正难点，不在循环模板，而在“你到底在二分什么”。这题二分的不是数组下标，而是候选平方根本身。',
+      },
+      {
+        id: 'valid-perfect-square-solution',
+        title: '标准解法：对候选平方根做二分查找',
+        summary:
+          '设置 `left = 1`、`right = num`。每次取 `middle`，计算 `square = middle * middle`。若 `square === num` 就返回 `true`；若 `square < num`，说明答案在右边；否则在左边。若循环结束仍未命中，就返回 `false`。',
+        bullets: [
+          '时间复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现稳定，思路标准。',
+          '非常适合作为数值二分入门题。',
+        ],
+        code: `function isPerfectSquare(num: number): boolean {
+  let left = 1
+  let right = num
+
+  while (left <= right) {
+    const middle = Math.floor((left + right) / 2)
+    const square = middle * middle
+
+    if (square === num) {
+      return true
+    }
+
+    if (square < num) {
+      left = middle + 1
+    } else {
+      right = middle - 1
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'valid-perfect-square-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它写成线性试探，效率不够；或者二分边界更新写错，导致死循环或漏掉答案。',
+        bullets: [
+          '易错点 1：没有利用单调性，直接从 1 枚举到 `num`。',
+          '易错点 2：二分边界更新方向写反。',
+          '易错点 3：循环结束条件处理不稳。',
+          '延伸方向：x 的平方根、数值二分、单调判定问题。',
+        ],
+      },
+    ],
+  },
 ];
