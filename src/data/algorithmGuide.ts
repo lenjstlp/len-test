@@ -41108,4 +41108,94 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'range-addition',
+    label: '370. LeetCode 370. 区间加法',
+    difficulty: '中等',
+    description:
+      '这题的重点不是逐区间逐元素更新，而是理解差分数组如何把“对一整段加值”转成两个边界点的记录。核心是把批量区间操作延迟到最后一次前缀和还原。',
+    outcome:
+      '你能用差分数组在线性时间内处理多次区间加法，并说明为什么只在区间起点加、终点后一位减，就足以表达整段增量。',
+    sections: [
+      {
+        id: 'range-addition-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组长度 `length` 和若干条更新操作 `[startIndex, endIndex, increment]`，要求返回执行完所有区间加法后的最终数组。',
+        bullets: [
+          '每次操作作用于一整段区间。',
+          '区间内每个值都加同一个增量。',
+          '最终要得到完整数组结果。',
+          '本质是批量区间更新题。',
+        ],
+      },
+      {
+        id: 'range-addition-bruteforce',
+        title: '逐元素更新虽然直观，但复杂度会被区间长度拖垮',
+        summary:
+          '如果每条更新都真的遍历 `[startIndex, endIndex]` 内所有元素，最坏情况下复杂度会变成 `O(length * updates.length)`。这类“多次对连续段做同样修改”的问题，通常都该警惕差分数组优化。',
+        bullets: [
+          '暴力做法对长区间很浪费。',
+          '每次更新的内部元素其实信息重复。',
+          '需要一种只记录边界变化的方式。',
+          '这是差分数组的典型使用场景。',
+        ],
+      },
+      {
+        id: 'range-addition-difference',
+        title: '差分数组把“整段加值”转成边界打标记',
+        summary:
+          '若想让区间 `[left, right]` 内所有数都加 `value`，只需在 `diff[left] += value`，并在 `diff[right + 1] -= value`。之后对 `diff` 做一次前缀和，区间内部自然都会带着这份增量传播下去。',
+        bullets: [
+          '起点负责开启增量影响。',
+          '终点后一位负责关闭增量影响。',
+          '前缀和把边界标记扩散成真实值。',
+          '这是差分思想的核心。',
+        ],
+        callout:
+          '差分数组不是在“保存结果”，而是在“保存变化何时开始、何时结束”。很多区间修改题只要看到这一层，就会从逐点操作降维成边界操作。',
+      },
+      {
+        id: 'range-addition-solution',
+        title: '标准解法：差分打标记，最后一遍前缀和还原',
+        summary:
+          '先创建长度为 `length` 的差分数组。遍历每条更新，在起点加增量、在终点后一位减增量。之后从左到右累加前缀和，把当前累计值写回结果数组。最终数组就是所有区间加法叠加后的结果。',
+        bullets: [
+          '时间复杂度是 `O(length + updates.length)`。',
+          '空间复杂度是 `O(length)`。',
+          '实现简洁，而且能明显优于暴力。',
+          '是区间修改题的基础模板之一。',
+        ],
+        code: `function getModifiedArray(length: number, updates: number[][]): number[] {
+  const diff = new Array<number>(length).fill(0)
+
+  for (const [startIndex, endIndex, increment] of updates) {
+    diff[startIndex] += increment
+
+    if (endIndex + 1 < length) {
+      diff[endIndex + 1] -= increment
+    }
+  }
+
+  for (let index = 1; index < length; index += 1) {
+    diff[index] += diff[index - 1]
+  }
+
+  return diff
+}`,
+      },
+      {
+        id: 'range-addition-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是区间结尾后一位的减法漏掉边界判断，或者虽知道差分思路，但最后忘了再做一次前缀和还原。',
+        bullets: [
+          '易错点 1：`endIndex + 1` 越界处理不稳。',
+          '易错点 2：忘了最后做前缀和。',
+          '易错点 3：仍然按区间内部逐元素更新。',
+          '延伸方向：航班预订统计、前缀和、差分数组题型。',
+        ],
+      },
+    ],
+  },
 ];
