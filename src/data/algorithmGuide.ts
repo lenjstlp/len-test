@@ -42056,4 +42056,117 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'insert-delete-getrandom-o1',
+    label: '380. LeetCode 380. O(1) 时间插入、删除和获取随机元素',
+    difficulty: '中等',
+    description:
+      '这题的重点不在随机函数本身，而在于怎样同时满足插入、删除、随机访问都尽量是常数时间。核心是把数组的随机访问能力和哈希表的定位能力组合起来。',
+    outcome:
+      '你能设计一个随机集合，在平均 `O(1)` 时间完成插入、删除、随机返回，并解释为什么删除时要用“末尾元素补位”。',
+    sections: [
+      {
+        id: 'insert-delete-getrandom-o1-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个数据结构，支持 `insert(val)`、`remove(val)`、`getRandom()`，要求它们平均都在 `O(1)` 时间完成。',
+        bullets: [
+          '集合中元素不重复。',
+          '插入要判断是否已存在。',
+          '删除后仍要支持快速随机访问。',
+          '本质是数组 + 哈希表联合设计题。',
+        ],
+      },
+      {
+        id: 'insert-delete-getrandom-o1-why-array-and-map',
+        title: '单独用数组或哈希表都不够，必须两者配合',
+        summary:
+          '数组适合按下标随机访问，因此非常适合 `getRandom()`；哈希表适合按值快速定位，因此非常适合 `insert` 判重和 `remove` 查位置。把值到下标的映射维护起来，就能同时利用两种结构的优势。',
+        bullets: [
+          '数组提供随机访问。',
+          '哈希表提供按值定位。',
+          '两者一起才能兼顾三种操作。',
+          '这是这题设计的核心组合。',
+        ],
+      },
+      {
+        id: 'insert-delete-getrandom-o1-delete',
+        title: '删除时不能直接从数组中间删，否则会退化成线性时间',
+        summary:
+          '如果要删除数组中间的某个元素，直接 `splice` 会导致后续元素整体移动，不再是常数时间。标准做法是把数组最后一个元素搬到待删位置，再更新它在哈希表中的下标，最后弹出数组尾部。',
+        bullets: [
+          '末尾元素补位避免整体搬移。',
+          '补位后记得更新哈希表映射。',
+          '最后再弹出数组尾部。',
+          '这是实现 `remove` 为 `O(1)` 的关键技巧。',
+        ],
+        callout:
+          '很多要求“删除还能保持常数时间”的题，都会依赖一个思想：不维持原顺序。只要顺序不重要，末尾补位几乎就是最常用的技巧。',
+      },
+      {
+        id: 'insert-delete-getrandom-o1-solution',
+        title: '标准解法：数组存值，哈希表存值对应下标',
+        summary:
+          '维护数组 `values` 和哈希表 `indices`。插入时先查重，若不存在就追加到数组末尾并记录下标；删除时取出待删元素下标，用末尾元素补到该位置，更新哈希表，再弹出数组尾部并删除映射；随机返回时，随机生成数组下标即可。',
+        bullets: [
+          '三种操作平均都能做到 `O(1)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现短，但删除逻辑最容易出错。',
+          '是数组与哈希表联合设计的经典题。',
+        ],
+        code: `class RandomizedSet {
+  private readonly values: number[]
+  private readonly indices: Map<number, number>
+
+  constructor() {
+    this.values = []
+    this.indices = new Map()
+  }
+
+  insert(val: number): boolean {
+    if (this.indices.has(val)) {
+      return false
+    }
+
+    this.indices.set(val, this.values.length)
+    this.values.push(val)
+    return true
+  }
+
+  remove(val: number): boolean {
+    if (!this.indices.has(val)) {
+      return false
+    }
+
+    const index = this.indices.get(val)!
+    const lastValue = this.values[this.values.length - 1]
+
+    this.values[index] = lastValue
+    this.indices.set(lastValue, index)
+
+    this.values.pop()
+    this.indices.delete(val)
+    return true
+  }
+
+  getRandom(): number {
+    const index = Math.floor(Math.random() * this.values.length)
+    return this.values[index]
+  }
+}`,
+      },
+      {
+        id: 'insert-delete-getrandom-o1-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是删除时只从数组删掉值，却忘了同步更新末尾元素的新下标；或者错误地认为必须保持插入顺序，导致无法使用补位技巧。',
+        bullets: [
+          '易错点 1：补位后没更新哈希表。',
+          '易错点 2：把数组中间删除写成线性操作。',
+          '易错点 3：忽略题目并不要求保序。',
+          '延伸方向：随机池、哈希表 + 数组、采样结构设计题。',
+        ],
+      },
+    ],
+  },
 ];
