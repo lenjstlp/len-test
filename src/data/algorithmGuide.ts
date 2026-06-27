@@ -42585,4 +42585,110 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'mini-parser',
+    label: '385. LeetCode 385. 迷你语法分析器',
+    difficulty: '中等',
+    description:
+      '这题表面像字符串解析，核心其实是如何把嵌套层级和当前构造中的节点状态管理清楚。重点不是背模板，而是理解何时新建列表、何时累积数字、何时把子结构挂回父结构。',
+    outcome:
+      '你能把嵌套整数的字符串表示解析成对应结构，并解释为什么栈非常适合维护当前嵌套上下文。',
+    sections: [
+      {
+        id: 'mini-parser-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串，表示可能嵌套的整数列表，例如 `324` 或 `[123,[456,[789]]]`，要求把它解析成 `NestedInteger` 结构。',
+        bullets: [
+          '输入既可能是单个整数，也可能是列表。',
+          '列表内部还可能继续嵌套列表。',
+          '需要恢复出层级结构。',
+          '本质是带层级的字符串解析题。',
+        ],
+      },
+      {
+        id: 'mini-parser-single-number',
+        title: '先处理最简单的情况：整个输入可能只是一个整数',
+        summary:
+          '如果字符串首字符不是 `[`，那它根本不是列表，而只是一个普通整数。这种情况不需要走复杂解析流程，直接构造一个整数节点返回即可。',
+        bullets: [
+          '单值输入是独立边界情况。',
+          '可以提前返回，避免复杂逻辑。',
+          '这也是很多解析题常见的首个分支。',
+          '先拆边界能让主流程更干净。',
+        ],
+      },
+      {
+        id: 'mini-parser-stack',
+        title: '真正困难的部分是进入和退出嵌套层时，谁是当前父节点',
+        summary:
+          '遇到 `[` 说明要开始一个新的列表层级，遇到 `]` 说明当前列表完成，需要回到上一层。栈非常适合维护这种“当前上下文”：新开列表就入栈，关闭列表就出栈，并把已完成的子列表挂回父列表中。',
+        bullets: [
+          '栈天然匹配括号型嵌套结构。',
+          '每个列表节点都有明确的父子层级。',
+          '关闭当前层时需要回到上一层上下文。',
+          '这是这题最核心的结构管理方式。',
+        ],
+        callout:
+          '解析题经常不是“字符怎么读”难，而是“当前结果应该挂到哪里”难。只要问题里存在成对括号和嵌套层级，栈往往就是最自然的数据结构。',
+      },
+      {
+        id: 'mini-parser-solution',
+        title: '标准解法：栈维护当前列表，数字片段按分隔符落地',
+        summary:
+          '遍历字符串。遇到 `[` 就新建列表并入栈；遇到数字、负号时继续扩展当前数字片段；遇到 `,` 或 `]` 时，若刚读完一个数字，就把它包装成 `NestedInteger` 并加入当前栈顶列表；若遇到 `]`，还要把当前完整列表弹出，并在有父列表时加入父列表。最终返回最外层结果。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度与嵌套深度相关。',
+          '实现重点在数字片段何时提交。',
+          '是这题最标准的解析思路。',
+        ],
+        code: `function deserialize(s: string): NestedInteger {
+  if (s[0] !== '[') {
+    return new NestedInteger(Number(s))
+  }
+
+  const stack: NestedInteger[] = []
+  let numberStart = -1
+
+  for (let index = 0; index < s.length; index += 1) {
+    const char = s[index]
+
+    if (char === '[') {
+      stack.push(new NestedInteger())
+    } else if (char === '-' || (char >= '0' && char <= '9')) {
+      if (numberStart === -1) {
+        numberStart = index
+      }
+    } else if (char === ',' || char === ']') {
+      if (numberStart !== -1) {
+        const value = Number(s.slice(numberStart, index))
+        stack[stack.length - 1].add(new NestedInteger(value))
+        numberStart = -1
+      }
+
+      if (char === ']' && stack.length > 1) {
+        const nested = stack.pop()!
+        stack[stack.length - 1].add(nested)
+      }
+    }
+  }
+
+  return stack[0]
+}`,
+      },
+      {
+        id: 'mini-parser-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是数字结束边界处理不稳，导致漏掉最后一个元素；或者列表闭合时忘了把当前层结果挂回父层。',
+        bullets: [
+          '易错点 1：单个整数输入没有单独处理。',
+          '易错点 2：数字片段提交时机写错。',
+          '易错点 3：出栈后没有挂回父列表。',
+          '延伸方向：括号解析、表达式解析、栈式语法树构造题。',
+        ],
+      },
+    ],
+  },
 ];
