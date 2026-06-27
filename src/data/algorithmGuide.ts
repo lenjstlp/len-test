@@ -41756,4 +41756,91 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'combination-sum-iv',
+    label: '377. LeetCode 377. 组合总和 IV',
+    difficulty: '中等',
+    description:
+      '这题和常见组合总和最大的区别，在于它统计的是“有顺序的方案数”。重点不是选了哪些数，而是同样的数字集合在不同排列顺序下要算不同答案。',
+    outcome:
+      '你能用一维动态规划统计凑出目标值的有序组合数，并说明为什么这题的循环顺序要先枚举总和、再枚举数字。',
+    sections: [
+      {
+        id: 'combination-sum-iv-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个无重复正整数数组 `nums` 和目标值 `target`，要求统计用这些数字凑出目标值的总方案数，且不同顺序视为不同方案。',
+        bullets: [
+          '是计数问题，不是求具体组合。',
+          '顺序不同要算不同答案。',
+          '数字可以重复使用。',
+          '本质是有序完全背包计数题。',
+        ],
+      },
+      {
+        id: 'combination-sum-iv-order',
+        title: '这题最容易被忽略的是：顺序不同算不同方案',
+        summary:
+          '例如 `1 + 2 + 1` 和 `2 + 1 + 1` 虽然用到的数字集合相同，但因为排列顺序不同，所以在本题中是两种不同方案。这让它和传统“组合去重”类背包题完全不同。',
+        bullets: [
+          '顺序敏感是题目本质区别。',
+          '因此状态转移要按“最后一步放什么”来思考。',
+          '不能套用无序组合的循环写法。',
+          '这是这题最关键的建模差异。',
+        ],
+      },
+      {
+        id: 'combination-sum-iv-dp',
+        title: '定义 `dp[sum]`：凑出和为 `sum` 的有序方案数',
+        summary:
+          '设 `dp[sum]` 表示恰好凑出当前总和 `sum` 的方案数。若最后一步选择了数字 `num`，那么前面必须先凑出 `sum - num`，于是有转移 `dp[sum] += dp[sum - num]`，前提是 `sum >= num`。',
+        bullets: [
+          '问题按最终总和推进最自然。',
+          '最后一步选择哪个数决定了转移来源。',
+          '每个候选数字都能贡献一批新方案。',
+          '这是典型的一维计数 DP。',
+        ],
+        callout:
+          '背包题里循环顺序不是小细节，而是题意的一部分。先枚举总和再枚举数字，代表“对于这个位置，我可以把任何数字放在最后一步”，这正好对应顺序敏感的方案计数。',
+      },
+      {
+        id: 'combination-sum-iv-solution',
+        title: '标准解法：一维 DP，先枚举总和再枚举数字',
+        summary:
+          '初始化 `dp[0] = 1`，表示凑出 0 只有一种方式：什么都不选。之后从 `1` 到 `target` 枚举每个总和，再遍历数组中的每个数字 `num`。若 `sum >= num`，则把 `dp[sum - num]` 累加到 `dp[sum]`。最终 `dp[target]` 即为答案。',
+        bullets: [
+          '时间复杂度是 `O(target * nums.length)`。',
+          '空间复杂度是 `O(target)`。',
+          '实现短，但循环顺序非常关键。',
+          '是顺序敏感计数 DP 的代表题。',
+        ],
+        code: `function combinationSum4(nums: number[], target: number): number {
+  const dp = new Array<number>(target + 1).fill(0)
+  dp[0] = 1
+
+  for (let sum = 1; sum <= target; sum += 1) {
+    for (const num of nums) {
+      if (sum >= num) {
+        dp[sum] += dp[sum - num]
+      }
+    }
+  }
+
+  return dp[target]
+}`,
+      },
+      {
+        id: 'combination-sum-iv-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它当成无序组合题处理，导致循环顺序写反，答案明显偏小；或者忘了 `dp[0] = 1` 这个基础状态。',
+        bullets: [
+          '易错点 1：把顺序敏感题写成无序组合计数。',
+          '易错点 2：基础状态初始化错误。',
+          '易错点 3：没有理解“最后一步放什么”的转移视角。',
+          '延伸方向：完全背包、排列计数、目标和动态规划题。',
+        ],
+      },
+    ],
+  },
 ];
