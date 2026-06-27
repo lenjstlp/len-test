@@ -41949,4 +41949,111 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'design-phone-directory',
+    label: '379. LeetCode 379. 电话目录管理系统',
+    difficulty: '中等',
+    description:
+      '这题本质是一个资源池设计题。重点不在接口名字，而在于如何高效维护“哪些号码可分配、哪些号码已占用、释放后如何重新回到可分配池”。',
+    outcome:
+      '你能设计一个支持获取、检查、释放号码的目录系统，并说明为什么队列与集合的组合足以稳定维护可用号码池。',
+    sections: [
+      {
+        id: 'design-phone-directory-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个 `PhoneDirectory`，支持 `get()` 获取一个可用号码，`check(number)` 判断号码是否可用，`release(number)` 释放已分配号码。',
+        bullets: [
+          '号码总数是固定的。',
+          '每个号码只能被分配一次，直到释放。',
+          '释放后号码可以再次被分配。',
+          '本质是有限资源池管理题。',
+        ],
+      },
+      {
+        id: 'design-phone-directory-pool',
+        title: '先把所有可用号码看成一个待分配资源池',
+        summary:
+          '初始化时所有号码都可用，因此可以把 `0` 到 `maxNumbers - 1` 统一放进一个队列中。这样每次获取号码时，只需要从队头拿出一个可用号码即可。',
+        bullets: [
+          '队列天然适合做“取一个可用资源”。',
+          '初始化阶段可以一次性装入所有号码。',
+          '取号操作会不断消耗队列内容。',
+          '这是 `get()` 的核心结构。',
+        ],
+      },
+      {
+        id: 'design-phone-directory-occupied',
+        title: '是否可用不能只看队列，还要有一个已分配状态集合',
+        summary:
+          '因为号码被取走后不再出现在可用队列里，但释放时又可能重新加入，所以需要额外维护一个集合或布尔数组，记录哪些号码当前已被占用。这样 `check` 和 `release` 才能做到快速判断。',
+        bullets: [
+          '队列负责可用资源顺序。',
+          '集合负责当前占用状态判定。',
+          '两者共同维护完整系统状态。',
+          '这是设计题中典型的双结构分工。',
+        ],
+        callout:
+          '资源池类题目经常不是一个数据结构就能解决的。谁负责“下一次给什么”，谁负责“当前是否被占用”，这两个问题往往需要分开建模。',
+      },
+      {
+        id: 'design-phone-directory-solution',
+        title: '标准解法：队列维护可用号码，集合维护占用状态',
+        summary:
+          '初始化时把所有号码压入队列，并让占用集合为空。`get()` 时若队列为空返回 `-1`，否则弹出一个号码并标记为占用；`check(number)` 判断它是否不在占用集合中；`release(number)` 若当前被占用，就从集合删除并重新放回可用队列。',
+        bullets: [
+          '各接口平均时间复杂度都很低。',
+          '实现清晰，状态职责明确。',
+          '是资源池设计题的标准答案。',
+          '关键是释放时要重新回收资源。',
+        ],
+        code: `class PhoneDirectory {
+  private readonly available: number[]
+  private readonly used: Set<number>
+
+  constructor(maxNumbers: number) {
+    this.available = []
+    this.used = new Set()
+
+    for (let number = 0; number < maxNumbers; number += 1) {
+      this.available.push(number)
+    }
+  }
+
+  get(): number {
+    if (this.available.length === 0) {
+      return -1
+    }
+
+    const number = this.available.shift()!
+    this.used.add(number)
+    return number
+  }
+
+  check(number: number): boolean {
+    return !this.used.has(number)
+  }
+
+  release(number: number): void {
+    if (this.used.has(number)) {
+      this.used.delete(number)
+      this.available.push(number)
+    }
+  }
+}`,
+      },
+      {
+        id: 'design-phone-directory-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是释放号码时忘记放回资源池，或者没有占用状态集合，导致 `check` 无法快速判断。',
+        bullets: [
+          '易错点 1：释放后没有重新加入可用池。',
+          '易错点 2：只维护队列，不维护占用状态。',
+          '易错点 3：重复释放时没有做占用检查。',
+          '延伸方向：对象池、连接池、限量资源管理题。',
+        ],
+      },
+    ],
+  },
 ];
