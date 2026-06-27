@@ -42784,4 +42784,92 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'first-unique-character-in-a-string',
+    label: '387. LeetCode 387. 字符串中的第一个唯一字符',
+    difficulty: '简单',
+    description:
+      '这题的核心不是找“有没有只出现一次的字符”，而是找到“最靠左的那个”。重点在于先统计频次，再按原顺序回扫定位第一个符合条件的位置。',
+    outcome:
+      '你能用频次统计找出字符串中第一个不重复字符的下标，并解释为什么计数和定位最好拆成两遍完成。',
+    sections: [
+      {
+        id: 'first-unique-character-in-a-string-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串，要求返回其中第一个只出现一次的字符下标。如果不存在这样的字符，就返回 `-1`。',
+        bullets: [
+          '目标是返回下标，不是字符本身。',
+          '只出现一次是核心条件。',
+          '要找最靠左的那个。',
+          '本质是频次 + 顺序定位题。',
+        ],
+      },
+      {
+        id: 'first-unique-character-in-a-string-frequency',
+        title: '先知道每个字符出现了几次，才能判断谁是唯一字符',
+        summary:
+          '如果在第一次扫描时就想同时判断唯一性和最左位置，会把逻辑搞复杂。更自然的做法是先统计所有字符频次，这样第二次再按原顺序扫描时，谁的频次是 1 就一目了然。',
+        bullets: [
+          '频次统计负责给出是否唯一。',
+          '第二遍扫描负责保留原始顺序信息。',
+          '职责拆分后实现更稳定。',
+          '这是哈希计数题的常见模式。',
+        ],
+      },
+      {
+        id: 'first-unique-character-in-a-string-two-pass',
+        title: '两遍扫描比一遍硬做更清晰',
+        summary:
+          '第一遍建立频次数组，第二遍从左到右找第一个频次等于 1 的位置。一旦找到，就可以立即返回，因为题目要的是最左下标。',
+        bullets: [
+          '两遍扫描总复杂度仍然是线性。',
+          '第二遍天然保留了顺序优先级。',
+          '一旦命中即可提前结束。',
+          '这是最简洁可靠的实现方式。',
+        ],
+        callout:
+          '很多人对“两遍”有不必要的心理负担。只要总复杂度仍是线性，先统计、再定位往往比强行一遍做完更清晰、更不容易错。',
+      },
+      {
+        id: 'first-unique-character-in-a-string-solution',
+        title: '标准解法：数组计数后再按顺序查找',
+        summary:
+          '由于题目通常是小写字母，可以用长度为 26 的数组统计频次。第一遍遍历字符串累加频次，第二遍再次遍历字符串，遇到第一个频次为 1 的字符就返回其下标。若扫描结束仍未命中，则返回 `-1`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现短且很稳定。',
+          '是字符串频次定位题的基础模板。',
+        ],
+        code: `function firstUniqChar(s: string): number {
+  const counts = new Array<number>(26).fill(0)
+
+  for (const char of s) {
+    counts[char.charCodeAt(0) - 97] += 1
+  }
+
+  for (let index = 0; index < s.length; index += 1) {
+    if (counts[s.charCodeAt(index) - 97] === 1) {
+      return index
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'first-unique-character-in-a-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只统计到了“有哪些唯一字符”，却没有重新按原顺序去找最左位置；或者数组下标转换时处理不稳。',
+        bullets: [
+          '易错点 1：没有做第二遍顺序扫描。',
+          '易错点 2：把字符唯一性和位置判断混在一起写乱。',
+          '易错点 3：字符转索引偏移写错。',
+          '延伸方向：第一个不重复字符、字母频次表、字符串定位题。',
+        ],
+      },
+    ],
+  },
 ];
