@@ -42296,4 +42296,102 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'linked-list-random-node',
+    label: '382. LeetCode 382. 链表随机节点',
+    difficulty: '中等',
+    description:
+      '这题的关键不在随机函数，而在于链表长度未知且不支持随机访问时，如何保证每个节点被等概率选中。核心是蓄水池抽样，而不是先把链表转成数组。',
+    outcome:
+      '你能用蓄水池抽样从单链表中等概率返回一个节点值，并解释为什么第 `i` 个节点要以 `1 / i` 的概率替换当前答案。',
+    sections: [
+      {
+        id: 'linked-list-random-node-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个单链表，设计一个结构，每次调用 `getRandom()` 时都能等概率返回链表中的任意一个节点值。',
+        bullets: [
+          '每个节点被返回的概率必须相同。',
+          '链表不支持按下标随机访问。',
+          '长度可能未知或不想预先统计。',
+          '本质是流式随机采样题。',
+        ],
+      },
+      {
+        id: 'linked-list-random-node-why-not-array',
+        title: '把链表先转数组虽然能做，但不是题目最精髓的解法',
+        summary:
+          '如果允许额外把所有节点存进数组，再随机访问当然很直接，但这依赖完整额外存储。更本质的做法是在线扫描链表，在只保留一个候选答案的前提下，依然保证所有节点最终入选概率相同。',
+        bullets: [
+          '数组法牺牲了额外空间。',
+          '题目更想考随机抽样思想。',
+          '关键是单次遍历中保持概率公平。',
+          '这就是蓄水池抽样的适用场景。',
+        ],
+      },
+      {
+        id: 'linked-list-random-node-reservoir',
+        title: '蓄水池抽样的规则是：第 i 个元素以 1/i 的概率替换答案',
+        summary:
+          '遍历到第一个节点时，它先成为当前答案。之后遍历到第 `i` 个节点，就以 `1 / i` 的概率把答案替换成它，否则保持原答案不变。这样最终每个节点留下来的概率都会恰好相等。',
+        bullets: [
+          '第一个节点初始概率是 1。',
+          '后续节点逐步竞争当前答案。',
+          '替换概率随位置增大而减小。',
+          '这是蓄水池抽样的标准规则。',
+        ],
+        callout:
+          '蓄水池抽样最重要的不是背公式，而是理解它在做什么：在不知道总长度的情况下，动态维持一个全局公平的样本。这类思想在数据流处理里非常常见。',
+      },
+      {
+        id: 'linked-list-random-node-solution',
+        title: '标准解法：单次遍历链表，按蓄水池规则更新答案',
+        summary:
+          '在 `getRandom()` 中从头遍历链表，维护遍历计数 `count` 和当前答案 `result`。每遇到一个新节点，就把 `count` 加一，并以 `1 / count` 的概率将 `result` 更新为当前节点值。遍历结束后返回 `result`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '不依赖链表长度预处理。',
+          '是数据流抽样问题的代表解法。',
+        ],
+        code: `class Solution {
+  private readonly head: ListNode | null
+
+  constructor(head: ListNode | null) {
+    this.head = head
+  }
+
+  getRandom(): number {
+    let current = this.head
+    let count = 0
+    let result = 0
+
+    while (current !== null) {
+      count += 1
+
+      if (Math.floor(Math.random() * count) === 0) {
+        result = current.val
+      }
+
+      current = current.next
+    }
+
+    return result
+  }
+}`,
+      },
+      {
+        id: 'linked-list-random-node-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有理解等概率要求，只给后面的节点更大或更小概率；或者记住了代码，却无法解释为什么每个节点最终概率相等。',
+        bullets: [
+          '易错点 1：替换概率写错，破坏均匀性。',
+          '易错点 2：误以为必须先知道链表长度。',
+          '易错点 3：只记模板，解释不清概率推导。',
+          '延伸方向：蓄水池抽样、数据流抽样、随机算法题。',
+        ],
+      },
+    ],
+  },
 ];
