@@ -42394,4 +42394,96 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'ransom-note',
+    label: '383. LeetCode 383. 赎金信',
+    difficulty: '简单',
+    description:
+      '这题本质是一个频次匹配问题。重点不是看两个字符串里有没有相同字母，而是某个字母在杂志里是否有足够库存支撑赎金信的使用次数。',
+    outcome:
+      '你能用字符频次统计判断赎金信是否能被构造，并解释为什么这题的核心不是存在性，而是“库存是否足够”。',
+    sections: [
+      {
+        id: 'ransom-note-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `ransomNote` 和 `magazine`，判断是否可以用 `magazine` 中的字符构造出 `ransomNote`。每个字符在 `magazine` 中只能使用一次。',
+        bullets: [
+          '字符可重复出现。',
+          '同一个字符用一次就会被消耗一次。',
+          '目标是判断能否完整构造。',
+          '本质是字符库存匹配题。',
+        ],
+      },
+      {
+        id: 'ransom-note-frequency',
+        title: '看到“每个字符只能用一次”，就该立刻想到频次统计',
+        summary:
+          '如果只判断某个字符是否出现过，会忽略重复使用带来的消耗问题。真正需要的是统计 `magazine` 中每个字符有多少个，再逐个扣减 `ransomNote` 的需求。',
+        bullets: [
+          '存在性判断不够表达数量约束。',
+          '频次表能完整表达库存信息。',
+          '构造过程就是不断消耗库存。',
+          '这是哈希计数题的标准模型。',
+        ],
+      },
+      {
+        id: 'ransom-note-consume',
+        title: '一边遍历赎金信，一边扣减库存最直接',
+        summary:
+          '先把 `magazine` 中的字符频次统计出来。然后遍历 `ransomNote`，每遇到一个字符就把对应库存减一；如果某个字符根本不存在或库存已经降到 0，就说明无法构造，可以立即返回 `false`。',
+        bullets: [
+          '库存扣减过程对应实际字符消耗。',
+          '一旦某种字符不足就能提前结束。',
+          '不需要等全部遍历完再判断。',
+          '这让实现既直观又高效。',
+        ],
+        callout:
+          '很多字符串题表面在比对两个串，实质却是“资源消耗”问题。只要一个字符会被使用后耗尽，就优先从库存视角去建模。',
+      },
+      {
+        id: 'ransom-note-solution',
+        title: '标准解法：哈希表或数组统计字母频次',
+        summary:
+          '由于题目通常只涉及小写字母，可以用长度为 26 的数组统计 `magazine` 中每个字母的数量。遍历 `ransomNote` 时，将对应位置频次减一，若减之前已是 0，就返回 `false`。遍历结束仍未失败，则返回 `true`。',
+        bullets: [
+          '时间复杂度是 `O(m + n)`。',
+          '空间复杂度是 `O(1)`，若只统计 26 个小写字母。',
+          '实现短且非常稳定。',
+          '是字符频次题的基础模板。',
+        ],
+        code: `function canConstruct(ransomNote: string, magazine: string): boolean {
+  const counts = new Array<number>(26).fill(0)
+
+  for (const char of magazine) {
+    counts[char.charCodeAt(0) - 97] += 1
+  }
+
+  for (const char of ransomNote) {
+    const index = char.charCodeAt(0) - 97
+
+    if (counts[index] === 0) {
+      return false
+    }
+
+    counts[index] -= 1
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'ransom-note-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只判断字符是否存在而不统计次数，结果在重复字母场景下出错；或者库存减法顺序写乱，导致边界判断不稳。',
+        bullets: [
+          '易错点 1：把频次题误做成集合存在性题。',
+          '易错点 2：没有正确处理重复字符消耗。',
+          '易错点 3：字母转下标时偏移写错。',
+          '延伸方向：字母异位词、字符串库存匹配、哈希计数题。',
+        ],
+      },
+    ],
+  },
 ];
