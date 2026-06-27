@@ -41574,4 +41574,95 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'guess-number-higher-or-lower-ii',
+    label: '375. LeetCode 375. 猜数字大小 II',
+    difficulty: '中等',
+    description:
+      '这题和上一题名字很像，但本质已经从“查找答案”变成了“最坏情况下的最小代价决策”。重点不是猜中数字，而是设计一个策略，让无论答案落在哪边，你准备的钱都足够少。',
+    outcome:
+      '你能用区间动态规划求出保证获胜所需的最少现金，并解释为什么转移要取 `max(leftCost, rightCost)`。',
+    sections: [
+      {
+        id: 'guess-number-higher-or-lower-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '在 `1` 到 `n` 中猜一个数。每次猜错时，你需要支付所猜数字本身的金额，并得到答案更大还是更小的提示。要求求出一种策略，使得在最坏情况下也一定能赢，并且花费最少。',
+        bullets: [
+          '不是求平均花费，而是最坏情况花费。',
+          '每次猜错要付猜测值本身的钱。',
+          '目标是设计最优策略。',
+          '本质是区间决策 DP。',
+        ],
+      },
+      {
+        id: 'guess-number-higher-or-lower-ii-worst',
+        title: '因为对手可能把答案放在更贵的一侧，所以必须按最坏情况考虑',
+        summary:
+          '如果在区间 `[left, right]` 中先猜 `pivot`，那么之后答案只可能落在左半区间或右半区间。你无法控制答案在哪边，因此真实成本应该是 `pivot + max(cost(left side), cost(right side))`，因为对手总会把你逼到更贵的那一侧。',
+        bullets: [
+          '这是典型的 minimax 思维。',
+          '你选的是 pivot，对手决定分支。',
+          '所以分支成本要取最大值。',
+          '这是这题转移方程的核心。',
+        ],
+      },
+      {
+        id: 'guess-number-higher-or-lower-ii-interval',
+        title: '状态天然就是一个闭区间 `[left, right]`',
+        summary:
+          '定义 `dp[left][right]` 表示在这个区间内保证猜中的最小花费。枚举第一次猜的数字 `pivot`，计算其最坏代价，再在所有 `pivot` 中选最小值。区间越短，状态越简单，长度为 1 时成本为 0。',
+        bullets: [
+          '区间是天然状态。',
+          '单点区间不需要再猜，成本为 0。',
+          '状态依赖更小的左右子区间。',
+          '这是典型区间 DP 结构。',
+        ],
+        callout:
+          '区间 DP 经常对应一种“先在区间里做一次决定，然后问题分裂成左右两段”的结构。看到这个形状，就该优先往区间状态和枚举切分点上想。',
+      },
+      {
+        id: 'guess-number-higher-or-lower-ii-solution',
+        title: '标准解法：区间 DP 枚举第一次猜的数字',
+        summary:
+          '按区间长度从小到大填表。对于每个 `[left, right]`，枚举 `pivot` 从 `left` 到 `right`，计算 `pivot + Math.max(dp[left][pivot - 1], dp[pivot + 1][right])`，并取最小值作为 `dp[left][right]`。最终答案就是 `dp[1][n]`。',
+        bullets: [
+          '时间复杂度是 `O(n^3)`。',
+          '空间复杂度是 `O(n^2)`。',
+          '实现标准但要理解最坏情况思维。',
+          '关键是“选最小的最坏代价”。',
+        ],
+        code: `function getMoneyAmount(n: number): number {
+  const dp = Array.from({ length: n + 2 }, () => new Array<number>(n + 2).fill(0))
+
+  for (let length = 2; length <= n; length += 1) {
+    for (let left = 1; left + length - 1 <= n; left += 1) {
+      const right = left + length - 1
+      dp[left][right] = Infinity
+
+      for (let pivot = left; pivot <= right; pivot += 1) {
+        const cost =
+          pivot + Math.max(dp[left][pivot - 1], dp[pivot + 1][right])
+        dp[left][right] = Math.min(dp[left][right], cost)
+      }
+    }
+  }
+
+  return dp[1][n]
+}`,
+      },
+      {
+        id: 'guess-number-higher-or-lower-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它误当成普通二分查找，或者在转移中错误地取左右区间成本的最小值，完全违背了最坏情况假设。',
+        bullets: [
+          '易错点 1：误用二分贪心。',
+          '易错点 2：把 `max` 写成 `min`。',
+          '易错点 3：区间长度遍历顺序不对，导致子问题尚未求出。',
+          '延伸方向：区间 DP、博弈决策、minimax 题型。',
+        ],
+      },
+    ],
+  },
 ];
