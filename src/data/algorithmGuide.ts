@@ -42486,4 +42486,103 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'shuffle-an-array',
+    label: '384. LeetCode 384. 打乱数组',
+    difficulty: '中等',
+    description:
+      '这题的关键不是调用随机数，而是如何保证所有排列出现的概率相同。重点在于理解 Fisher-Yates 洗牌，而不是写一个看起来在交换的随机过程。',
+    outcome:
+      '你能实现支持重置和随机打乱的数组类，并解释为什么 Fisher-Yates 能保证每个排列等概率出现。',
+    sections: [
+      {
+        id: 'shuffle-an-array-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个数组类，支持 `reset()` 返回初始状态，支持 `shuffle()` 随机打乱数组，并要求所有排列等概率出现。',
+        bullets: [
+          '需要保留原始数组副本。',
+          '打乱后的排列必须公平。',
+          '还要支持恢复初始顺序。',
+          '本质是随机排列生成题。',
+        ],
+      },
+      {
+        id: 'shuffle-an-array-why-not-random-swap',
+        title: '随便找两个位置反复交换，看起来随机，其实不一定均匀',
+        summary:
+          '很多直觉写法会在整个数组上反复随机交换，但不同排列被命中的概率往往并不一致。题目真正需要的是均匀分布，因此必须使用有严格概率保证的洗牌算法。',
+        bullets: [
+          '“看起来乱”不等于“概率均匀”。',
+          '题目考的是等概率排列。',
+          '需要使用标准洗牌算法。',
+          '这就是 Fisher-Yates 的价值。',
+        ],
+      },
+      {
+        id: 'shuffle-an-array-fisher-yates',
+        title: 'Fisher-Yates 的做法是：当前位置只和后面区间随机交换一次',
+        summary:
+          '从左到右遍历数组第 `i` 位时，在区间 `[i, n - 1]` 中随机选一个位置 `j`，交换 `i` 和 `j`。这样第 `i` 位一旦确定，后续就不再改动，最终每个排列都会以完全相同的概率出现。',
+        bullets: [
+          '每一位只在自己的候选区间里抽一次。',
+          '前面确定过的位置不会被后续破坏。',
+          '概率推导是严格成立的。',
+          '这是数组洗牌的标准答案。',
+        ],
+        callout:
+          '随机算法题最怕“感觉差不多”。只要题目要求等概率，就不能停留在直觉层面，必须使用有明确概率保证的标准过程。',
+      },
+      {
+        id: 'shuffle-an-array-solution',
+        title: '标准解法：保存原数组，洗牌时复制后做 Fisher-Yates',
+        summary:
+          '构造时保存原始数组副本。`reset()` 直接返回原数组副本；`shuffle()` 先复制一份当前原数组，再执行 Fisher-Yates：从头到尾枚举下标 `i`，在 `[i, n - 1]` 中随机选一个 `j` 并交换。最后返回洗牌后的结果。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`，因为要复制数组。',
+          '重置和洗牌职责清晰分离。',
+          '是这题最标准的实现方式。',
+        ],
+        code: `class Solution {
+  private readonly original: number[]
+
+  constructor(nums: number[]) {
+    this.original = [...nums]
+  }
+
+  reset(): number[] {
+    return [...this.original]
+  }
+
+  shuffle(): number[] {
+    const shuffled = [...this.original]
+
+    for (let index = 0; index < shuffled.length; index += 1) {
+      const randomIndex =
+        index + Math.floor(Math.random() * (shuffled.length - index))
+      ;[shuffled[index], shuffled[randomIndex]] = [
+        shuffled[randomIndex],
+        shuffled[index],
+      ]
+    }
+
+    return shuffled
+  }
+}`,
+      },
+      {
+        id: 'shuffle-an-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是随便随机交换几次却无法保证均匀性；或者 `reset()` 返回的是同一引用，后续被意外修改。',
+        bullets: [
+          '易错点 1：误用非均匀随机交换策略。',
+          '易错点 2：没有复制数组，导致原始状态被污染。',
+          '易错点 3：没理解 Fisher-Yates 的区间选择原因。',
+          '延伸方向：蓄水池抽样、随机算法、概率均匀性设计题。',
+        ],
+      },
+    ],
+  },
 ];
