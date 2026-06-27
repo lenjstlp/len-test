@@ -42872,4 +42872,102 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'longest-absolute-file-path',
+    label: '388. LeetCode 388. 文件的最长绝对路径',
+    difficulty: '中等',
+    description:
+      '这题表面是字符串切分，核心其实是层级路径长度的动态维护。重点不是把文件系统真正建成树，而是利用每一行的缩进层级直接维护到当前深度的路径长度。',
+    outcome:
+      '你能在一次扫描中求出最长文件绝对路径长度，并解释为什么只需要记录每个深度对应的累计长度。',
+    sections: [
+      {
+        id: 'longest-absolute-file-path-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个使用 `\\n` 和 `\\t` 表示层级关系的字符串文件系统，求其中最长文件绝对路径的长度。',
+        bullets: [
+          '目录和文件都按行表示。',
+          '缩进层数决定父子关系。',
+          '只有包含 `.` 的项才是文件。',
+          '本质是层级路径累计题。',
+        ],
+      },
+      {
+        id: 'longest-absolute-file-path-depth',
+        title: '每一行前导 `\\t` 的数量，直接告诉你它处于第几层',
+        summary:
+          '解析每一行时，先数前面有多少个 `\\t`，这就是当前节点的深度。去掉这些缩进后的剩余部分就是当前目录名或文件名。知道深度后，就能把它挂到对应父层之下。',
+        bullets: [
+          '缩进数量就是层级信息。',
+          '不需要显式建树。',
+          '每一行都能独立计算深度。',
+          '这是整个解析流程的入口。',
+        ],
+      },
+      {
+        id: 'longest-absolute-file-path-prefix',
+        title: '关键在于维护“到某一深度为止的累计路径长度”',
+        summary:
+          '如果知道深度 `d - 1` 的路径总长度，那么深度 `d` 当前项的完整路径长度就能直接由父路径长度加上当前名字长度再加斜杠得到。于是可以用一个映射 `depth -> cumulativeLength` 持续更新。',
+        bullets: [
+          '父路径长度可以直接复用。',
+          '目录需要为后续子项预留一个斜杠长度。',
+          '文件则直接参与答案比较。',
+          '这让问题从树结构变成简单累计。',
+        ],
+        callout:
+          '很多层级题并不需要真的把树建出来。只要最终问题只依赖“到当前层为止的某个累计量”，那直接按深度维护状态往往更简单、更高效。',
+      },
+      {
+        id: 'longest-absolute-file-path-solution',
+        title: '标准解法：按行解析深度，映射维护每层前缀长度',
+        summary:
+          '先按 `\\n` 切分整段输入。遍历每一行时，计算其深度和名字长度。若当前项是目录，则记录 `depth + 1` 层的累计长度；若当前项是文件，则用 `currentLength` 更新全局最大值。最终返回最大绝对路径长度。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度与最大深度相关。',
+          '不需要显式构建文件树。',
+          '关键是目录和文件在更新逻辑上的区别。',
+        ],
+        code: `function lengthLongestPath(input: string): number {
+  const lengths = new Map<number, number>()
+  lengths.set(0, 0)
+
+  let answer = 0
+
+  for (const line of input.split('\\n')) {
+    let depth = 0
+
+    while (line[depth] === '\\t') {
+      depth += 1
+    }
+
+    const name = line.slice(depth)
+    const currentLength = lengths.get(depth)! + name.length
+
+    if (name.includes('.')) {
+      answer = Math.max(answer, currentLength)
+    } else {
+      lengths.set(depth + 1, currentLength + 1)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'longest-absolute-file-path-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是目录和文件长度更新逻辑混在一起，忘了目录要多算一个 `/`；或者层级映射没有按深度覆盖更新，导致路径串错父节点。',
+        bullets: [
+          '易错点 1：目录路径没有额外加斜杠长度。',
+          '易错点 2：文件和目录共用同一更新逻辑。',
+          '易错点 3：深度状态没有正确覆盖。',
+          '延伸方向：缩进解析、层级字符串处理、路径累计题。',
+        ],
+      },
+    ],
+  },
 ];
