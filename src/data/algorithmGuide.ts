@@ -42970,4 +42970,90 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'find-the-difference',
+    label: '389. LeetCode 389. 找不同',
+    difficulty: '简单',
+    description:
+      '这题的重点不在比较两个字符串长得像不像，而在于如何快速抵消掉成对出现的字符，只留下新增的那个。异或是这里最干净的做法。',
+    outcome:
+      '你能用位运算或频次统计找出新增字符，并解释为什么把所有字符异或起来后，成对字符会全部抵消。',
+    sections: [
+      {
+        id: 'find-the-difference-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s` 和字符串 `t`，其中 `t` 由 `s` 随机重排后再额外添加一个字符组成，要求找出这个新增字符。',
+        bullets: [
+          '`t` 比 `s` 多一个字符。',
+          '字符顺序可能被打乱。',
+          '目标是找出唯一新增项。',
+          '本质是配对抵消题。',
+        ],
+      },
+      {
+        id: 'find-the-difference-cancel',
+        title: '看到“一个多出来的字符”，就该想到配对抵消',
+        summary:
+          '如果把两个字符串中成对出现的字符全部抵消，最后剩下的自然就是新增字符。实现这种抵消既可以用频次统计，也可以用异或，后者在这题里尤其简洁。',
+        bullets: [
+          '问题本质是成对抵消。',
+          '顺序被打乱不影响抵消思想。',
+          '只剩一个未配对字符。',
+          '这和异或的性质完全吻合。',
+        ],
+      },
+      {
+        id: 'find-the-difference-xor',
+        title: '异或的两个关键性质：相同为 0，和 0 异或还原自己',
+        summary:
+          '把 `s` 和 `t` 中所有字符的编码值全部异或起来，相同字符会两两抵消成 0，最终剩下的就是那个新增字符的编码值。再把它转回字符即可。',
+        bullets: [
+          '`a ^ a = 0`。',
+          '`x ^ 0 = x`。',
+          '异或顺序无关，因此不怕重排。',
+          '是这题最短最巧的解法。',
+        ],
+        callout:
+          '位运算题很多时候并不是在炫技，而是在利用代数性质做“信息抵消”。只要题目结构里有“成对出现，只多一个”的味道，就值得优先想到异或。',
+      },
+      {
+        id: 'find-the-difference-solution',
+        title: '标准解法：把两个字符串的字符编码全部异或',
+        summary:
+          '维护一个整数 `xorValue` 初始为 0。遍历 `s` 时把每个字符编码异或进去，遍历 `t` 时继续异或进去。由于 `t` 只多一个字符，所有成对字符都会抵消，最终 `xorValue` 就是新增字符的编码。最后转回字符返回。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现很短，逻辑非常干净。',
+          '是这题最常用的位运算解法。',
+        ],
+        code: `function findTheDifference(s: string, t: string): string {
+  let xorValue = 0
+
+  for (const char of s) {
+    xorValue ^= char.charCodeAt(0)
+  }
+
+  for (const char of t) {
+    xorValue ^= char.charCodeAt(0)
+  }
+
+  return String.fromCharCode(xorValue)
+}`,
+      },
+      {
+        id: 'find-the-difference-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是仍然去排序后逐位比较，虽然能做但多余；或者知道异或能抵消，却解释不清为什么重排不会影响结果。',
+        bullets: [
+          '易错点 1：退化成排序比较解法。',
+          '易错点 2：异或对象写成字符而不是编码值。',
+          '易错点 3：没有理解异或顺序无关性。',
+          '延伸方向：位运算抵消、找单独元素、频次差异题。',
+        ],
+      },
+    ],
+  },
 ];
