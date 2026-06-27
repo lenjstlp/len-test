@@ -42169,4 +42169,131 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'insert-delete-getrandom-o1-duplicates-allowed',
+    label: '381. LeetCode 381. O(1) 时间插入、删除和获取随机元素 - 允许重复',
+    difficulty: '困难',
+    description:
+      '这题是在上一题基础上加了“允许重复”的条件，难点立刻升级。重点不再是值到单一下标的映射，而是同一个值可能对应多个位置，删除时还要正确维护这些位置集合。',
+    outcome:
+      '你能设计一个允许重复元素的随机集合，并说明为什么哈希表里的值必须从“单个下标”升级成“下标集合”。',
+    sections: [
+      {
+        id: 'insert-delete-getrandom-o1-duplicates-allowed-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个数据结构，支持插入、删除和随机返回元素，要求平均 `O(1)`，并且集合中允许同一个值出现多次。',
+        bullets: [
+          '元素允许重复出现。',
+          '随机返回时，每个存储位置都等概率。',
+          '删除时只需要删除某一个出现位置。',
+          '本质是多重集合的随机池设计题。',
+        ],
+      },
+      {
+        id: 'insert-delete-getrandom-o1-duplicates-allowed-upgrade',
+        title: '和上一题相比，最大变化是“值不再只对应一个下标”',
+        summary:
+          '上一题中哈希表可以直接记录 `value -> index`，因为没有重复元素。但这里同一个值可能在数组中出现多次，因此必须把映射升级为 `value -> 多个下标的集合`。',
+        bullets: [
+          '单值映射已经不够表达状态。',
+          '必须知道每个值当前出现在数组哪些位置。',
+          '集合结构可以支持快速增删某个位置。',
+          '这是题目升级后的核心变化。',
+        ],
+      },
+      {
+        id: 'insert-delete-getrandom-o1-duplicates-allowed-delete',
+        title: '删除逻辑依旧用末尾补位，但要同步维护两个值的下标集合',
+        summary:
+          '删除某个值时，先从它的下标集合中取出一个位置。然后仍然用数组尾元素补到这个位置，但这次除了删掉原值的一个下标外，还要把尾元素在其下标集合中的旧位置删掉，并加入新的补位位置。',
+        bullets: [
+          '末尾补位技巧仍然适用。',
+          '但这次要更新两个值对应的下标集合。',
+          '重复值场景下集合维护是最容易错的部分。',
+          '逻辑正确性比代码长度更重要。',
+        ],
+        callout:
+          '允许重复后，很多原本“一对一”的映射都会变成“一对多”。设计题升级时，先别急着写代码，先想清楚状态表达是否还够用，这往往才是真正的变化点。',
+      },
+      {
+        id: 'insert-delete-getrandom-o1-duplicates-allowed-solution',
+        title: '标准解法：数组存所有值，哈希表映射到下标集合',
+        summary:
+          '维护数组 `values` 和 `Map<number, Set<number>>`。插入时把新值追加到数组末尾，并把下标加入集合；删除时从目标值的下标集合取一个位置，用末尾元素补位，更新目标值和末尾元素各自的下标集合，再弹出数组尾部；随机返回仍然直接随机取数组下标。',
+        bullets: [
+          '插入、删除、随机返回平均都能做到 `O(1)`。',
+          '空间复杂度是 `O(n)`。',
+          '与上一题相比，核心难点是集合同步更新。',
+          '是哈希表 + 数组设计题的进阶版本。',
+        ],
+        code: `class RandomizedCollection {
+  private readonly values: number[]
+  private readonly indices: Map<number, Set<number>>
+
+  constructor() {
+    this.values = []
+    this.indices = new Map()
+  }
+
+  insert(val: number): boolean {
+    if (!this.indices.has(val)) {
+      this.indices.set(val, new Set())
+    }
+
+    this.indices.get(val)!.add(this.values.length)
+    this.values.push(val)
+    return this.indices.get(val)!.size === 1
+  }
+
+  remove(val: number): boolean {
+    const positions = this.indices.get(val)
+
+    if (positions === undefined || positions.size === 0) {
+      return false
+    }
+
+    const removeIndex = positions.values().next().value as number
+    positions.delete(removeIndex)
+
+    const lastIndex = this.values.length - 1
+    const lastValue = this.values[lastIndex]
+
+    this.values[removeIndex] = lastValue
+
+    if (removeIndex !== lastIndex) {
+      const lastPositions = this.indices.get(lastValue)!
+      lastPositions.delete(lastIndex)
+      lastPositions.add(removeIndex)
+    }
+
+    this.values.pop()
+
+    if (positions.size === 0) {
+      this.indices.delete(val)
+    }
+
+    return true
+  }
+
+  getRandom(): number {
+    const index = Math.floor(Math.random() * this.values.length)
+    return this.values[index]
+  }
+}`,
+      },
+      {
+        id: 'insert-delete-getrandom-o1-duplicates-allowed-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是仍然沿用上一题的单下标映射，结果重复值状态直接丢失；或者补位后只更新了数组，没同步修正下标集合。',
+        bullets: [
+          '易错点 1：没有把映射升级成下标集合。',
+          '易错点 2：补位后下标集合更新不完整。',
+          '易错点 3：删除最后一个重复值时没有清理映射。',
+          '延伸方向：多重集合、随机采样结构、复杂状态同步设计题。',
+        ],
+      },
+    ],
+  },
 ];
