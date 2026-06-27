@@ -41665,4 +41665,95 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'wiggle-subsequence',
+    label: '376. LeetCode 376. 摆动序列',
+    difficulty: '中等',
+    description:
+      '这题的重点不是找任意上下起伏，而是抓住“相邻差值符号交替”的本质。真正高效的解法不需要保留完整子序列，只需要维护以当前元素结尾时的上升状态和下降状态长度。',
+    outcome:
+      '你能用贪心或动态规划求出最长摆动子序列长度，并解释为什么只记录“最后一步向上/向下”就足够。',
+    sections: [
+      {
+        id: 'wiggle-subsequence-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数序列，要求找出其中最长的摆动子序列长度。所谓摆动，是指相邻差值严格正负交替出现。',
+        bullets: [
+          '子序列允许跳过元素。',
+          '关键是差值符号交替。',
+          '相等差值不算有效摆动。',
+          '本质是状态切换题。',
+        ],
+      },
+      {
+        id: 'wiggle-subsequence-state',
+        title: '决定后续能否继续摆动的，只是“最后一步是上升还是下降”',
+        summary:
+          '如果当前最后一步是上升，那么下一次合法延长就必须是下降；反过来亦然。因此并不需要记住整条路径，只需维护两个状态：以当前位置结尾、最后一步向上的最长长度，以及最后一步向下的最长长度。',
+        bullets: [
+          '状态只和最后一步方向相关。',
+          '历史具体形状不需要完整保留。',
+          '这让问题可以被极度压缩。',
+          '是这题从表面复杂走向简洁的关键。',
+        ],
+      },
+      {
+        id: 'wiggle-subsequence-transition',
+        title: '当前值比前一个大，就能把下降状态接成上升状态',
+        summary:
+          '遍历数组时，若 `nums[i] > nums[i - 1]`，说明当前位置可以作为一个向上的摆动结尾，于是 `up = down + 1`；若 `nums[i] < nums[i - 1]`，则 `down = up + 1`；若相等，两者都不变。',
+        bullets: [
+          '上升只能接在下降后面。',
+          '下降只能接在上升后面。',
+          '相等不会带来新摆动。',
+          '转移关系非常紧凑。',
+        ],
+        callout:
+          '很多序列题看起来像要记录整条最优路径，但实际上只需要抓住“影响下一步选择的最小信息”。这题里的最小信息，就是最后一步的方向。',
+      },
+      {
+        id: 'wiggle-subsequence-solution',
+        title: '标准解法：维护上升结尾长度和下降结尾长度',
+        summary:
+          '初始化 `up = 1`、`down = 1`。从左到右扫描数组：若当前值比前一个大，则更新 `up = down + 1`；若当前值更小，则更新 `down = up + 1`；若相等则跳过。最终答案是 `Math.max(up, down)`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '比朴素 DP 更精炼。',
+          '是这题最经典的写法。',
+        ],
+        code: `function wiggleMaxLength(nums: number[]): number {
+  if (nums.length === 0) {
+    return 0
+  }
+
+  let up = 1
+  let down = 1
+
+  for (let index = 1; index < nums.length; index += 1) {
+    if (nums[index] > nums[index - 1]) {
+      up = down + 1
+    } else if (nums[index] < nums[index - 1]) {
+      down = up + 1
+    }
+  }
+
+  return Math.max(up, down)
+}`,
+      },
+      {
+        id: 'wiggle-subsequence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“子序列”误写成必须连续的子数组；或者把相等元素也当成摆动的一部分，导致状态被错误更新。',
+        bullets: [
+          '易错点 1：把题目误做成连续区间问题。',
+          '易错点 2：相等差值处理不当。',
+          '易错点 3：没有理解状态只和最后方向有关。',
+          '延伸方向：贪心 DP、序列状态压缩、交替模式问题。',
+        ],
+      },
+    ],
+  },
 ];
