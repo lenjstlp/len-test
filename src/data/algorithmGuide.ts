@@ -41480,4 +41480,98 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'guess-number-higher-or-lower',
+    label: '374. LeetCode 374. 猜数字大小',
+    difficulty: '简单',
+    description:
+      '这题本质上是最标准的二分查找应用题。重点不在接口本身，而在于你是否能把“范围不断缩小，直到命中答案”这个单调判定过程写得稳定无误。',
+    outcome:
+      '你能用二分查找调用给定的 `guess` 接口找到目标数字，并解释为什么每次反馈都能唯一决定下一轮搜索区间。',
+    sections: [
+      {
+        id: 'guess-number-higher-or-lower-summary',
+        title: '题目在问什么',
+        summary:
+          '系统已经选定了 `1` 到 `n` 之间的某个整数。你每次调用 `guess(num)`，它会告诉你猜大了、猜小了还是猜对了，要求找出这个整数。',
+        bullets: [
+          '答案一定在 `1` 到 `n` 范围内。',
+          '接口提供三种反馈。',
+          '目标是尽快缩小搜索范围。',
+          '本质是经典二分模板题。',
+        ],
+      },
+      {
+        id: 'guess-number-higher-or-lower-monotonic',
+        title: '反馈本质上是在告诉你答案相对中点的位置',
+        summary:
+          '如果 `guess(middle)` 说猜大了，说明真正答案一定在左边；如果说猜小了，说明答案一定在右边；如果返回正确，就直接结束。每次反馈都把解空间砍掉一半左右，因此最适合用二分查找。',
+        bullets: [
+          '问题具备非常明确的单调分割结构。',
+          '反馈直接对应区间缩小方向。',
+          '每轮都能排除一半左右候选。',
+          '这正是二分最理想的使用场景。',
+        ],
+      },
+      {
+        id: 'guess-number-higher-or-lower-template',
+        title: '实现时重点是边界更新和循环终止条件',
+        summary:
+          '设置 `left = 1`、`right = n`。每轮取中点并调用接口，根据反馈更新边界。因为答案保证存在，所以只要边界收缩得正确，循环最终一定会停在目标位置。',
+        bullets: [
+          '边界初值直接取题目完整范围。',
+          '中点取整方式要稳定。',
+          '猜大了收右边界，猜小了收左边界。',
+          '命中时立即返回是最清晰写法。',
+        ],
+        callout:
+          '很多人以为简单题不会出错，结果二分最容易在简单题里暴露边界不稳的问题。越是模板题，越值得把循环条件和边界更新练成习惯动作。',
+      },
+      {
+        id: 'guess-number-higher-or-lower-solution',
+        title: '标准解法：对答案区间做二分查找',
+        summary:
+          '在 `1` 到 `n` 范围内持续二分。若 `guess(middle) === 0`，说明找到答案；若反馈是目标更小，就令 `right = middle - 1`；若反馈是目标更大，就令 `left = middle + 1`。最终返回命中的中点即可。',
+        bullets: [
+          '时间复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(1)`。',
+          '完全符合标准二分模型。',
+          '关键是方向更新要和接口语义对齐。',
+        ],
+        code: `function guessNumber(n: number): number {
+  let left = 1
+  let right = n
+
+  while (left <= right) {
+    const middle = Math.floor((left + right) / 2)
+    const feedback = guess(middle)
+
+    if (feedback === 0) {
+      return middle
+    }
+
+    if (feedback < 0) {
+      right = middle - 1
+    } else {
+      left = middle + 1
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'guess-number-higher-or-lower-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把接口语义理解反了，导致边界更新方向写错；或者写成低效线性试探，没有真正用上二分的单调性。',
+        bullets: [
+          '易错点 1：猜大猜小的反馈方向理解反了。',
+          '易错点 2：边界更新写错造成死循环。',
+          '易错点 3：退化成线性枚举猜测。',
+          '延伸方向：二分查找模板、数值搜索、单调判定题。',
+        ],
+      },
+    ],
+  },
 ];
