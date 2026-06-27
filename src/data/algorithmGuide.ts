@@ -43056,4 +43056,95 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'elimination-game',
+    label: '390. LeetCode 390. 消除游戏',
+    difficulty: '中等',
+    description:
+      '这题如果真的用数组模拟删除，会做得又慢又笨。关键在于观察每一轮删除后，剩余数字其实始终构成一个等差序列，只需要维护序列头、步长、方向和剩余个数。',
+    outcome:
+      '你能不用真实模拟数组删除，而是用等差序列状态迭代求出最后剩下的数字，并解释为什么序列头会在特定条件下前移。',
+    sections: [
+      {
+        id: 'elimination-game-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `1` 到 `n` 的有序整数列表，先从左到右每隔一个删除一个，再从右到左重复同样操作，方向不断交替，直到只剩一个数字，要求返回它。',
+        bullets: [
+          '删除方向左右交替。',
+          '每轮都会删掉一半元素左右。',
+          '最终只剩一个数字。',
+          '本质是序列状态压缩题。',
+        ],
+      },
+      {
+        id: 'elimination-game-pattern',
+        title: '删除后剩下的数，始终仍是一段等差序列',
+        summary:
+          '无论从左删还是从右删，剩下的元素都不会失去“等差排列”的结构。于是你不必真的存整个数组，只要知道当前序列的第一个数 `head`、步长 `step`、剩余元素个数 `remaining`，以及删除方向 `leftToRight` 即可。',
+        bullets: [
+          '结构始终保持为等差序列。',
+          '真正状态远比原数组小得多。',
+          '每轮只需要更新几个变量。',
+          '这是摆脱暴力模拟的关键观察。',
+        ],
+      },
+      {
+        id: 'elimination-game-head',
+        title: '序列头是否前移，取决于删除方向和剩余个数奇偶',
+        summary:
+          '若从左到右删除，序列第一个元素一定会被删掉，因此 `head` 必然前移一个步长；若从右到左删除，则只有在当前元素个数为奇数时，左端第一个元素才会被间接删掉，此时 `head` 也要前移。',
+        bullets: [
+          '左删时头一定变。',
+          '右删时头是否变取决于奇偶。',
+          '步长每轮都会翻倍。',
+          '剩余元素每轮减半。',
+        ],
+        callout:
+          '这题难的不是变量多，而是敢不敢相信“我真的不需要数组本身了”。一旦你接受等差序列压缩状态，整个题目就会突然变得很短。',
+      },
+      {
+        id: 'elimination-game-solution',
+        title: '标准解法：维护 head、step、remaining、direction 四个状态',
+        summary:
+          '初始化 `head = 1`、`step = 1`、`remaining = n`、`leftToRight = true`。每轮根据方向和奇偶决定是否更新 `head += step`，然后令 `remaining = Math.floor(remaining / 2)`、`step *= 2`，并翻转方向。循环直到 `remaining === 1`，返回 `head`。',
+        bullets: [
+          '时间复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(1)`。',
+          '比数组模拟高效得多。',
+          '关键在于头节点更新条件的正确理解。',
+        ],
+        code: `function lastRemaining(n: number): number {
+  let head = 1
+  let step = 1
+  let remaining = n
+  let leftToRight = true
+
+  while (remaining > 1) {
+    if (leftToRight || remaining % 2 === 1) {
+      head += step
+    }
+
+    remaining = Math.floor(remaining / 2)
+    step *= 2
+    leftToRight = !leftToRight
+  }
+
+  return head
+}`,
+      },
+      {
+        id: 'elimination-game-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是执着于真实删除数组，复杂度和实现都很差；或者没有理解右删时“奇数长度才会推进 head”这个关键条件。',
+        bullets: [
+          '易错点 1：退化成数组或链表模拟删除。',
+          '易错点 2：右删时头更新条件写错。',
+          '易错点 3：忘了每轮步长翻倍。',
+          '延伸方向：状态压缩、序列规律题、对半迭代问题。',
+        ],
+      },
+    ],
+  },
 ];
