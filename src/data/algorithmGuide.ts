@@ -41843,4 +41843,110 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'kth-smallest-element-in-a-sorted-matrix',
+    label: '378. LeetCode 378. 有序矩阵中第 K 小的元素',
+    difficulty: '中等',
+    description:
+      '这题看起来像矩阵题，核心其实是“对答案值做二分”，而不是在坐标上搜索。重点是矩阵按行按列递增带来的计数能力：你可以快速判断“有多少元素小于等于某个值”。',
+    outcome:
+      '你能对答案值域做二分查找，利用矩阵有序性统计不超过某个中值的元素个数，并说明为什么这是一个标准单调判定问题。',
+    sections: [
+      {
+        id: 'kth-smallest-element-in-a-sorted-matrix-summary',
+        title: '题目在问什么',
+        summary: '给定一个每行每列都升序的矩阵，要求找出其中第 `k` 小的元素。',
+        bullets: [
+          '矩阵按行递增。',
+          '矩阵按列也递增。',
+          '要求的是整体第 `k` 小值。',
+          '本质是值域二分题。',
+        ],
+      },
+      {
+        id: 'kth-smallest-element-in-a-sorted-matrix-value-binary',
+        title: '真正该二分的是“答案值”，不是矩阵位置',
+        summary:
+          '因为矩阵有序，所以对于任意一个候选值 `middle`，都可以快速判断有多少元素 `<= middle`。如果这个数量至少是 `k`，说明真正答案不大于 `middle`；否则答案一定更大。这就形成了标准的单调判定条件。',
+        bullets: [
+          '判定函数是“有多少元素不超过中值”。',
+          '计数越大，说明中值越偏右或足够大。',
+          '满足单调性后就能做值域二分。',
+          '这是这题最核心的转换。',
+        ],
+      },
+      {
+        id: 'kth-smallest-element-in-a-sorted-matrix-count',
+        title: '计数时可以从左下角或右上角走一遍矩阵',
+        summary:
+          '例如从左下角开始：若当前值 `<= middle`，说明这一列上方的元素也都 `<= middle`，可以一次性累计这一整列的贡献并向右走；若当前值更大，则向上走。这样只需 `O(n)` 就能完成一次计数。',
+        bullets: [
+          '利用了行列同时有序的结构。',
+          '一次判断能跳过一整段元素。',
+          '不需要对每行单独做二分。',
+          '这是高效计数的关键。',
+        ],
+        callout:
+          '很多矩阵题都不是真的在二维里暴力搜索，而是利用行列有序性把计数或搜索压缩成一条折线行走。这里的左下到右上路径就是典型例子。',
+      },
+      {
+        id: 'kth-smallest-element-in-a-sorted-matrix-solution',
+        title: '标准解法：值域二分 + 有序矩阵线性计数',
+        summary:
+          '设 `left = matrix[0][0]`、`right = matrix[n - 1][n - 1]`。每轮取 `middle`，调用计数函数统计矩阵中 `<= middle` 的元素个数。若数量小于 `k`，说明答案更大，收缩左边界；否则收缩右边界。直到区间收敛，最终 `left` 即为答案。',
+        bullets: [
+          '时间复杂度通常是 `O(n log(valueRange))`。',
+          '空间复杂度是 `O(1)`。',
+          '比把所有元素拉平成数组更高效。',
+          '关键是把排序结构变成单调判定函数。',
+        ],
+        code: `function kthSmallest(matrix: number[][], k: number): number {
+  const size = matrix.length
+  let left = matrix[0][0]
+  let right = matrix[size - 1][size - 1]
+
+  const countLessOrEqual = (target: number): number => {
+    let row = size - 1
+    let col = 0
+    let count = 0
+
+    while (row >= 0 && col < size) {
+      if (matrix[row][col] <= target) {
+        count += row + 1
+        col += 1
+      } else {
+        row -= 1
+      }
+    }
+
+    return count
+  }
+
+  while (left < right) {
+    const middle = Math.floor((left + right) / 2)
+
+    if (countLessOrEqual(middle) < k) {
+      left = middle + 1
+    } else {
+      right = middle
+    }
+  }
+
+  return left
+}`,
+      },
+      {
+        id: 'kth-smallest-element-in-a-sorted-matrix-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是试图按坐标做普通矩阵搜索，结果无法直接定位第 `k` 小；或者统计 `<= middle` 的数量时没有正确利用行列有序性，复杂度退化得太厉害。',
+        bullets: [
+          '易错点 1：没有意识到该二分的是值域。',
+          '易错点 2：计数函数写成 `O(n^2)` 暴力扫描。',
+          '易错点 3：二分边界收缩条件写错。',
+          '延伸方向：值域二分、第 K 小问题、有序矩阵计数题。',
+        ],
+      },
+    ],
+  },
 ];
