@@ -42691,4 +42691,97 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'lexicographical-numbers',
+    label: '386. LeetCode 386. 字典序排数',
+    difficulty: '中等',
+    description:
+      '这题的重点不是排序，而是直接按字典序生成结果。核心在于把数字看成一棵十叉树上的先序遍历，而不是先列出 `1..n` 再转字符串排序。',
+    outcome:
+      '你能在线性时间内按字典序生成 `1` 到 `n` 的所有数字，并解释为什么这个过程等价于在十叉树上做先序遍历。',
+    sections: [
+      {
+        id: 'lexicographical-numbers-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数 `n`，要求返回 `1` 到 `n` 所有整数按字典序排列后的结果。',
+        bullets: [
+          '不是数值大小顺序。',
+          '要求完整列出 `1..n`。',
+          '目标是避免低效字符串排序。',
+          '本质是字典序生成题。',
+        ],
+      },
+      {
+        id: 'lexicographical-numbers-tree',
+        title: '把数字看成一棵十叉树，字典序就是先序遍历顺序',
+        summary:
+          '例如 `1` 的孩子可以是 `10, 11, 12...`，`2` 的孩子可以是 `20, 21...`。按字典序遍历数字，本质就是先访问父节点，再尽量深入访问它的更长前缀，这和十叉树的先序遍历完全一致。',
+        bullets: [
+          '每个前缀都能继续扩展 0 到 9。',
+          '父节点总在其所有后代前面。',
+          '这和字典序定义天然吻合。',
+          '是这题的本质结构抽象。',
+        ],
+      },
+      {
+        id: 'lexicographical-numbers-iterate',
+        title: '生成下一个字典序数字时，优先往更深前缀走，否则回退找兄弟',
+        summary:
+          '当前数字若乘 10 仍不超过 `n`，说明还能进入更深层，下一项就是 `current * 10`；否则就需要回退，直到找到一个还可以加 1 的位置，再转到下一个兄弟节点。',
+        bullets: [
+          '优先下潜到最左孩子。',
+          '不能下潜时就回退。',
+          '回退后再找下一个兄弟前缀。',
+          '这正是先序遍历的迭代版本。',
+        ],
+        callout:
+          '很多题目都可以通过“换一个视角建模”变简单。这里一旦把数字串看成树节点，原本像排序题的问题就立刻变成了遍历题。',
+      },
+      {
+        id: 'lexicographical-numbers-solution',
+        title: '标准解法：按十叉树先序遍历规则迭代生成',
+        summary:
+          '从 `current = 1` 开始循环 `n` 次。每次先把当前值加入答案。若 `current * 10 <= n`，则进入下一层；否则不断回退，直到当前值末尾不是 9 且 `current + 1 <= n`，然后执行 `current += 1`。最终得到的顺序就是字典序。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度除结果外是 `O(1)`。',
+          '比先转字符串排序更高效。',
+          '关键是正确实现下潜与回退规则。',
+        ],
+        code: `function lexicalOrder(n: number): number[] {
+  const result: number[] = []
+  let current = 1
+
+  for (let count = 0; count < n; count += 1) {
+    result.push(current)
+
+    if (current * 10 <= n) {
+      current *= 10
+    } else {
+      while (current % 10 === 9 || current + 1 > n) {
+        current = Math.floor(current / 10)
+      }
+
+      current += 1
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'lexicographical-numbers-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接把数字转字符串后排序，虽然能做但没有利用结构特性；或者回退条件写错，导致生成顺序断裂或死循环。',
+        bullets: [
+          '易错点 1：退化成 `O(n log n)` 字符串排序。',
+          '易错点 2：回退时没有正确处理末尾 9 和越界情况。',
+          '易错点 3：没有理解十叉树先序遍历的本质。',
+          '延伸方向：Trie 思想、字典序生成、前缀树遍历题。',
+        ],
+      },
+    ],
+  },
 ];
