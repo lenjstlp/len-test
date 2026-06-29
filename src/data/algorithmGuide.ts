@@ -43453,4 +43453,102 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'decode-string',
+    label: '394. LeetCode 394. 字符串解码',
+    difficulty: '中等',
+    description:
+      '这题的关键不在重复本身，而在于嵌套重复块的上下文恢复。重点是当你进入一个新的 `[...]` 层级时，如何保存外层已构造字符串和重复次数，并在闭合时正确回拼。',
+    outcome:
+      '你能解析嵌套编码字符串，并解释为什么栈非常适合在 `[` 和 `]` 之间维护“外层字符串 + 当前重复次数”的上下文。',
+    sections: [
+      {
+        id: 'decode-string-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个形如 `3[a2[c]]` 的编码字符串，要求把它解码成重复展开后的普通字符串。',
+        bullets: [
+          '数字表示后面括号内容的重复次数。',
+          '方括号内容可以继续嵌套。',
+          '要恢复完整展开结果。',
+          '本质是嵌套上下文解析题。',
+        ],
+      },
+      {
+        id: 'decode-string-context',
+        title: '遇到 `[` 时，当前字符串和重复次数都要暂存起来',
+        summary:
+          '因为进入括号内部后，会开始构造一个全新的子串；但等这个子串结束后，还要把它按重复次数接回外层。因此在读到 `[` 时，必须把外层已经构造好的字符串和当前读到的数字一起压栈保存。',
+        bullets: [
+          '括号意味着进入新上下文。',
+          '外层状态不能丢失。',
+          '重复次数和外层字符串缺一不可。',
+          '这正是栈最擅长管理的结构。',
+        ],
+      },
+      {
+        id: 'decode-string-close-bracket',
+        title: '遇到 `]` 时，当前层结果要按次数展开后拼回上一层',
+        summary:
+          '当前层字符串构造完毕后，栈顶会给出它对应的重复次数以及进入这一层之前的外层前缀字符串。于是只需把当前字符串重复指定次数，再拼到外层前缀后面，就能恢复上一层状态。',
+        bullets: [
+          '右括号意味着当前层收束。',
+          '恢复外层依赖栈中保存的上下文。',
+          '重复展开发生在闭合时最自然。',
+          '这是整个解码流程的关键拼接点。',
+        ],
+        callout:
+          '这类题的难点通常不是重复操作本身，而是层层嵌套时“当前结果属于谁”。只要上下文切换点被抓清楚，代码会比想象中短很多。',
+      },
+      {
+        id: 'decode-string-solution',
+        title: '标准解法：两个栈或一个复合栈维护上下文',
+        summary:
+          '遍历字符串。读到数字时构造当前重复次数；读到 `[` 时，把当前字符串和重复次数入栈并重置；读到字母时追加到当前字符串；读到 `]` 时弹出上层上下文，把当前字符串重复指定次数并拼接回去。最终当前字符串就是答案。',
+        bullets: [
+          '时间复杂度与最终输出长度相关。',
+          '空间复杂度与嵌套深度相关。',
+          '实现上最关键的是上下文入栈和出栈时机。',
+          '是括号嵌套解析题的经典代表。',
+        ],
+        code: `function decodeString(s: string): string {
+  const countStack: number[] = []
+  const stringStack: string[] = []
+  let current = ''
+  let count = 0
+
+  for (const char of s) {
+    if (char >= '0' && char <= '9') {
+      count = count * 10 + Number(char)
+    } else if (char === '[') {
+      countStack.push(count)
+      stringStack.push(current)
+      count = 0
+      current = ''
+    } else if (char === ']') {
+      const repeat = countStack.pop()!
+      const previous = stringStack.pop()!
+      current = previous + current.repeat(repeat)
+    } else {
+      current += char
+    }
+  }
+
+  return current
+}`,
+      },
+      {
+        id: 'decode-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是进入新层级时没有重置当前字符串和数字，导致上下文串台；或者多位数字只读了一个字符，重复次数被解析错。',
+        bullets: [
+          '易错点 1：没有正确处理多位重复次数。',
+          '易错点 2：入栈后忘记重置当前状态。',
+          '易错点 3：右括号拼接顺序写反。',
+          '延伸方向：括号解析、表达式求值、栈式上下文管理题。',
+        ],
+      },
+    ],
+  },
 ];
