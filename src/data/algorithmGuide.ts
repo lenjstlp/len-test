@@ -43147,4 +43147,119 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'perfect-rectangle',
+    label: '391. LeetCode 391. 完美矩形',
+    difficulty: '困难',
+    description:
+      '这题表面像几何拼接题，核心其实是两个条件同时成立：总面积必须完全相等，且内部所有边角必须两两抵消，只剩下大矩形四个角。重点不是画图，而是抽象出这两个不变量。',
+    outcome:
+      '你能判断若干小矩形是否恰好拼成一个无重叠无空洞的大矩形，并清楚说明为什么只检查面积还不够，还必须检查角点集合。',
+    sections: [
+      {
+        id: 'perfect-rectangle-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干个轴对齐小矩形，判断它们能否无重叠、无缝隙地拼成一个完整的大矩形。',
+        bullets: [
+          '不能有重叠。',
+          '不能有空洞。',
+          '最终外轮廓必须是一个大矩形。',
+          '本质是几何不变量判断题。',
+        ],
+      },
+      {
+        id: 'perfect-rectangle-area',
+        title: '第一层检查是：所有小矩形面积之和必须等于外包大矩形面积',
+        summary:
+          '先求出所有小矩形总面积，再同时维护最小左下角和最大右上角，从而得到理论上的外包大矩形。如果总面积和这个大矩形面积不一致，就一定不可能完美覆盖。',
+        bullets: [
+          '面积不等时立即失败。',
+          '外包矩形由全局最小和最大边界决定。',
+          '这是最直接的必要条件。',
+          '但仅有面积相等仍然不够。',
+        ],
+      },
+      {
+        id: 'perfect-rectangle-corners',
+        title: '真正关键的是：内部角点都会成对出现，最后只应剩四个外角',
+        summary:
+          '每个小矩形有四个角。若若干小矩形在内部正确拼接，那么内部共享边或共享点最终都会成偶数次出现而相互抵消。只有整个大矩形的四个外角会各出现一次，因此最终角点集合里应只剩这四个点。',
+        bullets: [
+          '内部拼接点会被抵消。',
+          '外轮廓四角必须唯一保留。',
+          '这是检查重叠与空洞的重要条件。',
+          '也是这题最核心的不变量。',
+        ],
+        callout:
+          '几何题里很多“看似复杂的形状关系”，最后都能压缩成很少几个不变量。这里最重要的两个不变量就是：面积守恒，角点奇偶性守恒。',
+      },
+      {
+        id: 'perfect-rectangle-solution',
+        title: '标准解法：面积相等 + 角点集合只剩四个外角',
+        summary:
+          '遍历每个小矩形，累加面积，并把其四个角加入集合：若某个角已存在就删除，不存在就加入。最终检查面积是否等于外包大矩形面积，同时角点集合大小是否为 4，且恰好包含大矩形四个角。全部满足时才返回 `true`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度与角点数量相关。',
+          '实现简洁，但思维很典型。',
+          '关键是集合里的“出现奇数次就保留”规则。',
+        ],
+        code: `function isRectangleCover(rectangles: number[][]): boolean {
+  let minX = Infinity
+  let minY = Infinity
+  let maxX = -Infinity
+  let maxY = -Infinity
+  let areaSum = 0
+  const corners = new Set<string>()
+
+  const toggle = (x: number, y: number) => {
+    const key = String(x) + ',' + String(y)
+
+    if (corners.has(key)) {
+      corners.delete(key)
+    } else {
+      corners.add(key)
+    }
+  }
+
+  for (const [x1, y1, x2, y2] of rectangles) {
+    minX = Math.min(minX, x1)
+    minY = Math.min(minY, y1)
+    maxX = Math.max(maxX, x2)
+    maxY = Math.max(maxY, y2)
+    areaSum += (x2 - x1) * (y2 - y1)
+
+    toggle(x1, y1)
+    toggle(x1, y2)
+    toggle(x2, y1)
+    toggle(x2, y2)
+  }
+
+  const outerArea = (maxX - minX) * (maxY - minY)
+
+  return (
+    areaSum === outerArea &&
+    corners.size === 4 &&
+    corners.has(String(minX) + ',' + String(minY)) &&
+    corners.has(String(minX) + ',' + String(maxY)) &&
+    corners.has(String(maxX) + ',' + String(minY)) &&
+    corners.has(String(maxX) + ',' + String(maxY))
+  )
+}`,
+      },
+      {
+        id: 'perfect-rectangle-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只检查面积相等，结果无法识别“重叠和空洞刚好抵消面积”的情况；或者角点集合规则实现错，导致奇偶抵消失效。',
+        bullets: [
+          '易错点 1：只做面积判断，遗漏结构错误。',
+          '易错点 2：角点增删逻辑写错。',
+          '易错点 3：外包矩形四角检查不完整。',
+          '延伸方向：扫描线、几何并集、不变量判定题。',
+        ],
+      },
+    ],
+  },
 ];
