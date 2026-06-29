@@ -44061,4 +44061,95 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'nth-digit',
+    label: '400. LeetCode 400. 第 N 位数字',
+    difficulty: '中等',
+    description:
+      '这题的重点不是把无限数字序列真的拼出来，而是按位数分组定位第 `n` 位到底落在哪一段、哪一个具体数字、该数字的哪一位。核心是分段计数。',
+    outcome:
+      '你能通过按位数分组快速定位第 `n` 位数字，并解释为什么要先扣掉一位数、两位数、三位数这些整段贡献。',
+    sections: [
+      {
+        id: 'nth-digit-summary',
+        title: '题目在问什么',
+        summary:
+          '把正整数顺序拼接成无限序列 `123456789101112...`，给定 `n`，要求返回第 `n` 位对应的数字字符。',
+        bullets: [
+          '序列是所有正整数顺次拼接。',
+          '目标是第 `n` 位上的那个数字。',
+          '不能真的构造整条长串。',
+          '本质是分段定位题。',
+        ],
+      },
+      {
+        id: 'nth-digit-groups',
+        title: '数字可以按位数分成若干段：1 位数、2 位数、3 位数……',
+        summary:
+          '1 位数有 9 个，共贡献 `9 * 1` 位；2 位数有 90 个，共贡献 `90 * 2` 位；3 位数有 900 个，共贡献 `900 * 3` 位。先看 `n` 落在哪一段，就能大幅缩小搜索范围。',
+        bullets: [
+          '每一段的数量和总位数都能直接算出。',
+          '逐段扣减比逐个数前进高效得多。',
+          '这是定位的第一层。',
+          '段的信息只和位数有关。',
+        ],
+      },
+      {
+        id: 'nth-digit-locate',
+        title: '确定落在哪一段后，再定位到具体是该段里的第几个数字',
+        summary:
+          '当 `n` 落在某个 `digitLength` 段里时，可以通过 `(n - 1) / digitLength` 算出它是这一段中的第几个数，再通过 `(n - 1) % digitLength` 算出它落在这个数字的哪一位。',
+        bullets: [
+          '先定位数字编号，再定位数字内部偏移。',
+          '这里用到 0 基偏移会更自然。',
+          '整体问题被拆成两层整数运算。',
+          '这就是最终定位的核心公式。',
+        ],
+        callout:
+          '这类题往往看起来很长，其实本质是“先确定块，再确定块内位置”。一旦分层定位意识建立起来，很多序列定位题都会变得很规整。',
+      },
+      {
+        id: 'nth-digit-solution',
+        title: '标准解法：先按位数分段，再算数字编号和位偏移',
+        summary:
+          '从 1 位数段开始，持续用 `count * digitLength` 扣减 `n`，直到 `n` 落入当前段。然后计算当前段起始数 `start`、目标数字 `number` 和该数字中的位偏移 `offset`。把 `number` 转成字符串后取对应字符即可得到答案。',
+        bullets: [
+          '时间复杂度近似是 `O(log n)`。',
+          '空间复杂度是 `O(1)`，若不算最后转字符串。',
+          '实现核心是分段扣减和偏移换算。',
+          '是典型的数字分组定位题。',
+        ],
+        code: `function findNthDigit(n: number): number {
+  let digitLength = 1
+  let count = 9
+  let start = 1
+  let remaining = n
+
+  while (remaining > digitLength * count) {
+    remaining -= digitLength * count
+    digitLength += 1
+    count *= 10
+    start *= 10
+  }
+
+  const number = start + Math.floor((remaining - 1) / digitLength)
+  const offset = (remaining - 1) % digitLength
+
+  return Number(String(number)[offset])
+}`,
+      },
+      {
+        id: 'nth-digit-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是 1 基和 0 基偏移混在一起，导致定位数字或字符位置偏一位；或者位数段扣减条件写错，提前或延后进入下一段。',
+        bullets: [
+          '易错点 1：段内偏移没有转成 0 基。',
+          '易错点 2：位数段扣减循环条件写错。',
+          '易错点 3：目标数字和其内部位置计算混淆。',
+          '延伸方向：序列定位、数字分组、数学模拟题。',
+        ],
+      },
+    ],
+  },
 ];
