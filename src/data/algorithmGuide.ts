@@ -43262,4 +43262,91 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'is-subsequence',
+    label: '392. LeetCode 392. 判断子序列',
+    difficulty: '简单',
+    description:
+      '这题的核心不在匹配字符本身，而在于保持原顺序。重点是理解子序列允许跳过字符，因此最自然的做法就是用双指针按顺序扫描。',
+    outcome:
+      '你能用双指针判断一个字符串是否是另一个字符串的子序列，并解释为什么每次只在匹配时推进短串指针。',
+    sections: [
+      {
+        id: 'is-subsequence-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s` 和 `t`，判断 `s` 是否是 `t` 的子序列。子序列要求相对顺序不变，但允许跳过字符。',
+        bullets: [
+          '顺序必须保留。',
+          '允许跳过中间无关字符。',
+          '不要求连续。',
+          '本质是顺序匹配题。',
+        ],
+      },
+      {
+        id: 'is-subsequence-order',
+        title: '子序列问题最关键的是“顺序一致，但可以跳过”',
+        summary:
+          '因为 `s` 中的字符只要求按照原有顺序在 `t` 中依次出现，所以扫描 `t` 时，只有当当前字符成功匹配 `s` 的当前目标字符时，才需要推进 `s` 的指针；否则只继续往后看 `t`。',
+        bullets: [
+          '长串负责提供候选位置。',
+          '短串负责表示当前匹配进度。',
+          '未匹配时只跳过长串字符。',
+          '这正是双指针的自然含义。',
+        ],
+      },
+      {
+        id: 'is-subsequence-two-pointers',
+        title: '双指针足够表达整个匹配过程',
+        summary:
+          '一个指针指向 `s`，一个指针指向 `t`。遍历 `t` 的过程中，只要字符相等就推进 `s` 指针。最终若 `s` 的指针走到末尾，说明所有目标字符都按顺序匹配到了。',
+        bullets: [
+          '实现简单且稳定。',
+          '每个字符最多访问一次。',
+          '匹配过程完全线性。',
+          '是这题最标准的思路。',
+        ],
+        callout:
+          '很多字符串题其实不是在比较内容，而是在比较“进度”。只要把问题理解成“我在长串里推进，短串目标什么时候完成”，双指针就会非常自然。',
+      },
+      {
+        id: 'is-subsequence-solution',
+        title: '标准解法：双指针线性扫描',
+        summary:
+          '初始化 `indexS = 0`、`indexT = 0`。当两个指针都未越界时，如果 `s[indexS] === t[indexT]`，就推进 `indexS`；无论匹配与否，都推进 `indexT`。最终若 `indexS === s.length`，说明 `s` 是子序列。',
+        bullets: [
+          '时间复杂度是 `O(|t|)`。',
+          '空间复杂度是 `O(1)`。',
+          '非常适合作为双指针入门题。',
+          '关键在于匹配成功时才推进短串指针。',
+        ],
+        code: `function isSubsequence(s: string, t: string): boolean {
+  let indexS = 0
+  let indexT = 0
+
+  while (indexS < s.length && indexT < t.length) {
+    if (s[indexS] === t[indexT]) {
+      indexS += 1
+    }
+
+    indexT += 1
+  }
+
+  return indexS === s.length
+}`,
+      },
+      {
+        id: 'is-subsequence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把子序列误写成子串判断，错误地要求连续；或者匹配失败时两个指针都移动，导致漏掉可能的后续匹配。',
+        bullets: [
+          '易错点 1：把题目误做成连续子串。',
+          '易错点 2：匹配失败时错误推进短串指针。',
+          '易错点 3：空字符串边界没有想清楚。',
+          '延伸方向：双指针、子序列 DP、批量子序列查询问题。',
+        ],
+      },
+    ],
+  },
 ];
