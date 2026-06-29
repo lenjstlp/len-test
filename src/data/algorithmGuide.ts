@@ -43836,4 +43836,101 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'random-pick-index',
+    label: '398. LeetCode 398. 随机数索引',
+    difficulty: '中等',
+    description:
+      '这题和链表随机节点很像，核心仍然是蓄水池抽样。区别在于这里要在所有等于目标值的位置中等概率选一个，而不是在全体元素里选一个。',
+    outcome:
+      '你能用蓄水池抽样在数组中等概率返回目标值的任一索引，并解释为什么第 k 个命中的目标位置要以 `1/k` 的概率替换答案。',
+    sections: [
+      {
+        id: 'random-pick-index-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个可能包含重复值的数组，设计一个 `pick(target)` 方法，要求在所有值等于 `target` 的下标中等概率返回一个。',
+        bullets: [
+          '目标值可能出现多次。',
+          '每个命中位置概率必须相同。',
+          '不能只返回第一个或最后一个。',
+          '本质是条件过滤下的蓄水池抽样题。',
+        ],
+      },
+      {
+        id: 'random-pick-index-why-reservoir',
+        title: '不知道目标会出现多少次时，最自然的做法就是在线公平抽样',
+        summary:
+          '如果预先把所有目标索引存起来当然能做，但题目更经典的解法是：遍历数组时，只在看到目标值时参与抽样竞争，并在不知道总命中次数的前提下仍保持等概率。',
+        bullets: [
+          '命中次数是动态增长的。',
+          '后来的命中位置也必须拥有公平机会。',
+          '这正是蓄水池抽样的应用场景。',
+          '思路和流式采样完全一致。',
+        ],
+      },
+      {
+        id: 'random-pick-index-process',
+        title: '第 k 个命中目标值的位置，应以 1/k 概率成为当前答案',
+        summary:
+          '遍历数组时，若当前位置值等于目标值，就把命中计数加一，并以 `1 / count` 的概率用当前下标替换已有答案。这样走到最后时，每个命中位置都会以完全相同的概率留下来。',
+        bullets: [
+          '只对命中目标值的位置计数。',
+          '计数控制替换概率递减。',
+          '先到和后到的位置最终概率相同。',
+          '这是抽样公平性的关键。',
+        ],
+        callout:
+          '蓄水池抽样的真正价值在于“不知道总共有多少候选时仍然公平”。这类思维在数据流和在线处理问题里非常高频。',
+      },
+      {
+        id: 'random-pick-index-solution',
+        title: '标准解法：扫描数组，只对目标值做蓄水池抽样',
+        summary:
+          '在 `pick(target)` 中从头遍历数组。每遇到一个值等于 `target` 的位置，就把命中次数加一，并以 `1 / count` 的概率更新当前答案下标。遍历结束后返回答案即可。',
+        bullets: [
+          '单次查询时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '不需要预存所有目标位置。',
+          '是这题最经典的解法。',
+        ],
+        code: `class Solution {
+  private readonly nums: number[]
+
+  constructor(nums: number[]) {
+    this.nums = nums
+  }
+
+  pick(target: number): number {
+    let count = 0
+    let answer = -1
+
+    for (let index = 0; index < this.nums.length; index += 1) {
+      if (this.nums[index] === target) {
+        count += 1
+
+        if (Math.floor(Math.random() * count) === 0) {
+          answer = index
+        }
+      }
+    }
+
+    return answer
+  }
+}`,
+      },
+      {
+        id: 'random-pick-index-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只给后面命中的目标位置更高或更低概率，破坏均匀性；或者虽然记住了代码，却无法解释为什么所有命中位置最终概率相同。',
+        bullets: [
+          '易错点 1：替换概率不是 `1 / count`。',
+          '易错点 2：对所有元素计数，而不是只对目标命中计数。',
+          '易错点 3：无法说明公平性来源。',
+          '延伸方向：蓄水池抽样、随机采样、在线随机算法。',
+        ],
+      },
+    ],
+  },
 ];
