@@ -43551,4 +43551,106 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'longest-substring-with-at-least-k-repeating-characters',
+    label: '395. LeetCode 395. 至少有 K 个重复字符的最长子串',
+    difficulty: '中等',
+    description:
+      '这题的关键不是普通滑窗，而是识别“某些出现次数不足 k 的字符不可能出现在任何合法答案里”。重点在于利用这些坏字符做分治切割，或者按不同种类数做多轮滑窗。',
+    outcome:
+      '你能用分治思路求出最长合法子串，并解释为什么频次不足 `k` 的字符可以把问题切成若干独立子问题。',
+    sections: [
+      {
+        id: 'longest-substring-with-at-least-k-repeating-characters-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串 `s` 和整数 `k`，要求找出最长子串，使得该子串中每个字符都至少出现 `k` 次。',
+        bullets: [
+          '要求的是子串，必须连续。',
+          '子串内每种字符都要满足频次下限。',
+          '目标是最长长度。',
+          '本质是约束型字符串分治题。',
+        ],
+      },
+      {
+        id: 'longest-substring-with-at-least-k-repeating-characters-split',
+        title: '如果某个字符总频次都不到 k，它绝不可能出现在合法答案中',
+        summary:
+          '对于当前处理区间，如果某个字符在整个区间中的出现次数都小于 `k`，那么任何包含它的子串都不可能合法，因为它在更小的子串里只会出现得更少。于是这个字符就成了天然分隔符，可以把区间切成多个独立子问题。',
+        bullets: [
+          '坏字符无法被任何合法答案包含。',
+          '它天然把问题分裂开。',
+          '切开后子问题互不影响。',
+          '这是分治成立的关键依据。',
+        ],
+      },
+      {
+        id: 'longest-substring-with-at-least-k-repeating-characters-divide',
+        title: '切分后递归求各段答案，再取最大值',
+        summary:
+          '对当前区间先统计频次，找到任意一个频次不足 `k` 的字符。以它为分隔点，把字符串切成若干段，并递归求解每一段。若当前区间内不存在这样的坏字符，则整个区间本身就是合法答案。',
+        bullets: [
+          '先统计，再判断是整体合法还是继续切分。',
+          '递归出口是整段合法或长度不足 `k`。',
+          '每次都在剔除不可能字符。',
+          '思路很像“根据坏点切分区间”的经典分治。',
+        ],
+        callout:
+          '有些字符串题最优雅的突破口，不是“如何构造合法答案”，而是“哪些字符一定不可能属于任何合法答案”。一旦先找出这些坏字符，问题会自然裂解。',
+      },
+      {
+        id: 'longest-substring-with-at-least-k-repeating-characters-solution',
+        title: '标准解法：按坏字符切分区间做分治',
+        summary:
+          '定义递归函数处理 `[left, right)` 区间。若区间长度小于 `k`，直接返回 0。先统计区间字符频次，寻找一个频次不足 `k` 的字符；若找不到，返回整段长度。否则按这个字符把区间切成多段，递归求每段最大合法长度，取最大值作为结果。',
+        bullets: [
+          '时间复杂度取决于切分情况，平均表现较好。',
+          '空间复杂度与递归深度相关。',
+          '实现重点在区间切分与递归边界。',
+          '是这题最经典的分治解法。',
+        ],
+        code: `function longestSubstring(s: string, k: number): number {
+  const solve = (left: number, right: number): number => {
+    if (right - left < k) {
+      return 0
+    }
+
+    const counts = new Array<number>(26).fill(0)
+
+    for (let index = left; index < right; index += 1) {
+      counts[s.charCodeAt(index) - 97] += 1
+    }
+
+    for (let split = left; split < right; split += 1) {
+      if (counts[s.charCodeAt(split) - 97] < k) {
+        let next = split + 1
+
+        while (next < right && counts[s.charCodeAt(next) - 97] < k) {
+          next += 1
+        }
+
+        return Math.max(solve(left, split), solve(next, right))
+      }
+    }
+
+    return right - left
+  }
+
+  return solve(0, s.length)
+}`,
+      },
+      {
+        id: 'longest-substring-with-at-least-k-repeating-characters-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是套普通滑窗却无法同时满足“所有字符都至少 k 次”的全局约束；或者切分时没有跳过连续坏字符，导致递归出现很多无意义小段。',
+        bullets: [
+          '易错点 1：误把它当成普通固定模板滑窗题。',
+          '易错点 2：没有理解坏字符的切分意义。',
+          '易错点 3：递归边界和连续坏字符处理不稳。',
+          '延伸方向：分治字符串题、滑窗按字符种类枚举、频次约束问题。',
+        ],
+      },
+    ],
+  },
 ];
