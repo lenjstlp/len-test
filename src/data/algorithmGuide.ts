@@ -44152,4 +44152,102 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'binary-watch',
+    label: '401. LeetCode 401. 二进制手表',
+    difficulty: '简单',
+    description:
+      '这题的重点不是位运算技巧本身，而是理解“亮灯数量”就是二进制中 1 的个数。题目规模很小，因此直接枚举所有合法时间再按位数筛选反而最稳。',
+    outcome:
+      '你能枚举所有合法时间并筛选出恰好有指定亮灯数的结果，并解释为什么统计二进制 1 的个数就足以判断是否满足条件。',
+    sections: [
+      {
+        id: 'binary-watch-summary',
+        title: '题目在问什么',
+        summary:
+          '二进制手表用 4 个 LED 表示小时、6 个 LED 表示分钟。给定点亮的灯数 `turnedOn`，要求返回所有可能表示的时间。',
+        bullets: [
+          '小时范围是 `0` 到 `11`。',
+          '分钟范围是 `0` 到 `59`。',
+          '只关心总亮灯数是否等于指定值。',
+          '本质是枚举加位计数题。',
+        ],
+      },
+      {
+        id: 'binary-watch-enumeration',
+        title: '时间范围很小，直接枚举所有可能值最直接',
+        summary:
+          '小时只有 12 种，分钟只有 60 种，总共 720 个时间状态。对每个候选时间，只要判断小时和分钟二进制中 1 的个数之和是否等于 `turnedOn`，就能决定是否加入答案。',
+        bullets: [
+          '状态总数很小，暴力枚举完全可接受。',
+          '重点不在剪枝，而在判断函数写准。',
+          '小时和分钟可以独立统计亮灯数。',
+          '这是最稳定的解法。',
+        ],
+      },
+      {
+        id: 'binary-watch-bit-count',
+        title: '一个时间点亮几盏灯，本质就是二进制里有多少个 1',
+        summary:
+          '例如小时 `3` 的二进制是 `0011`，说明亮了 2 盏小时灯；分钟 `5` 的二进制是 `000101`，说明亮了 2 盏分钟灯。把两者的 1 的个数相加，就得到总亮灯数。',
+        bullets: [
+          '亮灯数等价于二进制位中 1 的数量。',
+          '小时和分钟贡献可以直接相加。',
+          '这是整题判定条件的核心。',
+          '位计数函数可以复用在很多题里。',
+        ],
+        callout:
+          '规模很小时，不要为了“看起来高级”硬上复杂算法。先枚举全部可能，再用一个干净的判定函数过滤，往往才是最稳最省心的方案。',
+      },
+      {
+        id: 'binary-watch-solution',
+        title: '标准解法：枚举所有时间，筛选位计数等于 turnedOn 的项',
+        summary:
+          '双层循环枚举 `hour` 从 0 到 11、`minute` 从 0 到 59。用位计数函数分别统计小时和分钟的 1 的个数，若总和等于 `turnedOn`，就把格式化后的时间加入答案，其中分钟要保证是两位数字。',
+        bullets: [
+          '时间复杂度是常数级别。',
+          '空间复杂度取决于结果数量。',
+          '实现短且稳定。',
+          '重点在格式化分钟和统计位数。',
+        ],
+        code: `function readBinaryWatch(turnedOn: number): string[] {
+  const result: string[] = []
+
+  const countBits = (value: number): number => {
+    let count = 0
+    let current = value
+
+    while (current > 0) {
+      count += current & 1
+      current >>= 1
+    }
+
+    return count
+  }
+
+  for (let hour = 0; hour < 12; hour += 1) {
+    for (let minute = 0; minute < 60; minute += 1) {
+      if (countBits(hour) + countBits(minute) === turnedOn) {
+        result.push(String(hour) + ':' + String(minute).padStart(2, '0'))
+      }
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'binary-watch-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是分钟格式没有补零，导致输出格式不符合要求；或者把位计数写在错误的范围上，把非法小时或分钟也算进结果。',
+        bullets: [
+          '易错点 1：分钟没有格式化成两位。',
+          '易错点 2：枚举范围写错，产生非法时间。',
+          '易错点 3：亮灯数统计逻辑不稳。',
+          '延伸方向：位计数、状态枚举、二进制表示题。',
+        ],
+      },
+    ],
+  },
 ];
