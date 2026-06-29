@@ -43653,4 +43653,96 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'rotate-function',
+    label: '396. LeetCode 396. 旋转函数',
+    difficulty: '中等',
+    description:
+      '这题看起来像每次旋转后重新计算一次加权和，但那样会白白重复大量工作。重点在于推出相邻旋转状态之间的递推关系，把 `O(n^2)` 直接降到 `O(n)`。',
+    outcome:
+      '你能利用旋转函数之间的递推式在线性时间求最大值，并解释为什么每次旋转只会整体减去数组总和再补回一个特殊元素贡献。',
+    sections: [
+      {
+        id: 'rotate-function-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `nums`，定义旋转函数 `F(k)` 为数组旋转 `k` 次后，各元素与下标乘积之和。要求求出所有 `F(k)` 中的最大值。',
+        bullets: [
+          '旋转会改变元素对应下标。',
+          '每个状态都要计算加权和。',
+          '目标是找最大旋转函数值。',
+          '本质是状态递推优化题。',
+        ],
+      },
+      {
+        id: 'rotate-function-bruteforce',
+        title: '暴力为每个旋转状态重算一遍，会重复太多',
+        summary:
+          '如果对每个 `k` 都重新构造旋转数组再计算一次加权和，复杂度会是 `O(n^2)`。而旋转前后状态其实高度相关，因此完全有机会从前一个结果直接推出下一个结果。',
+        bullets: [
+          '暴力会重复计算相似项。',
+          '旋转只是元素位置统一平移。',
+          '相邻状态之间一定存在递推关系。',
+          '这是优化的突破口。',
+        ],
+      },
+      {
+        id: 'rotate-function-recurrence',
+        title: '相邻旋转函数的差值，只和总和与被转到前面的元素有关',
+        summary:
+          '设数组总和为 `sum`，长度为 `n`。从 `F(k - 1)` 到 `F(k)` 时，几乎所有元素的下标都会增加 1，因此整体会多出一个 `sum` 的影响；但原本被移到最前面的那个元素下标从 `n - 1` 变成 0，需要额外减去 `n * movedValue`。整理后就得到标准递推式。',
+        bullets: [
+          '总和项反映全体元素下标整体平移。',
+          '特殊项修正被移到首位的元素。',
+          '递推只依赖上一个值和一个数组元素。',
+          '这是这题最核心的数学推导。',
+        ],
+        callout:
+          '很多数组状态题都不是“从头重算”更合理，而是“想办法描述相邻状态差了什么”。只要相邻变化可控，递推往往就是最值问题的关键。',
+      },
+      {
+        id: 'rotate-function-solution',
+        title: '标准解法：先算 `F(0)`，再用递推式滚动更新',
+        summary:
+          '先求数组总和 `sum` 和初始值 `F(0)`。之后按旋转次数从 1 到 `n - 1` 迭代，使用 `F(k) = F(k - 1) + sum - n * nums[n - k]` 更新当前值，并持续维护最大值。最终返回最大结果。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '避免了重复旋转和重复求和。',
+          '核心是递推式的正确推导。',
+        ],
+        code: `function maxRotateFunction(nums: number[]): number {
+  const length = nums.length
+  let sum = 0
+  let current = 0
+
+  for (let index = 0; index < length; index += 1) {
+    sum += nums[index]
+    current += index * nums[index]
+  }
+
+  let answer = current
+
+  for (let rotation = 1; rotation < length; rotation += 1) {
+    current = current + sum - length * nums[length - rotation]
+    answer = Math.max(answer, current)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'rotate-function-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是递推式里的被移动元素位置拿错，导致整体结果全偏；或者明知有递推，仍然在每轮里重新遍历数组做无谓计算。',
+        bullets: [
+          '易错点 1：递推中 `nums[length - rotation]` 下标写错。',
+          '易错点 2：没有先正确求出 `F(0)`。',
+          '易错点 3：退化成 `O(n^2)` 重算。',
+          '延伸方向：状态递推、旋转数组、相邻状态差分问题。',
+        ],
+      },
+    ],
+  },
 ];
