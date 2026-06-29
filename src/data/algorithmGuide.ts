@@ -43933,4 +43933,132 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'evaluate-division',
+    label: '399. LeetCode 399. 除法求值',
+    difficulty: '中等',
+    description:
+      '这题本质是一个带权图路径计算题。重点不在除法公式本身，而在于把等式关系建成图后，查询就变成了“从一个变量到另一个变量的乘积路径是否存在”。',
+    outcome:
+      '你能把变量除法关系建成带权图，并用 DFS 或 BFS 回答查询，解释为什么路径上的边权连乘就是最终结果。',
+    sections: [
+      {
+        id: 'evaluate-division-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干个等式 `A / B = value`，以及一些查询 `X / Y`，要求返回每个查询的结果；如果无法推出，就返回 `-1.0`。',
+        bullets: [
+          '变量之间通过除法关系连接。',
+          '查询可能直接有边，也可能要经由中间变量推导。',
+          '不存在路径时返回 `-1.0`。',
+          '本质是带权连通性查询题。',
+        ],
+      },
+      {
+        id: 'evaluate-division-graph',
+        title: '最自然的建模就是带权有向图',
+        summary:
+          '把每个变量看成图节点。若有 `a / b = 2`，就连一条 `a -> b` 权重为 `2` 的边，同时连一条 `b -> a` 权重为 `1 / 2` 的反向边。这样所有已知关系都会被图完整表达。',
+        bullets: [
+          '变量是节点。',
+          '除法结果是边权。',
+          '反向关系天然是倒数。',
+          '这是把代数问题翻译成图问题的关键。',
+        ],
+      },
+      {
+        id: 'evaluate-division-path',
+        title: '查询本质是找一条从起点到终点的路径，并把边权连乘',
+        summary:
+          '如果存在路径 `a -> c -> d -> b`，那么 `a / b` 就等于沿途边权相乘。因为每条边都表示一个局部除法关系，串起来就形成整体比例关系。因此 DFS 或 BFS 搜索路径时，只需把当前累计乘积一并带下去。',
+        bullets: [
+          '路径存在意味着关系可推导。',
+          '边权乘积就是最终答案。',
+          '搜索时要带着累计结果前进。',
+          '若搜索不到就说明不可达。',
+        ],
+        callout:
+          '很多公式推导题并不真的考代数，而是在考你能否把“局部关系”组织成图，并把全局查询转成路径问题。这类建模转换非常常见。',
+      },
+      {
+        id: 'evaluate-division-solution',
+        title: '标准解法：建带权图，再用 DFS 回答每个查询',
+        summary:
+          '先遍历所有等式建立邻接表。处理查询时，若起点或终点不存在，直接返回 `-1.0`；若两者相同，返回 `1.0`；否则从起点出发 DFS 搜索终点，沿途维护乘积并用集合避免重复访问。找到终点时返回累计乘积，找不到则返回 `-1.0`。',
+        bullets: [
+          '建图时间复杂度与等式数量线性相关。',
+          '单次查询复杂度取决于图搜索范围。',
+          '实现重点在边权乘积和访问去重。',
+          '是这题最经典的图论解法。',
+        ],
+        code: `function calcEquation(
+  equations: string[][],
+  values: number[],
+  queries: string[][],
+): number[] {
+  const graph = new Map<string, Array<[string, number]>>()
+
+  const addEdge = (from: string, to: string, weight: number) => {
+    if (!graph.has(from)) {
+      graph.set(from, [])
+    }
+
+    graph.get(from)!.push([to, weight])
+  }
+
+  for (let index = 0; index < equations.length; index += 1) {
+    const [from, to] = equations[index]
+    const value = values[index]
+    addEdge(from, to, value)
+    addEdge(to, from, 1 / value)
+  }
+
+  const dfs = (
+    current: string,
+    target: string,
+    product: number,
+    visited: Set<string>,
+  ): number => {
+    if (current === target) {
+      return product
+    }
+
+    visited.add(current)
+
+    for (const [next, weight] of graph.get(current) ?? []) {
+      if (!visited.has(next)) {
+        const result = dfs(next, target, product * weight, visited)
+
+        if (result !== -1) {
+          return result
+        }
+      }
+    }
+
+    return -1
+  }
+
+  return queries.map(([from, to]) => {
+    if (!graph.has(from) || !graph.has(to)) {
+      return -1
+    }
+
+    return dfs(from, to, 1, new Set())
+  })
+}`,
+      },
+      {
+        id: 'evaluate-division-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只记录单向关系，忘了补充倒数边；或者 DFS 时没有 visited 集合，导致图中回路让搜索无限打转。',
+        bullets: [
+          '易错点 1：漏建反向倒数边。',
+          '易错点 2：搜索时没有访问去重。',
+          '易错点 3：起点终点不存在时边界处理不稳。',
+          '延伸方向：图建模、带权路径、并查集扩展题。',
+        ],
+      },
+    ],
+  },
 ];
