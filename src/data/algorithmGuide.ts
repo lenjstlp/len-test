@@ -43349,4 +43349,108 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'utf-8-validation',
+    label: '393. LeetCode 393. UTF-8 编码验证',
+    difficulty: '中等',
+    description:
+      '这题的关键不在字符含义，而在于位模式规则校验。重点是识别首字节决定的长度，以及后续字节是否都满足 `10xxxxxx` 这一统一格式。',
+    outcome:
+      '你能按 UTF-8 位模式规则验证一个字节序列是否合法，并解释为什么只需要维护“当前还欠多少个延续字节”。',
+    sections: [
+      {
+        id: 'utf-8-validation-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组，每个整数只使用最低 8 位表示一个字节，要求判断整个字节序列是否构成合法的 UTF-8 编码。',
+        bullets: [
+          '每个元素只看最低 8 位。',
+          'UTF-8 按首字节决定字符长度。',
+          '后续字节必须符合固定前缀模式。',
+          '本质是位模式状态机验证题。',
+        ],
+      },
+      {
+        id: 'utf-8-validation-leading-byte',
+        title: '首字节决定后面还需要多少个延续字节',
+        summary:
+          '如果首字节以 `0` 开头，那就是单字节字符；若是 `110`，说明后面还需要 1 个延续字节；`1110` 需要 2 个；`11110` 需要 3 个。除此之外的首字节模式都不合法。',
+        bullets: [
+          '首字节模式是解析入口。',
+          '不同前缀决定字符总字节数。',
+          '多字节字符必须严格匹配对应长度。',
+          '非法首字节应立即失败。',
+        ],
+      },
+      {
+        id: 'utf-8-validation-follow-up',
+        title: '延续字节必须统一满足 `10xxxxxx`',
+        summary:
+          '一旦当前处在多字节字符的后续阶段，那么后续每个字节都必须以 `10` 开头，否则整个序列非法。因此可以维护一个计数器 `remaining`，表示还需要补多少个延续字节。',
+        bullets: [
+          '状态机只需关心剩余延续字节数。',
+          '后续字节格式固定，非常适合逐个验证。',
+          '每成功读一个延续字节就把计数减一。',
+          '最终必须恰好归零才算完整。',
+        ],
+        callout:
+          '很多编码校验题并不需要真的解码出字符，只需要验证结构是否合法。把问题降成“当前还欠多少个后续字节”的状态机，会比直接背所有模式轻松得多。',
+      },
+      {
+        id: 'utf-8-validation-solution',
+        title: '标准解法：按字节扫描，维护 remaining 状态',
+        summary:
+          '遍历每个字节。若 `remaining === 0`，就根据首字节最高位模式决定当前字符长度并设置 `remaining`；若 `remaining > 0`，则要求当前字节满足 `10xxxxxx`，并将 `remaining` 减一。遍历结束后只有 `remaining === 0` 才是合法编码。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现非常像有限状态机。',
+          '关键是首字节判长和后续字节判格式的分工。',
+        ],
+        code: `function validUtf8(data: number[]): boolean {
+  let remaining = 0
+
+  for (const value of data) {
+    const byte = value & 0xff
+
+    if (remaining === 0) {
+      if ((byte >> 7) === 0b0) {
+        continue
+      }
+
+      if ((byte >> 5) === 0b110) {
+        remaining = 1
+      } else if ((byte >> 4) === 0b1110) {
+        remaining = 2
+      } else if ((byte >> 3) === 0b11110) {
+        remaining = 3
+      } else {
+        return false
+      }
+    } else {
+      if ((byte >> 6) !== 0b10) {
+        return false
+      }
+
+      remaining -= 1
+    }
+  }
+
+  return remaining === 0
+}`,
+      },
+      {
+        id: 'utf-8-validation-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是首字节判长规则写错，或者遍历结束时忘了检查是否还有未完成的延续字节，导致半截字符被误判为合法。',
+        bullets: [
+          '易错点 1：首字节位模式判断顺序不对。',
+          '易错点 2：没有验证后续字节必须以 `10` 开头。',
+          '易错点 3：结束时忘记检查 `remaining` 是否归零。',
+          '延伸方向：位运算状态机、编码校验、协议格式验证题。',
+        ],
+      },
+    ],
+  },
 ];
