@@ -44913,4 +44913,110 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'valid-word-abbreviation',
+    label: '408. LeetCode 408. 有效单词缩写',
+    difficulty: '简单',
+    description:
+      '这题的核心不是字符串替换，而是双指针同步扫描。数字片段表示跳过多少个字符，因此要一边解析数字，一边推进原串指针。',
+    outcome:
+      '你能用双指针判断缩写是否合法，并处理前导零、连续数字解析和下标同步结束这些边界细节。',
+    sections: [
+      {
+        id: 'valid-word-abbreviation-summary',
+        title: '题目在问什么',
+        summary:
+          '给定原单词 `word` 和缩写 `abbr`，其中缩写里的数字表示跳过对应数量的字符。要求判断这个缩写是否是原单词的合法缩写。',
+        bullets: [
+          '字母必须精确匹配当前位置字符。',
+          '数字表示跳过若干字符。',
+          '数字不能有前导零。',
+          '本质是双指针模拟题。',
+        ],
+      },
+      {
+        id: 'valid-word-abbreviation-two-pointers',
+        title: '一个指针扫原串，一个指针扫缩写串',
+        summary:
+          '扫描 `abbr` 时，若遇到字母，就要求和 `word` 当前字符相同；若遇到数字，就把连续数字解析成整数，然后让 `word` 指针前进对应步数。整个过程里两个指针的推进方式不同，但必须保持语义同步。',
+        bullets: [
+          '字母分支是逐字符比对。',
+          '数字分支是批量跳过。',
+          '连续数字要整体解析。',
+          '双指针是最自然的实现方式。',
+        ],
+      },
+      {
+        id: 'valid-word-abbreviation-leading-zero',
+        title: '前导零是最关键的非法情况',
+        summary:
+          '例如 `"01"`、`"002"` 这种数字片段都不合法，因为题目不允许前导零。因此一旦遇到数字字符 `0` 作为某段数字的开头，就可以直接返回 `false`。这个细节很容易被漏掉。',
+        bullets: [
+          '`0` 不能作为数字段首位。',
+          '必须先判断，再继续解析数字。',
+          '这是面试里最常见的边界条件。',
+          '很多错误答案都死在这里。',
+        ],
+        callout:
+          '字符串模拟题真正拉开差距的地方，往往不是主流程，而是这些“题目定义里的禁止项”有没有在代码里显式落实。',
+      },
+      {
+        id: 'valid-word-abbreviation-solution',
+        title: '标准解法：双指针扫描并解析数字段',
+        summary:
+          '准备两个指针 `i` 和 `j`，分别指向 `word` 和 `abbr`。当 `abbr[j]` 是字母时，直接比较是否等于 `word[i]`；当它是数字时，先判断是否为前导零，再连续解析出整个数字 `count`，并令 `i += count`。最终只有在两个指针都恰好走到末尾时才算合法。',
+        bullets: [
+          '时间复杂度是 `O(m + n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在数字解析和边界处理。',
+          '是这题最标准的做法。',
+        ],
+        code: `function validWordAbbreviation(word: string, abbr: string): boolean {
+  let i = 0
+  let j = 0
+
+  while (i < word.length && j < abbr.length) {
+    const char = abbr[j]
+
+    if (char >= '0' && char <= '9') {
+      if (char === '0') {
+        return false
+      }
+
+      let count = 0
+
+      while (j < abbr.length && abbr[j] >= '0' && abbr[j] <= '9') {
+        count = count * 10 + Number(abbr[j])
+        j += 1
+      }
+
+      i += count
+      continue
+    }
+
+    if (word[i] !== char) {
+      return false
+    }
+
+    i += 1
+    j += 1
+  }
+
+  return i === word.length && j === abbr.length
+}`,
+      },
+      {
+        id: 'valid-word-abbreviation-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把数字按单个字符处理而不是连续解析，或者漏掉前导零判断，导致把本该非法的缩写算成合法。',
+        bullets: [
+          '易错点 1：没有连续解析完整数字。',
+          '易错点 2：忘记禁止前导零。',
+          '易错点 3：结束时只检查了一个指针到末尾。',
+          '延伸方向：双指针、字符串模拟、编码解码类问题。',
+        ],
+      },
+    ],
+  },
 ];
