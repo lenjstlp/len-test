@@ -45019,4 +45019,97 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'longest-palindrome',
+    label: '409. LeetCode 409. 最长回文串',
+    difficulty: '简单',
+    description:
+      '这题不需要真正构造回文串，只要计算最多能用多少字符。核心观察是偶数次字符可以全部使用，奇数次字符最多留一个在中心，其余仍然成对使用。',
+    outcome:
+      '你能通过统计字符频次求出最长回文串长度，并解释为什么多个奇数频次里只有一个字符能贡献中心位置。',
+    sections: [
+      {
+        id: 'longest-palindrome-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个由大小写字母组成的字符串，要求返回这些字符能拼成的最长回文串长度，不要求输出具体回文串内容。',
+        bullets: [
+          '只求长度，不求具体方案。',
+          '字符可以重新排列。',
+          '回文两侧必须成对对称。',
+          '本质是频次统计题。',
+        ],
+      },
+      {
+        id: 'longest-palindrome-pairs',
+        title: '回文长度主要来自成对字符',
+        summary:
+          '无论字符出现多少次，只要能凑成偶数，就都可以放到回文串两侧。若某字符出现奇数次，比如 5 次，那么其中 4 次可以成对使用，剩下 1 次只能考虑放在中心。',
+        bullets: [
+          '偶数频次全部可用。',
+          '奇数频次先减 1 再参与对称。',
+          '回文结构天然偏爱成对字符。',
+          '这是长度计算的主体来源。',
+        ],
+      },
+      {
+        id: 'longest-palindrome-center',
+        title: '所有奇数里，最多只有一个字符能站在中心',
+        summary:
+          '回文串只有一个正中间位置，因此不管有多少种字符出现奇数次，最终最多只能选其中一种贡献 1 个中心字符。其余奇数字符的“多出来那 1 个”都用不上。',
+        bullets: [
+          '中心位置只有一个。',
+          '多个奇数频次不能都完整使用。',
+          '只要存在奇数频次，答案最后可额外加 1。',
+          '这是题目最关键的观察。',
+        ],
+        callout:
+          '这类题经常不要求“构造”，只要求“计数”。一旦意识到不必真的排回文，问题就从排列组合降成了频次统计。',
+      },
+      {
+        id: 'longest-palindrome-solution',
+        title: '标准解法：统计频次并累加偶数贡献',
+        summary:
+          '先统计每个字符出现次数。遍历频次时，把每个字符的 `count - (count % 2)` 加入答案，表示能成对放入两侧的数量。同时记录是否存在奇数频次；如果有，最后再加 1 作为中心字符。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(k)`，`k` 为字符种类数。',
+          '实现非常简洁。',
+          '是这题最标准的统计思路。',
+        ],
+        code: `function longestPalindrome(s: string): number {
+  const counter = new Map<string, number>()
+
+  for (const char of s) {
+    counter.set(char, (counter.get(char) ?? 0) + 1)
+  }
+
+  let length = 0
+  let hasOdd = false
+
+  for (const count of counter.values()) {
+    length += count - (count % 2)
+
+    if (count % 2 === 1) {
+      hasOdd = true
+    }
+  }
+
+  return hasOdd ? length + 1 : length
+}`,
+      },
+      {
+        id: 'longest-palindrome-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把所有奇数频次都各自加 1，误以为都能放中心；或者以为必须真的构造出回文串才能求长度。',
+        bullets: [
+          '易错点 1：多个奇数频次都额外加 1。',
+          '易错点 2：把问题做成实际字符串构造。',
+          '易错点 3：忽略大小写区分。',
+          '延伸方向：哈希计数、贪心统计、回文类基础题。',
+        ],
+      },
+    ],
+  },
 ];
