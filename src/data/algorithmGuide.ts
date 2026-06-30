@@ -44728,4 +44728,189 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'trapping-rain-water-ii',
+    label: '407. LeetCode 407. 接雨水 II',
+    difficulty: '困难',
+    description:
+      '二维接雨水不能照搬一维双指针，因为每个格子的蓄水高度取决于它通往边界路径上的最低围墙。正确建模是从边界向内做“最小围栏扩张”。',
+    outcome:
+      '你能用最小堆和 BFS 解释二维接雨水的边界推进逻辑，并实现从外围逐步确定内部可蓄水量的标准解法。',
+    sections: [
+      {
+        id: 'trapping-rain-water-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个高度矩阵，每个格子表示地形高度。下雨后水会向四周流动，要求计算整个二维地形最终能接住多少水。',
+        bullets: [
+          '水可以向上下左右流动。',
+          '边界格子无法存水，因为水会直接流出去。',
+          '内部格子是否存水取决于外围最矮边界。',
+          '本质是二维最小边界扩张问题。',
+        ],
+      },
+      {
+        id: 'trapping-rain-water-ii-boundary',
+        title: '不是看局部高低，而是看“通往边界的最低门槛”',
+        summary:
+          '某个格子能存多少水，不由它四邻的瞬时高度单独决定，而由它到外部所有路径中，最小的围栏高度决定。这个想法和木桶短板类似，因此要先从边界出发，逐步把最矮的边界向内扩张。',
+        bullets: [
+          '边界决定整个系统的泄水上限。',
+          '最低围栏优先扩张最合理。',
+          '这是最小堆的由来。',
+          '二维题要从全局边界看问题。',
+        ],
+      },
+      {
+        id: 'trapping-rain-water-ii-process',
+        title: '把边界放进最小堆，每次从当前最低围栏向内推进',
+        summary:
+          '先把外圈所有格子入堆，并标记已访问。每次弹出当前高度最小的边界格子，尝试扩展四个方向。若邻格更低，就可以接住 `currentHeight - neighborHeight` 的水；同时邻格进入堆时的有效高度要更新为 `max(currentHeight, neighborHeight)`，因为它已经成为新边界的一部分。',
+        bullets: [
+          '最小堆保证先处理最低边界。',
+          '访问标记防止重复入堆。',
+          '邻格入堆高度要取更新后的边界高度。',
+          '这是算法正确性的核心细节。',
+        ],
+        callout:
+          '这题和 Dijkstra 很像，本质都是“从已知最优边界向外扩张”，区别只是这里传播的是边界水位，而不是最短路径长度。',
+      },
+      {
+        id: 'trapping-rain-water-ii-solution',
+        title: '标准解法：最小堆 + 边界 BFS',
+        summary:
+          '先把所有边界格子加入最小堆。每次取出最低边界，检查四邻：若邻格更低，则累加可存水量；无论是否存水，都把邻格以新的边界高度 `max(当前边界高度, 邻格原高度)` 放入堆中。直到堆为空，所有格子的最终可存水量就都被确定了。',
+        bullets: [
+          '时间复杂度是 `O(mn log(mn))`。',
+          '空间复杂度是 `O(mn)`。',
+          '实现重点在最小堆与边界更新。',
+          '是二维接雨水的标准模板题。',
+        ],
+        code: `function trapRainWater(heightMap: number[][]): number {
+  const rows = heightMap.length
+  const cols = heightMap[0].length
+
+  if (rows < 3 || cols < 3) {
+    return 0
+  }
+
+  const visited = Array.from({ length: rows }, () => Array(cols).fill(false))
+  const heap: Array<[number, number, number]> = []
+
+  const push = (cell: [number, number, number]) => {
+    heap.push(cell)
+    let index = heap.length - 1
+
+    while (index > 0) {
+      const parent = Math.floor((index - 1) / 2)
+
+      if (heap[parent][0] <= heap[index][0]) {
+        break
+      }
+
+      ;[heap[parent], heap[index]] = [heap[index], heap[parent]]
+      index = parent
+    }
+  }
+
+  const pop = (): [number, number, number] => {
+    const top = heap[0]
+    const last = heap.pop() as [number, number, number]
+
+    if (heap.length > 0) {
+      heap[0] = last
+      let index = 0
+
+      while (true) {
+        let smallest = index
+        const left = index * 2 + 1
+        const right = index * 2 + 2
+
+        if (left < heap.length && heap[left][0] < heap[smallest][0]) {
+          smallest = left
+        }
+
+        if (right < heap.length && heap[right][0] < heap[smallest][0]) {
+          smallest = right
+        }
+
+        if (smallest === index) {
+          break
+        }
+
+        ;[heap[index], heap[smallest]] = [heap[smallest], heap[index]]
+        index = smallest
+      }
+    }
+
+    return top
+  }
+
+  for (let row = 0; row < rows; row += 1) {
+    push([heightMap[row][0], row, 0])
+    push([heightMap[row][cols - 1], row, cols - 1])
+    visited[row][0] = true
+    visited[row][cols - 1] = true
+  }
+
+  for (let col = 1; col < cols - 1; col += 1) {
+    push([heightMap[0][col], 0, col])
+    push([heightMap[rows - 1][col], rows - 1, col])
+    visited[0][col] = true
+    visited[rows - 1][col] = true
+  }
+
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+  let water = 0
+
+  while (heap.length > 0) {
+    const [height, row, col] = pop()
+
+    for (const [dx, dy] of directions) {
+      const nextRow = row + dx
+      const nextCol = col + dy
+
+      if (
+        nextRow < 0 ||
+        nextRow >= rows ||
+        nextCol < 0 ||
+        nextCol >= cols ||
+        visited[nextRow][nextCol]
+      ) {
+        continue
+      }
+
+      visited[nextRow][nextCol] = true
+      const nextHeight = heightMap[nextRow][nextCol]
+
+      if (nextHeight < height) {
+        water += height - nextHeight
+      }
+
+      push([Math.max(height, nextHeight), nextRow, nextCol])
+    }
+  }
+
+  return water
+}`,
+      },
+      {
+        id: 'trapping-rain-water-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它当成一维接雨水去做局部比较，或者邻格入堆时仍然放原高度，导致后续边界高度传播错误。',
+        bullets: [
+          '易错点 1：没有从边界出发。',
+          '易错点 2：入堆高度没更新为新的边界高度。',
+          '易错点 3：边界重复入堆或访问标记时机错误。',
+          '延伸方向：最小堆、Dijkstra 思想、二维网格扩张题。',
+        ],
+      },
+    ],
+  },
 ];
