@@ -44548,4 +44548,94 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'convert-a-number-to-hexadecimal',
+    label: '405. LeetCode 405. 数字转换为十六进制数',
+    difficulty: '简单',
+    description:
+      '这题表面上是进制转换，真正的考点是位运算和补码表示。尤其是负数，不能直接按十进制思路取模，而要按 32 位无符号视角逐个取 4 位。',
+    outcome:
+      '你能用位运算把整数转换成十六进制字符串，并解释为什么负数在 JavaScript/TypeScript 里也能通过无符号右移按补码正确处理。',
+    sections: [
+      {
+        id: 'convert-a-number-to-hexadecimal-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 32 位整数，要求把它转换成十六进制字符串。不能直接调用现成的进制转换接口，结果里字母要用小写。',
+        bullets: [
+          '输入可能是正数、0 或负数。',
+          '输出不包含多余前导零。',
+          '十六进制每一位对应 4 个二进制位。',
+          '本质是位运算版进制转换题。',
+        ],
+      },
+      {
+        id: 'convert-a-number-to-hexadecimal-bits',
+        title: '每次取最低 4 位，就是当前的一个十六进制字符',
+        summary:
+          '十六进制以 16 为基，而 16 正好是 2 的 4 次方，所以每个十六进制字符都对应二进制的 4 位。只要不断取最低 4 位，再把数字右移 4 位，就能从低位到高位逐步构造答案。',
+        bullets: [
+          '最低 4 位可用 `num & 15` 取得。',
+          '字符映射可以预先放进字符串表。',
+          '答案构造顺序是从低位到高位。',
+          '最后需要把结果反转。',
+        ],
+      },
+      {
+        id: 'convert-a-number-to-hexadecimal-negative',
+        title: '负数不要单独手工推公式，按 32 位补码处理即可',
+        summary:
+          '题目中的负数本质上要求输出它在 32 位补码下对应的十六进制形式。JavaScript 的位运算会把数值转成 32 位整数，因此只要使用无符号右移 `>>>`，就能逐步把高位补 0，并在有限次循环后结束。',
+        bullets: [
+          '负数不是普通除以 16 的思路。',
+          '无符号右移能避免死循环。',
+          '最多处理 8 个十六进制字符。',
+          '补码视角是这题的关键。',
+        ],
+        callout:
+          '一看到“32 位整数 + 十六进制 + 负数”，就应该优先想到补码和位运算，而不是十进制数学拆分。',
+      },
+      {
+        id: 'convert-a-number-to-hexadecimal-solution',
+        title: '标准解法：循环取低 4 位，再无符号右移',
+        summary:
+          '若数字是 0，直接返回 `"0"`。否则准备字符表 `0123456789abcdef`，循环执行：取 `num & 15` 作为当前十六进制位，把对应字符加入答案头部，然后执行 `num >>>= 4`。由于每次都丢掉 4 位，最多循环 8 次。对负数也同样成立。',
+        bullets: [
+          '时间复杂度是 `O(1)`，因为最多 8 轮。',
+          '空间复杂度是 `O(1)`。',
+          '实现短，但要求理解位运算含义。',
+          '是这题最稳的写法。',
+        ],
+        code: `function toHex(num: number): string {
+  if (num === 0) {
+    return '0'
+  }
+
+  const digits = '0123456789abcdef'
+  let value = num
+  let result = ''
+
+  while (value !== 0) {
+    const digit = value & 15
+    result = digits[digit] + result
+    value >>>= 4
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'convert-a-number-to-hexadecimal-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是对负数继续使用普通右移或十进制取模，结果要么死循环，要么输出错误。还有人会忘记单独处理 0。',
+        bullets: [
+          '易错点 1：把负数当普通十进制去除以 16。',
+          '易错点 2：使用 `>>` 导致符号位保留。',
+          '易错点 3：漏掉 `num === 0` 的边界。',
+          '延伸方向：补码、位运算、二进制与十六进制转换。',
+        ],
+      },
+    ],
+  },
 ];
