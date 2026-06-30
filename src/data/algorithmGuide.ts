@@ -44250,4 +44250,98 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'remove-k-digits',
+    label: '402. LeetCode 402. 移掉 K 位数字',
+    difficulty: '中等',
+    description:
+      '这题的重点不是随便删掉 `k` 个数字，而是让剩下的结果字典序尽可能小。核心是单调栈：只要前面比后面大，就优先删掉前面的“大拐点”。',
+    outcome:
+      '你能用单调栈移除 `k` 位得到最小数字，并解释为什么在遇到更小数字时优先弹出前面的较大数字是最优的。',
+    sections: [
+      {
+        id: 'remove-k-digits-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个非负整数字符串 `num` 和整数 `k`，要求移除其中 `k` 位数字，使得剩下的数字尽可能小。',
+        bullets: [
+          '删除的是字符位，不是数值减法。',
+          '要删除恰好 `k` 位。',
+          '目标是结果数值最小。',
+          '本质是字典序最小化贪心题。',
+        ],
+      },
+      {
+        id: 'remove-k-digits-greedy',
+        title: '想让整体更小，就要尽量让高位更早变小',
+        summary:
+          '如果当前看到一个更小的数字，而它前面还有比它大的数字，那么优先删掉前面那个较大的数字，一定更有利。因为高位一旦减小，对最终结果的影响远大于低位。',
+        bullets: [
+          '高位更小优先级最高。',
+          '前面的大数字是最该删除的对象。',
+          '这种局部最优能带来整体最优。',
+          '这正是贪心成立的核心理由。',
+        ],
+      },
+      {
+        id: 'remove-k-digits-stack',
+        title: '单调递增栈非常适合维护“前面尽量小”的结构',
+        summary:
+          '遍历字符串时，用一个栈维护当前保留下来的数字序列。若当前数字比栈顶更小，且还可以继续删除，就不断弹出栈顶，直到栈重新满足递增趋势。这样留下来的前缀会尽可能小。',
+        bullets: [
+          '栈顶代表最近保留的高位。',
+          '遇到更小数字就尝试消掉前面的拐点。',
+          '递增栈能自然维护最优前缀结构。',
+          '这是这题最标准的数据结构选择。',
+        ],
+        callout:
+          '单调栈很多时候并不是在找“下一个更大/更小”，而是在动态维护一个最优序列形态。这里维护的就是“当前能形成的最小前缀”。',
+      },
+      {
+        id: 'remove-k-digits-solution',
+        title: '标准解法：单调栈删拐点，最后处理前导零',
+        summary:
+          '遍历每个数字字符。当前字符若比栈顶小，且 `k > 0`，就持续弹栈并减少 `k`。之后把当前字符压栈。若遍历结束后 `k` 还大于 0，就继续从尾部弹出。最后把栈转成字符串，并去掉前导零；若为空则返回 `0`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现关键在循环弹栈和尾部补删。',
+          '前导零处理是收尾细节。',
+        ],
+        code: `function removeKdigits(num: string, k: number): string {
+  const stack: string[] = []
+  let remaining = k
+
+  for (const digit of num) {
+    while (remaining > 0 && stack.length > 0 && stack[stack.length - 1] > digit) {
+      stack.pop()
+      remaining -= 1
+    }
+
+    stack.push(digit)
+  }
+
+  while (remaining > 0) {
+    stack.pop()
+    remaining -= 1
+  }
+
+  const result = stack.join('').replace(/^0+/, '')
+  return result === '' ? '0' : result
+}`,
+      },
+      {
+        id: 'remove-k-digits-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只弹一次栈而不是持续弹到满足单调性；或者忘了遍历结束后若 `k` 还有剩，需要继续从尾部删除。',
+        bullets: [
+          '易错点 1：没有持续弹栈到局部最优。',
+          '易错点 2：遍历后剩余删除次数没处理。',
+          '易错点 3：前导零清理不完整。',
+          '延伸方向：单调栈、最小字典序、贪心序列构造题。',
+        ],
+      },
+    ],
+  },
 ];
