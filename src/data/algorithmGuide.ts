@@ -44344,4 +44344,116 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'frog-jump',
+    label: '403. LeetCode 403. 青蛙过河',
+    difficulty: '困难',
+    description:
+      '这题的关键不是暴力跳所有可能步长，而是把状态收缩为“站在某块石头上，上一跳步长是多少”。重点在于理解后续可选步长只和上一跳有关。',
+    outcome:
+      '你能用记忆化搜索或动态规划判断青蛙能否过河，并解释为什么状态只需要由当前位置和上一跳步长决定。',
+    sections: [
+      {
+        id: 'frog-jump-summary',
+        title: '题目在问什么',
+        summary:
+          '一只青蛙从第一块石头出发，第一跳必须是 1。若上一跳长度为 `k`，下一跳只能是 `k - 1`、`k` 或 `k + 1`。要求判断它能否最终跳到最后一块石头。',
+        bullets: [
+          '跳跃目标只能是已有石头。',
+          '第一跳长度固定为 1。',
+          '后续步长只与上一跳相关。',
+          '本质是状态可达性搜索题。',
+        ],
+      },
+      {
+        id: 'frog-jump-state',
+        title: '真正的状态不是“到了哪块石头”，而是“怎么到的”',
+        summary:
+          '同一块石头，如果是用不同步长跳上来的，后续可选动作会完全不同。因此单独记录位置不够，必须把“当前石头下标 + 上一跳步长”一起作为状态。',
+        bullets: [
+          '位置相同不代表后续选择相同。',
+          '步长信息是后续转移的关键依赖。',
+          '这是状态定义的核心。',
+          '很多路径题都需要记录额外上下文。',
+        ],
+      },
+      {
+        id: 'frog-jump-transition',
+        title: '从当前状态出发，只需尝试 `k - 1`、`k`、`k + 1` 三种下一跳',
+        summary:
+          '若当前上一跳是 `k`，那么下一跳只能在三个候选里选正数步长。只要目标位置存在石头，就可以转移过去。由于状态会重复出现，因此用记忆化或 `stone -> reachable steps` 的 DP 可以避免反复搜索。',
+        bullets: [
+          '候选分支数量非常有限。',
+          '只要能快速判断目标石头是否存在即可。',
+          '状态重复使记忆化很有价值。',
+          '这是这题高效解法的关键。',
+        ],
+        callout:
+          '很多搜索题真正的优化，不是减少分支，而是识别“同样的状态会反复出现”。一旦状态定义对了，记忆化就会自然生效。',
+      },
+      {
+        id: 'frog-jump-solution',
+        title: '标准解法：记忆化 DFS，状态为 `(index, lastJump)`',
+        summary:
+          '先把石头位置放进哈希表，支持 `O(1)` 判断某个目标位置是否有石头。然后从起点递归搜索，状态是当前石头位置和上一跳长度。每次尝试 `lastJump - 1`、`lastJump`、`lastJump + 1` 三种步长，若能到达终点返回 `true`；否则把失败状态记忆下来，避免重复计算。',
+        bullets: [
+          '时间复杂度取决于可达状态数。',
+          '空间复杂度与记忆化状态数相关。',
+          '实现重点在状态缓存和目标石头定位。',
+          '是这题最经典的搜索解法。',
+        ],
+        code: `function canCross(stones: number[]): boolean {
+  const positions = new Map<number, number>()
+
+  for (let index = 0; index < stones.length; index += 1) {
+    positions.set(stones[index], index)
+  }
+
+  const failed = new Set<string>()
+
+  const dfs = (index: number, jump: number): boolean => {
+    if (index === stones.length - 1) {
+      return true
+    }
+
+    const key = String(index) + ',' + String(jump)
+
+    if (failed.has(key)) {
+      return false
+    }
+
+    for (let nextJump = jump - 1; nextJump <= jump + 1; nextJump += 1) {
+      if (nextJump <= 0) {
+        continue
+      }
+
+      const nextPosition = stones[index] + nextJump
+      const nextIndex = positions.get(nextPosition)
+
+      if (nextIndex !== undefined && dfs(nextIndex, nextJump)) {
+        return true
+      }
+    }
+
+    failed.add(key)
+    return false
+  }
+
+  return dfs(0, 0)
+}`,
+      },
+      {
+        id: 'frog-jump-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只记录当前石头位置而忽略上一跳，导致状态信息不足；或者没有记忆化，递归重复搜索过多状态而超时。',
+        bullets: [
+          '易错点 1：状态少了上一跳步长。',
+          '易错点 2：没有做状态缓存。',
+          '易错点 3：允许了非正步长参与转移。',
+          '延伸方向：状态搜索、记忆化 DFS、路径可达性问题。',
+        ],
+      },
+    ],
+  },
 ];
