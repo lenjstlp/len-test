@@ -44456,4 +44456,96 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'sum-of-left-leaves',
+    label: '404. LeetCode 404. 左叶子之和',
+    difficulty: '简单',
+    description:
+      '这题的重点不在遍历整棵树，而在于识别“左叶子”这个特定角色。关键是既要知道当前节点是不是叶子，还要知道它是否是父节点的左孩子。',
+    outcome:
+      '你能遍历二叉树并累加所有左叶子节点值，解释为什么判断叶子时必须同时检查左右孩子都为空。',
+    sections: [
+      {
+        id: 'sum-of-left-leaves-summary',
+        title: '题目在问什么',
+        summary: '给定一棵二叉树，要求求出所有左叶子节点的值之和。',
+        bullets: [
+          '只统计左叶子。',
+          '普通左孩子但不是叶子的节点不算。',
+          '右叶子也不算。',
+          '本质是带角色判断的树遍历题。',
+        ],
+      },
+      {
+        id: 'sum-of-left-leaves-role',
+        title: '一个节点要被计入，必须同时满足“是左孩子”和“自己是叶子”',
+        summary:
+          '左叶子不是“在左边的节点”，而是某个父节点的左孩子，并且这个孩子没有左右子节点。判断条件必须同时满足，否则很容易把普通左子树根节点也误算进去。',
+        bullets: [
+          '左孩子身份来自父节点视角。',
+          '叶子身份来自当前节点自身结构。',
+          '两个条件缺一不可。',
+          '这是最容易出错的定义点。',
+        ],
+      },
+      {
+        id: 'sum-of-left-leaves-traversal',
+        title: '遍历方式不限，DFS 和 BFS 都能做',
+        summary:
+          '无论是递归 DFS 还是队列 BFS，本质上都只是遍历所有节点。真正重要的是在访问一个节点时，如何检查它的左孩子是否是叶子，或者在递归参数中显式传递“我是不是左孩子”。',
+        bullets: [
+          '遍历方式不是难点。',
+          '判断逻辑才是核心。',
+          '递归写法通常更自然。',
+          '实现可读性很好。',
+        ],
+        callout:
+          '树题很多时候并不难在“怎么遍历”，而难在“遍历到一个节点时到底要检查什么关系”。先把关系定义清楚，代码会很顺。',
+      },
+      {
+        id: 'sum-of-left-leaves-solution',
+        title: '标准解法：递归检查左孩子是否为叶子',
+        summary:
+          '对当前节点，先检查它的左孩子是否存在且是叶子；若是，就把该值加入答案。随后递归处理左右子树，继续累加其他左叶子。空节点直接返回 0。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度取决于树高。',
+          '实现短且定义清晰。',
+          '是这题最常见的标准写法。',
+        ],
+        code: `function sumOfLeftLeaves(root: TreeNode | null): number {
+  if (root === null) {
+    return 0
+  }
+
+  let sum = 0
+
+  if (
+    root.left !== null &&
+    root.left.left === null &&
+    root.left.right === null
+  ) {
+    sum += root.left.val
+  }
+
+  sum += sumOfLeftLeaves(root.left)
+  sum += sumOfLeftLeaves(root.right)
+
+  return sum
+}`,
+      },
+      {
+        id: 'sum-of-left-leaves-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把所有左孩子都加进去，忘了它还必须是叶子；或者把叶子判断写成只看一个空孩子，定义不完整。',
+        bullets: [
+          '易错点 1：没有同时检查左右孩子都为空。',
+          '易错点 2：把左子树根节点误算成左叶子。',
+          '易错点 3：空树和单节点树边界没处理清楚。',
+          '延伸方向：树遍历、节点角色判断、叶子类题目。',
+        ],
+      },
+    ],
+  },
 ];
