@@ -44638,4 +44638,94 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'queue-reconstruction-by-height',
+    label: '406. LeetCode 406. 根据身高重建队列',
+    difficulty: '中等',
+    description:
+      '这题的关键不在模拟插队，而在排序顺序设计。只要先处理高个子，再按 `k` 插入位置，后面矮个子就不会破坏前面已经满足的人数关系。',
+    outcome:
+      '你能解释为什么要按“身高降序、`k` 升序”排序，并用插入列表的方式正确重建队列。',
+    sections: [
+      {
+        id: 'queue-reconstruction-by-height-summary',
+        title: '题目在问什么',
+        summary:
+          '每个人由 `[h, k]` 表示，`h` 是身高，`k` 是这个人前面身高大于等于 `h` 的人数。要求恢复出一个满足所有条件的队列顺序。',
+        bullets: [
+          '每个人的约束只和前面的人有关。',
+          '高个子会影响矮个子的计数。',
+          '顺序要同时满足所有人的 `k`。',
+          '本质是排序加构造题。',
+        ],
+      },
+      {
+        id: 'queue-reconstruction-by-height-order',
+        title: '先处理高个子，能把复杂约束变成简单插入',
+        summary:
+          '如果先放矮个子，后续高个子插进来会改变前面“比我高的人数”，导致之前结果失效。反过来，先处理高个子时，当前队列里的人都不比他矮，因此只要把他插到下标 `k`，就刚好满足“前面有 `k` 个不低于他的人”。',
+        bullets: [
+          '高个子对别人影响更大，应优先确定。',
+          '当前队列里全是更高或同高的人。',
+          '插入位置 `k` 就是最终合法位置。',
+          '这是贪心成立的核心原因。',
+        ],
+      },
+      {
+        id: 'queue-reconstruction-by-height-same-height',
+        title: '同身高时必须按 `k` 升序处理',
+        summary:
+          '如果同样身高的人按 `k` 降序先放较后面的那个，后续再插入 `k` 更小的人，会把前者向后挤，导致它前面的人数变化。按 `k` 升序则不会出现这个问题。',
+        bullets: [
+          '同高度之间也会互相影响。',
+          '较小 `k` 的人必须先落位。',
+          '排序细节直接决定正确性。',
+          '这是面试里常被追问的点。',
+        ],
+        callout:
+          '很多“排序 + 贪心”题，真正难点不是想到排序，而是证明这个排序顺序为什么不会被后续步骤破坏。',
+      },
+      {
+        id: 'queue-reconstruction-by-height-solution',
+        title: '标准解法：排序后按 `k` 插入数组',
+        summary:
+          '先按身高从高到低排序；若身高相同，按 `k` 从小到大排序。随后依次遍历排序后的数组，把当前人插入结果数组的下标 `k` 处。由于前面已放入的都是不比他矮的人，这次插入后当前人的条件自然满足。',
+        bullets: [
+          '排序复杂度是 `O(n log n)`。',
+          '数组插入总体复杂度是 `O(n^2)`。',
+          '实现非常短，但思路很经典。',
+          '是这题主流标准解。',
+        ],
+        code: `function reconstructQueue(people: number[][]): number[][] {
+  const ordered = [...people].sort((a, b) => {
+    if (a[0] !== b[0]) {
+      return b[0] - a[0]
+    }
+
+    return a[1] - b[1]
+  })
+
+  const queue: number[][] = []
+
+  for (const person of ordered) {
+    queue.splice(person[1], 0, person)
+  }
+
+  return queue
+}`,
+      },
+      {
+        id: 'queue-reconstruction-by-height-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把身高排成升序，或者忽略同身高时的 `k` 排序，结果插入过程会破坏前面已经满足的约束。',
+        bullets: [
+          '易错点 1：按身高升序排序。',
+          '易错点 2：同身高时 `k` 顺序写反。',
+          '易错点 3：误以为插入下标不是最终位置。',
+          '延伸方向：贪心排序、区间插入、构造类问题。',
+        ],
+      },
+    ],
+  },
 ];
