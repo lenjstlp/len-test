@@ -45476,4 +45476,92 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'arithmetic-slices',
+    label: '413. LeetCode 413. 等差数列划分',
+    difficulty: '中等',
+    description:
+      '这题的重点不是枚举所有子数组，而是发现“以当前位置结尾的等差子数组数量”可以递推。当前三个数继续保持同一公差时，新增的数量正好比前一位多一层延伸。',
+    outcome:
+      '你能用线性动态规划统计数组中所有连续等差子数组的个数，并解释为什么只需记录“以上一位结尾的贡献”。',
+    sections: [
+      {
+        id: 'arithmetic-slices-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组，统计其中所有长度至少为 `3` 且元素差值相等的连续子数组个数。',
+        bullets: [
+          '必须是连续子数组。',
+          '长度至少为 `3`。',
+          '相邻差值要一致。',
+          '本质是连续结构计数题。',
+        ],
+      },
+      {
+        id: 'arithmetic-slices-local-state',
+        title: '关键状态是“以当前位置结尾”的等差子数组有多少个',
+        summary:
+          '假设 `dp[i]` 表示以 `i` 位置结尾的等差子数组数量。如果 `nums[i] - nums[i - 1]` 等于 `nums[i - 1] - nums[i - 2]`，那么所有以前一位结尾的等差子数组都能再延长一个元素，同时还会新产生一个长度正好为 `3` 的子数组，因此 `dp[i] = dp[i - 1] + 1`。',
+        bullets: [
+          '状态只关心“以谁结尾”。',
+          '能延续时，旧答案整体继承并新增 1。',
+          '不能延续时，当前位置贡献归零。',
+          '递推关系非常紧凑。',
+        ],
+      },
+      {
+        id: 'arithmetic-slices-accumulate',
+        title: '总答案就是所有结尾状态的累加',
+        summary:
+          '每个 `dp[i]` 统计的是“以 `i` 为右端点”的等差子数组个数。因为不同右端点的子数组不会重复，所以把所有 `dp[i]` 加起来，就是整道题的最终答案。',
+        bullets: [
+          '局部贡献可以直接累加。',
+          '不需要再做去重。',
+          '状态和值分离得很清楚。',
+          '这是很多子数组计数题的通用套路。',
+        ],
+        callout:
+          '当你发现“枚举所有区间”太慢时，可以尝试把问题改成“每个位置作为结尾时新增了多少答案”。这是一类非常常见的 DP 视角。',
+      },
+      {
+        id: 'arithmetic-slices-solution',
+        title: '标准解法：线性扫描，维护上一位结尾贡献',
+        summary:
+          '从下标 `2` 开始遍历。若当前三项满足等差关系，就令当前贡献 `current = current + 1`，并把它累加到答案中；否则把 `current` 重置为 `0`。这里的 `current` 实际上就是压缩后的 `dp[i]`，因此不需要整个数组保存状态。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在理解 `current + 1` 的含义。',
+          '是这题最常见的 DP 写法。',
+        ],
+        code: `function numberOfArithmeticSlices(nums: number[]): number {
+  let current = 0
+  let total = 0
+
+  for (let index = 2; index < nums.length; index += 1) {
+    if (nums[index] - nums[index - 1] === nums[index - 1] - nums[index - 2]) {
+      current += 1
+      total += current
+    } else {
+      current = 0
+    }
+  }
+
+  return total
+}`,
+      },
+      {
+        id: 'arithmetic-slices-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是每次只加 `1`，漏掉了更长等差段带来的连锁新增；或者把非连续的等差序列也算进答案。 ',
+        bullets: [
+          '易错点 1：不理解 `current` 表示什么。',
+          '易错点 2：把非连续子序列误算进来。',
+          '易错点 3：长度小于 `3` 的情况边界没自然覆盖。',
+          '延伸方向：动态规划、子数组计数、连续结构递推。',
+        ],
+      },
+    ],
+  },
 ];
