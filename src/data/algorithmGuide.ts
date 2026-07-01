@@ -45112,4 +45112,109 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'split-array-largest-sum',
+    label: '410. LeetCode 410. 分割数组的最大值',
+    difficulty: '困难',
+    description:
+      '这题的关键不是直接枚举切分点，而是把问题改写成“答案能不能不超过某个值”。一旦能做可行性判断，就可以对答案本身二分搜索。',
+    outcome:
+      '你能把最优化问题转成判定问题，用二分答案配合贪心统计分段数，求出把数组分成 `m` 段后的最小可能最大段和。',
+    sections: [
+      {
+        id: 'split-array-largest-sum-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个非负整数数组和一个整数 `m`，要求把数组分成 `m` 个连续子数组，使这些子数组各自和的最大值尽可能小，返回这个最小值。',
+        bullets: [
+          '必须分成连续子数组。',
+          '目标是最小化“各段和的最大值”。',
+          '切分方案很多，不能暴力枚举。',
+          '本质是最优值搜索题。',
+        ],
+      },
+      {
+        id: 'split-array-largest-sum-search-space',
+        title: '答案一定落在“最大单个元素”和“总和”之间',
+        summary:
+          '如果最大段和小于数组里的最大元素，那这个元素根本放不进去，所以答案下界是 `max(nums)`；如果不切分，整段和就是 `sum(nums)`，因此答案上界是总和。既然答案在一个连续数值区间里，就可以考虑二分。',
+        bullets: [
+          '下界来自单个元素必须被容纳。',
+          '上界来自整数组作为一段。',
+          '区间明确后适合做二分答案。',
+          '这是建模的第一步。',
+        ],
+      },
+      {
+        id: 'split-array-largest-sum-check',
+        title: '固定一个上限后，可以贪心判断是否能在 `m` 段内完成',
+        summary:
+          '假设当前允许的最大段和是 `limit`，那么从左到右累加，一旦再加一个数就会超过 `limit`，就必须切一刀，开启新的一段。这样得到的段数是满足该上限时所需的最少段数。如果最少段数都超过 `m`，说明这个上限太小；否则说明可行。',
+        bullets: [
+          '贪心切分能得到该上限下的最少段数。',
+          '段数过多说明上限偏小。',
+          '段数不超过 `m` 说明答案可以更小。',
+          '判定函数决定二分方向。',
+        ],
+        callout:
+          '二分答案题最核心的能力，是先证明“答案越大越容易满足”，也就是判定结果具有单调性。',
+      },
+      {
+        id: 'split-array-largest-sum-solution',
+        title: '标准解法：二分答案 + 贪心统计段数',
+        summary:
+          '在区间 `[max(nums), sum(nums)]` 上二分 `mid`，把它视作允许的最大段和。每次扫描数组并贪心分段，统计最少需要多少段。若段数大于 `m`，说明 `mid` 太小，应增大左边界；否则说明可行，尝试继续压缩右边界。最终收敛到的值就是最小可能最大段和。',
+        bullets: [
+          '时间复杂度是 `O(n log(sum))`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在判定函数的正确性。',
+          '这是这题最经典的做法。',
+        ],
+        code: `function splitArray(nums: number[], m: number): number {
+  let left = Math.max(...nums)
+  let right = nums.reduce((sum, num) => sum + num, 0)
+
+  const canSplit = (limit: number): boolean => {
+    let groups = 1
+    let current = 0
+
+    for (const num of nums) {
+      if (current + num > limit) {
+        groups += 1
+        current = num
+      } else {
+        current += num
+      }
+    }
+
+    return groups <= m
+  }
+
+  while (left < right) {
+    const mid = Math.floor((left + right) / 2)
+
+    if (canSplit(mid)) {
+      right = mid
+    } else {
+      left = mid + 1
+    }
+  }
+
+  return left
+}`,
+      },
+      {
+        id: 'split-array-largest-sum-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把判定函数写成“最多能分多少段”而不是“最少需要多少段”，导致二分方向混乱；或者把数组当成可重排，忽略了连续性约束。',
+        bullets: [
+          '易错点 1：没有利用答案单调性。',
+          '易错点 2：判定函数的分段逻辑写错。',
+          '易错点 3：忽略必须是连续子数组。',
+          '延伸方向：二分答案、贪心判定、区间最优化问题。',
+        ],
+      },
+    ],
+  },
 ];
