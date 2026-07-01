@@ -45564,4 +45564,101 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'third-maximum-number',
+    label: '414. LeetCode 414. 第三大的数',
+    difficulty: '简单',
+    description:
+      '这题的重点不是排序，而是在一次遍历中维护前三个互不相同的最大值。真正的坑在于“第三大”要求去重，重复数字不能占用名次。',
+    outcome:
+      '你能在线性时间内维护数组中的前三个不同最大值，并正确处理重复元素与不足三个不同数字时的返回规则。',
+    sections: [
+      {
+        id: 'third-maximum-number-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组，返回其中第三大的不同数字。如果不同数字不足三个，就返回最大的那个数字。',
+        bullets: [
+          '必须是“不同数字”的第三大。',
+          '重复值不能重复计名次。',
+          '不足三个不同值时返回最大值。',
+          '本质是去重后的 Top 3 维护题。',
+        ],
+      },
+      {
+        id: 'third-maximum-number-top3',
+        title: '维护三个位置：第一大、第二大、第三大',
+        summary:
+          '遍历数组时，始终维护三个变量 `first`、`second`、`third`，分别表示当前见过的前三个不同最大值。当新数字更大时，就把原先的名次整体向后推移；当它落在中间某个区间时，只更新对应位置和后面的名次。',
+        bullets: [
+          '名次更新本质是有序插入。',
+          '大的值会把后面名次整体挤下去。',
+          '三个变量就足够记录状态。',
+          '不需要完整排序整个数组。',
+        ],
+      },
+      {
+        id: 'third-maximum-number-distinct',
+        title: '重复数字必须先跳过，否则名次会被污染',
+        summary:
+          '如果当前数字已经等于 `first`、`second` 或 `third` 之一，就应该直接跳过，因为题目要求的是不同数字的排名。这个去重判断必须放在更新逻辑前面。',
+        bullets: [
+          '去重是这题最关键的定义点。',
+          '重复值不能让名次后移。',
+          '判断顺序要先去重，再更新。',
+          '很多错误答案都忽略了这一层。',
+        ],
+        callout:
+          '一看到“第 k 大”且带“不同数字”约束，就要马上区分“值排名”和“出现次数排名”，这两个模型完全不同。',
+      },
+      {
+        id: 'third-maximum-number-solution',
+        title: '标准解法：一次遍历维护三个不同最大值',
+        summary:
+          '使用三个变量记录当前前三大的不同数字，初始都设为 `null`。遍历每个数字时，先判断是否与已有名次重复；若不重复，再按大小依次更新 `first`、`second`、`third`。遍历结束后，若 `third` 仍为空，说明不同数字不足三个，返回 `first`；否则返回 `third`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在名次后移和去重顺序。',
+          '是这题最直接的最优解。',
+        ],
+        code: `function thirdMax(nums: number[]): number {
+  let first: number | null = null
+  let second: number | null = null
+  let third: number | null = null
+
+  for (const num of nums) {
+    if (num === first || num === second || num === third) {
+      continue
+    }
+
+    if (first === null || num > first) {
+      third = second
+      second = first
+      first = num
+    } else if (second === null || num > second) {
+      third = second
+      second = num
+    } else if (third === null || num > third) {
+      third = num
+    }
+  }
+
+  return third === null ? (first as number) : third
+}`,
+      },
+      {
+        id: 'third-maximum-number-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接排序后取第三个位置，忘了先去重；或者更新前三名时覆盖顺序写反，导致数据被提前丢掉。 ',
+        bullets: [
+          '易错点 1：没有处理重复值。',
+          '易错点 2：名次后移顺序写反。',
+          '易错点 3：不足三个不同值时返回规则错误。',
+          '延伸方向：Top K 维护、流式数据统计、去重排名问题。',
+        ],
+      },
+    ],
+  },
 ];
