@@ -45386,4 +45386,94 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'fizz-buzz',
+    label: '412. LeetCode 412. Fizz Buzz',
+    difficulty: '简单',
+    description:
+      '这题本身不难，但它检验的是条件分支是否写得清楚。核心点是先处理同时满足两个条件的情况，再处理各自单独满足的分支。',
+    outcome:
+      '你能按题意生成 `1` 到 `n` 的结果列表，并清楚说明为什么要优先判断 3 和 5 的公倍数。',
+    sections: [
+      {
+        id: 'fizz-buzz-summary',
+        title: '题目在问什么',
+        summary:
+          '从 `1` 遍历到 `n`。若当前数能被 `3` 整除，输出 `"Fizz"`；能被 `5` 整除，输出 `"Buzz"`；同时满足时输出 `"FizzBuzz"`；否则输出它本身的字符串形式。',
+        bullets: [
+          '输出结果是字符串数组。',
+          '要覆盖 3、5 和同时满足两者三种情况。',
+          '不能漏掉普通数字分支。',
+          '本质是条件分支模拟题。',
+        ],
+      },
+      {
+        id: 'fizz-buzz-order',
+        title: '判断顺序很关键，先看是否同时满足',
+        summary:
+          '如果先判断是否能被 `3` 整除，再判断是否能被 `5` 整除，那么像 `15` 这样的数字会提前进入 `"Fizz"` 分支，错过 `"FizzBuzz"`。因此必须优先判断是否同时满足两个条件。',
+        bullets: [
+          '交集分支要先处理。',
+          '否则会被单独分支提前截走。',
+          '这是多条件判断的通用经验。',
+          '题目虽简单，但很适合检查分支意识。',
+        ],
+      },
+      {
+        id: 'fizz-buzz-simulation',
+        title: '按顺序遍历，每个数字只做一次判定',
+        summary:
+          '从 `1` 到 `n` 依次处理当前数字。根据是否被 `3`、`5` 整除，把对应字符串推入结果数组。因为每个数字只需要常数次判断，所以整体复杂度线性。',
+        bullets: [
+          '遍历顺序固定。',
+          '每轮只做常数次判断。',
+          '结果数组按题意顺序生成。',
+          '实现非常直接。',
+        ],
+        callout:
+          '越简单的题，越适合练习把条件逻辑写得没有歧义。面试里很多低级错误都出在分支覆盖不完整。',
+      },
+      {
+        id: 'fizz-buzz-solution',
+        title: '标准解法：遍历加条件分支',
+        summary:
+          '准备一个结果数组，循环遍历 `1` 到 `n`。若当前数同时能被 `3` 和 `5` 整除，则放入 `"FizzBuzz"`；否则分别判断 `"Fizz"` 和 `"Buzz"`；若都不满足，则放入当前数字转成的字符串。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`，用于存结果。',
+          '实现重点在分支顺序。',
+          '是这题唯一且最自然的做法。',
+        ],
+        code: `function fizzBuzz(n: number): string[] {
+  const result: string[] = []
+
+  for (let value = 1; value <= n; value += 1) {
+    if (value % 15 === 0) {
+      result.push('FizzBuzz')
+    } else if (value % 3 === 0) {
+      result.push('Fizz')
+    } else if (value % 5 === 0) {
+      result.push('Buzz')
+    } else {
+      result.push(String(value))
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'fizz-buzz-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是判断顺序写反，导致 `15` 被输出成 `"Fizz"` 或 `"Buzz"`。另外也有人忘了把数字转换成字符串。 ',
+        bullets: [
+          '易错点 1：没有优先判断 `FizzBuzz`。',
+          '易错点 2：漏掉普通数字分支。',
+          '易错点 3：结果类型写成数字数组。',
+          '延伸方向：条件分支设计、模拟题、规则映射问题。',
+        ],
+      },
+    ],
+  },
 ];
