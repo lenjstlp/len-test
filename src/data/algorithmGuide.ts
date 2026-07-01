@@ -45217,4 +45217,173 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'minimum-unique-word-abbreviation',
+    label: '411. LeetCode 411. 最短独特缩写',
+    difficulty: '困难',
+    description:
+      '这题的难点不在生成缩写，而在判断一个缩写是否会和字典中的其他单词冲突。正确视角是：哪些位置必须保留字母，才能和所有候选词至少区分开一个位置。',
+    outcome:
+      '你能把缩写问题转成位掩码搜索，理解“保留哪些字符位置”与“是否能区分所有冲突单词”之间的关系，并求出最短合法缩写。',
+    sections: [
+      {
+        id: 'minimum-unique-word-abbreviation-summary',
+        title: '题目在问什么',
+        summary:
+          '给定目标单词 `target` 和一个字典，要求找到 `target` 的最短缩写，并保证这个缩写不会和字典里任意一个同长度单词的缩写结果冲突。',
+        bullets: [
+          '只需要考虑和 `target` 长度相同的单词。',
+          '缩写由保留字母和数字段组成。',
+          '目标是最短，而不是任意合法缩写。',
+          '本质是状态搜索与判重问题。',
+        ],
+      },
+      {
+        id: 'minimum-unique-word-abbreviation-mask',
+        title: '把“保留哪些字母”看成一个二进制掩码',
+        summary:
+          '假设 `target` 长度为 `n`，就可以用一个 `n` 位二进制数表示缩写方案：某位为 `1` 表示该位置保留原字母，某位为 `0` 表示该位置被压缩进数字段。这样，一个缩写就不再是字符串问题，而变成了位掩码问题。',
+        bullets: [
+          '`1` 表示保留字母。',
+          '`0` 表示该位置参与数字压缩。',
+          '掩码天然适合枚举所有方案。',
+          '字符串构造被延后到最后一步。',
+        ],
+      },
+      {
+        id: 'minimum-unique-word-abbreviation-conflict',
+        title: '能否区分某个字典词，取决于保留位里有没有至少一个不同字符',
+        summary:
+          '对于一个和 `target` 等长的字典词，把所有“与 `target` 不同的位置”记成一个差异掩码 `diff`。若某个缩写方案 `mask` 与它完全没有交集，也就是 `(mask & diff) === 0`，说明保留的那些字母位都一样，那么这个缩写就无法区分这两个词。反之，只要交集不为 0，就一定能区分开。',
+        bullets: [
+          '差异掩码只记录不同字符位置。',
+          '合法缩写必须命中每个冲突词的至少一个差异位。',
+          '判定条件是 `(mask & diff) !== 0`。',
+          '这一步把字符串冲突判断变成了位运算。',
+        ],
+        callout:
+          '这题本质上是在找一个最短的“击中集合”：用尽量少的保留位，去命中字典里每个冲突词的差异集合。',
+      },
+      {
+        id: 'minimum-unique-word-abbreviation-solution',
+        title: '标准解法：枚举保留位掩码，选择缩写长度最短的合法方案',
+        summary:
+          '先筛出与 `target` 同长度的字典词，并为每个词计算差异掩码。然后枚举所有保留位掩码 `mask`，检查它是否对每个差异掩码都满足 `(mask & diff) !== 0`。合法的 `mask` 中，再计算其缩写长度，取最短者。最后把最佳掩码还原成缩写字符串即可。',
+        bullets: [
+          '时间复杂度与 `2^n` 相关，适用于题目给定范围。',
+          '空间复杂度主要来自差异掩码列表。',
+          '实现重点在长度计算和合法性判断。',
+          '是这题最经典的位运算做法。',
+        ],
+        code: `function minAbbreviation(target: string, dictionary: string[]): string {
+  const words = dictionary.filter((word) => word.length === target.length)
+  const size = target.length
+
+  if (words.length === 0) {
+    return String(size)
+  }
+
+  const diffs = words.map((word) => {
+    let mask = 0
+
+    for (let index = 0; index < size; index += 1) {
+      if (target[index] !== word[index]) {
+        mask |= 1 << index
+      }
+    }
+
+    return mask
+  })
+
+  const abbreviationLength = (mask: number): number => {
+    let length = 0
+    let zeros = 0
+
+    for (let index = 0; index < size; index += 1) {
+      if ((mask & (1 << index)) === 0) {
+        zeros += 1
+      } else {
+        if (zeros > 0) {
+          length += 1
+          zeros = 0
+        }
+
+        length += 1
+      }
+    }
+
+    if (zeros > 0) {
+      length += 1
+    }
+
+    return length
+  }
+
+  const build = (mask: number): string => {
+    let result = ''
+    let zeros = 0
+
+    for (let index = 0; index < size; index += 1) {
+      if ((mask & (1 << index)) === 0) {
+        zeros += 1
+      } else {
+        if (zeros > 0) {
+          result += String(zeros)
+          zeros = 0
+        }
+
+        result += target[index]
+      }
+    }
+
+    if (zeros > 0) {
+      result += String(zeros)
+    }
+
+    return result
+  }
+
+  let bestMask = 0
+  let bestLength = Number.POSITIVE_INFINITY
+  const limit = 1 << size
+
+  for (let mask = 0; mask < limit; mask += 1) {
+    let valid = true
+
+    for (const diff of diffs) {
+      if ((mask & diff) === 0) {
+        valid = false
+        break
+      }
+    }
+
+    if (!valid) {
+      continue
+    }
+
+    const currentLength = abbreviationLength(mask)
+
+    if (currentLength < bestLength) {
+      bestLength = currentLength
+      bestMask = mask
+    }
+  }
+
+  return build(bestMask)
+}`,
+      },
+      {
+        id: 'minimum-unique-word-abbreviation-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接枚举缩写字符串而不是保留位掩码，导致判断冲突非常麻烦；或者忘了只需要考虑与 `target` 等长的字典词。',
+        bullets: [
+          '易错点 1：没有过滤不同长度的单词。',
+          '易错点 2：冲突判定没有转成差异掩码。',
+          '易错点 3：缩写长度计算把连续数字段算错。',
+          '延伸方向：位掩码、最小击中集、状态压缩搜索。',
+        ],
+      },
+    ],
+  },
 ];
