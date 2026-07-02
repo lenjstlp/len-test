@@ -45661,4 +45661,96 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'add-strings',
+    label: '415. LeetCode 415. 字符串相加',
+    difficulty: '简单',
+    description:
+      '这题的关键不是把字符串转成数字，而是模拟我们手算加法的过程。只要从低位向高位逐位相加，并维护进位，就能处理任意长度的非负整数。',
+    outcome:
+      '你能不用大整数转换，直接按位模拟两个数字字符串的加法，并正确处理不同长度和最终进位。',
+    sections: [
+      {
+        id: 'add-strings-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个只包含数字字符的非负整数字符串，要求返回它们相加后的结果字符串，不能直接使用大整数库或把整个字符串转成数字。',
+        bullets: [
+          '输入是字符串形式的大整数。',
+          '不能依赖整型上限。',
+          '结果也要返回字符串。',
+          '本质是高精度加法模拟题。',
+        ],
+      },
+      {
+        id: 'add-strings-direction',
+        title: '加法一定从最低位开始模拟',
+        summary:
+          '十进制加法的规则决定了低位相加可能向高位产生进位，所以必须从两个字符串的末尾开始往前走。每次取当前位数字与进位相加，得到当前答案位和新的进位。',
+        bullets: [
+          '低位决定是否向高位进位。',
+          '因此扫描方向要从右向左。',
+          '每一轮只处理一个十进制位。',
+          '完全对应纸笔加法。',
+        ],
+      },
+      {
+        id: 'add-strings-carry',
+        title: '不同长度和最后一位进位都由同一个循环统一处理',
+        summary:
+          '当两个字符串长度不同时，较短的那个在越界后可视为当前位是 `0`。另外，只要还有进位，即使两个指针都结束，也要继续处理一轮，这样才能正确得到例如 `999 + 1 = 1000` 这种结果。',
+        bullets: [
+          '越界位置按 `0` 处理。',
+          '循环条件要包含进位不为 `0`。',
+          '不同长度不需要单独拆分逻辑。',
+          '边界统一后实现更稳。',
+        ],
+        callout:
+          '很多字符串模拟题的稳定写法，都是把“正常情况”和“边界情况”塞进同一个循环条件里统一处理，而不是写很多额外分支。',
+      },
+      {
+        id: 'add-strings-solution',
+        title: '标准解法：双指针从尾到头逐位相加',
+        summary:
+          '准备两个指针分别指向 `num1`、`num2` 的末尾，再准备一个 `carry` 表示进位。每次取两个当前数字和进位求和，把个位数加入结果，把十位部分更新为新进位。循环结束后将结果反转拼接成字符串即可。',
+        bullets: [
+          '时间复杂度是 `O(max(m, n))`。',
+          '空间复杂度是 `O(max(m, n))`，用于结果数组。',
+          '实现重点在进位和字符转数字。',
+          '是这题最经典的解法。',
+        ],
+        code: `function addStrings(num1: string, num2: string): string {
+  let index1 = num1.length - 1
+  let index2 = num2.length - 1
+  let carry = 0
+  const digits: string[] = []
+
+  while (index1 >= 0 || index2 >= 0 || carry > 0) {
+    const value1 = index1 >= 0 ? Number(num1[index1]) : 0
+    const value2 = index2 >= 0 ? Number(num2[index2]) : 0
+    const sum = value1 + value2 + carry
+
+    digits.push(String(sum % 10))
+    carry = Math.floor(sum / 10)
+    index1 -= 1
+    index2 -= 1
+  }
+
+  return digits.reverse().join('')
+}`,
+      },
+      {
+        id: 'add-strings-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是循环结束时忘记处理最后一个进位，或者把字符直接相加成字符串拼接而不是数字加法。',
+        bullets: [
+          '易错点 1：循环条件漏掉 `carry > 0`。',
+          '易错点 2：没有把字符转换成数字。',
+          '易错点 3：结果构造顺序反了却忘记反转。',
+          '延伸方向：高精度运算、字符串模拟、竖式计算题。',
+        ],
+      },
+    ],
+  },
 ];
