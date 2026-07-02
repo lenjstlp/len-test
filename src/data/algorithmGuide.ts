@@ -45974,4 +45974,96 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'sentence-screen-fitting',
+    label: '418. LeetCode 418. 屏幕可显示句子的数量',
+    difficulty: '中等',
+    description:
+      '这题如果一格一格模拟填充会很慢。核心思路是先把整句拼成一个循环字符串，再利用每行都尽量向右扩展并在空格处回退的规律，线性统计能放下多少字符。',
+    outcome:
+      '你能把句子视作循环字符串，按行模拟屏幕填充，并通过字符总推进量计算完整句子出现的次数。',
+    sections: [
+      {
+        id: 'sentence-screen-fitting-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个句子数组 `sentence`、屏幕行数 `rows` 和列数 `cols`，要求返回这个句子在屏幕上最多能完整显示多少次。单词顺序不能变，单词之间必须有一个空格，单词不能被拆开。',
+        bullets: [
+          '句子按原顺序循环出现。',
+          '单词之间至少一个空格。',
+          '不能把单词拆到两行。',
+          '本质是循环排版模拟题。',
+        ],
+      },
+      {
+        id: 'sentence-screen-fitting-cycle-string',
+        title: '把整句连成一个带空格的循环字符串',
+        summary:
+          '例如句子 `["hello", "world"]` 可以拼成 `"hello world "`。这个字符串天然代表了一整轮句子加上结尾空格。之后问题就变成：在每一行最多放 `cols` 个字符时，指针在这个循环字符串上能前进多远。',
+        bullets: [
+          '整句字符串能统一处理单词间空格。',
+          '末尾多一个空格很关键。',
+          '后续只需关注指针位置。',
+          '复杂规则被压缩成字符推进问题。',
+        ],
+      },
+      {
+        id: 'sentence-screen-fitting-row-rule',
+        title: '每行先尽量放满，再根据停点调整到合法单词边界',
+        summary:
+          '每一行都先让指针前进 `cols`。如果停在空格上，说明这一行恰好放满，可以再跨过这个空格进入下一行；如果停在单词中间，就需要不断回退，直到前一个字符是空格为止，这样才能保证单词不被拆开。',
+        bullets: [
+          '先贪心放满列宽。',
+          '停在空格上最理想。',
+          '停在单词中间必须回退。',
+          '每行的调整规则完全一致。',
+        ],
+        callout:
+          '这题的技巧在于，别把自己困在“单词数组”里逐个处理。把结构拉平成字符串后，很多边界都变成了简单的字符判断。',
+      },
+      {
+        id: 'sentence-screen-fitting-solution',
+        title: '标准解法：循环字符串 + 行级推进',
+        summary:
+          '先把句子拼成 `joined = sentence.join(" ") + " "`。用 `position` 表示当前在这个循环字符串上累计前进了多少字符。每一行先执行 `position += cols`，若 `joined[position % joined.length]` 是空格，就再 `position += 1`；否则持续回退直到前一个位置是空格。最终 `position / joined.length` 的整数部分，就是完整句子的显示次数。',
+        bullets: [
+          '时间复杂度通常是 `O(rows + 回退总量)`。',
+          '空间复杂度是 `O(totalLength)`。',
+          '实现重点在回退到单词边界。',
+          '是这题最主流的字符串解法。',
+        ],
+        code: `function wordsTyping(sentence: string[], rows: number, cols: number): number {
+  const joined = sentence.join(' ') + ' '
+  const length = joined.length
+  let position = 0
+
+  for (let row = 0; row < rows; row += 1) {
+    position += cols
+
+    if (joined[position % length] === ' ') {
+      position += 1
+    } else {
+      while (position > 0 && joined[(position - 1) % length] !== ' ') {
+        position -= 1
+      }
+    }
+  }
+
+  return Math.floor(position / length)
+}`,
+      },
+      {
+        id: 'sentence-screen-fitting-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是逐个单词暴力模拟导致实现又长又容易错，或者停在单词中间时没有回退到合法边界。',
+        bullets: [
+          '易错点 1：忘了给整句字符串末尾补一个空格。',
+          '易错点 2：停在单词中间时没有回退。',
+          '易错点 3：句子次数不是按行数累加，而是按总推进字符数计算。',
+          '延伸方向：循环字符串、排版模拟、取模指针技巧。',
+        ],
+      },
+    ],
+  },
 ];
