@@ -46420,4 +46420,92 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'valid-word-square',
+    label: '422. LeetCode 422. 有效的单词方块',
+    difficulty: '简单',
+    description:
+      '这题本质上是在检查一个字符矩阵是否关于主对角线对称。关键不是构造方块，而是逐个比较“第 i 行第 j 列”和“第 j 行第 i 列”是否一致，同时处理越界情况。',
+    outcome:
+      '你能把单词方块校验转成二维索引对称检查，并正确处理长短不一的单词导致的越界边界。',
+    sections: [
+      {
+        id: 'valid-word-square-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串数组，判断它是否构成一个有效的单词方块。也就是说，第 `k` 行读取出的字符串，必须等于第 `k` 列读取出的字符串。',
+        bullets: [
+          '要求行读和列读完全一致。',
+          '单词长度可以不同。',
+          '只做合法性判断，不需要补齐矩阵。',
+          '本质是二维对称校验题。',
+        ],
+      },
+      {
+        id: 'valid-word-square-symmetry',
+        title: '任意位置都要满足行列对称',
+        summary:
+          '如果把字符串数组看成一个字符矩阵，那么合法单词方块的含义就是：只要位置 `(row, col)` 存在字符，那么位置 `(col, row)` 也必须存在，并且两个字符相同。这个条件一旦在任意位置失败，整个方块就无效。',
+        bullets: [
+          '本质是关于主对角线的镜像对称。',
+          '比较单位是单个字符位置。',
+          '存在性和字符值都要同时匹配。',
+          '这是最直接的判定方式。',
+        ],
+      },
+      {
+        id: 'valid-word-square-bounds',
+        title: '越界不是小细节，而是合法性的核心部分',
+        summary:
+          '因为每个单词长度不一定相同，所以很多位置可能一侧有字符，另一侧没有字符。只要出现这种不对称越界，就说明行列读取结果长度已经不同，答案必须是 `false`。因此在比较字符之前，必须先检查对应的行和列索引是否存在。',
+        bullets: [
+          '不能默认矩阵是规则长方形。',
+          '要先判断索引是否有效。',
+          '一侧越界另一侧不越界直接失败。',
+          '这题的边界判断比字符比较更重要。',
+        ],
+        callout:
+          '字符串二维题里，真正容易出错的往往不是核心逻辑，而是“索引是否合法”这件事。先把越界条件写扎实，后面的判断会顺很多。',
+      },
+      {
+        id: 'valid-word-square-solution',
+        title: '标准解法：双层遍历逐点比较镜像位置',
+        summary:
+          '遍历每一行的每一个字符位置 `(row, col)`。对于当前位置，先检查 `col` 是否小于单词总数，以及 `row` 是否小于 `words[col].length`；若任一不满足，直接返回 `false`。若对应位置存在，再比较 `words[row][col]` 和 `words[col][row]` 是否相等。全部通过才返回 `true`。',
+        bullets: [
+          '时间复杂度是 `O(totalChars)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在越界和镜像比较。',
+          '是这题最自然的遍历解法。',
+        ],
+        code: `function validWordSquare(words: string[]): boolean {
+  for (let row = 0; row < words.length; row += 1) {
+    for (let col = 0; col < words[row].length; col += 1) {
+      if (col >= words.length || row >= words[col].length) {
+        return false
+      }
+
+      if (words[row][col] !== words[col][row]) {
+        return false
+      }
+    }
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'valid-word-square-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只比较有交集的字符而忽略越界不对称，导致长度不匹配的情况被错误判成合法。',
+        bullets: [
+          '易错点 1：没先判断 `col` 和 `row` 是否在对方范围内。',
+          '易错点 2：只检查字符相等，没检查存在性对称。',
+          '易错点 3：把它当成普通矩阵转置，忽略每行长度不同。',
+          '延伸方向：字符串矩阵、对称校验、二维索引处理。',
+        ],
+      },
+    ],
+  },
 ];
