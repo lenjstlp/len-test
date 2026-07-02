@@ -45845,4 +45845,133 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'pacific-atlantic-water-flow',
+    label: '417. LeetCode 417. 太平洋大西洋水流问题',
+    difficulty: '中等',
+    description:
+      '这题如果从每个格子去试水往哪流，代价会很高。正确思路是反过来想：从两片海洋的边界逆流而上，看看哪些格子能够反向到达海边。',
+    outcome:
+      '你能用逆向 DFS 或 BFS 分别求出可到达太平洋和大西洋的格子集合，并取交集得到答案。',
+    sections: [
+      {
+        id: 'pacific-atlantic-water-flow-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个高度矩阵，水只能从高处或平处流向低处。太平洋接触矩阵的上边和左边，大西洋接触下边和右边。要求找出既能流到太平洋又能流到大西洋的所有坐标。',
+        bullets: [
+          '水流方向由高度关系决定。',
+          '要同时满足能到两片海洋。',
+          '输出的是坐标集合。',
+          '本质是双源可达性问题。',
+        ],
+      },
+      {
+        id: 'pacific-atlantic-water-flow-reverse',
+        title: '正向想很麻烦，逆向搜索更自然',
+        summary:
+          '如果从每个格子出发正向模拟水流，需要反复探索很多路径。反过来，从海洋边界往内陆走时，只允许走向高度大于等于当前格子的邻居，因为这些邻居的水可以反向流回海洋。这样一次搜索就能得到所有可达格子。',
+        bullets: [
+          '逆向搜索避免对每个点重复尝试。',
+          '可走条件变成“下一个格子高度不小于当前格子”。',
+          '海洋边界天然是多源起点。',
+          '这是这题的关键转换。',
+        ],
+      },
+      {
+        id: 'pacific-atlantic-water-flow-intersection',
+        title: '分别求两片海的可达集合，再取交集',
+        summary:
+          '以太平洋边界为起点做一次搜索，得到所有能流到太平洋的格子；再以大西洋边界为起点做一次搜索，得到所有能流到大西洋的格子。两个访问数组都为真的位置，就是最终答案。',
+        bullets: [
+          '每片海各做一次遍历。',
+          '访问结果可用布尔矩阵记录。',
+          '交集位置同时满足两种可达性。',
+          '结构清晰，容易实现。',
+        ],
+        callout:
+          '图搜索题常见的一个降维技巧，是把“每个点能否到终点”改成“从终点反向能到哪些点”，尤其适合终点是多源集合的时候。',
+      },
+      {
+        id: 'pacific-atlantic-water-flow-solution',
+        title: '标准解法：两次逆向 DFS/BFS + 交集',
+        summary:
+          '建立两个访问矩阵 `reachPacific` 和 `reachAtlantic`。分别从上边界与左边界、下边界与右边界出发做 DFS 或 BFS。搜索时，只有邻居高度大于等于当前高度才继续扩展。最后遍历全图，把两个访问矩阵都为真的坐标加入结果。',
+        bullets: [
+          '时间复杂度是 `O(mn)`。',
+          '空间复杂度是 `O(mn)`。',
+          '实现重点在逆向条件判断。',
+          '是这题最主流的解法。',
+        ],
+        code: `function pacificAtlantic(heights: number[][]): number[][] {
+  const rows = heights.length
+  const cols = heights[0].length
+  const pacific = Array.from({ length: rows }, () => Array(cols).fill(false))
+  const atlantic = Array.from({ length: rows }, () => Array(cols).fill(false))
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+
+  const dfs = (row: number, col: number, visited: boolean[][]) => {
+    visited[row][col] = true
+
+    for (const [dx, dy] of directions) {
+      const nextRow = row + dx
+      const nextCol = col + dy
+
+      if (
+        nextRow < 0 ||
+        nextRow >= rows ||
+        nextCol < 0 ||
+        nextCol >= cols ||
+        visited[nextRow][nextCol] ||
+        heights[nextRow][nextCol] < heights[row][col]
+      ) {
+        continue
+      }
+
+      dfs(nextRow, nextCol, visited)
+    }
+  }
+
+  for (let row = 0; row < rows; row += 1) {
+    dfs(row, 0, pacific)
+    dfs(row, cols - 1, atlantic)
+  }
+
+  for (let col = 0; col < cols; col += 1) {
+    dfs(0, col, pacific)
+    dfs(rows - 1, col, atlantic)
+  }
+
+  const result: number[][] = []
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      if (pacific[row][col] && atlantic[row][col]) {
+        result.push([row, col])
+      }
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'pacific-atlantic-water-flow-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是正向从每个点暴力搜索导致重复计算，或者逆向搜索时把高度比较方向写反。',
+        bullets: [
+          '易错点 1：没想到从海洋边界反推。',
+          '易错点 2：逆向搜索条件写成更低而不是更高或相等。',
+          '易错点 3：两个海洋的边界初始化不完整。',
+          '延伸方向：矩阵搜索、多源 BFS/DFS、可达性交集问题。',
+        ],
+      },
+    ],
+  },
 ];
