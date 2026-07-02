@@ -45753,4 +45753,96 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'partition-equal-subset-sum',
+    label: '416. LeetCode 416. 分割等和子集',
+    difficulty: '中等',
+    description:
+      '这题看起来像分组题，实质上是典型的 0-1 背包。只要能从数组里选出若干个数凑成总和的一半，剩下的数自然就是另一半。',
+    outcome:
+      '你能把等和分割转成子集和问题，并用一维 0-1 背包判断是否存在和为 `sum / 2` 的可行子集。',
+    sections: [
+      {
+        id: 'partition-equal-subset-sum-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含正整数的数组，判断是否能把它分成两个子集，使两个子集元素和相等。',
+        bullets: [
+          '不是要求具体方案，只要判断能否分割。',
+          '两个子集总和必须相等。',
+          '每个元素最多使用一次。',
+          '本质是子集和判定题。',
+        ],
+      },
+      {
+        id: 'partition-equal-subset-sum-transform',
+        title: '总和若为奇数，直接不可能；否则目标就是凑出一半',
+        summary:
+          '设数组总和为 `sum`。若 `sum` 是奇数，则不可能平分；若是偶数，只要能选出一个子集和为 `sum / 2`，剩余元素的和也必然是 `sum / 2`。这样问题就从“分成两半”变成了“能否凑出目标和”。',
+        bullets: [
+          '奇偶性是第一层快速剪枝。',
+          '目标和固定为 `sum / 2`。',
+          '问题被标准化为子集和。',
+          '这是建模的关键一步。',
+        ],
+      },
+      {
+        id: 'partition-equal-subset-sum-backpack',
+        title: '每个数只能用一次，所以是 0-1 背包',
+        summary:
+          '定义 `dp[j]` 表示是否能用前面若干个数凑出和 `j`。遍历每个数字时，要从大到小更新 `dp`，这样才能保证同一个数字不会在同一轮里被重复使用。这正是 0-1 背包的标准更新方向。',
+        bullets: [
+          '状态是“某个和能否被凑出”。',
+          '每个数字只能选或不选一次。',
+          '从大到小更新避免重复使用当前元素。',
+          '一维压缩后空间更省。',
+        ],
+        callout:
+          '背包题里最容易混淆的不是状态定义，而是遍历方向。0-1 背包倒序，完全背包正序，这个规则必须牢固。',
+      },
+      {
+        id: 'partition-equal-subset-sum-solution',
+        title: '标准解法：一维布尔背包判断目标和可达性',
+        summary:
+          '先求总和并检查是否为偶数。若是，则令目标和为 `target = sum / 2`，初始化 `dp[0] = true`。遍历每个数字 `num` 时，从 `target` 倒序更新到 `num`，执行 `dp[j] = dp[j] || dp[j - num]`。最终若 `dp[target]` 为真，就说明可以平分。',
+        bullets: [
+          '时间复杂度是 `O(n * target)`。',
+          '空间复杂度是 `O(target)`。',
+          '实现重点在倒序更新。',
+          '是这题最经典的 DP 解法。',
+        ],
+        code: `function canPartition(nums: number[]): boolean {
+  const sum = nums.reduce((total, num) => total + num, 0)
+
+  if (sum % 2 === 1) {
+    return false
+  }
+
+  const target = sum / 2
+  const dp = Array(target + 1).fill(false)
+  dp[0] = true
+
+  for (const num of nums) {
+    for (let value = target; value >= num; value -= 1) {
+      dp[value] = dp[value] || dp[value - num]
+    }
+  }
+
+  return dp[target]
+}`,
+      },
+      {
+        id: 'partition-equal-subset-sum-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把内层循环写成正序，导致一个数字在同一轮里被使用多次；或者没先判断总和奇偶性，白做很多无效计算。',
+        bullets: [
+          '易错点 1：0-1 背包更新方向写反。',
+          '易错点 2：忘记先判断总和是否为偶数。',
+          '易错点 3：把问题误写成必须恰好分成固定数量元素。',
+          '延伸方向：子集和、0-1 背包、可行性动态规划。',
+        ],
+      },
+    ],
+  },
 ];
