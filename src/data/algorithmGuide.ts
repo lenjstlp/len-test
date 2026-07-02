@@ -46318,4 +46318,106 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'maximum-xor-of-two-numbers-in-an-array',
+    label: '421. LeetCode 421. 数组中两个数的最大异或值',
+    difficulty: '中等',
+    description:
+      '这题的核心不是枚举两个数，而是从高位到低位贪心地尝试把答案的每一位设成 `1`。位运算里的最大值问题，通常都要优先考虑高位是否能成立。',
+    outcome:
+      '你能利用前缀集合和逐位贪心，在线性位数复杂度内求出数组中任意两个数的最大异或值。',
+    sections: [
+      {
+        id: 'maximum-xor-of-two-numbers-in-an-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个非负整数数组，要求找到其中两个数，使它们的按位异或值最大，并返回这个最大值。',
+        bullets: [
+          '只要最大异或值，不要求返回具体哪两个数。',
+          '暴力枚举两两组合会超时。',
+          '异或值大小主要由高位决定。',
+          '本质是位贪心问题。',
+        ],
+      },
+      {
+        id: 'maximum-xor-of-two-numbers-in-an-array-greedy',
+        title: '从最高位开始，贪心判断这一位能不能取到 `1`',
+        summary:
+          '假设我们已经确定了更高位的最优答案，接下来尝试把当前位也设成 `1`。如果存在两个数的前缀能支持这个猜想，那么当前位就应该保留为 `1`；否则只能是 `0`。因为高位比低位更重要，所以这种从高到低的贪心是成立的。',
+        bullets: [
+          '高位优先决定结果大小。',
+          '每一位都在已有最优前缀基础上尝试更大值。',
+          '能设成 `1` 就绝不留成 `0`。',
+          '这是位贪心的典型套路。',
+        ],
+      },
+      {
+        id: 'maximum-xor-of-two-numbers-in-an-array-prefix',
+        title: '前缀集合用来验证当前猜想是否可行',
+        summary:
+          '处理到某一位时，把所有数字右移或遮罩后得到当前位及以上的前缀。若我们猜测答案前缀是 `candidate`，那么只要存在两个前缀 `a` 和 `b` 满足 `a ^ b = candidate`，就说明这个猜想可行。等价地，对每个前缀 `a`，检查 `candidate ^ a` 是否也在前缀集合中即可。',
+        bullets: [
+          '集合用于 `O(1)` 判断互补前缀是否存在。',
+          '可行性检查本质是异或逆运算。',
+          '每轮只看当前位及以上的前缀。',
+          '不需要真的找出完整两个数。',
+        ],
+        callout:
+          '很多位运算题都可以先不管完整数字，而只关心“前几位有没有可能做到目标”。把问题降成前缀可行性，思路会清晰很多。',
+      },
+      {
+        id: 'maximum-xor-of-two-numbers-in-an-array-solution',
+        title: '标准解法：从高位到低位贪心 + 哈希前缀集合',
+        summary:
+          '从最高有效位开始向低位遍历。每次先把答案左移一位，并尝试把当前位设为 `1` 得到 `candidate`。然后收集所有数字在当前掩码下的前缀放进集合里。若存在某个前缀 `prefix`，使得 `candidate ^ prefix` 也在集合中，就说明当前位可以为 `1`，更新答案；否则当前位保留为 `0`。最终得到最大异或值。',
+        bullets: [
+          '时间复杂度是 `O(32n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在前缀集合和候选值验证。',
+          '是这题最常见的最优解。',
+        ],
+        code: `function findMaximumXOR(nums: number[]): number {
+  let answer = 0
+  let mask = 0
+
+  for (let bit = 31; bit >= 0; bit -= 1) {
+    mask |= 1 << bit
+    const prefixes = new Set<number>()
+
+    for (const num of nums) {
+      prefixes.add(num & mask)
+    }
+
+    const candidate = answer | (1 << bit)
+    let found = false
+
+    for (const prefix of prefixes) {
+      if (prefixes.has(prefix ^ candidate)) {
+        found = true
+        break
+      }
+    }
+
+    if (found) {
+      answer = candidate
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'maximum-xor-of-two-numbers-in-an-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接用局部最大数去配对，误以为值大就异或大；或者不理解为什么只看前缀就足够判断当前位是否可行。',
+        bullets: [
+          '易错点 1：把问题做成排序或双指针。',
+          '易错点 2：候选值验证条件写错。',
+          '易错点 3：从低位开始贪心，导致全局最优失效。',
+          '延伸方向：位运算贪心、前缀集合、Trie 解法对照。',
+        ],
+      },
+    ],
+  },
 ];
