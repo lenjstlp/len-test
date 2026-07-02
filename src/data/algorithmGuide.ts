@@ -46164,4 +46164,158 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'strong-password-checker',
+    label: '420. LeetCode 420. 强密码检验器',
+    difficulty: '困难',
+    description:
+      '这题难在多个约束同时存在，而且不同长度区间的最优操作策略不同。必须把“缺失字符类型”“连续重复字符”“长度过短或过长”三个问题一起统筹。',
+    outcome:
+      '你能按密码长度分情况处理，综合插入、删除、替换三类操作，求出把字符串变成强密码所需的最少步数。',
+    sections: [
+      {
+        id: 'strong-password-checker-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个密码字符串，要求计算把它变成强密码所需的最少修改次数。强密码要求长度在 `6` 到 `20` 之间，至少包含一个小写字母、一个大写字母、一个数字，并且不能有三个连续相同字符。',
+        bullets: [
+          '要同时满足长度、字符种类、连续重复三类约束。',
+          '允许插入、删除、替换三种操作。',
+          '目标是总操作数最少。',
+          '本质是分情况贪心优化题。',
+        ],
+      },
+      {
+        id: 'strong-password-checker-three-cases',
+        title: '长度太短、合适、太长，对应完全不同的策略',
+        summary:
+          '当长度小于 `6` 时，插入操作通常最有价值，因为它既能补长度，也可能顺便补字符种类并打断连续重复；当长度在 `6` 到 `20` 之间时，不需要管长度，只需解决缺失种类和重复段；当长度超过 `20` 时，删除就变成第一优先级，而且删除位置的选择会影响后续还需要多少次替换。',
+        bullets: [
+          '短密码优先插入。',
+          '合法长度区间主要看替换和缺失种类。',
+          '超长密码必须先删除。',
+          '不同区间的最优策略差异很大。',
+        ],
+      },
+      {
+        id: 'strong-password-checker-repeat-greedy',
+        title: '超长时要优先删除特定重复段，以减少替换次数',
+        summary:
+          '对连续重复段长度 `len` 而言，若不删除，需要 `Math.floor(len / 3)` 次替换。超长时，删除能降低替换次数，但不同余数的段收益不同：`len % 3 === 0` 的段删 1 个字符就能少一次替换，`len % 3 === 1` 的段删 2 个字符才少一次，`len % 3 === 2` 的段删 3 个字符才少一次。因此删除要按这个优先级分配。',
+        bullets: [
+          '替换次数由重复段长度决定。',
+          '删除不只是缩长度，还能减少替换。',
+          '收益最高的删除应先做。',
+          '这一步是整题最难的贪心点。',
+        ],
+        callout:
+          '复杂贪心题的核心，不是“有很多规则”，而是找出操作之间的收益顺序。这里只要看清删除对替换次数的边际收益，结构就打开了。',
+      },
+      {
+        id: 'strong-password-checker-solution',
+        title: '标准解法：分类讨论长度，并结合重复段贪心',
+        summary:
+          '先统计缺失的小写、大写、数字种类数 `missing`，再扫描字符串得到所有连续重复段长度。若长度小于 `6`，答案是 `max(missing, 6 - n)`。若长度在 `6` 到 `20` 之间，答案是 `max(missing, 替换次数)`。若长度大于 `20`，先计算必须删除的字符数 `remove = n - 20`，再按重复段长度对 `3` 取模的优先级分配删除，以尽量减少替换次数，最终答案是 `remove + max(missing, adjustedReplace)`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)` 或 `O(1)`，取决于重复段存储方式。',
+          '实现重点在超长场景的删除分配。',
+          '是这题公认的标准思路。',
+        ],
+        code: `function strongPasswordChecker(password: string): number {
+  const length = password.length
+  let missingLower = 1
+  let missingUpper = 1
+  let missingDigit = 1
+
+  for (const char of password) {
+    if (char >= 'a' && char <= 'z') {
+      missingLower = 0
+    } else if (char >= 'A' && char <= 'Z') {
+      missingUpper = 0
+    } else if (char >= '0' && char <= '9') {
+      missingDigit = 0
+    }
+  }
+
+  const missingTypes = missingLower + missingUpper + missingDigit
+  const groups: number[] = []
+
+  for (let index = 0; index < length; ) {
+    let next = index
+
+    while (next < length && password[next] === password[index]) {
+      next += 1
+    }
+
+    groups.push(next - index)
+    index = next
+  }
+
+  let replace = 0
+
+  for (const groupLength of groups) {
+    replace += Math.floor(groupLength / 3)
+  }
+
+  if (length < 6) {
+    return Math.max(missingTypes, 6 - length)
+  }
+
+  if (length <= 20) {
+    return Math.max(missingTypes, replace)
+  }
+
+  let remove = length - 20
+  let remainingRemove = remove
+  const counts = [...groups]
+
+  for (let mod = 0; mod < 3; mod += 1) {
+    for (let index = 0; index < counts.length && remainingRemove > 0; index += 1) {
+      if (counts[index] < 3 || counts[index] % 3 !== mod) {
+        continue
+      }
+
+      const need = mod + 1
+      const used = Math.min(remainingRemove, need)
+
+      counts[index] -= used
+      remainingRemove -= used
+
+      if (used === need) {
+        replace -= 1
+      }
+    }
+  }
+
+  for (let index = 0; index < counts.length && remainingRemove > 0; index += 1) {
+    if (counts[index] < 3) {
+      continue
+    }
+
+    const used = Math.min(remainingRemove, counts[index] - 2)
+    const reduced = Math.floor(counts[index] / 3) - Math.floor((counts[index] - used) / 3)
+
+    counts[index] -= used
+    remainingRemove -= used
+    replace -= reduced
+  }
+
+  return remove + Math.max(missingTypes, replace)
+}`,
+      },
+      {
+        id: 'strong-password-checker-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把三类约束分开独立求和，忽略同一个操作可能同时解决多个问题；或者超长时随便删除，没利用删除对替换次数的优化作用。',
+        bullets: [
+          '易错点 1：没有按长度区间分类讨论。',
+          '易错点 2：重复段删除优先级处理错误。',
+          '易错点 3：把缺失种类数和替换数机械相加。',
+          '延伸方向：复杂贪心、字符串约束修复、多目标优化问题。',
+        ],
+      },
+    ],
+  },
 ];
