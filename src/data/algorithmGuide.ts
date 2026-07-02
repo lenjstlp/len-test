@@ -46066,4 +46066,102 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'battleships-in-a-board',
+    label: '419. LeetCode 419. 甲板上的战舰',
+    difficulty: '中等',
+    description:
+      '这题不需要真的把每艘战舰完整搜出来。因为题目保证战舰之间不会相邻，所以只要识别每艘战舰的“左上角起点”，统计起点数量即可。',
+    outcome:
+      '你能利用题目给出的不相邻约束，在一次遍历中只数每艘战舰的起始格子，而无需额外 DFS/BFS。',
+    sections: [
+      {
+        id: 'battleships-in-a-board-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个由 `X` 和 `.` 组成的二维棋盘，其中 `X` 表示战舰的一部分。每艘战舰只能水平或垂直摆放，并且任意两艘战舰之间至少隔开一个空格。要求统计战舰总数。',
+        bullets: [
+          '战舰只能横着或竖着摆。',
+          '不同战舰不会直接相邻。',
+          '只要求数量，不要求具体位置列表。',
+          '本质是结构识别题。',
+        ],
+      },
+      {
+        id: 'battleships-in-a-board-start-cell',
+        title: '每艘战舰只会有一个“起点格子”',
+        summary:
+          '对于一艘水平或垂直战舰来说，它一定有一个最靠上且最靠左的起点格子。若某个 `X` 的上方不是 `X`，左方也不是 `X`，那么这个格子就一定是某艘战舰的起点。反之，如果上方或左方已经有 `X`，说明它只是同一艘战舰的延续部分。',
+        bullets: [
+          '起点定义为没有上邻居和左邻居的 `X`。',
+          '每艘战舰恰好对应一个起点。',
+          '延续格子不应重复计数。',
+          '这是线性解法成立的根基。',
+        ],
+      },
+      {
+        id: 'battleships-in-a-board-no-search',
+        title: '不需要淹没标记，也不需要 DFS/BFS',
+        summary:
+          '很多人会第一时间想到遍历到 `X` 后用 DFS/BFS 把整艘战舰标记掉，但这题的特殊约束已经足够让我们跳过这一步。因为没有贴边相邻的战舰，只数起点就不会漏，也不会重。',
+        bullets: [
+          '题目约束已经帮我们做了去重。',
+          '不必修改原数组。',
+          '不必额外开访问标记。',
+          '实现会更短更稳。',
+        ],
+        callout:
+          '做题时不要机械套 DFS。先看看题目有没有给出足够强的结构约束，很多时候能把图搜索降成一次扫描。',
+      },
+      {
+        id: 'battleships-in-a-board-solution',
+        title: '标准解法：遍历棋盘，只统计起点 `X`',
+        summary:
+          '遍历每个格子。若当前不是 `X`，跳过；若是 `X`，再检查它上方和左方是否也是 `X`。只有当上方不存在战舰、左方也不存在战舰时，当前格子才是新战舰的起点，答案加一。遍历结束后得到总数。',
+        bullets: [
+          '时间复杂度是 `O(mn)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在起点判定条件。',
+          '是这题最优雅的标准写法。',
+        ],
+        code: `function countBattleships(board: string[][]): number {
+  const rows = board.length
+  const cols = board[0].length
+  let count = 0
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      if (board[row][col] !== 'X') {
+        continue
+      }
+
+      if (row > 0 && board[row - 1][col] === 'X') {
+        continue
+      }
+
+      if (col > 0 && board[row][col - 1] === 'X') {
+        continue
+      }
+
+      count += 1
+    }
+  }
+
+  return count
+}`,
+      },
+      {
+        id: 'battleships-in-a-board-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是对每个 `X` 都计数，导致一艘长战舰被重复统计；或者没利用不相邻约束，写出不必要的复杂搜索。',
+        bullets: [
+          '易错点 1：没有过滤同一艘战舰的延续格子。',
+          '易错点 2：上方和左方只检查了一个方向。',
+          '易错点 3：把可用的结构约束浪费掉了。',
+          '延伸方向：矩阵扫描、结构识别、起点统计类题目。',
+        ],
+      },
+    ],
+  },
 ];
