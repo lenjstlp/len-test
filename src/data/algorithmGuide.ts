@@ -47465,4 +47465,182 @@ function decode(root: TreeNode | null): Node | null {
       },
     ],
   },
+  {
+    id: 'all-oone-data-structure',
+    label: '432. LeetCode 432. 全 O(1) 的数据结构',
+    difficulty: '困难',
+    description:
+      '这题真正难点不是哈希表，而是如何在 `O(1)` 时间里同时维护键到计数、计数到桶的位置，以及全局最小和最大计数桶的顺序。',
+    outcome:
+      '你能理解并实现“哈希表 + 双向链表桶”的 O(1) 数据结构，支持增减计数以及查询最大最小键。',
+    sections: [
+      {
+        id: 'all-oone-data-structure-summary',
+        title: '题目在问什么',
+        summary:
+          '要设计一个数据结构，支持四个操作：`inc(key)`、`dec(key)`、`getMaxKey()`、`getMinKey()`，并要求这些操作平均时间复杂度都为 `O(1)`。',
+        bullets: [
+          '键的计数会增减变化。',
+          '要随时拿到最大和最小计数对应的键。',
+          '不能靠排序或堆。',
+          '本质是多映射同步维护题。',
+        ],
+      },
+      {
+        id: 'all-oone-data-structure-buckets',
+        title: '计数相同的键应该放进同一个桶',
+        summary:
+          '如果直接维护每个键的计数，再去找最大最小，查询会退化。更好的思路是建立“计数桶”：每个桶代表一个具体计数，里面存所有拥有该计数的键。再把这些桶按计数从小到大串成双向链表，最小桶和最大桶就一目了然。',
+        bullets: [
+          '桶节点按计数有序排列。',
+          '桶内存放同计数的所有键。',
+          '链表头尾天然对应最小与最大。',
+          '这是查询 O(1) 的基础。',
+        ],
+      },
+      {
+        id: 'all-oone-data-structure-maps',
+        title: '还需要哈希表把键和桶快速关联起来',
+        summary:
+          '只靠桶链表不够，因为 `inc` 和 `dec` 时必须在 `O(1)` 时间找到某个键当前所在桶。因此需要一个 `key -> bucket` 的映射；同时，为了在插入新计数桶时快速判断邻接关系，桶节点本身通过双向链表维护前后计数顺序。',
+        bullets: [
+          '`key -> bucket` 让定位当前桶变成 O(1)。',
+          '双向链表维护桶的有序关系。',
+          '键移动时只发生在相邻计数桶之间。',
+          '空桶要及时删除，保持结构紧凑。',
+        ],
+        callout:
+          '复杂数据结构题通常不是靠一种结构解决，而是让多种结构各司其职。这里哈希负责定位，链表负责顺序，桶负责聚合同计数元素。',
+      },
+      {
+        id: 'all-oone-data-structure-solution',
+        title: '标准解法：双向链表桶 + `keyToBucket` 映射',
+        summary:
+          '维护一个按计数递增排列的桶双向链表，每个桶包含 `count` 和该计数对应的键集合。`inc` 时，把键从当前桶移到下一个计数桶，必要时新建桶；`dec` 时移到前一个计数桶或直接删除键；若某桶键集合为空，则把它从链表移除。`getMaxKey` 取尾桶任意键，`getMinKey` 取头桶任意键即可。',
+        bullets: [
+          '所有核心操作都限制在相邻桶之间。',
+          '时间复杂度可做到均摊 `O(1)`。',
+          '实现重点在桶的插入、删除与键迁移。',
+          '这是这题公认的标准设计。',
+        ],
+        code: `class Bucket {
+  count: number
+  keys: Set<string>
+  prev: Bucket | null
+  next: Bucket | null
+
+  constructor(count: number) {
+    this.count = count
+    this.keys = new Set()
+    this.prev = null
+    this.next = null
+  }
+}
+
+class AllOne {
+  private head: Bucket
+  private tail: Bucket
+  private keyToBucket: Map<string, Bucket>
+
+  constructor() {
+    this.head = new Bucket(0)
+    this.tail = new Bucket(0)
+    this.head.next = this.tail
+    this.tail.prev = this.head
+    this.keyToBucket = new Map()
+  }
+
+  private insertAfter(node: Bucket, newNode: Bucket) {
+    newNode.prev = node
+    newNode.next = node.next
+    node.next!.prev = newNode
+    node.next = newNode
+  }
+
+  private remove(node: Bucket) {
+    node.prev!.next = node.next
+    node.next!.prev = node.prev
+  }
+
+  inc(key: string): void {
+    if (!this.keyToBucket.has(key)) {
+      let first = this.head.next as Bucket
+
+      if (first === this.tail || first.count !== 1) {
+        const bucket = new Bucket(1)
+        this.insertAfter(this.head, bucket)
+        first = bucket
+      }
+
+      first.keys.add(key)
+      this.keyToBucket.set(key, first)
+      return
+    }
+
+    const current = this.keyToBucket.get(key) as Bucket
+    let next = current.next as Bucket
+
+    if (next === this.tail || next.count !== current.count + 1) {
+      const bucket = new Bucket(current.count + 1)
+      this.insertAfter(current, bucket)
+      next = bucket
+    }
+
+    current.keys.delete(key)
+    next.keys.add(key)
+    this.keyToBucket.set(key, next)
+
+    if (current.keys.size === 0) {
+      this.remove(current)
+    }
+  }
+
+  dec(key: string): void {
+    const current = this.keyToBucket.get(key) as Bucket
+
+    if (current.count === 1) {
+      current.keys.delete(key)
+      this.keyToBucket.delete(key)
+    } else {
+      let prev = current.prev as Bucket
+
+      if (prev === this.head || prev.count !== current.count - 1) {
+        const bucket = new Bucket(current.count - 1)
+        this.insertAfter(current.prev as Bucket, bucket)
+        prev = bucket
+      }
+
+      current.keys.delete(key)
+      prev.keys.add(key)
+      this.keyToBucket.set(key, prev)
+    }
+
+    if (current.keys.size === 0) {
+      this.remove(current)
+    }
+  }
+
+  getMaxKey(): string {
+    return this.tail.prev === this.head ? '' : [...(this.tail.prev as Bucket).keys][0]
+  }
+
+  getMinKey(): string {
+    return this.head.next === this.tail ? '' : [...(this.head.next as Bucket).keys][0]
+  }
+}`,
+      },
+      {
+        id: 'all-oone-data-structure-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只维护 `key -> count` 而没有桶链表，导致最大最小查询做不到 `O(1)`；或者键迁移后忘记删除空桶，链表状态会失真。',
+        bullets: [
+          '易错点 1：没有桶结构，导致查询退化。',
+          '易错点 2：键迁移后空桶没删除。',
+          '易错点 3：新桶插入位置不在相邻计数处。',
+          '延伸方向：设计题、双向链表、哈希协同维护。',
+        ],
+      },
+    ],
+  },
 ];
