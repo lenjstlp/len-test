@@ -46609,4 +46609,99 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'longest-repeating-character-replacement',
+    label: '424. LeetCode 424. 替换后的最长重复字符',
+    difficulty: '中等',
+    description:
+      '这题的关键不是真的去替换字符，而是判断一个窗口能否通过不超过 `k` 次替换，变成“全是同一个字符”的窗口。',
+    outcome:
+      '你能用滑动窗口维护当前区间内的最高频字符，并据此求出最多替换 `k` 次后可得到的最长同字符子串长度。',
+    sections: [
+      {
+        id: 'longest-repeating-character-replacement-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含大写字母的字符串和整数 `k`，你可以最多替换 `k` 个字符。要求返回经过最优替换后，能够得到的最长只含同一种字符的子串长度。',
+        bullets: [
+          '最多替换 `k` 次。',
+          '目标是最长同字符子串。',
+          '不要求真的输出替换后的字符串。',
+          '本质是可行性滑窗题。',
+        ],
+      },
+      {
+        id: 'longest-repeating-character-replacement-window',
+        title: '窗口合法的条件是“其余字符数量不超过 `k`”',
+        summary:
+          '如果一个窗口里出现次数最多的字符频次为 `maxCount`，窗口长度为 `windowSize`，那么要把整个窗口都变成同一个字符，最少需要替换 `windowSize - maxCount` 个字符。只要这个值不超过 `k`，窗口就是合法的。',
+        bullets: [
+          '最高频字符决定最少替换数。',
+          '其余字符都要被替换掉。',
+          '合法条件是 `windowSize - maxCount <= k`。',
+          '这是整题的核心判断式。',
+        ],
+      },
+      {
+        id: 'longest-repeating-character-replacement-slide',
+        title: '不合法时收缩左边界，合法时持续扩张',
+        summary:
+          '右指针不断扩张窗口，并更新每个字符频次与当前窗口中的最大频次 `maxCount`。若窗口不合法，就移动左指针缩小窗口直到重新合法。整个过程中，合法窗口的最大长度就是答案。',
+        bullets: [
+          '右扩左缩是标准滑窗节奏。',
+          '`maxCount` 用于快速判断是否合法。',
+          '每个字符最多进出窗口一次。',
+          '因此整体复杂度线性。',
+        ],
+        callout:
+          '滑动窗口题通常先找“不变量”。这题的不变量就是：当前窗口始终是一个“最多用 `k` 次替换就能统一”的区间。',
+      },
+      {
+        id: 'longest-repeating-character-replacement-solution',
+        title: '标准解法：滑动窗口 + 窗口最大频次',
+        summary:
+          '用数组统计窗口中各字符的出现次数，并记录 `maxCount`。每次右移右指针后，若 `windowSize - maxCount > k`，就不断左移左指针并减少对应计数。每轮更新答案为当前窗口长度的最大值即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`，字符集固定。',
+          '实现重点在合法性判断式。',
+          '是这题最经典的写法。',
+        ],
+        code: `function characterReplacement(s: string, k: number): number {
+  const counts = Array(26).fill(0)
+  let left = 0
+  let maxCount = 0
+  let answer = 0
+
+  for (let right = 0; right < s.length; right += 1) {
+    const rightIndex = s.charCodeAt(right) - 65
+    counts[rightIndex] += 1
+    maxCount = Math.max(maxCount, counts[rightIndex])
+
+    while (right - left + 1 - maxCount > k) {
+      const leftIndex = s.charCodeAt(left) - 65
+      counts[leftIndex] -= 1
+      left += 1
+    }
+
+    answer = Math.max(answer, right - left + 1)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'longest-repeating-character-replacement-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把窗口合法性理解成“不同字符种类数不超过 `k + 1`”，这并不等价；或者没有抓住最高频字符这个核心量。',
+        bullets: [
+          '易错点 1：合法条件写错。',
+          '易错点 2：每次都重算窗口最高频次，导致实现臃肿。',
+          '易错点 3：把题目做成暴力枚举区间。',
+          '延伸方向：滑动窗口、最多修改次数、频次约束题。',
+        ],
+      },
+    ],
+  },
 ];
