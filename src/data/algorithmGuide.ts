@@ -47034,4 +47034,121 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'serialize-and-deserialize-n-ary-tree',
+    label: '428. LeetCode 428. 序列化和反序列化 N 叉树',
+    difficulty: '困难',
+    description:
+      '这题的关键不是某个固定格式，而是设计一个可逆编码。只要序列里能同时表达“节点值”和“它有多少个孩子”，反序列化就能无歧义还原整棵树。',
+    outcome:
+      '你能设计一个包含节点值与孩子数量的序列化格式，并递归完成 N 叉树的编解码。',
+    sections: [
+      {
+        id: 'serialize-and-deserialize-n-ary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '要求为 N 叉树实现 `serialize` 和 `deserialize`。序列化要把树转成字符串，反序列化要能从这个字符串无损还原原树结构。',
+        bullets: [
+          '编码格式可自定义。',
+          '必须保证可逆。',
+          '节点孩子数不固定。',
+          '本质是树结构编码设计题。',
+        ],
+      },
+      {
+        id: 'serialize-and-deserialize-n-ary-tree-format',
+        title: '序列里必须显式记录每个节点有多少个孩子',
+        summary:
+          '二叉树可以用固定两个孩子位置表达结构，但 N 叉树孩子个数可变，因此不能只写节点值。常见做法是对每个节点记录两部分信息：节点值 `val` 和孩子数量 `children.length`。有了这两个量，后续就能知道要递归读出多少个孩子。',
+        bullets: [
+          '节点值不够表达结构。',
+          '孩子数量是恢复结构的关键。',
+          '记录顺序可用前序遍历。',
+          '这让解析过程变得确定。',
+        ],
+      },
+      {
+        id: 'serialize-and-deserialize-n-ary-tree-preorder',
+        title: '前序遍历天然适合边写边读',
+        summary:
+          '序列化时，先写当前节点值和孩子数量，再递归序列化每个孩子。反序列化时，也按相同顺序读取：先取出当前节点的信息，再根据孩子数量递归构造对应数量的子树。读写顺序完全对齐，因此实现自然且容易验证正确性。',
+        bullets: [
+          '前序写入，前序读取。',
+          '每个节点先写元信息，再写子树。',
+          '读写顺序一致，结构简单。',
+          '是最常见的 N 叉树编码方式。',
+        ],
+        callout:
+          '树的序列化题里，最重要的不是“写成什么样”，而是“读取时是否知道下一段该怎么切分”。这题靠孩子数量解决了切分问题。',
+      },
+      {
+        id: 'serialize-and-deserialize-n-ary-tree-solution',
+        title: '标准解法：前序写入 `值 + 孩子数`',
+        summary:
+          '序列化时，递归把每个节点写成 `[val, childCount]`，然后继续写孩子。反序列化时，把字符串拆成数组并维护一个全局下标；每次先读出节点值与孩子数，创建节点后再递归读取对应数量的孩子，最终返回根节点。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在全局读取指针和孩子数控制。',
+          '是这题最清晰的方案之一。',
+        ],
+        code: `function serialize(root: Node | null): string {
+  const values: string[] = []
+
+  const dfs = (node: Node | null) => {
+    if (node === null) {
+      return
+    }
+
+    values.push(String(node.val))
+    values.push(String(node.children.length))
+
+    for (const child of node.children) {
+      dfs(child)
+    }
+  }
+
+  dfs(root)
+  return values.join(',')
+}
+
+function deserialize(data: string): Node | null {
+  if (data.length === 0) {
+    return null
+  }
+
+  const values = data.split(',')
+  let index = 0
+
+  const build = (): Node => {
+    const value = Number(values[index])
+    index += 1
+    const childCount = Number(values[index])
+    index += 1
+    const node = new Node(value, [])
+
+    for (let count = 0; count < childCount; count += 1) {
+      node.children.push(build())
+    }
+
+    return node
+  }
+
+  return build()
+}`,
+      },
+      {
+        id: 'serialize-and-deserialize-n-ary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是序列里没有记录孩子数量，导致反序列化无法知道一棵子树何时结束；或者递归读取顺序和写入顺序不一致。',
+        bullets: [
+          '易错点 1：编码格式不包含结构信息。',
+          '易错点 2：反序列化下标推进错误。',
+          '易错点 3：空树没有单独处理。',
+          '延伸方向：树序列化、可逆编码、前序构造题。',
+        ],
+      },
+    ],
+  },
 ];
