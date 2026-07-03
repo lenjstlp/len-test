@@ -47358,4 +47358,111 @@ function deserialize(data: string): Node | null {
       },
     ],
   },
+  {
+    id: 'encode-n-ary-tree-to-binary-tree',
+    label: '431. LeetCode 431. 将 N 叉树编码为二叉树',
+    difficulty: '困难',
+    description:
+      '这题的本质是结构映射。经典做法是“左孩子右兄弟”表示法：一个节点的第一个孩子挂到二叉树左边，其余兄弟沿着右指针串起来。',
+    outcome: '你能理解并实现 N 叉树与二叉树之间的左孩子右兄弟编码与解码。',
+    sections: [
+      {
+        id: 'encode-n-ary-tree-to-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '要求设计两个函数，把一棵 N 叉树编码成二叉树，再把该二叉树解码回原始 N 叉树。',
+        bullets: [
+          '不是随便转换，必须可逆。',
+          'N 叉树孩子数不固定。',
+          '二叉树只有左右两个指针。',
+          '本质是树结构映射题。',
+        ],
+      },
+      {
+        id: 'encode-n-ary-tree-to-binary-tree-lcrs',
+        title: '左孩子右兄弟表示法是最经典的桥梁',
+        summary:
+          '对于 N 叉树中的某个节点，把它的第一个孩子映射为二叉树的左孩子；第一个孩子的下一个兄弟，则映射为它的右孩子；兄弟之间继续沿右指针串联。这样，二叉树的左分支负责“往下走到孩子”，右分支负责“在同层走到兄弟”。',
+        bullets: [
+          '左指针代表第一个孩子。',
+          '右指针代表下一个兄弟。',
+          '层级和同级关系被拆给左右指针。',
+          '这是标准 LCRS 表示法。',
+        ],
+      },
+      {
+        id: 'encode-n-ary-tree-to-binary-tree-reversible',
+        title: '编码和解码都按同一结构规则递归',
+        summary:
+          '编码时，给当前 N 叉节点创建对应的二叉节点，然后把孩子链按“左孩子右兄弟”方式挂上去。解码时则反过来：先从二叉树左孩子出发，沿右指针把所有兄弟恢复成 N 叉树的孩子数组。由于两边遵守同一规则，整个映射天然可逆。',
+        bullets: [
+          '编码递归构造左孩子链。',
+          '解码递归恢复孩子数组。',
+          '左右指针语义固定。',
+          '只要规则统一就能无损还原。',
+        ],
+        callout:
+          '把高维结构映射到低维结构时，关键不是“信息压缩”，而是“重新定义指针语义”。这题就是把左右指针重新解释成了孩子与兄弟。',
+      },
+      {
+        id: 'encode-n-ary-tree-to-binary-tree-solution',
+        title: '标准解法：左孩子右兄弟递归编码',
+        summary:
+          '编码时，为当前 N 叉节点创建二叉节点。若它有孩子，则把第一个孩子编码后挂到左指针上，然后顺着右指针依次连接其余兄弟。解码时，从二叉节点左孩子开始，沿右指针遍历，逐个解码并加入当前 N 叉节点的孩子列表。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度取决于递归深度。',
+          '实现重点在兄弟链的连接与恢复。',
+          '是这题的经典标准方案。',
+        ],
+        code: `function encode(root: Node | null): TreeNode | null {
+  if (root === null) {
+    return null
+  }
+
+  const binaryRoot = new TreeNode(root.val)
+
+  if (root.children.length > 0) {
+    binaryRoot.left = encode(root.children[0])
+    let current = binaryRoot.left
+
+    for (let index = 1; index < root.children.length; index += 1) {
+      current!.right = encode(root.children[index])
+      current = current!.right
+    }
+  }
+
+  return binaryRoot
+}
+
+function decode(root: TreeNode | null): Node | null {
+  if (root === null) {
+    return null
+  }
+
+  const node = new Node(root.val, [])
+  let current = root.left
+
+  while (current !== null) {
+    node.children.push(decode(current) as Node)
+    current = current.right
+  }
+
+  return node
+}`,
+      },
+      {
+        id: 'encode-n-ary-tree-to-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把所有孩子都挂到左边形成链，丢失兄弟语义；或者解码时没有沿右指针把一整排兄弟全部恢复出来。',
+        bullets: [
+          '易错点 1：左右指针语义理解反了。',
+          '易错点 2：只恢复了第一个孩子，漏掉兄弟链。',
+          '易错点 3：空节点边界没处理。',
+          '延伸方向：树结构编码、LCRS 表示法、结构可逆映射。',
+        ],
+      },
+    ],
+  },
 ];
