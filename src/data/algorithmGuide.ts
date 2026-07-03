@@ -46704,4 +46704,125 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'word-squares',
+    label: '425. LeetCode 425. 单词方块',
+    difficulty: '困难',
+    description:
+      '这题不是普通全排列，而是带强前缀约束的回溯。每往下放一行，当前列前缀会立刻限制下一行可选单词，因此前缀查询结构非常关键。',
+    outcome: '你能结合 Trie 或前缀哈希表进行剪枝回溯，生成所有合法的单词方块。',
+    sections: [
+      {
+        id: 'word-squares-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一组长度相同的单词，要求找出所有单词方块。所谓单词方块，就是第 `i` 行和第 `i` 列组成的字符串完全一致。',
+        bullets: [
+          '每个单词长度一致。',
+          '可以重复使用输入中的不同位置单词吗，通常按题意每次选一个词构造方块。',
+          '输出所有合法方案。',
+          '本质是前缀约束回溯题。',
+        ],
+      },
+      {
+        id: 'word-squares-prefix',
+        title: '放到第 `row` 行时，下一行前缀已经被上面列内容决定',
+        summary:
+          '假设已经选好了前 `row` 行，那么第 `row` 行第 `0..row-1` 列的字符必须分别等于前面各行第 `row` 列的字符。因此下一行不是随便选的，它必须以这个前缀开头。',
+        bullets: [
+          '列约束会转成下一行的前缀约束。',
+          '前缀越长，可选单词越少。',
+          '这是回溯剪枝的主要依据。',
+          '不利用前缀会退化成暴力枚举。',
+        ],
+      },
+      {
+        id: 'word-squares-prefix-search',
+        title: '要快速找“以某前缀开头的所有单词”',
+        summary:
+          '回溯过程中会频繁提出“给我所有匹配某前缀的单词”这个查询。如果每次都扫描整个数组，代价太高。更稳的做法是预处理 Trie 或前缀到单词列表的映射，让查询能快速返回候选集合。',
+        bullets: [
+          '核心操作是前缀检索。',
+          '可用 Trie，也可用哈希映射。',
+          '预处理换取回溯时的高效剪枝。',
+          '这一步直接决定可运行性。',
+        ],
+        callout:
+          '很多回溯题真正的优化，不是少递归几层，而是把“下一步候选集合”尽量缩小。这题的前缀索引就是最核心的候选压缩器。',
+      },
+      {
+        id: 'word-squares-solution',
+        title: '标准解法：前缀索引 + 回溯构造',
+        summary:
+          '先预处理所有前缀到可选单词列表的映射。回溯时维护当前方块 `path`。若当前已放入 `row` 行，就根据前面每一行第 `row` 列字符拼出目标前缀，再从映射中取出所有候选单词继续尝试。若 `path.length` 达到单词长度，就得到一个完整方块。',
+        bullets: [
+          '时间复杂度取决于剪枝效果。',
+          '空间复杂度主要来自前缀映射和递归栈。',
+          '实现重点在前缀构造与候选查询。',
+          '是这题主流标准解法。',
+        ],
+        code: `function wordSquares(words: string[]): string[][] {
+  const size = words[0].length
+  const prefixMap = new Map<string, string[]>()
+
+  for (const word of words) {
+    for (let length = 0; length <= size; length += 1) {
+      const prefix = word.slice(0, length)
+
+      if (!prefixMap.has(prefix)) {
+        prefixMap.set(prefix, [])
+      }
+
+      prefixMap.get(prefix)?.push(word)
+    }
+  }
+
+  const result: string[][] = []
+  const path: string[] = []
+
+  const dfs = () => {
+    if (path.length === size) {
+      result.push([...path])
+      return
+    }
+
+    let prefix = ''
+    const row = path.length
+
+    for (let index = 0; index < row; index += 1) {
+      prefix += path[index][row]
+    }
+
+    const candidates = prefixMap.get(prefix) ?? []
+
+    for (const word of candidates) {
+      path.push(word)
+      dfs()
+      path.pop()
+    }
+  }
+
+  for (const word of words) {
+    path.push(word)
+    dfs()
+    path.pop()
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'word-squares-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是回溯时没有根据列内容构造前缀，导致剪枝几乎失效；或者前缀映射没有把空前缀和完整长度前缀都处理好。',
+        bullets: [
+          '易错点 1：没做前缀查询优化。',
+          '易错点 2：下一行前缀构造位置写错。',
+          '易错点 3：路径满足长度后忘记拷贝结果。',
+          '延伸方向：Trie、回溯剪枝、前缀约束构造题。',
+        ],
+      },
+    ],
+  },
 ];
