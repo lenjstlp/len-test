@@ -47643,4 +47643,115 @@ class AllOne {
       },
     ],
   },
+  {
+    id: 'minimum-genetic-mutation',
+    label: '433. LeetCode 433. 最小基因变化',
+    difficulty: '中等',
+    description:
+      '这题本质是最短路径问题。每次只能改一个字符，且中间状态必须在基因库里，因此天然适合做 BFS 按步数层层扩展。',
+    outcome:
+      '你能把基因变化建模成图上的最短步数问题，并用 BFS 求出最少变化次数。',
+    sections: [
+      {
+        id: 'minimum-genetic-mutation-summary',
+        title: '题目在问什么',
+        summary:
+          '给定起始基因串 `startGene`、目标基因串 `endGene` 和合法基因库 `bank`。每次只能修改一个位置，且修改后的基因必须存在于库中。要求返回从起点到终点的最少变化次数，不可达则返回 `-1`。',
+        bullets: [
+          '每次只能改一个字符。',
+          '中间状态必须在基因库中。',
+          '要求最少步数。',
+          '本质是无权图最短路题。',
+        ],
+      },
+      {
+        id: 'minimum-genetic-mutation-graph',
+        title: '把每个基因串看成图中的一个节点',
+        summary:
+          '若两个基因串只差一个字符，那么它们之间就有一条边。这样，问题就转化成：在这张无权图中，从 `startGene` 到 `endGene` 的最短路径长度是多少。',
+        bullets: [
+          '节点是合法基因串。',
+          '边表示一次合法变化。',
+          '最少变化次数就是最短路径长度。',
+          '图模型非常自然。',
+        ],
+      },
+      {
+        id: 'minimum-genetic-mutation-bfs',
+        title: '无权最短路优先想到 BFS',
+        summary:
+          '因为每次变化代价都相同，都是一步，所以不需要 Dijkstra。BFS 会按层扩展节点，第一次到达 `endGene` 时所处的层数，就是最少变化次数。',
+        bullets: [
+          '每条边代价相同。',
+          'BFS 天然按步数分层。',
+          '第一次到终点就是最短路。',
+          '这是最标准的选择。',
+        ],
+        callout:
+          '一看到“最少操作次数”且每次操作成本相同，先想 BFS，往往能比 DP 或回溯更直接地击中问题本质。',
+      },
+      {
+        id: 'minimum-genetic-mutation-solution',
+        title: '标准解法：BFS 枚举下一步所有单字符变化',
+        summary:
+          '先把 `bank` 放进集合，若终点不在集合里可直接返回 `-1`。BFS 时，从当前基因串的每一位尝试替换成 `A/C/G/T` 中除原字符外的其余字符，生成下一状态。若新状态在基因库中且未访问过，就入队。层序推进，首次遇到 `endGene` 时返回步数。',
+        bullets: [
+          '时间复杂度取决于状态数与每轮生成邻居的数量。',
+          '空间复杂度主要是队列与访问集合。',
+          '实现重点在邻居生成和访问去重。',
+          '是这题最经典的解法。',
+        ],
+        code: `function minMutation(startGene: string, endGene: string, bank: string[]): number {
+  const bankSet = new Set(bank)
+
+  if (!bankSet.has(endGene)) {
+    return -1
+  }
+
+  const queue: Array<[string, number]> = [[startGene, 0]]
+  const visited = new Set<string>([startGene])
+  const choices = ['A', 'C', 'G', 'T']
+
+  while (queue.length > 0) {
+    const [gene, step] = queue.shift() as [string, number]
+
+    if (gene === endGene) {
+      return step
+    }
+
+    for (let index = 0; index < gene.length; index += 1) {
+      for (const char of choices) {
+        if (char === gene[index]) {
+          continue
+        }
+
+        const next = gene.slice(0, index) + char + gene.slice(index + 1)
+
+        if (!bankSet.has(next) || visited.has(next)) {
+          continue
+        }
+
+        visited.add(next)
+        queue.push([next, step + 1])
+      }
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'minimum-genetic-mutation-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有把题目建模成无权图最短路，结果用 DFS 找路径导致无法保证最少步数；或者忘了做访问标记，重复入队。',
+        bullets: [
+          '易错点 1：把最短步数题写成普通 DFS。',
+          '易错点 2：终点不在库里时没提前返回。',
+          '易错点 3：访问去重遗漏导致重复搜索。',
+          '延伸方向：BFS、状态图建模、最少操作次数问题。',
+        ],
+      },
+    ],
+  },
 ];
