@@ -47151,4 +47151,102 @@ function deserialize(data: string): Node | null {
       },
     ],
   },
+  {
+    id: 'n-ary-tree-level-order-traversal',
+    label: '429. LeetCode 429. N 叉树的层序遍历',
+    difficulty: '中等',
+    description:
+      '这题本质还是标准 BFS，只是每个节点的孩子数量不再固定。核心不变：按层推进，逐层收集结果。',
+    outcome: '你能对 N 叉树进行广度优先遍历，并按层返回节点值。',
+    sections: [
+      {
+        id: 'n-ary-tree-level-order-traversal-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵 N 叉树，要求返回其节点值的层序遍历结果，即每一层的节点值单独放在一个数组中。',
+        bullets: [
+          '按层从上到下遍历。',
+          '同层节点放进同一个数组。',
+          '每个节点孩子数量不固定。',
+          '本质是 BFS 模板题。',
+        ],
+      },
+      {
+        id: 'n-ary-tree-level-order-traversal-bfs',
+        title: '层序遍历最自然的工具就是队列',
+        summary:
+          '广度优先遍历会按“先入先出”的顺序逐层扩展节点，因此队列是最自然的数据结构。每次取出当前层的所有节点，记录它们的值，并把它们的孩子统一放入队列，就能进入下一层。',
+        bullets: [
+          '队列保证层级顺序。',
+          '每轮处理一整层。',
+          '孩子统一入队等待下一轮。',
+          '与二叉树层序遍历完全同构。',
+        ],
+      },
+      {
+        id: 'n-ary-tree-level-order-traversal-level-size',
+        title: '关键细节是先固定当前层节点数',
+        summary:
+          '如果不先记下当前队列长度，而是边出队边处理，就会把下一层刚入队的节点也一起处理掉，层边界会混乱。因此每一轮开始时要先保存 `queue.length`，只处理这么多个节点，刚好对应当前层。',
+        bullets: [
+          '层大小决定本轮边界。',
+          '新入队节点属于下一层。',
+          '先记长度是层序遍历通用技巧。',
+          '这是最重要的实现细节。',
+        ],
+        callout:
+          '层序遍历真正的本质不是“用队列”，而是“能明确区分每一层的边界”。先记层大小就是最直接的边界控制方式。',
+      },
+      {
+        id: 'n-ary-tree-level-order-traversal-solution',
+        title: '标准解法：队列 BFS，逐层处理',
+        summary:
+          '若根节点为空，直接返回空数组。否则把根节点入队。每次循环先读取当前队列长度 `size`，再连续出队 `size` 个节点，把它们的值收集到当前层数组中，并将所有孩子节点入队。处理完这一层后，把层数组加入结果。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在层边界控制。',
+          '是最标准的 BFS 层序写法。',
+        ],
+        code: `function levelOrder(root: Node | null): number[][] {
+  if (root === null) {
+    return []
+  }
+
+  const result: number[][] = []
+  const queue: Node[] = [root]
+
+  while (queue.length > 0) {
+    const size = queue.length
+    const level: number[] = []
+
+    for (let count = 0; count < size; count += 1) {
+      const node = queue.shift() as Node
+      level.push(node.val)
+
+      for (const child of node.children) {
+        queue.push(child)
+      }
+    }
+
+    result.push(level)
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'n-ary-tree-level-order-traversal-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有先记录当前层大小，导致层级混乱；或者根节点为空时没直接返回空结果。',
+        bullets: [
+          '易错点 1：层边界处理错误。',
+          '易错点 2：孩子入队时机写乱。',
+          '易错点 3：空树边界遗漏。',
+          '延伸方向：BFS、树的逐层处理、N 叉树模板题。',
+        ],
+      },
+    ],
+  },
 ];
