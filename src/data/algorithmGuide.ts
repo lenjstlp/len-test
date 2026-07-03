@@ -46508,4 +46508,105 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'reconstruct-original-digits-from-english',
+    label: '423. LeetCode 423. 从英文中重建数字',
+    difficulty: '中等',
+    description:
+      '这题不是普通的字符计数后瞎猜，而是要利用某些数字英文里独有的标志字符。关键在于先锁定唯一字符，再逐步消去其它数字的干扰。',
+    outcome:
+      '你能通过字母频次和唯一标识字符，重建出原始数字序列，并按升序输出结果。',
+    sections: [
+      {
+        id: 'reconstruct-original-digits-from-english-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个被打乱顺序的英文小写字母字符串，它来自若干数字英文单词的拼接。要求还原这些数字，并按从小到大输出成字符串。',
+        bullets: [
+          '输入只包含数字英文的字母。',
+          '字母顺序被彻底打乱。',
+          '输出要按数字升序排列。',
+          '本质是频次反推问题。',
+        ],
+      },
+      {
+        id: 'reconstruct-original-digits-from-english-unique',
+        title: '先找带唯一字母的数字',
+        summary:
+          '有些数字单词里含有全局唯一的字符，比如 `z` 只出现在 `zero`，`w` 只出现在 `two`，`u` 只出现在 `four`，`x` 只出现在 `six`，`g` 只出现在 `eight`。因此这些字符出现几次，对应数字就一定出现几次。',
+        bullets: [
+          '`z -> 0`。',
+          '`w -> 2`。',
+          '`u -> 4`。',
+          '`x -> 6`。',
+          '`g -> 8`。',
+        ],
+      },
+      {
+        id: 'reconstruct-original-digits-from-english-eliminate',
+        title: '唯一数字确定后，再处理被共享字符影响的数字',
+        summary:
+          '例如 `h` 同时出现在 `three` 和 `eight`，但若先扣除了 `eight`，剩余的 `h` 就只来自 `three`。同理，`f` 可用于 `five`，`s` 可用于 `seven`，`o` 可用于 `one`，最后 `i` 可用于 `nine`。这是一种按依赖顺序的消元过程。',
+        bullets: [
+          '先做唯一字符，再做共享字符。',
+          '顺序不对会重复计数。',
+          '本质是计数消元。',
+          '很像方程组逐步求解。',
+        ],
+        callout:
+          '遇到“打乱后的组成元素还原”这类题，先找全局唯一特征，往往比直接回溯高效得多。',
+      },
+      {
+        id: 'reconstruct-original-digits-from-english-solution',
+        title: '标准解法：频次数组 + 固定顺序推导各数字个数',
+        summary:
+          '先统计 26 个字母的频次。然后按依赖顺序计算各数字出现次数：`0, 2, 4, 6, 8` 由唯一字符直接得到；之后用扣除影响后的字符推 `3, 5, 7, 1, 9`。最后按数字从小到大把对应次数拼接出来即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在推导顺序。',
+          '是这题最稳的解法。',
+        ],
+        code: `function originalDigits(s: string): string {
+  const counter = new Map<string, number>()
+
+  for (const char of s) {
+    counter.set(char, (counter.get(char) ?? 0) + 1)
+  }
+
+  const count = Array(10).fill(0)
+  count[0] = counter.get('z') ?? 0
+  count[2] = counter.get('w') ?? 0
+  count[4] = counter.get('u') ?? 0
+  count[6] = counter.get('x') ?? 0
+  count[8] = counter.get('g') ?? 0
+  count[3] = (counter.get('h') ?? 0) - count[8]
+  count[5] = (counter.get('f') ?? 0) - count[4]
+  count[7] = (counter.get('s') ?? 0) - count[6]
+  count[1] = (counter.get('o') ?? 0) - count[0] - count[2] - count[4]
+  count[9] = (counter.get('i') ?? 0) - count[5] - count[6] - count[8]
+
+  let result = ''
+
+  for (let digit = 0; digit <= 9; digit += 1) {
+    result += String(digit).repeat(count[digit])
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'reconstruct-original-digits-from-english-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有按依赖顺序处理共享字符，导致某些数字被多算；或者以为必须真的删除字符串字符，结果实现又慢又乱。',
+        bullets: [
+          '易错点 1：推导顺序写错。',
+          '易错点 2：共享字符没扣除前面数字的贡献。',
+          '易错点 3：结果输出没按升序。',
+          '延伸方向：哈希计数、消元思维、字符串重建题。',
+        ],
+      },
+    ],
+  },
 ];
