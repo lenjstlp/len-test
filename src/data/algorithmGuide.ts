@@ -47249,4 +47249,113 @@ function deserialize(data: string): Node | null {
       },
     ],
   },
+  {
+    id: 'flatten-a-multilevel-doubly-linked-list',
+    label: '430. LeetCode 430. 扁平化多级双向链表',
+    difficulty: '中等',
+    description:
+      '这题的关键不是简单遍历，而是遇到 `child` 时，要把子链表整段插入当前节点和原后继之间，并且正确接回尾部。',
+    outcome:
+      '你能用 DFS 或栈把多级双向链表原地展开成单层双向链表，并处理好所有前后指针。',
+    sections: [
+      {
+        id: 'flatten-a-multilevel-doubly-linked-list-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个多级双向链表，每个节点除 `prev`、`next` 外，还可能有 `child` 指向另一条子链表。要求把它原地扁平化成一条单层双向链表。',
+        bullets: [
+          '要保留原有前序展开顺序。',
+          '子链表要插入到当前节点之后。',
+          '结果仍是双向链表。',
+          '本质是指针重连题。',
+        ],
+      },
+      {
+        id: 'flatten-a-multilevel-doubly-linked-list-splice',
+        title: '遇到 `child` 时，本质是在做链表拼接',
+        summary:
+          '若当前节点有 `child`，那么展开后顺序应是：当前节点 -> child 链表 -> 原 next 链表。所以需要先递归或迭代拿到 child 链表的尾节点，再把尾节点与原 `next` 接回去，同时把当前节点与 child 头节点接起来。',
+        bullets: [
+          'child 链表会整体插队到中间。',
+          '原后继不能丢，要接到 child 尾部。',
+          '这是一个局部拼接动作。',
+          '指针顺序写对很关键。',
+        ],
+      },
+      {
+        id: 'flatten-a-multilevel-doubly-linked-list-tail',
+        title: '递归函数若能返回“当前段的尾节点”，拼接会很顺',
+        summary:
+          '把递归函数设计为“展开从当前节点开始的链表，并返回其尾节点”，那么每次处理 child 时都能方便拿到子链表尾部用于回接。这样问题就从复杂的全局操作，降成局部段落的连接。',
+        bullets: [
+          '返回尾节点能减少重复遍历。',
+          '局部拼接后继续向后处理。',
+          '递归定义清楚，代码会很稳。',
+          '是这题常见的 DFS 建模方式。',
+        ],
+        callout:
+          '链表递归题常见的优化点，不是“怎么访问更多节点”，而是“让递归返回对拼接最有价值的信息”。这里最有价值的就是尾节点。',
+      },
+      {
+        id: 'flatten-a-multilevel-doubly-linked-list-solution',
+        title: '标准解法：DFS 展开并返回尾节点',
+        summary:
+          '递归处理从某节点开始的链表。遍历当前层时，若节点没有 `child`，就继续向后；若有 `child`，先保存原 `next`，递归展开 `child` 得到子链表尾节点，再把 `child` 接到当前节点后面，把尾节点接回原 `next`，最后清空 `child` 指针并继续处理后续部分。递归最终返回这一段的尾节点。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度取决于递归深度。',
+          '实现重点在拼接顺序和尾节点回传。',
+          '是这题很典型的 DFS 写法。',
+        ],
+        code: `function flatten(head: Node | null): Node | null {
+  const dfs = (node: Node | null): Node | null => {
+    let current = node
+    let tail = node
+
+    while (current !== null) {
+      const next = current.next
+
+      if (current.child !== null) {
+        const childHead = current.child
+        const childTail = dfs(childHead)
+
+        current.next = childHead
+        childHead.prev = current
+        current.child = null
+
+        if (next !== null) {
+          childTail!.next = next
+          next.prev = childTail
+        }
+
+        tail = childTail
+        current = childTail
+      } else {
+        tail = current
+      }
+
+      current = current.next
+    }
+
+    return tail
+  }
+
+  dfs(head)
+  return head
+}`,
+      },
+      {
+        id: 'flatten-a-multilevel-doubly-linked-list-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是 child 链表拼进去后忘了把原 `next` 接回去，或者漏掉 `child = null`，导致结构不符合题意。',
+        bullets: [
+          '易错点 1：原后继节点丢失。',
+          '易错点 2：双向指针只连了一边。',
+          '易错点 3：child 指针没清空。',
+          '延伸方向：链表拼接、DFS 展开、原地结构改造题。',
+        ],
+      },
+    ],
+  },
 ];
