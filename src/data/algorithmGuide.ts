@@ -46825,4 +46825,109 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'convert-binary-search-tree-to-sorted-doubly-linked-list',
+    label: '426. LeetCode 426. 将二叉搜索树转化为排序的双向链表',
+    difficulty: '中等',
+    description:
+      '这题的关键不是“怎么改指针”，而是利用 BST 的中序遍历天然有序。只要按中序顺序把节点首尾相连，最后再补上头尾闭环即可。',
+    outcome:
+      '你能用中序遍历把 BST 原地改造成循环有序双向链表，并解释前驱、后继连接的形成过程。',
+    sections: [
+      {
+        id: 'convert-binary-search-tree-to-sorted-doubly-linked-list-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉搜索树，要求原地把它转换成一个排序的循环双向链表。链表中的左右指针分别表示前驱和后继。',
+        bullets: [
+          '要求保持有序。',
+          '要求原地修改节点指针。',
+          '结果是循环双向链表。',
+          '本质是中序串联题。',
+        ],
+      },
+      {
+        id: 'convert-binary-search-tree-to-sorted-doubly-linked-list-inorder',
+        title: 'BST 的中序遍历顺序就是链表顺序',
+        summary:
+          '对于 BST，中序遍历得到的节点序列天然从小到大有序。因此不需要再排序，遍历到一个节点时，只要把它接到当前链表尾部，就能维持整体顺序正确。',
+        bullets: [
+          '中序顺序就是答案顺序。',
+          '每访问一个节点，都知道它的前驱是谁。',
+          '问题从树变成“按序串联节点”。',
+          '这是解题的核心利用点。',
+        ],
+      },
+      {
+        id: 'convert-binary-search-tree-to-sorted-doubly-linked-list-head-tail',
+        title: '过程中维护头节点和前一个访问节点',
+        summary:
+          '中序遍历时，第一次访问到的节点就是最小值，也就是链表头。之后每访问一个节点，都把它与前一个访问节点互相连接。遍历结束后，最后一个访问节点就是尾节点，再让头尾互连形成循环。',
+        bullets: [
+          '第一次访问确定头节点。',
+          '`prev` 指向当前链表尾。',
+          '访问当前节点时做双向连接。',
+          '最后再补闭环。',
+        ],
+        callout:
+          '很多“树转链表”题本质上都不是在做复杂重构，而是在一次遍历里维护好“当前节点”和“上一个节点”的关系。',
+      },
+      {
+        id: 'convert-binary-search-tree-to-sorted-doubly-linked-list-solution',
+        title: '标准解法：中序 DFS + 前驱指针串联',
+        summary:
+          '使用递归中序遍历。遍历到节点时，若 `prev` 为空，说明当前节点是头节点；否则把 `prev.right = node`、`node.left = prev`。随后更新 `prev = node`，继续处理右子树。遍历结束后，再让 `head.left = prev`、`prev.right = head`，形成循环链表。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度取决于递归栈，高度为 `O(h)`。',
+          '实现重点在头节点和前驱节点维护。',
+          '是这题最经典的解法。',
+        ],
+        code: `function treeToDoublyList(root: Node | null): Node | null {
+  if (root === null) {
+    return null
+  }
+
+  let head: Node | null = null
+  let prev: Node | null = null
+
+  const dfs = (node: Node | null) => {
+    if (node === null) {
+      return
+    }
+
+    dfs(node.left)
+
+    if (prev === null) {
+      head = node
+    } else {
+      prev.right = node
+      node.left = prev
+    }
+
+    prev = node
+    dfs(node.right)
+  }
+
+  dfs(root)
+  head!.left = prev
+  prev!.right = head
+
+  return head
+}`,
+      },
+      {
+        id: 'convert-binary-search-tree-to-sorted-doubly-linked-list-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是在中序过程中忘了双向都要连，或者最后漏掉头尾闭环；还有人会误把普通二叉树也按同样逻辑处理，忽略了 BST 的有序性前提。',
+        bullets: [
+          '易错点 1：只连了单向指针。',
+          '易错点 2：头尾闭环遗漏。',
+          '易错点 3：空树边界没处理。',
+          '延伸方向：中序遍历、树转链表、原地指针重连题。',
+        ],
+      },
+    ],
+  },
 ];
