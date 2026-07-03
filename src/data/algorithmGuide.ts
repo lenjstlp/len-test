@@ -46930,4 +46930,108 @@ class MedianFinder {
       },
     ],
   },
+  {
+    id: 'construct-quad-tree',
+    label: '427. LeetCode 427. 建立四叉树',
+    difficulty: '中等',
+    description:
+      '这题的重点是递归划分。只要一个区域不是全 0 或全 1，就必须继续把它均分成四块，各自递归构建子树。',
+    outcome: '你能根据网格区域是否同值，递归构造出对应的四叉树结构。',
+    sections: [
+      {
+        id: 'construct-quad-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 `n x n` 的二进制网格，要求构建一棵四叉树。若某个区域所有值都相同，就用叶子节点表示；否则把区域分成四个象限继续递归。',
+        bullets: [
+          '网格值只有 0 和 1。',
+          '统一区域可直接变叶子。',
+          '非统一区域要继续四分。',
+          '本质是递归分治建树题。',
+        ],
+      },
+      {
+        id: 'construct-quad-tree-uniform',
+        title: '先判断当前区域是否同值',
+        summary:
+          '对任意一个子区域，最先要做的是检查其中元素是否全都相同。若相同，就不需要再往下拆，因为这个区域已经可以被一个叶子节点完整表示；若不同，才有继续分裂的必要。',
+        bullets: [
+          '同值判断决定递归是否终止。',
+          '叶子节点表示最大可压缩区域。',
+          '非同值才需要继续展开。',
+          '这是递归的停止条件。',
+        ],
+      },
+      {
+        id: 'construct-quad-tree-divide',
+        title: '不统一就均分成四个象限递归处理',
+        summary:
+          '如果当前区域边长为 `size`，那么它会被拆成边长 `size / 2` 的左上、右上、左下、右下四个子区域。每个子区域再独立应用同样逻辑，最终组合成当前内部节点的四个孩子。',
+        bullets: [
+          '四叉树对应四个象限。',
+          '每次规模缩小一半。',
+          '子问题结构完全相同。',
+          '很典型的分治递归。',
+        ],
+        callout:
+          '这类空间划分题的核心，不是“树怎么定义”，而是“什么时候可以不再细分”。一旦终止条件清楚，递归结构就很自然。',
+      },
+      {
+        id: 'construct-quad-tree-solution',
+        title: '标准解法：递归检查同值区域并构造节点',
+        summary:
+          '递归函数接收左上角坐标和当前区域边长。先扫描这个区域判断是否同值；若同值，返回叶子节点。否则把区域一分为四，递归构造四个子节点，并返回一个非叶子节点，它的值可任意填题目允许的默认值。',
+        bullets: [
+          '时间复杂度取决于区域扫描和递归层数。',
+          '空间复杂度取决于递归栈与树节点数量。',
+          '实现重点在区域坐标切分。',
+          '是这题最标准的分治写法。',
+        ],
+        code: `function construct(grid: number[][]): Node | null {
+  const build = (row: number, col: number, size: number): Node => {
+    let same = true
+    const value = grid[row][col]
+
+    for (let r = row; r < row + size && same; r += 1) {
+      for (let c = col; c < col + size; c += 1) {
+        if (grid[r][c] !== value) {
+          same = false
+          break
+        }
+      }
+    }
+
+    if (same) {
+      return new Node(value === 1, true)
+    }
+
+    const half = size / 2
+
+    return new Node(
+      true,
+      false,
+      build(row, col, half),
+      build(row, col + half, half),
+      build(row + half, col, half),
+      build(row + half, col + half, half),
+    )
+  }
+
+  return build(0, 0, grid.length)
+}`,
+      },
+      {
+        id: 'construct-quad-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是区域坐标划分写错，或者把“叶子节点的值”和“是否为叶子”的语义混淆。',
+        bullets: [
+          '易错点 1：四个象限坐标计算错误。',
+          '易错点 2：没先判断同值就盲目递归。',
+          '易错点 3：节点字段含义理解不清。',
+          '延伸方向：分治建树、空间划分、递归终止条件设计。',
+        ],
+      },
+    ],
+  },
 ];
