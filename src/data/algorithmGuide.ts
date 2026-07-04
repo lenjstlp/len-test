@@ -49224,4 +49224,122 @@ class AllOne {
       },
     ],
   },
+  {
+    id: 'serialize-and-deserialize-bst',
+    label: '449. LeetCode 449. 序列化和反序列化二叉搜索树',
+    difficulty: '中等',
+    description:
+      '这题比普通二叉树编解码更有结构可用。因为 BST 有大小关系，所以只要记录先序遍历结果，解码时结合上下界就能唯一还原整棵树。',
+    outcome:
+      '你能利用 BST 的有序性质，只靠先序遍历序列完成无空指针标记的编解码。',
+    sections: [
+      {
+        id: 'serialize-and-deserialize-bst-summary',
+        title: '题目在问什么',
+        summary:
+          '要求实现 BST 的序列化与反序列化。序列化把树转成字符串，反序列化再恢复出原始 BST。',
+        bullets: [
+          '目标是可逆编码。',
+          '对象是 BST，不是普通二叉树。',
+          '可以自定义格式。',
+          '本质是利用 BST 性质的编码题。',
+        ],
+      },
+      {
+        id: 'serialize-and-deserialize-bst-preorder',
+        title: '先序遍历足以保留 BST 结构信息',
+        summary:
+          '对于 BST，先序序列的第一个值一定是根节点，随后连续一段较小值属于左子树，后面较大值属于右子树。虽然序列中没显式写空节点，但 BST 的大小关系已经隐含了结构约束。',
+        bullets: [
+          '根节点总在当前子树序列首位。',
+          '左子树值都小于根，右子树都大于根。',
+          '结构信息由数值范围隐式提供。',
+          '这让编码可以更紧凑。',
+        ],
+      },
+      {
+        id: 'serialize-and-deserialize-bst-bounds',
+        title: '反序列化时用上下界切分子树',
+        summary:
+          '读取先序序列时，当前值若不落在某棵子树允许的 `(lower, upper)` 范围内，就说明它不属于这棵子树。这样递归构造时，只要维护合法值域，就能决定一个值该放在哪个位置。',
+        bullets: [
+          '上下界决定当前子树可接纳哪些值。',
+          '越界值不属于当前分支。',
+          '读取指针单调前进，无需回退。',
+          '这是解码的关键技巧。',
+        ],
+        callout:
+          'BST 恢复题里，值域约束往往比“找分割点”更稳。上下界递归能把结构恢复过程写得非常干净。',
+      },
+      {
+        id: 'serialize-and-deserialize-bst-solution',
+        title: '标准解法：先序序列化 + 值域递归反序列化',
+        summary:
+          '序列化时直接做先序遍历，把节点值按顺序拼成字符串。反序列化时，把字符串拆成数字数组并维护读取下标。递归函数接收允许的值域 `(lower, upper)`：若当前值越界，就返回空；否则创建节点，并递归构造左子树 `(lower, val)` 和右子树 `(val, upper)`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度取决于递归栈和序列存储。',
+          '实现重点在值域判断和全局下标推进。',
+          '是这题最典型的 BST 专属解法。',
+        ],
+        code: `function serialize(root: TreeNode | null): string {
+  const values: number[] = []
+
+  const dfs = (node: TreeNode | null) => {
+    if (node === null) {
+      return
+    }
+
+    values.push(node.val)
+    dfs(node.left)
+    dfs(node.right)
+  }
+
+  dfs(root)
+  return values.join(',')
+}
+
+function deserialize(data: string): TreeNode | null {
+  if (data.length === 0) {
+    return null
+  }
+
+  const values = data.split(',').map(Number)
+  let index = 0
+
+  const build = (lower: number, upper: number): TreeNode | null => {
+    if (index >= values.length) {
+      return null
+    }
+
+    const value = values[index]
+
+    if (value <= lower || value >= upper) {
+      return null
+    }
+
+    index += 1
+    const node = new TreeNode(value)
+    node.left = build(lower, value)
+    node.right = build(value, upper)
+    return node
+  }
+
+  return build(Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY)
+}`,
+      },
+      {
+        id: 'serialize-and-deserialize-bst-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是沿用普通二叉树那套必须写空节点的思路，浪费了 BST 性质；或者反序列化时没有正确维护上下界，导致节点挂错位置。',
+        bullets: [
+          '易错点 1：没利用 BST 有序性。',
+          '易错点 2：上下界条件写错。',
+          '易错点 3：读取下标在越界时仍然前移。',
+          '延伸方向：BST 构造、先序恢复、值域递归。',
+        ],
+      },
+    ],
+  },
 ];
