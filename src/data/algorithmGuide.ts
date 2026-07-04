@@ -47930,4 +47930,107 @@ class AllOne {
       },
     ],
   },
+  {
+    id: 'find-right-interval',
+    label: '436. LeetCode 436. 寻找右区间',
+    difficulty: '中等',
+    description:
+      '这题的关键是把“找起点大于等于当前结束点的最小区间”变成有序查找问题。只要把所有区间起点排好序，就能对每个结束点做二分。',
+    outcome:
+      '你能通过排序和二分搜索，为每个区间找到起点最小且不小于其终点的右区间下标。',
+    sections: [
+      {
+        id: 'find-right-interval-summary',
+        title: '题目在问什么',
+        summary:
+          '对每个区间 `i`，要找一个区间 `j`，使得 `j` 的起点大于等于 `i` 的终点，且这样的起点尽量小。若不存在，返回 `-1`。',
+        bullets: [
+          '每个区间都要独立找答案。',
+          '右区间定义由起点和终点关系决定。',
+          '要求最小满足条件的起点。',
+          '本质是有序查找题。',
+        ],
+      },
+      {
+        id: 'find-right-interval-sort',
+        title: '把所有起点整理成有序数组',
+        summary:
+          '如果把每个区间的起点和原下标一起保存，并按起点升序排序，那么对任意终点值 `end`，问题就变成：在有序起点数组里，找第一个大于等于 `end` 的位置。',
+        bullets: [
+          '排序后可用二分搜索。',
+          '原下标要保留用于输出。',
+          '每个查询互相独立。',
+          '排序是提速的前提。',
+        ],
+      },
+      {
+        id: 'find-right-interval-binary-search',
+        title: '二分找的是“第一个满足条件的位置”',
+        summary:
+          '对每个区间的终点执行 lower_bound 风格查找。若中点起点小于目标终点，就往右找；否则记录当前位置并继续往左压缩，直到找到最左侧满足条件的位置。',
+        bullets: [
+          '不是找任意满足，而是找最左满足。',
+          '标准二分模板可直接套用。',
+          '找到后输出其原始下标。',
+          '没找到则返回 `-1`。',
+        ],
+        callout:
+          '很多“找最小满足条件元素”的题，本质都可以翻译成 lower_bound。识别出这一点，代码会比手写条件分支稳很多。',
+      },
+      {
+        id: 'find-right-interval-solution',
+        title: '标准解法：起点排序 + 对每个终点做二分',
+        summary:
+          '先构建数组 `starts = [[start, index]]` 并按 `start` 升序排序。随后遍历原区间数组，对每个区间的终点执行二分查找，定位到第一个起点大于等于该终点的位置。若存在，就把对应原下标写入答案；否则填 `-1`。',
+        bullets: [
+          '时间复杂度是 `O(n log n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在 lower_bound 型二分。',
+          '是这题最常见的解法。',
+        ],
+        code: `function findRightInterval(intervals: number[][]): number[] {
+  const starts = intervals.map((interval, index) => [interval[0], index])
+  starts.sort((a, b) => a[0] - b[0])
+
+  const answer = Array(intervals.length).fill(-1)
+
+  for (let index = 0; index < intervals.length; index += 1) {
+    const target = intervals[index][1]
+    let left = 0
+    let right = starts.length - 1
+    let position = -1
+
+    while (left <= right) {
+      const mid = Math.floor((left + right) / 2)
+
+      if (starts[mid][0] >= target) {
+        position = mid
+        right = mid - 1
+      } else {
+        left = mid + 1
+      }
+    }
+
+    if (position !== -1) {
+      answer[index] = starts[position][1]
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'find-right-interval-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是二分时找到一个满足条件的位置就直接返回，漏掉更靠左的更优答案；或者排序后忘了保留原始下标。',
+        bullets: [
+          '易错点 1：没有找最左满足位置。',
+          '易错点 2：原区间下标丢失。',
+          '易错点 3：把终点和起点关系比较写反。',
+          '延伸方向：排序 + 二分、lower_bound 模型、区间检索问题。',
+        ],
+      },
+    ],
+  },
 ];
