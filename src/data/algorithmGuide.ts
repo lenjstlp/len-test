@@ -47838,4 +47838,96 @@ class AllOne {
       },
     ],
   },
+  {
+    id: 'non-overlapping-intervals',
+    label: '435. LeetCode 435. 无重叠区间',
+    difficulty: '中等',
+    description:
+      '这题的目标不是保留哪些区间，而是最少删掉多少区间。换个角度看，就是尽量保留更多互不重叠的区间，这正是经典区间贪心。',
+    outcome:
+      '你能通过按右端点排序的贪心策略，求出为消除所有重叠而需要删除的最少区间数量。',
+    sections: [
+      {
+        id: 'non-overlapping-intervals-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干区间，要求删除最少数量的区间，使剩余区间两两互不重叠。',
+        bullets: [
+          '目标是删除数量最少。',
+          '等价于保留数量最多。',
+          '区间重叠由端点关系决定。',
+          '本质是区间选择贪心题。',
+        ],
+      },
+      {
+        id: 'non-overlapping-intervals-greedy',
+        title: '想保留更多区间，就应优先保留结束更早的',
+        summary:
+          '若当前已经选了一个区间，接下来结束更早的区间会给后面留下更大的可选择空间。因此按右端点从小到大排序，每次尽量保留当前能接上的最早结束区间，是最优的。',
+        bullets: [
+          '结束越早，对后续越友好。',
+          '这是经典活动选择思想。',
+          '排序依据决定贪心正确性。',
+          '不要被“删除最少”表述带偏。',
+        ],
+      },
+      {
+        id: 'non-overlapping-intervals-keep-vs-remove',
+        title: '最少删除数等于总数减去最多可保留数',
+        summary:
+          '贪心过程中统计的是最多能保留多少个不重叠区间。最后用总区间数减去保留数，就得到最少需要删除的区间数量。',
+        bullets: [
+          '删除问题转成保留问题更好做。',
+          '保留数由贪心直接得到。',
+          '结果转换非常直接。',
+          '这是常见思维转换。',
+        ],
+        callout:
+          '很多“最少删除”题都适合先改写成“最多保留”。一旦目标变成保留最多，贪心结构往往会明显很多。',
+      },
+      {
+        id: 'non-overlapping-intervals-solution',
+        title: '标准解法：按右端点排序后线性贪心',
+        summary:
+          '先按区间右端点升序排序。初始化保留第一个区间，并记录当前已保留区间的结束位置 `end`。遍历后续区间时，若其左端点大于等于 `end`，说明不重叠，可以保留并更新 `end`；否则跳过它。最终答案是总数减去保留数。',
+        bullets: [
+          '时间复杂度是 `O(n log n)`。',
+          '空间复杂度取决于排序实现。',
+          '实现重点在排序依据与重叠判定。',
+          '是这题最主流的解法。',
+        ],
+        code: `function eraseOverlapIntervals(intervals: number[][]): number {
+  if (intervals.length === 0) {
+    return 0
+  }
+
+  intervals.sort((a, b) => a[1] - b[1])
+
+  let kept = 1
+  let end = intervals[0][1]
+
+  for (let index = 1; index < intervals.length; index += 1) {
+    if (intervals[index][0] >= end) {
+      kept += 1
+      end = intervals[index][1]
+    }
+  }
+
+  return intervals.length - kept
+}`,
+      },
+      {
+        id: 'non-overlapping-intervals-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是按左端点排序后贪心，结果并不最优；或者重叠时保留了结束更晚的区间，压缩了后续空间。',
+        bullets: [
+          '易错点 1：排序依据选错。',
+          '易错点 2：把删除数直接在过程中硬算，逻辑变乱。',
+          '易错点 3：边界相接也当成重叠。',
+          '延伸方向：区间调度、活动选择、贪心最优性证明。',
+        ],
+      },
+    ],
+  },
 ];
