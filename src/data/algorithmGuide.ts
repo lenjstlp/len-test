@@ -48509,4 +48509,92 @@ class AllOne {
       },
     ],
   },
+  {
+    id: 'find-all-duplicates-in-an-array',
+    label: '442. LeetCode 442. 数组中重复的数据',
+    difficulty: '中等',
+    description:
+      '这题的关键是利用数值范围和下标范围一致这一条件。通过把元素值映射到对应下标位置的符号或位置状态，就能在原地发现重复元素。',
+    outcome:
+      '你能利用原数组下标作为哈希桶，在 `O(n)` 时间和 `O(1)` 额外空间内找出所有出现两次的数字。',
+    sections: [
+      {
+        id: 'find-all-duplicates-in-an-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个长度为 `n` 的整数数组，其中每个元素都在 `1..n` 范围内，且每个元素出现一次或两次。要求找出所有出现两次的数字。',
+        bullets: [
+          '数值范围与数组长度对齐。',
+          '每个数最多出现两次。',
+          '要求额外空间尽量少。',
+          '本质是原地标记题。',
+        ],
+      },
+      {
+        id: 'find-all-duplicates-in-an-array-index-map',
+        title: '值 `x` 可以映射到下标 `x - 1`',
+        summary:
+          '因为数组元素都在 `1..n` 范围内，所以任意值 `x` 都可以映射到合法下标 `x - 1`。这样我们就能借助数组自身的位置来记录某个值是否已经出现过。',
+        bullets: [
+          '范围约束是题目送的结构信息。',
+          '值到下标的映射天然唯一。',
+          '不需要额外哈希表。',
+          '这是原地做法的起点。',
+        ],
+      },
+      {
+        id: 'find-all-duplicates-in-an-array-sign',
+        title: '第一次访问就取反，第二次访问发现已为负数',
+        summary:
+          '遍历到值 `num` 时，查看下标 `abs(num) - 1` 处的元素。若它为正，说明这个值第一次出现，就把它取反作为已访问标记；若它已经是负数，说明这个值对应位置之前被标记过，这次就是重复出现，应加入答案。',
+        bullets: [
+          '符号位可充当访问标记。',
+          '第一次访问负责打标。',
+          '第二次访问即可识别重复。',
+          '整个过程原地完成。',
+        ],
+        callout:
+          '原地哈希题常见套路是“把值映射到位置，再借助该位置的状态记信息”。这里借的状态就是元素正负号。',
+      },
+      {
+        id: 'find-all-duplicates-in-an-array-solution',
+        title: '标准解法：下标映射 + 原地取反标记',
+        summary:
+          '遍历数组每个元素 `num`，令 `index = Math.abs(num) - 1`。若 `nums[index] < 0`，说明该值已经见过一次，此时把 `index + 1` 加入答案；否则把 `nums[index]` 取反，表示第一次见到该值。遍历结束后返回答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '额外空间复杂度是 `O(1)`，不计输出。',
+          '实现重点在使用绝对值避免受已取反影响。',
+          '是这题最经典的原地解法。',
+        ],
+        code: `function findDuplicates(nums: number[]): number[] {
+  const answer: number[] = []
+
+  for (const num of nums) {
+    const index = Math.abs(num) - 1
+
+    if (nums[index] < 0) {
+      answer.push(index + 1)
+    } else {
+      nums[index] = -nums[index]
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'find-all-duplicates-in-an-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是取下标时忘了先取绝对值，导致前面已被取反的元素映射错误；或者没利用范围条件，又退回到额外哈希表做法。',
+        bullets: [
+          '易错点 1：下标计算没用绝对值。',
+          '易错点 2：重复值加入答案时写成 `nums[index]` 而不是 `index + 1`。',
+          '易错点 3：不了解为什么能原地标记。',
+          '延伸方向：原地哈希、下标映射、数组标记类题目。',
+        ],
+      },
+    ],
+  },
 ];
