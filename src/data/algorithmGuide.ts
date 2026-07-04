@@ -49711,4 +49711,102 @@ function deserialize(data: string): TreeNode | null {
       },
     ],
   },
+  {
+    id: '4sum-ii',
+    label: '454. LeetCode 454. 四数相加 II',
+    difficulty: '中等',
+    description:
+      '这题若直接四重循环会爆炸，真正的降维点是把四个数组拆成两组，两两求和后再做哈希匹配。',
+    outcome:
+      '你能通过分组求和和哈希计数，把四数求和问题从 `O(n^4)` 降到 `O(n^2)`。',
+    sections: [
+      {
+        id: '4sum-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定四个长度相同的整数数组 `nums1、nums2、nums3、nums4`，要求统计有多少个四元组 `(i, j, k, l)` 满足 `nums1[i] + nums2[j] + nums3[k] + nums4[l] === 0`。',
+        bullets: [
+          '要求的是四元组数量。',
+          '不是返回具体组合。',
+          '直接四重循环复杂度太高。',
+          '本质是分组哈希计数题。',
+        ],
+      },
+      {
+        id: '4sum-ii-split',
+        title: '把四个数组拆成两组求和',
+        summary:
+          '等式 `a + b + c + d = 0` 可以改写成 `a + b = -(c + d)`。于是我们可以先枚举前两数组的所有和，再枚举后两数组的所有和，转而统计两个和之间的互补关系。',
+        bullets: [
+          '四元问题拆成两个二元问题。',
+          '互补和关系非常清晰。',
+          '复杂度从四重枚举降到两次二重枚举。',
+          '这是整题的核心降维。',
+        ],
+      },
+      {
+        id: '4sum-ii-hash',
+        title: '哈希表记录前半部分和的出现次数',
+        summary:
+          '先遍历 `nums1` 和 `nums2` 的所有组合，把每个和出现的次数存进哈希表。然后遍历 `nums3` 和 `nums4` 的所有组合，对每个后半和 `sum`，查找 `-sum` 在哈希表中出现了多少次，并把次数累加到答案里。',
+        bullets: [
+          '哈希表承担计数角色。',
+          '一个和可能对应多组前半部分组合。',
+          '查到一次要累加频次而不是只加一。',
+          '这是计数题的关键细节。',
+        ],
+        callout:
+          '当题目要求“组合数量”而不是“是否存在”时，哈希表里存的往往不是布尔值，而是频次。这种差别会直接影响最终答案。',
+      },
+      {
+        id: '4sum-ii-solution',
+        title: '标准解法：前两数组求和计数，后两数组查互补',
+        summary:
+          '先用哈希表统计 `nums1[i] + nums2[j]` 的所有结果及其出现次数。再遍历 `nums3[k] + nums4[l]`，对于每个和 `sum`，把 `counter.get(-sum)` 加入答案。最终累加值就是满足条件的四元组总数。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度是 `O(n^2)`。',
+          '实现重点在频次统计和互补查找。',
+          '是这题最标准的哈希解法。',
+        ],
+        code: `function fourSumCount(
+  nums1: number[],
+  nums2: number[],
+  nums3: number[],
+  nums4: number[],
+): number {
+  const counter = new Map<number, number>()
+
+  for (const num1 of nums1) {
+    for (const num2 of nums2) {
+      const sum = num1 + num2
+      counter.set(sum, (counter.get(sum) ?? 0) + 1)
+    }
+  }
+
+  let answer = 0
+
+  for (const num3 of nums3) {
+    for (const num4 of nums4) {
+      answer += counter.get(-(num3 + num4)) ?? 0
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: '4sum-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是四个数组一起暴力枚举；或者哈希表里只记“这个和是否出现”，导致多重频次被漏算。',
+        bullets: [
+          '易错点 1：没做两两分组降维。',
+          '易错点 2：哈希表没统计频次。',
+          '易错点 3：互补值查找符号写反。',
+          '延伸方向：分治降维、哈希计数、k-sum 变形问题。',
+        ],
+      },
+    ],
+  },
 ];
