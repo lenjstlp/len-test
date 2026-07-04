@@ -49537,4 +49537,95 @@ function deserialize(data: string): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'minimum-number-of-arrows-to-burst-balloons',
+    label: '452. LeetCode 452. 用最少数量的箭引爆气球',
+    difficulty: '中等',
+    description:
+      '这题本质是区间贪心。只要一支箭打在若干重叠区间的公共部分内，就能一起引爆这些气球，因此关键是尽量让一支箭覆盖更多重叠区间。',
+    outcome: '你能通过按右端点排序的区间贪心，求出引爆所有气球所需的最少箭数。',
+    sections: [
+      {
+        id: 'minimum-number-of-arrows-to-burst-balloons-summary',
+        title: '题目在问什么',
+        summary:
+          '每个气球用一个水平区间表示，一支箭射在某个 x 坐标上，可以引爆所有包含该坐标的气球。要求求出引爆所有气球所需的最少箭数。',
+        bullets: [
+          '箭的位置是一维坐标。',
+          '一支箭可覆盖多个重叠区间。',
+          '目标是箭数最少。',
+          '本质是区间覆盖贪心题。',
+        ],
+      },
+      {
+        id: 'minimum-number-of-arrows-to-burst-balloons-greedy',
+        title: '优先把箭射在当前最早结束的区间右端点',
+        summary:
+          '若按区间右端点排序，并把箭放在当前最早结束区间的右端点上，那么这支箭一定能覆盖该区间，同时也尽可能多地覆盖后续所有与它重叠的区间。这和经典区间调度贪心非常相似。',
+        bullets: [
+          '最早结束位置限制最强。',
+          '先满足最紧的区间更稳。',
+          '右端点是当前最佳射击位置。',
+          '这是贪心正确性的核心。',
+        ],
+      },
+      {
+        id: 'minimum-number-of-arrows-to-burst-balloons-merge',
+        title: '重叠区间共享一支箭，不重叠才需要新箭',
+        summary:
+          '排序后线性扫描，维护当前箭所在位置 `end`。若下一个区间起点大于 `end`，说明和现有箭覆盖范围不重叠，必须新增一支箭；否则它能被当前这支箭顺带引爆。',
+        bullets: [
+          '是否重叠决定是否加箭。',
+          '重叠区间共享同一支箭。',
+          '线性扫描即可完成判断。',
+          '实现很紧凑。',
+        ],
+        callout:
+          '很多区间贪心题表面在讲不同故事，但底层结构都一样：排序后维护一个当前最紧边界，能兼容就继续兼容，不能兼容就开启新资源。',
+      },
+      {
+        id: 'minimum-number-of-arrows-to-burst-balloons-solution',
+        title: '标准解法：按右端点排序后贪心扫描',
+        summary:
+          '先按气球区间右端点升序排序。初始化第一支箭打在第一个区间的右端点处。随后遍历剩余区间：若当前区间起点大于已有箭位置，则新增一支箭并把位置更新为当前区间右端点；否则说明当前箭已经能覆盖它，无需增加。',
+        bullets: [
+          '时间复杂度是 `O(n log n)`。',
+          '空间复杂度取决于排序实现。',
+          '实现重点在排序依据和重叠判定。',
+          '是这题最经典的写法。',
+        ],
+        code: `function findMinArrowShots(points: number[][]): number {
+  if (points.length === 0) {
+    return 0
+  }
+
+  points.sort((a, b) => a[1] - b[1])
+
+  let arrows = 1
+  let end = points[0][1]
+
+  for (let index = 1; index < points.length; index += 1) {
+    if (points[index][0] > end) {
+      arrows += 1
+      end = points[index][1]
+    }
+  }
+
+  return arrows
+}`,
+      },
+      {
+        id: 'minimum-number-of-arrows-to-burst-balloons-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是按左端点排序后贪心，或者把端点相接的区间误判成不重叠，导致多算箭数。',
+        bullets: [
+          '易错点 1：排序依据选错。',
+          '易错点 2：`start === end` 时仍可同箭覆盖却误判。',
+          '易错点 3：没意识到它和区间调度是同一类题。',
+          '延伸方向：区间贪心、覆盖问题、资源最少化调度。',
+        ],
+      },
+    ],
+  },
 ];
