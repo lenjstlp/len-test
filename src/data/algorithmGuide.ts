@@ -49342,4 +49342,110 @@ function deserialize(data: string): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'delete-node-in-a-bst',
+    label: '450. LeetCode 450. 删除二叉搜索树中的节点',
+    difficulty: '中等',
+    description:
+      '这题的关键不是“删掉一个节点”这句话，而是删完后 BST 性质仍要保持。不同子树结构下，删除策略分三种情况。',
+    outcome:
+      '你能分情况删除 BST 中指定值节点，并保持删除后树仍满足二叉搜索树性质。',
+    sections: [
+      {
+        id: 'delete-node-in-a-bst-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵 BST 的根节点和一个键值 `key`，要求删除值等于 `key` 的节点，并返回删除后的 BST 根节点。',
+        bullets: [
+          '要保持 BST 性质不变。',
+          '只删除一个匹配节点。',
+          '可能删的是根、叶子或内部节点。',
+          '本质是结构调整题。',
+        ],
+      },
+      {
+        id: 'delete-node-in-a-bst-search',
+        title: '先利用 BST 性质找到要删除的节点',
+        summary:
+          '若 `key` 小于当前节点值，就只可能在左子树；若更大，就只可能在右子树。这样搜索阶段天然是有方向的，不需要遍历整棵树。',
+        bullets: [
+          'BST 性质让搜索有剪枝能力。',
+          '递归可直接定位到目标节点。',
+          '非目标分支无需处理。',
+          '这是第一层结构优势。',
+        ],
+      },
+      {
+        id: 'delete-node-in-a-bst-cases',
+        title: '删除时分成三种结构情况',
+        summary:
+          '若目标节点没有孩子，直接删掉；若只有一个孩子，就让这个孩子顶上来；若有两个孩子，则不能直接删空，需要找一个合适替代者，常见做法是用右子树最小节点或左子树最大节点替换当前值，然后再删除那个替代节点。',
+        bullets: [
+          '叶子节点最好处理。',
+          '单孩子节点可直接提升子树。',
+          '双孩子节点需要寻找替代者。',
+          '三种情况必须分开想清楚。',
+        ],
+        callout:
+          'BST 删除题真正的核心，不是“找到它”，而是“双孩子节点怎么删还不破坏有序性”。替代者必须来自中序前驱或后继。',
+      },
+      {
+        id: 'delete-node-in-a-bst-solution',
+        title: '标准解法：递归定位 + 用右子树最小值替代',
+        summary:
+          '递归找到目标节点后，若它缺左或缺右，直接返回另一侧子树；若左右孩子都在，则先在右子树中找到最小节点，把当前节点值替换为该最小值，再递归删除右子树中的这个最小值节点。这样能保持 BST 的有序结构。',
+        bullets: [
+          '时间复杂度取决于树高。',
+          '空间复杂度取决于递归深度。',
+          '实现重点在双孩子删除和替代节点选择。',
+          '是这题最经典的写法。',
+        ],
+        code: `function deleteNode(root: TreeNode | null, key: number): TreeNode | null {
+  if (root === null) {
+    return null
+  }
+
+  if (key < root.val) {
+    root.left = deleteNode(root.left, key)
+    return root
+  }
+
+  if (key > root.val) {
+    root.right = deleteNode(root.right, key)
+    return root
+  }
+
+  if (root.left === null) {
+    return root.right
+  }
+
+  if (root.right === null) {
+    return root.left
+  }
+
+  let successor = root.right
+
+  while (successor.left !== null) {
+    successor = successor.left
+  }
+
+  root.val = successor.val
+  root.right = deleteNode(root.right, successor.val)
+  return root
+}`,
+      },
+      {
+        id: 'delete-node-in-a-bst-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是双孩子节点删除时随便找个节点替换，破坏 BST 性质；或者替换完值后忘了继续删除原替代节点，导致树里出现重复值。',
+        bullets: [
+          '易错点 1：替代节点选错。',
+          '易错点 2：替换值后没删原节点。',
+          '易错点 3：返回新的子树根时没接回父节点。',
+          '延伸方向：BST 操作、递归重连、中序前驱后继应用。',
+        ],
+      },
+    ],
+  },
 ];
