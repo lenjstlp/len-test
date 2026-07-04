@@ -49448,4 +49448,93 @@ function deserialize(data: string): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'sort-characters-by-frequency',
+    label: '451. LeetCode 451. 根据字符出现频率排序',
+    difficulty: '中等',
+    description:
+      '这题的核心不是排序字符本身，而是先统计频次，再按频次降序输出。真正排序的对象是“字符种类”。',
+    outcome:
+      '你能通过频次统计和排序或桶分组，构造出按出现频率降序排列的字符串。',
+    sections: [
+      {
+        id: 'sort-characters-by-frequency-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串，要求把其中字符按出现频率从高到低重新排序后返回。若频率相同，它们之间相对顺序不限。',
+        bullets: [
+          '关键依据是频率而不是字典序。',
+          '要返回重组后的字符串。',
+          '同频字符顺序不重要。',
+          '本质是频次排序题。',
+        ],
+      },
+      {
+        id: 'sort-characters-by-frequency-count',
+        title: '先统计每个字符出现次数',
+        summary:
+          '无论最终选择排序还是桶分组，第一步都必须先知道每个字符出现了多少次。哈希表非常适合做这件事：一次遍历就能拿到所有字符频次。',
+        bullets: [
+          '统计频次是所有后续步骤的基础。',
+          '哈希表足够灵活，适配任意字符集。',
+          '只需一次线性遍历。',
+          '这一步没有争议。',
+        ],
+      },
+      {
+        id: 'sort-characters-by-frequency-order',
+        title: '排序的其实是“字符种类及其频次”',
+        summary:
+          '得到频次后，不需要逐字符去比，而是把每个字符视作一项 `(char, count)`。按 `count` 从大到小排序后，再把字符重复 `count` 次拼回答案即可。',
+        bullets: [
+          '排序对象数量等于字符种类数。',
+          '输出阶段再展开回完整字符串。',
+          '逻辑清晰，代码直接。',
+          '是最常见的实现方式。',
+        ],
+        callout:
+          '很多字符串重排题真正的处理对象都不是原字符串的每个字符，而是“字符种类 + 统计信息”。先聚合再排序，思路会更顺。',
+      },
+      {
+        id: 'sort-characters-by-frequency-solution',
+        title: '标准解法：哈希计数后按频次降序排序',
+        summary:
+          '先用哈希表统计每个字符出现次数。再把哈希表条目转成数组，按频次从大到小排序。最后遍历排序结果，把每个字符重复对应次数拼接进结果字符串中即可。',
+        bullets: [
+          '时间复杂度主要取决于排序字符种类数。',
+          '空间复杂度取决于哈希表与结果构造。',
+          '实现重点在频次统计和结果拼接。',
+          '是这题最标准的写法。',
+        ],
+        code: `function frequencySort(s: string): string {
+  const counter = new Map<string, number>()
+
+  for (const char of s) {
+    counter.set(char, (counter.get(char) ?? 0) + 1)
+  }
+
+  const entries = [...counter.entries()].sort((a, b) => b[1] - a[1])
+  let result = ''
+
+  for (const [char, count] of entries) {
+    result += char.repeat(count)
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'sort-characters-by-frequency-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是按字符本身排序而不是按频次排序；或者拼接结果时只写了一次字符，没有按频次重复展开。',
+        bullets: [
+          '易错点 1：排序依据搞错。',
+          '易错点 2：结果构造忘了重复字符。',
+          '易错点 3：频次相同时以为必须稳定排序。',
+          '延伸方向：频次排序、桶排序、字符串重构问题。',
+        ],
+      },
+    ],
+  },
 ];
