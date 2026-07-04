@@ -48033,4 +48033,99 @@ class AllOne {
       },
     ],
   },
+  {
+    id: 'path-sum-iii',
+    label: '437. LeetCode 437. 路径总和 III',
+    difficulty: '中等',
+    description:
+      '这题和普通根到叶路径题不同，路径可以从任意节点开始、向下延伸到任意节点结束。最有效的思路是用前缀和统计“以当前节点结尾”的目标路径数。',
+    outcome:
+      '你能结合 DFS 和前缀和哈希表，在线性时间内统计二叉树中和为目标值的向下路径数量。',
+    sections: [
+      {
+        id: 'path-sum-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树和目标和 `targetSum`，要求统计路径和等于目标值的路径数量。路径必须向下走，但可以从任意节点开始，到任意节点结束。',
+        bullets: [
+          '路径方向只能从父到子。',
+          '起点和终点都不固定。',
+          '要求统计条数，不是判断存在性。',
+          '本质是树上的前缀和计数题。',
+        ],
+      },
+      {
+        id: 'path-sum-iii-prefix-sum',
+        title: '把树上路径和问题转成前缀和差值问题',
+        summary:
+          '若从根到当前节点的前缀和为 `currentSum`，那么只要之前某个祖先位置的前缀和等于 `currentSum - targetSum`，从该祖先的下一层到当前节点这段路径的和就正好是目标值。',
+        bullets: [
+          '路径和可以由两个前缀和相减得到。',
+          '当前节点负责统计“以我结尾”的合法路径数。',
+          '祖先前缀和数量可用哈希表记录。',
+          '这正是数组前缀和思路在树上的迁移。',
+        ],
+      },
+      {
+        id: 'path-sum-iii-backtrack',
+        title: '递归进入子树前加计数，回溯离开时要减回去',
+        summary:
+          '前缀和哈希表只能表示当前递归路径上的祖先信息。进入一个节点时，把当前前缀和计入表中；处理完左右子树后，必须把它减掉，否则会污染其它分支，产生跨分支的错误统计。',
+        bullets: [
+          '哈希表只服务于当前根到当前节点路径。',
+          '递归前加，递归后减，是典型回溯模式。',
+          '不回退会把兄弟分支误连起来。',
+          '这是实现里最关键的细节。',
+        ],
+        callout:
+          '树上的前缀和和数组前缀和最大的不同，在于树会分叉，所以状态不能全局一直累积，必须随着递归路径进出做回溯。',
+      },
+      {
+        id: 'path-sum-iii-solution',
+        title: '标准解法：DFS + 前缀和计数哈希表',
+        summary:
+          '初始化哈希表 `counter[0] = 1`，表示空路径前缀和。DFS 遍历时，更新当前前缀和 `sum`，把 `counter[sum - targetSum]` 加入答案，表示以当前节点结尾的合法路径数。随后把 `sum` 计入表中，递归左右子树，最后回溯时将其减一。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度取决于树高与哈希表大小。',
+          '实现重点在回溯撤销当前前缀和。',
+          '是这题最经典的最优解。',
+        ],
+        code: `function pathSum(root: TreeNode | null, targetSum: number): number {
+  const counter = new Map<number, number>()
+  counter.set(0, 1)
+
+  const dfs = (node: TreeNode | null, sum: number): number => {
+    if (node === null) {
+      return 0
+    }
+
+    const currentSum = sum + node.val
+    let total = counter.get(currentSum - targetSum) ?? 0
+
+    counter.set(currentSum, (counter.get(currentSum) ?? 0) + 1)
+    total += dfs(node.left, currentSum)
+    total += dfs(node.right, currentSum)
+    counter.set(currentSum, (counter.get(currentSum) ?? 1) - 1)
+
+    return total
+  }
+
+  return dfs(root, 0)
+}`,
+      },
+      {
+        id: 'path-sum-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它误做成根到叶路径题，漏掉中间起点；或者前缀和计数没有回溯，导致不同分支的路径被错误混在一起。',
+        bullets: [
+          '易错点 1：只统计从根开始的路径。',
+          '易错点 2：前缀和哈希表未回退。',
+          '易错点 3：空路径前缀和 `0` 没初始化。',
+          '延伸方向：树上前缀和、DFS 回溯、路径计数问题。',
+        ],
+      },
+    ],
+  },
 ];
