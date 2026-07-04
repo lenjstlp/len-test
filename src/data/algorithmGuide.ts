@@ -48419,4 +48419,94 @@ class AllOne {
       },
     ],
   },
+  {
+    id: 'arranging-coins',
+    label: '441. LeetCode 441. 排列硬币',
+    difficulty: '简单',
+    description:
+      '这题本质是在找最大的 `k`，使得 `1 + 2 + ... + k <= n`。因为前 `k` 行总硬币数有明确公式，所以可以直接对答案做二分。',
+    outcome:
+      '你能把硬币排列问题转成求最大满足条件的整数，并用二分求出完整阶梯行数。',
+    sections: [
+      {
+        id: 'arranging-coins-summary',
+        title: '题目在问什么',
+        summary:
+          '有 `n` 枚硬币，想按阶梯方式摆放：第一行 1 枚，第二行 2 枚，依此类推。要求返回能摆满的完整行数。',
+        bullets: [
+          '每行所需硬币数递增 1。',
+          '只统计完整摆满的行。',
+          '剩余不足一整行的不算。',
+          '本质是最大满足条件整数问题。',
+        ],
+      },
+      {
+        id: 'arranging-coins-formula',
+        title: '前 `k` 行总共需要 `k * (k + 1) / 2` 枚硬币',
+        summary:
+          '这是一道等差数列求和题。只要知道前 `k` 行所需总量，就能判断某个 `k` 是否可行：若总量不超过 `n`，说明至少能摆到第 `k` 行。',
+        bullets: [
+          '核心公式明确。',
+          '可行性判断非常直接。',
+          '目标变成求最大可行 `k`。',
+          '适合二分答案。',
+        ],
+      },
+      {
+        id: 'arranging-coins-binary-search',
+        title: '答案具有单调性，因此可以二分',
+        summary:
+          '若某个 `k` 行可以摆满，那么更小的行数一定也能摆满；若某个 `k` 不行，更大的也都不行。这个单调性让我们可以在区间 `[0, n]` 上二分最大可行值。',
+        bullets: [
+          '可行集是前缀型的。',
+          '二分能快速逼近答案。',
+          '每次只需做一次公式判断。',
+          '比一行一行试更高效。',
+        ],
+        callout:
+          '当题目要求“最大满足某条件的值”时，先问自己这个条件是否单调。若单调，二分通常就是天然选择。',
+      },
+      {
+        id: 'arranging-coins-solution',
+        title: '标准解法：二分最大完整行数',
+        summary:
+          '设置二分边界 `left = 0`、`right = n`。每次取中点 `mid`，计算前 `mid` 行所需硬币数 `mid * (mid + 1) / 2`。若不超过 `n`，说明 `mid` 可行，继续向右找更大值；否则向左收缩。最终得到最大完整行数。',
+        bullets: [
+          '时间复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在公式与二分边界。',
+          '是这题很稳的做法。',
+        ],
+        code: `function arrangeCoins(n: number): number {
+  let left = 0
+  let right = n
+
+  while (left <= right) {
+    const mid = Math.floor((left + right) / 2)
+    const need = (mid * (mid + 1)) / 2
+
+    if (need <= n) {
+      left = mid + 1
+    } else {
+      right = mid - 1
+    }
+  }
+
+  return right
+}`,
+      },
+      {
+        id: 'arranging-coins-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把答案理解成能摆到哪一行而不是完整摆满多少行；或者二分结束后返回了 `left` 而不是最后一个可行值。',
+        bullets: [
+          '易错点 1：完整行定义理解错误。',
+          '易错点 2：二分返回值写错。',
+          '易错点 3：求和公式写错或溢出风险没考虑。',
+          '延伸方向：二分答案、等差求和、最大可行值问题。',
+        ],
+      },
+    ],
+  },
 ];
