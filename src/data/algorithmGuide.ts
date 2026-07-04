@@ -48696,4 +48696,146 @@ class AllOne {
       },
     ],
   },
+  {
+    id: 'sequence-reconstruction',
+    label: '444. LeetCode 444. 序列重建',
+    difficulty: '中等',
+    description:
+      '这题不是单纯做拓扑排序，而是要判断原序列是否是唯一的最短超序列。唯一性是核心，所以在拓扑过程中必须随时确认当前可选节点是否只有一个。',
+    outcome:
+      '你能把子序列关系建成有向图，并通过唯一拓扑排序判断是否能且只能重建出目标序列。',
+    sections: [
+      {
+        id: 'sequence-reconstruction-summary',
+        title: '题目在问什么',
+        summary:
+          '给定目标序列 `nums` 和若干子序列 `sequences`，要求判断 `nums` 是否是这些子序列的唯一最短超序列。',
+        bullets: [
+          '不只是能重建，还必须唯一。',
+          '子序列关系形成偏序约束。',
+          '目标是判断而不是构造任意序列。',
+          '本质是唯一拓扑排序判定题。',
+        ],
+      },
+      {
+        id: 'sequence-reconstruction-graph',
+        title: '相邻先后关系可以建成有向图',
+        summary:
+          '在每个子序列里，相邻元素 `a -> b` 都表示 `a` 必须排在 `b` 前面。把这些约束汇总起来，就得到一张有向图；若 `nums` 真能唯一重建出来，它应当对应这张图的唯一拓扑序。',
+        bullets: [
+          '子序列约束转成边。',
+          '节点是出现过的数字。',
+          '图反映全体先后关系。',
+          '问题转成拓扑序唯一性。',
+        ],
+      },
+      {
+        id: 'sequence-reconstruction-uniqueness',
+        title: '唯一性的判据是：每一步入度为 0 的点只能有一个',
+        summary:
+          '如果某个时刻有两个或更多节点入度都为 0，说明当前可以任选其中之一放在下一个位置，拓扑序就不唯一。反过来，若整个过程中始终只有一个可选节点，并且输出顺序恰好等于 `nums`，才能说明重建唯一成立。',
+        bullets: [
+          '多于一个候选节点意味着不唯一。',
+          '唯一拓扑序要求每一步都只有唯一选择。',
+          '还要验证顺序恰好等于 `nums`。',
+          '这是整题判定核心。',
+        ],
+        callout:
+          '很多“是否唯一”问题，本质都不是多写一个 if，而是要把算法过程中的分叉显式识别出来。这里的分叉点就是入度为 0 节点的数量。',
+      },
+      {
+        id: 'sequence-reconstruction-solution',
+        title: '标准解法：建图 + 唯一拓扑排序',
+        summary:
+          '先根据 `sequences` 建图并统计每个节点入度，同时确认节点集合与 `nums` 一致。然后做 BFS 拓扑排序：队列中若某一轮入度为 0 的节点数量不等于 1，直接返回 `false`；若唯一节点与 `nums` 当前期望值不一致，也返回 `false`。全部处理完成且长度匹配，才返回 `true`。',
+        bullets: [
+          '时间复杂度是 `O(V + E)`。',
+          '空间复杂度是 `O(V + E)`。',
+          '实现重点在去重边和唯一性检查。',
+          '是这题最标准的图论解法。',
+        ],
+        code: `function sequenceReconstruction(nums: number[], sequences: number[][]): boolean {
+  const graph = new Map<number, Set<number>>()
+  const indegree = new Map<number, number>()
+
+  for (const num of nums) {
+    graph.set(num, new Set())
+    indegree.set(num, 0)
+  }
+
+  let hasElement = false
+
+  for (const sequence of sequences) {
+    for (const num of sequence) {
+      if (!graph.has(num)) {
+        return false
+      }
+
+      hasElement = true
+    }
+
+    for (let index = 1; index < sequence.length; index += 1) {
+      const from = sequence[index - 1]
+      const to = sequence[index]
+
+      if (!graph.get(from)?.has(to)) {
+        graph.get(from)?.add(to)
+        indegree.set(to, (indegree.get(to) ?? 0) + 1)
+      }
+    }
+  }
+
+  if (!hasElement) {
+    return false
+  }
+
+  const queue: number[] = []
+
+  for (const [node, degree] of indegree) {
+    if (degree === 0) {
+      queue.push(node)
+    }
+  }
+
+  let index = 0
+
+  while (queue.length > 0) {
+    if (queue.length !== 1) {
+      return false
+    }
+
+    const node = queue.shift() as number
+
+    if (nums[index] !== node) {
+      return false
+    }
+
+    index += 1
+
+    for (const next of graph.get(node) ?? []) {
+      indegree.set(next, (indegree.get(next) ?? 0) - 1)
+
+      if (indegree.get(next) === 0) {
+        queue.push(next)
+      }
+    }
+  }
+
+  return index === nums.length
+}`,
+      },
+      {
+        id: 'sequence-reconstruction-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只验证是否存在某个拓扑序等于 `nums`，却没有检查唯一性；或者没做去重边，导致入度被重复累加。',
+        bullets: [
+          '易错点 1：忽略拓扑排序唯一性。',
+          '易错点 2：重复边导致入度错误。',
+          '易错点 3：序列中出现了 `nums` 之外的数字却没拦截。',
+          '延伸方向：拓扑排序、唯一序列判定、偏序约束重建题。',
+        ],
+      },
+    ],
+  },
 ];
