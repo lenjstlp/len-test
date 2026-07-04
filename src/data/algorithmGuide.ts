@@ -49133,4 +49133,95 @@ class AllOne {
       },
     ],
   },
+  {
+    id: 'find-all-numbers-disappeared-in-an-array',
+    label: '448. LeetCode 448. 找到所有数组中消失的数字',
+    difficulty: '简单',
+    description:
+      '这题和找重复数同一类，本质都是利用 `1..n` 范围把值映射到下标。只不过这次目标是找哪些位置从未被标记过。',
+    outcome: '你能在原地标记已出现数字，并找出所有未出现的数字。',
+    sections: [
+      {
+        id: 'find-all-numbers-disappeared-in-an-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个长度为 `n` 的数组，其中元素都在 `1..n` 范围内。要求找出在这个范围里没有出现在数组中的所有数字。',
+        bullets: [
+          '值域和下标范围一致。',
+          '有些数会重复，有些数会缺失。',
+          '要求找出所有缺失值。',
+          '本质是原地标记题。',
+        ],
+      },
+      {
+        id: 'find-all-numbers-disappeared-in-an-array-mark',
+        title: '出现过的值，就去对应下标位置做标记',
+        summary:
+          '对每个值 `x`，都把位置 `x - 1` 视为它的专属槽位。遍历数组时，只要某个值出现过，就把这个槽位标成已访问。最终没被标记的位置，对应的数字就是缺失的。',
+        bullets: [
+          '值到下标的映射是关键。',
+          '每个数字都有专属位置。',
+          '问题从“找缺失值”变成“找未标记位置”。',
+          '和很多原地哈希题思路一致。',
+        ],
+      },
+      {
+        id: 'find-all-numbers-disappeared-in-an-array-sign',
+        title: '最简单的标记方式是把对应位置变成负数',
+        summary:
+          '遍历到某个数字时，用其绝对值定位下标 `index = abs(num) - 1`。若 `nums[index]` 还是正数，就把它变成负数表示“这个数字出现过”。第二轮再看哪些位置仍为正数，这些位置对应的数字就是从未出现过的。',
+        bullets: [
+          '负号可作为出现标记。',
+          '绝对值是为了兼容之前已被取反的元素。',
+          '标记和读取分两轮完成。',
+          '实现短而稳。',
+        ],
+        callout:
+          '原地哈希的统一思路就是：利用值域与下标范围匹配，把“额外记录信息”这件事借给数组自身的位置状态来完成。',
+      },
+      {
+        id: 'find-all-numbers-disappeared-in-an-array-solution',
+        title: '标准解法：下标映射 + 负号标记 + 二次收集',
+        summary:
+          '第一轮遍历数组，对每个值 `num`，定位到 `index = Math.abs(num) - 1`，并把 `nums[index]` 改成负数。第二轮遍历数组，凡是仍为正数的位置 `i`，都说明数字 `i + 1` 从未出现，把它加入答案即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '额外空间复杂度是 `O(1)`，不计输出。',
+          '实现重点在绝对值定位和第二轮收集。',
+          '是这题最经典的做法。',
+        ],
+        code: `function findDisappearedNumbers(nums: number[]): number[] {
+  for (const num of nums) {
+    const index = Math.abs(num) - 1
+
+    if (nums[index] > 0) {
+      nums[index] = -nums[index]
+    }
+  }
+
+  const answer: number[] = []
+
+  for (let index = 0; index < nums.length; index += 1) {
+    if (nums[index] > 0) {
+      answer.push(index + 1)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'find-all-numbers-disappeared-in-an-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是取下标时忘了用绝对值，导致前面已标记过的负数把下标算错；或者第二轮收集时错把负数位置当成缺失值。',
+        bullets: [
+          '易错点 1：定位时没取绝对值。',
+          '易错点 2：标记条件没判断正负，重复取反又变回正数。',
+          '易错点 3：缺失值和重复值题型混淆。',
+          '延伸方向：原地哈希、数组标记、值域下标映射题。',
+        ],
+      },
+    ],
+  },
 ];
