@@ -48943,4 +48943,96 @@ class AllOne {
       },
     ],
   },
+  {
+    id: 'arithmetic-slices-ii-subsequence',
+    label: '446. LeetCode 446. 等差数列划分 II - 子序列',
+    difficulty: '困难',
+    description:
+      '这题和连续子数组版完全不同，这里要求的是子序列。关键状态不再是“以当前位置结尾的连续段”，而是“以某个差值结尾的子序列数量”。',
+    outcome:
+      '你能用动态规划和哈希表统计所有长度至少为 3 的等差子序列数量，并理解状态按差值分类的必要性。',
+    sections: [
+      {
+        id: 'arithmetic-slices-ii-subsequence-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组，要求统计其中所有长度至少为 `3` 的等差子序列个数。这里的子序列不要求连续，但必须保持原相对顺序。',
+        bullets: [
+          '不要求连续。',
+          '长度至少为 `3`。',
+          '差值必须相同。',
+          '本质是按差值分类的 DP 计数题。',
+        ],
+      },
+      {
+        id: 'arithmetic-slices-ii-subsequence-state',
+        title: '状态要同时记录“结尾位置”和“公差”',
+        summary:
+          '同样以某个位置结尾，但若公差不同，后续可接出的等差子序列完全不同。因此状态必须定义为 `dp[i][diff]`，表示以 `nums[i]` 结尾、公差为 `diff`、长度至少为 `2` 的子序列数量。',
+        bullets: [
+          '位置相同但差值不同，状态不能混。',
+          '长度为 2 的序列也要记，因为可继续扩展。',
+          '差值维度是本题的核心。',
+          '这是建模关键。',
+        ],
+      },
+      {
+        id: 'arithmetic-slices-ii-subsequence-transition',
+        title: '每对 `(j, i)` 都可能把旧序列延长一位',
+        summary:
+          '固定右端点 `i`，遍历所有 `j < i`，令 `diff = nums[i] - nums[j]`。则 `dp[j][diff]` 中已有的所有长度至少为 `2` 的序列，都能接上 `nums[i]` 变成合法更长序列；另外，`nums[j], nums[i]` 本身也能形成一条新的长度为 `2` 序列。',
+        bullets: [
+          '旧序列扩展会贡献到答案。',
+          '新配对会新增一条长度为 2 的基础状态。',
+          '答案只统计由旧序列扩展出的部分。',
+          '这是转移公式的来源。',
+        ],
+        callout:
+          '很多子序列 DP 题都会把“尚未满足最终条件的中间状态”也记下来。本题里长度为 2 的序列就是这种必须保留的中间态。',
+      },
+      {
+        id: 'arithmetic-slices-ii-subsequence-solution',
+        title: '标准解法：`dp[i][diff]` 统计以 `i` 结尾的数量',
+        summary:
+          '为每个下标维护一个哈希表 `dp[i]`。遍历所有数对 `(j, i)` 时，先取出 `count = dp[j][diff]`，把它加入答案，因为这些序列接上 `nums[i]` 后长度至少为 `3`。然后更新 `dp[i][diff] += count + 1`，其中 `+1` 对应新形成的长度为 `2` 的序列。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度是 `O(n^2)` 量级。',
+          '实现重点在状态定义和答案统计时机。',
+          '是这题最经典的 DP 做法。',
+        ],
+        code: `function numberOfArithmeticSlices(nums: number[]): number {
+  const dp: Array<Map<number, number>> = Array.from(
+    { length: nums.length },
+    () => new Map<number, number>(),
+  )
+  let answer = 0
+
+  for (let i = 0; i < nums.length; i += 1) {
+    for (let j = 0; j < i; j += 1) {
+      const diff = nums[i] - nums[j]
+      const count = dp[j].get(diff) ?? 0
+
+      answer += count
+      dp[i].set(diff, (dp[i].get(diff) ?? 0) + count + 1)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'arithmetic-slices-ii-subsequence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它误做成连续子数组版本，或者只统计长度至少为 3 的状态，忘了长度为 2 的中间状态也必须保存。',
+        bullets: [
+          '易错点 1：状态里没有差值维度。',
+          '易错点 2：长度为 2 的序列没记录。',
+          '易错点 3：答案把新建长度为 2 的序列也算进去了。',
+          '延伸方向：子序列 DP、哈希状态压缩、按属性分类计数。',
+        ],
+      },
+    ],
+  },
 ];
