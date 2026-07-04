@@ -48316,4 +48316,107 @@ class AllOne {
       },
     ],
   },
+  {
+    id: 'k-th-smallest-in-lexicographical-order',
+    label: '440. LeetCode 440. 字典序的第 K 小数字',
+    difficulty: '困难',
+    description:
+      '这题不能真的把 `1..n` 排成字符串再排序。正确思路是把字典序看成一棵十叉前缀树，然后按子树大小决定是往下走还是横向跳过。',
+    outcome:
+      '你能把数字字典序建模为十叉前缀树，并通过计算前缀子树节点数，在 `O(log n)` 级别步数内找到第 `k` 小数字。',
+    sections: [
+      {
+        id: 'k-th-smallest-in-lexicographical-order-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数 `n` 和 `k`，要求在 `1` 到 `n` 的所有整数按字典序排列后，返回第 `k` 个数字。',
+        bullets: [
+          '不是数值大小顺序，而是字典序。',
+          '范围大，不能直接排序所有数字。',
+          '只要第 `k` 个结果。',
+          '本质是前缀树跳跃题。',
+        ],
+      },
+      {
+        id: 'k-th-smallest-in-lexicographical-order-trie',
+        title: '字典序可以看作一棵十叉前缀树',
+        summary:
+          '例如以 `1` 为前缀的所有数字，会形成一整棵子树：`1, 10, 100...`；以 `2` 为前缀的又是另一棵。字典序遍历其实就是对这棵前缀树做先序遍历。',
+        bullets: [
+          '每个前缀对应一棵子树。',
+          '字典序顺序等价于前缀树先序。',
+          '问题从排序变成树上找第 `k` 个节点。',
+          '这是建模的关键。',
+        ],
+      },
+      {
+        id: 'k-th-smallest-in-lexicographical-order-steps',
+        title: '关键在于快速算出某个前缀子树有多少节点',
+        summary:
+          '若知道以当前前缀 `prefix` 开头的数字共有多少个，就能判断第 `k` 个目标是在这棵子树里，还是在它右边的兄弟前缀里。计算方法是不断比较区间 `[first, next)` 与 `n + 1` 的交集长度，逐层向下扩展前缀。',
+        bullets: [
+          '子树大小决定搜索方向。',
+          '若目标超出当前子树，就横向跳到兄弟前缀。',
+          '若目标落在子树内部，就向下进入孩子前缀。',
+          '这是整题最关键的计算。',
+        ],
+        callout:
+          '很多看似“第 k 个”的题，核心都不是逐个走，而是学会按块跳过。这里的“块”就是某个前缀整棵子树的节点数。',
+      },
+      {
+        id: 'k-th-smallest-in-lexicographical-order-solution',
+        title: '标准解法：前缀子树计数 + 按块跳跃',
+        summary:
+          '从前缀 `1` 开始，把 `k` 视为还需要前进多少步。每次计算当前前缀 `current` 到其下一个兄弟前缀 `current + 1` 之间包含多少合法数字 `steps`。若 `steps <= k`，说明目标不在这棵子树里，令 `current += 1` 并让 `k -= steps`；否则说明目标在其子树中，令 `current *= 10`，`k -= 1`，继续向下找。',
+        bullets: [
+          '时间复杂度远优于显式排序。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在子树节点数计算函数。',
+          '是这题最标准的前缀树贪心解法。',
+        ],
+        code: `function findKthNumber(n: number, k: number): number {
+  const countSteps = (first: number, next: number): number => {
+    let steps = 0
+
+    while (first <= n) {
+      steps += Math.min(n + 1, next) - first
+      first *= 10
+      next *= 10
+    }
+
+    return steps
+  }
+
+  let current = 1
+  let remain = k - 1
+
+  while (remain > 0) {
+    const steps = countSteps(current, current + 1)
+
+    if (steps <= remain) {
+      current += 1
+      remain -= steps
+    } else {
+      current *= 10
+      remain -= 1
+    }
+  }
+
+  return current
+}`,
+      },
+      {
+        id: 'k-th-smallest-in-lexicographical-order-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把字典序想成简单排序后取第 `k` 个，完全无法通过大数据；或者子树节点数计算时边界 `n + 1` 处理错误。',
+        bullets: [
+          '易错点 1：没有前缀树视角。',
+          '易错点 2：子树节点数公式边界写错。',
+          '易错点 3：`k` 的初始偏移没有减一。',
+          '延伸方向：字典序遍历、前缀树计数、第 k 个元素跳跃搜索。',
+        ],
+      },
+    ],
+  },
 ];
