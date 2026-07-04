@@ -48128,4 +48128,100 @@ class AllOne {
       },
     ],
   },
+  {
+    id: 'find-all-anagrams-in-a-string',
+    label: '438. LeetCode 438. 找到字符串中所有字母异位词',
+    difficulty: '中等',
+    description:
+      '这题不是每次重新排序子串，而是固定窗口长度，用滑动窗口维护字符频次差异。窗口合法时，就找到了一个异位词起点。',
+    outcome:
+      '你能用定长滑动窗口在线性时间内找出所有与模式串互为字母异位词的子串起始位置。',
+    sections: [
+      {
+        id: 'find-all-anagrams-in-a-string-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s` 和模式串 `p`，要求找出 `s` 中所有与 `p` 互为字母异位词的子串起始下标。',
+        bullets: [
+          '异位词要求字符种类和频次都一致。',
+          '子串长度固定为 `p.length`。',
+          '需要返回所有起点。',
+          '本质是定长窗口匹配题。',
+        ],
+      },
+      {
+        id: 'find-all-anagrams-in-a-string-fixed-window',
+        title: '窗口长度固定，因此重点是维护频次而非重新比较',
+        summary:
+          '因为任何候选子串长度都必须等于 `p.length`，所以完全没必要枚举任意长度区间。只要维持一个固定长度窗口，随着窗口滑动更新字符频次，就能持续判断当前窗口是否与 `p` 频次一致。',
+        bullets: [
+          '窗口长度不变。',
+          '右进一个字符，左出一个字符。',
+          '频次变化可以增量维护。',
+          '这是线性解法的基础。',
+        ],
+      },
+      {
+        id: 'find-all-anagrams-in-a-string-match',
+        title: '判断窗口是否匹配，本质是看频次数组是否平衡',
+        summary:
+          '可以先统计 `p` 的字符需求，再在窗口里逐步消耗这些需求。或者同时维护两个长度为 26 的频次数组。只要窗口频次与模式频次完全一致，当前左端点就是一个答案。',
+        bullets: [
+          '本质是频次匹配。',
+          '字符集固定时数组非常高效。',
+          '每个窗口只做常数更新。',
+          '无需排序或哈希整个子串。',
+        ],
+        callout:
+          '字符串匹配题里，只要模式长度固定且字符集不大，优先想定长滑窗加频次数组，通常就是最优方向。',
+      },
+      {
+        id: 'find-all-anagrams-in-a-string-solution',
+        title: '标准解法：定长滑动窗口 + 26 位频次数组',
+        summary:
+          '先统计 `p` 的频次，再遍历 `s`。每加入一个右端字符，就更新窗口频次；若窗口长度超过 `p.length`，就移除左端字符。每当窗口长度恰好等于 `p.length` 且窗口频次与模式频次一致时，把当前左端点加入答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`，字符集固定。',
+          '实现重点在窗口长度控制与频次比较。',
+          '是这题最经典的写法。',
+        ],
+        code: `function findAnagrams(s: string, p: string): number[] {
+  const need = Array(26).fill(0)
+  const window = Array(26).fill(0)
+  const answer: number[] = []
+
+  for (const char of p) {
+    need[char.charCodeAt(0) - 97] += 1
+  }
+
+  for (let right = 0; right < s.length; right += 1) {
+    window[s.charCodeAt(right) - 97] += 1
+
+    if (right >= p.length) {
+      window[s.charCodeAt(right - p.length) - 97] -= 1
+    }
+
+    if (right + 1 >= p.length && window.every((count, index) => count === need[index])) {
+      answer.push(right - p.length + 1)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'find-all-anagrams-in-a-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把每个窗口重新排序比较，复杂度过高；或者窗口滑动时只加右边字符，却忘了减去左边离开的字符。',
+        bullets: [
+          '易错点 1：没有使用固定窗口。',
+          '易错点 2：窗口左侧字符移出时没更新频次。',
+          '易错点 3：窗口长度不足时就开始判定。',
+          '延伸方向：滑动窗口、异位词匹配、字符频次模板题。',
+        ],
+      },
+    ],
+  },
 ];
