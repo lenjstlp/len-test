@@ -48224,4 +48224,96 @@ class AllOne {
       },
     ],
   },
+  {
+    id: 'ternary-expression-parser',
+    label: '439. LeetCode 439. 三元表达式解析器',
+    difficulty: '中等',
+    description:
+      '这题的关键不在运算优先级，而在结合方向。三元表达式是从右往左结合的，因此从右向左扫描并用栈收缩最自然。',
+    outcome:
+      '你能根据三元表达式的右结合特性，用栈正确解析嵌套表达式并返回最终结果字符。',
+    sections: [
+      {
+        id: 'ternary-expression-parser-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个形如 `T?2:3`、`F?1:T?4:5` 的三元表达式字符串，要求返回最终计算结果。',
+        bullets: [
+          '条件只有 `T` 和 `F`。',
+          '结果与分支都可能继续嵌套三元表达式。',
+          '返回最终字符结果。',
+          '本质是嵌套表达式解析题。',
+        ],
+      },
+      {
+        id: 'ternary-expression-parser-right-associative',
+        title: '三元表达式是右结合的',
+        summary:
+          '表达式 `T?1:F?2:3` 的含义不是先算左边，而是等价于 `T ? 1 : (F ? 2 : 3)`。因此解析时必须优先处理更右边、更内层的三元结构。',
+        bullets: [
+          '右边子表达式优先归约。',
+          '从左往右直接扫很容易处理混乱。',
+          '右结合是建模核心。',
+          '决定了扫描方向的选择。',
+        ],
+      },
+      {
+        id: 'ternary-expression-parser-stack',
+        title: '从右往左扫，遇到条件就立刻收缩一个完整三元块',
+        summary:
+          '从右向左遍历时，栈顶总能先保存好当前条件后面的真分支和假分支。当遇到 `T` 或 `F` 且后面紧邻一个 `?` 标记结构时，就能从栈里弹出两个候选值，根据条件选择其中一个再压回去。',
+        bullets: [
+          '栈负责暂存已解析的右侧结果。',
+          '条件出现时可立即完成一次归约。',
+          '每次归约都会减少一个三元层级。',
+          '直到栈里只剩最终答案。',
+        ],
+        callout:
+          '表达式解析题里，扫描方向往往由结合性决定。右结合结构从右往左处理，通常会比硬写递归下降更短更稳。',
+      },
+      {
+        id: 'ternary-expression-parser-solution',
+        title: '标准解法：从右向左扫描 + 栈归约',
+        summary:
+          '从表达式末尾向前遍历，把普通字符先压栈。若发现当前位置后面是 `?`，说明当前位置是一个条件字符。此时弹出真分支、丢弃中间的 `:`、再弹出假分支，根据条件选择一个结果压回栈中。最终栈顶即为答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在右结合与归约顺序。',
+          '是这题常见的栈解法。',
+        ],
+        code: `function parseTernary(expression: string): string {
+  const stack: string[] = []
+
+  for (let index = expression.length - 1; index >= 0; index -= 1) {
+    const char = expression[index]
+
+    if (stack.length > 0 && stack[stack.length - 1] === '?') {
+      stack.pop()
+      const trueValue = stack.pop() as string
+      stack.pop()
+      const falseValue = stack.pop() as string
+      stack.push(char === 'T' ? trueValue : falseValue)
+    } else {
+      stack.push(char)
+    }
+  }
+
+  return stack[stack.length - 1]
+}`,
+      },
+      {
+        id: 'ternary-expression-parser-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是按左结合处理，导致嵌套三元表达式顺序错误；或者弹栈时把真分支和假分支顺序写反。',
+        bullets: [
+          '易错点 1：忽略右结合特性。',
+          '易错点 2：归约时分支顺序弄反。',
+          '易错点 3：把 `?` 和 `:` 当普通结果字符留下。',
+          '延伸方向：表达式解析、栈归约、结合性判断。',
+        ],
+      },
+    ],
+  },
 ];
