@@ -48838,4 +48838,109 @@ class AllOne {
       },
     ],
   },
+  {
+    id: 'add-two-numbers-ii',
+    label: '445. LeetCode 445. 两数相加 II',
+    difficulty: '中等',
+    description:
+      '这题和基础版链表加法的差别在于数字高位在前，不能直接从头同步相加。最自然的做法是先把链表值压栈，再从低位往高位模拟加法。',
+    outcome: '你能利用栈把正序链表加法转成逆序逐位处理，并构造出结果链表。',
+    sections: [
+      {
+        id: 'add-two-numbers-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个非空链表，链表中的每个节点存一位数字，且最高位在前。要求返回它们相加后的结果链表，结果也必须保持最高位在前。',
+        bullets: [
+          '链表按高位到低位存储。',
+          '不能直接原样从头相加。',
+          '结果仍要正序输出。',
+          '本质是链表版高精度加法题。',
+        ],
+      },
+      {
+        id: 'add-two-numbers-ii-stack',
+        title: '先把正序问题变成逆序处理',
+        summary:
+          '由于加法必须从最低位开始，而链表给的是最高位在前，所以可以先把两个链表的节点值分别压入栈中。这样出栈时就能按从低位到高位的顺序处理，完全符合手算加法逻辑。',
+        bullets: [
+          '栈天然支持后进先出。',
+          '出栈顺序刚好对应从低位开始相加。',
+          '不需要反转原链表。',
+          '这是最直接的顺序转换方式。',
+        ],
+      },
+      {
+        id: 'add-two-numbers-ii-head-insert',
+        title: '结果链表可以用头插法逆向构建',
+        summary:
+          '每次算出当前位后，由于它实际上比之前算出的位更高，所以可以直接把新节点插到结果链表头部。这样无需额外反转结果链表，最终得到的就是正序答案。',
+        bullets: [
+          '当前新位总是在结果更前面。',
+          '头插法非常适合这种场景。',
+          '避免了结果链表二次反转。',
+          '和栈处理顺序形成完美配合。',
+        ],
+        callout:
+          '遇到“输入正序但计算需要逆序”的题，常见手段要么是反转，要么是栈。若又要求输出仍保持正序，头插法往往能顺手解决结果构造问题。',
+      },
+      {
+        id: 'add-two-numbers-ii-solution',
+        title: '标准解法：双栈逐位相加 + 头插构造答案',
+        summary:
+          '先遍历两个链表，把所有节点值分别压入两个栈。然后在两个栈非空或仍有进位时循环：弹出栈顶相加，再加上进位，得到当前位和新进位。把当前位新建节点并头插到结果链表前面。循环结束后返回结果头节点。',
+        bullets: [
+          '时间复杂度是 `O(m + n)`。',
+          '空间复杂度是 `O(m + n)`。',
+          '实现重点在进位和头插法。',
+          '是这题最主流的解法。',
+        ],
+        code: `function addTwoNumbers(
+  l1: ListNode | null,
+  l2: ListNode | null,
+): ListNode | null {
+  const stack1: number[] = []
+  const stack2: number[] = []
+
+  while (l1 !== null) {
+    stack1.push(l1.val)
+    l1 = l1.next
+  }
+
+  while (l2 !== null) {
+    stack2.push(l2.val)
+    l2 = l2.next
+  }
+
+  let carry = 0
+  let head: ListNode | null = null
+
+  while (stack1.length > 0 || stack2.length > 0 || carry > 0) {
+    const value1 = stack1.length > 0 ? stack1.pop() as number : 0
+    const value2 = stack2.length > 0 ? stack2.pop() as number : 0
+    const sum = value1 + value2 + carry
+    const node = new ListNode(sum % 10)
+
+    node.next = head
+    head = node
+    carry = Math.floor(sum / 10)
+  }
+
+  return head
+}`,
+      },
+      {
+        id: 'add-two-numbers-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接按链表正序逐位相加，导致低位进位无法回传；或者用栈算完后忘了结果仍需保持正序。',
+        bullets: [
+          '易错点 1：忽略正序输入的影响。',
+          '易错点 2：最后一个进位遗漏。',
+          '易错点 3：结果构造顺序写反。',
+          '延伸方向：链表高精度运算、栈模拟、头插法构链。',
+        ],
+      },
+    ],
+  },
 ];
