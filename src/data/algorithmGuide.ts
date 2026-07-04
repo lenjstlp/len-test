@@ -49628,4 +49628,87 @@ function deserialize(data: string): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'minimum-moves-to-equal-array-elements',
+    label: '453. LeetCode 453. 最小操作次数使数组元素相等',
+    difficulty: '中等',
+    description:
+      '这题表面是每次给 `n - 1` 个元素加一，真正的等价视角却是“每次把一个元素减一”。一旦换了视角，答案就非常直接。',
+    outcome:
+      '你能把操作等价转换为把所有元素降到最小值，并据此在线性时间求出最少操作次数。',
+    sections: [
+      {
+        id: 'minimum-moves-to-equal-array-elements-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组，每次操作可以让其中 `n - 1` 个元素都加一。要求返回最少需要多少次操作，才能使所有数组元素都相等。',
+        bullets: [
+          '每次不是加一个，而是加 `n - 1` 个。',
+          '目标是所有元素相等。',
+          '要求最少操作次数。',
+          '本质是等价变换题。',
+        ],
+      },
+      {
+        id: 'minimum-moves-to-equal-array-elements-equivalent',
+        title: '给 `n - 1` 个元素加一，等价于给剩下那个元素减一',
+        summary:
+          '假设一次操作没有被加一的是某个元素 `x`。如果把全体元素都看作同时加一，再把这个元素额外减回去，效果就等价于“仅让这个元素减一”。因此整道题可以转化为：每次让一个元素减一，直到所有元素都等于最小值。',
+        bullets: [
+          '这是整题最关键的视角转换。',
+          '目标值自然是最小元素。',
+          '所有多余的量都要被减到最小值上。',
+          '答案因此变成总差值之和。',
+        ],
+      },
+      {
+        id: 'minimum-moves-to-equal-array-elements-sum',
+        title: '最少操作数就是所有元素到最小值的距离总和',
+        summary:
+          '若数组最小值为 `minValue`，那么每个元素最终都要降到这个值。元素 `num` 需要减少的次数就是 `num - minValue`。把所有元素的这个差值累加起来，就是总最少操作次数。',
+        bullets: [
+          '每个元素独立贡献自己的差值。',
+          '最小值本身贡献为 0。',
+          '求和即可得到最终答案。',
+          '无需模拟操作过程。',
+        ],
+        callout:
+          '很多操作题的难点并不在模拟，而在找到一个更容易计数的等价过程。视角一变，复杂过程可能直接化成一个公式。',
+      },
+      {
+        id: 'minimum-moves-to-equal-array-elements-solution',
+        title: '标准解法：找最小值并累加差值',
+        summary:
+          '先遍历数组找出最小值 `minValue`。然后再遍历一次，把每个元素与 `minValue` 的差累加起来。这个总和就是最少操作次数。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在理解等价转换。',
+          '是这题最简洁也最本质的解法。',
+        ],
+        code: `function minMoves(nums: number[]): number {
+  const minValue = Math.min(...nums)
+  let moves = 0
+
+  for (const num of nums) {
+    moves += num - minValue
+  }
+
+  return moves
+}`,
+      },
+      {
+        id: 'minimum-moves-to-equal-array-elements-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是真的去模拟每次给 `n - 1` 个数加一，既慢又不必要；或者误以为最后应该凑到平均值，这和操作模型不匹配。',
+        bullets: [
+          '易错点 1：没做等价变换直接模拟。',
+          '易错点 2：把目标值误认为平均值。',
+          '易错点 3：没意识到答案是对最小值求差。',
+          '延伸方向：等价转换、数学计数、操作压缩题。',
+        ],
+      },
+    ],
+  },
 ];
