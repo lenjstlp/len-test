@@ -49035,4 +49035,102 @@ class AllOne {
       },
     ],
   },
+  {
+    id: 'number-of-boomerangs',
+    label: '447. LeetCode 447. 回旋镖的数量',
+    difficulty: '中等',
+    description:
+      '这题不是看三点构成什么图形，而是抓住回旋镖定义里的“到同一中心点距离相等且有顺序”。核心是固定中心点后做距离计数。',
+    outcome:
+      '你能通过固定中间点并统计相同距离点的个数，计算所有有序回旋镖三元组的数量。',
+    sections: [
+      {
+        id: 'number-of-boomerangs-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干平面点，回旋镖定义为有序三元组 `(i, j, k)`，满足点 `i` 到 `j` 的距离等于点 `i` 到 `k` 的距离，且 `j != k`。要求统计所有回旋镖数量。',
+        bullets: [
+          '三元组是有序的。',
+          '固定的是中心点 `i`。',
+          '只比较距离相等，不要求共线或角度。',
+          '本质是分组计数题。',
+        ],
+      },
+      {
+        id: 'number-of-boomerangs-center',
+        title: '固定中心点后，问题就变成同距离分组',
+        summary:
+          '若把某个点 `i` 固定为中心，那么只需要统计其它点到它的距离。对于每一种距离，假设有 `count` 个点落在这个距离上，那么从中选有序对 `(j, k)` 的数量就是 `count * (count - 1)`。',
+        bullets: [
+          '中心点固定后，结构立刻清晰。',
+          '相同距离的点形成一个组。',
+          '有序对数量不是组合数而是排列数。',
+          '这是答案公式来源。',
+        ],
+      },
+      {
+        id: 'number-of-boomerangs-distance',
+        title: '比较距离时直接用平方距离即可',
+        summary:
+          '不需要真的开平方算欧氏距离，只要比较两个距离是否相等，用平方距离 `dx * dx + dy * dy` 就足够，而且还能避免浮点误差。',
+        bullets: [
+          '平方距离保留相等关系。',
+          '避免浮点运算。',
+          '实现更简单高效。',
+          '是几何计数题常见技巧。',
+        ],
+        callout:
+          '只要题目关心的是“距离是否相等”而不是具体距离值，就优先考虑平方距离，这是几何题里非常实用的基本功。',
+      },
+      {
+        id: 'number-of-boomerangs-solution',
+        title: '标准解法：枚举中心点 + 哈希统计距离频次',
+        summary:
+          '对每个点 `i`，用哈希表统计其它所有点到 `i` 的平方距离出现次数。随后遍历这些频次，若某个距离有 `count` 个点，就向答案累加 `count * (count - 1)`。对所有中心点做完后即得总答案。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在有序对数量公式。',
+          '是这题最标准的做法。',
+        ],
+        code: `function numberOfBoomerangs(points: number[][]): number {
+  let answer = 0
+
+  for (let i = 0; i < points.length; i += 1) {
+    const counter = new Map<number, number>()
+
+    for (let j = 0; j < points.length; j += 1) {
+      if (i === j) {
+        continue
+      }
+
+      const dx = points[i][0] - points[j][0]
+      const dy = points[i][1] - points[j][1]
+      const distance = dx * dx + dy * dy
+
+      counter.set(distance, (counter.get(distance) ?? 0) + 1)
+    }
+
+    for (const count of counter.values()) {
+      answer += count * (count - 1)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'number-of-boomerangs-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把回旋镖当无序三元组，误写成组合数；或者比较距离时真的去开平方，增加不必要复杂度。',
+        bullets: [
+          '易错点 1：忽略三元组有序性。',
+          '易错点 2：距离分组统计对象理解错误。',
+          '易错点 3：没有以每个点为中心单独重置哈希表。',
+          '延伸方向：几何计数、平方距离、哈希分组题。',
+        ],
+      },
+    ],
+  },
 ];
