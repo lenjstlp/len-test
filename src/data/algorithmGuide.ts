@@ -48597,4 +48597,103 @@ class AllOne {
       },
     ],
   },
+  {
+    id: 'string-compression',
+    label: '443. LeetCode 443. 压缩字符串',
+    difficulty: '中等',
+    description:
+      '这题不是返回一个新字符串，而是要原地覆盖数组前缀。关键是双指针：一个指针扫描原数组分组，另一个指针负责把压缩结果写回去。',
+    outcome: '你能按字符分组原地压缩字符数组，并返回压缩后的新长度。',
+    sections: [
+      {
+        id: 'string-compression-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符数组，需要原地压缩。连续重复字符保留一个字符，再跟上重复次数的十进制字符表示；若只出现一次，则只保留该字符。最后返回压缩后数组的新长度。',
+        bullets: [
+          '必须原地写回。',
+          '重复次数大于 1 才写数量。',
+          '数量可能是多位数。',
+          '本质是分组写回题。',
+        ],
+      },
+      {
+        id: 'string-compression-group',
+        title: '先找出每一段连续相同字符',
+        summary:
+          '压缩单位不是单个字符，而是一整段相同字符组成的组。只要知道某个字符连续出现了多少次，就能决定写入内容：先写字符本身，再在需要时写次数。',
+        bullets: [
+          '连续段是最自然的处理单元。',
+          '每一组只写一次字符。',
+          '次数由组长度决定。',
+          '这是整体逻辑的基础。',
+        ],
+      },
+      {
+        id: 'string-compression-read-write',
+        title: '读指针负责扫描，写指针负责覆盖结果',
+        summary:
+          '用 `read` 扫描数组找到每组边界，用 `write` 指向当前要写入压缩结果的位置。每处理完一组，就把该组的压缩形式写到前面。这样即使原数组后半段还有旧内容，也不会影响结果，因为只返回前 `write` 个位置。',
+        bullets: [
+          '读写分离能避免覆盖混乱。',
+          '写入位置始终单调向前。',
+          '旧数据不用额外清空。',
+          '这是原地覆盖题的标准模式。',
+        ],
+        callout:
+          '原地修改题里，最稳定的套路往往是双指针角色分离：一个看原始数据，一个写最终答案。不要让一个指针同时承担两种语义。',
+      },
+      {
+        id: 'string-compression-solution',
+        title: '标准解法：按组扫描并把压缩结果写回前缀',
+        summary:
+          '从左到右扫描字符数组，找到每组相同字符的结束位置。把该字符写入 `write` 位置；若组长度大于 1，则把长度转成字符串，逐位写入后续位置。处理完所有分组后，`write` 就是压缩后的长度。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '额外空间复杂度是 `O(1)`。',
+          '实现重点在分组边界和多位数字写入。',
+          '是这题最标准的写法。',
+        ],
+        code: `function compress(chars: string[]): number {
+  let write = 0
+  let read = 0
+
+  while (read < chars.length) {
+    const current = chars[read]
+    let start = read
+
+    while (read < chars.length && chars[read] === current) {
+      read += 1
+    }
+
+    chars[write] = current
+    write += 1
+
+    const count = read - start
+
+    if (count > 1) {
+      for (const digit of String(count)) {
+        chars[write] = digit
+        write += 1
+      }
+    }
+  }
+
+  return write
+}`,
+      },
+      {
+        id: 'string-compression-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只处理单个重复次数字符，忘了像 `12` 这样的多位数要拆开写；或者写回时用了新的数组，违背了原地要求。',
+        bullets: [
+          '易错点 1：次数多位数写入不完整。',
+          '易错点 2：组长度为 1 时错误写了 `1`。',
+          '易错点 3：原地覆盖和返回长度关系没理清。',
+          '延伸方向：双指针、分组统计、原地数组改写题。',
+        ],
+      },
+    ],
+  },
 ];
