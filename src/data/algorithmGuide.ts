@@ -50110,4 +50110,92 @@ function deserialize(data: string): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'poor-pigs',
+    label: '458. LeetCode 458. 可怜的小猪',
+    difficulty: '困难',
+    description:
+      '这题表面像脑筋急转弯，实质是状态编码问题。每只猪在多轮测试后能提供的不只是“死或活”，而是多个可区分状态。',
+    outcome:
+      '你能从“每只猪能表示多少种状态”出发，推导出最少需要多少只猪才能锁定唯一毒桶。',
+    sections: [
+      {
+        id: 'poor-pigs-summary',
+        title: '题目在问什么',
+        summary:
+          '有 `buckets` 桶液体，只有一桶有毒。每只猪喝下毒液后会在 `minutesToDie` 分钟后死亡，总测试时长是 `minutesToTest` 分钟。你可以安排多轮喂食，要求求出最少需要多少只猪，才能确定哪一桶有毒。',
+        bullets: [
+          '毒桶只有一桶。',
+          '猪死亡有固定延迟，不是立即死亡。',
+          '总测试时间允许多轮实验。',
+          '目标是最小化猪的数量。',
+        ],
+      },
+      {
+        id: 'poor-pigs-states',
+        title: '每只猪能表达的不只是生死两种结果',
+        summary:
+          '若总共能做 `rounds = minutesToTest / minutesToDie` 轮实验，那么一只猪最终有 `rounds + 1` 种状态：第 1 轮死、第 2 轮死、一直到第 `rounds` 轮死，或者最后还活着。也就是说，一只猪其实能提供 `rounds + 1` 进制的一位信息。',
+        bullets: [
+          '多轮实验让状态数显著增加。',
+          '活着本身也是一种有效状态。',
+          '状态数决定可区分的桶数上限。',
+          '这题本质是信息编码能力计算。',
+        ],
+      },
+      {
+        id: 'poor-pigs-encoding',
+        title: '多只猪组合后形成状态空间乘法',
+        summary:
+          '如果一只猪有 `rounds + 1` 种状态，那么 `pigs` 只猪组合起来，就有 `(rounds + 1) ^ pigs` 种可区分结果。只要这个总状态数不少于桶数 `buckets`，就说明可以给每个桶分配一个唯一编码，从而在实验结束后根据每只猪的状态反推出毒桶是哪一个。',
+        bullets: [
+          '状态空间是乘法，不是加法。',
+          '需要找到最小的 `pigs` 满足容量覆盖桶数。',
+          '这是标准的指数增长判断问题。',
+          '理解编码比背公式更重要。',
+        ],
+        callout:
+          '把它看成“用最少位数表示足够多的编号”就很自然了，只不过这里每一位不是二进制，而是 `rounds + 1` 进制。',
+      },
+      {
+        id: 'poor-pigs-solution',
+        title: '标准解法：状态数覆盖桶数',
+        summary:
+          '先算出总轮数 `rounds = Math.floor(minutesToTest / minutesToDie)`，每只猪可提供 `rounds + 1` 种结果。随后不断增加猪的数量 `pigs`，直到 `(rounds + 1) ** pigs >= buckets` 为止，此时的 `pigs` 就是最小答案。',
+        bullets: [
+          '时间复杂度是 `O(answer)`。',
+          '空间复杂度是 `O(1)`。',
+          '题目关键在建模，不在代码难度。',
+          '是很典型的状态编码与组合计数题。',
+        ],
+        code: `function poorPigs(
+  buckets: number,
+  minutesToDie: number,
+  minutesToTest: number,
+): number {
+  const rounds = Math.floor(minutesToTest / minutesToDie)
+  const states = rounds + 1
+  let pigs = 0
+
+  while (states ** pigs < buckets) {
+    pigs += 1
+  }
+
+  return pigs
+}`,
+      },
+      {
+        id: 'poor-pigs-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把每只猪只当成“死/活”两种状态，忽略了不同轮次死亡本身也能提供信息，导致建模完全低估能力。',
+        bullets: [
+          '易错点 1：没算清总轮数。',
+          '易错点 2：把状态数误写成 `rounds` 而不是 `rounds + 1`。',
+          '易错点 3：把多只猪的状态空间误以为是相加。',
+          '延伸方向：信息编码、进制表示、组合状态设计。',
+        ],
+      },
+    ],
+  },
 ];
