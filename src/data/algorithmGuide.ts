@@ -49898,4 +49898,95 @@ function deserialize(data: string): TreeNode | null {
       },
     ],
   },
+  {
+    id: '132-pattern',
+    label: '456. LeetCode 456. 132 模式',
+    difficulty: '中等',
+    description:
+      '这题要找的是是否存在 `i < j < k`，且 `nums[i] < nums[k] < nums[j]`。核心难点不在枚举，而在如何高效维护一个可能成为中间值的 `nums[k]`。',
+    outcome:
+      '你能通过倒序遍历和单调栈，在线性时间内判断数组里是否存在 132 模式。',
+    sections: [
+      {
+        id: '132-pattern-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组 `nums`，判断是否存在三个下标 `i < j < k`，满足 `nums[i] < nums[k] < nums[j]`。存在就返回 `true`，否则返回 `false`。',
+        bullets: [
+          '三个位置必须满足先后顺序 `i < j < k`。',
+          '数值关系是 `132`，不是单纯升序或降序。',
+          '暴力三重循环会超时。',
+          '目标是把判断降到线性或接近线性的复杂度。',
+        ],
+      },
+      {
+        id: '132-pattern-observation',
+        title: '从右往左更容易维护候选关系',
+        summary:
+          '若正向看，我们很难同时维护一个大的 `nums[j]` 和夹在中间的 `nums[k]`。但若从右往左遍历，可以把右边一段元素压进单调栈里，栈中保存潜在的 `nums[j]`；同时用变量 `third` 记录目前找到的、尽量大的 `nums[k]`。一旦左边某个数小于 `third`，就说明已经找到了 `nums[i]`。',
+        bullets: [
+          '倒序时，右侧信息已经完整可用。',
+          '栈中元素可视作候选的 `3`。',
+          '被弹出的元素可更新成候选的 `2`。',
+          '左边元素只要小于候选 `2`，模式立刻成立。',
+        ],
+      },
+      {
+        id: '132-pattern-stack',
+        title: '单调栈如何配合 third 工作',
+        summary:
+          '维护一个单调递减栈。遍历到 `nums[i]` 时，若它小于 `third`，直接返回 `true`；否则不断弹出栈中比它小的元素，并把最后弹出的值赋给 `third`，因为这些被弹出的数都位于当前数右边，且比当前数小，正好可作为 `nums[k]`。然后把当前数压栈，继续向左扫描。',
+        bullets: [
+          '栈保持递减，方便找到更大的 `nums[j]`。',
+          '`third` 表示当前最合适的中间值候选。',
+          '每个元素最多入栈出栈一次。',
+          '整体复杂度可以压到 `O(n)`。',
+        ],
+        callout:
+          '这题的关键不是背答案，而是理解“被更大值弹出的元素，恰好能成为 132 里的中间值”这个结构关系。',
+      },
+      {
+        id: '132-pattern-solution',
+        title: '标准解法：倒序遍历 + 单调递减栈',
+        summary:
+          '从右向左扫描数组，用 `stack` 维护递减候选，用 `third` 记录可作为 `nums[k]` 的最大候选值。若当前值小于 `third`，说明存在 `nums[i] < nums[k] < nums[j]`。否则不断弹出更小元素更新 `third`，再把当前值入栈。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '适合用来训练倒序思维和单调栈变形。',
+          '实现时重点在更新 `third` 的时机。',
+        ],
+        code: `function find132pattern(nums: number[]): boolean {
+  const stack: number[] = []
+  let third = -Infinity
+
+  for (let i = nums.length - 1; i >= 0; i -= 1) {
+    if (nums[i] < third) {
+      return true
+    }
+
+    while (stack.length > 0 && nums[i] > stack[stack.length - 1]) {
+      third = stack.pop() as number
+    }
+
+    stack.push(nums[i])
+  }
+
+  return false
+}`,
+      },
+      {
+        id: '132-pattern-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没搞清楚 `third` 的语义，或者栈的单调方向写反，导致模式关系完全失效。',
+        bullets: [
+          '易错点 1：把栈写成递增栈。',
+          '易错点 2：`third` 没有在弹栈时更新。',
+          '易错点 3：误以为需要显式记录三个下标。',
+          '延伸方向：单调栈、模式匹配、区间关系判断。',
+        ],
+      },
+    ],
+  },
 ];
