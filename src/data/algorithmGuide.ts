@@ -49989,4 +49989,125 @@ function deserialize(data: string): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'circular-array-loop',
+    label: '457. LeetCode 457. 环形数组是否存在循环',
+    difficulty: '中等',
+    description:
+      '这题本质是在一个隐式有向图里找环，但它额外要求环的方向一致，而且长度必须大于 1。核心是把快慢指针和方向约束合在一起。',
+    outcome:
+      '你能利用快慢指针判断环形数组里是否存在合法循环，并理解为什么不合法路径要及时剪枝。',
+    sections: [
+      {
+        id: 'circular-array-loop-summary',
+        title: '题目在问什么',
+        summary:
+          '数组中的每个元素表示从当前位置下一步要移动多少格，正数向前，负数向后，数组首尾相连。要求判断是否存在一个长度大于 1 的循环，并且循环内所有移动方向一致。',
+        bullets: [
+          '数组是环形的，越界后要取模回绕。',
+          '循环长度必须大于 1，自己指向自己不算。',
+          '同一个循环里不能一会儿正向一会儿反向。',
+          '目标是判断是否存在合法环。',
+        ],
+      },
+      {
+        id: 'circular-array-loop-rules',
+        title: '合法循环有两个额外限制',
+        summary:
+          '普通找环题只要成环即可，但这里还有两个限制：第一，不能出现正负方向混杂；第二，单点自环无效。也就是说，某个起点即便能回到自己，只要中途方向变了，或者一步就回到自己，也不能算答案。',
+        bullets: [
+          '方向一致性是这题最容易漏掉的条件。',
+          '单个元素自环必须排除。',
+          '因此不能直接套最基础的 Floyd 判环模板。',
+          '每次前进前都要校验方向是否合法。',
+        ],
+      },
+      {
+        id: 'circular-array-loop-fast-slow',
+        title: '快慢指针判环，非法路径直接停下',
+        summary:
+          '从每个位置出发，用快慢指针同时前进。定义一个辅助函数 `nextIndex`，若下一步方向与起点方向不一致，或者形成单点自环，就返回 `-1` 表示该路径非法。只要某轮中快慢指针相遇，说明存在合法循环；若任一指针走到 `-1`，则该起点失败。',
+        bullets: [
+          '快慢指针适合在线性空间内找环。',
+          '辅助函数统一处理取模、方向、单点自环。',
+          '非法路径及时返回，避免无效遍历。',
+          '剪枝后整体效率更稳定。',
+        ],
+        callout:
+          '这题最像工程里的状态机校验问题：不仅要看是否回来了，还要看过程是否一直符合规则。',
+      },
+      {
+        id: 'circular-array-loop-solution',
+        title: '标准解法：方向校验 + Floyd 判环',
+        summary:
+          '枚举每个起点，记录起点方向。定义 `nextIndex`：先判断下一跳是否同向，再计算取模位置，若下一位置仍是自己，说明形成单点自环，返回 `-1`。随后用慢指针走一步、快指针走两步，只要都合法就继续；若二者相遇，说明存在合法循环。',
+        bullets: [
+          '时间复杂度最坏为 `O(n^2)`。',
+          '空间复杂度是 `O(1)`。',
+          '若再配合访问标记还能进一步剪枝。',
+          '这题重点是正确处理“非法下一步”。',
+        ],
+        code: `function circularArrayLoop(nums: number[]): boolean {
+  const n = nums.length
+
+  const nextIndex = (index: number, forward: boolean): number => {
+    const direction = nums[index] > 0
+
+    if (direction !== forward) {
+      return -1
+    }
+
+    const next = ((index + nums[index]) % n + n) % n
+
+    if (next === index) {
+      return -1
+    }
+
+    return next
+  }
+
+  for (let i = 0; i < n; i += 1) {
+    const forward = nums[i] > 0
+    let slow = i
+    let fast = i
+
+    while (true) {
+      slow = nextIndex(slow, forward)
+      if (slow === -1) {
+        break
+      }
+
+      fast = nextIndex(fast, forward)
+      if (fast === -1) {
+        break
+      }
+
+      fast = nextIndex(fast, forward)
+      if (fast === -1) {
+        break
+      }
+
+      if (slow === fast) {
+        return true
+      }
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'circular-array-loop-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只判断成环，不检查方向一致和单点自环，结果把很多非法情况误判成 `true`。',
+        bullets: [
+          '易错点 1：取模时没有处理负数下标。',
+          '易错点 2：忘记排除 `next === index`。',
+          '易错点 3：快慢指针移动前没做方向校验。',
+          '延伸方向：快慢指针、图环检测、状态约束判断。',
+        ],
+      },
+    ],
+  },
 ];
