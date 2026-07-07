@@ -51072,4 +51072,97 @@ class LFUCache {
       },
     ],
   },
+  {
+    id: 'unique-substrings-in-wraparound-string',
+    label: '467. LeetCode 467. 环绕字符串中唯一的子字符串',
+    difficulty: '中等',
+    description:
+      '这题看似在数所有子串，实际上真正要维护的是：以每个字母结尾的、满足环绕连续关系的最长长度。因为更短的都被它自动覆盖了。',
+    outcome:
+      '你能把暴力枚举子串的问题，转成按结尾字符统计最长合法长度的动态更新问题。',
+    sections: [
+      {
+        id: 'unique-substrings-in-wraparound-string-summary',
+        title: '题目在问什么',
+        summary:
+          '无限环绕字符串是 `...zabcdefghijklmnopqrstuvwxyzabc...`。给定字符串 `p`，要求统计 `p` 中有多少个不同的非空子串，能够出现在这个无限环绕字符串里。',
+        bullets: [
+          '子串必须满足环绕连续关系。',
+          '不同子串只统计一次。',
+          '直接枚举所有子串会很慢。',
+          '目标是只算“唯一且合法”的数量。',
+        ],
+      },
+      {
+        id: 'unique-substrings-in-wraparound-string-observation',
+        title: '相同结尾字符只保留最长那条链',
+        summary:
+          '如果某个字母结尾的最长合法长度是 `L`，那么以它结尾、长度为 `1..L` 的所有子串都会自动被覆盖。例如最长是 `abcd`，那以 `d` 结尾的 `d`、`cd`、`bcd`、`abcd` 都已经算进去了。因此不必显式去重，只需记录每个结尾字符的最大长度。',
+        bullets: [
+          '同一结尾字符下，最长链天然覆盖更短链。',
+          '去重问题被压缩成 26 个状态。',
+          '关键是维护当前连续合法段长度。',
+          '这题是状态压缩计数的经典技巧。',
+        ],
+      },
+      {
+        id: 'unique-substrings-in-wraparound-string-transition',
+        title: '连续关系成立时长度递增，否则重置为 1',
+        summary:
+          '遍历 `p` 时，如果当前字符和前一个字符在环绕串中连续，比如 `a->b` 或 `z->a`，则当前合法长度 `length` 加一；否则只能从当前字符重新开始，长度重置为 1。随后用这个长度更新对应结尾字符的最大值。',
+        bullets: [
+          '连续判断要包含 `z -> a` 特例。',
+          '每个位置只做常数更新。',
+          '状态转移完全在线性时间内完成。',
+          '最后把 26 个最大值求和就是答案。',
+        ],
+        callout:
+          '这题非常适合理解“最长覆盖更短”的计数思想。很多看似要去重的子串题，最后都能压缩成“按结尾统计最大长度”。',
+      },
+      {
+        id: 'unique-substrings-in-wraparound-string-solution',
+        title: '标准解法：记录每个结尾字符的最长合法长度',
+        summary:
+          '维护数组 `best[26]`，表示以每个字母结尾的最长合法子串长度。遍历 `p`，若当前字符和前一个字符连续，则 `length += 1`，否则 `length = 1`。然后更新 `best[current] = Math.max(best[current], length)`。最终把 `best` 求和即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现简洁，但思路很巧。',
+          '是字符串 DP 与计数结合的好题。',
+        ],
+        code: `function findSubstringInWraproundString(p: string): number {
+  const best = new Array<number>(26).fill(0)
+  let length = 0
+
+  for (let i = 0; i < p.length; i += 1) {
+    if (
+      i > 0 &&
+      ((p.charCodeAt(i) - p.charCodeAt(i - 1) + 26) % 26 === 1)
+    ) {
+      length += 1
+    } else {
+      length = 1
+    }
+
+    const index = p.charCodeAt(i) - 97
+    best[index] = Math.max(best[index], length)
+  }
+
+  return best.reduce((sum, value) => sum + value, 0)
+}`,
+      },
+      {
+        id: 'unique-substrings-in-wraparound-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把所有合法子串真的放进集合去重，导致复杂度和实现都变重；或者漏掉了 `z -> a` 的连续关系。',
+        bullets: [
+          '易错点 1：用集合枚举全部子串。',
+          '易错点 2：忽略环绕关系 `z -> a`。',
+          '易错点 3：没有理解“最长覆盖更短”。',
+          '延伸方向：字符串 DP、去重计数、状态压缩。',
+        ],
+      },
+    ],
+  },
 ];
