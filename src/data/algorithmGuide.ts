@@ -50949,4 +50949,127 @@ class LFUCache {
       },
     ],
   },
+  {
+    id: 'count-the-repetitions',
+    label: '466. LeetCode 466. 统计重复个数',
+    difficulty: '困难',
+    description:
+      '这题难在规模非常大，不能真的把字符串重复展开。核心思路是模拟匹配过程时识别循环节，用周期信息直接跳跃。',
+    outcome:
+      '你能理解如何在字符串重复匹配里利用状态重复检测循环，从而高效算出 `S2` 最多能从 `S1` 中提取多少次。',
+    sections: [
+      {
+        id: 'count-the-repetitions-summary',
+        title: '题目在问什么',
+        summary:
+          '定义 `S1 = s1` 重复 `n1` 次，`S2 = s2` 重复 `n2` 次。问最多能从 `S1` 中删除若干字符后得到多少个 `S2`，也就是求最大的整数 `M`，使得 `[S2, M]` 是 `[S1, 1]` 的子序列。',
+        bullets: [
+          '允许删除字符，但不能打乱顺序。',
+          '`n1`、`n2` 可能很大，不能暴力展开。',
+          '本质是重复串之间的子序列匹配。',
+          '目标是算出最终完整重复次数。',
+        ],
+      },
+      {
+        id: 'count-the-repetitions-simulation',
+        title: '按块模拟，但要记录状态重复',
+        summary:
+          '我们可以逐块扫描每一个 `s1`，同时维护当前在 `s2` 中匹配到的位置 `index`，以及已经完整匹配了多少个 `s2`。关键在于：如果某次扫完一个 `s1` 后，`index` 状态和以前某次完全相同，就说明后面的过程会周期性重复。',
+        bullets: [
+          '`index` 决定当前后续匹配形态。',
+          '相同 `index` 再次出现，意味着进入循环。',
+          '循环节里增长量可以批量累加。',
+          '这样能把大规模重复压成有限状态分析。',
+        ],
+      },
+      {
+        id: 'count-the-repetitions-cycle',
+        title: '找到循环后直接跳过大段重复',
+        summary:
+          '假设第 `k1` 个 `s1` 扫完时出现某个 `index`，后来第 `k2` 个 `s1` 扫完时又出现同样 `index`，那么从 `k1` 到 `k2` 之间就是一个循环节。这个循环节会重复很多次，每次能增加固定数量的 `s2` 匹配个数，因此可以整段跳过，而不必逐块再扫。',
+        bullets: [
+          '循环节能带来数量级加速。',
+          '剩余零头部分再单独处理即可。',
+          '这是“状态机 + 周期检测”的经典套路。',
+          '重点是记录首次出现位置和累计匹配数。',
+        ],
+        callout:
+          '这题和很多大规模模拟题一样，性能突破口不在于把循环写快，而在于识别“以后会一直重复”的结构。',
+      },
+      {
+        id: 'count-the-repetitions-solution',
+        title: '标准解法：块级模拟 + 状态找环',
+        summary:
+          '先判断 `s2` 的字符是否都出现在 `s1` 中。然后逐个扫描 `s1` 块，更新 `index` 和 `countS2`。用哈希表记录某个 `index` 第一次出现时对应的 `s1` 块数和已匹配 `s2` 数量；一旦再遇到相同 `index`，就计算循环长度与循环收益，批量跳过中间重复段，最后加上尾部剩余贡献。',
+        bullets: [
+          '时间复杂度远优于直接展开字符串。',
+          '空间复杂度主要来自状态记录表。',
+          '是重复序列找环题的典型模型。',
+          '实现重点在循环节前、中、后三段拆分。',
+        ],
+        code: `function getMaxRepetitions(
+  s1: string,
+  n1: number,
+  s2: string,
+  n2: number,
+): number {
+  for (const char of s2) {
+    if (!s1.includes(char)) {
+      return 0
+    }
+  }
+
+  let index = 0
+  let countS2 = 0
+  const repeatCount = new Array<number>(n1 + 1).fill(0)
+  const nextIndex = new Array<number>(n1 + 1).fill(0)
+
+  for (let s1Count = 1; s1Count <= n1; s1Count += 1) {
+    for (const char of s1) {
+      if (char === s2[index]) {
+        index += 1
+        if (index === s2.length) {
+          index = 0
+          countS2 += 1
+        }
+      }
+    }
+
+    repeatCount[s1Count] = countS2
+    nextIndex[s1Count] = index
+
+    for (let start = 0; start < s1Count; start += 1) {
+      if (nextIndex[start] !== index) {
+        continue
+      }
+
+      const prefixCount = repeatCount[start]
+      const patternCount =
+        Math.floor((n1 - start) / (s1Count - start)) *
+        (repeatCount[s1Count] - repeatCount[start])
+      const suffixCount =
+        repeatCount[start + ((n1 - start) % (s1Count - start))] -
+        repeatCount[start]
+
+      return Math.floor((prefixCount + patternCount + suffixCount) / n2)
+    }
+  }
+
+  return Math.floor(countS2 / n2)
+}`,
+      },
+      {
+        id: 'count-the-repetitions-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接把重复字符串真的拼出来模拟，或者找到状态重复后没有正确拆分前缀、循环体和尾部三段。',
+        bullets: [
+          '易错点 1：忽略大规模约束，直接展开字符串。',
+          '易错点 2：状态记录不完整，只记位置不记累计次数。',
+          '易错点 3：循环节计算后尾部零头没补齐。',
+          '延伸方向：找环、状态机模拟、重复序列优化。',
+        ],
+      },
+    ],
+  },
 ];
