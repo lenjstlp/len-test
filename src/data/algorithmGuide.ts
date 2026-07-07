@@ -50726,4 +50726,114 @@ class LFUCache {
       },
     ],
   },
+  {
+    id: 'can-i-win',
+    label: '464. LeetCode 464. 我能赢吗',
+    difficulty: '中等',
+    description:
+      '这题不是普通 DP，而是带博弈性质的状态搜索。关键在于：当前玩家只要能找到一步让对手进入必败态，自己就是必胜态。',
+    outcome: '你能用状态压缩记忆化搜索分析双方最优策略，并判断先手是否必胜。',
+    sections: [
+      {
+        id: 'can-i-win-summary',
+        title: '题目在问什么',
+        summary:
+          '两个玩家轮流从 `1` 到 `maxChoosableInteger` 中选择一个未使用的数字，并把所选数字累加到公共总和中。谁先让总和达到或超过 `desiredTotal`，谁就获胜。双方都按最优策略行动，问先手是否能赢。',
+        bullets: [
+          '每个数字只能选一次。',
+          '双方都足够聪明。',
+          '目标是判断先手是否存在必胜策略。',
+          '这是典型的零和博弈搜索题。',
+        ],
+      },
+      {
+        id: 'can-i-win-state',
+        title: '局面由“剩哪些数”和“还差多少”决定',
+        summary:
+          '一局游戏发展到某个时刻，真正重要的信息不是具体选牌顺序，而是哪些数字已被使用，以及距离胜利还差多少。因此可以用二进制位掩码表示使用状态，再配合剩余目标值构成递归状态。',
+        bullets: [
+          '状态压缩很适合“元素是否使用”场景。',
+          '同一使用状态会反复被搜索到。',
+          '记忆化能显著避免重复计算。',
+          '这是博弈题常见建模方式。',
+        ],
+      },
+      {
+        id: 'can-i-win-recursion',
+        title: '只要存在一步能把对手送进必败态即可',
+        summary:
+          '在当前状态下，枚举所有还能选的数字。若某个数字一选就直接达到目标，当前玩家立刻获胜；否则进入对手回合。如果对手在那个新状态下无法获胜，说明当前玩家找到了一步必胜走法。',
+        bullets: [
+          '当前必胜等价于存在后继必败状态。',
+          '当前必败等价于所有后继都让对手必胜。',
+          '递归天然契合最优策略推演。',
+          '记忆化是性能关键。',
+        ],
+        callout:
+          '这题和很多“选数博弈”题一样，别急着推公式，先抓住最基本的胜负转移：我能让你输，我就赢。',
+      },
+      {
+        id: 'can-i-win-solution',
+        title: '标准解法：状态压缩 + 记忆化 DFS',
+        summary:
+          '先做两个剪枝：若 `desiredTotal <= 0`，先手已算赢；若所有数总和仍小于目标，则谁都达不到，先手必输。之后用位掩码 `usedMask` 表示已使用数字集合，DFS 枚举可选数字。只要当前选择能直接获胜，或递归后对手失败，就返回 `true`。',
+        bullets: [
+          '状态数大约是 `2^n` 级别。',
+          '空间复杂度主要来自记忆化表。',
+          '核心是胜负状态转移，不是数值 DP。',
+          '这题是状态压缩博弈搜索代表题。',
+        ],
+        code: `function canIWin(
+  maxChoosableInteger: number,
+  desiredTotal: number,
+): boolean {
+  if (desiredTotal <= 0) {
+    return true
+  }
+
+  const sum = (maxChoosableInteger * (maxChoosableInteger + 1)) / 2
+  if (sum < desiredTotal) {
+    return false
+  }
+
+  const memo = new Map<number, boolean>()
+
+  const dfs = (usedMask: number, remain: number): boolean => {
+    if (memo.has(usedMask)) {
+      return memo.get(usedMask) as boolean
+    }
+
+    for (let num = 1; num <= maxChoosableInteger; num += 1) {
+      const bit = 1 << (num - 1)
+      if ((usedMask & bit) !== 0) {
+        continue
+      }
+
+      if (num >= remain || !dfs(usedMask | bit, remain - num)) {
+        memo.set(usedMask, true)
+        return true
+      }
+    }
+
+    memo.set(usedMask, false)
+    return false
+  }
+
+  return dfs(0, desiredTotal)
+}`,
+      },
+      {
+        id: 'can-i-win-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它当成普通背包或普通递推来做，忽略了“对手也最优”这一层博弈含义。',
+        bullets: [
+          '易错点 1：没做总和上界剪枝。',
+          '易错点 2：状态里只记剩余值，不记已使用数字。',
+          '易错点 3：胜负转移方向写反。',
+          '延伸方向：博弈 DP、状态压缩、记忆化搜索。',
+        ],
+      },
+    ],
+  },
 ];
