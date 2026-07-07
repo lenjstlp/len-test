@@ -50275,4 +50275,192 @@ function deserialize(data: string): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'lfu-cache',
+    label: '460. LeetCode 460. LFU 缓存',
+    difficulty: '困难',
+    description:
+      '这题要同时满足两个维度的淘汰规则：先看访问频次最少，再看同频次里最久未使用。核心不是单个数据结构，而是多张索引表协作。',
+    outcome:
+      '你能理解 LFU 缓存为什么需要“键到节点映射 + 频次到双向链表映射”，并写出 `O(1)` 的 `get/put` 操作。',
+    sections: [
+      {
+        id: 'lfu-cache-summary',
+        title: '题目在问什么',
+        summary:
+          '实现 `LFUCache`，支持 `get` 和 `put`。当缓存满了需要淘汰元素时，优先淘汰访问频次最少的键；若有多个键频次相同，则淘汰其中最久未使用的那个。',
+        bullets: [
+          '`get` 命中后会提高该键频次。',
+          '`put` 已存在键时要更新值并提升频次。',
+          '容量满时需要按 LFU + LRU 双规则淘汰。',
+          '题目要求操作尽量做到 `O(1)`。',
+        ],
+      },
+      {
+        id: 'lfu-cache-structure',
+        title: '为什么一个哈希表不够用',
+        summary:
+          '如果只用 `key -> value` 映射，你只能快速查值，却没法在 `O(1)` 内知道最小频次是谁、同频次里谁最旧。因此必须再维护 `freq -> 双向链表`，把相同频次的节点挂在同一条链上，链表头尾负责表达最近使用顺序。',
+        bullets: [
+          '键索引负责快速定位节点。',
+          '频次桶负责快速找到同频节点集合。',
+          '双向链表负责在同频内维护 LRU 顺序。',
+          '最小频次值 `minFreq` 负责快速淘汰。',
+        ],
+      },
+      {
+        id: 'lfu-cache-core',
+        title: '访问一次就把节点搬到下一个频次桶',
+        summary:
+          '无论是 `get` 命中还是 `put` 更新已有键，本质都是“节点频次 +1”。做法是把节点从原频次链表移除，频次加一后插入新频次链表头部。若旧链表空了且它正好是 `minFreq`，则 `minFreq` 也要加一。',
+        bullets: [
+          '频次更新就是节点迁移过程。',
+          '新频次链表头部表示最近刚使用。',
+          '淘汰时只需看 `minFreq` 对应链表尾部。',
+          '整个设计目标是避免全表扫描。',
+        ],
+        callout:
+          'LFU 的难点不是语法，而是把“频次”和“时间”两个排序条件拆成彼此协作的常数时间结构。',
+      },
+      {
+        id: 'lfu-cache-solution',
+        title: '标准解法：哈希表 + 频次桶 + 双向链表',
+        summary:
+          '使用 `nodeMap` 保存 `key -> node`，使用 `freqMap` 保存 `freq -> list`。每次访问节点时调用 `touch` 完成迁移；容量满时，从 `minFreq` 对应链表尾部弹出最旧节点。新节点插入频次 1 的链表，并重置 `minFreq = 1`。',
+        bullets: [
+          '单次 `get/put` 都能做到均摊 `O(1)`。',
+          '空间复杂度是 `O(capacity)`。',
+          '是缓存淘汰策略题里的代表题。',
+          '实现重点在链表操作和 `minFreq` 维护。',
+        ],
+        code: `class LFUNode {
+  key: number
+  value: number
+  freq = 1
+  prev: LFUNode | null = null
+  next: LFUNode | null = null
+
+  constructor(key: number, value: number) {
+    this.key = key
+    this.value = value
+  }
+}
+
+class DoublyLinkedList {
+  head = new LFUNode(0, 0)
+  tail = new LFUNode(0, 0)
+  size = 0
+
+  constructor() {
+    this.head.next = this.tail
+    this.tail.prev = this.head
+  }
+
+  addFirst(node: LFUNode): void {
+    node.next = this.head.next
+    node.prev = this.head
+    this.head.next!.prev = node
+    this.head.next = node
+    this.size += 1
+  }
+
+  remove(node: LFUNode): void {
+    node.prev!.next = node.next
+    node.next!.prev = node.prev
+    node.prev = null
+    node.next = null
+    this.size -= 1
+  }
+
+  removeLast(): LFUNode | null {
+    if (this.size === 0) {
+      return null
+    }
+
+    const node = this.tail.prev as LFUNode
+    this.remove(node)
+    return node
+  }
+}
+
+class LFUCache {
+  private capacity: number
+  private minFreq = 0
+  private nodeMap = new Map<number, LFUNode>()
+  private freqMap = new Map<number, DoublyLinkedList>()
+
+  constructor(capacity: number) {
+    this.capacity = capacity
+  }
+
+  get(key: number): number {
+    const node = this.nodeMap.get(key)
+    if (!node) {
+      return -1
+    }
+
+    this.touch(node)
+    return node.value
+  }
+
+  put(key: number, value: number): void {
+    if (this.capacity === 0) {
+      return
+    }
+
+    const existing = this.nodeMap.get(key)
+    if (existing) {
+      existing.value = value
+      this.touch(existing)
+      return
+    }
+
+    if (this.nodeMap.size === this.capacity) {
+      const list = this.freqMap.get(this.minFreq) as DoublyLinkedList
+      const removed = list.removeLast() as LFUNode
+      this.nodeMap.delete(removed.key)
+    }
+
+    const node = new LFUNode(key, value)
+    this.nodeMap.set(key, node)
+    this.minFreq = 1
+    this.getList(1).addFirst(node)
+  }
+
+  private touch(node: LFUNode): void {
+    const freq = node.freq
+    const list = this.freqMap.get(freq) as DoublyLinkedList
+    list.remove(node)
+
+    if (freq === this.minFreq && list.size === 0) {
+      this.minFreq += 1
+    }
+
+    node.freq += 1
+    this.getList(node.freq).addFirst(node)
+  }
+
+  private getList(freq: number): DoublyLinkedList {
+    if (!this.freqMap.has(freq)) {
+      this.freqMap.set(freq, new DoublyLinkedList())
+    }
+
+    return this.freqMap.get(freq) as DoublyLinkedList
+  }
+}`,
+      },
+      {
+        id: 'lfu-cache-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只维护频次，不维护同频次内的最近使用顺序；或者频次迁移后忘了更新 `minFreq`，导致淘汰逻辑错乱。',
+        bullets: [
+          '易错点 1：缺少同频次 LRU 结构。',
+          '易错点 2：旧频次桶清空后没更新 `minFreq`。',
+          '易错点 3：容量为 0 时没特判。',
+          '延伸方向：LRU、缓存淘汰策略、双向链表设计。',
+        ],
+      },
+    ],
+  },
 ];
