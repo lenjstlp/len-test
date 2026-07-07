@@ -50836,4 +50836,117 @@ class LFUCache {
       },
     ],
   },
+  {
+    id: 'optimal-account-balancing',
+    label: '465. LeetCode 465. 最优账单平衡',
+    difficulty: '困难',
+    description:
+      '这题的关键不是逐笔交易模拟，而是先把每个人的净欠款压缩出来，再通过回溯尽量让一笔结算同时抵掉两个相反方向的债务。',
+    outcome:
+      '你能先把原始交易归约成净余额数组，再用回溯搜索最少需要多少次转账才能清账。',
+    sections: [
+      {
+        id: 'optimal-account-balancing-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干交易 `from -> to -> money`，要求在这些债务关系基础上，计算最少还需要多少次转账，才能让所有人的最终收支平衡。',
+        bullets: [
+          '原始交易路径不重要，最终净余额才重要。',
+          '有人净负债，有人净收款。',
+          '目标是让所有人余额归零。',
+          '要求最少转账次数。',
+        ],
+      },
+      {
+        id: 'optimal-account-balancing-compress',
+        title: '先把多笔交易压成净余额',
+        summary:
+          '对每个人统计最终净额：转出就减，转入就加。处理完后，余额为 0 的人可以完全忽略，因为他们已经平衡。剩下的只是一个正负债务数组，问题就变成：如何用最少的配对次数把这些数消掉。',
+        bullets: [
+          '净余额比原始交易更本质。',
+          '余额为 0 的人不会影响答案。',
+          '压缩后搜索空间更小。',
+          '这是题目建模的第一步。',
+        ],
+      },
+      {
+        id: 'optimal-account-balancing-backtracking',
+        title: '从第一个未清零的人开始尝试抵消',
+        summary:
+          '回溯时先跳过已经为 0 的位置，找到第一个未平衡的人 `start`。然后向后找一个与其符号相反的人进行配对，把 `start` 的债务临时并到对方身上，相当于完成一次转账，再递归处理后续。这样可以枚举所有合理的结算顺序。',
+        bullets: [
+          '每次都处理当前第一个未平衡位置。',
+          '只和符号相反的人尝试配对。',
+          '递归中临时修改，再回溯恢复。',
+          '可用剪枝减少重复搜索。',
+        ],
+        callout:
+          '这题和很多回溯优化题一样，真正难点是先把状态抽象对。原始交易很乱，但净债务数组一出来，问题就清晰很多。',
+      },
+      {
+        id: 'optimal-account-balancing-solution',
+        title: '标准解法：净余额数组 + 回溯剪枝',
+        summary:
+          '先用哈希表统计每个人净余额，再过滤掉 0 得到 `debts`。DFS 时从 `start` 开始找第一个非零债务，再尝试和后面符号相反的债务合并，答案取所有方案中的最小值。若某次合并后正好抵消成 0，还可提前剪枝。',
+        bullets: [
+          '最坏复杂度较高，但数据范围允许回溯。',
+          '空间复杂度主要来自递归栈。',
+          '这题考的是状态压缩和搜索剪枝能力。',
+          '净余额建模是核心。',
+        ],
+        code: `function minTransfers(transactions: number[][]): number {
+  const balance = new Map<number, number>()
+
+  for (const [from, to, amount] of transactions) {
+    balance.set(from, (balance.get(from) ?? 0) - amount)
+    balance.set(to, (balance.get(to) ?? 0) + amount)
+  }
+
+  const debts = Array.from(balance.values()).filter((value) => value !== 0)
+
+  const dfs = (start: number): number => {
+    while (start < debts.length && debts[start] === 0) {
+      start += 1
+    }
+
+    if (start === debts.length) {
+      return 0
+    }
+
+    let answer = Number.MAX_SAFE_INTEGER
+
+    for (let index = start + 1; index < debts.length; index += 1) {
+      if (debts[start] * debts[index] >= 0) {
+        continue
+      }
+
+      debts[index] += debts[start]
+      answer = Math.min(answer, 1 + dfs(start + 1))
+      debts[index] -= debts[start]
+
+      if (debts[index] + debts[start] === 0) {
+        break
+      }
+    }
+
+    return answer
+  }
+
+  return dfs(0)
+}`,
+      },
+      {
+        id: 'optimal-account-balancing-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是一直围绕原始交易做文章，没有先压成净余额；或者回溯时把同号余额也拿去配对，导致无效搜索暴增。',
+        bullets: [
+          '易错点 1：没先压缩成净债务数组。',
+          '易错点 2：回溯时不跳过 0 元素。',
+          '易错点 3：没有利用“正负抵消”的剪枝条件。',
+          '延伸方向：回溯剪枝、状态归约、搜索优化。',
+        ],
+      },
+    ],
+  },
 ];
