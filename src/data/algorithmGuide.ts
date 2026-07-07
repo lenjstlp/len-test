@@ -50631,4 +50631,99 @@ class LFUCache {
       },
     ],
   },
+  {
+    id: 'island-perimeter',
+    label: '463. LeetCode 463. 岛屿的周长',
+    difficulty: '简单',
+    description:
+      '这题不需要真的沿着边走一圈。只要统计陆地格子的总边数，再减去相邻陆地共享掉的边，就能得到答案。',
+    outcome: '你能通过网格计数而不是模拟路径，快速求出单个岛屿的周长。',
+    sections: [
+      {
+        id: 'island-perimeter-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0` 和 `1` 的网格，其中 `1` 代表陆地、`0` 代表水域。题目保证只有一个岛屿，求这个岛屿的周长。',
+        bullets: [
+          '岛屿由上下左右相连的陆地构成。',
+          '网格外围都视作水域。',
+          '只需要求周长，不要求面积。',
+          '是基础网格计数题。',
+        ],
+      },
+      {
+        id: 'island-perimeter-count',
+        title: '每块陆地先贡献 4 条边',
+        summary:
+          '如果一块陆地孤零零存在，它的周长贡献就是 4。但只要它和另一块陆地相邻，两块之间接触的那条边就不该算在外周长里。因此统计时，可以让每块陆地先加 4，再对每一对相邻陆地减去共享边。',
+        bullets: [
+          '单个方格的天然边数是 4。',
+          '相邻陆地会消去内边。',
+          '共享一条边，整体周长减少 2。',
+          '本质是“总边数 - 内部接缝”。',
+        ],
+      },
+      {
+        id: 'island-perimeter-traversal',
+        title: '遍历时只看上方和左方就够了',
+        summary:
+          '为了避免重复计算共享边，遍历到某个陆地格子时，只需要检查它的上方和左方是否也是陆地。若是，就说明发现了一条新的共享边，应从总周长里减去 2。',
+        bullets: [
+          '只看两个方向即可避免重复。',
+          '每次发现相邻陆地就减 2。',
+          '遍历一次网格即可完成。',
+          '实现简单，效率稳定。',
+        ],
+        callout:
+          '很多网格题并不一定要 DFS 或 BFS。先判断问题本质是不是计数题，往往能少走很多弯路。',
+      },
+      {
+        id: 'island-perimeter-solution',
+        title: '标准解法：陆地加 4，共享边减 2',
+        summary:
+          '遍历整个网格，若当前位置是陆地，就先把答案加 4；若它的上方也是陆地，答案减 2；若它的左方也是陆地，答案再减 2。遍历结束后，剩下的就是最终周长。',
+        bullets: [
+          '时间复杂度是 `O(mn)`。',
+          '空间复杂度是 `O(1)`。',
+          '无需额外访问标记。',
+          '是网格边界计数的代表题。',
+        ],
+        code: `function islandPerimeter(grid: number[][]): number {
+  let perimeter = 0
+
+  for (let row = 0; row < grid.length; row += 1) {
+    for (let col = 0; col < grid[0].length; col += 1) {
+      if (grid[row][col] === 0) {
+        continue
+      }
+
+      perimeter += 4
+
+      if (row > 0 && grid[row - 1][col] === 1) {
+        perimeter -= 2
+      }
+
+      if (col > 0 && grid[row][col - 1] === 1) {
+        perimeter -= 2
+      }
+    }
+  }
+
+  return perimeter
+}`,
+      },
+      {
+        id: 'island-perimeter-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是每块陆地直接加 4 后却忘了扣掉共享边，或者四个方向都检查导致重复减边。',
+        bullets: [
+          '易错点 1：共享边没减掉。',
+          '易错点 2：四个方向全检查造成重复计数。',
+          '易错点 3：把斜对角也当成相邻陆地。',
+          '延伸方向：网格计数、边界统计、岛屿类题目。',
+        ],
+      },
+    ],
+  },
 ];
