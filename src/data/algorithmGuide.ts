@@ -50198,4 +50198,81 @@ function deserialize(data: string): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'repeated-substring-pattern',
+    label: '459. LeetCode 459. 重复的子字符串',
+    difficulty: '简单',
+    description:
+      '这题看似在枚举重复片段，实际上有一个非常经典的字符串判定技巧：若一个串由某个子串重复构成，它在拼接后的中间区域还能再次出现。',
+    outcome:
+      '你能用字符串拼接的等价性质，快速判断一个字符串是否由某个子串重复多次构成。',
+    sections: [
+      {
+        id: 'repeated-substring-pattern-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个非空字符串 `s`，判断它是否可以由某个子串重复若干次得到。如果能，返回 `true`，否则返回 `false`。',
+        bullets: [
+          '子串必须重复至少 2 次。',
+          '要求整个字符串完全由同一片段拼成。',
+          '暴力枚举所有长度可以做，但不够优雅。',
+          '目标是找到更巧妙的判定方法。',
+        ],
+      },
+      {
+        id: 'repeated-substring-pattern-observation',
+        title: '为什么拼接后能暴露重复结构',
+        summary:
+          '如果 `s` 由某个子串重复组成，比如 `abab`，那么把它和自己拼接得到 `abababab`，去掉首尾字符后，中间仍然能找到原串 `abab`。反过来，如果一个字符串不是重复结构，通常无法在这个处理中间区域再次完整出现自己。',
+        bullets: [
+          '重复串有明显的周期性。',
+          '拼接后周期结构会在中间重叠出现。',
+          '非重复串很难在去头去尾后再次匹配自己。',
+          '这是字符串周期判定里的经典技巧。',
+        ],
+      },
+      {
+        id: 'repeated-substring-pattern-idea',
+        title: '把判定问题转成包含问题',
+        summary:
+          '构造 `double = s + s`。若 `s` 是重复子串构成，那么在 `double.slice(1, -1)` 中一定还能找到 `s`；否则找不到。这样就不需要手动枚举子串长度了。',
+        bullets: [
+          '从构造法切换到包含判断。',
+          '核心操作只有拼接和查找。',
+          '代码极短，但证明思路值得掌握。',
+          '很多面试会拿这题考字符串抽象能力。',
+        ],
+        callout:
+          '这题的价值不在于 API 使用，而在于你能否把“重复结构”转写成“拼接后仍可再现”的等价条件。',
+      },
+      {
+        id: 'repeated-substring-pattern-solution',
+        title: '标准解法：`(s + s).slice(1, -1)` 判断包含',
+        summary:
+          '先把字符串和自己拼接，再去掉首尾字符。如果剩余字符串中还能找到原串 `s`，说明 `s` 本身具有周期性，可以由某个更短的子串重复组成；否则不行。',
+        bullets: [
+          '时间复杂度通常可视作 `O(n)` 到 `O(n^2)`，取决于查找实现。',
+          '空间复杂度是 `O(n)`。',
+          '实现非常短，适合记成套路。',
+          '也是很多 KMP 讲解前的引入题。',
+        ],
+        code: `function repeatedSubstringPattern(s: string): boolean {
+  const doubled = s + s
+  return doubled.slice(1, -1).includes(s)
+}`,
+      },
+      {
+        id: 'repeated-substring-pattern-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只会暴力枚举长度，却不了解字符串周期的等价判定；或者忘了必须去掉拼接串的首尾字符。',
+        bullets: [
+          '易错点 1：直接在 `s + s` 里查找，没去掉首尾。',
+          '易错点 2：把一次出现当成重复结构。',
+          '易错点 3：只会枚举，不会使用构造法。',
+          '延伸方向：KMP、字符串周期、最小循环节。',
+        ],
+      },
+    ],
+  },
 ];
