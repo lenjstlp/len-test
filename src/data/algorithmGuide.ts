@@ -51165,4 +51165,135 @@ class LFUCache {
       },
     ],
   },
+  {
+    id: 'validate-ip-address',
+    label: '468. LeetCode 468. 验证IP地址',
+    difficulty: '中等',
+    description:
+      '这题不是网络知识题，而是规则校验题。关键是把 IPv4 和 IPv6 的合法格式条件拆清楚，再按分段逐项验证。',
+    outcome:
+      '你能分别实现 IPv4 与 IPv6 的格式校验，并准确处理前导零、段数、字符集等边界条件。',
+    sections: [
+      {
+        id: 'validate-ip-address-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串 `queryIP`，如果它是合法 IPv4 地址则返回 `IPv4`，如果是合法 IPv6 地址则返回 `IPv6`，否则返回 `Neither`。',
+        bullets: [
+          'IPv4 和 IPv6 的格式规则不同。',
+          '不能模糊匹配，必须严格合法。',
+          '很多边界条件来自分段细则。',
+          '本质是字符串格式判定题。',
+        ],
+      },
+      {
+        id: 'validate-ip-address-ipv4',
+        title: 'IPv4 要看段数、数值范围和前导零',
+        summary:
+          'IPv4 由 4 段十进制数组成，用 `.` 分隔。每段必须是 `0` 到 `255` 的整数，且除了单独的 `0` 之外，不允许出现前导零，比如 `01` 不合法。',
+        bullets: [
+          '必须刚好 4 段。',
+          '每段只能包含数字字符。',
+          '数值必须落在 `0-255`。',
+          '多位数不能以 `0` 开头。',
+        ],
+      },
+      {
+        id: 'validate-ip-address-ipv6',
+        title: 'IPv6 重点是十六进制字符和长度限制',
+        summary:
+          'IPv6 由 8 段组成，用 `:` 分隔。每段长度为 `1-4`，字符只能是十六进制数字 `0-9`、`a-f`、`A-F`。它不需要像 IPv4 那样检查十进制数值范围。',
+        bullets: [
+          '必须刚好 8 段。',
+          '每段长度不能超过 4。',
+          '只允许十六进制字符。',
+          '空段、不足段、多余段都不合法。',
+        ],
+        callout:
+          '这题容易错在“把规则混在一起”。最稳的写法是先判断分隔符类型，再分别走 IPv4 / IPv6 两套独立校验逻辑。',
+      },
+      {
+        id: 'validate-ip-address-solution',
+        title: '标准解法：按分隔符分流到两套校验函数',
+        summary:
+          '若字符串包含 `.`，则尝试按 IPv4 规则校验；若包含 `:`，则尝试按 IPv6 规则校验；否则直接返回 `Neither`。分别检查分段数量、字符合法性、长度限制、数值范围和前导零等条件。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`，主要来自分割后的数组。',
+          '属于规则实现型题目。',
+          '重点在边界条件完整性。',
+        ],
+        code: `function validIPAddress(queryIP: string): string {
+  const isIPv4 = (): boolean => {
+    const parts = queryIP.split('.')
+    if (parts.length !== 4) {
+      return false
+    }
+
+    for (const part of parts) {
+      if (part.length === 0 || part.length > 3) {
+        return false
+      }
+
+      if (!/^[0-9]+$/.test(part)) {
+        return false
+      }
+
+      if (part.length > 1 && part[0] === '0') {
+        return false
+      }
+
+      const value = Number(part)
+      if (value < 0 || value > 255) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+  const isIPv6 = (): boolean => {
+    const parts = queryIP.split(':')
+    if (parts.length !== 8) {
+      return false
+    }
+
+    for (const part of parts) {
+      if (part.length === 0 || part.length > 4) {
+        return false
+      }
+
+      if (!/^[0-9a-fA-F]+$/.test(part)) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+  if (queryIP.includes('.') && isIPv4()) {
+    return 'IPv4'
+  }
+
+  if (queryIP.includes(':') && isIPv6()) {
+    return 'IPv6'
+  }
+
+  return 'Neither'
+}`,
+      },
+      {
+        id: 'validate-ip-address-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只判断分隔符数量，不细查每段规则；或者 IPv4 忘了处理前导零这种高频陷阱。',
+        bullets: [
+          '易错点 1：IPv4 忽略前导零。',
+          '易错点 2：IPv6 没有限制每段长度。',
+          '易错点 3：空字符串段没有排除。',
+          '延伸方向：字符串解析、协议格式校验、输入验证。',
+        ],
+      },
+    ],
+  },
 ];
