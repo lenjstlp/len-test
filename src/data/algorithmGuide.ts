@@ -50547,4 +50547,88 @@ class LFUCache {
       },
     ],
   },
+  {
+    id: 'minimum-moves-to-equal-array-elements-ii',
+    label: '462. LeetCode 462. 最少移动次数使数组元素相等 II',
+    difficulty: '中等',
+    description:
+      '这题不是求平均数，而是求中位数。因为在绝对值距离和最小时，中位数才是最稳的落点。',
+    outcome:
+      '你能理解为什么“所有数向中位数靠拢”会让总移动次数最小，并据此求出最优答案。',
+    sections: [
+      {
+        id: 'minimum-moves-to-equal-array-elements-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组 `nums`，每次操作可以让某个元素加一或减一。要求返回让所有元素都相等所需的最少操作次数。',
+        bullets: [
+          '每次只能把一个数改动 1。',
+          '最终所有元素要相等。',
+          '目标是总操作次数最少。',
+          '本质是最小化绝对距离和。',
+        ],
+      },
+      {
+        id: 'minimum-moves-to-equal-array-elements-ii-median',
+        title: '为什么不是平均数，而是中位数',
+        summary:
+          '若要最小化平方误差，平均数常常最优；但这里每次移动对应的是绝对距离，因此要最小化的是 `|x - target|` 的总和。这个目标在一维上由中位数达到最小，这是数学上非常经典的结论。',
+        bullets: [
+          '绝对值和的最优点是中位数。',
+          '平均数更适合平方和场景。',
+          '排序后中位数位置非常明确。',
+          '这题本质是数轴最优汇聚点问题。',
+        ],
+      },
+      {
+        id: 'minimum-moves-to-equal-array-elements-ii-idea',
+        title: '找到中位数后累加距离',
+        summary:
+          '先将数组排序，取中间位置的数作为目标值。随后遍历整个数组，把每个元素到该目标值的绝对差累加起来，得到的就是最少移动次数。',
+        bullets: [
+          '排序是为了稳定取得中位数。',
+          '奇数长度直接取正中间。',
+          '偶数长度取任一中位区间值都可，这里取右中位也没问题。',
+          '实现难点很低，关键是理解结论。',
+        ],
+        callout:
+          '这题是“中位数最优”最标准的应用之一。后面很多数组平衡、聚合点、仓库选址问题都能套这个思路。',
+      },
+      {
+        id: 'minimum-moves-to-equal-array-elements-ii-solution',
+        title: '标准解法：排序后向中位数靠拢',
+        summary:
+          '先对 `nums` 升序排序，取 `nums[Math.floor(nums.length / 2)]` 作为目标值。再遍历数组，累加每个元素与目标值的绝对差，即可得到最少移动次数。',
+        bullets: [
+          '时间复杂度是 `O(n log n)`。',
+          '空间复杂度取决于排序实现。',
+          '代码非常直接。',
+          '结论理解比实现更重要。',
+        ],
+        code: `function minMoves2(nums: number[]): number {
+  nums.sort((a, b) => a - b)
+  const median = nums[Math.floor(nums.length / 2)]
+  let answer = 0
+
+  for (const num of nums) {
+    answer += Math.abs(num - median)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'minimum-moves-to-equal-array-elements-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是下意识拿平均数当答案，结果在绝对距离模型里并不最优。',
+        bullets: [
+          '易错点 1：把目标值选成平均数。',
+          '易错点 2：排序后中位数下标取错。',
+          '易错点 3：没有意识到偶数长度有多个等价目标值。',
+          '延伸方向：中位数最优、绝对值最优化、选址问题。',
+        ],
+      },
+    ],
+  },
 ];
