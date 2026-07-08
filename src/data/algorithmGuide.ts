@@ -51710,4 +51710,128 @@ function rand10(): number {
       },
     ],
   },
+  {
+    id: 'matchsticks-to-square',
+    label: '473. LeetCode 473. 火柴拼正方形',
+    difficulty: '中等',
+    description:
+      '这题本质是把若干火柴分配到 4 条边里，并且每条边长度相等。核心不是枚举正方形，而是做状态搜索和剪枝。',
+    outcome:
+      '你能通过回溯把火柴分配到四条边中，并利用排序和重复状态剪枝判断能否拼成正方形。',
+    sections: [
+      {
+        id: 'matchsticks-to-square-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干根火柴，每根火柴只能使用一次，不能折断。要求判断是否能用全部火柴拼成一个正方形。',
+        bullets: [
+          '四条边长度必须相等。',
+          '所有火柴都必须使用。',
+          '每根火柴只能选一个边。',
+          '本质是分组装箱问题。',
+        ],
+      },
+      {
+        id: 'matchsticks-to-square-pruning',
+        title: '先看总长度，再让长火柴优先放置',
+        summary:
+          '若总长度不能被 4 整除，直接返回 `false`。之后把火柴按从大到小排序，优先放置长火柴，这样更容易尽早发现不合法分配并回溯，能显著减少搜索树规模。',
+        bullets: [
+          '总和整除是第一层必要条件。',
+          '降序排序是回溯题常见剪枝。',
+          '越大的元素越早处理，越容易早停。',
+          '可以避免大量无意义分支。',
+        ],
+      },
+      {
+        id: 'matchsticks-to-square-backtracking',
+        title: '依次把当前火柴尝试放进四条边',
+        summary:
+          '维护数组 `sides[4]` 表示当前四条边的累计长度。遍历到第 `index` 根火柴时，尝试把它放入四条边中的某一条；若放入后不超过目标边长，就递归继续。最终若所有火柴都放完，且四条边都达到目标值，就说明成功。',
+        bullets: [
+          '状态就是四条边当前长度。',
+          '每次尝试 4 个放置位置。',
+          '超过目标边长的分支直接剪掉。',
+          '相同边状态可以跳过避免重复。',
+        ],
+        callout:
+          '这类题和“分成 k 个相等子集”本质很接近。真正有效的不是暴力，而是排序和等价状态剪枝。',
+      },
+      {
+        id: 'matchsticks-to-square-solution',
+        title: '标准解法：回溯分配四条边',
+        summary:
+          '先求总和并判断能否被 4 整除，再把火柴按降序排序。DFS 时让每根火柴尝试加入四条边中的一条，若当前边长度会超目标则跳过；若某条边当前长度与前一条尝试失败的边相同，也可以跳过，避免重复搜索。',
+        bullets: [
+          '最坏时间复杂度较高，但剪枝后可通过。',
+          '空间复杂度主要来自递归栈。',
+          '重点在剪枝设计。',
+          '是回溯分组题代表作。',
+        ],
+        code: `function makesquare(matchsticks: number[]): boolean {
+  const sum = matchsticks.reduce((total, value) => total + value, 0)
+  if (sum % 4 !== 0) {
+    return false
+  }
+
+  const target = sum / 4
+  matchsticks.sort((a, b) => b - a)
+  if (matchsticks[0] > target) {
+    return false
+  }
+
+  const sides = [0, 0, 0, 0]
+
+  const dfs = (index: number): boolean => {
+    if (index === matchsticks.length) {
+      return sides[0] === target &&
+        sides[1] === target &&
+        sides[2] === target &&
+        sides[3] === target
+    }
+
+    for (let i = 0; i < 4; i += 1) {
+      if (sides[i] + matchsticks[index] > target) {
+        continue
+      }
+
+      let duplicated = false
+      for (let j = 0; j < i; j += 1) {
+        if (sides[j] === sides[i]) {
+          duplicated = true
+          break
+        }
+      }
+
+      if (duplicated) {
+        continue
+      }
+
+      sides[i] += matchsticks[index]
+      if (dfs(index + 1)) {
+        return true
+      }
+      sides[i] -= matchsticks[index]
+    }
+
+    return false
+  }
+
+  return dfs(0)
+}`,
+      },
+      {
+        id: 'matchsticks-to-square-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有做总和剪枝、没有排序、也没有跳过等价边状态，导致搜索量爆炸。',
+        bullets: [
+          '易错点 1：没有先判断总和是否能被 4 整除。',
+          '易错点 2：不排序，回溯效率很差。',
+          '易错点 3：相同边状态重复尝试。',
+          '延伸方向：回溯剪枝、k 子集划分、装箱问题。',
+        ],
+      },
+    ],
+  },
 ];
