@@ -51480,4 +51480,123 @@ function rand10(): number {
       },
     ],
   },
+  {
+    id: 'encode-string-with-shortest-length',
+    label: '471. LeetCode 471. 编码最短长度的字符串',
+    difficulty: '困难',
+    description:
+      '这题不是简单压缩，而是要求“压缩后字符串最短”。核心是区间 DP：既要考虑直接拆分，也要考虑当前整段是否能由更短模式重复组成。',
+    outcome:
+      '你能用区间 DP 同时处理“切分组合”和“重复编码”两类转移，得到字符串的最短编码形式。',
+    sections: [
+      {
+        id: 'encode-string-with-shortest-length-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串 `s`，要求把它编码成尽可能短的形式。编码规则类似 `k[encoded_string]`，表示括号内字符串重复了 `k` 次。若编码不能变短，则保留原串。',
+        bullets: [
+          '目标是总长度最短，不是重复就一定编码。',
+          '编码内部还可以继续被编码。',
+          '需要返回最优编码后的字符串本身。',
+          '本质是最优子结构问题。',
+        ],
+      },
+      {
+        id: 'encode-string-with-shortest-length-interval-dp',
+        title: '每个子串都可能由更小子问题拼出来',
+        summary:
+          '若我们知道任意子串的最优编码，就能进一步求更长子串的最优编码。对于区间 `s[i..j]`，一种做法是枚举切分点，把左段最优编码和右段最优编码拼起来；另一种做法是判断这一整段是否由某个更短模式重复组成，如果是，就尝试写成 `k[...]`。',
+        bullets: [
+          '区间 DP 非常适合这种“返回最优字符串”的题。',
+          '切分转移解决组合问题。',
+          '重复模式检测解决压缩问题。',
+          '两种转移都要比较长度取最短。',
+        ],
+      },
+      {
+        id: 'encode-string-with-shortest-length-pattern',
+        title: '先找最小重复模式，再把模式本身递归压缩',
+        summary:
+          '若一个子串是某个更短串重复得到，比如 `ababab`，那么它可以编码成 `3[ab]`。但这里的 `ab` 还可能继续被优化，因此真正要写的是 `3[dp(pattern)]`。判断是否存在重复模式时，可以枚举子串长度的因子，并检查整段是否由这个前缀重复构成。',
+        bullets: [
+          '重复段自身也可能继续被压缩。',
+          '并非所有重复都值得编码，长度必须真的更短。',
+          '模式检测可以通过枚举周期完成。',
+          '这是题目里最关键的一层优化。',
+        ],
+        callout:
+          '很多“最短表示”题的难点都在这：不是发现重复就结束，而是重复块自己还可能继续缩短。',
+      },
+      {
+        id: 'encode-string-with-shortest-length-solution',
+        title: '标准解法：区间 DP + 重复模式判定',
+        summary:
+          '设 `dp[i][j]` 表示子串 `s[i..j]` 的最短编码结果。先默认它等于原串，再枚举切分点尝试拼接更优结果；之后检查该子串是否能由更短前缀重复构成，若可以，就把重复次数和该前缀的最优编码拼成候选答案。最后取所有候选中长度最短的字符串。',
+        bullets: [
+          '时间复杂度通常是 `O(n^4)` 量级。',
+          '空间复杂度是 `O(n^2)`。',
+          '重点在状态定义和字符串候选比较。',
+          '是区间 DP 里很典型的一道难题。',
+        ],
+        code: `function encode(s: string): string {
+  const n = s.length
+  const dp = Array.from({ length: n }, () => new Array<string>(n).fill(''))
+
+  for (let length = 1; length <= n; length += 1) {
+    for (let start = 0; start + length - 1 < n; start += 1) {
+      const end = start + length - 1
+      const current = s.slice(start, end + 1)
+      dp[start][end] = current
+
+      if (length < 5) {
+        continue
+      }
+
+      for (let mid = start; mid < end; mid += 1) {
+        const candidate = dp[start][mid] + dp[mid + 1][end]
+        if (candidate.length < dp[start][end].length) {
+          dp[start][end] = candidate
+        }
+      }
+
+      for (let patternLength = 1; patternLength <= Math.floor(length / 2); patternLength += 1) {
+        if (length % patternLength !== 0) {
+          continue
+        }
+
+        const pattern = current.slice(0, patternLength)
+        if (pattern.repeat(length / patternLength) !== current) {
+          continue
+        }
+
+        const encoded =
+          String(length / patternLength) +
+          '[' +
+          dp[start][start + patternLength - 1] +
+          ']'
+
+        if (encoded.length < dp[start][end].length) {
+          dp[start][end] = encoded
+        }
+      }
+    }
+  }
+
+  return dp[0][n - 1]
+}`,
+      },
+      {
+        id: 'encode-string-with-shortest-length-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只考虑重复压缩，不考虑切分组合；或者只把重复块写成原始前缀，忘了前缀自身也可以继续编码。',
+        bullets: [
+          '易错点 1：缺少区间切分转移。',
+          '易错点 2：重复模式本身没有继续使用 DP 优化。',
+          '易错点 3：不判断编码后是否真的更短。',
+          '延伸方向：区间 DP、字符串压缩、最优表示问题。',
+        ],
+      },
+    ],
+  },
 ];
