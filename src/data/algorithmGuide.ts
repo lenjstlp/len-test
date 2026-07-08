@@ -51599,4 +51599,115 @@ function rand10(): number {
       },
     ],
   },
+  {
+    id: 'concatenated-words',
+    label: '472. LeetCode 472. 连接词',
+    difficulty: '困难',
+    description:
+      '这题要找的是“能由词典里至少两个更短单词拼出来的单词”。核心思路是排序后逐个判断，让当前词只使用前面更短的词来做拆分。',
+    outcome:
+      '你能通过排序配合单词拆分 DP，找出字典中所有由至少两个其它单词拼接而成的连接词。',
+    sections: [
+      {
+        id: 'concatenated-words-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个不含重复字符串的单词数组 `words`，返回其中所有连接词。连接词指的是：它可以由数组中至少两个更短单词拼接而成。',
+        bullets: [
+          '至少由两个单词组成。',
+          '允许重复使用词典中的单词。',
+          '目标是筛出所有满足条件的词。',
+          '本质是字符串拆分判定。',
+        ],
+      },
+      {
+        id: 'concatenated-words-sort',
+        title: '先按长度排序，避免自己拼自己',
+        summary:
+          '如果先处理短词，再处理长词，那么在判断当前单词时，词典中已经放入的词一定不比它更长。这样既满足“由更短词组成”的要求，也能避免当前词被自己直接匹配。',
+        bullets: [
+          '排序让构造顺序更自然。',
+          '当前词只依赖前面已处理的词。',
+          '避免把自己作为组成部分。',
+          '是这题很常见的预处理手段。',
+        ],
+      },
+      {
+        id: 'concatenated-words-dp',
+        title: '当前单词能否拆开，本质就是单词拆分',
+        summary:
+          '对于某个单词，可以做一次 `word break`。设 `dp[i]` 表示前 `i` 个字符能否由词典中的词拼成。枚举切分点 `j`，若 `dp[j]` 为真且 `word[j..i)` 在词典中，就能让 `dp[i] = true`。最后若 `dp[word.length]` 为真，说明它是连接词。',
+        bullets: [
+          '问题被转成经典拆分 DP。',
+          '词典里只放更短词。',
+          '每个词都单独做一次判定。',
+          '判定成功后再把当前词加入词典。',
+        ],
+        callout:
+          '这题很适合训练“把新问题降成经典子问题”的能力。连接词听起来新，实质上还是单词拆分。',
+      },
+      {
+        id: 'concatenated-words-solution',
+        title: '标准解法：排序 + 单词拆分 DP',
+        summary:
+          '先按长度升序排序 `words`。维护一个集合保存已经处理过的更短词。对当前单词做一次拆分 DP：若能完全拆开，就加入答案；无论能否拆开，最后都把它放入集合，供后续更长单词使用。',
+        bullets: [
+          '时间复杂度与所有单词长度总和和拆分次数有关。',
+          '空间复杂度主要来自词典集合和 DP 数组。',
+          '是字符串拆分类题目的组合变形。',
+          '实现重点在处理顺序。',
+        ],
+        code: `function findAllConcatenatedWordsInADict(words: string[]): string[] {
+  words.sort((a, b) => a.length - b.length)
+  const dict = new Set<string>()
+  const answer: string[] = []
+
+  const canForm = (word: string): boolean => {
+    if (dict.size === 0) {
+      return false
+    }
+
+    const dp = new Array<boolean>(word.length + 1).fill(false)
+    dp[0] = true
+
+    for (let end = 1; end <= word.length; end += 1) {
+      for (let start = 0; start < end; start += 1) {
+        if (!dp[start]) {
+          continue
+        }
+
+        if (dict.has(word.slice(start, end))) {
+          dp[end] = true
+          break
+        }
+      }
+    }
+
+    return dp[word.length]
+  }
+
+  for (const word of words) {
+    if (canForm(word)) {
+      answer.push(word)
+    }
+    dict.add(word)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'concatenated-words-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没排序就直接拆分，结果当前单词可能被自己参与匹配；或者把空词和单词数量限制处理得不够严谨。',
+        bullets: [
+          '易错点 1：当前词参与了自己的拆分。',
+          '易错点 2：没按长度排序，导致依赖关系混乱。',
+          '易错点 3：拆分 DP 没有正确初始化 `dp[0]`。',
+          '延伸方向：Word Break、Trie、字符串构造判定。',
+        ],
+      },
+    ],
+  },
 ];
