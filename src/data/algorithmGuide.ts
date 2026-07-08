@@ -52112,4 +52112,92 @@ function rand10(): number {
       },
     ],
   },
+  {
+    id: 'total-hamming-distance',
+    label: '477. LeetCode 477. 汉明距离总和',
+    difficulty: '中等',
+    description:
+      '这题如果两两比较会超时。真正的突破口是按位独立统计：某一位上有多少个 `0` 和 `1`，就能直接算出这位对总答案的贡献。',
+    outcome:
+      '你能把两两汉明距离求和问题转成按二进制位分治统计，从而在线性位数复杂度内得到总答案。',
+    sections: [
+      {
+        id: 'total-hamming-distance-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组 `nums`，要求计算任意两个数之间汉明距离的总和。',
+        bullets: [
+          '汉明距离是二进制位不同的位置数量。',
+          '需要统计所有数对的总和。',
+          '暴力两两比较复杂度太高。',
+          '本质是聚合所有位上的差异贡献。',
+        ],
+      },
+      {
+        id: 'total-hamming-distance-bit-contribution',
+        title: '每一位都可以独立计算贡献',
+        summary:
+          '对某一固定二进制位来说，如果有 `ones` 个数这一位是 1，有 `zeros` 个数这一位是 0，那么任取一个 1 和一个 0 就会在这一位贡献 1，因此这一位总贡献就是 `ones * zeros`。',
+        bullets: [
+          '位与位之间彼此独立。',
+          '一位上的总贡献只由 0/1 个数决定。',
+          '不用关心具体是哪两个数。',
+          '总答案等于所有位贡献之和。',
+        ],
+      },
+      {
+        id: 'total-hamming-distance-count',
+        title: '遍历所有二进制位做 0/1 计数',
+        summary:
+          '整数范围有限，通常只需要检查 0 到 30 或 31 位。对每一位遍历整个数组，统计这一位上有多少个数为 1，然后用数组长度减去它得到 0 的数量，贡献相乘累加即可。',
+        bullets: [
+          '每一位都做一次线性扫描。',
+          '总复杂度是“位数 * 数组长度”。',
+          '比两两比较快得多。',
+          '实现非常稳定直接。',
+        ],
+        callout:
+          '只要题目是“所有数对之间某种位差异的总和”，几乎都要警觉：能不能按位拆贡献，而不是按数对枚举。',
+      },
+      {
+        id: 'total-hamming-distance-solution',
+        title: '标准解法：按位统计 1 的个数',
+        summary:
+          '遍历 0 到 30 位。对每一位，统计数组中有多少个数该位为 1，记作 `ones`；则该位为 0 的个数是 `nums.length - ones`。这一位对总汉明距离的贡献就是 `ones * (nums.length - ones)`，把所有位贡献累加即可。',
+        bullets: [
+          '时间复杂度是 `O(31n)`，可视作 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '是按位贡献统计的经典题。',
+          '实现短，思想很重要。',
+        ],
+        code: `function totalHammingDistance(nums: number[]): number {
+  let answer = 0
+
+  for (let bit = 0; bit < 31; bit += 1) {
+    let ones = 0
+
+    for (const num of nums) {
+      ones += (num >> bit) & 1
+    }
+
+    answer += ones * (nums.length - ones)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'total-hamming-distance-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是仍然按数对暴力比较，或者虽然想到按位统计，却没把“该位 1 的个数乘以 0 的个数”这个贡献公式写清楚。',
+        bullets: [
+          '易错点 1：两两枚举导致超时。',
+          '易错点 2：按位统计后不会合成贡献。',
+          '易错点 3：位数边界处理不统一。',
+          '延伸方向：按位贡献、组合计数、位运算聚合。',
+        ],
+      },
+    ],
+  },
 ];
