@@ -51931,4 +51931,104 @@ function rand10(): number {
       },
     ],
   },
+  {
+    id: 'heaters',
+    label: '475. LeetCode 475. 供暖器',
+    difficulty: '中等',
+    description:
+      '这题要求的是最小加热半径，使所有房屋都能被某个供暖器覆盖。核心是对每栋房子找到最近的供暖器，再取这些最近距离中的最大值。',
+    outcome:
+      '你能通过排序和二分查找，快速找出覆盖所有房屋所需的最小统一供暖半径。',
+    sections: [
+      {
+        id: 'heaters-summary',
+        title: '题目在问什么',
+        summary:
+          '给定房屋坐标数组 `houses` 和供暖器坐标数组 `heaters`，要求找到一个最小半径 `r`，使得每栋房屋都至少被某个供暖器覆盖到。',
+        bullets: [
+          '所有供暖器半径相同。',
+          '每栋房屋只需被任意一个供暖器覆盖。',
+          '目标是最小化这个统一半径。',
+          '本质是最近点距离的上确界问题。',
+        ],
+      },
+      {
+        id: 'heaters-nearest',
+        title: '每栋房子的关键值是离最近供暖器有多远',
+        summary:
+          '如果知道某栋房子到最近供暖器的距离，那它至少需要这么大的半径才会被覆盖。对所有房子都做这个计算后，最终答案就是这些最小需求中的最大值。',
+        bullets: [
+          '单个房子只关心最近供暖器。',
+          '整体答案由最难覆盖的那栋房子决定。',
+          '问题被拆成多个最近点查询。',
+          '最后再做一次最大值汇总。',
+        ],
+      },
+      {
+        id: 'heaters-binary-search',
+        title: '供暖器排序后，对每栋房子做最近位置查找',
+        summary:
+          '先将 `heaters` 排序。对于某栋房子 `house`，可以用二分找到第一个不小于它的供暖器位置，再同时比较这个供暖器和前一个供暖器与它的距离，取较小者作为最近距离。',
+        bullets: [
+          '排序是二分查找的前提。',
+          '最近供暖器一定在插入位置附近。',
+          '只需比较左右两个候选点。',
+          '整体复杂度可控且实现清晰。',
+        ],
+        callout:
+          '这题不是去猜半径再整体验证，而是先做局部最近距离，再把局部需求汇总成全局答案。',
+      },
+      {
+        id: 'heaters-solution',
+        title: '标准解法：排序供暖器 + 二分最近距离',
+        summary:
+          '对 `heaters` 升序排序。遍历每栋房屋，用二分找到它在供暖器数组中的插入位置 `index`，然后计算与左侧供暖器和右侧供暖器的距离，取较小者作为该房屋最近距离；最终答案是所有房屋最近距离中的最大值。',
+        bullets: [
+          '时间复杂度是 `O(h log k)`，`h` 为房屋数，`k` 为供暖器数。',
+          '空间复杂度是 `O(1)` 或排序额外空间。',
+          '是排序 + 二分最近点模板题。',
+          '边界在数组首尾位置处理。',
+        ],
+        code: `function findRadius(houses: number[], heaters: number[]): number {
+  heaters.sort((a, b) => a - b)
+  let answer = 0
+
+  for (const house of houses) {
+    let left = 0
+    let right = heaters.length
+
+    while (left < right) {
+      const mid = Math.floor((left + right) / 2)
+      if (heaters[mid] < house) {
+        left = mid + 1
+      } else {
+        right = mid
+      }
+    }
+
+    const rightDistance =
+      left < heaters.length ? Math.abs(heaters[left] - house) : Number.MAX_SAFE_INTEGER
+    const leftDistance =
+      left > 0 ? Math.abs(house - heaters[left - 1]) : Number.MAX_SAFE_INTEGER
+
+    answer = Math.max(answer, Math.min(leftDistance, rightDistance))
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'heaters-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是二分后只看一侧供暖器，漏掉另一侧更近的情况；或者把全局答案错写成最小值而不是最大值。',
+        bullets: [
+          '易错点 1：只比较插入位置右边供暖器。',
+          '易错点 2：答案聚合时写成 `min`。',
+          '易错点 3：数组边界位置处理不完整。',
+          '延伸方向：最近点查询、排序二分、区间覆盖。',
+        ],
+      },
+    ],
+  },
 ];
