@@ -51834,4 +51834,101 @@ function rand10(): number {
       },
     ],
   },
+  {
+    id: 'ones-and-zeroes',
+    label: '474. LeetCode 474. 一和零',
+    difficulty: '中等',
+    description:
+      '这题表面是字符串选择，实质上是二维费用的 0/1 背包。每个字符串都会消耗一定数量的 `0` 和 `1`，目标是在容量限制下选最多个字符串。',
+    outcome:
+      '你能把字符串计数问题转成二维 0/1 背包，并正确使用逆序遍历完成状态转移。',
+    sections: [
+      {
+        id: 'ones-and-zeroes-summary',
+        title: '题目在问什么',
+        summary:
+          '给定二进制字符串数组 `strs`，以及两个整数 `m` 和 `n`，分别表示最多可用的 `0` 和 `1` 的数量。要求从中选出最多的字符串，使总 `0` 数不超过 `m`，总 `1` 数不超过 `n`。',
+        bullets: [
+          '每个字符串最多选一次。',
+          '资源有两种：`0` 和 `1`。',
+          '目标是最大化选中字符串数量。',
+          '是典型多维背包题。',
+        ],
+      },
+      {
+        id: 'ones-and-zeroes-cost',
+        title: '每个字符串都对应一个二维成本',
+        summary:
+          '对于任意字符串，都可以先统计它包含多少个 `0` 和多少个 `1`。这两个数量就是它的“体积”，而价值统一都是 1，因为选中一个字符串，答案就加一。',
+        bullets: [
+          '字符串先转成 `(zeros, ones)` 二维成本。',
+          '每个物品价值都相同，为 1。',
+          '容量上限是 `(m, n)`。',
+          '问题被标准化成二维背包。',
+        ],
+      },
+      {
+        id: 'ones-and-zeroes-dp',
+        title: '二维 0/1 背包要倒序更新',
+        summary:
+          '设 `dp[i][j]` 表示在最多使用 `i` 个 `0` 和 `j` 个 `1` 时，最多能选多少个字符串。遍历每个字符串后，必须让 `i` 和 `j` 都从大到小更新，这样才能保证每个字符串只被使用一次，而不会在同一轮被重复选入。',
+        bullets: [
+          '状态是二维容量下的最优值。',
+          '倒序遍历是 0/1 背包关键。',
+          '正序会导致同一物品被重复使用。',
+          '转移式非常标准。',
+        ],
+        callout:
+          '只要看到“每个元素选或不选一次，且有多个容量限制”，就该立刻联想到多维 0/1 背包。',
+      },
+      {
+        id: 'ones-and-zeroes-solution',
+        title: '标准解法：二维 0/1 背包',
+        summary:
+          '初始化 `dp[m + 1][n + 1]` 为 0。对每个字符串统计 `zeros` 和 `ones`，然后让 `i` 从 `m` 递减到 `zeros`，`j` 从 `n` 递减到 `ones`，执行 `dp[i][j] = Math.max(dp[i][j], dp[i - zeros][j - ones] + 1)`。',
+        bullets: [
+          '时间复杂度是 `O(len(strs) * m * n)`。',
+          '空间复杂度是 `O(mn)`。',
+          '实现不长，但背包意识必须清楚。',
+          '是多维背包入门代表题。',
+        ],
+        code: `function findMaxForm(strs: string[], m: number, n: number): number {
+  const dp = Array.from({ length: m + 1 }, () => new Array<number>(n + 1).fill(0))
+
+  for (const str of strs) {
+    let zeros = 0
+    let ones = 0
+
+    for (const char of str) {
+      if (char === '0') {
+        zeros += 1
+      } else {
+        ones += 1
+      }
+    }
+
+    for (let i = m; i >= zeros; i -= 1) {
+      for (let j = n; j >= ones; j -= 1) {
+        dp[i][j] = Math.max(dp[i][j], dp[i - zeros][j - ones] + 1)
+      }
+    }
+  }
+
+  return dp[m][n]
+}`,
+      },
+      {
+        id: 'ones-and-zeroes-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没把它认成二维 0/1 背包，或者更新顺序写成正序，结果同一个字符串会被多次使用。',
+        bullets: [
+          '易错点 1：忘记倒序更新容量。',
+          '易错点 2：没先统计每个字符串的 `0/1` 数量。',
+          '易错点 3：把它误写成完全背包。',
+          '延伸方向：二维背包、多约束优化、资源分配问题。',
+        ],
+      },
+    ],
+  },
 ];
