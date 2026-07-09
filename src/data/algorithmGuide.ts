@@ -52200,4 +52200,97 @@ function rand10(): number {
       },
     ],
   },
+  {
+    id: 'generate-random-point-in-a-circle',
+    label: '478. LeetCode 478. 在圆内随机生成点',
+    difficulty: '中等',
+    description:
+      '这题不是随便在边长为 `2r` 的正方形里取点，而是要保证圆内每个位置被命中的概率一致。关键是半径不能线性随机，而要做平方根修正。',
+    outcome: '你能利用极坐标和面积均匀分布原理，在圆内生成真正均匀的随机点。',
+    sections: [
+      {
+        id: 'generate-random-point-in-a-circle-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个类，初始化时给定圆的半径和圆心坐标，随后调用 `randPoint()` 时，要求随机返回一个在该圆内部均匀分布的点。',
+        bullets: [
+          '点必须落在圆内部或圆边界上。',
+          '概率分布必须均匀。',
+          '不能只保证“看起来随机”。',
+          '本质是几何概率构造题。',
+        ],
+      },
+      {
+        id: 'generate-random-point-in-a-circle-polar',
+        title: '角度均匀很好做，难点在半径分布',
+        summary:
+          '角度 `theta` 直接在 `0` 到 `2π` 之间均匀随机即可。但若半径 `r` 也线性均匀随机，圆心附近会过密，因为面积随半径平方增长。正确做法是让半径满足面积均匀，也就是取 `sqrt(U) * radius`。',
+        bullets: [
+          '角度分布应均匀。',
+          '半径不能直接线性随机。',
+          '面积均匀意味着半径平方均匀。',
+          '平方根修正是这题核心。',
+        ],
+      },
+      {
+        id: 'generate-random-point-in-a-circle-convert',
+        title: '极坐标转回平面坐标即可',
+        summary:
+          '拿到随机角度 `theta` 和随机半径 `dist` 后，用 `x = xCenter + dist * cos(theta)`，`y = yCenter + dist * sin(theta)`，就能得到圆内的均匀随机点。',
+        bullets: [
+          '构造过程非常稳定。',
+          '不需要做拒绝采样。',
+          '生成一次就能得到合法点。',
+          '实现短但概率细节重要。',
+        ],
+        callout:
+          '几何随机题里，最大误区是把“坐标均匀”误认为“面积均匀”。这两件事不是一回事。',
+      },
+      {
+        id: 'generate-random-point-in-a-circle-solution',
+        title: '标准解法：极坐标 + 平方根半径',
+        summary:
+          '每次调用 `randPoint()` 时，先生成 `theta = Math.random() * 2 * Math.PI`，再生成 `dist = Math.sqrt(Math.random()) * radius`。最后把极坐标换成平面坐标并加上圆心偏移，得到答案点。',
+        bullets: [
+          '单次调用时间复杂度是 `O(1)`。',
+          '空间复杂度是 `O(1)`。',
+          '是几何概率构造的基础题。',
+          '关键是理解面积均匀。',
+        ],
+        code: `class Solution {
+  private radius: number
+  private xCenter: number
+  private yCenter: number
+
+  constructor(radius: number, xCenter: number, yCenter: number) {
+    this.radius = radius
+    this.xCenter = xCenter
+    this.yCenter = yCenter
+  }
+
+  randPoint(): number[] {
+    const theta = Math.random() * 2 * Math.PI
+    const dist = Math.sqrt(Math.random()) * this.radius
+
+    return [
+      this.xCenter + dist * Math.cos(theta),
+      this.yCenter + dist * Math.sin(theta),
+    ]
+  }
+}`,
+      },
+      {
+        id: 'generate-random-point-in-a-circle-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是半径直接做均匀随机，导致生成点明显偏向圆心；或者先在外接正方形取点再不做拒绝判断。',
+        bullets: [
+          '易错点 1：半径线性均匀随机。',
+          '易错点 2：把坐标分别独立均匀取值。',
+          '易错点 3：不了解面积分布与半径平方的关系。',
+          '延伸方向：拒绝采样、几何概率、随机分布变换。',
+        ],
+      },
+    ],
+  },
 ];
