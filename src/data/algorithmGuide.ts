@@ -52293,4 +52293,103 @@ function rand10(): number {
       },
     ],
   },
+  {
+    id: 'largest-palindrome-product',
+    label: '479. LeetCode 479. 最大回文数乘积',
+    difficulty: '困难',
+    description:
+      '这题不是去暴力枚举两个 `n` 位数的乘积，而是反过来枚举回文数，再判断它能否拆成两个 `n` 位数相乘。方向一换，搜索空间就降下来了。',
+    outcome:
+      '你能通过构造回文数并验证因子范围，求出两个 `n` 位数乘积里的最大回文值。',
+    sections: [
+      {
+        id: 'largest-palindrome-product-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数 `n`，要求返回由两个 `n` 位数相乘得到的最大回文数，并对 `1337` 取模。',
+        bullets: [
+          '两个因子都必须是 `n` 位数。',
+          '目标是最大回文乘积。',
+          '最终结果只返回模 `1337` 后的值。',
+          '直接暴力乘法枚举会非常慢。',
+        ],
+      },
+      {
+        id: 'largest-palindrome-product-construct',
+        title: '从大到小构造回文，比枚举乘积更高效',
+        summary:
+          '若直接枚举两个 `n` 位数乘积，范围太大。更好的做法是从大的前半部分出发，镜像构造一个完整回文数。这样一旦找到可行答案，就天然是最大的。',
+        bullets: [
+          '按回文值从大到小尝试。',
+          '前半段决定整个偶数长度回文。',
+          '先找到的合法值就是答案。',
+          '搜索方向比暴力更聪明。',
+        ],
+      },
+      {
+        id: 'largest-palindrome-product-factor-check',
+        title: '验证回文是否能拆成两个 n 位因子',
+        summary:
+          '构造出回文后，只需检查它是否存在一个 `n` 位因子 `x`，且另一个因子 `pal / x` 也落在 `n` 位范围内。为了减少检查量，可以从最大 `n` 位数往下枚举，并在 `x * x < pal` 时提前停止。',
+        bullets: [
+          '只需要检查可行因子范围。',
+          '平方界可以提前终止。',
+          '找到整除即可确认答案。',
+          '使用 `bigint` 更稳妥处理大数。',
+        ],
+        callout:
+          '这题本质是“先枚举答案，再验证答案是否合法”。很多组合题在正向构造太大时，都可以尝试反过来做。',
+      },
+      {
+        id: 'largest-palindrome-product-solution',
+        title: '标准解法：镜像构造回文并倒序验因子',
+        summary:
+          '若 `n = 1`，答案直接是 `9`。否则设最大 `n` 位数为 `upper`。从 `upper` 开始递减枚举前半部分 `left`，把它镜像成回文 `pal`；然后从 `upper` 往下枚举因子 `x`，若 `x * x < pal` 就停止，若 `pal % x === 0` 则找到答案，返回 `pal % 1337`。',
+        bullets: [
+          '最坏复杂度仍不低，但足以通过数据范围。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在回文构造与提前剪枝。',
+          '是搜索方向优化的经典题。',
+        ],
+        code: `function largestPalindrome(n: number): number {
+  if (n === 1) {
+    return 9
+  }
+
+  const upper = BigInt(10 ** n - 1)
+  const lower = BigInt(10 ** (n - 1))
+
+  const buildPalindrome = (left: bigint): bigint => {
+    const text = left.toString()
+    const reversed = text.split('').reverse().join('')
+    return BigInt(text + reversed)
+  }
+
+  for (let left = upper; left >= lower; left -= 1n) {
+    const palindrome = buildPalindrome(left)
+
+    for (let factor = upper; factor * factor >= palindrome; factor -= 1n) {
+      if (palindrome % factor === 0n) {
+        return Number(palindrome % 1337n)
+      }
+    }
+  }
+
+  return 0
+}`,
+      },
+      {
+        id: 'largest-palindrome-product-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是还在正向暴力枚举两个乘数；或者在 JS 里直接用普通 `number` 处理大乘积，忽略了精度风险。',
+        bullets: [
+          '易错点 1：暴力枚举所有乘积组合。',
+          '易错点 2：没有使用回文构造减少搜索空间。',
+          '易错点 3：大整数精度处理不稳。',
+          '延伸方向：回文构造、搜索剪枝、答案逆向枚举。',
+        ],
+      },
+    ],
+  },
 ];
