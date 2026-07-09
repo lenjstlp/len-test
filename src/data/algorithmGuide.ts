@@ -52716,4 +52716,88 @@ function medianSlidingWindow(nums: number[], k: number): number[] {
       },
     ],
   },
+  {
+    id: 'license-key-formatting',
+    label: '482. LeetCode 482. 密钥格式化',
+    difficulty: '简单',
+    description:
+      '这题主要是字符串重排。先去掉原有横线并统一大小写，再从后往前每 `k` 个字符插入一条分隔线，逻辑会最顺。',
+    outcome:
+      '你能完成密钥字符串的清洗、分组和格式重组，并正确处理首组长度不固定的情况。',
+    sections: [
+      {
+        id: 'license-key-formatting-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个由字母、数字和连字符组成的字符串 `s`，以及整数 `k`。要求重新格式化字符串：删掉原有连字符，字母全部转大写，再从前到后分组，每组长度为 `k`，但第一组可以短于 `k`。',
+        bullets: [
+          '原有 `-` 都不保留。',
+          '字母需要统一成大写。',
+          '每组长度通常为 `k`。',
+          '第一组允许更短。',
+        ],
+      },
+      {
+        id: 'license-key-formatting-clean',
+        title: '先清洗字符串，后分组会更简单',
+        summary:
+          '如果边遍历边处理分组，容易在首组长度上绕晕。更稳妥的做法是先把所有连字符删掉，并把字母转成大写，得到一个纯净字符串，再考虑如何切块。',
+        bullets: [
+          '先标准化输入格式。',
+          '清洗后只剩连续有效字符。',
+          '后续分组逻辑更独立。',
+          '是典型的分步处理思路。',
+        ],
+      },
+      {
+        id: 'license-key-formatting-backward',
+        title: '从后往前分组最符合题目规则',
+        summary:
+          '因为除了第一组外，其余各组长度都应为 `k`，所以从后往前每次取 `k` 个字符最自然。这样最后剩下的前缀自动成为第一组，无需单独复杂讨论。',
+        bullets: [
+          '逆向分组天然适配“首组可短”规则。',
+          '每次固定拿 `k` 个字符。',
+          '最后剩下的就是第一组。',
+          '实现更稳定。',
+        ],
+        callout:
+          '很多格式化题，正向做容易被边界困住，逆向做反而更顺。因为规则常常是“末尾分组固定，开头特殊”。',
+      },
+      {
+        id: 'license-key-formatting-solution',
+        title: '标准解法：清洗后逆序分块',
+        summary:
+          '先用 `replace` 去掉所有 `-`，再转成大写。然后从字符串末尾开始，每次截取长度为 `k` 的一段放入数组，最后把数组反转并用 `-` 拼接即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现短小直接。',
+          '重点在分组方向选择。',
+        ],
+        code: `function licenseKeyFormatting(s: string, k: number): string {
+  const cleaned = s.replace(/-/g, '').toUpperCase()
+  const groups: string[] = []
+
+  for (let end = cleaned.length; end > 0; end -= k) {
+    const start = Math.max(0, end - k)
+    groups.push(cleaned.slice(start, end))
+  }
+
+  return groups.reverse().join('-')
+}`,
+      },
+      {
+        id: 'license-key-formatting-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接正向分组导致首组长度处理混乱；或者忘记先删掉原有横线和统一大写。',
+        bullets: [
+          '易错点 1：保留了原有 `-`。',
+          '易错点 2：没有统一转成大写。',
+          '易错点 3：首组长度处理错误。',
+          '延伸方向：字符串重排、分组格式化、文本规范化。',
+        ],
+      },
+    ],
+  },
 ];
