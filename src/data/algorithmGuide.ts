@@ -52613,4 +52613,107 @@ function medianSlidingWindow(nums: number[], k: number): number[] {
       },
     ],
   },
+  {
+    id: 'magical-string',
+    label: '481. LeetCode 481. 神奇字符串',
+    difficulty: '中等',
+    description:
+      '这题的字符串本身既是数据，又是生成规则。核心是用双指针模拟“当前要写几个数”，而不是真的反复数段落。',
+    outcome:
+      '你能按照神奇字符串的自描述规则进行线性模拟，并统计前 `n` 个字符中 `1` 的数量。',
+    sections: [
+      {
+        id: 'magical-string-summary',
+        title: '题目在问什么',
+        summary:
+          '神奇字符串只由 `1` 和 `2` 组成，把它按连续段长度读出来，得到的序列又恰好等于它本身。给定 `n`，要求返回这个字符串前 `n` 个字符中 `1` 的个数。',
+        bullets: [
+          '字符串只包含 `1` 和 `2`。',
+          '它的连续段长度序列等于自身。',
+          '只需要统计前 `n` 个字符。',
+          '本质是规则模拟题。',
+        ],
+      },
+      {
+        id: 'magical-string-seed',
+        title: '起始种子确定后，后续完全可递推生成',
+        summary:
+          '神奇字符串开头固定为 `122`。之后维护一个读取指针 `head`，表示当前要生成多少个字符；再维护当前准备写入的数字 `value`，在 `1` 和 `2` 之间来回切换。这样就能一边读规则，一边写新字符。',
+        bullets: [
+          '初始种子是 `122`。',
+          '`head` 指向当前“要写几次”的位置。',
+          '`value` 表示当前准备填入的数字。',
+          '生成过程是自驱动的。',
+        ],
+      },
+      {
+        id: 'magical-string-simulation',
+        title: '读一个计数，写若干个当前值，再切换值',
+        summary:
+          '每次看 `magic[head]`，如果是 `1` 就写一个当前值，如果是 `2` 就写两个当前值。写完后把 `value` 从 `1` 切到 `2` 或反过来，并让 `head` 向前走。因为我们只关心前 `n` 个字符，所以生成到长度达到 `n` 就可以停止。',
+        bullets: [
+          '规则读取和字符写入同步进行。',
+          '当前值始终在 `1` 和 `2` 间切换。',
+          '生成长度达到 `n` 即可停止。',
+          '全过程只需线性时间。',
+        ],
+        callout:
+          '这题看着像构造题，实则是非常标准的双指针模拟。把“读规则”和“写结果”分成两个角色后，思路就清楚了。',
+      },
+      {
+        id: 'magical-string-solution',
+        title: '标准解法：双指针线性模拟生成',
+        summary:
+          '若 `n <= 3`，答案显然可直接返回。否则用数组保存当前生成的神奇字符串，从种子 `122` 开始。用 `head` 指针读取要追加的次数，用 `value` 记录当前要追加的是 `1` 还是 `2`。每次追加后若写入的是 `1` 且位置仍在前 `n` 范围内，就更新计数。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点是读写角色分离。',
+          '属于模拟题中的经典题。',
+        ],
+        code: `function magicalString(n: number): number {
+  if (n <= 0) {
+    return 0
+  }
+
+  if (n <= 3) {
+    return 1
+  }
+
+  const magic = [1, 2, 2]
+  let head = 2
+  let value = 1
+  let ones = 1
+
+  while (magic.length < n) {
+    const repeat = magic[head]
+
+    for (let count = 0; count < repeat && magic.length < n; count += 1) {
+      magic.push(value)
+      if (value === 1) {
+        ones += 1
+      }
+    }
+
+    value = value === 1 ? 2 : 1
+    head += 1
+  }
+
+  return ones
+}`,
+      },
+      {
+        id: 'magical-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“连续段长度”和“字符值”混在一起，导致读写逻辑错乱；或者统计 `1` 的数量时把越界生成的字符也算进去。',
+        bullets: [
+          '易错点 1：没有区分规则读取和字符追加。',
+          '易错点 2：`1` 和 `2` 的切换时机写错。',
+          '易错点 3：超过前 `n` 个字符的部分也计数了。',
+          '延伸方向：双指针模拟、自描述序列、构造问题。',
+        ],
+      },
+    ],
+  },
 ];
