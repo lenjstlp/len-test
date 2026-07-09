@@ -52392,4 +52392,225 @@ function rand10(): number {
       },
     ],
   },
+  {
+    id: 'sliding-window-median',
+    label: '480. LeetCode 480. 滑动窗口中位数',
+    difficulty: '困难',
+    description:
+      '这题要求窗口不断滑动时实时给出中位数，排序重算会超时。核心是用两个堆维护左右两半，再配合延迟删除处理窗口移出元素。',
+    outcome:
+      '你能理解双堆加懒删除的窗口中位数维护方式，并在窗口移动时高效更新答案。',
+    sections: [
+      {
+        id: 'sliding-window-median-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `nums` 和窗口大小 `k`，窗口从左到右滑动。每移动一步，都要求返回当前窗口内的中位数组成的新数组。',
+        bullets: [
+          '窗口每次只移动一个位置。',
+          '需要持续维护当前窗口中位数。',
+          '窗口大小固定，但内容动态变化。',
+          '暴力排序每个窗口会超时。',
+        ],
+      },
+      {
+        id: 'sliding-window-median-two-heaps',
+        title: '两个堆分别维护中位数左右两半',
+        summary:
+          '用一个最大堆保存较小的一半元素，用一个最小堆保存较大的一半元素。这样中位数就总在两个堆顶附近：若 `k` 为奇数，中位数是左堆堆顶；若 `k` 为偶数，中位数是左右堆顶的平均值。',
+        bullets: [
+          '左堆保存较小一半。',
+          '右堆保存较大一半。',
+          '两个堆大小差最多为 1。',
+          '堆顶直接决定中位数。',
+        ],
+      },
+      {
+        id: 'sliding-window-median-lazy-delete',
+        title: '窗口移出元素时，用延迟删除避免堆内随机删除',
+        summary:
+          '堆适合弹出堆顶，不适合删除中间任意元素。为此可以用哈希表记录“这个值还有多少次待删除”，等它浮到堆顶时再真正弹出。这样既保住堆结构，又能正确处理窗口左端离开的元素。',
+        bullets: [
+          '懒删除解决堆中随机移除问题。',
+          '待删除计数存在哈希表里。',
+          '堆顶若命中待删元素，就持续清理。',
+          '这是本题实现难点。',
+        ],
+        callout:
+          '很多流式中位数题难的不是“怎么插入”，而是“怎么删除”。滑动窗口一旦涉及删除，懒删除几乎就是双堆方案的标配。',
+      },
+      {
+        id: 'sliding-window-median-solution',
+        title: '标准解法：双堆平衡 + 延迟删除',
+        summary:
+          '维护一个最大堆 `small`、一个最小堆 `large`，再维护待删除表 `delayed`。新元素进入时根据大小放入对应堆，移出元素时只做逻辑删除并调整有效元素计数。每轮操作后通过平衡函数维持两个堆的大小关系，再读取中位数。',
+        bullets: [
+          '时间复杂度约为 `O(n log k)`。',
+          '空间复杂度是 `O(k)`。',
+          '实现重点在平衡和清理逻辑。',
+          '是滑动窗口 + 数据结构的代表难题。',
+        ],
+        code: `class Heap {
+  private data: number[] = []
+  private compare: (a: number, b: number) => boolean
+
+  constructor(compare: (a: number, b: number) => boolean) {
+    this.compare = compare
+  }
+
+  size(): number {
+    return this.data.length
+  }
+
+  peek(): number {
+    return this.data[0]
+  }
+
+  push(value: number): void {
+    this.data.push(value)
+    this.siftUp(this.data.length - 1)
+  }
+
+  pop(): number {
+    const top = this.data[0]
+    const last = this.data.pop() as number
+    if (this.data.length > 0) {
+      this.data[0] = last
+      this.siftDown(0)
+    }
+    return top
+  }
+
+  private siftUp(index: number): void {
+    while (index > 0) {
+      const parent = Math.floor((index - 1) / 2)
+      if (this.compare(this.data[parent], this.data[index])) {
+        break
+      }
+      ;[this.data[parent], this.data[index]] = [this.data[index], this.data[parent]]
+      index = parent
+    }
+  }
+
+  private siftDown(index: number): void {
+    const length = this.data.length
+
+    while (true) {
+      let best = index
+      const left = index * 2 + 1
+      const right = index * 2 + 2
+
+      if (left < length && !this.compare(this.data[best], this.data[left])) {
+        best = left
+      }
+
+      if (right < length && !this.compare(this.data[best], this.data[right])) {
+        best = right
+      }
+
+      if (best === index) {
+        break
+      }
+
+      ;[this.data[index], this.data[best]] = [this.data[best], this.data[index]]
+      index = best
+    }
+  }
+}
+
+function medianSlidingWindow(nums: number[], k: number): number[] {
+  const small = new Heap((a, b) => a >= b)
+  const large = new Heap((a, b) => a <= b)
+  const delayed = new Map<number, number>()
+  let smallSize = 0
+  let largeSize = 0
+
+  const prune = (heap: Heap): void => {
+    while (heap.size() > 0) {
+      const value = heap.peek()
+      const count = delayed.get(value) ?? 0
+      if (count === 0) {
+        break
+      }
+      delayed.set(value, count - 1)
+      if (count === 1) {
+        delayed.delete(value)
+      }
+      heap.pop()
+    }
+  }
+
+  const balance = (): void => {
+    if (smallSize > largeSize + 1) {
+      large.push(small.pop())
+      smallSize -= 1
+      largeSize += 1
+      prune(small)
+    } else if (smallSize < largeSize) {
+      small.push(large.pop())
+      smallSize += 1
+      largeSize -= 1
+      prune(large)
+    }
+  }
+
+  const insert = (value: number): void => {
+    if (small.size() === 0 || value <= small.peek()) {
+      small.push(value)
+      smallSize += 1
+    } else {
+      large.push(value)
+      largeSize += 1
+    }
+    balance()
+  }
+
+  const erase = (value: number): void => {
+    delayed.set(value, (delayed.get(value) ?? 0) + 1)
+    if (value <= small.peek()) {
+      smallSize -= 1
+      if (value === small.peek()) {
+        prune(small)
+      }
+    } else {
+      largeSize -= 1
+      if (large.size() > 0 && value === large.peek()) {
+        prune(large)
+      }
+    }
+    balance()
+  }
+
+  const getMedian = (): number =>
+    k % 2 === 1 ? small.peek() : (small.peek() + large.peek()) / 2
+
+  for (let i = 0; i < k; i += 1) {
+    insert(nums[i])
+  }
+
+  const answer = [getMedian()]
+
+  for (let right = k; right < nums.length; right += 1) {
+    insert(nums[right])
+    erase(nums[right - k])
+    answer.push(getMedian())
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'sliding-window-median-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是双堆能插入却不会删除；或者懒删除后没有及时清理堆顶，导致中位数读到的是已失效元素。',
+        bullets: [
+          '易错点 1：窗口左端元素移出时直接忽略。',
+          '易错点 2：堆平衡后没继续清理待删堆顶。',
+          '易错点 3：偶数窗口中位数计算错误。',
+          '延伸方向：数据流中位数、懒删除、滑动窗口数据结构。',
+        ],
+      },
+    ],
+  },
 ];
