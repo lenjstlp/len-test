@@ -53100,4 +53100,95 @@ function medianSlidingWindow(nums: number[], k: number): number[] {
       },
     ],
   },
+  {
+    id: 'predict-the-winner',
+    label: '486. LeetCode 486. 预测赢家',
+    difficulty: '中等',
+    description:
+      '这题不是比较“我能拿多少分”，而是比较“当前玩家相对对手最多能领先多少分”。一旦改成分差视角，区间 DP 就很自然了。',
+    outcome: '你能通过博弈区间 DP 判断先手在双方最优策略下是否至少能打平对手。',
+    sections: [
+      {
+        id: 'predict-the-winner-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个非负整数数组 `nums`，两个玩家轮流从数组两端取数，直到取完。每个人都采取最优策略，问先手玩家最终是否能够获胜或至少打平。',
+        bullets: [
+          '每次只能从两端取一个数。',
+          '双方都足够聪明。',
+          '平局也算先手赢。',
+          '本质是双人零和博弈。',
+        ],
+      },
+      {
+        id: 'predict-the-winner-difference',
+        title: '把问题转成“当前玩家最多能领先多少分”',
+        summary:
+          '如果直接分别算两个人的分数，状态会比较别扭。更自然的定义是：在某个区间内，当前出手玩家相对于对手最多能领先多少分。这样一来，若我拿左边这个数，后续对手在剩余区间能领先我多少，就应该从我当前拿到的分数里减掉。',
+        bullets: [
+          '分差视角天然适合零和博弈。',
+          '我得分多，对手就相对吃亏。',
+          '转移时会出现“当前取值 - 对手最优分差”。',
+          '状态含义一旦清楚，式子很直接。',
+        ],
+      },
+      {
+        id: 'predict-the-winner-interval-dp',
+        title: '区间 DP 正好刻画剩余可选区间',
+        summary:
+          '设 `dp[left][right]` 表示在子数组 `nums[left..right]` 上，轮到当前玩家出手时，他相对对手最多能领先多少分。若拿左端，则收益是 `nums[left] - dp[left + 1][right]`；若拿右端，则收益是 `nums[right] - dp[left][right - 1]`。取两者较大即可。',
+        bullets: [
+          '状态是区间上的最优分差。',
+          '左右两种选择形成标准转移。',
+          '长度为 1 的区间答案就是该数本身。',
+          '最终只看整体区间分差是否非负。',
+        ],
+        callout:
+          '很多博弈题都适合改写成“相对优势”而不是“绝对得分”。一旦改成分差，双方轮流最优的结构就特别清楚。',
+      },
+      {
+        id: 'predict-the-winner-solution',
+        title: '标准解法：区间 DP 计算最优分差',
+        summary:
+          '初始化 `dp[i][i] = nums[i]`。随后按区间长度从小到大填表。对任意区间 `[left, right]`，计算拿左端和拿右端的两种分差，并取更大值作为 `dp[left][right]`。最后若 `dp[0][n - 1] >= 0`，说明先手至少可以打平，因此返回 `true`。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度是 `O(n^2)`，也可继续优化。',
+          '实现重点在状态定义。',
+          '是博弈区间 DP 基础题。',
+        ],
+        code: `function PredictTheWinner(nums: number[]): boolean {
+  const n = nums.length
+  const dp = Array.from({ length: n }, () => new Array<number>(n).fill(0))
+
+  for (let i = 0; i < n; i += 1) {
+    dp[i][i] = nums[i]
+  }
+
+  for (let length = 2; length <= n; length += 1) {
+    for (let left = 0; left + length - 1 < n; left += 1) {
+      const right = left + length - 1
+      const takeLeft = nums[left] - dp[left + 1][right]
+      const takeRight = nums[right] - dp[left][right - 1]
+      dp[left][right] = Math.max(takeLeft, takeRight)
+    }
+  }
+
+  return dp[0][n - 1] >= 0
+}`,
+      },
+      {
+        id: 'predict-the-winner-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它写成普通求和 DP，忽略了“对手也在最优地和你对抗”；或者状态里不使用分差定义，导致转移非常拧巴。',
+        bullets: [
+          '易错点 1：没用分差定义状态。',
+          '易错点 2：把后手最优行为漏掉了。',
+          '易错点 3：把平局误判成失败。',
+          '延伸方向：区间 DP、博弈论、最优策略分析。',
+        ],
+      },
+    ],
+  },
 ];
