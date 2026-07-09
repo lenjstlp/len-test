@@ -52800,4 +52800,118 @@ function medianSlidingWindow(nums: number[], k: number): number[] {
       },
     ],
   },
+  {
+    id: 'smallest-good-base',
+    label: '483. LeetCode 483. 最小好进制',
+    difficulty: '困难',
+    description:
+      '这题不是在所有进制上硬试，而是抓住好进制的本质：若一个数在某进制下全是 `1`，它一定能写成等比数列求和。',
+    outcome:
+      '你能把进制问题转成等比数列求和方程，并通过枚举位数加二分底数求出最小好进制。',
+    sections: [
+      {
+        id: 'smallest-good-base-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个十进制字符串 `n`，要求找到它的最小好进制 `k`。好进制的意思是：把 `n` 表示成 `k` 进制后，所有位都为 `1`。',
+        bullets: [
+          '目标是最小进制。',
+          '表示结果必须全部是 `1`。',
+          '输入数可能很大。',
+          '不能直接逐个试所有进制。',
+        ],
+      },
+      {
+        id: 'smallest-good-base-series',
+        title: '全是 1 的进制表示，本质是等比数列和',
+        summary:
+          '若某个数在进制 `k` 下写成 `111...111`，共有 `m + 1` 位，那么它的十进制值就是 `1 + k + k^2 + ... + k^m`。因此题目等价于：能否找到某个 `k` 和 `m`，使这个等比和等于 `n`。',
+        bullets: [
+          '进制表示被转成数学方程。',
+          '位数越多，底数通常越小。',
+          '最小进制往往对应尽量多的位数。',
+          '核心是求解有限等比和。',
+        ],
+      },
+      {
+        id: 'smallest-good-base-enumerate-length',
+        title: '先枚举位数，再二分底数',
+        summary:
+          '若 `n` 有 `m + 1` 位全 1 表示，那么最小底数至少是 2，所以最大位数不会超过 `log2(n)`。因此可以从大位数往小位数枚举 `m`。对于固定 `m`，再在可能的底数范围内二分查找，看是否存在一个 `k` 使得等比和恰好为 `n`。',
+        bullets: [
+          '位数上界可由二进制长度给出。',
+          '先枚举长表示，便于优先找到更小底数。',
+          '固定长度后，底数可二分。',
+          '需要用 `bigint` 防止溢出。',
+        ],
+        callout:
+          '这题很典型：看似是进制题，实际上是数学建模 + 搜索。把“全是 1”翻译成等比和之后，问题就可计算了。',
+      },
+      {
+        id: 'smallest-good-base-solution',
+        title: '标准解法：枚举位数 + 二分验证等比和',
+        summary:
+          '把输入转成 `bigint`。从最大可能位数开始递减枚举 `m`，对每个 `m` 在 `[2, n^(1/m)]` 范围内二分 `k`。验证时逐项累加 `1 + k + ... + k^m`，若和等于 `n` 就返回 `k`。如果所有更长表示都失败，最后答案一定是 `n - 1`，对应表示为 `11`。',
+        bullets: [
+          '时间复杂度与位数枚举和二分次数有关。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在大整数和界限处理。',
+          '是数学建模题代表作。',
+        ],
+        code: `function smallestGoodBase(n: string): string {
+  const target = BigInt(n)
+  const maxM = Math.floor(Math.log2(Number(n)))
+
+  const compareSum = (base: bigint, m: number): bigint => {
+    let sum = 1n
+    let current = 1n
+
+    for (let i = 1; i <= m; i += 1) {
+      current *= base
+      sum += current
+      if (sum > target) {
+        break
+      }
+    }
+
+    return sum
+  }
+
+  for (let m = maxM; m >= 1; m -= 1) {
+    let left = 2n
+    let right = BigInt(Math.floor(Number(n) ** (1 / m)))
+
+    while (left <= right) {
+      const mid = (left + right) >> 1n
+      const sum = compareSum(mid, m)
+
+      if (sum === target) {
+        return mid.toString()
+      }
+
+      if (sum < target) {
+        left = mid + 1n
+      } else {
+        right = mid - 1n
+      }
+    }
+  }
+
+  return (target - 1n).toString()
+}`,
+      },
+      {
+        id: 'smallest-good-base-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是按进制从小到大硬试；或者虽然想到等比和，却没有从最大位数往下枚举，导致最小底数这个目标没有被正确利用。',
+        bullets: [
+          '易错点 1：直接暴力试所有底数。',
+          '易错点 2：没用 `bigint` 导致溢出。',
+          '易错点 3：位数和底数枚举顺序搞反。',
+          '延伸方向：等比数列、进制转换、数学搜索。',
+        ],
+      },
+    ],
+  },
 ];
