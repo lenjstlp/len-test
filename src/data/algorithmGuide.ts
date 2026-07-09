@@ -53013,4 +53013,91 @@ function medianSlidingWindow(nums: number[], k: number): number[] {
       },
     ],
   },
+  {
+    id: 'max-consecutive-ones',
+    label: '485. LeetCode 485. 最大连续 1 的个数',
+    difficulty: '简单',
+    description:
+      '这题本质是线性扫描计数。遇到 `1` 就延长当前连续段，遇到 `0` 就结算并清零。',
+    outcome: '你能用一次遍历统计二进制数组中最长的连续 `1` 段长度。',
+    sections: [
+      {
+        id: 'max-consecutive-ones-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0` 和 `1` 的数组 `nums`，要求返回其中最长连续 `1` 的个数。',
+        bullets: [
+          '只统计连续段，不是所有 `1` 的总数。',
+          '数组元素只有 `0/1`。',
+          '目标是最长连续长度。',
+          '是标准线性扫描题。',
+        ],
+      },
+      {
+        id: 'max-consecutive-ones-window',
+        title: '维护当前连续段和历史最大值',
+        summary:
+          '遍历数组时，若当前元素是 `1`，就让当前连续长度加一；若是 `0`，说明这一段被打断，需要先更新历史最大值，再把当前长度清零。遍历结束后再比较一次即可。',
+        bullets: [
+          '当前段长度随 `1` 递增。',
+          '`0` 会打断连续段。',
+          '最大值可随时更新。',
+          '实现简单直接。',
+        ],
+      },
+      {
+        id: 'max-consecutive-ones-scan',
+        title: '一次遍历就能完成统计',
+        summary:
+          '由于每个位置只会影响“当前连续长度”和“全局最大值”，不需要额外数据结构。整个过程只需顺序扫一遍数组，就能得到答案。',
+        bullets: [
+          '不需要双指针或前缀和。',
+          '每个元素只处理一次。',
+          '适合作为数组扫描入门题。',
+          '复杂度非常低。',
+        ],
+        callout:
+          '很多基础题都不需要复杂技巧。关键是先把“当前状态”和“全局状态”分清楚，代码自然就简洁了。',
+      },
+      {
+        id: 'max-consecutive-ones-solution',
+        title: '标准解法：线性扫描累计连续长度',
+        summary:
+          '维护变量 `current` 表示当前连续 `1` 的长度，`answer` 表示历史最大值。遍历数组时，若元素为 `1`，则 `current += 1`；否则把 `answer` 与 `current` 比较后更新，并将 `current` 置零。最后返回 `Math.max(answer, current)`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '代码短小。',
+          '适合练习扫描式思维。',
+        ],
+        code: `function findMaxConsecutiveOnes(nums: number[]): number {
+  let answer = 0
+  let current = 0
+
+  for (const num of nums) {
+    if (num === 1) {
+      current += 1
+    } else {
+      answer = Math.max(answer, current)
+      current = 0
+    }
+  }
+
+  return Math.max(answer, current)
+}`,
+      },
+      {
+        id: 'max-consecutive-ones-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是在遇到 `0` 时忘记先更新最大值；或者遍历结束后没有再比较一次，漏掉数组结尾处的连续 `1` 段。',
+        bullets: [
+          '易错点 1：被 `0` 打断时没更新答案。',
+          '易错点 2：最后一段连续 `1` 没结算。',
+          '易错点 3：把题目理解成统计所有 `1` 的个数。',
+          '延伸方向：连续段统计、扫描计数、滑动窗口基础。',
+        ],
+      },
+    ],
+  },
 ];
