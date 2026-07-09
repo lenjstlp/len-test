@@ -52914,4 +52914,103 @@ function medianSlidingWindow(nums: number[], k: number): number[] {
       },
     ],
   },
+  {
+    id: 'find-permutation',
+    label: '484. LeetCode 484. 寻找排列',
+    difficulty: '中等',
+    description:
+      '这题不是穷举所有排列去匹配 `D/I` 模式，而是从最小字典序出发，按连续 `D` 段做局部翻转。',
+    outcome:
+      '你能利用连续下降段反转的贪心规律，构造出满足模式且字典序最小的排列。',
+    sections: [
+      {
+        id: 'find-permutation-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只由 `I` 和 `D` 组成的字符串 `s`，长度为 `n`。要求返回一个由 `1` 到 `n + 1` 组成的排列，使得 `I` 表示相邻位置递增，`D` 表示相邻位置递减，并且这个排列在所有可行答案中字典序最小。',
+        bullets: [
+          '`I` 表示上升，`D` 表示下降。',
+          '使用数字 `1` 到 `n + 1` 各一次。',
+          '不仅要可行，还要字典序最小。',
+          '本质是构造题。',
+        ],
+      },
+      {
+        id: 'find-permutation-greedy',
+        title: '默认升序最小，遇到连续 D 段再局部翻转',
+        summary:
+          '如果全是 `I`，最小排列显然就是 `1,2,3,...`。问题只出在连续的 `D` 段，因为这要求一段区间必须递减。为了在满足递减的同时保持整体尽量小，最好的办法是先放默认升序，再把每段连续 `D` 对应的区间反转。',
+        bullets: [
+          '默认升序天然字典序最小。',
+          '`D` 段必须通过局部逆序满足。',
+          '只反转必要区间，不动其它位置。',
+          '这样能保证全局仍然最小。',
+        ],
+      },
+      {
+        id: 'find-permutation-reverse',
+        title: '一个连续 D 段会对应一个连续区间反转',
+        summary:
+          '若 `s[i..j]` 是一段连续的 `D`，那么答案数组中对应位置 `[i, j + 1]` 需要整体翻转。因为这能让这段关系全部变成下降，同时保持使用的数字集合尽量小、顺序尽量靠前。',
+        bullets: [
+          '`D` 段长度决定反转区间长度。',
+          '注意右边界要到 `j + 1`。',
+          '多个 `D` 段彼此独立处理。',
+          '核心在正确定位连续区间。',
+        ],
+        callout:
+          '这题最有价值的地方，是把局部约束映射成局部操作。看到连续 `D`，就想到“对应区间反转”，整个问题瞬间清晰。',
+      },
+      {
+        id: 'find-permutation-solution',
+        title: '标准解法：初始化升序数组，再翻转每段 D 区间',
+        summary:
+          '先生成数组 `[1,2,...,n+1]`。随后遍历模式串，若当前位置不是 `D` 就继续；若遇到一段连续 `D`，记下起点 `left`，找到这段终点 `right` 后，将答案数组的 `[left, right + 1]` 区间原地反转。遍历结束后得到的就是字典序最小解。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)` 额外空间。',
+          '实现短且贪心性质清晰。',
+          '是模式构造题代表作。',
+        ],
+        code: `function findPermutation(s: string): number[] {
+  const answer = Array.from({ length: s.length + 1 }, (_, index) => index + 1)
+
+  let index = 0
+  while (index < s.length) {
+    if (s[index] !== 'D') {
+      index += 1
+      continue
+    }
+
+    const left = index
+    while (index < s.length && s[index] === 'D') {
+      index += 1
+    }
+
+    let start = left
+    let end = index
+    while (start < end) {
+      ;[answer[start], answer[end]] = [answer[end], answer[start]]
+      start += 1
+      end -= 1
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'find-permutation-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有意识到连续 `D` 需要整体翻转；或者反转区间右边界少取了一位，导致模式最后一个下降关系没被满足。',
+        bullets: [
+          '易错点 1：只交换相邻元素，不处理整段 `D`。',
+          '易错点 2：反转区间没覆盖到 `right + 1`。',
+          '易错点 3：忽略字典序最小这个目标。',
+          '延伸方向：贪心构造、区间反转、模式匹配排列。',
+        ],
+      },
+    ],
+  },
 ];
