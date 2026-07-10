@@ -54088,4 +54088,93 @@ function cleanRoom(robot: Robot): void {
       },
     ],
   },
+  {
+    id: 'teemo-attacking',
+    label: '495. LeetCode 495. 提莫攻击',
+    difficulty: '简单',
+    description:
+      '这题的关键是看攻击区间是否重叠。总中毒时间不是简单的攻击次数乘持续时间，而是多个时间段并集的总长度。',
+    outcome: '你能通过区间重叠关系，正确计算连续攻击下的总中毒时长。',
+    sections: [
+      {
+        id: 'teemo-attacking-summary',
+        title: '题目在问什么',
+        summary:
+          '给定提莫的攻击时间数组 `timeSeries` 和中毒持续时间 `duration`。每次攻击会让目标中毒 `duration` 秒，若新攻击发生在旧中毒结束前，则中毒时间会延续。要求返回总中毒时长。',
+        bullets: [
+          '每次攻击产生一个时间区间。',
+          '区间可能重叠。',
+          '目标是区间并集总长度。',
+          '是基础区间合并思想题。',
+        ],
+      },
+      {
+        id: 'teemo-attacking-overlap',
+        title: '相邻两次攻击只会新增一部分时间',
+        summary:
+          '如果两次攻击时间相隔至少 `duration`，它们互不重叠，前一次会完整贡献 `duration`。如果相隔更短，那么前一次中毒还没结束，第二次攻击只会额外新增这段间隔长度。',
+        bullets: [
+          '不重叠时完整加 `duration`。',
+          '重叠时只增加时间差。',
+          '本质上是在做区间并长度累加。',
+          '每次只需和下一次攻击比较。',
+        ],
+      },
+      {
+        id: 'teemo-attacking-scan',
+        title: '顺序扫描即可完成总时长统计',
+        summary:
+          '遍历相邻攻击时间，对每一对 `timeSeries[i]` 和 `timeSeries[i + 1]`，向答案中加入 `Math.min(duration, gap)`，其中 `gap` 是两次攻击间隔。最后再加上最后一次攻击完整的 `duration`。',
+        bullets: [
+          '不需要显式维护区间列表。',
+          '每个相邻间隔只算一次。',
+          '最后一段要单独补上。',
+          '实现非常简洁。',
+        ],
+        callout:
+          '看到一串固定长度区间按时间排好序，优先想“相邻差值”而不是完整合并流程，代码会短很多。',
+      },
+      {
+        id: 'teemo-attacking-solution',
+        title: '标准解法：累加相邻攻击的新增贡献',
+        summary:
+          '若攻击数组为空，答案是 0。否则遍历每个相邻攻击间隔 `gap = timeSeries[i + 1] - timeSeries[i]`，累计 `Math.min(duration, gap)`；最后再加上末次攻击的完整持续时间 `duration`，得到总中毒时长。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在最后一次攻击补全。',
+          '是区间重叠基础题。',
+        ],
+        code: `function findPoisonedDuration(
+  timeSeries: number[],
+  duration: number,
+): number {
+  if (timeSeries.length === 0) {
+    return 0
+  }
+
+  let answer = 0
+
+  for (let i = 0; i < timeSeries.length - 1; i += 1) {
+    const gap = timeSeries[i + 1] - timeSeries[i]
+    answer += Math.min(duration, gap)
+  }
+
+  return answer + duration
+}`,
+      },
+      {
+        id: 'teemo-attacking-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接用攻击次数乘持续时间，没有处理重叠；或者忘了把最后一次攻击完整持续时间补上。',
+        bullets: [
+          '易错点 1：忽略攻击区间重叠。',
+          '易错点 2：漏算最后一次攻击。',
+          '易错点 3：把重叠部分重复累计。',
+          '延伸方向：区间并长度、时间段合并、扫描统计。',
+        ],
+      },
+    ],
+  },
 ];
