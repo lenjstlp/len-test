@@ -53996,4 +53996,96 @@ function cleanRoom(robot: Robot): void {
       },
     ],
   },
+  {
+    id: 'target-sum',
+    label: '494. LeetCode 494. 目标和',
+    difficulty: '中等',
+    description:
+      '这题表面是在每个数前放正负号，实质上可以转成子集和计数问题。建模一旦对了，后面就是标准背包。',
+    outcome:
+      '你能把符号分配问题转化为子集和方案数问题，并用 0/1 背包计数求解。',
+    sections: [
+      {
+        id: 'target-sum-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums` 和目标值 `target`，给每个元素前面加 `+` 或 `-`，要求问总共有多少种表达式结果等于 `target`。',
+        bullets: [
+          '每个数只能选正号或负号。',
+          '目标是方案数，不是可行性。',
+          '不同符号分配算不同方案。',
+          '本质是组合计数题。',
+        ],
+      },
+      {
+        id: 'target-sum-transform',
+        title: '把正负划分转成子集和方程',
+        summary:
+          '设所有取正号的数之和为 `P`，取负号的数之和为 `N`，则有 `P - N = target`，同时 `P + N = sum(nums)`。两式相加得到 `2P = target + sum(nums)`，所以问题等价于：从数组里选一些数，使它们的和等于 `(target + sum) / 2`，问有多少种选法。',
+        bullets: [
+          '正负分组可写成二元方程。',
+          '目标转成一个子集和。',
+          '若右侧不是非负偶数，直接无解。',
+          '这是题目建模的核心。',
+        ],
+      },
+      {
+        id: 'target-sum-knapsack',
+        title: '转化后就是 0/1 背包方案数',
+        summary:
+          '设 `bag = (target + sum) / 2`。定义 `dp[j]` 表示和为 `j` 的方案数。遍历每个数字时，让 `j` 从大到小更新：`dp[j] += dp[j - num]`。最终 `dp[bag]` 就是答案。',
+        bullets: [
+          '是计数型 0/1 背包。',
+          '倒序更新保证每个数只用一次。',
+          '初始 `dp[0] = 1` 表示空集方案。',
+          '实现相当简洁。',
+        ],
+        callout:
+          '很多“给元素加正负号”的题，最后都会落到子集和。关键不是背公式，而是自己把两个和的方程列出来。',
+      },
+      {
+        id: 'target-sum-solution',
+        title: '标准解法：方程转化 + 背包计数',
+        summary:
+          '先计算数组总和 `sum`。若 `target` 的绝对值大于 `sum`，或 `target + sum` 为奇数，则返回 0。否则设 `bag = (target + sum) / 2`，用一维 DP 统计选出若干数恰好组成 `bag` 的方案数。',
+        bullets: [
+          '时间复杂度是 `O(n * bag)`。',
+          '空间复杂度是 `O(bag)`。',
+          '实现重点在转化条件判断。',
+          '是背包建模的经典题。',
+        ],
+        code: `function findTargetSumWays(nums: number[], target: number): number {
+  const sum = nums.reduce((total, value) => total + value, 0)
+
+  if (Math.abs(target) > sum || (target + sum) % 2 !== 0) {
+    return 0
+  }
+
+  const bag = (target + sum) / 2
+  const dp = new Array<number>(bag + 1).fill(0)
+  dp[0] = 1
+
+  for (const num of nums) {
+    for (let j = bag; j >= num; j -= 1) {
+      dp[j] += dp[j - num]
+    }
+  }
+
+  return dp[bag]
+}`,
+      },
+      {
+        id: 'target-sum-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没做方程转化，直接回溯所有正负组合；或者背包更新写成正序，错误地把同一个元素重复使用了。',
+        bullets: [
+          '易错点 1：没有先做子集和转化。',
+          '易错点 2：`target + sum` 奇偶性没判断。',
+          '易错点 3：背包更新方向写反。',
+          '延伸方向：0/1 背包、方案数统计、符号分配模型。',
+        ],
+      },
+    ],
+  },
 ];
