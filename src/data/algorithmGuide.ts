@@ -53286,4 +53286,163 @@ function medianSlidingWindow(nums: number[], k: number): number[] {
       },
     ],
   },
+  {
+    id: 'zuma-game',
+    label: '488. LeetCode 488. 祖玛游戏',
+    difficulty: '困难',
+    description:
+      '这题本质是带消除规则的状态搜索。难点不在单次插入，而在于插入后可能引发连锁消除，因此必须把“消除后的局面”当成新状态继续搜索。',
+    outcome:
+      '你能通过回溯加状态压缩，搜索清空棋盘所需的最少步数，并理解为什么每次插入后都要先做彻底消除。',
+    sections: [
+      {
+        id: 'zuma-game-summary',
+        title: '题目在问什么',
+        summary:
+          '给定棋盘字符串 `board` 和手牌字符串 `hand`。每次可以从手牌里拿一个球插入棋盘任意位置。若出现三个或以上连续同色球，就会消除，并可能继续连锁消除。要求返回清空棋盘所需的最少步数。',
+        bullets: [
+          '每次插入一个球。',
+          '消除可能会连锁触发。',
+          '目标是最少步数清空棋盘。',
+          '搜索空间不大但分支复杂。',
+        ],
+      },
+      {
+        id: 'zuma-game-clean',
+        title: '任何搜索状态都应先化简成消除后的最简棋盘',
+        summary:
+          '如果插入后形成可消除段，却不立刻把它清掉继续计算，后面的状态就不正确。因此每次生成新棋盘后，都要反复消除所有长度至少为 3 的连续段，直到棋盘稳定为止。',
+        bullets: [
+          '消除是状态定义的一部分。',
+          '必须连锁消除到稳定状态。',
+          '同一棋盘的不同中间形态应归并。',
+          '这是状态压缩的重要步骤。',
+        ],
+      },
+      {
+        id: 'zuma-game-search',
+        title: '枚举插入位置和颜色，用记忆化避免重复搜索',
+        summary:
+          '回溯时，当前状态由“棋盘局面 + 剩余手牌”决定。可以把手牌统计成计数字典，枚举哪些颜色还能用，以及在哪些位置插入有意义。每次插入后先做消除，再递归求解剩余最优步数。重复状态用记忆化缓存，避免反复搜索。',
+        bullets: [
+          '状态包含棋盘和剩余球数量。',
+          '插入后立即归约为稳定棋盘。',
+          '记忆化是性能关键。',
+          '剪枝可只考虑与相邻同色有关的位置。',
+        ],
+        callout:
+          '这种题不要被“操作过程”带着走，核心永远是状态。只要状态定义对，搜索树就能压下来。',
+      },
+      {
+        id: 'zuma-game-solution',
+        title: '标准解法：回溯 + 消除归约 + 记忆化',
+        summary:
+          '先把手牌转成颜色计数。定义 `shrink` 函数负责连锁消除，定义 `dfs(board, counts)` 返回清空当前棋盘所需的最少步数。枚举棋盘每一段的插入需求：若某段长度是 `len`，补到 3 至少需要 `3 - len` 个同色球；若手牌足够，就尝试消除这一段并递归，答案取最小值。',
+        bullets: [
+          '时间复杂度较高，但数据范围允许搜索。',
+          '空间复杂度主要来自记忆化和递归栈。',
+          '实现重点在消除函数与状态编码。',
+          '是搜索剪枝题中的经典难题。',
+        ],
+        code: `function findMinStep(board: string, hand: string): number {
+  const counts = new Map<string, number>()
+  for (const char of hand) {
+    counts.set(char, (counts.get(char) ?? 0) + 1)
+  }
+
+  const shrink = (state: string): string => {
+    let changed = true
+    let current = state
+
+    while (changed) {
+      changed = false
+      let next = ''
+      let index = 0
+
+      while (index < current.length) {
+        let end = index
+        while (end < current.length && current[end] === current[index]) {
+          end += 1
+        }
+
+        if (end - index >= 3) {
+          changed = true
+        } else {
+          next += current.slice(index, end)
+        }
+
+        index = end
+      }
+
+      current = next
+    }
+
+    return current
+  }
+
+  const memo = new Map<string, number>()
+
+  const encodeCounts = (): string =>
+    ['R', 'Y', 'B', 'G', 'W']
+      .map((char) => char + String(counts.get(char) ?? 0))
+      .join('')
+
+  const dfs = (state: string): number => {
+    const cleaned = shrink(state)
+    if (cleaned.length === 0) {
+      return 0
+    }
+
+    const key = cleaned + '|' + encodeCounts()
+    if (memo.has(key)) {
+      return memo.get(key) as number
+    }
+
+    let answer = Number.MAX_SAFE_INTEGER
+    let index = 0
+
+    while (index < cleaned.length) {
+      let end = index
+      while (end < cleaned.length && cleaned[end] === cleaned[index]) {
+        end += 1
+      }
+
+      const char = cleaned[index]
+      const need = 3 - (end - index)
+      const available = counts.get(char) ?? 0
+
+      if (need <= available) {
+        counts.set(char, available - Math.max(need, 0))
+        const next = dfs(cleaned.slice(0, index) + cleaned.slice(end))
+        if (next !== Number.MAX_SAFE_INTEGER) {
+          answer = Math.min(answer, next + Math.max(need, 0))
+        }
+        counts.set(char, available)
+      }
+
+      index = end
+    }
+
+    memo.set(key, answer)
+    return answer
+  }
+
+  const result = dfs(board)
+  return result === Number.MAX_SAFE_INTEGER ? -1 : result
+}`,
+      },
+      {
+        id: 'zuma-game-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是插入后没有持续连锁消除；或者搜索状态里没带上剩余手牌信息，导致不同局面被错误合并。',
+        bullets: [
+          '易错点 1：没有把消除做到稳定状态。',
+          '易错点 2：记忆化键缺少手牌计数。',
+          '易错点 3：无脑枚举所有插入点导致分支过多。',
+          '延伸方向：回溯剪枝、状态压缩、消除类搜索问题。',
+        ],
+      },
+    ],
+  },
 ];
