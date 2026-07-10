@@ -53445,4 +53445,121 @@ function medianSlidingWindow(nums: number[], k: number): number[] {
       },
     ],
   },
+  {
+    id: 'robot-room-cleaner',
+    label: '489. LeetCode 489. 扫地机器人',
+    difficulty: '困难',
+    description:
+      '这题最大的难点是你拿不到地图，只能通过接口感知局部。正确做法是把机器人当前位置视作坐标系原点，用 DFS 在隐式图上遍历，并在递归返回时原路退回。',
+    outcome: '你能在未知地图条件下，用回溯控制机器人完成整张可达区域的清扫。',
+    sections: [
+      {
+        id: 'robot-room-cleaner-summary',
+        title: '题目在问什么',
+        summary:
+          '机器人起始位于一个未知房间中的某个可走格子。你只能调用 `move`、`turnLeft`、`turnRight` 和 `clean` 这些接口，要求清扫所有能到达的位置。',
+        bullets: [
+          '地图本身对你不可见。',
+          '只能通过接口探索。',
+          '目标是清扫所有可达格子。',
+          '本质是隐式图遍历。',
+        ],
+      },
+      {
+        id: 'robot-room-cleaner-coordinate',
+        title: '自己给机器人定义相对坐标系',
+        summary:
+          '虽然题目不提供坐标，但我们可以把起点视为 `(0, 0)`，把机器人当前朝向也一并记录。每当机器人成功前进一步，就根据朝向推导出新坐标。这样一来，就能在代码里维护一张“自己构造出来的地图”。',
+        bullets: [
+          '外部没有坐标，就自己造坐标。',
+          '位置和朝向共同决定状态。',
+          '成功移动时才会进入新坐标。',
+          '访问记录可避免重复清扫。',
+        ],
+      },
+      {
+        id: 'robot-room-cleaner-backtrack',
+        title: 'DFS 进入新格子后，返回时必须把机器人退回原位原朝向',
+        summary:
+          '这是题目最关键的操作约束。递归探索某个方向成功后，等子问题结束，必须通过“转身、后退、再转回来”的方式，让机器人回到进入前的位置和朝向，否则后续方向枚举就全乱了。',
+        bullets: [
+          '回溯不仅是递归逻辑，也是物理动作。',
+          '位置和朝向都必须恢复。',
+          '这相当于在真实设备上做 DFS 回退。',
+          '实现重点在 `goBack` 动作。',
+        ],
+        callout:
+          '这题的回溯不是抽象概念，而是真要控制设备退回现场。很多人 DFS 会写，真正卡住的是“怎么把机器人送回去”。',
+      },
+      {
+        id: 'robot-room-cleaner-solution',
+        title: '标准解法：相对坐标 DFS + 物理回退',
+        summary:
+          '维护四个方向数组，递归函数接收当前位置和朝向。每到一个新格子先 `clean`，并标记访问。然后依次尝试四个方向：若前方可走且新格子未访问，则递归探索；递归返回后调用 `goBack` 回到原格子。每轮尝试结束后右转一次，继续看下一个方向。',
+        bullets: [
+          '时间复杂度与可达格子数成正比。',
+          '空间复杂度主要来自访问集合和递归栈。',
+          '实现重点是相对坐标和回退动作。',
+          '是接口受限 DFS 的经典题。',
+        ],
+        code: `interface Robot {
+  move(): boolean
+  turnLeft(): void
+  turnRight(): void
+  clean(): void
+}
+
+function cleanRoom(robot: Robot): void {
+  const visited = new Set<string>()
+  const directions = [
+    [-1, 0],
+    [0, 1],
+    [1, 0],
+    [0, -1],
+  ]
+
+  const goBack = (): void => {
+    robot.turnRight()
+    robot.turnRight()
+    robot.move()
+    robot.turnRight()
+    robot.turnRight()
+  }
+
+  const dfs = (row: number, col: number, direction: number): void => {
+    visited.add(row + ',' + col)
+    robot.clean()
+
+    for (let step = 0; step < 4; step += 1) {
+      const nextDirection = (direction + step) % 4
+      const nextRow = row + directions[nextDirection][0]
+      const nextCol = col + directions[nextDirection][1]
+      const key = nextRow + ',' + nextCol
+
+      if (!visited.has(key) && robot.move()) {
+        dfs(nextRow, nextCol, nextDirection)
+        goBack()
+      }
+
+      robot.turnRight()
+    }
+  }
+
+  dfs(0, 0, 0)
+}`,
+      },
+      {
+        id: 'robot-room-cleaner-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是递归返回后没有让机器人回到原位；或者没把朝向一起纳入控制，结果后续方向推导全部错乱。',
+        bullets: [
+          '易错点 1：回溯后位置没恢复。',
+          '易错点 2：只记录位置，不管理朝向。',
+          '易错点 3：访问集合没做，导致重复探索。',
+          '延伸方向：隐式图 DFS、设备控制回溯、接口型搜索题。',
+        ],
+      },
+    ],
+  },
 ];
