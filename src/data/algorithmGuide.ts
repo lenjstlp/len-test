@@ -54177,4 +54177,90 @@ function cleanRoom(robot: Robot): void {
       },
     ],
   },
+  {
+    id: 'next-greater-element-i',
+    label: '496. LeetCode 496. 下一个更大元素 I',
+    difficulty: '简单',
+    description:
+      '这题本质是在大数组里先预处理每个数的下一个更大值，然后回头回答小数组查询。最合适的数据结构就是单调栈。',
+    outcome:
+      '你能用单调递减栈在线性时间内预处理下一个更大元素，并回答子集数组的查询。',
+    sections: [
+      {
+        id: 'next-greater-element-i-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `nums1` 和 `nums2`，其中 `nums1` 是 `nums2` 的子集。对于 `nums1` 中每个元素，要求在 `nums2` 里找到它右侧第一个比它大的元素；若不存在则返回 `-1`。',
+        bullets: [
+          '`nums1` 中元素都出现在 `nums2` 里。',
+          '只关心右侧第一个更大值。',
+          '查询有多次，最好先预处理。',
+          '是典型单调栈题。',
+        ],
+      },
+      {
+        id: 'next-greater-element-i-stack',
+        title: '单调递减栈专门用来找“下一个更大元素”',
+        summary:
+          '从左到右遍历 `nums2` 时，维护一个单调递减栈。若当前数比栈顶大，说明它就是栈顶元素的下一个更大值，于是不断弹栈并记录映射。这样每个元素只会进栈出栈一次。',
+        bullets: [
+          '栈里保持从底到顶递减。',
+          '当前更大的数会解决前面一些元素的答案。',
+          '弹出的元素立刻确定下一个更大值。',
+          '整体复杂度是线性的。',
+        ],
+      },
+      {
+        id: 'next-greater-element-i-query',
+        title: '预处理完成后，小数组查询就是哈希表查值',
+        summary:
+          '遍历完 `nums2` 后，所有没被解决的元素都不存在更大值，默认答案是 `-1`。此时我们已经有“元素 -> 下一个更大值”的映射，回头再遍历 `nums1`，逐个查表即可。',
+        bullets: [
+          '查询和预处理彻底分离。',
+          '哈希表让查询成本极低。',
+          '没映射到的元素答案就是 `-1`。',
+          '思路很适合扩展到类似查询题。',
+        ],
+        callout:
+          '只要题目里出现“右边第一个更大/更小”，优先想单调栈。这几乎是模板级信号。',
+      },
+      {
+        id: 'next-greater-element-i-solution',
+        title: '标准解法：单调递减栈 + 哈希映射',
+        summary:
+          '遍历 `nums2`，用单调递减栈维护尚未找到答案的元素。当前元素若大于栈顶，就不断弹栈并记录“栈顶 -> 当前值”的答案。遍历结束后，用这个映射填充 `nums1` 中每个元素对应的结果，没找到映射则返回 `-1`。',
+        bullets: [
+          '时间复杂度是 `O(m + n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现短且模板化。',
+          '是单调栈入门经典题。',
+        ],
+        code: `function nextGreaterElement(nums1: number[], nums2: number[]): number[] {
+  const stack: number[] = []
+  const nextMap = new Map<number, number>()
+
+  for (const num of nums2) {
+    while (stack.length > 0 && num > stack[stack.length - 1]) {
+      nextMap.set(stack.pop() as number, num)
+    }
+    stack.push(num)
+  }
+
+  return nums1.map((num) => nextMap.get(num) ?? -1)
+}`,
+      },
+      {
+        id: 'next-greater-element-i-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是对 `nums1` 的每个元素都去 `nums2` 里重新向右找一遍，复杂度变高；或者单调栈方向写反，导致维护的不是“等待更大值”的结构。',
+        bullets: [
+          '易错点 1：逐个查询时重复扫描 `nums2`。',
+          '易错点 2：单调栈维护方向错误。',
+          '易错点 3：没处理不存在更大值的情况。',
+          '延伸方向：单调栈、下一个更大元素系列、线性预处理查询。',
+        ],
+      },
+    ],
+  },
 ];
