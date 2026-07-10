@@ -53191,4 +53191,99 @@ function medianSlidingWindow(nums: number[], k: number): number[] {
       },
     ],
   },
+  {
+    id: 'max-consecutive-ones-ii',
+    label: '487. LeetCode 487. 最大连续 1 的个数 II',
+    difficulty: '中等',
+    description:
+      '这题比上一题多了一个条件：允许把最多一个 `0` 翻成 `1`。本质就变成维护一个至多包含一个 `0` 的最长窗口。',
+    outcome:
+      '你能通过滑动窗口统计在至多翻转一个 `0` 的前提下，数组里最长连续 `1` 段长度。',
+    sections: [
+      {
+        id: 'max-consecutive-ones-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个二进制数组 `nums`，你最多可以把一个 `0` 翻转成 `1`。要求返回翻转后，数组中最长连续 `1` 的个数。',
+        bullets: [
+          '最多只能翻转一个 `0`。',
+          '也可以选择不翻转。',
+          '目标是最长连续 `1` 段。',
+          '是滑动窗口基础题。',
+        ],
+      },
+      {
+        id: 'max-consecutive-ones-ii-window',
+        title: '窗口里只允许出现一个 0',
+        summary:
+          '如果一个区间里 `0` 的数量不超过 1，那么把那个 `0` 翻掉后，这整个区间都能变成连续 `1`。因此问题可转成：找一个最长子数组，使其中 `0` 的个数至多为 1。',
+        bullets: [
+          '翻转操作等价于容忍一个 `0`。',
+          '窗口合法条件是 `zeroCount <= 1`。',
+          '窗口长度就是候选答案。',
+          '典型的“约束型最长子数组”问题。',
+        ],
+      },
+      {
+        id: 'max-consecutive-ones-ii-slide',
+        title: '超出约束时，移动左端收缩窗口',
+        summary:
+          '使用双指针维护窗口 `[left, right]`。每次右端加入一个元素，若加入的是 `0` 就把 `zeroCount` 加一；一旦 `zeroCount > 1`，就不断右移左指针，并在移出 `0` 时减少计数，直到窗口重新合法。',
+        bullets: [
+          '右指针负责扩张窗口。',
+          '左指针负责修复非法状态。',
+          '每个元素最多进出窗口一次。',
+          '整体复杂度是线性的。',
+        ],
+        callout:
+          '看到“最多允许多少个不满足条件的元素”，优先想滑动窗口。这类题基本都能用窗口合法性来刻画。',
+      },
+      {
+        id: 'max-consecutive-ones-ii-solution',
+        title: '标准解法：维护至多一个 0 的最长窗口',
+        summary:
+          '遍历数组时持续扩张右端，统计窗口中的 `0` 数量。若 `0` 超过 1 个，就不断移动左端直到重新满足约束。每次窗口合法时，用当前长度更新答案即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现比前一题稍复杂一点。',
+          '核心在窗口约束而非翻转动作本身。',
+        ],
+        code: `function findMaxConsecutiveOnes(nums: number[]): number {
+  let left = 0
+  let zeroCount = 0
+  let answer = 0
+
+  for (let right = 0; right < nums.length; right += 1) {
+    if (nums[right] === 0) {
+      zeroCount += 1
+    }
+
+    while (zeroCount > 1) {
+      if (nums[left] === 0) {
+        zeroCount -= 1
+      }
+      left += 1
+    }
+
+    answer = Math.max(answer, right - left + 1)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'max-consecutive-ones-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是真的去枚举“翻哪个 0”，导致思路变复杂；或者窗口里出现两个 `0` 后没有及时收缩。',
+        bullets: [
+          '易错点 1：把翻转动作显式枚举了。',
+          '易错点 2：窗口非法时没持续收缩到合法。',
+          '易错点 3：漏掉不翻转也可能是最优答案。',
+          '延伸方向：滑动窗口、容错子数组、最长连续段问题。',
+        ],
+      },
+    ],
+  },
 ];
