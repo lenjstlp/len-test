@@ -53685,4 +53685,106 @@ function cleanRoom(robot: Robot): void {
       },
     ],
   },
+  {
+    id: 'increasing-subsequences',
+    label: '491. LeetCode 491. 递增子序列',
+    difficulty: '中等',
+    description:
+      '这题要找的是所有长度至少为 2 的非递减子序列。难点不在回溯本身，而在于如何在同一层去重，避免重复答案爆炸。',
+    outcome: '你能用回溯枚举所有合法递增子序列，并在搜索层内正确去重。',
+    sections: [
+      {
+        id: 'increasing-subsequences-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums`，要求找出所有长度至少为 2 的递增子序列。这里的递增实际允许相等，也就是非递减。',
+        bullets: [
+          '子序列不要求连续。',
+          '长度至少为 2。',
+          '允许相等，因此是非递减。',
+          '结果不能包含重复序列。',
+        ],
+      },
+      {
+        id: 'increasing-subsequences-backtracking',
+        title: '每个位置都可以选择“要”或“不要”',
+        summary:
+          '回溯时维护当前构造中的序列 `path`。从当前位置开始向后枚举下一个元素，只要它不小于 `path` 的最后一个值，就可以加入并继续递归。这样就能覆盖所有非递减子序列。',
+        bullets: [
+          '搜索树天然对应子序列选择。',
+          '合法性由“是否不下降”决定。',
+          '长度达到 2 就可收集答案。',
+          '核心框架是标准回溯。',
+        ],
+      },
+      {
+        id: 'increasing-subsequences-dedup',
+        title: '同一层里相同数字只尝试一次',
+        summary:
+          '因为数组里可能有重复值，如果同一层对相同数字重复展开，就会生成相同的子序列。因此在每层递归中，用一个集合记录本层已经使用过的值；若当前值本层已尝试过，就直接跳过。',
+        bullets: [
+          '去重发生在“同一层”，不是全局。',
+          '同层相同值会导致重复分支。',
+          '层内集合是最稳妥的处理方式。',
+          '这是本题实现关键。',
+        ],
+        callout:
+          '很多回溯题的重复都不是来自路径本身，而是来自同层分支。先分清“树层去重”还是“树枝去重”，题就好做很多。',
+      },
+      {
+        id: 'increasing-subsequences-solution',
+        title: '标准解法：回溯 + 层内去重',
+        summary:
+          '递归函数从 `start` 位置开始向后选择元素。若当前数满足非递减条件且未在本层使用过，就把它加入 `path` 继续搜索；若 `path` 长度达到 2，就加入答案。回溯返回后弹出元素，继续尝试后续选择。',
+        bullets: [
+          '时间复杂度与答案规模相关。',
+          '空间复杂度主要来自递归栈和路径。',
+          '实现重点在层内去重集合。',
+          '是子序列回溯题代表作。',
+        ],
+        code: `function findSubsequences(nums: number[]): number[][] {
+  const answer: number[][] = []
+  const path: number[] = []
+
+  const dfs = (start: number): void => {
+    if (path.length >= 2) {
+      answer.push([...path])
+    }
+
+    const used = new Set<number>()
+
+    for (let index = start; index < nums.length; index += 1) {
+      if (used.has(nums[index])) {
+        continue
+      }
+
+      if (path.length > 0 && nums[index] < path[path.length - 1]) {
+        continue
+      }
+
+      used.add(nums[index])
+      path.push(nums[index])
+      dfs(index + 1)
+      path.pop()
+    }
+  }
+
+  dfs(0)
+  return answer
+}`,
+      },
+      {
+        id: 'increasing-subsequences-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只会回溯不会去重，结果答案里重复项很多；或者把严格递增和非递减搞混，误把相等元素排除了。',
+        bullets: [
+          '易错点 1：同层重复值没有去重。',
+          '易错点 2：把条件错写成严格递增。',
+          '易错点 3：长度不足 2 也加入答案。',
+          '延伸方向：回溯去重、子序列枚举、组合搜索。',
+        ],
+      },
+    ],
+  },
 ];
