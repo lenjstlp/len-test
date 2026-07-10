@@ -54263,4 +54263,111 @@ function cleanRoom(robot: Robot): void {
       },
     ],
   },
+  {
+    id: 'random-point-in-non-overlapping-rectangles',
+    label: '497. LeetCode 497. 非重叠矩形中的随机点',
+    difficulty: '中等',
+    description:
+      '这题不是在矩形之间平均随机，而是要按每个矩形包含的整点数量加权。核心是前缀和加权抽样。',
+    outcome: '你能利用前缀和按面积加权选择矩形，并在矩形内部均匀随机生成整点。',
+    sections: [
+      {
+        id: 'random-point-in-non-overlapping-rectangles-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干个互不重叠的轴对齐矩形，每次调用 `pick()` 时，要在所有矩形覆盖到的整点中等概率随机返回一个点。',
+        bullets: [
+          '随机对象是整点，不是连续平面点。',
+          '矩形之间不能平均选，要按点数加权。',
+          '矩形互不重叠。',
+          '是加权随机采样题。',
+        ],
+      },
+      {
+        id: 'random-point-in-non-overlapping-rectangles-weight',
+        title: '每个矩形的权重是它包含的整点个数',
+        summary:
+          '如果一个矩形坐标是 `[x1, y1, x2, y2]`，它包含的整点数是 `(x2 - x1 + 1) * (y2 - y1 + 1)`。因为题目要求所有整点等概率，所以选择矩形时，概率必须正比于这个点数。',
+        bullets: [
+          '面积不是连续面积，而是整点数量。',
+          '`+1` 不能漏，因为边界整点也算。',
+          '先把权重算清楚，后面才能均匀。',
+          '这一步是题目建模关键。',
+        ],
+      },
+      {
+        id: 'random-point-in-non-overlapping-rectangles-prefix',
+        title: '前缀和把加权选择变成一次二分查找',
+        summary:
+          '可以预处理前缀和数组 `prefix`，其中 `prefix[i]` 表示前 `i` 个矩形累计包含多少个整点。每次随机生成一个 `1..total` 的整数，再通过二分找到它落在哪个矩形区间里，就等价于按权重随机选中了对应矩形。',
+        bullets: [
+          '前缀和负责做离散加权抽样。',
+          '二分查找定位所属矩形。',
+          '之后再在这个矩形内部均匀取点。',
+          '整体结构清晰稳定。',
+        ],
+        callout:
+          '很多随机题的套路都是两层：先按权重选桶，再在桶内均匀取值。把这两步拆开，问题就简单了。',
+      },
+      {
+        id: 'random-point-in-non-overlapping-rectangles-solution',
+        title: '标准解法：前缀和加权选矩形，再随机取整点',
+        summary:
+          '构造函数中预处理每个矩形的整点数和前缀和。`pick()` 时先生成 `1..total` 的随机整数，并二分定位到某个矩形；再在该矩形的 `x` 范围和 `y` 范围内分别均匀随机一个整数，组合成答案点。',
+        bullets: [
+          '构造预处理复杂度是 `O(n)`。',
+          '单次 `pick()` 复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(n)`。',
+          '是离散加权采样的代表题。',
+        ],
+        code: `class Solution {
+  private rects: number[][]
+  private prefix: number[] = []
+  private total = 0
+
+  constructor(rects: number[][]) {
+    this.rects = rects
+
+    for (const [x1, y1, x2, y2] of rects) {
+      this.total += (x2 - x1 + 1) * (y2 - y1 + 1)
+      this.prefix.push(this.total)
+    }
+  }
+
+  pick(): number[] {
+    const target = Math.floor(Math.random() * this.total) + 1
+    let left = 0
+    let right = this.prefix.length - 1
+
+    while (left < right) {
+      const mid = Math.floor((left + right) / 2)
+      if (this.prefix[mid] < target) {
+        left = mid + 1
+      } else {
+        right = mid
+      }
+    }
+
+    const [x1, y1, x2, y2] = this.rects[left]
+    const x = x1 + Math.floor(Math.random() * (x2 - x1 + 1))
+    const y = y1 + Math.floor(Math.random() * (y2 - y1 + 1))
+
+    return [x, y]
+  }
+}`,
+      },
+      {
+        id: 'random-point-in-non-overlapping-rectangles-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是先等概率选矩形，导致小矩形里的点被过度抽中；或者忘了整点数量计算里的 `+1`。',
+        bullets: [
+          '易错点 1：矩形等概率而不是按点数加权。',
+          '易错点 2：整点数量漏掉边界 `+1`。',
+          '易错点 3：二分查找定位前缀区间写错。',
+          '延伸方向：前缀和抽样、离散随机、加权选择问题。',
+        ],
+      },
+    ],
+  },
 ];
