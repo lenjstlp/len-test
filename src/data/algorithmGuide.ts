@@ -53869,4 +53869,131 @@ function cleanRoom(robot: Robot): void {
       },
     ],
   },
+  {
+    id: 'reverse-pairs',
+    label: '493. LeetCode 493. 翻转对',
+    difficulty: '困难',
+    description:
+      '这题和普通逆序对不同，条件变成了 `nums[i] > 2 * nums[j]`。暴力枚举会超时，核心还是借助归并排序在“左右有序”时高效统计跨区间答案。',
+    outcome: '你能利用归并排序分治，在排序的同时统计满足特殊条件的翻转对数量。',
+    sections: [
+      {
+        id: 'reverse-pairs-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums`，要求统计满足 `i < j` 且 `nums[i] > 2 * nums[j]` 的下标对数量。',
+        bullets: [
+          '顺序条件是 `i < j`。',
+          '大小关系比普通逆序对更严格。',
+          '目标是总数量。',
+          '暴力双循环复杂度太高。',
+        ],
+      },
+      {
+        id: 'reverse-pairs-divide',
+        title: '分治后，关键只剩统计跨左右两半的对数',
+        summary:
+          '像逆序对一样，分治后答案可以拆成三部分：左半内部、右半内部、跨越左右两半的翻转对。前两部分递归解决，难点在于如何高效统计第三部分。',
+        bullets: [
+          '分治拆解非常自然。',
+          '左右内部递归处理。',
+          '真正需要技巧的是跨区间统计。',
+          '这正是归并排序能发力的地方。',
+        ],
+      },
+      {
+        id: 'reverse-pairs-two-pointers',
+        title: '左右有序后，用双指针线性统计跨区间对数',
+        summary:
+          '如果左右两半都已经排好序，那么对左边某个 `i`，右边满足 `nums[i] > 2 * nums[j]` 的 `j` 会形成一个前缀区间。于是只需用一个右指针单调向前推进，就能在线性时间内统计完整个跨区间答案。',
+        bullets: [
+          '排序让条件满足单调性。',
+          '右指针不需要回退。',
+          '每层统计复杂度降到线性。',
+          '和归并计数天然配套。',
+        ],
+        callout:
+          '很多“统计满足某种不等式的数对”问题，只要能通过排序制造单调性，就能从平方复杂度降下来。',
+      },
+      {
+        id: 'reverse-pairs-solution',
+        title: '标准解法：归并排序 + 跨区间双指针计数',
+        summary:
+          '递归排序左右两半后，先用双指针统计跨区间翻转对数量：对左半每个数，右指针尽量向右扩展满足 `nums[i] > 2 * nums[j]` 的范围。统计完成后，再执行标准归并把当前区间排好序，供更高层使用。',
+        bullets: [
+          '时间复杂度是 `O(n log n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在“先计数，再归并”。',
+          '是归并计数类难题代表作。',
+        ],
+        code: `function reversePairs(nums: number[]): number {
+  const temp = new Array<number>(nums.length).fill(0)
+
+  const mergeSort = (left: number, right: number): number => {
+    if (left >= right) {
+      return 0
+    }
+
+    const mid = Math.floor((left + right) / 2)
+    let count = mergeSort(left, mid) + mergeSort(mid + 1, right)
+
+    let j = mid + 1
+    for (let i = left; i <= mid; i += 1) {
+      while (j <= right && nums[i] > 2 * nums[j]) {
+        j += 1
+      }
+      count += j - (mid + 1)
+    }
+
+    let i = left
+    j = mid + 1
+    let index = left
+
+    while (i <= mid && j <= right) {
+      if (nums[i] <= nums[j]) {
+        temp[index] = nums[i]
+        i += 1
+      } else {
+        temp[index] = nums[j]
+        j += 1
+      }
+      index += 1
+    }
+
+    while (i <= mid) {
+      temp[index] = nums[i]
+      i += 1
+      index += 1
+    }
+
+    while (j <= right) {
+      temp[index] = nums[j]
+      j += 1
+      index += 1
+    }
+
+    for (let p = left; p <= right; p += 1) {
+      nums[p] = temp[p]
+    }
+
+    return count
+  }
+
+  return mergeSort(0, nums.length - 1)
+}`,
+      },
+      {
+        id: 'reverse-pairs-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是还用普通逆序对模板直接比大小，忽略了这里比较的是 `2 * nums[j]`；或者在归并前后顺序弄反，导致统计依赖的有序性被破坏。',
+        bullets: [
+          '易错点 1：把条件错写成普通逆序对。',
+          '易错点 2：没有在归并前先完成跨区间统计。',
+          '易错点 3：右指针在外层循环里被错误重置。',
+          '延伸方向：归并计数、数对不等式统计、分治优化。',
+        ],
+      },
+    ],
+  },
 ];
