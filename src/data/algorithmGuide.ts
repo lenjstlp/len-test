@@ -53562,4 +53562,127 @@ function cleanRoom(robot: Robot): void {
       },
     ],
   },
+  {
+    id: 'the-maze',
+    label: '490. LeetCode 490. 迷宫',
+    difficulty: '中等',
+    description:
+      '这题和普通网格最短路不一样，球不是一步一步走，而是会一直滚到撞墙才停。关键是把“停下的位置”当作图上的节点。',
+    outcome: '你能按照滚动规则搜索迷宫中所有可停靠位置，并判断能否到达目标点。',
+    sections: [
+      {
+        id: 'the-maze-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个迷宫矩阵、起点和终点。球从某个方向出发后会一直滚，直到撞墙才停下。要求判断球是否能恰好停在终点。',
+        bullets: [
+          '球不会在中途任意停下。',
+          '只有撞墙后才能停住。',
+          '终点必须是“停下来”的位置。',
+          '本质是特殊移动规则下的可达性判断。',
+        ],
+      },
+      {
+        id: 'the-maze-state',
+        title: '真正的状态是每次滚动后停下来的格子',
+        summary:
+          '如果把普通经过的每个格子都当状态，会和题意不匹配，因为球经过那些格子时并不能停。正确做法是：从当前停点出发，沿四个方向模拟滚动，直到撞墙，再把最终停点当作下一层状态。',
+        bullets: [
+          '节点是停点，不是经过点。',
+          '边对应一次完整滚动。',
+          '这样状态定义才和题意一致。',
+          '搜索图是隐式生成的。',
+        ],
+      },
+      {
+        id: 'the-maze-search',
+        title: 'DFS 或 BFS 都可以，关键是别重复访问停点',
+        summary:
+          '从起点开始，每次向四个方向滚到尽头，得到新的停点。若这个停点还没访问过，就继续搜索。因为每个停点最多访问一次，所以整体复杂度可控。',
+        bullets: [
+          '四个方向独立尝试。',
+          '滚动过程靠循环模拟。',
+          '访问集合防止死循环。',
+          '是标准图可达性框架。',
+        ],
+        callout:
+          '看到“按规则一直走到不能走”为止，优先想状态压缩：不要用每一步当状态，而要用每次完整动作的结果当状态。',
+      },
+      {
+        id: 'the-maze-solution',
+        title: '标准解法：以停点为节点的 DFS/BFS',
+        summary:
+          '维护访问矩阵，从起点开始搜索。每次从当前停点向四个方向滚动，直到下一个位置越界或撞墙，再退回一步得到新停点。若新停点未访问，就加入搜索。只要某次到达终点，就返回 `true`。',
+        bullets: [
+          '时间复杂度和可访问停点数量有关。',
+          '空间复杂度主要来自访问标记。',
+          '实现重点在滚动到尽头的过程。',
+          '是滚动类迷宫题的基础题。',
+        ],
+        code: `function hasPath(
+  maze: number[][],
+  start: number[],
+  destination: number[],
+): boolean {
+  const rows = maze.length
+  const cols = maze[0].length
+  const visited = Array.from({ length: rows }, () => new Array<boolean>(cols).fill(false))
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+
+  const dfs = (row: number, col: number): boolean => {
+    if (visited[row][col]) {
+      return false
+    }
+
+    if (row === destination[0] && col === destination[1]) {
+      return true
+    }
+
+    visited[row][col] = true
+
+    for (const [dr, dc] of directions) {
+      let nextRow = row
+      let nextCol = col
+
+      while (
+        nextRow + dr >= 0 &&
+        nextRow + dr < rows &&
+        nextCol + dc >= 0 &&
+        nextCol + dc < cols &&
+        maze[nextRow + dr][nextCol + dc] === 0
+      ) {
+        nextRow += dr
+        nextCol += dc
+      }
+
+      if (dfs(nextRow, nextCol)) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  return dfs(start[0], start[1])
+}`,
+      },
+      {
+        id: 'the-maze-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是按普通网格一步步扩展，忽略了“必须滚到撞墙才能停”这个核心规则；或者把经过点误判成到达终点。',
+        bullets: [
+          '易错点 1：把中途经过点也当成停点。',
+          '易错点 2：滚动后没有退回到最后合法位置。',
+          '易错点 3：访问标记放在错误层次。',
+          '延伸方向：迷宫搜索、滚动路径、隐式图建模。',
+        ],
+      },
+    ],
+  },
 ];
