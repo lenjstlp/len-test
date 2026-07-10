@@ -53787,4 +53787,86 @@ function cleanRoom(robot: Robot): void {
       },
     ],
   },
+  {
+    id: 'construct-the-rectangle',
+    label: '492. LeetCode 492. 构造矩形',
+    difficulty: '简单',
+    description:
+      '这题要求用面积反推长宽，并且希望长宽差尽量小。最直接的办法就是从平方根附近向下找因子。',
+    outcome:
+      '你能从面积的平方根出发寻找最接近正方形的因子对，构造满足条件的矩形长宽。',
+    sections: [
+      {
+        id: 'construct-the-rectangle-summary',
+        title: '题目在问什么',
+        summary:
+          '给定矩形面积 `area`，要求构造两个整数 `L` 和 `W`，满足 `L * W = area`、`L >= W`，并且 `L - W` 尽可能小。',
+        bullets: [
+          '面积固定。',
+          '长必须不小于宽。',
+          '希望尽量接近正方形。',
+          '本质是因子搜索题。',
+        ],
+      },
+      {
+        id: 'construct-the-rectangle-sqrt',
+        title: '最优宽度一定在平方根附近',
+        summary:
+          '若想让长宽差最小，宽度就应该尽量靠近 `sqrt(area)`。因此最稳的做法是从 `Math.floor(sqrt(area))` 开始向下找，找到的第一个能整除 `area` 的数，就是最优宽度。',
+        bullets: [
+          '平方根是最接近正方形的位置。',
+          '从那里向下搜索最优解最近。',
+          '一旦找到因子就可以停止。',
+          '不需要遍历所有约数。',
+        ],
+      },
+      {
+        id: 'construct-the-rectangle-factor',
+        title: '找到宽度后，长度直接由面积除出来',
+        summary:
+          '假设当前找到的宽度是 `W`，那么长度自然就是 `L = area / W`。由于是从平方根往下找的，第一个找到的因子对必然已经让 `L - W` 最小。',
+        bullets: [
+          '宽度先定，长度自动确定。',
+          '因子对唯一对应一个矩形方案。',
+          '第一个命中的因子就是最优。',
+          '实现非常直接。',
+        ],
+        callout:
+          '这类题不用想复杂贪心。数学结构已经告诉你，平方根附近就是最优搜索起点。',
+      },
+      {
+        id: 'construct-the-rectangle-solution',
+        title: '标准解法：从平方根向下找第一个因子',
+        summary:
+          '令 `width = Math.floor(Math.sqrt(area))`，不断递减检查 `area % width === 0` 是否成立。成立时返回 `[area / width, width]`，这组结果就满足 `L >= W` 且差值最小。',
+        bullets: [
+          '时间复杂度最坏约为 `O(sqrt(area))`。',
+          '空间复杂度是 `O(1)`。',
+          '实现极短。',
+          '重点是理解为什么从平方根开始找。',
+        ],
+        code: `function constructRectangle(area: number): number[] {
+  let width = Math.floor(Math.sqrt(area))
+
+  while (area % width !== 0) {
+    width -= 1
+  }
+
+  return [area / width, width]
+}`,
+      },
+      {
+        id: 'construct-the-rectangle-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是从 1 开始找因子，虽然也能得到答案，但没有利用“差值最小”带来的平方根搜索方向。',
+        bullets: [
+          '易错点 1：从 1 正向枚举所有因子。',
+          '易错点 2：返回时把长宽顺序写反。',
+          '易错点 3：没有理解平方根附近最优。',
+          '延伸方向：约数搜索、数学优化、最接近因子对问题。',
+        ],
+      },
+    ],
+  },
 ];
