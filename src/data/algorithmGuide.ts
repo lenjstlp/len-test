@@ -54607,4 +54607,95 @@ function cleanRoom(robot: Robot): void {
       },
     ],
   },
+  {
+    id: 'keyboard-row',
+    label: '500. LeetCode 500. 键盘行',
+    difficulty: '简单',
+    description:
+      '这题的本质是字符分类。只要先把三行键盘映射成集合，再检查一个单词的所有字母是否都落在同一集合里即可。',
+    outcome:
+      '你能通过字符集合判断一个单词是否可由键盘同一行字母输入，并筛出所有满足条件的单词。',
+    sections: [
+      {
+        id: 'keyboard-row-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串数组 `words`，要求返回其中所有可以仅使用美式键盘同一行字母输入的单词。',
+        bullets: [
+          '键盘有三行字母。',
+          '大小写不影响判断。',
+          '每个单词都要独立判断。',
+          '是字符串分类题。',
+        ],
+      },
+      {
+        id: 'keyboard-row-set',
+        title: '先把三行键盘建成三个字符集合',
+        summary:
+          '如果每一行字母都放进一个集合，那么判断某个字符属于哪一行就变成了常数时间查询。接着只需确认一个单词中所有字符是否都落在同一集合中。',
+        bullets: [
+          '集合查字符归属非常方便。',
+          '大小写统一转小写即可。',
+          '问题拆成字符归类和整词一致性检查。',
+          '实现相当直接。',
+        ],
+      },
+      {
+        id: 'keyboard-row-check',
+        title: '用首字母确定候选行，再检查全词',
+        summary:
+          '拿到一个单词后，可以先看它的首字母属于哪一行，把这行作为候选行。然后遍历剩余字母，只要有一个不在这行中，就说明该单词不满足条件；全部通过则加入答案。',
+        bullets: [
+          '首字母能直接决定候选集合。',
+          '后续只做一致性验证。',
+          '一旦出现跨行字符就可提前退出。',
+          '很适合做线性扫描。',
+        ],
+        callout:
+          '这类题真正重要的不是写循环，而是先把规则表达成数据结构。规则一旦落成集合，代码就自然短了。',
+      },
+      {
+        id: 'keyboard-row-solution',
+        title: '标准解法：三行集合 + 逐词校验',
+        summary:
+          '定义三组集合分别表示三行键盘字符。遍历每个单词时先转小写，用首字符判断其应属于哪一行；再检查整词是否都包含在该集合内，若是则加入结果。',
+        bullets: [
+          '时间复杂度是所有字符总长度的 `O(total)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现简洁。',
+          '是集合应用基础题。',
+        ],
+        code: `function findWords(words: string[]): string[] {
+  const row1 = new Set('qwertyuiop'.split(''))
+  const row2 = new Set('asdfghjkl'.split(''))
+  const row3 = new Set('zxcvbnm'.split(''))
+  const rows = [row1, row2, row3]
+  const answer: string[] = []
+
+  for (const word of words) {
+    const lower = word.toLowerCase()
+    const row = rows.find((set) => set.has(lower[0])) as Set<string>
+
+    if ([...lower].every((char) => row.has(char))) {
+      answer.push(word)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'keyboard-row-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有先统一大小写，导致集合匹配失败；或者不先确定候选行，写成了冗长的多层条件判断。',
+        bullets: [
+          '易错点 1：大小写没统一。',
+          '易错点 2：字符行归属判断写得过于繁琐。',
+          '易错点 3：结果里误保留不满足条件的单词。',
+          '延伸方向：字符分类、集合查找、字符串过滤。',
+        ],
+      },
+    ],
+  },
 ];
