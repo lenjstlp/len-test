@@ -55464,4 +55464,120 @@ function findMaximizedCapital(
       },
     ],
   },
+  {
+    id: 'most-frequent-subtree-sum',
+    label: '508. LeetCode 508. 出现次数最多的子树元素和',
+    difficulty: '中等',
+    description:
+      '这题的关键是先算每个子树的节点和，再统计这些和出现的频次。后序遍历天然适合先拿到左右子树和，再合成当前子树和。',
+    outcome:
+      '你能通过后序遍历计算每个子树的元素和，并找出出现频次最高的那些和。',
+    sections: [
+      {
+        id: 'most-frequent-subtree-sum-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，定义每个节点的子树元素和为“该节点值 + 左子树和 + 右子树和”。要求返回所有出现次数最多的子树元素和。',
+        bullets: [
+          '每个节点都会对应一个子树和。',
+          '答案可能有多个和并列最高频。',
+          '目标是统计频次而不是只求最大和。',
+          '是树遍历 + 哈希统计题。',
+        ],
+      },
+      {
+        id: 'most-frequent-subtree-sum-postorder',
+        title: '后序遍历最适合先算左右，再算当前',
+        summary:
+          '当前节点的子树和依赖左右孩子的子树和，因此最自然的遍历顺序是后序遍历：先递归左子树，再递归右子树，最后合成当前节点的和。',
+        bullets: [
+          '子问题结果先于父节点得到。',
+          '后序遍历和定义完美匹配。',
+          '每个节点只需计算一次。',
+          '结构非常直接。',
+        ],
+      },
+      {
+        id: 'most-frequent-subtree-sum-count',
+        title: '每算出一个子树和，就立刻做频次统计',
+        summary:
+          '当某个节点的子树和被算出后，直接在哈希表中把它的出现次数加一，同时维护当前最大频次。最终只需遍历哈希表，把频次等于最大值的和收集起来即可。',
+        bullets: [
+          '计算与统计可合并进行。',
+          '哈希表保存和到频次的映射。',
+          '最大频次可边遍历边更新。',
+          '最后统一收集答案。',
+        ],
+        callout:
+          '树题里，只要某个节点结果依赖左右孩子，就优先想后序遍历。这几乎是结构性信号。',
+      },
+      {
+        id: 'most-frequent-subtree-sum-solution',
+        title: '标准解法：后序遍历 + 频次哈希表',
+        summary:
+          '定义递归函数返回当前节点的子树和：空节点返回 0，非空节点返回 `node.val + leftSum + rightSum`。每得到一个子树和，就在哈希表里累加次数并更新最大频次。遍历结束后，从哈希表中筛出所有频次等于最大值的和即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在后序和统计同步进行。',
+          '是树递归统计题代表作。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(val = 0, left: TreeNode | null = null, right: TreeNode | null = null) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function findFrequentTreeSum(root: TreeNode | null): number[] {
+  if (!root) {
+    return []
+  }
+
+  const counter = new Map<number, number>()
+  let maxCount = 0
+
+  const dfs = (node: TreeNode | null): number => {
+    if (!node) {
+      return 0
+    }
+
+    const sum = node.val + dfs(node.left) + dfs(node.right)
+    const count = (counter.get(sum) ?? 0) + 1
+    counter.set(sum, count)
+    maxCount = Math.max(maxCount, count)
+    return sum
+  }
+
+  dfs(root)
+
+  const answer: number[] = []
+  for (const [sum, count] of counter) {
+    if (count === maxCount) {
+      answer.push(sum)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'most-frequent-subtree-sum-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是用前序或中序硬算当前节点结果，结果拿不到完整左右子树和；或者算出了子树和，却忘了同步统计频次。',
+        bullets: [
+          '易错点 1：遍历顺序不适配依赖关系。',
+          '易错点 2：只计算子树和，不统计频次。',
+          '易错点 3：多个并列最高频结果没有一起收集。',
+          '延伸方向：后序遍历、树形 DP、频次统计。',
+        ],
+      },
+    ],
+  },
 ];
