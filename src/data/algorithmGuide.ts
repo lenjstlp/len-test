@@ -54972,4 +54972,96 @@ function findMaximizedCapital(
       },
     ],
   },
+  {
+    id: 'next-greater-element-ii',
+    label: '503. LeetCode 503. 下一个更大元素 II',
+    difficulty: '中等',
+    description:
+      '这题和上一道单调栈题的区别在于数组是循环的。常见做法是把数组“看成遍历两遍”，用下标取模模拟环。',
+    outcome:
+      '你能通过单调栈和循环数组技巧，在线性时间内求出每个位置的下一个更大元素。',
+    sections: [
+      {
+        id: 'next-greater-element-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个循环数组 `nums`，要求为每个元素找到它后面第一个更大的元素；若不存在则为 `-1`。',
+        bullets: [
+          '数组尾部后面会接回开头。',
+          '每个位置都要单独求答案。',
+          '目标是右侧第一个更大值。',
+          '是循环数组版单调栈题。',
+        ],
+      },
+      {
+        id: 'next-greater-element-ii-cycle',
+        title: '循环数组可以通过遍历两倍长度来模拟',
+        summary:
+          '因为每个元素在向右查找时，最多只会绕回数组开头再看一圈，所以可以把下标从 `0` 遍历到 `2n - 1`，每次用 `index % n` 取真实位置。这样就等价于把数组接在自己后面看两遍。',
+        bullets: [
+          '两遍遍历足以覆盖循环查找。',
+          '取模负责映射真实位置。',
+          '不需要真的复制数组。',
+          '是循环数组常用技巧。',
+        ],
+      },
+      {
+        id: 'next-greater-element-ii-stack',
+        title: '单调递减栈照样用于等待更大值',
+        summary:
+          '维护一个存下标的单调递减栈。遍历到当前值时，若它比栈顶下标对应的值大，就说明它是那个位置的下一个更大元素，于是不断弹栈并填写答案。只有第一轮遍历时才把下标压栈，避免重复入栈。',
+        bullets: [
+          '栈里保存尚未找到答案的位置。',
+          '当前更大值会解决前面多个位置。',
+          '答案数组先全部初始化为 `-1`。',
+          '只在第一轮入栈可避免重复。',
+        ],
+        callout:
+          '单调栈不怕循环数组，真正多出来的只是“再看一遍”。问题模板没变，只是遍历范围变成了两倍。',
+      },
+      {
+        id: 'next-greater-element-ii-solution',
+        title: '标准解法：两倍遍历范围 + 单调递减栈',
+        summary:
+          '初始化答案数组全为 `-1`。遍历 `0..2n-1`，当前真实位置是 `index % n`。若当前值大于栈顶位置对应值，就不断弹栈并赋答案；若 `index < n`，则把当前下标入栈，表示它还在等待未来的更大值。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在第二轮只用于“解决问题”不再入栈。',
+          '是循环数组单调栈模板题。',
+        ],
+        code: `function nextGreaterElements(nums: number[]): number[] {
+  const n = nums.length
+  const answer = new Array<number>(n).fill(-1)
+  const stack: number[] = []
+
+  for (let index = 0; index < 2 * n; index += 1) {
+    const actual = index % n
+
+    while (stack.length > 0 && nums[actual] > nums[stack[stack.length - 1]]) {
+      answer[stack.pop() as number] = nums[actual]
+    }
+
+    if (index < n) {
+      stack.push(actual)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'next-greater-element-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只遍历一轮，导致无法利用数组开头补后面的答案；或者第二轮还继续入栈，造成重复状态和错误结果。',
+        bullets: [
+          '易错点 1：没有做两倍范围遍历。',
+          '易错点 2：第二轮仍然入栈。',
+          '易错点 3：答案默认值没有初始化为 `-1`。',
+          '延伸方向：循环数组、单调栈、下一个更大元素系列。',
+        ],
+      },
+    ],
+  },
 ];
