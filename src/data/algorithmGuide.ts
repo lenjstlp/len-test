@@ -54698,4 +54698,123 @@ function cleanRoom(robot: Robot): void {
       },
     ],
   },
+  {
+    id: 'find-mode-in-binary-search-tree',
+    label: '501. LeetCode 501. 二叉搜索树中的众数',
+    difficulty: '简单',
+    description:
+      '这题的关键不是哈希统计，而是利用 BST 中序遍历有序这一点，把相同值的出现压成连续段来统计。',
+    outcome:
+      '你能借助二叉搜索树的中序有序性，在线性遍历中找出所有出现频率最高的值。',
+    sections: [
+      {
+        id: 'find-mode-in-binary-search-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵允许存在重复值的二叉搜索树，要求返回其中所有众数，也就是出现次数最多的元素。',
+        bullets: [
+          '结果可能不止一个值。',
+          'BST 允许重复元素。',
+          '目标是找最高频值集合。',
+          '要利用 BST 特性简化统计。',
+        ],
+      },
+      {
+        id: 'find-mode-in-binary-search-tree-inorder',
+        title: '中序遍历会把相同值放在一起',
+        summary:
+          '二叉搜索树的中序遍历结果是非递减序列，因此相同的值会连续出现。这样就不一定非要用哈希表；只要顺序遍历时统计当前值连续出现了多少次，就能知道它的频率。',
+        bullets: [
+          'BST 中序天然有序。',
+          '相同值形成连续段。',
+          '频率统计可在线维护。',
+          '能节省额外映射结构。',
+        ],
+      },
+      {
+        id: 'find-mode-in-binary-search-tree-state',
+        title: '维护前一个值、当前频次和最大频次',
+        summary:
+          '遍历时记录 `previous`、`count` 和 `maxCount`。若当前节点值与前一个相同，`count` 加一；否则重置为 1。然后把 `count` 与 `maxCount` 比较：若更大则清空答案重新记录，若相等则追加当前值。',
+        bullets: [
+          '连续段长度就是当前值频次。',
+          '`previous` 用来判断是否延续同一段。',
+          '`maxCount` 控制答案更新逻辑。',
+          '状态维护非常直接。',
+        ],
+        callout:
+          '看到“BST + 统计频率”，先别急着上哈希表。中序有序性经常能把问题直接变成一次扫描。',
+      },
+      {
+        id: 'find-mode-in-binary-search-tree-solution',
+        title: '标准解法：中序遍历顺序统计连续频次',
+        summary:
+          '执行一次中序遍历。每访问一个节点，就根据它和前一个节点值是否相同来更新当前频次，再与最大频次比较以更新答案数组。遍历结束后，答案数组中就是所有众数。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在状态变量更新顺序。',
+          '是 BST 性质利用题。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(val = 0, left: TreeNode | null = null, right: TreeNode | null = null) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function findMode(root: TreeNode | null): number[] {
+  const answer: number[] = []
+  let previous: number | null = null
+  let count = 0
+  let maxCount = 0
+
+  const inorder = (node: TreeNode | null): void => {
+    if (!node) {
+      return
+    }
+
+    inorder(node.left)
+
+    if (node.val === previous) {
+      count += 1
+    } else {
+      previous = node.val
+      count = 1
+    }
+
+    if (count > maxCount) {
+      maxCount = count
+      answer.length = 0
+      answer.push(node.val)
+    } else if (count === maxCount) {
+      answer.push(node.val)
+    }
+
+    inorder(node.right)
+  }
+
+  inorder(root)
+  return answer
+}`,
+      },
+      {
+        id: 'find-mode-in-binary-search-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有意识到中序有序性，绕回哈希统计；或者状态变量更新顺序写错，导致当前节点频次和答案更新不一致。',
+        bullets: [
+          '易错点 1：没利用 BST 中序有序性质。',
+          '易错点 2：切换新值时频次没有重置为 1。',
+          '易错点 3：最大频次更新后忘记清空旧答案。',
+          '延伸方向：BST 中序遍历、连续段统计、频率扫描。',
+        ],
+      },
+    ],
+  },
 ];
