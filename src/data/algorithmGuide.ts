@@ -55064,4 +55064,92 @@ function findMaximizedCapital(
       },
     ],
   },
+  {
+    id: 'base-7',
+    label: '504. LeetCode 504. 七进制数',
+    difficulty: '简单',
+    description:
+      '这题就是进制转换基础题。核心是不断除以 7 取余，再把余数倒序拼起来。',
+    outcome: '你能手写一个十进制转七进制的过程，并正确处理负数和零。',
+    sections: [
+      {
+        id: 'base-7-summary',
+        title: '题目在问什么',
+        summary: '给定一个整数 `num`，要求返回它的七进制字符串表示。',
+        bullets: [
+          '可能是正数、负数或 0。',
+          '结果以字符串形式返回。',
+          '本质是进制转换。',
+          '是基础数学模拟题。',
+        ],
+      },
+      {
+        id: 'base-7-division',
+        title: '进制转换的标准动作就是“除基取余”',
+        summary:
+          '把一个十进制数转为七进制时，每次用当前数除以 7，得到的余数就是当前最低位；然后继续处理商。重复这个过程直到商变为 0，就得到了从低位到高位的所有数字。',
+        bullets: [
+          '余数给出当前最低位。',
+          '商进入下一轮处理。',
+          '得到的是逆序位串。',
+          '所有进制转换都遵循这个模式。',
+        ],
+      },
+      {
+        id: 'base-7-sign',
+        title: '负数只需先处理绝对值，最后补回符号',
+        summary:
+          '如果原数是负数，不必在转换过程中掺杂符号逻辑。先记录符号，使用绝对值做标准的除 7 取余，最后把结果反转并在前面补上负号即可。若输入是 0，则直接返回 `"0"`。',
+        bullets: [
+          '符号和数位转换可分开处理。',
+          '0 是特殊边界。',
+          '正负统一逻辑会更干净。',
+          '实现简洁稳定。',
+        ],
+        callout:
+          '进制转换题通常没有花招，关键是别把边界条件和主逻辑混在一起。0 和负号单独处理最稳。',
+      },
+      {
+        id: 'base-7-solution',
+        title: '标准解法：反复除 7 取余后反转',
+        summary:
+          '若 `num === 0` 直接返回 `"0"`。否则记录是否为负数，对绝对值反复执行 `% 7` 和 `Math.floor(/ 7)`，把余数字符加入数组。最后将数组反转成字符串，并在需要时补上负号。',
+        bullets: [
+          '时间复杂度是 `O(log_7 n)`。',
+          '空间复杂度是 `O(log_7 n)`。',
+          '实现非常标准。',
+          '适合作为进制转换模板题。',
+        ],
+        code: `function convertToBase7(num: number): string {
+  if (num === 0) {
+    return '0'
+  }
+
+  const negative = num < 0
+  let value = Math.abs(num)
+  const digits: string[] = []
+
+  while (value > 0) {
+    digits.push(String(value % 7))
+    value = Math.floor(value / 7)
+  }
+
+  const result = digits.reverse().join('')
+  return negative ? '-' + result : result
+}`,
+      },
+      {
+        id: 'base-7-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忘了结果位序需要反转；或者负数直接参与除模运算，导致代码不直观。',
+        bullets: [
+          '易错点 1：余数顺序没反转。',
+          '易错点 2：忘记处理 `0`。',
+          '易错点 3：负号逻辑和主循环混在一起。',
+          '延伸方向：任意进制转换、除基取余、数位表示。',
+        ],
+      },
+    ],
+  },
 ];
