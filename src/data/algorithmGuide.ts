@@ -54370,4 +54370,101 @@ function cleanRoom(robot: Robot): void {
       },
     ],
   },
+  {
+    id: 'diagonal-traverse',
+    label: '498. LeetCode 498. 对角线遍历',
+    difficulty: '中等',
+    description:
+      '这题不是常规按行按列扫，而是沿着每条对角线来回折返。关键在于识别：同一条对角线上的元素满足 `row + col` 相同。',
+    outcome: '你能利用对角线编号规律，正确输出矩阵的折返式对角线遍历结果。',
+    sections: [
+      {
+        id: 'diagonal-traverse-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 `m x n` 矩阵，要求按照对角线来回折返的顺序，把所有元素输出成一维数组。',
+        bullets: [
+          '遍历顺序不是普通行优先。',
+          '需要沿对角线交替方向输出。',
+          '每个元素只访问一次。',
+          '是规律模拟题。',
+        ],
+      },
+      {
+        id: 'diagonal-traverse-index',
+        title: '同一条对角线满足行列下标和相等',
+        summary:
+          '矩阵中所有位于同一条左下到右上的对角线上的元素，都有相同的 `row + col`。因此可以把每个元素按这个和分组，一组一组处理。',
+        bullets: [
+          '`row + col` 是对角线编号。',
+          '共有 `m + n - 1` 条对角线。',
+          '每条对角线内部元素顺序要看方向。',
+          '这是题目最核心的规律。',
+        ],
+      },
+      {
+        id: 'diagonal-traverse-direction',
+        title: '偶数对角线反转，奇数对角线顺序输出',
+        summary:
+          '若按对角线编号从小到大遍历，取到的元素默认顺序是从上往下。题目要求方向交替，因此可以让偶数编号对角线反转输出，奇数编号保持原顺序，这样就能得到需要的折返效果。',
+        bullets: [
+          '方向交替是题目的视觉特征。',
+          '按组处理比边界模拟更稳定。',
+          '反转只发生在偶数编号对角线。',
+          '实现简单清晰。',
+        ],
+        callout:
+          '这类矩阵题，先找“分组规则”通常比硬模拟移动路径更稳。这里的分组就是对角线编号。',
+      },
+      {
+        id: 'diagonal-traverse-solution',
+        title: '标准解法：按对角线编号分组后交替输出',
+        summary:
+          '遍历所有可能的对角线编号 `d`。对每个 `d`，收集满足 `row + col = d` 的元素到临时数组中；若 `d` 为偶数，就把临时数组反转后加入答案，否则直接追加。最终得到完整遍历顺序。',
+        bullets: [
+          '时间复杂度是 `O(mn)`。',
+          '空间复杂度是 `O(min(m, n))` 级别临时数组。',
+          '重点在对角线边界计算。',
+          '是矩阵规律题代表作。',
+        ],
+        code: `function findDiagonalOrder(mat: number[][]): number[] {
+  const rows = mat.length
+  const cols = mat[0].length
+  const answer: number[] = []
+
+  for (let diagonal = 0; diagonal < rows + cols - 1; diagonal += 1) {
+    const values: number[] = []
+    let row = diagonal < cols ? 0 : diagonal - cols + 1
+    let col = diagonal < cols ? diagonal : cols - 1
+
+    while (row < rows && col >= 0) {
+      values.push(mat[row][col])
+      row += 1
+      col -= 1
+    }
+
+    if (diagonal % 2 === 0) {
+      values.reverse()
+    }
+
+    answer.push(...values)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'diagonal-traverse-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接硬模拟上下左右移动，结果边界拐点处理很乱；或者知道要分对角线，但忘了奇偶方向需要交替。',
+        bullets: [
+          '易错点 1：边界拐点处理出错。',
+          '易错点 2：遗漏对角线方向交替。',
+          '易错点 3：对角线起点计算错误。',
+          '延伸方向：矩阵遍历、分组规律、路径模拟优化。',
+        ],
+      },
+    ],
+  },
 ];
