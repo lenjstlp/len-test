@@ -55276,4 +55276,98 @@ function findMaximizedCapital(
       },
     ],
   },
+  {
+    id: 'relative-ranks',
+    label: '506. LeetCode 506. 相对名次',
+    difficulty: '简单',
+    description:
+      '这题的核心是先按分数排序，再把排序名次映射回原位置。前三名有特殊文案，其余直接写排名数字。',
+    outcome: '你能通过排序和下标映射，为每位运动员生成对应的奖牌或名次字符串。',
+    sections: [
+      {
+        id: 'relative-ranks-summary',
+        title: '题目在问什么',
+        summary:
+          '给定运动员分数数组 `score`，要求返回一个同长度字符串数组，表示每个运动员的相对名次。前三名分别是 `"Gold Medal"`、`"Silver Medal"`、`"Bronze Medal"`，其余是名次数字。',
+        bullets: [
+          '分数越高名次越靠前。',
+          '前三名有特殊字符串。',
+          '其余名次用数字字符串表示。',
+          '结果要对应回原下标。',
+        ],
+      },
+      {
+        id: 'relative-ranks-sort',
+        title: '排序后名次天然明确',
+        summary:
+          '如果把每位运动员的分数和原下标绑定后按分数降序排序，那么排在第 0、1、2 位的就是金银铜牌，后面的元素名次也随排序位置自然确定。',
+        bullets: [
+          '排序直接给出相对顺序。',
+          '必须保留原下标方便回填。',
+          '降序排序最符合名次定义。',
+          '是典型的“排序后映射回原数组”题。',
+        ],
+      },
+      {
+        id: 'relative-ranks-fill',
+        title: '根据排序位置生成名次，再写回原位置',
+        summary:
+          '遍历排序后的数组，若当前位置是前 3 名，就写对应奖牌字符串；否则写 `(index + 1)` 的字符串形式。每次都根据记录的原下标，把结果写回答案数组。',
+        bullets: [
+          '名次由排序位置决定。',
+          '奖牌和数字名次分开处理。',
+          '原下标回填是最后一步。',
+          '实现不复杂，但细节要完整。',
+        ],
+        callout:
+          '这类题几乎都遵循同一套路：排序得到顺序，记录原下标，再把排序结果映射回去。',
+      },
+      {
+        id: 'relative-ranks-solution',
+        title: '标准解法：绑定原下标排序后回填',
+        summary:
+          '先把每个分数映射成 `[score, index]`，按分数降序排序。然后依次生成金牌、银牌、铜牌或数字名次，并根据 `index` 写回答案数组。最后返回答案。',
+        bullets: [
+          '时间复杂度是 `O(n log n)`。',
+          '空间复杂度是 `O(n)`。',
+          '重点在排序后回填原位置。',
+          '是基础排序映射题。',
+        ],
+        code: `function findRelativeRanks(score: number[]): string[] {
+  const athletes = score.map((value, index) => [value, index])
+  athletes.sort((a, b) => b[0] - a[0])
+
+  const answer = new Array<string>(score.length)
+
+  for (let rank = 0; rank < athletes.length; rank += 1) {
+    const index = athletes[rank][1]
+
+    if (rank === 0) {
+      answer[index] = 'Gold Medal'
+    } else if (rank === 1) {
+      answer[index] = 'Silver Medal'
+    } else if (rank === 2) {
+      answer[index] = 'Bronze Medal'
+    } else {
+      answer[index] = String(rank + 1)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'relative-ranks-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是排序后没有保留原下标，导致答案无法还原到原数组顺序；或者前三名和普通数字名次的分支处理漏掉了。',
+        bullets: [
+          '易错点 1：排序时没绑定原始位置。',
+          '易错点 2：名次从 0 开始写错。',
+          '易错点 3：前三名奖牌文本处理不完整。',
+          '延伸方向：排序映射、排名问题、索引回填。',
+        ],
+      },
+    ],
+  },
 ];
