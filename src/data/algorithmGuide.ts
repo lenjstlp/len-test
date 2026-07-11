@@ -55152,4 +55152,128 @@ function findMaximizedCapital(
       },
     ],
   },
+  {
+    id: 'the-maze-ii',
+    label: '505. LeetCode 505. 迷宫 II',
+    difficulty: '中等',
+    description:
+      '这题比迷宫 I 多了一层最短距离要求，但没有字典序要求。因为滚动距离不同，所以本质还是带权最短路。',
+    outcome: '你能在滚动迷宫中利用最短路思想，求出球停到终点所需的最小步数。',
+    sections: [
+      {
+        id: 'the-maze-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定迷宫、起点和终点。球沿某个方向会一直滚到撞墙才停。要求返回球从起点停到终点的最短距离；如果无法停到终点，返回 `-1`。',
+        bullets: [
+          '球不会中途随意停下。',
+          '每次完整滚动有不同步数代价。',
+          '目标是最小总步数。',
+          '是滚动迷宫最短路题。',
+        ],
+      },
+      {
+        id: 'the-maze-ii-state',
+        title: '停点是节点，滚动距离是边权',
+        summary:
+          '像迷宫 I 一样，图的节点不是经过的格子，而是每次能停下的位置。不同的是，这里从一个停点滚到另一个停点，代价是实际滚过的步数，因此图是带权图。',
+        bullets: [
+          '节点仍然是停点。',
+          '边权由滚动步数决定。',
+          '普通 BFS 不再可靠。',
+          '需要最短路方法。',
+        ],
+      },
+      {
+        id: 'the-maze-ii-dijkstra',
+        title: '不同滚动长度意味着要用 Dijkstra',
+        summary:
+          '从当前停点向四个方向模拟滚动，得到邻接停点和对应步数。若通过当前路径到达邻点更短，就更新距离并继续扩展。因为边权非负且不统一，最稳的框架是 Dijkstra。',
+        bullets: [
+          '每次扩展都伴随滚动模拟。',
+          '更新条件是新距离更短。',
+          '优先队列按当前最短距离弹出状态。',
+          '是标准非负权最短路。',
+        ],
+        callout:
+          '迷宫题一旦从“能不能到”升级成“最短怎么到”，并且一步动作长度不固定，就要立刻切换到最短路视角。',
+      },
+      {
+        id: 'the-maze-ii-solution',
+        title: '标准解法：Dijkstra 求滚动停点最短路',
+        summary:
+          '维护距离数组，起点距离为 0。每次从优先队列中取出当前最短状态，沿四个方向滚动到尽头，累加步数形成新距离。若新距离优于已知距离，就更新并重新入队。最终看终点位置的距离是否被更新。',
+        bullets: [
+          '时间复杂度和状态扩展、堆操作有关。',
+          '空间复杂度主要来自距离表和堆。',
+          '实现重点在滚动与最短路结合。',
+          '是滚动迷宫系列的最短路基础题。',
+        ],
+        code: `function shortestDistance(
+  maze: number[][],
+  start: number[],
+  destination: number[],
+): number {
+  const rows = maze.length
+  const cols = maze[0].length
+  const distance = Array.from({ length: rows }, () => new Array<number>(cols).fill(Number.MAX_SAFE_INTEGER))
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+  const queue: Array<[number, number, number]> = [[0, start[0], start[1]]]
+  distance[start[0]][start[1]] = 0
+
+  while (queue.length > 0) {
+    queue.sort((a, b) => a[0] - b[0])
+    const [dist, row, col] = queue.shift() as [number, number, number]
+
+    if (dist > distance[row][col]) {
+      continue
+    }
+
+    for (const [dr, dc] of directions) {
+      let nextRow = row
+      let nextCol = col
+      let steps = 0
+
+      while (
+        nextRow + dr >= 0 &&
+        nextRow + dr < rows &&
+        nextCol + dc >= 0 &&
+        nextCol + dc < cols &&
+        maze[nextRow + dr][nextCol + dc] === 0
+      ) {
+        nextRow += dr
+        nextCol += dc
+        steps += 1
+      }
+
+      if (dist + steps < distance[nextRow][nextCol]) {
+        distance[nextRow][nextCol] = dist + steps
+        queue.push([dist + steps, nextRow, nextCol])
+      }
+    }
+  }
+
+  const answer = distance[destination[0]][destination[1]]
+  return answer === Number.MAX_SAFE_INTEGER ? -1 : answer
+}`,
+      },
+      {
+        id: 'the-maze-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是仍然用普通 BFS，把所有滚动动作当成等权边；或者把经过终点当成成功，忽略了必须停在终点这个条件。',
+        bullets: [
+          '易错点 1：把带权问题错当等权 BFS。',
+          '易错点 2：中途经过终点就直接返回。',
+          '易错点 3：滚动到尽头时没有停在最后合法位置。',
+          '延伸方向：Dijkstra、滚动迷宫、隐式图最短路。',
+        ],
+      },
+    ],
+  },
 ];
