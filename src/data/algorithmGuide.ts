@@ -55370,4 +55370,98 @@ function findMaximizedCapital(
       },
     ],
   },
+  {
+    id: 'perfect-number',
+    label: '507. LeetCode 507. 完美数',
+    difficulty: '简单',
+    description:
+      '这题要判断一个数是否等于它所有真因子之和。关键不是从 1 枚举到 `num - 1`，而是利用因子成对出现，只需扫到平方根。',
+    outcome:
+      '你能通过成对因子统计，在平方根级别复杂度内判断一个数是否为完美数。',
+    sections: [
+      {
+        id: 'perfect-number-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个正整数 `num`，判断它是否等于所有正因子（不包含它本身）之和。如果相等，则它是完美数。',
+        bullets: [
+          '不包含数字本身。',
+          '目标是判断真假。',
+          '如 `28 = 1 + 2 + 4 + 7 + 14`。',
+          '是因子枚举题。',
+        ],
+      },
+      {
+        id: 'perfect-number-factors',
+        title: '因子总是成对出现',
+        summary:
+          '如果 `d` 是 `num` 的因子，那么 `num / d` 也是因子。因此在枚举时，只要找到一个小因子，就能同时得到一个大因子。这样就不需要从 1 一直扫到 `num - 1`。',
+        bullets: [
+          '因子存在对称性。',
+          '小因子和大因子成对贡献。',
+          '枚举范围可缩到平方根。',
+          '这是复杂度下降的关键。',
+        ],
+      },
+      {
+        id: 'perfect-number-sqrt',
+        title: '从 2 枚举到平方根，并注意平方数去重',
+        summary:
+          '对于每个 `divisor`，若它能整除 `num`，就把 `divisor` 和 `num / divisor` 加入因子和。但若 `divisor * divisor === num`，说明两个因子其实是同一个值，只能加一次。',
+        bullets: [
+          '1 永远是真因子，可先加入。',
+          '平方根因子要防止重复计数。',
+          '1 本身之外从 2 开始枚举。',
+          '边界 `num = 1` 要单独处理。',
+        ],
+        callout:
+          '很多因子题的套路都是“平方根枚举 + 成对加入 + 平方数去重”。这三个点缺一不可。',
+      },
+      {
+        id: 'perfect-number-solution',
+        title: '标准解法：平方根枚举真因子之和',
+        summary:
+          '若 `num <= 1`，直接返回 `false`。否则初始化因子和为 1，然后从 `2` 枚举到 `sqrt(num)`。每遇到一个因子，就加入它和配对因子；若两个相同则只加一次。最后比较因子和是否等于 `num`。',
+        bullets: [
+          '时间复杂度是 `O(sqrt n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在配对因子和去重。',
+          '是基础数论枚举题。',
+        ],
+        code: `function checkPerfectNumber(num: number): boolean {
+  if (num <= 1) {
+    return false
+  }
+
+  let sum = 1
+
+  for (let divisor = 2; divisor * divisor <= num; divisor += 1) {
+    if (num % divisor !== 0) {
+      continue
+    }
+
+    sum += divisor
+    const other = num / divisor
+    if (other !== divisor) {
+      sum += other
+    }
+  }
+
+  return sum === num
+}`,
+      },
+      {
+        id: 'perfect-number-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把数字本身也加进因子和；或者虽然想到平方根枚举，但忘了成对因子一起加入。',
+        bullets: [
+          '易错点 1：把 `num` 本身算进去了。',
+          '易错点 2：没有成对加入配对因子。',
+          '易错点 3：平方数因子重复计数。',
+          '延伸方向：约数枚举、数论、完全数判定。',
+        ],
+      },
+    ],
+  },
 ];
