@@ -54817,4 +54817,159 @@ function findMode(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'ipo',
+    label: '502. LeetCode 502. IPO',
+    difficulty: '困难',
+    description:
+      '这题要在资本约束下做最多 `k` 次项目选择。核心是两层贪心：先把当前做得起的项目放进堆，再从中拿利润最大的。',
+    outcome:
+      '你能利用排序加最大堆，在资本门槛约束下选择最多 k 个项目以最大化最终资金。',
+    sections: [
+      {
+        id: 'ipo-summary',
+        title: '题目在问什么',
+        summary:
+          '给定最多可做项目数 `k`、初始资金 `w`，以及每个项目所需资本 `capital[i]` 和纯利润 `profits[i]`。每做完一个项目，资金会增加对应利润。要求最大化最终资金。',
+        bullets: [
+          '项目最多做 `k` 个。',
+          '只有当前资金足够时才能做某项目。',
+          '做完项目后资金会增长。',
+          '目标是最终资金最大。',
+        ],
+      },
+      {
+        id: 'ipo-greedy',
+        title: '每一步都应从当前能做的项目里选利润最大者',
+        summary:
+          '如果某一时刻你已经知道所有当前可做项目，那么最优选择显然是先做利润最大的那个，因为它会给你带来最多新增资金，也最有利于解锁更多后续项目。',
+        bullets: [
+          '在可行集合里选最大利润是局部最优。',
+          '更多资金只会让未来选择更宽松。',
+          '当前不可做项目要先暂存等待。',
+          '这是典型的“可行集 + 最优选”贪心结构。',
+        ],
+      },
+      {
+        id: 'ipo-data-structure',
+        title: '按资本排序，按利润建最大堆',
+        summary:
+          '先把所有项目按所需资本从小到大排序。随后用指针把“当前资金能覆盖的项目”不断加入最大堆，堆里按利润排序。每轮从堆顶拿一个利润最高的项目执行，更新资金，再继续解锁更多项目。',
+        bullets: [
+          '排序负责按门槛逐步解锁项目。',
+          '堆负责在已解锁项目里快速挑最大利润。',
+          '指针只单调前进一次。',
+          '结构很适合做动态可行集选择。',
+        ],
+        callout:
+          '这题的通用模式非常重要：一个维度决定“什么时候可选”，另一个维度决定“在可选里怎么选最优”。排序和堆经常一起出现。',
+      },
+      {
+        id: 'ipo-solution',
+        title: '标准解法：资本排序 + 最大利润堆',
+        summary:
+          '将项目按 `capital` 升序排序。执行至多 `k` 轮：每轮把所有 `capital <= w` 的项目加入最大堆；若堆为空，说明再也没有可做项目，提前结束；否则弹出利润最大项目，把利润加到当前资金 `w` 上。循环结束后返回最终资金。',
+        bullets: [
+          '时间复杂度是 `O(n log n + k log n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在项目解锁与堆选择配合。',
+          '是排序 + 堆贪心代表题。',
+        ],
+        code: `class MaxHeap {
+  private data: number[] = []
+
+  size(): number {
+    return this.data.length
+  }
+
+  push(value: number): void {
+    this.data.push(value)
+    let index = this.data.length - 1
+
+    while (index > 0) {
+      const parent = Math.floor((index - 1) / 2)
+      if (this.data[parent] >= this.data[index]) {
+        break
+      }
+      ;[this.data[parent], this.data[index]] = [this.data[index], this.data[parent]]
+      index = parent
+    }
+  }
+
+  pop(): number {
+    const top = this.data[0]
+    const last = this.data.pop() as number
+
+    if (this.data.length > 0) {
+      this.data[0] = last
+      let index = 0
+
+      while (true) {
+        let largest = index
+        const left = index * 2 + 1
+        const right = index * 2 + 2
+
+        if (left < this.data.length && this.data[left] > this.data[largest]) {
+          largest = left
+        }
+
+        if (right < this.data.length && this.data[right] > this.data[largest]) {
+          largest = right
+        }
+
+        if (largest === index) {
+          break
+        }
+
+        ;[this.data[index], this.data[largest]] = [this.data[largest], this.data[index]]
+        index = largest
+      }
+    }
+
+    return top
+  }
+}
+
+function findMaximizedCapital(
+  k: number,
+  w: number,
+  profits: number[],
+  capital: number[],
+): number {
+  const projects = profits.map((profit, index) => [capital[index], profit])
+  projects.sort((a, b) => a[0] - b[0])
+
+  const heap = new MaxHeap()
+  let pointer = 0
+
+  for (let count = 0; count < k; count += 1) {
+    while (pointer < projects.length && projects[pointer][0] <= w) {
+      heap.push(projects[pointer][1])
+      pointer += 1
+    }
+
+    if (heap.size() === 0) {
+      break
+    }
+
+    w += heap.pop()
+  }
+
+  return w
+}`,
+      },
+      {
+        id: 'ipo-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是每轮都重新扫描所有项目找可做项，复杂度太高；或者在可做项目里没有选最大利润，导致局部决策错误。',
+        bullets: [
+          '易错点 1：没有用排序和指针逐步解锁项目。',
+          '易错点 2：可做项目中没取最大利润。',
+          '易错点 3：堆空时没有提前结束。',
+          '延伸方向：贪心 + 堆、动态可行集、资本约束优化。',
+        ],
+      },
+    ],
+  },
 ];
