@@ -54467,4 +54467,144 @@ function cleanRoom(robot: Robot): void {
       },
     ],
   },
+  {
+    id: 'the-maze-iii',
+    label: '499. LeetCode 499. 迷宫 III',
+    difficulty: '困难',
+    description:
+      '这题是在滚动迷宫基础上再加“最短路 + 字典序最小路径”。所以不能只做可达性搜索，必须用带路径比较的最短路。',
+    outcome:
+      '你能在滚动规则下同时最小化步数和路径字典序，找到把球滚进洞里的最优方案。',
+    sections: [
+      {
+        id: 'the-maze-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定迷宫、球的起点和洞的位置。球沿某个方向滚动时会一直走到撞墙，或者提前掉进洞里。要求返回使球进入洞的最短路径；若有多条最短路径，返回字典序最小的一条。',
+        bullets: [
+          '球会持续滚动，不是一步一步走。',
+          '进入洞时会立刻停止。',
+          '先比总步数，再比路径字典序。',
+          '是带字典序约束的最短路题。',
+        ],
+      },
+      {
+        id: 'the-maze-iii-shortest-path',
+        title: '状态仍然是停点，但现在要维护最短距离',
+        summary:
+          '和前一道迷宫题一样，节点是每次能停下来的位置。但这里不只是判断能不能到，而是要记录到达每个位置的最短步数，以及在最短步数下对应的最小字典序路径。',
+        bullets: [
+          '停点仍然是图节点。',
+          '边权是滚动经过的步数。',
+          '状态值从布尔变成“距离 + 路径”。',
+          '要防止次优路径覆盖最优路径。',
+        ],
+      },
+      {
+        id: 'the-maze-iii-dijkstra',
+        title: '边权不统一，最稳的是 Dijkstra',
+        summary:
+          '由于一次滚动的步数可能不同，这已经不是普通 BFS 能可靠处理的等权图。更稳妥的方法是用 Dijkstra：优先弹出当前距离最短、若距离相同则路径字典序更小的状态，然后尝试四个方向滚动更新邻居。',
+        bullets: [
+          '不同滚动长度意味着边权不同。',
+          'Dijkstra 能自然处理最短路。',
+          '优先队列里还要附带路径字符串。',
+          '更新条件要同时比较距离和字典序。',
+        ],
+        callout:
+          '一旦题目从“能不能到”升级成“最短怎么到”，并且每条边代价不同，就别再硬套 BFS，直接切换到 Dijkstra。',
+      },
+      {
+        id: 'the-maze-iii-solution',
+        title: '标准解法：Dijkstra 维护距离和字典序路径',
+        summary:
+          '为每个位置维护最优 `(distance, path)`。使用优先队列按距离优先、路径次优先弹出状态。扩展四个方向时，模拟球滚动，直到撞墙或掉洞，得到新位置、新步数和新路径；若它优于当前记录，就更新并入队。最终洞的位置记录即为答案。',
+        bullets: [
+          '时间复杂度取决于状态扩展和优先队列操作。',
+          '空间复杂度主要来自距离表和堆。',
+          '实现重点在滚动模拟和比较规则。',
+          '是滚动迷宫系列里的最短路升级题。',
+        ],
+        code: `function findShortestWay(
+  maze: number[][],
+  ball: number[],
+  hole: number[],
+): string {
+  const rows = maze.length
+  const cols = maze[0].length
+  const directions = [
+    [1, 0, 'd'],
+    [0, -1, 'l'],
+    [0, 1, 'r'],
+    [-1, 0, 'u'],
+  ] as const
+
+  const distance = Array.from({ length: rows }, () => new Array<number>(cols).fill(Number.MAX_SAFE_INTEGER))
+  const path = Array.from({ length: rows }, () => new Array<string>(cols).fill(''))
+  const queue: Array<[number, string, number, number]> = [[0, '', ball[0], ball[1]]]
+  distance[ball[0]][ball[1]] = 0
+
+  while (queue.length > 0) {
+    queue.sort((a, b) => a[0] - b[0] || a[1].localeCompare(b[1]))
+    const [dist, route, row, col] = queue.shift() as [number, string, number, number]
+
+    if (dist > distance[row][col] || (dist === distance[row][col] && route > path[row][col])) {
+      continue
+    }
+
+    for (const [dr, dc, letter] of directions) {
+      let nextRow = row
+      let nextCol = col
+      let steps = 0
+
+      while (
+        nextRow + dr >= 0 &&
+        nextRow + dr < rows &&
+        nextCol + dc >= 0 &&
+        nextCol + dc < cols &&
+        maze[nextRow + dr][nextCol + dc] === 0
+      ) {
+        nextRow += dr
+        nextCol += dc
+        steps += 1
+
+        if (nextRow === hole[0] && nextCol === hole[1]) {
+          break
+        }
+      }
+
+      const newDist = dist + steps
+      const newRoute = route + letter
+
+      if (
+        newDist < distance[nextRow][nextCol] ||
+        (newDist === distance[nextRow][nextCol] &&
+          (path[nextRow][nextCol] === '' || newRoute < path[nextRow][nextCol]))
+      ) {
+        distance[nextRow][nextCol] = newDist
+        path[nextRow][nextCol] = newRoute
+        queue.push([newDist, newRoute, nextRow, nextCol])
+      }
+    }
+  }
+
+  return distance[hole[0]][hole[1]] === Number.MAX_SAFE_INTEGER
+    ? 'impossible'
+    : path[hole[0]][hole[1]]
+}`,
+      },
+      {
+        id: 'the-maze-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是还在用可达性 DFS/BFS，不比较路径长度；或者虽然比较了最短步数，却没处理同长度下的字典序最小要求。',
+        bullets: [
+          '易错点 1：把题目当普通可达性问题。',
+          '易错点 2：没有用带权最短路思维。',
+          '易错点 3：同距离路径的字典序没处理。',
+          '延伸方向：Dijkstra、字典序最短路、滚动迷宫系列。',
+        ],
+      },
+    ],
+  },
 ];
