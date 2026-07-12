@@ -56048,4 +56048,115 @@ function findBottomLeftValue(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'freedom-trail',
+    label: '514. LeetCode 514. 自由之路',
+    difficulty: '困难',
+    description:
+      '这题的本质不是简单转盘模拟，而是状态 DP：每次拼出一个字符时，圆环停在哪个位置会影响后续总代价。',
+    outcome:
+      '你能利用记忆化搜索或动态规划，求出旋转圆环拼出目标字符串的最少步数。',
+    sections: [
+      {
+        id: 'freedom-trail-summary',
+        title: '题目在问什么',
+        summary:
+          '给定环形字符串 `ring` 和目标字符串 `key`。每次可以顺时针或逆时针转动圆环，使某个字符对准 12 点方向，然后按下按钮确认。要求返回拼出整个 `key` 所需的最少步数。',
+        bullets: [
+          '旋转一步算一步。',
+          '每确认一个字符还要额外按一次按钮。',
+          '环是循环结构，可双向旋转。',
+          '目标是总步数最小。',
+        ],
+      },
+      {
+        id: 'freedom-trail-state',
+        title: '状态取决于当前停在 ring 的哪个位置，以及 key 处理到哪里',
+        summary:
+          '如果已经拼到了 `key[index]`，并且此时圆环 12 点对准的是 `ring[pos]`，那么之后的最优代价只取决于这两个信息。因此状态可以定义为 `(pos, index)`。',
+        bullets: [
+          '当前位置会影响下一次旋转距离。',
+          '剩余目标串决定后续任务。',
+          '这是标准二维状态。',
+          '天然适合记忆化搜索。',
+        ],
+      },
+      {
+        id: 'freedom-trail-positions',
+        title: '同一个字符可能出现多次，要枚举所有候选停靠点',
+        summary:
+          '当需要拼某个字符时，`ring` 里可能有多个相同字符。不能贪心只去最近的那个，因为当前多转一点，可能换来后续更优。因此应预处理每个字符在 `ring` 中的所有位置，并对这些位置做转移比较。',
+        bullets: [
+          '重复字符带来多个可选状态。',
+          '局部最近不一定全局最优。',
+          '预处理位置表能大幅简化转移。',
+          '这是本题区别于简单模拟的地方。',
+        ],
+        callout:
+          '很多看似贪心的路径题，一旦某一步有多个等价落点，就要警惕：真正的解法往往是 DP，而不是只看眼前距离。',
+      },
+      {
+        id: 'freedom-trail-solution',
+        title: '标准解法：位置预处理 + 记忆化搜索',
+        summary:
+          '先预处理 `ring` 中每个字符出现的位置列表。定义 `dfs(pos, index)` 表示当前指针在 `pos`，准备拼 `key[index]` 时的最小代价。转移时枚举 `key[index]` 在 `ring` 中的每个位置 `nextPos`，计算从 `pos` 转到 `nextPos` 的最小旋转步数，再加上按按钮的 1 步和递归结果，取最小值。',
+        bullets: [
+          '时间复杂度与字符分布和状态数有关。',
+          '空间复杂度主要来自记忆化表。',
+          '实现重点在环形距离计算。',
+          '是环形 DP/搜索经典题。',
+        ],
+        code: `function findRotateSteps(ring: string, key: string): number {
+  const positions = new Map<string, number[]>()
+
+  for (let i = 0; i < ring.length; i += 1) {
+    const char = ring[i]
+    if (!positions.has(char)) {
+      positions.set(char, [])
+    }
+    ;(positions.get(char) as number[]).push(i)
+  }
+
+  const memo = new Map<string, number>()
+
+  const dfs = (pos: number, index: number): number => {
+    if (index === key.length) {
+      return 0
+    }
+
+    const state = pos + ',' + index
+    if (memo.has(state)) {
+      return memo.get(state) as number
+    }
+
+    let answer = Number.MAX_SAFE_INTEGER
+    const targets = positions.get(key[index]) as number[]
+
+    for (const nextPos of targets) {
+      const diff = Math.abs(nextPos - pos)
+      const rotate = Math.min(diff, ring.length - diff)
+      answer = Math.min(answer, rotate + 1 + dfs(nextPos, index + 1))
+    }
+
+    memo.set(state, answer)
+    return answer
+  }
+
+  return dfs(0, 0)
+}`,
+      },
+      {
+        id: 'freedom-trail-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是看到旋转距离就直接贪心去最近位置，忽略了同字符多位置带来的后效性；或者忘了每次按按钮也要加 1 步。',
+        bullets: [
+          '易错点 1：对重复字符只选最近位置。',
+          '易错点 2：环形距离没取顺逆时针最小值。',
+          '易错点 3：漏加按按钮的步数。',
+          '延伸方向：记忆化搜索、环形 DP、多目标位置转移。',
+        ],
+      },
+    ],
+  },
 ];
