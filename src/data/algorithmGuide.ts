@@ -55780,4 +55780,80 @@ function inorderSuccessor(node: Node | null): Node | null {
       },
     ],
   },
+  {
+    id: 'game-play-analysis-i',
+    label: '511. LeetCode 511. 游戏玩法分析 I',
+    difficulty: '简单',
+    description:
+      '这题本质是分组后取每个玩家最早的登录日期。SQL 里直接按玩家分组，再取 `MIN(event_date)` 就够了。',
+    outcome: '你能通过分组聚合，为每个玩家找出首次登录日期。',
+    sections: [
+      {
+        id: 'game-play-analysis-i-summary',
+        title: '题目在问什么',
+        summary: '给定 `Activity` 表，要求返回每个玩家第一次登录游戏的日期。',
+        bullets: [
+          '按玩家维度统计。',
+          '只要第一次登录日期。',
+          '是基础 SQL 分组聚合题。',
+          '核心操作是最小日期。',
+        ],
+      },
+      {
+        id: 'game-play-analysis-i-group',
+        title: '同一玩家的最早日期就是首次登录',
+        summary:
+          '如果把数据按 `player_id` 分组，那么每组里最小的 `event_date` 就是该玩家第一次登录游戏的日期，不需要更复杂的窗口函数。',
+        bullets: [
+          '一名玩家对应多条登录记录。',
+          '首次登录就是最小日期。',
+          '分组后直接聚合即可。',
+          '问题非常直接。',
+        ],
+      },
+      {
+        id: 'game-play-analysis-i-sql',
+        title: 'SQL 只需 GROUP BY 加 MIN',
+        summary:
+          '按 `player_id` 分组，并选出 `MIN(event_date)` 作为 `first_login`。结果中保留玩家编号和首次登录日期即可。',
+        bullets: [
+          '核心函数是 `MIN`。',
+          '分组字段是 `player_id`。',
+          '输出字段起别名更清晰。',
+          '是最基础的分组题型。',
+        ],
+        callout:
+          'SQL 题遇到“每组第一次/最早一次”，先想聚合最小值；只有在需要整行明细时，才考虑窗口函数或子查询。',
+      },
+      {
+        id: 'game-play-analysis-i-solution',
+        title: '标准解法：按玩家分组求最早登录日期',
+        summary:
+          '从 `Activity` 表中按 `player_id` 分组，使用 `MIN(event_date)` 求出每位玩家的首次登录日期，并将其命名为 `first_login`。',
+        bullets: [
+          '时间复杂度取决于数据库执行计划。',
+          '实现极短。',
+          '重点在分组后最小日期。',
+          '是 SQL 入门聚合题。',
+        ],
+        code: `SELECT
+  player_id,
+  MIN(event_date) AS first_login
+FROM Activity
+GROUP BY player_id;`,
+      },
+      {
+        id: 'game-play-analysis-i-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没按玩家分组，结果只求出了全表最早日期；或者输出时字段命名不符合题目预期。',
+        bullets: [
+          '易错点 1：忘记按 `player_id` 分组。',
+          '易错点 2：把全表最早日期误当成每人最早日期。',
+          '易错点 3：输出别名不规范。',
+          '延伸方向：SQL 聚合、分组统计、首次行为分析。',
+        ],
+      },
+    ],
+  },
 ];
