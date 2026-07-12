@@ -55856,4 +55856,89 @@ GROUP BY player_id;`,
       },
     ],
   },
+  {
+    id: 'game-play-analysis-ii',
+    label: '512. LeetCode 512. 游戏玩法分析 II',
+    difficulty: '简单',
+    description:
+      '这题在上一题基础上多了一步：先找每个玩家首次登录日期，再把那一天对应玩的设备取出来。',
+    outcome: '你能通过子查询或连接，找出每位玩家首次登录时所使用的设备编号。',
+    sections: [
+      {
+        id: 'game-play-analysis-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `Activity` 表，要求返回每个玩家第一次登录游戏时使用的 `device_id`。',
+        bullets: [
+          '不是所有设备，只要首次登录那次。',
+          '仍然按玩家维度处理。',
+          '需要先找首登日期，再取对应设备。',
+          '是 SQL 分组 + 连接题。',
+        ],
+      },
+      {
+        id: 'game-play-analysis-ii-step',
+        title: '先求每位玩家的首登日期，再回表找设备',
+        summary:
+          '直接看 `Activity` 表时，设备号和日期在同一行，但你需要确定哪一行是每位玩家的第一次登录。因此可以先分组求出每个玩家的最小 `event_date`，再把这个结果和原表连接，拿到对应的 `device_id`。',
+        bullets: [
+          '第一步是求每人最早日期。',
+          '第二步是按玩家和日期匹配原表。',
+          '连接后才能取出设备号。',
+          '思路清晰且通用。',
+        ],
+      },
+      {
+        id: 'game-play-analysis-ii-join',
+        title: '连接条件要同时匹配玩家和首次日期',
+        summary:
+          '如果连接时只匹配日期，或者只匹配玩家，都可能拿错记录。必须同时满足 `player_id` 一致且 `event_date` 等于该玩家的首次登录日期，才能精确定位到首登那条记录。',
+        bullets: [
+          '连接条件要完整。',
+          '避免把别的日期或别的玩家混进来。',
+          '取出的设备就是首登设备。',
+          '这是 SQL 明细回表的标准套路。',
+        ],
+        callout:
+          'SQL 里“先聚合找关键键值，再回表取明细”是非常常见的模式。这题就是一个最小版模板。',
+      },
+      {
+        id: 'game-play-analysis-ii-solution',
+        title: '标准解法：首登日期子查询 + 原表连接',
+        summary:
+          '先在子查询中按 `player_id` 分组求出每人的 `MIN(event_date)`。然后把子查询结果与 `Activity` 按 `player_id` 和 `event_date` 连接，取出对应的 `device_id` 即可。',
+        bullets: [
+          '时间复杂度取决于数据库执行计划。',
+          '实现重点在连接条件完整。',
+          '是聚合后回表明细题。',
+          '写法规范清晰。',
+        ],
+        code: `SELECT
+  a.player_id,
+  a.device_id
+FROM Activity AS a
+JOIN (
+  SELECT
+    player_id,
+    MIN(event_date) AS first_login
+  FROM Activity
+  GROUP BY player_id
+) AS b
+  ON a.player_id = b.player_id
+ AND a.event_date = b.first_login;`,
+      },
+      {
+        id: 'game-play-analysis-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只求出了首次登录日期，却没有回表拿设备；或者连接条件不完整，导致设备匹配错位。',
+        bullets: [
+          '易错点 1：只有聚合结果，没有设备明细。',
+          '易错点 2：连接时只按玩家，不按日期。',
+          '易错点 3：子查询别名和字段名不清晰。',
+          '延伸方向：SQL 回表、首次事件分析、聚合 + 连接。',
+        ],
+      },
+    ],
+  },
 ];
