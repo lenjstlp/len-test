@@ -55668,4 +55668,116 @@ function findFrequentTreeSum(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'inorder-successor-in-bst-ii',
+    label: '510. LeetCode 510. 二叉搜索树中的中序后继 II',
+    difficulty: '中等',
+    description:
+      '这题比普通 BST 后继题多了一个 `parent` 指针，因此无需从根重走。关键是分两种情况：有右子树就去右子树最左边；没有右子树就一路向上找第一个把当前节点放在左边的祖先。',
+    outcome:
+      '你能利用父指针在不依赖根节点的情况下，找到二叉搜索树某节点的中序后继。',
+    sections: [
+      {
+        id: 'inorder-successor-in-bst-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉搜索树中的某个节点 `node`，且每个节点额外有 `parent` 指针。要求返回该节点的中序后继；若不存在则返回 `null`。',
+        bullets: [
+          '输入不是根节点，而是任意节点。',
+          '节点带有父指针。',
+          '目标是找中序遍历中的下一个节点。',
+          '是 BST 性质题。',
+        ],
+      },
+      {
+        id: 'inorder-successor-in-bst-ii-right-subtree',
+        title: '有右子树时，后继一定在右子树最左侧',
+        summary:
+          '在 BST 的中序序列里，当前节点之后若先进入它的右子树，那么最先访问到的一定是右子树中最靠左的节点。因此只要 `node.right` 存在，就一路往左走到尽头即可。',
+        bullets: [
+          '右子树存在时后继很好找。',
+          '目标节点是右子树最小值。',
+          '只需不断走 `left`。',
+          '这是后继定义的直接结论。',
+        ],
+      },
+      {
+        id: 'inorder-successor-in-bst-ii-parent-climb',
+        title: '没有右子树时，就向上找第一个“从左边上来”的祖先',
+        summary:
+          '若当前节点没有右子树，那么它所在子树已经访问完了，接下来要回到祖先。只有当某个祖先把当前路径视作它的左子树时，这个祖先才会在中序遍历中排在当前节点后面。于是一路向上爬，直到找到 `parent.left === current` 的那个祖先。',
+        bullets: [
+          '没有右子树时只能往上找。',
+          '关键是判断自己是父节点的左孩子还是右孩子。',
+          '第一个满足“从左边上来”的祖先就是答案。',
+          '若一直找不到，说明没有后继。',
+        ],
+        callout:
+          '后继问题本质是中序顺序问题。不是机械背结论，而是先问：当前节点访问完后，遍历流程接下来会走到哪里？',
+      },
+      {
+        id: 'inorder-successor-in-bst-ii-solution',
+        title: '标准解法：右子树找最左，否则沿 parent 向上爬',
+        summary:
+          '若 `node.right` 不为空，就返回其右子树最左节点。否则设 `current = node`，不断令 `current = current.parent`，直到发现自己是某个父节点的左孩子，此时该父节点就是中序后继；若爬到根外仍未找到，则返回 `null`。',
+        bullets: [
+          '时间复杂度最坏是 `O(h)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在两类情况分开处理。',
+          '是 BST 后继题的父指针变体。',
+        ],
+        code: `class Node {
+  val: number
+  left: Node | null
+  right: Node | null
+  parent: Node | null
+
+  constructor(
+    val = 0,
+    left: Node | null = null,
+    right: Node | null = null,
+    parent: Node | null = null,
+  ) {
+    this.val = val
+    this.left = left
+    this.right = right
+    this.parent = parent
+  }
+}
+
+function inorderSuccessor(node: Node | null): Node | null {
+  if (!node) {
+    return null
+  }
+
+  if (node.right) {
+    let current = node.right
+    while (current.left) {
+      current = current.left
+    }
+    return current
+  }
+
+  let current = node
+  while (current.parent && current.parent.right === current) {
+    current = current.parent
+  }
+
+  return current.parent
+}`,
+      },
+      {
+        id: 'inorder-successor-in-bst-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有分开讨论“有右子树”和“无右子树”两种情况；或者向上爬时只找父节点，不检查自己是从左边还是右边回来的。',
+        bullets: [
+          '易错点 1：右子树存在时没去找最左节点。',
+          '易错点 2：向上爬时判断条件写错。',
+          '易错点 3：把不存在后继的情况漏掉了。',
+          '延伸方向：BST 后继/前驱、父指针树结构、中序遍历性质。',
+        ],
+      },
+    ],
+  },
 ];
