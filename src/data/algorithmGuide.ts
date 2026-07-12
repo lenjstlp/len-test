@@ -55580,4 +55580,92 @@ function findFrequentTreeSum(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'fibonacci-number',
+    label: '509. LeetCode 509. 斐波那契数',
+    difficulty: '简单',
+    description:
+      '这题是最基础的动态规划入门题。虽然递归定义很直观，但直接递归会重复计算，最实用的写法是迭代滚动更新。',
+    outcome: '你能用迭代方式在线性时间、常数空间内求出第 n 个斐波那契数。',
+    sections: [
+      {
+        id: 'fibonacci-number-summary',
+        title: '题目在问什么',
+        summary:
+          '斐波那契数列定义为 `F(0)=0`、`F(1)=1`，当 `n > 1` 时，`F(n)=F(n-1)+F(n-2)`。题目要求返回第 `n` 个斐波那契数。',
+        bullets: [
+          '前两个初始值固定。',
+          '后续每项由前两项相加得到。',
+          '目标是求第 `n` 项。',
+          '是经典递推题。',
+        ],
+      },
+      {
+        id: 'fibonacci-number-recursion',
+        title: '递归定义直观，但会产生大量重复计算',
+        summary:
+          '如果按定义直接递归求 `F(n)`，会反复去算相同的子问题，比如 `F(n-2)` 会在多个分支里重复出现。这会让时间复杂度指数级增长，不适合实际求值。',
+        bullets: [
+          '递归表达很自然。',
+          '但重复子问题非常多。',
+          '时间复杂度会迅速失控。',
+          '需要换成迭代或记忆化。',
+        ],
+      },
+      {
+        id: 'fibonacci-number-rolling',
+        title: '只依赖前两项，所以不必保存整张 DP 表',
+        summary:
+          '因为 `F(n)` 只依赖 `F(n-1)` 和 `F(n-2)`，所以我们没必要保存从 `0` 到 `n` 的所有结果。只维护两个变量，代表前两项，边遍历边更新即可。',
+        bullets: [
+          '状态转移只看最近两项。',
+          '可以把空间压到常数级。',
+          '变量滚动更新最实用。',
+          '这是很多 DP 题的常见优化。',
+        ],
+        callout:
+          '动态规划不一定要先写整张数组。先看转移依赖几项，很多时候都能直接滚动优化。',
+      },
+      {
+        id: 'fibonacci-number-solution',
+        title: '标准解法：滚动变量迭代求值',
+        summary:
+          '若 `n < 2`，直接返回 `n`。否则从 `2` 开始迭代，维护 `prev2 = F(i-2)`、`prev1 = F(i-1)`，当前值 `current = prev1 + prev2`，随后滚动更新变量。循环结束后返回最后得到的值。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现最稳妥直接。',
+          '是滚动 DP 基础模板题。',
+        ],
+        code: `function fib(n: number): number {
+  if (n < 2) {
+    return n
+  }
+
+  let prev2 = 0
+  let prev1 = 1
+
+  for (let i = 2; i <= n; i += 1) {
+    const current = prev1 + prev2
+    prev2 = prev1
+    prev1 = current
+  }
+
+  return prev1
+}`,
+      },
+      {
+        id: 'fibonacci-number-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是递归写法没有记忆化导致超慢；或者边界 `n = 0`、`n = 1` 处理不完整。',
+        bullets: [
+          '易错点 1：直接裸递归重复计算。',
+          '易错点 2：忘记处理 `n < 2`。',
+          '易错点 3：滚动变量更新顺序写错。',
+          '延伸方向：动态规划、滚动数组、递推优化。',
+        ],
+      },
+    ],
+  },
 ];
