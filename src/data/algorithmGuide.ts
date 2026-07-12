@@ -55941,4 +55941,111 @@ JOIN (
       },
     ],
   },
+  {
+    id: 'find-bottom-left-tree-value',
+    label: '513. LeetCode 513. 找树左下角的值',
+    difficulty: '中等',
+    description:
+      '这题真正要找的是“最深层最左边”的节点。最自然的解法是层序遍历，每层先看到的第一个节点就是该层最左值。',
+    outcome:
+      '你能通过层序遍历或 DFS 深度记录，找出二叉树最后一层最左侧节点的值。',
+    sections: [
+      {
+        id: 'find-bottom-left-tree-value-summary',
+        title: '题目在问什么',
+        summary: '给定一棵二叉树，要求返回最底层最左边节点的值。',
+        bullets: [
+          '不是最左分支一路到底那么简单。',
+          '目标是最深层中的最左节点。',
+          '需要同时考虑深度和左右顺序。',
+          '是树遍历定位题。',
+        ],
+      },
+      {
+        id: 'find-bottom-left-tree-value-bfs',
+        title: '层序遍历天然按“从上到下、从左到右”访问',
+        summary:
+          '如果逐层遍历二叉树，那么每一层队列中的第一个节点，就是该层最左节点。只要在遍历过程中不断记录每层的第一个值，最后一次记录到的就是最底层最左值。',
+        bullets: [
+          'BFS 层次关系非常明确。',
+          '每层第一个节点就是左边界。',
+          '最后一层覆盖掉前面记录即可。',
+          '实现稳定直接。',
+        ],
+      },
+      {
+        id: 'find-bottom-left-tree-value-dfs',
+        title: 'DFS 也行，但必须先走左子树并记录首次到达的最大深度',
+        summary:
+          '如果用 DFS，需要优先访问左子树，并记录当前访问到的最大深度。当第一次到达一个更深层时，当前节点必然是该深层最左边的节点，因为左侧路径会先于右侧路径被搜索到。',
+        bullets: [
+          'DFS 需要配合深度比较。',
+          '访问顺序必须先左后右。',
+          '首次到达更深层时更新答案。',
+          '思路也很常见。',
+        ],
+        callout:
+          '树题里如果目标描述里带有“最底层、最左边、每层第一个”，层序遍历通常会比花式递归更直接。',
+      },
+      {
+        id: 'find-bottom-left-tree-value-solution',
+        title: '标准解法：层序遍历记录每层首节点',
+        summary:
+          '使用队列做 BFS。每轮先记录当前层队列长度，并把这一层第一个节点的值保存到 `answer`。随后弹出这一层所有节点，并按左、右顺序把孩子入队。遍历结束后，`answer` 就是最底层最左值。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在每层首节点记录。',
+          '是二叉树层序遍历经典应用。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(val = 0, left: TreeNode | null = null, right: TreeNode | null = null) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function findBottomLeftValue(root: TreeNode | null): number {
+  const queue: TreeNode[] = [root as TreeNode]
+  let answer = root?.val as number
+
+  while (queue.length > 0) {
+    const size = queue.length
+    answer = queue[0].val
+
+    for (let i = 0; i < size; i += 1) {
+      const node = queue.shift() as TreeNode
+
+      if (node.left) {
+        queue.push(node.left)
+      }
+
+      if (node.right) {
+        queue.push(node.right)
+      }
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'find-bottom-left-tree-value-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是误把“最左分支的最深节点”当答案；或者 DFS 时先右后左，导致更深层首次记录到的不是最左节点。',
+        bullets: [
+          '易错点 1：忽略“同层最左”而只看左链。',
+          '易错点 2：DFS 访问顺序写成先右后左。',
+          '易错点 3：BFS 没记录每层第一个节点。',
+          '延伸方向：层序遍历、树层边界、深度优先记录。',
+        ],
+      },
+    ],
+  },
 ];
