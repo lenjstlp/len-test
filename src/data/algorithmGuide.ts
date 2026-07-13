@@ -56631,4 +56631,70 @@ function largestValues(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'detect-capital',
+    label: '520. LeetCode 520. 检测大写字母',
+    difficulty: '简单',
+    description:
+      '这题的规则其实只有三种合法模式：全大写、全小写、首字母大写其余小写。把这三种情况检查清楚即可。',
+    outcome: '你能准确判断一个英文单词的大写使用方式是否符合题目规则。',
+    sections: [
+      {
+        id: 'detect-capital-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个英文单词 `word`，判断它的大写使用方式是否正确。正确方式包括：全部字母大写、全部字母小写、或只有首字母大写。',
+        bullets: [
+          '合法模式一共三类。',
+          '只需要返回真假。',
+          '是字符串规则判断题。',
+          '核心在模式分类清晰。',
+        ],
+      },
+      {
+        id: 'detect-capital-patterns',
+        title: '把规则拆成三种固定模式最简单',
+        summary:
+          '与其写很多零散条件，不如直接判断这个单词是否满足三种模式之一：`word === word.toUpperCase()`，或 `word === word.toLowerCase()`，或首字母大写且剩余部分全小写。',
+        bullets: [
+          '模式分类比字符分类更直接。',
+          '三种情况覆盖全部合法输入。',
+          '任一命中即返回 `true`。',
+          '实现非常简洁。',
+        ],
+      },
+      {
+        id: 'detect-capital-solution',
+        title: '标准解法：直接匹配三种合法形式',
+        summary:
+          '先判断单词是否全大写；若不是，再判断是否全小写；最后判断是否满足“首字母大写、剩余小写”。只要满足其中任意一种，就返回 `true`，否则返回 `false`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度取决于字符串转换实现。',
+          '实现重点在三种模式完整覆盖。',
+          '是基础字符串判断题。',
+        ],
+        code: `function detectCapitalUse(word: string): boolean {
+  return (
+    word === word.toUpperCase() ||
+    word === word.toLowerCase() ||
+    (word[0] === word[0].toUpperCase() &&
+      word.slice(1) === word.slice(1).toLowerCase())
+  )
+}`,
+      },
+      {
+        id: 'detect-capital-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把首字母大写和其余任意大小写混为一谈；或者遗漏了全小写也是合法情况。',
+        bullets: [
+          '易错点 1：只检查首字母是否大写。',
+          '易错点 2：漏掉全小写模式。',
+          '易错点 3：规则写得零散难维护。',
+          '延伸方向：字符串规范校验、大小写判断、模式匹配。',
+        ],
+      },
+    ],
+  },
 ];
