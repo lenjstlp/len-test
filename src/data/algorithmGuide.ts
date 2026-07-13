@@ -56967,4 +56967,109 @@ function largestValues(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'longest-word-in-dictionary-through-deleting',
+    label: '524. LeetCode 524. 通过删除字母匹配到字典里最长单词',
+    difficulty: '中等',
+    description:
+      '这题的核心是对子序列做筛选：字典里的某个单词如果是 `s` 的子序列，就有资格成为候选；再按长度优先、字典序次优选最优答案。',
+    outcome:
+      '你能通过双指针子序列判断，从字典中找出可由删除得到的最长且字典序最小的单词。',
+    sections: [
+      {
+        id: 'longest-word-in-dictionary-through-deleting-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s` 和字符串数组 `dictionary`，要求找出一个能通过删除 `s` 中若干字符得到的字典单词。若有多个长度相同的候选，返回字典序最小的那个。',
+        bullets: [
+          '候选单词必须是 `s` 的子序列。',
+          '优先比较长度。',
+          '长度相同再比字典序。',
+          '是筛选最优候选题。',
+        ],
+      },
+      {
+        id: 'longest-word-in-dictionary-through-deleting-subsequence',
+        title: '先用双指针判断字典单词是不是 s 的子序列',
+        summary:
+          '对子序列判断，不需要 DP。用两个指针分别扫描候选单词和 `s`，在 `s` 中顺序匹配候选单词字符。若最终候选单词全部匹配成功，说明它能通过删除得到。',
+        bullets: [
+          '双指针足以判定子序列关系。',
+          '每个候选都独立检查一次。',
+          '判定过程是线性的。',
+          '这是全题的基础操作。',
+        ],
+      },
+      {
+        id: 'longest-word-in-dictionary-through-deleting-choice',
+        title: '筛选时要同时维护长度优先和字典序次优',
+        summary:
+          '遍历字典中每个可行候选时，如果它长度更长，就直接更新答案；若长度相同，则比较字典序，取更小者。这样无需额外排序，也能在线完成最优选择。',
+        bullets: [
+          '答案维护规则很明确。',
+          '长的优先级高于字典序。',
+          '同长度时取字典序更小者。',
+          '可边检查边更新。',
+        ],
+        callout:
+          '这类“先按主关键字，再按次关键字”题，最好在更新答案时把比较规则写清楚，而不是靠后处理补救。',
+      },
+      {
+        id: 'longest-word-in-dictionary-through-deleting-solution',
+        title: '标准解法：双指针判子序列 + 在线维护最优答案',
+        summary:
+          '遍历 `dictionary` 中每个单词，先用双指针判断它是否是 `s` 的子序列。若是，则按照“长度更长优先；长度相同则字典序更小优先”的规则更新 `answer`。最终返回答案。',
+        bullets: [
+          '时间复杂度与字典总字符数有关。',
+          '空间复杂度是 `O(1)` 额外空间。',
+          '实现重点在比较规则和子序列判定。',
+          '是字符串筛选题代表作。',
+        ],
+        code: `function findLongestWord(s: string, dictionary: string[]): string {
+  const isSubsequence = (word: string): boolean => {
+    let i = 0
+    let j = 0
+
+    while (i < word.length && j < s.length) {
+      if (word[i] === s[j]) {
+        i += 1
+      }
+      j += 1
+    }
+
+    return i === word.length
+  }
+
+  let answer = ''
+
+  for (const word of dictionary) {
+    if (!isSubsequence(word)) {
+      continue
+    }
+
+    if (
+      word.length > answer.length ||
+      (word.length === answer.length && word < answer)
+    ) {
+      answer = word
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'longest-word-in-dictionary-through-deleting-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是比较规则顺序写反，导致字典序压过了长度优先级；或者子序列判定写成了子串判定。',
+        bullets: [
+          '易错点 1：把子序列误写成子串判断。',
+          '易错点 2：同长度和更长的比较规则混乱。',
+          '易错点 3：没在同长度时取字典序更小者。',
+          '延伸方向：双指针子序列、字符串筛选、排序规则实现。',
+        ],
+      },
+    ],
+  },
 ];
