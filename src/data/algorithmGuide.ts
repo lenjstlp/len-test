@@ -56444,4 +56444,89 @@ function largestValues(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'coin-change-ii',
+    label: '518. LeetCode 518. 零钱兑换 II',
+    difficulty: '中等',
+    description:
+      '这题不是求最少硬币数，而是求组成金额的方案数。顺序不重要，所以是典型的完全背包计数题。',
+    outcome:
+      '你能把零钱方案统计转成完全背包，并正确处理“组合数而非排列数”的更新顺序。',
+    sections: [
+      {
+        id: 'coin-change-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数 `amount` 和硬币数组 `coins`，要求返回使用这些硬币组成总金额的方案数。每种硬币可以无限使用。',
+        bullets: [
+          '硬币数量不限。',
+          '求的是方案数。',
+          '硬币顺序不同不算不同方案。',
+          '是完全背包计数题。',
+        ],
+      },
+      {
+        id: 'coin-change-ii-combination',
+        title: '组合问题要让硬币在外层遍历',
+        summary:
+          '若我们把金额放外层、硬币放内层，容易把同一组硬币的不同排列重复统计。为了保证只算组合数，应先枚举硬币，再用它去更新所有可能金额。',
+        bullets: [
+          '遍历顺序决定统计的是组合还是排列。',
+          '硬币在外层时不会重复计不同顺序。',
+          '这是本题最容易错的点。',
+          '完全背包模板要用对方向。',
+        ],
+      },
+      {
+        id: 'coin-change-ii-dp',
+        title: '状态定义就是“组成某金额的方案数”',
+        summary:
+          '设 `dp[j]` 表示组成金额 `j` 的方案数。初始 `dp[0] = 1`，表示“什么都不选”也是一种组成 0 的方式。遍历每种硬币 `coin` 时，让金额从 `coin` 到 `amount` 正序更新：`dp[j] += dp[j - coin]`。',
+        bullets: [
+          '状态是金额到方案数的映射。',
+          '完全背包要正序更新金额。',
+          '`dp[0] = 1` 是计数起点。',
+          '一维 DP 已经足够。',
+        ],
+        callout:
+          '背包题里，先问清楚“求最值还是求方案数”“组合还是排列”“0/1 还是完全”，再写循环顺序，基本就不会偏。',
+      },
+      {
+        id: 'coin-change-ii-solution',
+        title: '标准解法：完全背包统计组合数',
+        summary:
+          '初始化一维数组 `dp`，令 `dp[0] = 1`。随后遍历每个硬币，对金额 `j` 从 `coin` 到 `amount` 正序更新 `dp[j] += dp[j - coin]`。最终 `dp[amount]` 就是组合总数。',
+        bullets: [
+          '时间复杂度是 `O(amount * coins.length)`。',
+          '空间复杂度是 `O(amount)`。',
+          '实现重点在外层硬币、内层金额正序。',
+          '是完全背包方案数模板题。',
+        ],
+        code: `function change(amount: number, coins: number[]): number {
+  const dp = new Array<number>(amount + 1).fill(0)
+  dp[0] = 1
+
+  for (const coin of coins) {
+    for (let value = coin; value <= amount; value += 1) {
+      dp[value] += dp[value - coin]
+    }
+  }
+
+  return dp[amount]
+}`,
+      },
+      {
+        id: 'coin-change-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它写成排列统计，导致结果偏大；或者把完全背包写成了 0/1 背包更新顺序。',
+        bullets: [
+          '易错点 1：循环顺序导致重复统计排列。',
+          '易错点 2：金额更新写成逆序。',
+          '易错点 3：忘记初始化 `dp[0] = 1`。',
+          '延伸方向：完全背包、组合计数、零钱兑换系列。',
+        ],
+      },
+    ],
+  },
 ];
