@@ -56762,4 +56762,115 @@ function largestValues(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'longest-uncommon-subsequence-ii',
+    label: '522. LeetCode 522. 最长特殊序列 II',
+    difficulty: '中等',
+    description:
+      '这题是上一题的多字符串版本。核心变成：找一个字符串，它不是任何其他字符串的子序列，并且长度尽量长。',
+    outcome:
+      '你能通过长度排序和子序列判定，找出字符串数组中的最长特殊序列长度。',
+    sections: [
+      {
+        id: 'longest-uncommon-subsequence-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串数组 `strs`，要求返回其中最长特殊序列的长度。特殊序列指的是：它是某个字符串的子序列，但不是数组中任何其他字符串的子序列。',
+        bullets: [
+          '候选来自数组中的字符串。',
+          '不能是其他字符串的子序列。',
+          '目标是最大长度。',
+          '是判定 + 排序题。',
+        ],
+      },
+      {
+        id: 'longest-uncommon-subsequence-ii-order',
+        title: '按长度从大到小检查，先命中的就是答案',
+        summary:
+          '因为我们只关心最长长度，所以最自然的策略是先把字符串按长度降序排序。这样一旦找到某个字符串不属于其他任何字符串的子序列，就可以立刻返回它的长度。',
+        bullets: [
+          '长度优先能提前结束。',
+          '排序让搜索更高效。',
+          '后面更短的字符串无需再考虑。',
+          '是典型的“先找最长可行解”。',
+        ],
+      },
+      {
+        id: 'longest-uncommon-subsequence-ii-check',
+        title: '关键是写一个可靠的子序列判定函数',
+        summary:
+          '对当前候选字符串 `s`，遍历数组中的其它字符串 `t`。若 `s` 是 `t` 的子序列，就说明 `s` 不能作为特殊序列。子序列判定可用双指针：在 `t` 中顺序扫描，尝试依次匹配 `s` 的字符。',
+        bullets: [
+          '候选要和所有其他字符串比较。',
+          '双指针足够判断子序列关系。',
+          '完全相同的字符串也会互相覆盖。',
+          '这是本题实现重点。',
+        ],
+        callout:
+          '很多题的难点不在大框架，而在一个小判定函数是否可靠。这里的子序列检查就是全题核心基础件。',
+      },
+      {
+        id: 'longest-uncommon-subsequence-ii-solution',
+        title: '标准解法：长度降序排序 + 逐个做子序列排除',
+        summary:
+          '先按长度降序排序 `strs`。对每个字符串 `strs[i]`，检查它是否是任意其他字符串 `strs[j]` 的子序列。若都不是，就直接返回它的长度；若所有字符串都被其他字符串覆盖，则返回 `-1`。',
+        bullets: [
+          '时间复杂度与字符串数量和长度有关。',
+          '空间复杂度主要来自排序。',
+          '实现重点在子序列判定和提前返回。',
+          '是 LUS 系列的核心题。',
+        ],
+        code: `function findLUSlength(strs: string[]): number {
+  strs.sort((a, b) => b.length - a.length)
+
+  const isSubsequence = (shorter: string, longer: string): boolean => {
+    let i = 0
+    let j = 0
+
+    while (i < shorter.length && j < longer.length) {
+      if (shorter[i] === longer[j]) {
+        i += 1
+      }
+      j += 1
+    }
+
+    return i === shorter.length
+  }
+
+  for (let i = 0; i < strs.length; i += 1) {
+    let uncommon = true
+
+    for (let j = 0; j < strs.length; j += 1) {
+      if (i === j) {
+        continue
+      }
+
+      if (isSubsequence(strs[i], strs[j])) {
+        uncommon = false
+        break
+      }
+    }
+
+    if (uncommon) {
+      return strs[i].length
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'longest-uncommon-subsequence-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忽略重复字符串会互相覆盖；或者排序后没有利用“先找到就返回”的性质，导致白做很多比较。',
+        bullets: [
+          '易错点 1：把相同字符串也误当成特殊序列。',
+          '易错点 2：子序列判定函数写错。',
+          '易错点 3：没按长度降序提前结束。',
+          '延伸方向：子序列判断、排序剪枝、字符串比较题。',
+        ],
+      },
+    ],
+  },
 ];
