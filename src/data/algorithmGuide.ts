@@ -56351,4 +56351,97 @@ function largestValues(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'super-washing-machines',
+    label: '517. LeetCode 517. 超级洗衣机',
+    difficulty: '困难',
+    description:
+      '这题表面像模拟传衣服，实质是平衡流量问题。关键不是一步步搬，而是分析每台机器最终需要净流入还是净流出多少衣服。',
+    outcome:
+      '你能通过前缀失衡量和单机盈亏分析，求出让所有洗衣机衣服数相等的最少操作次数。',
+    sections: [
+      {
+        id: 'super-washing-machines-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `machines`，表示每台洗衣机中的衣服数量。每次操作可以让任意若干台机器同时向相邻的一台机器送一件衣服。要求返回让所有机器衣服数相等的最少操作次数。',
+        bullets: [
+          '每次只能向相邻机器传一件。',
+          '多台机器可以并行操作。',
+          '目标是整体均分。',
+          '本质是最小操作次数分析题。',
+        ],
+      },
+      {
+        id: 'super-washing-machines-average',
+        title: '先判断能否均分，再计算每台机器相对平均值的盈亏',
+        summary:
+          '如果总衣服数不能被机器数量整除，直接无解。否则设平均值为 `avg`，对每台机器计算 `load = machines[i] - avg`。正数表示多出的衣服最终要流出去，负数表示缺少衣服需要流进来。',
+        bullets: [
+          '整除性是第一层必要条件。',
+          '相对平均值的盈亏更有分析价值。',
+          '正负号直接表示流向。',
+          '这是建模第一步。',
+        ],
+      },
+      {
+        id: 'super-washing-machines-balance',
+        title: '答案由单机输出量和前缀累积失衡量共同决定',
+        summary:
+          '遍历机器时维护前缀失衡量 `prefix += load`。它表示左边整段区域最终需要净流出的衣服数。某一时刻的最少操作次数，至少要覆盖两种压力：当前机器自己需要送出的衣服数 `load`，以及前缀区域对外净输送需求 `|prefix|`。全局答案就是这些值的最大值。',
+        bullets: [
+          '前缀失衡量刻画跨区间传输压力。',
+          '单机正盈余刻画本地输出压力。',
+          '两种压力谁大谁决定瓶颈。',
+          '这题核心在数学分析而非过程模拟。',
+        ],
+        callout:
+          '很多传输类题不需要真的模拟每一步，只要把“最终必须跨过哪些边、经过多少流量”算清楚，答案就出来了。',
+      },
+      {
+        id: 'super-washing-machines-solution',
+        title: '标准解法：前缀流量分析取最大瓶颈',
+        summary:
+          '先求总和与平均值。遍历每台机器，计算 `load = machines[i] - avg`，并累加到 `prefix`。每一步用 `Math.max(answer, Math.abs(prefix), load)` 更新答案，其中 `load` 只在正数时会形成当前机器的送出瓶颈，负数由前缀失衡量吸收体现。最终答案即为最少操作次数。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在理解答案为何取这些量的最大值。',
+          '是流量平衡分析代表题。',
+        ],
+        code: `function findMinMoves(machines: number[]): number {
+  const sum = machines.reduce((total, value) => total + value, 0)
+  const n = machines.length
+
+  if (sum % n !== 0) {
+    return -1
+  }
+
+  const average = sum / n
+  let answer = 0
+  let prefix = 0
+
+  for (const machine of machines) {
+    const load = machine - average
+    prefix += load
+    answer = Math.max(answer, Math.abs(prefix), load)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'super-washing-machines-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是试图一步步贪心模拟传输过程，反而把问题复杂化；或者只看单机盈亏，忽略了跨区间累计失衡带来的瓶颈。',
+        bullets: [
+          '易错点 1：不先判断总和能否均分。',
+          '易错点 2：只看当前机器，不看前缀失衡量。',
+          '易错点 3：把并行操作误解成逐台串行操作。',
+          '延伸方向：前缀和、流量平衡、最小操作次数分析。',
+        ],
+      },
+    ],
+  },
 ];
