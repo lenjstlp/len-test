@@ -57072,4 +57072,96 @@ function largestValues(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'contiguous-array',
+    label: '525. LeetCode 525. 连续数组',
+    difficulty: '中等',
+    description:
+      '这题不是直接数 0 和 1，而是把 0 视作 -1、1 视作 +1。这样“0 和 1 数量相同”就变成了子数组和为 0。',
+    outcome:
+      '你能利用前缀和和哈希表，在线性时间内求出 0 与 1 数量相同的最长连续子数组长度。',
+    sections: [
+      {
+        id: 'contiguous-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0` 和 `1` 的数组 `nums`，要求找出其中包含相同数量 `0` 和 `1` 的最长连续子数组长度。',
+        bullets: [
+          '子数组必须连续。',
+          '0 和 1 数量要相同。',
+          '目标是最大长度。',
+          '是前缀和等值判定题。',
+        ],
+      },
+      {
+        id: 'contiguous-array-transform',
+        title: '把 0 记成 -1，问题就变成“最长和为 0 的子数组”',
+        summary:
+          '若把数组中的 `0` 看成 `-1`、`1` 看成 `+1`，那么某段子数组内 0 和 1 数量相同，就等价于这段区间和为 0。于是问题转化为：找前缀和相同的最远两个位置。',
+        bullets: [
+          '符号变换是关键建模步骤。',
+          '数量相同等价于和为 0。',
+          '区间和由前缀和差值得到。',
+          '问题瞬间变成经典模板。',
+        ],
+      },
+      {
+        id: 'contiguous-array-first-index',
+        title: '同一个前缀和值最早出现的位置最有价值',
+        summary:
+          '如果某个前缀和值在位置 `i` 和 `j` 处相同，那么 `(i, j]` 的区间和为 0。为了让区间尽量长，应当记录每个前缀和值第一次出现的位置。后面再次遇到同值时，就能立刻算出一个尽可能长的候选长度。',
+        bullets: [
+          '前缀和相同意味着中间和为 0。',
+          '记录第一次出现位置能最大化区间长度。',
+          '哈希表负责做位置索引。',
+          '是全题的核心技巧。',
+        ],
+        callout:
+          '前缀和题里，“第一次出现的位置”经常是最长区间问题的关键。因为你要的是拉开距离，而不是最近匹配。',
+      },
+      {
+        id: 'contiguous-array-solution',
+        title: '标准解法：前缀和 + 最早位置哈希表',
+        summary:
+          '初始化哈希表 `map[0] = -1`，表示在数组开始前前缀和为 0。遍历数组时，遇到 `1` 就让前缀和加一，遇到 `0` 就减一。若当前前缀和之前出现过，就用当前位置减去其最早位置更新答案；否则记录当前位置。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在 0 映射为 -1 和首位置记录。',
+          '是前缀和最长区间代表题。',
+        ],
+        code: `function findMaxLength(nums: number[]): number {
+  const firstIndex = new Map<number, number>()
+  firstIndex.set(0, -1)
+
+  let prefix = 0
+  let answer = 0
+
+  for (let i = 0; i < nums.length; i += 1) {
+    prefix += nums[i] === 1 ? 1 : -1
+
+    if (firstIndex.has(prefix)) {
+      answer = Math.max(answer, i - (firstIndex.get(prefix) as number))
+    } else {
+      firstIndex.set(prefix, i)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'contiguous-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有做 0/-1 转换，导致无法用前缀和统一表示；或者重复前缀和出现时覆盖了最早位置，错失最长区间。',
+        bullets: [
+          '易错点 1：没把 0 转成 -1。',
+          '易错点 2：覆盖了前缀和首次出现位置。',
+          '易错点 3：忘记初始化 `map[0] = -1`。',
+          '延伸方向：前缀和、最长平衡子数组、哈希索引。',
+        ],
+      },
+    ],
+  },
 ];
