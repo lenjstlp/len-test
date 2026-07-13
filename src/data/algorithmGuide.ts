@@ -56259,4 +56259,96 @@ function largestValues(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'longest-palindromic-subsequence',
+    label: '516. LeetCode 516. 最长回文子序列',
+    difficulty: '中等',
+    description:
+      '这题和最长回文子串不同，不要求连续，所以天然更适合区间 DP。关键是看首尾字符是否能一起参与最优解。',
+    outcome: '你能通过区间动态规划，求出字符串中的最长回文子序列长度。',
+    sections: [
+      {
+        id: 'longest-palindromic-subsequence-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s`，要求返回其中最长回文子序列的长度。子序列可以跳过字符，不要求连续。',
+        bullets: [
+          '不是子串，不要求连续。',
+          '目标是最长长度。',
+          '回文要求正反相同。',
+          '是区间 DP 经典题。',
+        ],
+      },
+      {
+        id: 'longest-palindromic-subsequence-interval',
+        title: '区间问题要看首尾字符能否共同构成答案',
+        summary:
+          '设 `dp[left][right]` 表示子串 `s[left..right]` 内的最长回文子序列长度。若 `s[left] === s[right]`，则它们可以一起作为回文两端，答案来自 `dp[left + 1][right - 1] + 2`；否则只能舍弃一端，取 `dp[left + 1][right]` 和 `dp[left][right - 1]` 的较大值。',
+        bullets: [
+          '状态是区间最优值。',
+          '相等时可把首尾一起纳入。',
+          '不等时只能舍弃一端。',
+          '转移结构非常典型。',
+        ],
+      },
+      {
+        id: 'longest-palindromic-subsequence-order',
+        title: '填表顺序要保证短区间先于长区间',
+        summary:
+          '因为 `dp[left][right]` 依赖更短的内部区间，所以必须先算长度为 1、2 的区间，再逐步扩展到更长区间。常见做法是让 `left` 从后往前走，`right` 从 `left + 1` 向后扩张。',
+        bullets: [
+          '依赖关系决定填表顺序。',
+          '短区间是长区间的基础。',
+          '从后往前枚举左端最方便。',
+          '实现时顺序比公式更容易出错。',
+        ],
+        callout:
+          '区间 DP 的核心不只是状态和转移，还有填表顺序。顺序一错，公式对了也没用。',
+      },
+      {
+        id: 'longest-palindromic-subsequence-solution',
+        title: '标准解法：区间 DP 比较首尾',
+        summary:
+          '初始化所有 `dp[i][i] = 1`，因为单个字符本身就是长度为 1 的回文子序列。然后让 `left` 从后往前遍历，`right` 从 `left + 1` 向后遍历，根据首尾字符是否相等做上述转移。最终答案是 `dp[0][n - 1]`。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度是 `O(n^2)`。',
+          '实现重点在边界和遍历顺序。',
+          '是回文区间 DP 入门代表题。',
+        ],
+        code: `function longestPalindromeSubseq(s: string): number {
+  const n = s.length
+  const dp = Array.from({ length: n }, () => new Array<number>(n).fill(0))
+
+  for (let i = 0; i < n; i += 1) {
+    dp[i][i] = 1
+  }
+
+  for (let left = n - 1; left >= 0; left -= 1) {
+    for (let right = left + 1; right < n; right += 1) {
+      if (s[left] === s[right]) {
+        dp[left][right] = (left + 1 <= right - 1 ? dp[left + 1][right - 1] : 0) + 2
+      } else {
+        dp[left][right] = Math.max(dp[left + 1][right], dp[left][right - 1])
+      }
+    }
+  }
+
+  return dp[0][n - 1]
+}`,
+      },
+      {
+        id: 'longest-palindromic-subsequence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它和最长回文子串混淆；或者区间 DP 填表顺序写反，导致依赖状态尚未计算出来。',
+        bullets: [
+          '易错点 1：误把子序列当子串处理。',
+          '易错点 2：区间填表顺序错误。',
+          '易错点 3：首尾相等时内部空区间边界没处理好。',
+          '延伸方向：区间 DP、回文类问题、序列优化。',
+        ],
+      },
+    ],
+  },
 ];
