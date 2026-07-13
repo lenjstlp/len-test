@@ -56873,4 +56873,98 @@ function largestValues(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'continuous-subarray-sum',
+    label: '523. LeetCode 523. 连续的子数组和',
+    difficulty: '中等',
+    description:
+      '这题的关键不是枚举区间，而是利用前缀和同余：如果两个前缀和对 `k` 取模相同，它们之间的子数组和就是 `k` 的倍数。',
+    outcome:
+      '你能通过前缀和取模和哈希表，在近线性时间内判断是否存在长度至少为 2 的目标子数组。',
+    sections: [
+      {
+        id: 'continuous-subarray-sum-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums` 和整数 `k`，判断是否存在长度至少为 2 的连续子数组，使其元素和为 `k` 的倍数。',
+        bullets: [
+          '子数组必须连续。',
+          '长度至少为 2。',
+          '目标和要能被 `k` 整除。',
+          '是前缀和 + 同余判断题。',
+        ],
+      },
+      {
+        id: 'continuous-subarray-sum-mod',
+        title: '两个前缀和模相同，差值一定是 k 的倍数',
+        summary:
+          '设前缀和为 `prefix[i]`。若 `prefix[i] % k === prefix[j] % k`，那么 `prefix[j] - prefix[i]` 就是 `k` 的倍数，也就是区间 `(i, j]` 的子数组和满足条件。这让问题从枚举区间转成了找“重复模值”。',
+        bullets: [
+          '同余关系是题目核心数学性质。',
+          '子数组和由两个前缀和差值决定。',
+          '问题被转成哈希查重。',
+          '复杂度可大幅下降。',
+        ],
+      },
+      {
+        id: 'continuous-subarray-sum-first-index',
+        title: '每个模值只需记录最早出现位置',
+        summary:
+          '遍历数组时维护当前前缀和模值。若某个模值第一次出现，就记录它最早的位置；若后续再次出现，且当前位置和最早位置差至少为 2，就说明存在合法子数组。记录最早位置最有利于满足长度要求。',
+        bullets: [
+          '最早出现位置能拉长区间。',
+          '重复模值出现时立刻可判定。',
+          '长度条件要单独检查。',
+          '哈希表结构很简单。',
+        ],
+        callout:
+          '前缀和题里，是否记录“最早”还是“最新”位置通常很关键。这题要的是长度至少 2，所以最早位置更有用。',
+      },
+      {
+        id: 'continuous-subarray-sum-solution',
+        title: '标准解法：前缀和取模 + 最早位置哈希表',
+        summary:
+          '初始化哈希表 `map[0] = -1`，表示在数组开始前前缀和为 0。遍历数组累加前缀和，并对 `k` 取模。若当前模值之前出现过，且当前位置与记录位置差至少为 2，则返回 `true`；否则若首次出现，就记录当前位置。遍历结束仍未找到则返回 `false`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(min(n, k))` 级别。',
+          '实现重点在初始化和长度判断。',
+          '是前缀和取模题模板之一。',
+        ],
+        code: `function checkSubarraySum(nums: number[], k: number): boolean {
+  const firstIndex = new Map<number, number>()
+  firstIndex.set(0, -1)
+
+  let prefix = 0
+
+  for (let i = 0; i < nums.length; i += 1) {
+    prefix += nums[i]
+    const mod = k === 0 ? prefix : prefix % k
+
+    if (firstIndex.has(mod)) {
+      if (i - (firstIndex.get(mod) as number) >= 2) {
+        return true
+      }
+    } else {
+      firstIndex.set(mod, i)
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'continuous-subarray-sum-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是看到了前缀和却没想到模相等的性质；或者哈希表里不停覆盖模值位置，导致错失更长的合法区间。',
+        bullets: [
+          '易错点 1：没有利用相同模值差出倍数关系。',
+          '易错点 2：重复模值时更新了最早位置。',
+          '易错点 3：长度至少为 2 的条件漏掉。',
+          '延伸方向：前缀和、同余、哈希判重子数组题。',
+        ],
+      },
+    ],
+  },
 ];
