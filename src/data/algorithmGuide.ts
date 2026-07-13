@@ -56697,4 +56697,69 @@ function largestValues(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'longest-uncommon-subsequence-i',
+    label: '521. LeetCode 521. 最长特殊序列 I',
+    difficulty: '简单',
+    description:
+      '这题看上去像子序列 DP，实际上结论非常直接：若两个字符串不同，较长的那个整个字符串本身就是答案。',
+    outcome: '你能抓住特殊序列定义，直接判断两个字符串的最长特殊序列长度。',
+    sections: [
+      {
+        id: 'longest-uncommon-subsequence-i-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个字符串 `a` 和 `b`，要求返回它们之间最长特殊序列的长度。特殊序列指的是：它是其中一个字符串的子序列，但不是另一个字符串的子序列。',
+        bullets: [
+          '特殊序列只需属于其中一个字符串。',
+          '但不能同时也是另一个的子序列。',
+          '目标是最长长度。',
+          '这题结论比表面简单。',
+        ],
+      },
+      {
+        id: 'longest-uncommon-subsequence-i-key',
+        title: '若两个字符串不同，较长者一定不是较短者的子序列',
+        summary:
+          '如果 `a` 和 `b` 完全相同，那么它们的任意子序列都会同时出现在对方中，因此答案是 `-1`。若两者不同，则更长的那个字符串不可能是更短字符串的子序列；若长度相同但内容不同，其中任意一个完整字符串也不会是另一个的子序列，因此答案就是它们的长度。',
+        bullets: [
+          '相同字符串时无解。',
+          '不同字符串时可直接选完整字符串。',
+          '长度不同和长度相同但内容不同都成立。',
+          '本题不需要 DP。',
+        ],
+      },
+      {
+        id: 'longest-uncommon-subsequence-i-solution',
+        title: '标准解法：相同返回 -1，否则返回较长长度',
+        summary:
+          '只需判断 `a === b`。若相等，返回 `-1`；否则返回 `Math.max(a.length, b.length)`，因为较长者或任一完整字符串本身就满足特殊序列条件。',
+        bullets: [
+          '时间复杂度是 `O(n)`，主要来自字符串比较。',
+          '空间复杂度是 `O(1)`。',
+          '实现极短。',
+          '关键在结论证明而不在编码。',
+        ],
+        code: `function findLUSlength(a: string, b: string): number {
+  if (a === b) {
+    return -1
+  }
+
+  return Math.max(a.length, b.length)
+}`,
+      },
+      {
+        id: 'longest-uncommon-subsequence-i-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是上来就写复杂的子序列 DP，忽略了题目只有两个字符串且结论非常直接。',
+        bullets: [
+          '易错点 1：把简单结论题写成复杂 DP。',
+          '易错点 2：没处理完全相同字符串的无解情况。',
+          '易错点 3：误以为必须显式枚举子序列。',
+          '延伸方向：子序列定义、结论证明、LUS 系列题。',
+        ],
+      },
+    ],
+  },
 ];
