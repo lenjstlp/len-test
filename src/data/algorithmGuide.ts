@@ -56159,4 +56159,104 @@ function findBottomLeftValue(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'find-largest-value-in-each-tree-row',
+    label: '515. LeetCode 515. 在每个树行中找最大值',
+    difficulty: '中等',
+    description:
+      '这题本质是层序遍历的直接应用。每层扫描一遍，顺手维护该层最大值即可。',
+    outcome: '你能通过层序遍历，找出二叉树每一层的最大节点值。',
+    sections: [
+      {
+        id: 'find-largest-value-in-each-tree-row-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，要求返回一个数组，其中第 `i` 个元素表示第 `i` 层节点值中的最大值。',
+        bullets: [
+          '按层统计。',
+          '每层只关心最大值。',
+          '结果顺序从上到下。',
+          '是层序遍历基础题。',
+        ],
+      },
+      {
+        id: 'find-largest-value-in-each-tree-row-bfs',
+        title: '层序遍历最自然，因为最大值就是层内聚合结果',
+        summary:
+          '使用队列逐层遍历时，每次都能明确知道当前层有哪些节点。对这一层中的所有节点扫描一遍，维护一个 `levelMax`，最后加入答案即可。',
+        bullets: [
+          'BFS 天然按层分组。',
+          '层内聚合非常直接。',
+          '每个节点只访问一次。',
+          '实现清晰稳定。',
+        ],
+      },
+      {
+        id: 'find-largest-value-in-each-tree-row-solution',
+        title: '标准解法：队列分层并统计层最大值',
+        summary:
+          '若根节点为空，返回空数组。否则使用队列做层序遍历。每轮先记录当前层大小，再遍历这一层的所有节点，同时更新 `levelMax`。处理完一层后，把最大值加入答案数组。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '重点在层大小控制。',
+          '是 BFS 模板题。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(val = 0, left: TreeNode | null = null, right: TreeNode | null = null) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function largestValues(root: TreeNode | null): number[] {
+  if (!root) {
+    return []
+  }
+
+  const answer: number[] = []
+  const queue: TreeNode[] = [root]
+
+  while (queue.length > 0) {
+    const size = queue.length
+    let levelMax = -Infinity
+
+    for (let i = 0; i < size; i += 1) {
+      const node = queue.shift() as TreeNode
+      levelMax = Math.max(levelMax, node.val)
+
+      if (node.left) {
+        queue.push(node.left)
+      }
+
+      if (node.right) {
+        queue.push(node.right)
+      }
+    }
+
+    answer.push(levelMax)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'find-largest-value-in-each-tree-row-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有按层重置最大值；或者队列遍历时没固定当前层大小，导致不同层节点混在一起统计。',
+        bullets: [
+          '易错点 1：层最大值没在每层开始时重置。',
+          '易错点 2：没按层大小截断遍历。',
+          '易错点 3：空树边界漏掉。',
+          '延伸方向：层序遍历、层聚合统计、树分层问题。',
+        ],
+      },
+    ],
+  },
 ];
