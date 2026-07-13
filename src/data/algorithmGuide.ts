@@ -56529,4 +56529,106 @@ function largestValues(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'random-flip-matrix',
+    label: '519. LeetCode 519. 随机翻转矩阵',
+    difficulty: '中等',
+    description:
+      '这题的难点不是随机，而是在不真的存整个矩阵的前提下，保证每个还没翻过的位置都等概率被选中。核心是把二维位置压成一维下标，再做懒映射。',
+    outcome:
+      '你能利用哈希映射模拟 Fisher-Yates 洗牌，在大矩阵中高效地随机翻转未使用位置。',
+    sections: [
+      {
+        id: 'random-flip-matrix-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个矩阵随机翻转结构。初始化一个全 0 的 `m x n` 矩阵；每次调用 `flip()` 时，要等概率返回一个尚未翻成 1 的位置，并把它翻为 1；调用 `reset()` 时重新清空矩阵。',
+        bullets: [
+          '每次只能选未翻过的位置。',
+          '每个可选位置概率必须相同。',
+          '矩阵可能很大，不适合直接存全表状态。',
+          '是随机数据结构题。',
+        ],
+      },
+      {
+        id: 'random-flip-matrix-flatten',
+        title: '先把二维坐标压平成一维编号',
+        summary:
+          '若把矩阵位置 `(row, col)` 映射为一维编号 `row * cols + col`，那么问题就变成：从区间 `[0, total - 1]` 中不断等概率抽取一个还没用过的编号。',
+        bullets: [
+          '二维问题转成一维更容易处理。',
+          '编号和坐标之间可互相换算。',
+          '后续随机和去重都围绕一维编号展开。',
+          '这是建模第一步。',
+        ],
+      },
+      {
+        id: 'random-flip-matrix-swap',
+        title: '每次从剩余区间随机取一个，并把它和末尾位置交换',
+        summary:
+          '设当前还剩 `size` 个可选编号。每次随机取 `rand` 落在 `[0, size - 1]`，然后把它看作这轮选中的编号。为了保证下次不会再选到它，可以把“末尾还未使用的位置”映射过来替代它，并让 `size--`。这本质上就是懒惰版 Fisher-Yates 洗牌。',
+        bullets: [
+          '每轮可选区间不断缩小。',
+          '哈希表负责记录交换后的映射关系。',
+          '无需真正维护完整数组。',
+          '能兼顾随机性和空间效率。',
+        ],
+        callout:
+          '这题的精髓是“逻辑上交换，物理上不存整张表”。只记录被改动过的映射位置，空间立刻降下来了。',
+      },
+      {
+        id: 'random-flip-matrix-solution',
+        title: '标准解法：哈希映射模拟一维洗牌',
+        summary:
+          '维护剩余可选数量 `size` 和映射表 `map`。`flip()` 时随机选 `rand`，真实编号是 `map.get(rand) ?? rand`；随后把 `map.get(size - 1) ?? (size - 1)` 写入 `rand` 位置，表示末尾编号顶替过来，再让 `size--`。`reset()` 时清空映射并恢复 `size = rows * cols`。',
+        bullets: [
+          '单次 `flip()` 时间复杂度是 `O(1)` 均摊。',
+          '空间复杂度与已翻转次数相关。',
+          '实现重点在映射替换逻辑。',
+          '是随机抽样数据结构经典题。',
+        ],
+        code: `class Solution {
+  private rows: number
+  private cols: number
+  private size: number
+  private mapping = new Map<number, number>()
+
+  constructor(m: number, n: number) {
+    this.rows = m
+    this.cols = n
+    this.size = m * n
+  }
+
+  flip(): number[] {
+    const rand = Math.floor(Math.random() * this.size)
+    const value = this.mapping.get(rand) ?? rand
+    const last = this.mapping.get(this.size - 1) ?? this.size - 1
+
+    this.mapping.set(rand, last)
+    this.mapping.delete(this.size - 1)
+    this.size -= 1
+
+    return [Math.floor(value / this.cols), value % this.cols]
+  }
+
+  reset(): void {
+    this.mapping.clear()
+    this.size = this.rows * this.cols
+  }
+}`,
+      },
+      {
+        id: 'random-flip-matrix-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是每次随机后用集合反复重抽，效率很差；或者虽然想到压平，但没有维护“末尾顶替”映射，导致概率不均匀或重复选中。',
+        bullets: [
+          '易错点 1：用暴力重抽处理重复。',
+          '易错点 2：映射替换逻辑写错。',
+          '易错点 3：`reset()` 没恢复状态。',
+          '延伸方向：Fisher-Yates、懒映射、随机抽样数据结构。',
+        ],
+      },
+    ],
+  },
 ];
