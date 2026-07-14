@@ -57612,4 +57612,111 @@ function largestValues(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'minimum-absolute-difference-in-bst',
+    label: '530. LeetCode 530. 二叉搜索树的最小绝对差',
+    difficulty: '简单',
+    description:
+      '这题利用 BST 中序遍历有序的性质最自然。因为有序序列中的最小差值一定出现在相邻元素之间。',
+    outcome:
+      '你能通过中序遍历顺序扫描，求出二叉搜索树中任意两节点值差的最小绝对值。',
+    sections: [
+      {
+        id: 'minimum-absolute-difference-in-bst-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉搜索树，要求返回任意两个不同节点值之间的最小绝对差。',
+        bullets: [
+          '比较的是任意两节点值差。',
+          '目标是最小绝对值。',
+          'BST 有序性是解题关键。',
+          '是树遍历 + 有序扫描题。',
+        ],
+      },
+      {
+        id: 'minimum-absolute-difference-in-bst-inorder',
+        title: 'BST 中序遍历会得到升序序列',
+        summary:
+          '二叉搜索树做中序遍历时，节点值会按升序出现。对于一个有序序列，最小绝对差一定出现在相邻元素之间，因此不需要比较所有节点对。',
+        bullets: [
+          '中序遍历天然有序。',
+          '有序序列最小差只需看相邻元素。',
+          '复杂度从平方降到线性。',
+          '这是题目最核心的性质。',
+        ],
+      },
+      {
+        id: 'minimum-absolute-difference-in-bst-scan',
+        title: '遍历时维护前一个访问到的值即可',
+        summary:
+          '在中序遍历过程中，用 `previous` 记录上一个访问到的节点值。每访问一个新节点，就计算它与 `previous` 的差，并更新全局最小值。因为序列有序，所以这一步已经足够覆盖最优答案。',
+        bullets: [
+          '不需要额外存整条序列。',
+          '只维护前驱值即可。',
+          '边遍历边更新答案。',
+          '空间利用更好。',
+        ],
+        callout:
+          '看到“BST + 最小差值”这类题，第一反应应该是“中序有序 + 相邻比较”，而不是暴力任意两两比较。',
+      },
+      {
+        id: 'minimum-absolute-difference-in-bst-solution',
+        title: '标准解法：中序遍历比较相邻节点值',
+        summary:
+          '使用中序遍历 BST。维护变量 `previous` 保存上一个节点值，`answer` 保存当前最小差值。每访问一个节点时，若 `previous` 存在，就计算当前值与它的差并更新答案，然后令 `previous = node.val` 继续遍历。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在中序顺序和前驱更新。',
+          '是 BST 性质应用题。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(val = 0, left: TreeNode | null = null, right: TreeNode | null = null) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function getMinimumDifference(root: TreeNode | null): number {
+  let previous: number | null = null
+  let answer = Number.MAX_SAFE_INTEGER
+
+  const inorder = (node: TreeNode | null): void => {
+    if (!node) {
+      return
+    }
+
+    inorder(node.left)
+
+    if (previous !== null) {
+      answer = Math.min(answer, node.val - previous)
+    }
+    previous = node.val
+
+    inorder(node.right)
+  }
+
+  inorder(root)
+  return answer
+}`,
+      },
+      {
+        id: 'minimum-absolute-difference-in-bst-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有利用 BST 的有序性而去暴力比较所有节点对；或者中序遍历时前驱变量更新时机写错。',
+        bullets: [
+          '易错点 1：没用中序有序性质。',
+          '易错点 2：前驱值更新位置错误。',
+          '易错点 3：空前驱时直接参与比较。',
+          '延伸方向：BST 中序遍历、有序序列最值、相邻差值问题。',
+        ],
+      },
+    ],
+  },
 ];
