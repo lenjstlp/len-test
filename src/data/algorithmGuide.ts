@@ -57719,4 +57719,107 @@ function getMinimumDifference(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'lonely-pixel-i',
+    label: '531. LeetCode 531. 孤独像素 I',
+    difficulty: '中等',
+    description:
+      '这题不是逐个黑像素都去扫整行整列，而是先统计每行每列黑像素数量，再判断哪些黑像素同时满足行列计数都为 1。',
+    outcome: '你能通过行列计数统计出图片中的孤独黑像素数量。',
+    sections: [
+      {
+        id: 'lonely-pixel-i-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `B` 和 `W` 的二维字符矩阵 `picture`，要求统计其中孤独黑像素的数量。孤独黑像素指的是：它所在的行和列都没有其他黑像素。',
+        bullets: [
+          '像素只有黑白两种。',
+          '目标是数满足条件的黑像素。',
+          '条件同时约束行和列。',
+          '是矩阵计数题。',
+        ],
+      },
+      {
+        id: 'lonely-pixel-i-count',
+        title: '先分别统计每行和每列的黑像素数量',
+        summary:
+          '如果先知道每一行有多少个 `B`、每一列有多少个 `B`，那么判断某个位置是不是孤独黑像素就非常直接：这个位置是 `B`，且它所在行计数为 1、列计数也为 1。',
+        bullets: [
+          '行列统计是核心预处理。',
+          '后续判断会变成常数时间。',
+          '避免对每个 `B` 反复扫整行整列。',
+          '是典型的“先统计，再判定”思路。',
+        ],
+      },
+      {
+        id: 'lonely-pixel-i-scan',
+        title: '第二次遍历只检查满足双重唯一条件的位置',
+        summary:
+          '完成行列计数后，再遍历矩阵一遍。只有当当前位置是 `B` 且 `rowCount[row] === 1` 且 `colCount[col] === 1` 时，它才是答案中的一个孤独黑像素。',
+        bullets: [
+          '判断条件非常清晰。',
+          '两次遍历即可完成。',
+          '不需要复杂数据结构。',
+          '实现稳定直接。',
+        ],
+        callout:
+          '很多矩阵题都不是边扫边判断，而是先做一轮全局统计，再做一轮精确筛选。这样代码更简单也更高效。',
+      },
+      {
+        id: 'lonely-pixel-i-solution',
+        title: '标准解法：行列黑像素计数 + 二次筛选',
+        summary:
+          '先遍历矩阵，分别统计每一行和每一列中 `B` 的数量。然后再次遍历所有位置，若当前格子是 `B` 且所在行、列计数都为 1，就把答案加一。最终返回总数。',
+        bullets: [
+          '时间复杂度是 `O(mn)`。',
+          '空间复杂度是 `O(m + n)`。',
+          '实现重点在两轮遍历分工。',
+          '是基础矩阵统计题。',
+        ],
+        code: `function findLonelyPixel(picture: string[][]): number {
+  const rows = picture.length
+  const cols = picture[0].length
+  const rowCount = new Array<number>(rows).fill(0)
+  const colCount = new Array<number>(cols).fill(0)
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      if (picture[row][col] === 'B') {
+        rowCount[row] += 1
+        colCount[col] += 1
+      }
+    }
+  }
+
+  let answer = 0
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      if (
+        picture[row][col] === 'B' &&
+        rowCount[row] === 1 &&
+        colCount[col] === 1
+      ) {
+        answer += 1
+      }
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'lonely-pixel-i-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只检查行唯一或列唯一其中一个条件；或者对每个黑像素都临时扫整行整列，写法冗长且效率差。',
+        bullets: [
+          '易错点 1：漏掉行列都必须唯一这一条件。',
+          '易错点 2：没有先做行列计数预处理。',
+          '易错点 3：把白像素也纳入统计判断。',
+          '延伸方向：矩阵计数、行列统计、像素筛选问题。',
+        ],
+      },
+    ],
+  },
 ];
