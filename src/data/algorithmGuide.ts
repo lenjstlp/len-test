@@ -57264,4 +57264,116 @@ function largestValues(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'word-abbreviation',
+    label: '527. LeetCode 527. 单词缩写',
+    difficulty: '困难',
+    description:
+      '这题难点在于缩写可能冲突。核心思路不是一次性生成，而是对冲突组不断增加前缀长度，直到组内缩写全部唯一。',
+    outcome: '你能通过分组迭代细化前缀长度，为每个单词构造最短且唯一的缩写。',
+    sections: [
+      {
+        id: 'word-abbreviation-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一组互不相同的单词，需要为每个单词生成尽可能短的缩写。缩写规则是保留前缀、末尾字符，中间用省略的字符数表示；若缩写后不更短，则保留原词。不同单词的缩写必须不同。',
+        bullets: [
+          '目标是缩写尽量短。',
+          '但不同单词缩写不能冲突。',
+          '缩写后若不更短，直接保留原词。',
+          '是分组冲突消解题。',
+        ],
+      },
+      {
+        id: 'word-abbreviation-abbr',
+        title: '先明确同一个前缀长度下如何生成缩写',
+        summary:
+          '若对某个单词使用前缀长度 `prefixLen`，缩写形式就是“前缀 + 中间省略数量 + 末尾字符”。不过只有在缩写长度严格小于原词时才值得使用，否则就直接保留原词。',
+        bullets: [
+          '缩写函数本身要先写对。',
+          '前缀长度决定是否会与别人冲突。',
+          '中间省略数量需要准确计算。',
+          '过短单词往往不应缩写。',
+        ],
+      },
+      {
+        id: 'word-abbreviation-conflict',
+        title: '冲突的单词必须一起增加前缀长度',
+        summary:
+          '若多个单词在当前前缀长度下生成了相同缩写，说明它们还分不开。此时不能只改单个单词，而是应该把这组冲突单词的前缀长度都加一，然后重新缩写，直到冲突消失。',
+        bullets: [
+          '冲突是在组内发生的。',
+          '同组单词需要同步细化前缀。',
+          '不断加前缀最终一定能区分开。',
+          '这是全题的核心迭代过程。',
+        ],
+        callout:
+          '很多字符串构造题不是“一步到位”，而是“先做一个粗方案，再只对冲突部分细化”。这题就是典型代表。',
+      },
+      {
+        id: 'word-abbreviation-solution',
+        title: '标准解法：初始化前缀长度为 1，冲突组逐步细化',
+        summary:
+          '为每个单词维护当前前缀长度，初始都为 1。生成所有缩写后，用哈希表按缩写分组；若某组只有一个单词，说明已唯一；若某组有多个单词，则把这些单词的前缀长度全部加一，再重复生成和分组，直到所有缩写都唯一。',
+        bullets: [
+          '时间复杂度与冲突细化轮数有关。',
+          '空间复杂度主要来自分组映射。',
+          '实现重点在冲突组迭代更新。',
+          '是字符串分组细化经典题。',
+        ],
+        code: `function wordsAbbreviation(words: string[]): string[] {
+  const abbreviate = (word: string, prefix: number): string => {
+    if (word.length - prefix <= 2) {
+      return word
+    }
+
+    const middle = word.length - prefix - 1
+    return word.slice(0, prefix) + String(middle) + word[word.length - 1]
+  }
+
+  const prefixes = new Array<number>(words.length).fill(1)
+  const answer = new Array<string>(words.length).fill('')
+  let changed = true
+
+  while (changed) {
+    changed = false
+    const groups = new Map<string, number[]>()
+
+    for (let i = 0; i < words.length; i += 1) {
+      answer[i] = abbreviate(words[i], prefixes[i])
+      if (!groups.has(answer[i])) {
+        groups.set(answer[i], [])
+      }
+      ;(groups.get(answer[i]) as number[]).push(i)
+    }
+
+    for (const indexes of groups.values()) {
+      if (indexes.length <= 1) {
+        continue
+      }
+
+      for (const index of indexes) {
+        prefixes[index] += 1
+      }
+      changed = true
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'word-abbreviation-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是发现冲突后只处理其中一个单词，导致组内仍不稳定；或者没判断“缩写后不更短就保留原词”。',
+        bullets: [
+          '易错点 1：冲突组没有整体加前缀。',
+          '易错点 2：缩写长度不比原词短还硬缩。',
+          '易错点 3：中间省略字符数计算错误。',
+          '延伸方向：分组迭代、字符串压缩、冲突消解构造。',
+        ],
+      },
+    ],
+  },
 ];
