@@ -57476,4 +57476,140 @@ function largestValues(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'minesweeper',
+    label: '529. LeetCode 529. 扫雷游戏',
+    difficulty: '中等',
+    description:
+      '这题的核心是点击后的递归展开规则。若点击到地雷直接结束；若周围有雷则标数字；若周围没雷则继续向周围扩散。',
+    outcome: '你能按照扫雷规则递归更新棋盘，正确处理数字提示与空白扩散。',
+    sections: [
+      {
+        id: 'minesweeper-summary',
+        title: '题目在问什么',
+        summary:
+          '给定扫雷棋盘 `board` 和一次点击位置 `click`，要求返回根据题目规则更新后的棋盘状态。',
+        bullets: [
+          '`M` 表示未挖出的雷。',
+          '`E` 表示未挖出的空格。',
+          '点击后可能触发连锁展开。',
+          '是规则模拟题。',
+        ],
+      },
+      {
+        id: 'minesweeper-rules',
+        title: '点击后的三种分支必须分开处理',
+        summary:
+          '如果点击到地雷 `M`，它会变成 `X`，游戏结束。若点击到空格 `E`，先统计周围 8 个方向有多少雷；若数量大于 0，就把它变成对应数字字符；若数量为 0，则把它变成 `B`，并继续递归展开周围空格。',
+        bullets: [
+          '点雷时立即结束。',
+          '周围有雷时只显示数字不再扩散。',
+          '周围无雷时才会继续扩展。',
+          '三类规则不能混淆。',
+        ],
+      },
+      {
+        id: 'minesweeper-dfs',
+        title: '扩散过程天然适合 DFS 或 BFS',
+        summary:
+          '当某个格子周围没有雷时，需要继续处理它周围尚未展开的空格。这和图搜索非常像，因此可以用 DFS 递归去做，只要注意不要重复访问已经改写过的格子即可。',
+        bullets: [
+          '搜索对象是可扩散的空白区域。',
+          '已处理格子要及时标记。',
+          '八方向是固定邻接关系。',
+          '实现多为 DFS。',
+        ],
+        callout:
+          '规则模拟题看起来碎，但只要把“会扩散的状态”抽出来，通常就是一个标准图遍历问题。',
+      },
+      {
+        id: 'minesweeper-solution',
+        title: '标准解法：八方向计雷 + DFS 扩散',
+        summary:
+          '若点击位置是 `M`，直接改为 `X` 返回。否则定义 DFS：统计周围八方向的雷数；若雷数大于 0，就把当前格子写成数字字符；若为 0，则写成 `B`，再递归访问周围所有仍为 `E` 的格子。',
+        bullets: [
+          '时间复杂度与被展开区域大小有关。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在八方向扫描和状态改写。',
+          '是网格 DFS 规则题。',
+        ],
+        code: `function updateBoard(board: string[][], click: number[]): string[][] {
+  const rows = board.length
+  const cols = board[0].length
+  const directions = [
+    [-1, -1],
+    [-1, 0],
+    [-1, 1],
+    [0, -1],
+    [0, 1],
+    [1, -1],
+    [1, 0],
+    [1, 1],
+  ]
+  const [startRow, startCol] = click
+
+  if (board[startRow][startCol] === 'M') {
+    board[startRow][startCol] = 'X'
+    return board
+  }
+
+  const dfs = (row: number, col: number): void => {
+    let mines = 0
+
+    for (const [dr, dc] of directions) {
+      const nextRow = row + dr
+      const nextCol = col + dc
+
+      if (
+        nextRow >= 0 &&
+        nextRow < rows &&
+        nextCol >= 0 &&
+        nextCol < cols &&
+        board[nextRow][nextCol] === 'M'
+      ) {
+        mines += 1
+      }
+    }
+
+    if (mines > 0) {
+      board[row][col] = String(mines)
+      return
+    }
+
+    board[row][col] = 'B'
+
+    for (const [dr, dc] of directions) {
+      const nextRow = row + dr
+      const nextCol = col + dc
+
+      if (
+        nextRow >= 0 &&
+        nextRow < rows &&
+        nextCol >= 0 &&
+        nextCol < cols &&
+        board[nextRow][nextCol] === 'E'
+      ) {
+        dfs(nextRow, nextCol)
+      }
+    }
+  }
+
+  dfs(startRow, startCol)
+  return board
+}`,
+      },
+      {
+        id: 'minesweeper-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是周围有雷时还继续扩散；或者递归前没有把当前格子状态改掉，导致重复访问甚至死循环。',
+        bullets: [
+          '易错点 1：数字格也继续扩散。',
+          '易错点 2：状态更新时机错误导致重复搜索。',
+          '易错点 3：八方向扫描不完整。',
+          '延伸方向：网格 DFS/BFS、规则模拟、扫雷类问题。',
+        ],
+      },
+    ],
+  },
 ];
