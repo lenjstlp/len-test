@@ -57164,4 +57164,104 @@ function largestValues(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'beautiful-arrangement',
+    label: '526. LeetCode 526. 优美的排列',
+    difficulty: '中等',
+    description:
+      '这题本质是带整除约束的排列计数。最直接有效的做法是回溯逐位放数，并用访问标记避免重复使用元素。',
+    outcome: '你能通过回溯和剪枝，统计满足整除条件的优美排列总数。',
+    sections: [
+      {
+        id: 'beautiful-arrangement-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数 `n`，需要统计由 `1..n` 组成的排列中，有多少个满足：对每个位置 `i`，要么 `perm[i] % i === 0`，要么 `i % perm[i] === 0`。',
+        bullets: [
+          '每个数只能使用一次。',
+          '每个位置都有整除约束。',
+          '目标是统计总方案数。',
+          '是排列回溯计数题。',
+        ],
+      },
+      {
+        id: 'beautiful-arrangement-backtracking',
+        title: '按位置递归放数，天然适合检查约束',
+        summary:
+          '因为约束是“位置和数字”的关系，所以最自然的递归方式是按位置从 1 到 n 逐步填数。每次枚举一个还没使用过的数字，若它和当前位置满足整除条件，就放进去继续递归。',
+        bullets: [
+          '状态是当前填到了第几个位置。',
+          '候选是所有未使用数字。',
+          '合法性可在放入前立刻判断。',
+          '回溯结构非常直观。',
+        ],
+      },
+      {
+        id: 'beautiful-arrangement-pruning',
+        title: '不满足整除条件的分支直接剪掉',
+        summary:
+          '一旦某个数字放到当前位置不满足题目条件，这条分支就不可能发展成合法排列，因此应立即跳过。这样可以大幅减少搜索树规模。',
+        bullets: [
+          '约束检查越早越好。',
+          '剪枝能显著减少枚举量。',
+          '每层只保留合法候选。',
+          '是回溯题常见提速手段。',
+        ],
+        callout:
+          '回溯题能不能过，往往就看约束能否在递归早期发挥作用。这题的整除条件正好适合做前置剪枝。',
+      },
+      {
+        id: 'beautiful-arrangement-solution',
+        title: '标准解法：位置递归 + 访问标记',
+        summary:
+          '维护数组 `used` 表示哪些数字已经放过。递归函数 `dfs(position)` 表示当前要填第 `position` 个位置。遍历数字 `1..n`，若未使用且满足整除条件，则标记使用并递归填下一个位置；当 `position > n` 时，说明得到一个完整合法排列，答案加一。',
+        bullets: [
+          '时间复杂度与合法搜索树规模相关。',
+          '空间复杂度主要来自递归栈和访问数组。',
+          '实现重点在状态回退。',
+          '是排列回溯经典题。',
+        ],
+        code: `function countArrangement(n: number): number {
+  const used = new Array<boolean>(n + 1).fill(false)
+  let answer = 0
+
+  const dfs = (position: number): void => {
+    if (position > n) {
+      answer += 1
+      return
+    }
+
+    for (let num = 1; num <= n; num += 1) {
+      if (used[num]) {
+        continue
+      }
+
+      if (num % position !== 0 && position % num !== 0) {
+        continue
+      }
+
+      used[num] = true
+      dfs(position + 1)
+      used[num] = false
+    }
+  }
+
+  dfs(1)
+  return answer
+}`,
+      },
+      {
+        id: 'beautiful-arrangement-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把位置和数字的约束判断写反；或者回溯返回时忘了撤销使用标记，导致后续分支丢失答案。',
+        bullets: [
+          '易错点 1：整除条件判断不完整。',
+          '易错点 2：回溯后没恢复 `used`。',
+          '易错点 3：递归终止条件写错。',
+          '延伸方向：回溯剪枝、排列计数、位运算状态压缩。',
+        ],
+      },
+    ],
+  },
 ];
