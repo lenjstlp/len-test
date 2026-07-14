@@ -57376,4 +57376,104 @@ function largestValues(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'random-pick-with-weight',
+    label: '528. LeetCode 528. 按权重随机选择',
+    difficulty: '中等',
+    description:
+      '这题不是等概率选下标，而是按权重大小分配区间长度。最标准的解法是前缀和加二分查找。',
+    outcome: '你能利用前缀和把权重转成区间，再通过随机数和二分实现按权重抽样。',
+    sections: [
+      {
+        id: 'random-pick-with-weight-summary',
+        title: '题目在问什么',
+        summary:
+          '给定权重数组 `w`，设计一个结构，使得每次调用 `pickIndex()` 时，以与权重成正比的概率返回对应下标。',
+        bullets: [
+          '不是等概率返回下标。',
+          '权重越大，被选中概率越高。',
+          '需要支持多次随机选择。',
+          '是离散加权抽样题。',
+        ],
+      },
+      {
+        id: 'random-pick-with-weight-prefix',
+        title: '前缀和能把权重映射成连续区间',
+        summary:
+          '如果总权重是 `sum`，那么每个下标 `i` 可以对应一个长度为 `w[i]` 的区间。构造前缀和后，就等价于把 `[1, sum]` 划分给不同下标。只要均匀随机一个整数落在这个范围内，它落入哪个区间，就选哪个下标。',
+        bullets: [
+          '权重被转成区间长度。',
+          '前缀和负责划分边界。',
+          '均匀随机整数映射成加权选择。',
+          '建模非常经典。',
+        ],
+      },
+      {
+        id: 'random-pick-with-weight-binary-search',
+        title: '随机落点之后，用二分查所属区间',
+        summary:
+          '每次调用时先生成 `1..sum` 的随机整数 `target`。接着在前缀和数组里找第一个大于等于 `target` 的位置，这个位置就是最终答案。由于前缀和单调递增，可以用二分高效查找。',
+        bullets: [
+          '随机只做一次。',
+          '查区间靠二分完成。',
+          '前缀和数组必须单调递增。',
+          '复杂度稳定。',
+        ],
+        callout:
+          '很多概率题表面复杂，实质都是“均匀随机 + 区间映射”。前缀和就是离散区间映射最常见的桥梁。',
+      },
+      {
+        id: 'random-pick-with-weight-solution',
+        title: '标准解法：前缀和建区间，二分定位答案',
+        summary:
+          '构造函数中预处理前缀和数组和总权重。`pickIndex()` 时随机生成 `1..total` 的整数，再通过二分找到第一个前缀和不小于它的位置，这个位置对应的下标就是按权重抽样的结果。',
+        bullets: [
+          '构造时间复杂度是 `O(n)`。',
+          '单次查询复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(n)`。',
+          '是加权随机模板题。',
+        ],
+        code: `class Solution {
+  private prefix: number[] = []
+  private total = 0
+
+  constructor(w: number[]) {
+    for (const weight of w) {
+      this.total += weight
+      this.prefix.push(this.total)
+    }
+  }
+
+  pickIndex(): number {
+    const target = Math.floor(Math.random() * this.total) + 1
+    let left = 0
+    let right = this.prefix.length - 1
+
+    while (left < right) {
+      const mid = Math.floor((left + right) / 2)
+      if (this.prefix[mid] < target) {
+        left = mid + 1
+      } else {
+        right = mid
+      }
+    }
+
+    return left
+  }
+}`,
+      },
+      {
+        id: 'random-pick-with-weight-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是先等概率选下标再按权重补偿，导致分布错误；或者二分边界写错，不能正确找到第一个覆盖 `target` 的前缀位置。',
+        bullets: [
+          '易错点 1：没有把权重转成区间。',
+          '易错点 2：随机数范围不是 `1..total`。',
+          '易错点 3：二分找错边界位置。',
+          '延伸方向：前缀和抽样、离散概率分布、二分映射。',
+        ],
+      },
+    ],
+  },
 ];
