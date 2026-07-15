@@ -57923,4 +57923,131 @@ function getMinimumDifference(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'lonely-pixel-ii',
+    label: '533. LeetCode 533. 孤独像素 II',
+    difficulty: '中等',
+    description:
+      '这题是在上一题基础上增加了更严格的行模式限制。关键不只是行列计数，还要验证同列黑像素所在的整行内容完全相同。',
+    outcome: '你能结合行模式统计和列检查，找出满足规则的黑像素总数。',
+    sections: [
+      {
+        id: 'lonely-pixel-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定黑白像素矩阵 `picture` 和整数 `target`，要求统计满足条件的黑像素数量：它所在行恰好有 `target` 个黑像素，所在列也恰好有 `target` 个黑像素，并且该列中所有黑像素所在的行内容都与当前行完全相同。',
+        bullets: [
+          '同时约束行计数、列计数和行模式。',
+          '目标是黑像素数量而不是行列数量。',
+          '比上一题多了整行内容一致性条件。',
+          '是矩阵统计 + 模式匹配题。',
+        ],
+      },
+      {
+        id: 'lonely-pixel-ii-row-pattern',
+        title: '先把每一行看成一个模式，并统计它出现次数',
+        summary:
+          '如果某一行恰好有 `target` 个黑像素，那么它才有资格成为答案所在行。把这类行序列化成字符串并统计出现次数，后面检查某一列时，就能知道这个模式是否恰好出现了 `target` 次。',
+        bullets: [
+          '只有黑像素数等于 `target` 的行才值得关注。',
+          '行内容可压成字符串模式。',
+          '模式出现次数是后续判定关键。',
+          '这是预处理的核心。',
+        ],
+      },
+      {
+        id: 'lonely-pixel-ii-column-check',
+        title: '列有效的前提是：恰有 target 个黑像素，且都来自同一合法模式行',
+        summary:
+          '对每一列，若它的黑像素个数不是 `target`，直接跳过。若等于 `target`，再取这一列第一个黑像素所在的行模式，检查该模式是否总共出现了 `target` 次，并验证这一列所有黑像素所在行都等于这个模式。满足时，这一列中的 `target` 个黑像素都应计入答案。',
+        bullets: [
+          '列计数先过滤大部分无效情况。',
+          '同列黑像素必须全部来自相同行模式。',
+          '合法模式出现次数也必须是 `target`。',
+          '一列合法时贡献 `target` 个答案。',
+        ],
+        callout:
+          '这题本质是在找“重复出现的相同行模式”与“列上恰好对齐的黑像素”之间的交集。单看行或列都不够，必须把两边信息拼起来。',
+      },
+      {
+        id: 'lonely-pixel-ii-solution',
+        title: '标准解法：行模式计数 + 列逐个验证',
+        summary:
+          '第一遍遍历统计每行黑像素数，并记录所有满足 `rowCount === target` 的行模式出现次数。第二遍按列扫描：若某列黑像素数等于 `target`，取该列第一个黑像素所在的模式，验证该模式出现次数为 `target`，且这一列所有黑像素都来自该模式行。若验证通过，答案加 `target`。',
+        bullets: [
+          '时间复杂度是 `O(mn)` 级别。',
+          '空间复杂度主要来自行模式映射。',
+          '实现重点在模式判定与列验证结合。',
+          '是矩阵模式统计题代表作。',
+        ],
+        code: `function findBlackPixel(picture: string[][], target: number): number {
+  const rows = picture.length
+  const cols = picture[0].length
+  const rowCount = new Array<number>(rows).fill(0)
+  const patterns = new Map<string, number>()
+
+  for (let row = 0; row < rows; row += 1) {
+    const pattern = picture[row].join('')
+
+    for (let col = 0; col < cols; col += 1) {
+      if (picture[row][col] === 'B') {
+        rowCount[row] += 1
+      }
+    }
+
+    if (rowCount[row] === target) {
+      patterns.set(pattern, (patterns.get(pattern) ?? 0) + 1)
+    }
+  }
+
+  let answer = 0
+
+  for (let col = 0; col < cols; col += 1) {
+    const blackRows: number[] = []
+
+    for (let row = 0; row < rows; row += 1) {
+      if (picture[row][col] === 'B') {
+        blackRows.push(row)
+      }
+    }
+
+    if (blackRows.length !== target) {
+      continue
+    }
+
+    const pattern = picture[blackRows[0]].join('')
+    if ((patterns.get(pattern) ?? 0) !== target) {
+      continue
+    }
+
+    let valid = true
+    for (const row of blackRows) {
+      if (picture[row].join('') !== pattern) {
+        valid = false
+        break
+      }
+    }
+
+    if (valid) {
+      answer += target
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'lonely-pixel-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只检查行列黑像素数量，却忽略了“同列黑像素对应的行内容必须完全相同”这个关键限制。',
+        bullets: [
+          '易错点 1：漏掉整行模式一致性检查。',
+          '易错点 2：没要求行模式出现次数也等于 `target`。',
+          '易错点 3：合法列只加 1，而不是加 `target`。',
+          '延伸方向：矩阵模式匹配、行列联合统计、图像规则判定。',
+        ],
+      },
+    ],
+  },
 ];
