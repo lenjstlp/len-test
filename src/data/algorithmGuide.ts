@@ -58520,4 +58520,92 @@ function convertBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'minimum-time-difference',
+    label: '539. LeetCode 539. 最小时间差',
+    difficulty: '中等',
+    description:
+      '这题本质是在一天 1440 分钟的环上找最近两个时间点。先转成分钟并排序，再注意首尾跨午夜的差值即可。',
+    outcome: '你能把时间点转换成分钟数，并求出任意两个时间点之间的最小分钟差。',
+    sections: [
+      {
+        id: 'minimum-time-difference-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一组 `"HH:MM"` 格式的时间点，要求返回任意两个时间点之间的最小时间差（分钟数）。',
+        bullets: [
+          '时间点都在同一天的 24 小时制内。',
+          '差值按分钟计算。',
+          '需要考虑跨午夜情况。',
+          '是排序 + 环形差值题。',
+        ],
+      },
+      {
+        id: 'minimum-time-difference-convert',
+        title: '先把时间统一转成当天的分钟数',
+        summary:
+          '把 `"HH:MM"` 转成 `hour * 60 + minute` 后，时间点就变成了 `0..1439` 的整数。这样比较差值就变成了普通整数差问题。',
+        bullets: [
+          '字符串比较不如数值比较直接。',
+          '分钟数是统一刻度。',
+          '后续排序和差分都更简单。',
+          '这是第一步预处理。',
+        ],
+      },
+      {
+        id: 'minimum-time-difference-circle',
+        title: '最小差值除了相邻元素，还要检查首尾跨天连接',
+        summary:
+          '排序后，普通最小差值一定出现在相邻时间点之间。但因为时间是环形的，最后一个时间点和第一个时间点之间还存在“跨过午夜”的差值，需要额外比较 `1440 - last + first`。',
+        bullets: [
+          '排序后相邻差值最有可能最小。',
+          '时间轴在午夜处首尾相连。',
+          '跨天差值不能漏掉。',
+          '这是本题最关键的边界。',
+        ],
+        callout:
+          '只要题目对象本质上是环，排序后就别忘了首尾再补一次比较。这是很多时间、角度题的通用技巧。',
+      },
+      {
+        id: 'minimum-time-difference-solution',
+        title: '标准解法：转分钟排序，比较相邻和首尾',
+        summary:
+          '先把所有时间点转成分钟数并排序。然后遍历相邻元素差值更新答案，最后再用 `1440 - minutes[last] + minutes[0]` 比较一次跨午夜差值。最小值就是结果。',
+        bullets: [
+          '时间复杂度是 `O(n log n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在跨午夜边界。',
+          '是排序差分基础题。',
+        ],
+        code: `function findMinDifference(timePoints: string[]): number {
+  const minutes = timePoints.map((time) => {
+    const [hour, minute] = time.split(':').map(Number)
+    return hour * 60 + minute
+  })
+
+  minutes.sort((a, b) => a - b)
+
+  let answer = 1440 - minutes[minutes.length - 1] + minutes[0]
+
+  for (let i = 1; i < minutes.length; i += 1) {
+    answer = Math.min(answer, minutes[i] - minutes[i - 1])
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'minimum-time-difference-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只比较排序后的相邻时间点，漏掉首尾跨午夜差值；或者没先转分钟，导致比较逻辑混乱。',
+        bullets: [
+          '易错点 1：漏掉跨午夜比较。',
+          '易错点 2：没有统一转成分钟数。',
+          '易错点 3：时间字符串解析错误。',
+          '延伸方向：环形差值、时间处理、排序比较。',
+        ],
+      },
+    ],
+  },
 ];
