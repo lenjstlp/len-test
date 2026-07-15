@@ -58608,4 +58608,97 @@ function convertBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'single-element-in-a-sorted-array',
+    label: '540. LeetCode 540. 有序数组中的单一元素',
+    difficulty: '中等',
+    description:
+      '这题不是线性扫描配对，而是利用有序数组中“成对元素在单一元素前后索引奇偶性不同”的规律做二分。',
+    outcome:
+      '你能通过二分查找和配对下标规律，在对数时间内找到只出现一次的元素。',
+    sections: [
+      {
+        id: 'single-element-in-a-sorted-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个升序数组，其中除一个元素只出现一次外，其余元素都恰好出现两次。要求找出这个单一元素，并尽量做到 `O(log n)` 时间。',
+        bullets: [
+          '数组已经有序。',
+          '其他元素都成对出现。',
+          '只有一个元素单独出现。',
+          '目标是对数时间查找。',
+        ],
+      },
+      {
+        id: 'single-element-in-a-sorted-array-pattern',
+        title: '单一元素前后，成对结构的起始下标奇偶性会变化',
+        summary:
+          '在单一元素出现之前，成对元素通常是 `(偶数, 奇数)` 位置配对；一旦越过单一元素，这种配对会变成 `(奇数, 偶数)`。所以通过检查中点和它的配对位置是否匹配，就能判断单一元素落在左半边还是右半边。',
+        bullets: [
+          '有序 + 成对让结构具备单调性。',
+          '单一元素会打破配对节奏。',
+          '奇偶规律是二分依据。',
+          '不用真的逐对扫描。',
+        ],
+      },
+      {
+        id: 'single-element-in-a-sorted-array-binary-search',
+        title: '让 mid 总是指向一对元素的起点去判断',
+        summary:
+          '二分时可以先把 `mid` 调整成偶数下标，这样它理应和 `mid + 1` 配成一对。若 `nums[mid] === nums[mid + 1]`，说明单一元素在右边；否则说明破坏已经出现在左边或当前附近，单一元素在左边。',
+        bullets: [
+          '偶数下标是理想配对起点。',
+          '比较对象固定成 `mid` 和 `mid + 1`。',
+          '匹配正常则往右，否则往左。',
+          '二分逻辑非常紧凑。',
+        ],
+        callout:
+          '很多二分题的关键不在“猜答案”，而在于先把中点调整成一个有结构意义的位置。这里的偶数位就是那个关键位置。',
+      },
+      {
+        id: 'single-element-in-a-sorted-array-solution',
+        title: '标准解法：偶数 mid 配对检查',
+        summary:
+          '维护左右边界。每次取中点后，若 `mid` 为奇数就减一让它变成偶数。然后比较 `nums[mid]` 和 `nums[mid + 1]`：若相等，说明左半部分配对完整，单一元素在右边；否则在左边。最终收敛到的下标就是答案。',
+        bullets: [
+          '时间复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在 mid 调整与区间收缩方向。',
+          '是有序数组二分经典题。',
+        ],
+        code: `function singleNonDuplicate(nums: number[]): number {
+  let left = 0
+  let right = nums.length - 1
+
+  while (left < right) {
+    let mid = Math.floor((left + right) / 2)
+
+    if (mid % 2 === 1) {
+      mid -= 1
+    }
+
+    if (nums[mid] === nums[mid + 1]) {
+      left = mid + 2
+    } else {
+      right = mid
+    }
+  }
+
+  return nums[left]
+}`,
+      },
+      {
+        id: 'single-element-in-a-sorted-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是虽然想到二分，却没先把 `mid` 调整成偶数位置，导致配对比较混乱；或者区间收缩方向写反。',
+        bullets: [
+          '易错点 1：`mid` 没调整到偶数位。',
+          '易错点 2：匹配成功后的边界移动错了。',
+          '易错点 3：又退回线性扫描，没达到要求复杂度。',
+          '延伸方向：二分查找、配对结构数组、单调性分析。',
+        ],
+      },
+    ],
+  },
 ];
