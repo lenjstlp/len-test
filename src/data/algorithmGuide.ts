@@ -58333,4 +58333,90 @@ function str2tree(s: string): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'complex-number-multiplication',
+    label: '537. LeetCode 537. 复数乘法',
+    difficulty: '中等',
+    description:
+      '这题的关键不是复杂数学，而是把字符串解析成实部和虚部，然后按复数乘法公式计算。',
+    outcome: '你能拆解复数字符串，并根据公式求出两个复数的乘积结果。',
+    sections: [
+      {
+        id: 'complex-number-multiplication-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个形如 `a+bi` 的复数字符串，要求返回它们乘法结果的同格式字符串。',
+        bullets: [
+          '输入是字符串格式的复数。',
+          '要解析实部和虚部。',
+          '输出仍是 `x+yi` 形式。',
+          '是字符串解析 + 数学公式题。',
+        ],
+      },
+      {
+        id: 'complex-number-multiplication-formula',
+        title: '复数乘法公式是 `(a+bi)(c+di) = (ac-bd) + (ad+bc)i`',
+        summary:
+          '只要把两个复数拆成实部和虚部，乘法就可以直接套用公式。关键在于虚数单位 `i` 满足 `i² = -1`，所以虚部相乘会贡献到实部里并带负号。',
+        bullets: [
+          '实部和虚部分别参与组合。',
+          '`i² = -1` 是公式来源。',
+          '实部结果是 `ac - bd`。',
+          '虚部结果是 `ad + bc`。',
+        ],
+      },
+      {
+        id: 'complex-number-multiplication-parse',
+        title: '字符串解析只要按 `+` 和末尾 `i` 拆开',
+        summary:
+          '输入格式固定，因此可以先按 `+` 分开，得到实部和带 `i` 的虚部，再去掉虚部末尾的 `i` 转成整数。拿到四个整数后，直接代入公式即可。',
+        bullets: [
+          '格式固定让解析变简单。',
+          '虚部去掉末尾 `i` 即可转数值。',
+          '解析后就是普通整数运算。',
+          '实现不会太复杂。',
+        ],
+        callout:
+          '很多字符串数学题，本质都是“先把结构拆干净，再按普通数学规则算”。别一边解析一边算，容易乱。',
+      },
+      {
+        id: 'complex-number-multiplication-solution',
+        title: '标准解法：解析四个整数后套复数公式',
+        summary:
+          '定义辅助函数把复数字符串拆成 `[real, imag]`。随后根据公式计算结果实部 `real1 * real2 - imag1 * imag2` 和虚部 `real1 * imag2 + imag1 * real2`，最后拼回字符串格式返回。',
+        bullets: [
+          '时间复杂度是 `O(n)`，主要来自字符串解析。',
+          '空间复杂度是 `O(1)` 额外空间。',
+          '实现重点在格式解析和符号正确性。',
+          '是字符串与数学结合的基础题。',
+        ],
+        code: `function complexNumberMultiply(num1: string, num2: string): string {
+  const parse = (text: string): [number, number] => {
+    const [real, imag] = text.split('+')
+    return [Number(real), Number(imag.slice(0, -1))]
+  }
+
+  const [a, b] = parse(num1)
+  const [c, d] = parse(num2)
+
+  const real = a * c - b * d
+  const imag = a * d + b * c
+
+  return String(real) + '+' + String(imag) + 'i'
+}`,
+      },
+      {
+        id: 'complex-number-multiplication-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是复数乘法公式写错，尤其是实部里的负号；或者虚部解析时忘了去掉末尾的 `i`。',
+        bullets: [
+          '易错点 1：把 `ac-bd` 写成了 `ac+bd`。',
+          '易错点 2：虚部字符串没去掉 `i`。',
+          '易错点 3：结果字符串格式拼接错误。',
+          '延伸方向：字符串解析、数学表达式、复数运算。',
+        ],
+      },
+    ],
+  },
 ];
