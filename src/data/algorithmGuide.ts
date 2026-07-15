@@ -58419,4 +58419,105 @@ function str2tree(s: string): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'convert-bst-to-greater-tree',
+    label: '538. LeetCode 538. 把二叉搜索树转换为累加树',
+    difficulty: '中等',
+    description:
+      '这题的关键是 BST 的逆中序遍历。因为要让每个节点加上所有比它大的值，所以必须先访问更大的节点。',
+    outcome: '你能通过逆中序遍历累计更大节点和，把二叉搜索树原地转换成累加树。',
+    sections: [
+      {
+        id: 'convert-bst-to-greater-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉搜索树，要求把它转换成累加树：每个节点的新值等于原值加上树中所有大于它的节点值之和。',
+        bullets: [
+          '修改是原地进行的。',
+          '每个节点依赖所有更大节点的总和。',
+          'BST 有序性是关键。',
+          '是树遍历 + 累积和题。',
+        ],
+      },
+      {
+        id: 'convert-bst-to-greater-tree-reverse-inorder',
+        title: '逆中序遍历会按从大到小访问节点',
+        summary:
+          '普通中序遍历是从小到大，而这里需要先拿到所有更大的值。因此应使用逆中序遍历：先右子树，再当前节点，再左子树。这样访问到某个节点时，之前累计的和正好都是比它大的节点值。',
+        bullets: [
+          '访问顺序必须是右 -> 根 -> 左。',
+          '累计和天然表示“已经访问过的更大值总和”。',
+          'BST 结构让这个顺序成立。',
+          '是本题核心性质。',
+        ],
+      },
+      {
+        id: 'convert-bst-to-greater-tree-running-sum',
+        title: '用一个全局累加变量边遍历边更新节点',
+        summary:
+          '遍历到一个节点时，把它的原值加到累计和里，再把累计和写回节点值。因为之前已经走过所有更大的节点，所以此时累计和就是该节点应得的新值。',
+        bullets: [
+          '累计和贯穿整个遍历过程。',
+          '节点值更新和累加同步进行。',
+          '不需要额外哈希或数组。',
+          '实现非常简洁。',
+        ],
+        callout:
+          '只要题目是“BST 每个节点依赖所有更大或更小节点”，优先想中序或逆中序遍历配合滚动累加。',
+      },
+      {
+        id: 'convert-bst-to-greater-tree-solution',
+        title: '标准解法：逆中序遍历 + 滚动累加和',
+        summary:
+          '维护变量 `sum` 表示当前已访问节点值总和。递归顺序是右子树、当前节点、左子树。每访问一个节点时，先递归右子树，再让 `sum += node.val`，然后把 `node.val = sum`，最后递归左子树。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在遍历顺序和更新时机。',
+          '是 BST 累加变换经典题。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(val = 0, left: TreeNode | null = null, right: TreeNode | null = null) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function convertBST(root: TreeNode | null): TreeNode | null {
+  let sum = 0
+
+  const dfs = (node: TreeNode | null): void => {
+    if (!node) {
+      return
+    }
+
+    dfs(node.right)
+    sum += node.val
+    node.val = sum
+    dfs(node.left)
+  }
+
+  dfs(root)
+  return root
+}`,
+      },
+      {
+        id: 'convert-bst-to-greater-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是仍然按普通中序遍历从小到大走，导致累计和语义完全相反；或者把节点更新放在错误时机。',
+        bullets: [
+          '易错点 1：遍历顺序写成左 -> 根 -> 右。',
+          '易错点 2：累计和更新时机不对。',
+          '易错点 3：没有原地修改而多建结构。',
+          '延伸方向：BST 逆中序、前缀/后缀累积、树形变换。',
+        ],
+      },
+    ],
+  },
 ];
