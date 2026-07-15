@@ -58213,4 +58213,124 @@ FROM Activity;`,
       },
     ],
   },
+  {
+    id: 'construct-binary-tree-from-string',
+    label: '536. LeetCode 536. 从字符串生成二叉树',
+    difficulty: '中等',
+    description:
+      '这题本质是递归解析括号表达式。一个节点值后面最多跟两段括号，分别表示左子树和右子树。',
+    outcome: '你能按照括号结构递归解析字符串，并构造出对应的二叉树。',
+    sections: [
+      {
+        id: 'construct-binary-tree-from-string-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个形如 `4(2(3)(1))(6(5))` 的字符串表示，要求构造出对应的二叉树。',
+        bullets: [
+          '节点值可能是负数。',
+          '括号包裹的是子树。',
+          '先左子树，后右子树。',
+          '是递归解析题。',
+        ],
+      },
+      {
+        id: 'construct-binary-tree-from-string-structure',
+        title: '字符串结构天然对应递归树结构',
+        summary:
+          '一个节点先由数字部分表示自身值，随后若出现括号对，就说明存在子树。第一段括号是左子树，第二段括号是右子树。因为子树内部格式与整体完全相同，所以递归解析最自然。',
+        bullets: [
+          '节点值和子树部分层次分明。',
+          '左子树和右子树顺序固定。',
+          '子树格式和整体一致。',
+          '非常适合递归下降解析。',
+        ],
+      },
+      {
+        id: 'construct-binary-tree-from-string-split',
+        title: '关键是找到与当前左括号匹配的右括号',
+        summary:
+          '解析子树时，需要知道某段括号的边界。可以从左括号开始扫描，维护括号平衡计数，直到计数重新回到 0，就找到了这一整段子树范围。然后递归解析括号内部字符串。',
+        bullets: [
+          '括号匹配决定子树边界。',
+          '平衡计数是标准工具。',
+          '先截左子树，再看是否还有右子树。',
+          '边界处理是本题实现关键。',
+        ],
+        callout:
+          '看到括号嵌套表达式，先想“怎么找到一段完整子表达式的边界”。边界问题解决后，递归通常就顺了。',
+      },
+      {
+        id: 'construct-binary-tree-from-string-solution',
+        title: '标准解法：解析根值后递归处理括号子树',
+        summary:
+          '先读取开头的整数作为根节点值。然后从当前位置开始，如果遇到左括号，就用括号计数找到完整子树范围，解析为左子树；若后面还有下一段括号，则解析为右子树。递归结束后返回根节点。',
+        bullets: [
+          '时间复杂度与字符串长度相关。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在数值解析和括号边界。',
+          '是树构造 + 字符串解析题。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(val = 0, left: TreeNode | null = null, right: TreeNode | null = null) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function str2tree(s: string): TreeNode | null {
+  if (s.length === 0) {
+    return null
+  }
+
+  let index = 0
+  while (index < s.length && s[index] !== '(') {
+    index += 1
+  }
+
+  const root = new TreeNode(Number(s.slice(0, index)))
+
+  let start = index
+  if (start < s.length) {
+    let balance = 0
+    for (let end = start; end < s.length; end += 1) {
+      if (s[end] === '(') {
+        balance += 1
+      } else if (s[end] === ')') {
+        balance -= 1
+      }
+
+      if (balance === 0) {
+        root.left = str2tree(s.slice(start + 1, end))
+        start = end + 1
+        break
+      }
+    }
+  }
+
+  if (start < s.length) {
+    root.right = str2tree(s.slice(start + 1, s.length - 1))
+  }
+
+  return root
+}`,
+      },
+      {
+        id: 'construct-binary-tree-from-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是括号边界没找准，导致左右子树切片错误；或者负数节点值解析不完整。',
+        bullets: [
+          '易错点 1：括号配对范围找错。',
+          '易错点 2：左右子树切片边界错位。',
+          '易错点 3：负数值没有正确读出。',
+          '延伸方向：递归解析、表达式树、括号匹配。',
+        ],
+      },
+    ],
+  },
 ];
