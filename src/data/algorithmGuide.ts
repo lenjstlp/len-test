@@ -58117,4 +58117,100 @@ FROM Activity;`,
       },
     ],
   },
+  {
+    id: 'encode-and-decode-tinyurl',
+    label: '535. LeetCode 535. TinyURL 的加密与解密',
+    difficulty: '中等',
+    description:
+      '这题并不要求真实安全加密，本质是做一个双向映射：短链接能找到原链接，原链接也可以复用已有短链接。',
+    outcome:
+      '你能设计一个简洁可用的短链接编码/解码结构，并理解映射持久化的核心需求。',
+    sections: [
+      {
+        id: 'encode-and-decode-tinyurl-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个 TinyURL 系统，支持 `encode(longUrl)` 把长链接转换成短链接，以及 `decode(shortUrl)` 把短链接还原成长链接。',
+        bullets: [
+          '只要求功能正确。',
+          '不要求真正加密安全。',
+          '编码和解码要可逆。',
+          '是设计映射结构题。',
+        ],
+      },
+      {
+        id: 'encode-and-decode-tinyurl-mapping',
+        title: '最直接的办法是维护双向映射',
+        summary:
+          '当一个长链接第一次出现时，给它分配一个唯一短码，并记录“长 -> 短”和“短 -> 长”两个映射。之后若同一长链接再次编码，直接复用已有结果即可。',
+        bullets: [
+          '短码必须唯一。',
+          '双向映射让编码和解码都方便。',
+          '重复编码应保持稳定结果。',
+          '这是设计核心。',
+        ],
+      },
+      {
+        id: 'encode-and-decode-tinyurl-id',
+        title: '短码可以用递增编号来构造',
+        summary:
+          '题目不要求复杂随机策略，用一个递增计数器就能保证唯一性。把它拼到固定前缀后面，就得到一个可用的短链接。',
+        bullets: [
+          '递增 ID 最容易保证唯一。',
+          '实现简单清晰。',
+          '短链接格式可自定义。',
+          '重点在映射而不是花哨编码。',
+        ],
+        callout:
+          '系统设计题在面试版里，先做对再谈扩展。这里最重要的是一一映射关系，复杂随机短码反而不是重点。',
+      },
+      {
+        id: 'encode-and-decode-tinyurl-solution',
+        title: '标准解法：计数器生成短码 + 双向哈希表',
+        summary:
+          '维护两个哈希表 `longToShort` 和 `shortToLong`，再维护自增计数器。编码时若长链接已存在则直接返回；否则创建新短码并写入两张表。解码时直接查 `shortToLong` 返回原始长链接。',
+        bullets: [
+          '单次编码/解码平均时间复杂度是 `O(1)`。',
+          '空间复杂度与存储链接数量相关。',
+          '实现重点在双向映射维护。',
+          '是设计题中的基础版本。',
+        ],
+        code: `class Codec {
+  private id = 0
+  private longToShort = new Map<string, string>()
+  private shortToLong = new Map<string, string>()
+  private prefix = 'http://tinyurl.com/'
+
+  encode(longUrl: string): string {
+    const existing = this.longToShort.get(longUrl)
+    if (existing) {
+      return existing
+    }
+
+    this.id += 1
+    const shortUrl = this.prefix + String(this.id)
+    this.longToShort.set(longUrl, shortUrl)
+    this.shortToLong.set(shortUrl, longUrl)
+    return shortUrl
+  }
+
+  decode(shortUrl: string): string {
+    return this.shortToLong.get(shortUrl) ?? ''
+  }
+}`,
+      },
+      {
+        id: 'encode-and-decode-tinyurl-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只维护短到长映射，导致重复编码同一长链接时不能复用结果；或者把短码生成逻辑和映射逻辑混在一起，代码不稳定。',
+        bullets: [
+          '易错点 1：缺少长链接到短链接的映射。',
+          '易错点 2：短码唯一性没保证。',
+          '易错点 3：解码时没有兜底返回。',
+          '延伸方向：系统设计、哈希映射、短链接服务扩展。',
+        ],
+      },
+    ],
+  },
 ];
