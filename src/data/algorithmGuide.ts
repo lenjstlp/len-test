@@ -58050,4 +58050,71 @@ function getMinimumDifference(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'game-play-analysis-iii',
+    label: '534. LeetCode 534. 游戏玩法分析 III',
+    difficulty: '中等',
+    description:
+      '这题要的是按日期累积的已玩局数。核心是以玩家为分组，按日期做前缀和。',
+    outcome:
+      '你能用窗口函数或等价写法，计算每位玩家截至每个日期的累计游戏局数。',
+    sections: [
+      {
+        id: 'game-play-analysis-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `Activity` 表，要求返回每位玩家在每个登录日期为止累计玩过的游戏局数。',
+        bullets: [
+          '按玩家分开累计。',
+          '累计范围截至当前日期。',
+          '结果保留玩家、日期、累计局数。',
+          '是 SQL 窗口聚合题。',
+        ],
+      },
+      {
+        id: 'game-play-analysis-iii-window',
+        title: '按玩家分组，再按日期做前缀累计',
+        summary:
+          '如果把每位玩家的记录按日期排序，那么当前位置的累计局数，就是从该玩家第一条记录到当前记录的 `games_played` 总和。这正是窗口累计和的典型场景。',
+        bullets: [
+          '玩家之间互不影响。',
+          '日期顺序决定累计范围。',
+          '窗口函数最契合这个需求。',
+          '不需要复杂自连接。',
+        ],
+      },
+      {
+        id: 'game-play-analysis-iii-solution',
+        title: '标准解法：SUM OVER(PARTITION BY ... ORDER BY ...)',
+        summary:
+          '使用窗口函数 `SUM(games_played) OVER (PARTITION BY player_id ORDER BY event_date)`，按玩家分区、按日期排序，得到截至当前日期的累计局数。',
+        bullets: [
+          '实现非常紧凑。',
+          '逻辑就是分组后的前缀和。',
+          '窗口函数语义直接。',
+          '是 SQL 分析函数代表题。',
+        ],
+        code: `SELECT
+  player_id,
+  event_date,
+  SUM(games_played) OVER (
+    PARTITION BY player_id
+    ORDER BY event_date
+  ) AS games_played_so_far
+FROM Activity;`,
+      },
+      {
+        id: 'game-play-analysis-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只做按玩家分组求总和，失去了“截至当前日期”的累积语义；或者窗口里漏掉排序条件。',
+        bullets: [
+          '易错点 1：没有按日期排序。',
+          '易错点 2：把累计和写成总和。',
+          '易错点 3：窗口分区漏掉 `player_id`。',
+          '延伸方向：窗口函数、累计分析、时序行为统计。',
+        ],
+      },
+    ],
+  },
 ];
