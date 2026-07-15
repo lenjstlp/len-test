@@ -57822,4 +57822,105 @@ function getMinimumDifference(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'k-diff-pairs-in-an-array',
+    label: '532. LeetCode 532. 数组中的 k-diff 数对',
+    difficulty: '中等',
+    description:
+      '这题要统计的是不同数对，不是不同下标对。核心是把重复值和 `k = 0` 这种特殊情况处理清楚。',
+    outcome:
+      '你能通过排序加双指针或哈希统计，求出数组中不同的 k-diff 数对数量。',
+    sections: [
+      {
+        id: 'k-diff-pairs-in-an-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums` 和整数 `k`，要求统计不同的数对 `(a, b)` 数量，满足 `b - a = k`。这里数对按数值去重，不是按下标去重。',
+        bullets: [
+          '关注的是不同数值对。',
+          '条件是差值恰好等于 `k`。',
+          '`k` 可能为 0。',
+          '重复元素处理是关键。',
+        ],
+      },
+      {
+        id: 'k-diff-pairs-in-an-array-sort',
+        title: '排序后更容易去重并维护差值关系',
+        summary:
+          '如果先把数组排序，那么相同数字会挨在一起，去重更容易；同时还能用双指针维护两个位置之间的差值，根据差值和 `k` 的比较关系移动指针。',
+        bullets: [
+          '排序有助于处理重复值。',
+          '双指针天然适合差值问题。',
+          '相同值聚在一起方便跳过重复。',
+          '是最稳妥的通用写法。',
+        ],
+      },
+      {
+        id: 'k-diff-pairs-in-an-array-two-pointers',
+        title: '差值小就右移，大就左移，命中后跳过重复',
+        summary:
+          '维护两个指针 `left` 和 `right`。若差值小于 `k`，说明需要更大的右值；若差值大于 `k`，说明左值太大要右移；若差值刚好等于 `k`，就找到一个答案，并跳过当前右值的重复项，避免重复计数。',
+        bullets: [
+          '左右指针都只会单调前进。',
+          '命中后必须做去重。',
+          '`left === right` 时要推进右指针。',
+          '实现细节主要在边界控制。',
+        ],
+        callout:
+          '差值类双指针题，真正难点往往不是移动规则，而是“什么时候去重、去哪个指针的重”。这题命中后去重非常关键。',
+      },
+      {
+        id: 'k-diff-pairs-in-an-array-solution',
+        title: '标准解法：排序 + 双指针去重计数',
+        summary:
+          '先排序数组。初始化 `left = 0`、`right = 1`。循环中若两指针重合或差值小于 `k`，移动右指针；若差值大于 `k`，移动左指针；若差值等于 `k`，答案加一，并跳过当前右值的所有重复项。最终得到不同数对数量。',
+        bullets: [
+          '时间复杂度是 `O(n log n)`。',
+          '空间复杂度取决于排序实现。',
+          '重点在重复值只统计一次。',
+          '是排序双指针典型题。',
+        ],
+        code: `function findPairs(nums: number[], k: number): number {
+  if (k < 0) {
+    return 0
+  }
+
+  nums.sort((a, b) => a - b)
+
+  let left = 0
+  let right = 1
+  let answer = 0
+
+  while (right < nums.length) {
+    if (left === right || nums[right] - nums[left] < k) {
+      right += 1
+    } else if (nums[right] - nums[left] > k) {
+      left += 1
+    } else {
+      answer += 1
+      right += 1
+
+      while (right < nums.length && nums[right] === nums[right - 1]) {
+        right += 1
+      }
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'k-diff-pairs-in-an-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把下标对和数值对混为一谈，导致重复值被重复计数；或者没考虑 `k < 0` 必然无解。',
+        bullets: [
+          '易错点 1：重复数对没有去重。',
+          '易错点 2：忘记处理 `k < 0`。',
+          '易错点 3：双指针重合时没单独处理。',
+          '延伸方向：双指针、差值问题、去重计数。',
+        ],
+      },
+    ],
+  },
 ];
