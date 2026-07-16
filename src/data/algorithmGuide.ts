@@ -58789,4 +58789,121 @@ function convertBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: '01-matrix',
+    label: '542. LeetCode 542. 01 矩阵',
+    difficulty: '中等',
+    description:
+      '这题不是从每个 1 出发找最近 0，而是反过来把所有 0 一起作为多源起点做 BFS。',
+    outcome: '你能通过多源广度优先搜索，求出矩阵中每个位置到最近 0 的距离。',
+    sections: [
+      {
+        id: '01-matrix-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0` 和 `1` 的矩阵，要求返回一个同尺寸矩阵，其中每个位置的值表示它到最近 `0` 的距离。',
+        bullets: [
+          '距离按上下左右步数计算。',
+          '每个位置都要找最近的 0。',
+          '目标是整张距离矩阵。',
+          '是网格最短路题。',
+        ],
+      },
+      {
+        id: '01-matrix-multi-source',
+        title: '把所有 0 同时入队，比逐个 1 搜最近 0 高效得多',
+        summary:
+          '如果从每个 1 单独去搜最近 0，会有大量重复搜索。更好的思路是把所有 0 一起作为 BFS 起点，向外一层层扩散。谁先到达某个 1，谁就是它最近的 0。',
+        bullets: [
+          '多源 BFS 适合“离最近某类点的距离”问题。',
+          '所有 0 的初始距离都为 0。',
+          '扩散顺序天然保证最短路。',
+          '能避免重复计算。',
+        ],
+      },
+      {
+        id: '01-matrix-bfs',
+        title: '未确定距离的位置只会在首次入队时被最短距离命中',
+        summary:
+          '初始化时把所有 0 放入队列，把所有 1 的距离设为无穷大。BFS 扩展时，若邻格通过当前格子能得到更短距离，就更新并入队。由于 BFS 层次展开，第一次有效更新就是最短距离。',
+        bullets: [
+          '0 是距离源点。',
+          '1 初始设成未确定状态。',
+          '邻接方向固定四个。',
+          '层次扩张保证最短性。',
+        ],
+        callout:
+          '只要题目描述是“每个点到最近某类点的距离”，优先想多源 BFS，而不是为每个点各跑一次搜索。',
+      },
+      {
+        id: '01-matrix-solution',
+        title: '标准解法：多源 BFS 更新最近 0 距离',
+        summary:
+          '先遍历矩阵，把所有 0 入队，把 1 的距离初始化为无穷大。然后做 BFS：弹出当前位置，查看四邻格；若 `dist[current] + 1 < dist[next]`，就更新邻格距离并入队。遍历结束后，距离矩阵即为答案。',
+        bullets: [
+          '时间复杂度是 `O(mn)`。',
+          '空间复杂度是 `O(mn)` 级别队列和结果矩阵。',
+          '实现重点在多源初始化。',
+          '是网格多源最短路模板题。',
+        ],
+        code: `function updateMatrix(mat: number[][]): number[][] {
+  const rows = mat.length
+  const cols = mat[0].length
+  const queue: Array<[number, number]> = []
+  const distance = Array.from({ length: rows }, () => new Array<number>(cols).fill(Number.MAX_SAFE_INTEGER))
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      if (mat[row][col] === 0) {
+        distance[row][col] = 0
+        queue.push([row, col])
+      }
+    }
+  }
+
+  let head = 0
+  while (head < queue.length) {
+    const [row, col] = queue[head]
+    head += 1
+
+    for (const [dr, dc] of directions) {
+      const nextRow = row + dr
+      const nextCol = col + dc
+
+      if (
+        nextRow >= 0 &&
+        nextRow < rows &&
+        nextCol >= 0 &&
+        nextCol < cols &&
+        distance[row][col] + 1 < distance[nextRow][nextCol]
+      ) {
+        distance[nextRow][nextCol] = distance[row][col] + 1
+        queue.push([nextRow, nextCol])
+      }
+    }
+  }
+
+  return distance
+}`,
+      },
+      {
+        id: '01-matrix-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是对每个 1 都单独搜索最近 0，复杂度过高；或者没有把所有 0 一起作为初始源点。',
+        bullets: [
+          '易错点 1：把多源问题做成多次单源搜索。',
+          '易错点 2：初始化时没把所有 0 入队。',
+          '易错点 3：距离矩阵更新条件写错。',
+          '延伸方向：多源 BFS、网格最短路、最近目标距离。',
+        ],
+      },
+    ],
+  },
 ];
