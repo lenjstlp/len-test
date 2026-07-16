@@ -59007,4 +59007,81 @@ function diameterOfBinaryTree(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'output-contest-matches',
+    label: '544. LeetCode 544. 输出比赛匹配对',
+    difficulty: '中等',
+    description:
+      '这题不是复杂搜索，而是按题目给出的配对规则逐轮模拟：首尾配、生成新轮，再继续。',
+    outcome: '你能按照比赛配对规则，逐轮构造出最终的嵌套字符串结果。',
+    sections: [
+      {
+        id: 'output-contest-matches-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数 `n`，表示 `1..n` 号选手参加比赛，要求按“第一对最后、第二对倒数第二……”的方式配对，并输出最终完整的嵌套比赛字符串。',
+        bullets: [
+          '每轮都按首尾配对。',
+          '上一轮配对结果会作为下一轮选手。',
+          '最终只剩一个整体字符串。',
+          '是模拟构造题。',
+        ],
+      },
+      {
+        id: 'output-contest-matches-round',
+        title: '每一轮都把当前数组压缩成一半',
+        summary:
+          '开始时选手数组是 `["1","2",...,"n"]`。每一轮把第 `i` 个和倒数第 `i` 个配成 `"(a,b)"`，所有这些新字符串组成下一轮数组。如此反复，直到数组长度变成 1。',
+        bullets: [
+          '每轮规模减半。',
+          '配对规则固定不变。',
+          '字符串层层嵌套形成最终答案。',
+          '过程非常机械但要写稳。',
+        ],
+      },
+      {
+        id: 'output-contest-matches-solution',
+        title: '标准解法：数组逐轮首尾配对模拟',
+        summary:
+          '先初始化字符串数组 `matches`。循环中用双指针从两端向中间收缩，把 `matches[left]` 和 `matches[right]` 拼成新字符串数组 `nextRound`。然后令 `matches = nextRound` 继续，直到只剩一个元素返回。',
+        bullets: [
+          '时间复杂度是 `O(n)` 级别字符串构造总量。',
+          '空间复杂度取决于中间字符串存储。',
+          '实现重点在轮次压缩。',
+          '是分轮模拟的基础题。',
+        ],
+        code: `function findContestMatch(n: number): string {
+  let matches = Array.from({ length: n }, (_, index) => String(index + 1))
+
+  while (matches.length > 1) {
+    const nextRound: string[] = []
+    let left = 0
+    let right = matches.length - 1
+
+    while (left < right) {
+      nextRound.push('(' + matches[left] + ',' + matches[right] + ')')
+      left += 1
+      right -= 1
+    }
+
+    matches = nextRound
+  }
+
+  return matches[0]
+}`,
+      },
+      {
+        id: 'output-contest-matches-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只做第一轮配对就停了；或者中间轮次数组更新错误，导致嵌套结构不完整。',
+        bullets: [
+          '易错点 1：没有循环到只剩一个元素。',
+          '易错点 2：首尾配对顺序写反。',
+          '易错点 3：字符串拼接格式不符合要求。',
+          '延伸方向：模拟构造、分轮压缩、括号表达式生成。',
+        ],
+      },
+    ],
+  },
 ];
