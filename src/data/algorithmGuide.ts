@@ -58701,4 +58701,92 @@ function convertBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'reverse-string-ii',
+    label: '541. LeetCode 541. 反转字符串 II',
+    difficulty: '简单',
+    description:
+      '这题的规则是每 `2k` 个字符里只反转前 `k` 个。关键不是整体反转，而是按固定块长分段处理。',
+    outcome: '你能按题目规定的分块规则，原地构造出最终字符串。',
+    sections: [
+      {
+        id: 'reverse-string-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s` 和整数 `k`，从字符串开头开始，每计数至 `2k` 个字符，就反转其中前 `k` 个字符。若剩余字符少于 `k` 个则全部反转；若在 `k` 到 `2k` 之间，则只反转前 `k` 个。',
+        bullets: [
+          '按 `2k` 为一组处理。',
+          '每组只反转前 `k` 个字符。',
+          '尾部不足一组时按规则单独处理。',
+          '是字符串分段模拟题。',
+        ],
+      },
+      {
+        id: 'reverse-string-ii-chunks',
+        title: '把字符串看成连续的 2k 块最自然',
+        summary:
+          '如果每次从位置 `0, 2k, 4k...` 开始处理，就能直接定位每个块的前半部分。对于每个起点，只需把区间 `[start, min(start + k - 1, end)]` 反转即可。',
+        bullets: [
+          '步长固定为 `2k`。',
+          '每轮只关心当前块前半段。',
+          '不足 `k` 时右边界自动截断。',
+          '思路非常直观。',
+        ],
+      },
+      {
+        id: 'reverse-string-ii-two-pointers',
+        title: '块内反转仍然是经典双指针交换',
+        summary:
+          '拿到当前块要反转的左右边界后，用双指针从两端向中间交换字符即可。每个字符最多被交换一次，因此整体复杂度线性。',
+        bullets: [
+          '局部反转用双指针最稳。',
+          '交换逻辑和普通反转字符串一致。',
+          '块与块之间互不影响。',
+          '实现短小。',
+        ],
+        callout:
+          '这类字符串题，真正重要的是先把“处理范围”找对。范围一旦正确，反转本身只是模板代码。',
+      },
+      {
+        id: 'reverse-string-ii-solution',
+        title: '标准解法：每隔 2k 反转前 k 个字符',
+        summary:
+          '先把字符串转成字符数组。然后以 `2k` 为步长遍历起点 `start`，令 `left = start`，`right = Math.min(start + k - 1, chars.length - 1)`，对 `[left, right]` 做双指针交换。最后把字符数组重新拼回字符串。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`，若字符串不可原地修改。',
+          '实现重点在块边界计算。',
+          '是分段字符串操作基础题。',
+        ],
+        code: `function reverseStr(s: string, k: number): string {
+  const chars = s.split('')
+
+  for (let start = 0; start < chars.length; start += 2 * k) {
+    let left = start
+    let right = Math.min(start + k - 1, chars.length - 1)
+
+    while (left < right) {
+      ;[chars[left], chars[right]] = [chars[right], chars[left]]
+      left += 1
+      right -= 1
+    }
+  }
+
+  return chars.join('')
+}`,
+      },
+      {
+        id: 'reverse-string-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是误把每 `2k` 个字符全部反转；或者尾部不足 `k` 个字符时没有整体反转。',
+        bullets: [
+          '易错点 1：把整个 `2k` 块都反转了。',
+          '易错点 2：尾部边界处理不完整。',
+          '易错点 3：步长写成 `k` 导致重复处理。',
+          '延伸方向：分段反转、双指针、字符串模拟。',
+        ],
+      },
+    ],
+  },
 ];
