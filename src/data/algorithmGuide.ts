@@ -58906,4 +58906,105 @@ function convertBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'diameter-of-binary-tree',
+    label: '543. LeetCode 543. 二叉树的直径',
+    difficulty: '简单',
+    description:
+      '这题的直径不是节点数，而是边数。核心是对每个节点计算“左高 + 右高”，并取全局最大值。',
+    outcome: '你能通过后序遍历同时计算树高和最大直径。',
+    sections: [
+      {
+        id: 'diameter-of-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，要求返回它的直径长度。直径定义为任意两节点之间最长路径的边数，这条路径不一定经过根节点。',
+        bullets: [
+          '比较的是边数不是节点数。',
+          '路径可以不经过根。',
+          '目标是全树最长路径。',
+          '是树形 DP 题。',
+        ],
+      },
+      {
+        id: 'diameter-of-binary-tree-height',
+        title: '经过某个节点的最长路径等于左子树高度加右子树高度',
+        summary:
+          '如果某条最长路径经过当前节点，那么它一定来自“左边向下最深路径 + 右边向下最深路径”。因此对每个节点来说，`leftHeight + rightHeight` 就是经过该节点的候选直径。',
+        bullets: [
+          '局部最优值由左右高度组成。',
+          '每个节点都能提供一个候选答案。',
+          '全局取最大即可。',
+          '问题自然落到后序遍历。',
+        ],
+      },
+      {
+        id: 'diameter-of-binary-tree-postorder',
+        title: '后序遍历可以一边求高度，一边更新直径',
+        summary:
+          '树高依赖左右子树，因此应先递归求左高和右高，再更新全局直径，最后返回当前节点高度 `max(left, right) + 1`。这样一次遍历就能完成全部信息统计。',
+        bullets: [
+          '高度是子问题结果。',
+          '直径更新发生在回溯阶段。',
+          '每个节点只访问一次。',
+          '时间复杂度线性。',
+        ],
+        callout:
+          '很多树题的套路都是“递归返回一个局部值，同时顺手更新一个全局最优值”。这题就是非常标准的模板。',
+      },
+      {
+        id: 'diameter-of-binary-tree-solution',
+        title: '标准解法：后序遍历返回高度，维护全局直径',
+        summary:
+          '定义递归函数返回当前节点为根的子树高度。对每个节点，先递归得到左右高度，再用 `leftHeight + rightHeight` 更新全局最大直径，最后返回 `Math.max(leftHeight, rightHeight) + 1`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在“高度返回值”和“直径全局值”的分工。',
+          '是二叉树后序遍历经典题。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(val = 0, left: TreeNode | null = null, right: TreeNode | null = null) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function diameterOfBinaryTree(root: TreeNode | null): number {
+  let answer = 0
+
+  const height = (node: TreeNode | null): number => {
+    if (!node) {
+      return 0
+    }
+
+    const leftHeight = height(node.left)
+    const rightHeight = height(node.right)
+    answer = Math.max(answer, leftHeight + rightHeight)
+    return Math.max(leftHeight, rightHeight) + 1
+  }
+
+  height(root)
+  return answer
+}`,
+      },
+      {
+        id: 'diameter-of-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把节点数和边数混淆；或者误以为最长路径一定经过根节点。',
+        bullets: [
+          '易错点 1：把答案按节点数返回了。',
+          '易错点 2：只考虑经过根的路径。',
+          '易错点 3：递归返回值和全局答案职责混乱。',
+          '延伸方向：树形 DP、后序遍历、最长路径问题。',
+        ],
+      },
+    ],
+  },
 ];
