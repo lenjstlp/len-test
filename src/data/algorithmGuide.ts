@@ -59084,4 +59084,139 @@ function diameterOfBinaryTree(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'boundary-of-binary-tree',
+    label: '545. LeetCode 545. 二叉树的边界',
+    difficulty: '中等',
+    description:
+      '这题不是简单前序遍历。边界由三部分组成：左边界、叶子节点、右边界逆序，而且还要避免重复收集。',
+    outcome: '你能按边界定义拆分遍历逻辑，输出二叉树的逆时针边界序列。',
+    sections: [
+      {
+        id: 'boundary-of-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，要求按逆时针顺序返回它的边界：根节点、左边界、所有叶子节点、右边界（自底向上）。',
+        bullets: [
+          '根节点只出现一次。',
+          '左边界和右边界不包含叶子节点。',
+          '叶子节点按从左到右顺序收集。',
+          '右边界输出要逆序。',
+        ],
+      },
+      {
+        id: 'boundary-of-binary-tree-parts',
+        title: '边界必须拆成三部分分别处理',
+        summary:
+          '如果想一遍遍历直接拿齐所有边界，逻辑很容易混乱。更稳的做法是：先沿左边界向下收集非叶节点，再递归收集整棵树的叶子节点，最后沿右边界向下收集非叶节点并反转追加。',
+        bullets: [
+          '左边界、叶子、右边界职责不同。',
+          '拆分后逻辑更清楚。',
+          '重复节点也更容易避免。',
+          '这是本题核心结构。',
+        ],
+      },
+      {
+        id: 'boundary-of-binary-tree-leaf-check',
+        title: '叶子节点是边界重叠高发区，必须单独判定',
+        summary:
+          '叶子节点既可能出现在左边界，也可能出现在右边界。如果不把叶子节点单独处理，就很容易重复加入。一般做法是：左右边界只收非叶节点，叶子统一在中间阶段收集。',
+        bullets: [
+          '叶子是重叠边界点。',
+          '左右边界都应排除叶子。',
+          '叶子统一集中收集最稳。',
+          '去重逻辑因此简单很多。',
+        ],
+        callout:
+          '树的“边界题”最怕逻辑重叠。先把叶子节点从左右边界逻辑里剥离出来，代码会清爽很多。',
+      },
+      {
+        id: 'boundary-of-binary-tree-solution',
+        title: '标准解法：左边界 + 叶子 + 逆序右边界',
+        summary:
+          '若根为空返回空数组。否则先加入根节点。沿左边界优先走左孩子、否则走右孩子，收集非叶节点；再 DFS 收集所有叶子；最后沿右边界优先走右孩子、否则走左孩子，先存入临时数组，再逆序加入答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度主要来自递归栈和右边界临时数组。',
+          '实现重点在非叶判断和右边界逆序。',
+          '是树边界遍历代表题。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(val = 0, left: TreeNode | null = null, right: TreeNode | null = null) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function boundaryOfBinaryTree(root: TreeNode | null): number[] {
+  if (!root) {
+    return []
+  }
+
+  const isLeaf = (node: TreeNode | null): boolean =>
+    !!node && !node.left && !node.right
+
+  const answer = [root.val]
+
+  let current = root.left
+  while (current) {
+    if (!isLeaf(current)) {
+      answer.push(current.val)
+    }
+    current = current.left ?? current.right
+  }
+
+  const addLeaves = (node: TreeNode | null): void => {
+    if (!node) {
+      return
+    }
+
+    if (isLeaf(node)) {
+      if (node !== root) {
+        answer.push(node.val)
+      }
+      return
+    }
+
+    addLeaves(node.left)
+    addLeaves(node.right)
+  }
+
+  addLeaves(root)
+
+  const rightBoundary: number[] = []
+  current = root.right
+  while (current) {
+    if (!isLeaf(current)) {
+      rightBoundary.push(current.val)
+    }
+    current = current.right ?? current.left
+  }
+
+  for (let i = rightBoundary.length - 1; i >= 0; i -= 1) {
+    answer.push(rightBoundary[i])
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'boundary-of-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是叶子节点被左右边界和叶子遍历重复加入；或者右边界按自顶向下直接输出，顺序与题意相反。',
+        bullets: [
+          '易错点 1：叶子节点重复计入答案。',
+          '易错点 2：右边界没有逆序。',
+          '易错点 3：单边树的边界逻辑没处理稳。',
+          '延伸方向：树边界遍历、DFS 分类收集、去重控制。',
+        ],
+      },
+    ],
+  },
 ];
