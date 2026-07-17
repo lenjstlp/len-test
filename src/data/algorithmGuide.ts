@@ -59219,4 +59219,114 @@ function boundaryOfBinaryTree(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'remove-boxes',
+    label: '546. LeetCode 546. 移除盒子',
+    difficulty: '困难',
+    description:
+      '这题的难点不在暴力删除，而在“把同色盒子留到后面一起删可能更优”。标准做法是区间 DP，并把右端连续同色盒子数量并入状态。',
+    outcome:
+      '你能建立 `dp(l, r, k)` 这类带附加信息的区间 DP，解决“延后合并更优”的高难动态规划题。',
+    sections: [
+      {
+        id: 'remove-boxes-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个颜色数组，每次可以删除一段连续同色盒子，若删除了 `k` 个同色盒子，就能得到 `k * k` 分。要求删光所有盒子后的最大得分。',
+        bullets: [
+          '删除顺序会影响总分。',
+          '把同色盒子攒到一起删，可能更赚。',
+          '局部最优不等于全局最优。',
+          '是典型高难区间 DP。',
+        ],
+      },
+      {
+        id: 'remove-boxes-state',
+        title: '必须记录“右边还挂着多少同色盒子”',
+        summary:
+          '若只用 `dp(l, r)`，就不知道 `boxes[r]` 能否与区间外的同色盒子合并。标准状态定义是 `dp(l, r, k)`：表示处理区间 `[l, r]` 时，右侧额外连着 `k` 个与 `boxes[r]` 同色的盒子，当前能获得的最大得分。',
+        bullets: [
+          '`k` 不是多余信息，而是本题关键。',
+          '它表示“延后合并”的收益上下文。',
+          '没有 `k`，状态就不完整。',
+          '这是本题最难的建模点。',
+        ],
+        callout:
+          '很多高难 DP 题做不出来，不是转移不会写，而是状态没把“未来可合并的信息”保存下来。',
+      },
+      {
+        id: 'remove-boxes-transition',
+        title: '先删尾巴，或把同色中间段并过来',
+        summary:
+          '设当前看的是 `boxes[r]`。可以直接把它和右侧挂着的 `k` 个同色盒子一起删掉，得分是 `dp(l, r - 1, 0) + (k + 1)^2`。也可以枚举 `i`，若 `boxes[i] === boxes[r]`，就先把 `(i, r)` 中间部分删掉，再让 `boxes[i]` 和 `boxes[r]` 合并，这样可能更优。',
+        bullets: [
+          '方案一：直接删尾部同色块。',
+          '方案二：先清中间，制造更大同色块。',
+          '枚举同色位置是核心转移。',
+          '连续同色尾巴可先压缩减少状态数。',
+        ],
+      },
+      {
+        id: 'remove-boxes-solution',
+        title: '标准解法：记忆化搜索 + 区间 DP',
+        summary:
+          '用 DFS 记忆化实现 `dp(l, r, k)`。进入状态后，先把右端连续同色元素压成一个更大的 `k`，减少重复。然后比较“直接删”与“枚举中间同色位置后合并”的最优值。最终返回 `dp(0, n - 1, 0)`。',
+        bullets: [
+          '时间复杂度通常记为 `O(n^4)`。',
+          '空间复杂度大约是 `O(n^3)`。',
+          '实现重点在状态压缩和记忆化键设计。',
+          '是区间 DP 代表难题。',
+        ],
+        code: `function removeBoxes(boxes: number[]): number {
+  const memo = new Map<string, number>()
+
+  const dfs = (left: number, right: number, sameCount: number): number => {
+    if (left > right) {
+      return 0
+    }
+
+    let l = left
+    let r = right
+    let k = sameCount
+
+    while (l < r && boxes[r] === boxes[r - 1]) {
+      r -= 1
+      k += 1
+    }
+
+    const key = l + ',' + r + ',' + k
+    const cached = memo.get(key)
+    if (cached !== undefined) {
+      return cached
+    }
+
+    let best = dfs(l, r - 1, 0) + (k + 1) * (k + 1)
+
+    for (let i = l; i < r; i += 1) {
+      if (boxes[i] === boxes[r]) {
+        best = Math.max(best, dfs(l, i, k + 1) + dfs(i + 1, r - 1, 0))
+      }
+    }
+
+    memo.set(key, best)
+    return best
+  }
+
+  return dfs(0, boxes.length - 1, 0)
+}`,
+      },
+      {
+        id: 'remove-boxes-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它误写成普通区间 DP，导致无法表达“留到后面合并”的收益；或者没有先压缩右端连续同色块，状态量明显膨胀。',
+        bullets: [
+          '易错点 1：只定义 `dp(l, r)`，状态不完整。',
+          '易错点 2：漏掉中间同色位置的合并转移。',
+          '易错点 3：没有压缩连续尾巴，性能更差。',
+          '延伸方向：区间 DP、记忆化搜索、状态增强技巧。',
+        ],
+      },
+    ],
+  },
 ];
