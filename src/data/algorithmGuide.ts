@@ -59411,4 +59411,120 @@ function boundaryOfBinaryTree(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'split-array-with-equal-sum',
+    label: '548. LeetCode 548. 将数组分割成和相等的子数组',
+    difficulty: '困难',
+    description:
+      '这题要求找三个切割点，把数组分成四段且四段和相等。关键是先固定中间切点，再把左边可能的和做成集合去和右边匹配。',
+    outcome:
+      '你能利用前缀和把多段区间和比较转成常数时间查询，并用枚举中间点的方式把复杂划分题降下来。',
+    sections: [
+      {
+        id: 'split-array-with-equal-sum-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums`，判断是否存在下标 `i < j < k`，使得去掉 `i`、`j`、`k` 三个位置后，四段子数组的和都相等。',
+        bullets: [
+          '最终要形成四段和相等。',
+          '三个切点本身不计入四段。',
+          '不能暴力枚举所有三元组。',
+          '前缀和是基础工具。',
+        ],
+      },
+      {
+        id: 'split-array-with-equal-sum-middle',
+        title: '固定中间切点，左右分别找可行和',
+        summary:
+          '把 `j` 当作中间切点时，左边要找 `i` 使得 `[0, i - 1]` 和 `[i + 1, j - 1]` 相等；右边要找 `k` 使得 `[j + 1, k - 1]` 和 `[k + 1, n - 1]` 相等。若左右都能得到同一个和，就说明存在解。',
+        bullets: [
+          '先枚举中间点能把问题拆开。',
+          '左边可行和存进集合。',
+          '右边只要命中集合即可。',
+          '这是本题最稳的思路。',
+        ],
+      },
+      {
+        id: 'split-array-with-equal-sum-prefix',
+        title: '前缀和负责把任意区间和压到 O(1)',
+        summary:
+          '先求前缀和 `prefix`。任意区间 `[l, r]` 的和都可以在 O(1) 内算出来。这样枚举 `j` 时，左边枚举 `i`、右边枚举 `k` 就只是在做常数时间比较，而不是重复累加。',
+        bullets: [
+          '前缀和是区间比较题常规武器。',
+          '区间定义要非常仔细。',
+          '四段边界容易写错。',
+          '中间切点两侧至少都要留空间。',
+        ],
+      },
+      {
+        id: 'split-array-with-equal-sum-solution',
+        title: '标准解法：枚举中间点 + 左侧集合匹配右侧',
+        summary:
+          '先构建前缀和。枚举中间点 `j`，范围从 `3` 到 `n - 4`。左侧枚举 `i`，若左一段和左二段相等，就把这个和加入集合；右侧枚举 `k`，若右一段和右二段相等，并且这个和值已在集合中出现，直接返回 `true`。否则遍历结束返回 `false`。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在前缀和区间公式。',
+          '是多切点划分题代表做法。',
+        ],
+        code: `function splitArray(nums: number[]): boolean {
+  const n = nums.length
+  if (n < 7) {
+    return false
+  }
+
+  const prefix = new Array<number>(n).fill(0)
+  prefix[0] = nums[0]
+
+  for (let i = 1; i < n; i += 1) {
+    prefix[i] = prefix[i - 1] + nums[i]
+  }
+
+  const rangeSum = (left: number, right: number): number => {
+    if (left > right) {
+      return 0
+    }
+
+    return prefix[right] - (left > 0 ? prefix[left - 1] : 0)
+  }
+
+  for (let middle = 3; middle <= n - 4; middle += 1) {
+    const seen = new Set<number>()
+
+    for (let i = 1; i <= middle - 2; i += 1) {
+      const leftSum = rangeSum(0, i - 1)
+      const middleLeftSum = rangeSum(i + 1, middle - 1)
+
+      if (leftSum === middleLeftSum) {
+        seen.add(leftSum)
+      }
+    }
+
+    for (let k = middle + 2; k <= n - 2; k += 1) {
+      const middleRightSum = rangeSum(middle + 1, k - 1)
+      const rightSum = rangeSum(k + 1, n - 1)
+
+      if (middleRightSum === rightSum && seen.has(middleRightSum)) {
+        return true
+      }
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'split-array-with-equal-sum-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是四段区间边界写错；或者集合里存的不是和，而是下标，导致左右无法正确匹配。',
+        bullets: [
+          '易错点 1：切点本身被错误计入区间和。',
+          '易错点 2：`j`、`k` 的枚举边界不合法。',
+          '易错点 3：前缀和公式左右端点写错。',
+          '延伸方向：前缀和、枚举切点、区间划分优化。',
+        ],
+      },
+    ],
+  },
 ];
