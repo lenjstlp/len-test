@@ -59720,4 +59720,83 @@ LEFT JOIN Activity AS a
       },
     ],
   },
+  {
+    id: 'student-attendance-record-i',
+    label: '551. LeetCode 551. 学生出勤记录 I',
+    difficulty: '简单',
+    description:
+      '这题就是字符串规则判断：缺勤 `A` 不能超过一次，连续迟到 `L` 不能达到三次。',
+    outcome: '你能把题目给出的行为约束转成一次线性扫描中的计数与连续状态维护。',
+    sections: [
+      {
+        id: 'student-attendance-record-i-summary',
+        title: '题目在问什么',
+        summary:
+          '给定出勤记录字符串 `s`，其中 `A` 表示缺勤、`L` 表示迟到、`P` 表示到场。若缺勤次数少于 2 次，并且不存在连续 3 次或以上迟到，就返回 `true`。',
+        bullets: [
+          '规则只有两条。',
+          '一条看总次数，一条看连续次数。',
+          '线性扫描就能做完。',
+          '是状态维护基础题。',
+        ],
+      },
+      {
+        id: 'student-attendance-record-i-scan',
+        title: '扫描时同时维护缺勤总数和连续迟到长度',
+        summary:
+          '从左到右遍历字符串。遇到 `A` 时缺勤数加一，并把连续迟到清零；遇到 `L` 时连续迟到加一；遇到 `P` 时连续迟到清零。只要缺勤达到 2 次，或连续迟到达到 3 次，就可以提前返回 `false`。',
+        bullets: [
+          '连续状态在字符切换时要及时清零。',
+          '发现违规可以提前结束。',
+          '不需要额外复杂结构。',
+          '属于模拟判断题。',
+        ],
+      },
+      {
+        id: 'student-attendance-record-i-solution',
+        title: '标准解法：一次遍历即时判定',
+        summary:
+          '用两个变量分别记录缺勤次数 `absentCount` 和当前连续迟到次数 `lateStreak`。遍历每个字符并更新状态，只要任一规则被破坏，就立刻返回 `false`；否则遍历结束返回 `true`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在连续迟到的复位。',
+          '适合作为状态扫描模板题。',
+        ],
+        code: `function checkRecord(s: string): boolean {
+  let absentCount = 0
+  let lateStreak = 0
+
+  for (const ch of s) {
+    if (ch === 'A') {
+      absentCount += 1
+      lateStreak = 0
+    } else if (ch === 'L') {
+      lateStreak += 1
+    } else {
+      lateStreak = 0
+    }
+
+    if (absentCount >= 2 || lateStreak >= 3) {
+      return false
+    }
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'student-attendance-record-i-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只统计 `L` 的总数，没有判断是否连续；或者遇到 `A`、`P` 后忘记清空连续迟到长度。',
+        bullets: [
+          '易错点 1：把迟到规则误写成总数限制。',
+          '易错点 2：字符切换后没重置连续迟到。',
+          '易错点 3：缺勤判断写成 `> 2` 而不是 `>= 2`。',
+          '延伸方向：字符串扫描、状态机思维、出勤记录 II。',
+        ],
+      },
+    ],
+  },
 ];
