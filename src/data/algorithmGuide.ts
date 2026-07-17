@@ -59994,4 +59994,92 @@ LEFT JOIN Activity AS a
       },
     ],
   },
+  {
+    id: 'brick-wall',
+    label: '554. LeetCode 554. 砖墙',
+    difficulty: '中等',
+    description:
+      '这题不是去模拟线穿过每块砖，而是反过来统计“哪些竖缝位置出现得最多”。线穿过最多竖缝的位置，就会避开最多砖块。',
+    outcome:
+      '你能把最少穿越问题转成频次统计问题，用哈希表快速找到最优切割位置。',
+    sections: [
+      {
+        id: 'brick-wall-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一面由多行砖块组成的墙，每行砖宽之和相等。现在画一条从上到下的竖线，要求它穿过的砖块数量最少。注意竖线如果刚好穿过砖缝，则不算穿过砖。',
+        bullets: [
+          '不能沿最左边或最右边边界画线。',
+          '目标是最少穿过多少块砖。',
+          '穿过砖缝不计入答案。',
+          '是频次统计题。',
+        ],
+      },
+      {
+        id: 'brick-wall-observation',
+        title: '最优位置一定是某个竖缝出现最多的地方',
+        summary:
+          '若某个位置恰好是很多行的砖缝，那么竖线经过这里时，就能避开这些行里的砖块。假设共有 `m` 行，某个位置出现了 `count` 次竖缝，那么答案就是 `m - count`。因此只需要统计所有非边界竖缝的位置出现次数。',
+        bullets: [
+          '题目等价于找出现次数最多的竖缝位置。',
+          '边界位置不能参与统计。',
+          '出现最多的竖缝，对应最少穿砖数。',
+          '思路从“最少穿过”转换成“最多避开”。',
+        ],
+      },
+      {
+        id: 'brick-wall-prefix',
+        title: '每一行只统计前缀和，不统计最后一块',
+        summary:
+          '遍历每一行时，累加砖宽得到前缀和，这个前缀和就表示一个竖缝位置。但最后一个前缀和正好是墙的右边界，题目不允许在那里画线，所以每行只统计到倒数第二块砖结束的位置。',
+        bullets: [
+          '前缀和天然表示竖缝坐标。',
+          '最后一个位置必须排除。',
+          '哈希表负责统计出现次数。',
+          '实现非常直接。',
+        ],
+      },
+      {
+        id: 'brick-wall-solution',
+        title: '标准解法：哈希表统计竖缝频次',
+        summary:
+          '遍历每一行，累计到倒数第二块砖的右边界位置，并在哈希表中计数。维护最大频次 `maxEdges`。最后返回 `wall.length - maxEdges`。若一条竖缝都没有统计到，说明每行都只有一块砖，答案就是总行数。',
+        bullets: [
+          '时间复杂度是所有砖块数之和的 `O(total)`。',
+          '空间复杂度取决于不同竖缝位置数量。',
+          '实现重点在跳过最右边界。',
+          '是前缀和 + 哈希统计代表题。',
+        ],
+        code: `function leastBricks(wall: number[][]): number {
+  const edgeCount = new Map<number, number>()
+  let maxEdges = 0
+
+  for (const row of wall) {
+    let position = 0
+
+    for (let i = 0; i < row.length - 1; i += 1) {
+      position += row[i]
+      const count = (edgeCount.get(position) ?? 0) + 1
+      edgeCount.set(position, count)
+      maxEdges = Math.max(maxEdges, count)
+    }
+  }
+
+  return wall.length - maxEdges
+}`,
+      },
+      {
+        id: 'brick-wall-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把每行最后一个边界也统计进去，结果错误地得到 0；或者反复去算穿过多少砖，而不是统计竖缝频次。',
+        bullets: [
+          '易错点 1：把最右边界算进哈希表。',
+          '易错点 2：没有把问题转化成竖缝出现次数。',
+          '易错点 3：忽略了每行只有一块砖的情况。',
+          '延伸方向：前缀和、哈希表计数、问题转化技巧。',
+        ],
+      },
+    ],
+  },
 ];
