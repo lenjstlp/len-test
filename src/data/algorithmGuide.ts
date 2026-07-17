@@ -59799,4 +59799,116 @@ LEFT JOIN Activity AS a
       },
     ],
   },
+  {
+    id: 'student-attendance-record-ii',
+    label: '552. LeetCode 552. 学生出勤记录 II',
+    difficulty: '困难',
+    description:
+      '这题从判断单条记录是否合法，升级成统计长度为 `n` 的所有合法记录数量。关键是把“缺勤次数”和“连续迟到次数”做成 DP 状态。',
+    outcome:
+      '你能把字符串规则计数题转成有限状态 DP，并用滚动转移高效求解大规模方案数。',
+    sections: [
+      {
+        id: 'student-attendance-record-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数 `n`，统计长度为 `n` 的所有出勤记录中，有多少条满足：缺勤 `A` 总数少于 2，并且不存在连续 3 次及以上迟到 `L`。答案需要对 `10^9 + 7` 取模。',
+        bullets: [
+          '不是判断一条记录，而是统计所有合法方案数。',
+          '约束仍然是缺勤次数和连续迟到次数。',
+          '字符串数量指数级，不能暴力枚举。',
+          '是状态 DP 计数题。',
+        ],
+      },
+      {
+        id: 'student-attendance-record-ii-state',
+        title: '状态只需要记录 A 的数量和尾部连续 L 的长度',
+        summary:
+          '每天追加一个字符时，历史上真正影响后续是否合法的信息只有两项：已经用了几个 `A`，以及当前末尾连续多少个 `L`。因此可定义 `dp[a][l]` 表示当前长度下，缺勤数为 `a`、末尾连续迟到数为 `l` 的方案数。',
+        bullets: [
+          '`a` 只可能是 `0` 或 `1`。',
+          '`l` 只可能是 `0`、`1`、`2`。',
+          '状态总数很小，适合滚动更新。',
+          '这是本题的核心建模。',
+        ],
+      },
+      {
+        id: 'student-attendance-record-ii-transition',
+        title: '每天新增 P、A、L 三种选择',
+        summary:
+          '如果追加 `P`，那么连续迟到清零；如果追加 `A`，缺勤数加一且连续迟到清零；如果追加 `L`，则只有当前连续迟到少于 2 时才能转移到下一状态。每次都把方案数累加到新的状态表里。',
+        bullets: [
+          '`P` 会把 `l` 归零。',
+          '`A` 只能从 `a = 0` 转到 `a = 1`。',
+          '`L` 只能把 `l` 从 `0/1` 推到 `1/2`。',
+          '每一步都要取模。',
+        ],
+        callout:
+          '这类题最稳的套路，是先问自己“历史信息里，哪些真的会影响下一步是否合法”，多余信息不要放进状态。',
+      },
+      {
+        id: 'student-attendance-record-ii-solution',
+        title: '标准解法：有限状态 DP 滚动数组',
+        summary:
+          '初始化 `dp[0][0] = 1`，表示空字符串。然后循环 `n` 次，每次基于旧状态生成新状态。最终把所有 `a/l` 状态累加起来，就是长度为 `n` 的合法记录数。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`，因为状态数固定。',
+          '实现重点在状态转移完整性。',
+          '是规则约束计数题代表做法。',
+        ],
+        code: `function checkRecord(n: number): number {
+  const mod = 1_000_000_007
+  let dp = Array.from({ length: 2 }, () => new Array<number>(3).fill(0))
+  dp[0][0] = 1
+
+  for (let day = 0; day < n; day += 1) {
+    const next = Array.from({ length: 2 }, () => new Array<number>(3).fill(0))
+
+    for (let absent = 0; absent <= 1; absent += 1) {
+      for (let late = 0; late <= 2; late += 1) {
+        const count = dp[absent][late]
+        if (count === 0) {
+          continue
+        }
+
+        next[absent][0] = (next[absent][0] + count) % mod
+
+        if (absent === 0) {
+          next[1][0] = (next[1][0] + count) % mod
+        }
+
+        if (late < 2) {
+          next[absent][late + 1] = (next[absent][late + 1] + count) % mod
+        }
+      }
+    }
+
+    dp = next
+  }
+
+  let answer = 0
+  for (let absent = 0; absent <= 1; absent += 1) {
+    for (let late = 0; late <= 2; late += 1) {
+      answer = (answer + dp[absent][late]) % mod
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'student-attendance-record-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是状态里漏掉“连续迟到长度”，导致无法判断后续能否继续追加 `L`；或者转移时忘记对模数取余。',
+        bullets: [
+          '易错点 1：只记录缺勤次数，状态信息不够。',
+          '易错点 2：追加 `P` 或 `A` 后没把连续迟到清零。',
+          '易错点 3：大数累加时忘记取模。',
+          '延伸方向：有限状态机 DP、计数问题、滚动数组优化。',
+        ],
+      },
+    ],
+  },
 ];
