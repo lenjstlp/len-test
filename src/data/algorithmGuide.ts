@@ -59329,4 +59329,86 @@ function boundaryOfBinaryTree(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'number-of-provinces',
+    label: '547. LeetCode 547. 省份数量',
+    difficulty: '中等',
+    description:
+      '这题本质是无向图连通块计数。邻接矩阵给得很直接，用 DFS、BFS 或并查集都能做。',
+    outcome: '你能把城市连通关系抽象成图，统计无向图中连通分量的数量。',
+    sections: [
+      {
+        id: 'number-of-provinces-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 `n x n` 邻接矩阵 `isConnected`，其中 `isConnected[i][j] = 1` 表示城市 `i` 和城市 `j` 直接相连。要求返回所有城市中一共有多少个省份。',
+        bullets: [
+          '直接相连和间接相连都属于同一省份。',
+          '本质是连通分量个数。',
+          '矩阵天然描述无向图。',
+          '是图论入门高频题。',
+        ],
+      },
+      {
+        id: 'number-of-provinces-graph',
+        title: '每启动一次 DFS，就找到一个完整省份',
+        summary:
+          '遍历所有城市。若某个城市还没访问过，就从它开始做一次 DFS，把与它连通的所有城市全部标记掉。每启动一次新的 DFS，就说明发现了一个新的省份。',
+        bullets: [
+          '访问标记必不可少。',
+          '一次 DFS 覆盖一个连通块。',
+          '外层循环负责统计块数。',
+          '思路非常标准。',
+        ],
+      },
+      {
+        id: 'number-of-provinces-solution',
+        title: '标准解法：邻接矩阵 DFS',
+        summary:
+          '准备 `visited` 数组，外层遍历每座城市。若未访问，则省份数量加一，并递归扫描该城市所在行，把所有直接相连且未访问的城市继续 DFS 下去。最终统计得到连通块数量。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度是 `O(n)`，不算递归栈。',
+          '矩阵场景下不必额外建邻接表。',
+          '并查集也能做，但 DFS 更直接。',
+        ],
+        code: `function findCircleNum(isConnected: number[][]): number {
+  const cityCount = isConnected.length
+  const visited = new Array<boolean>(cityCount).fill(false)
+  let provinces = 0
+
+  const dfs = (city: number): void => {
+    visited[city] = true
+
+    for (let next = 0; next < cityCount; next += 1) {
+      if (isConnected[city][next] === 1 && !visited[next]) {
+        dfs(next)
+      }
+    }
+  }
+
+  for (let city = 0; city < cityCount; city += 1) {
+    if (!visited[city]) {
+      provinces += 1
+      dfs(city)
+    }
+  }
+
+  return provinces
+}`,
+      },
+      {
+        id: 'number-of-provinces-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“直接相连”误理解成只能看一层，忽略了间接连通；或者访问标记时机不对，导致重复搜索。',
+        bullets: [
+          '易错点 1：没有把间接连通纳入同一省份。',
+          '易错点 2：访问标记太晚，重复递归。',
+          '易错点 3：矩阵下标和城市编号混淆。',
+          '延伸方向：连通分量、并查集、图遍历模板。',
+        ],
+      },
+    ],
+  },
 ];
