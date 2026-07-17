@@ -59650,4 +59650,74 @@ function longestConsecutive(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'game-play-analysis-iv',
+    label: '550. LeetCode 550. 游戏玩法分析 IV',
+    difficulty: '中等',
+    description:
+      '这题是数据库统计题，目标是算出“首次登录后的次日仍然登录”的玩家比例。关键是先找每个玩家的首次登录日期，再判断次日是否存在记录。',
+    outcome: '你能用 SQL 的分组、连接和日期计算，完成留存率类题目的核心写法。',
+    sections: [
+      {
+        id: 'game-play-analysis-iv-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Activity` 记录了玩家每天的登录情况。要求计算：首次登录后的第二天也登录过的玩家数量，占所有玩家数量的比例，并保留两位小数。',
+        bullets: [
+          '分母是所有玩家数。',
+          '分子是次日留存玩家数。',
+          '关键是先找首次登录日。',
+          '是留存分析基础题。',
+        ],
+      },
+      {
+        id: 'game-play-analysis-iv-first-login',
+        title: '先求每个玩家的首次登录日期',
+        summary:
+          '用子查询按 `player_id` 分组，取 `MIN(event_date)` 作为每个玩家的首登日期。随后把这份结果和原表关联，检查是否存在 `event_date = first_login + 1 day` 的记录。',
+        bullets: [
+          '首登日是判断次留的基准。',
+          '分组结果通常作为派生表参与连接。',
+          '日期偏移要用数据库支持的日期函数。',
+          '思路比直接自连接更清晰。',
+        ],
+      },
+      {
+        id: 'game-play-analysis-iv-solution',
+        title: '标准解法：首登派生表 + 次日匹配',
+        summary:
+          '先求出每位玩家的首登日期。再与原表连接，保留那些在首登次日出现过登录记录的玩家。最后用这些玩家数除以总玩家数，并四舍五入到两位小数。',
+        bullets: [
+          '重点是避免重复统计玩家。',
+          '比例要按玩家数而不是记录数算。',
+          '结果需要两位小数。',
+          '是数据库留存题的固定套路。',
+        ],
+        code: `SELECT ROUND(
+  COUNT(DISTINCT a.player_id) / COUNT(DISTINCT f.player_id),
+  2
+) AS fraction
+FROM (
+  SELECT player_id, MIN(event_date) AS first_login
+  FROM Activity
+  GROUP BY player_id
+) AS f
+LEFT JOIN Activity AS a
+  ON a.player_id = f.player_id
+ AND a.event_date = DATE_ADD(f.first_login, INTERVAL 1 DAY);`,
+      },
+      {
+        id: 'game-play-analysis-iv-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是分母错用了总记录数，导致比例失真；或者没有去重，某玩家多条次日记录被重复统计。',
+        bullets: [
+          '易错点 1：分母应该是玩家总数，不是登录总次数。',
+          '易错点 2：分子没有 `DISTINCT` 去重。',
+          '易错点 3：日期比较没有按“首登次日”来写。',
+          '延伸方向：用户留存、派生表、自连接统计。',
+        ],
+      },
+    ],
+  },
 ];
