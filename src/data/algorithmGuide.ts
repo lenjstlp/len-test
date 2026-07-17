@@ -59527,4 +59527,127 @@ function boundaryOfBinaryTree(root: TreeNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'binary-tree-longest-consecutive-sequence-ii',
+    label: '549. LeetCode 549. 二叉树中最长的连续序列 II',
+    difficulty: '中等',
+    description:
+      '这题不是只看递增链，而是允许某个节点同时连接“递减一侧”和“递增一侧”，形成拐点路径。',
+    outcome:
+      '你能在树形 DP 中同时维护递增长度和递减长度，并在节点处把两边路径拼起来更新全局最优。',
+    sections: [
+      {
+        id: 'binary-tree-longest-consecutive-sequence-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，路径上的相邻节点值若差值为 `1` 或 `-1`，就可以形成连续序列。要求返回最长连续路径长度，路径可以从子节点经过父节点再走向另一个子节点。',
+        bullets: [
+          '路径不一定从根开始。',
+          '允许经过某个中间节点拐弯。',
+          '既要考虑递增，也要考虑递减。',
+          '是典型树形 DP 题。',
+        ],
+      },
+      {
+        id: 'binary-tree-longest-consecutive-sequence-ii-state',
+        title: '每个节点都要返回“递增长度”和“递减长度”',
+        summary:
+          '对每个节点，定义两个值：`inc` 表示从当前节点向下走，能形成的最长递增连续长度；`dec` 表示最长递减连续长度。这样父节点看到左右孩子时，才能判断是否能接到自己的递增或递减链上。',
+        bullets: [
+          '单个节点初始都是 1。',
+          '递增和递减要分开统计。',
+          '返回局部状态，父节点负责组合。',
+          '这是本题核心建模。',
+        ],
+      },
+      {
+        id: 'binary-tree-longest-consecutive-sequence-ii-merge',
+        title: '答案更新发生在“左减右增”或“左增右减”的拼接处',
+        summary:
+          '如果某个孩子值比当前节点小 1，那么它可以贡献当前节点的递减链；若大 1，则贡献递增链。处理完左右孩子后，可以用 `inc + dec - 1` 更新全局答案，因为当前节点被两条链共同使用了一次。',
+        bullets: [
+          '节点自身是拼接中心。',
+          '两侧链方向必须匹配。',
+          '减一是为了去掉重复节点。',
+          '全局答案不一定来自单边路径。',
+        ],
+        callout:
+          '树上路径题很常见的套路，是让递归返回“单边可延伸信息”，再在当前节点把左右信息拼成完整答案。',
+      },
+      {
+        id: 'binary-tree-longest-consecutive-sequence-ii-solution',
+        title: '标准解法：后序遍历返回 inc / dec',
+        summary:
+          '做后序遍历。每个节点先拿到左右孩子的 `inc`、`dec`，再根据数值关系更新自己的 `inc` 和 `dec`。最后用当前节点的 `inc + dec - 1` 刷新全局最优。递归结束后返回答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在左右孩子关系判断。',
+          '是树形 DP 与路径拼接的代表题。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(val = 0, left: TreeNode | null = null, right: TreeNode | null = null) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function longestConsecutive(root: TreeNode | null): number {
+  let answer = 0
+
+  const dfs = (node: TreeNode | null): [number, number] => {
+    if (!node) {
+      return [0, 0]
+    }
+
+    let increasing = 1
+    let decreasing = 1
+
+    if (node.left) {
+      const [leftInc, leftDec] = dfs(node.left)
+
+      if (node.left.val === node.val + 1) {
+        increasing = Math.max(increasing, leftInc + 1)
+      } else if (node.left.val === node.val - 1) {
+        decreasing = Math.max(decreasing, leftDec + 1)
+      }
+    }
+
+    if (node.right) {
+      const [rightInc, rightDec] = dfs(node.right)
+
+      if (node.right.val === node.val + 1) {
+        increasing = Math.max(increasing, rightInc + 1)
+      } else if (node.right.val === node.val - 1) {
+        decreasing = Math.max(decreasing, rightDec + 1)
+      }
+    }
+
+    answer = Math.max(answer, increasing + decreasing - 1)
+    return [increasing, decreasing]
+  }
+
+  dfs(root)
+  return answer
+}`,
+      },
+      {
+        id: 'binary-tree-longest-consecutive-sequence-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只维护一种连续方向，导致无法在当前节点把两侧路径拼起来；或者把左右孩子递归写成互相覆盖，丢掉更优结果。',
+        bullets: [
+          '易错点 1：只统计递增链或递减链的一种。',
+          '易错点 2：没有用 `inc + dec - 1` 更新答案。',
+          '易错点 3：左右孩子贡献没有取最大值。',
+          '延伸方向：树形 DP、路径拼接、后序状态返回。',
+        ],
+      },
+    ],
+  },
 ];
