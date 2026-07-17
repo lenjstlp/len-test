@@ -60082,4 +60082,112 @@ LEFT JOIN Activity AS a
       },
     ],
   },
+  {
+    id: 'split-concatenated-strings',
+    label: '555. LeetCode 555. 分割连接字符串',
+    difficulty: '中等',
+    description:
+      '这题关键不是暴力枚举所有旋转结果，而是先把每个字符串预处理成字典序更大的朝向，再枚举断开点和当前字符串方向。',
+    outcome:
+      '你能把字典序最大化问题拆成“先做局部最优朝向，再枚举全局断点”的构造过程。',
+    sections: [
+      {
+        id: 'split-concatenated-strings-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串数组。每个字符串都可以保持原样或整体反转。把所有字符串按原顺序连接成一个环后，再在任意位置切开，得到一个线性字符串。要求返回所有可能结果中字典序最大的那一个。',
+        bullets: [
+          '每个字符串可以选择正向或反向。',
+          '整体顺序不能打乱。',
+          '最终是在环上找一个最佳切开位置。',
+          '目标是字典序最大。',
+        ],
+      },
+      {
+        id: 'split-concatenated-strings-orientation',
+        title: '除当前被切开的字符串外，其他字符串都应先取更优朝向',
+        summary:
+          '对于不作为切点主体的字符串来说，它们在最终结果中只会整体出现，不会被拆开。因此可以先把每个字符串替换成自己和反转串中，字典序更大的那个版本。这样做不会损失最优解，反而把搜索空间大幅缩小。',
+        bullets: [
+          '先做局部朝向最优选择。',
+          '这样其他字符串就固定下来了。',
+          '真正需要细枚举的，只有当前切开的那一段。',
+          '这是本题最关键的化简。',
+        ],
+        callout:
+          '构造题常见套路是：先把不会被局部打破的部分固定成最优形态，再把搜索集中到真正有自由度的位置。',
+      },
+      {
+        id: 'split-concatenated-strings-enumeration',
+        title: '枚举当前字符串的方向和切开位置',
+        summary:
+          '接下来枚举每个字符串作为切开后开头的主体。对该字符串，既要尝试原串，也要尝试反转串；然后枚举它的每个切点，把后半段放到前面，再接上后续所有字符串与前面所有字符串，最后再接上当前串的前半段。所有候选里取字典序最大。',
+        bullets: [
+          '枚举“哪一段成为答案开头”。',
+          '枚举当前段的正反方向。',
+          '枚举当前段内部切点。',
+          '每次构造一个完整候选字符串比较大小。',
+        ],
+      },
+      {
+        id: 'split-concatenated-strings-solution',
+        title: '标准解法：预处理最佳朝向 + 枚举切点',
+        summary:
+          '先把每个字符串替换成 `max(s, reverse(s))`。然后遍历每个下标 `i`，对 `strings[i]` 和它的反转串分别尝试每个切点 `j`，构造 `current.slice(j) + suffix + prefix + current.slice(0, j)` 形式的候选答案。不断更新字典序最大的结果即可。',
+        bullets: [
+          '时间复杂度取决于总字符串长度和候选构造次数。',
+          '空间复杂度主要来自候选字符串拼接。',
+          '实现重点在候选拼接顺序。',
+          '是字典序构造题代表。',
+        ],
+        code: `function splitLoopedString(strings: string[]): string {
+  const normalized = strings.map((str) => {
+    const reversed = str.split('').reverse().join('')
+    return reversed > str ? reversed : str
+  })
+
+  let answer = ''
+
+  for (let i = 0; i < normalized.length; i += 1) {
+    const original = normalized[i]
+    const reversed = original.split('').reverse().join('')
+
+    for (const current of [original, reversed]) {
+      for (let cut = 0; cut < current.length; cut += 1) {
+        let candidate = current.slice(cut)
+
+        for (let right = i + 1; right < normalized.length; right += 1) {
+          candidate += normalized[right]
+        }
+
+        for (let left = 0; left < i; left += 1) {
+          candidate += normalized[left]
+        }
+
+        candidate += current.slice(0, cut)
+
+        if (candidate > answer) {
+          answer = candidate
+        }
+      }
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'split-concatenated-strings-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有先把非当前字符串归一化到更优朝向，导致候选数量暴涨；或者构造候选时拼接顺序写错，把环形顺序打乱。',
+        bullets: [
+          '易错点 1：漏掉当前字符串反转后的枚举。',
+          '易错点 2：后续和前置字符串拼接顺序颠倒。',
+          '易错点 3：没有先固定其他字符串的最佳朝向。',
+          '延伸方向：字典序优化、构造题、枚举切点策略。',
+        ],
+      },
+    ],
+  },
 ];
