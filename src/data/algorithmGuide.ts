@@ -60594,4 +60594,92 @@ function maxDepth(root: Node | null): number {
       },
     ],
   },
+  {
+    id: 'subarray-sum-equals-k',
+    label: '560. LeetCode 560. 和为 K 的子数组',
+    difficulty: '中等',
+    description:
+      '这题不是双指针，因为数组里可能有负数。标准解法是“前缀和 + 哈希表计数”。',
+    outcome:
+      '你能理解为什么负数场景下滑动窗口失效，并熟练使用前缀和频次表统计区间和。',
+    sections: [
+      {
+        id: 'subarray-sum-equals-k-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums` 和整数 `k`，要求统计数组中连续子数组和恰好等于 `k` 的个数。',
+        bullets: [
+          '要求的是连续子数组。',
+          '返回的是数量，不是是否存在。',
+          '数组里可能有负数。',
+          '是前缀和高频题。',
+        ],
+      },
+      {
+        id: 'subarray-sum-equals-k-prefix',
+        title: '如果两个前缀和之差是 k，中间这段就是答案',
+        summary:
+          '设当前扫描到位置 `i` 时的前缀和为 `prefix`。如果之前某个位置的前缀和是 `prefix - k`，那么这两个位置之间的子数组和就是 `k`。因此问题转化为：扫描过程中，之前出现过多少次 `prefix - k`。',
+        bullets: [
+          '前缀和差值对应区间和。',
+          '当前点只依赖历史前缀和出现次数。',
+          '哈希表天然适合做频次统计。',
+          '这是本题最核心的转化。',
+        ],
+      },
+      {
+        id: 'subarray-sum-equals-k-map',
+        title: '哈希表里存的是“某个前缀和出现了多少次”',
+        summary:
+          '遍历数组时，先更新当前前缀和 `prefix`，然后去哈希表里查 `prefix - k` 出现了几次，把这个次数累加进答案。之后再把当前 `prefix` 的出现次数加一。初始时要先放入 `0 -> 1`，表示从下标 0 开始的区间也能被正确统计到。',
+        bullets: [
+          '顺序上先查再存更清楚。',
+          '初始 `0 -> 1` 很关键。',
+          '同一个前缀和可能出现多次。',
+          '所以哈希表存的是计数，不是布尔值。',
+        ],
+        callout:
+          '前缀和计数题里，`map.set(0, 1)` 经常是决定你能不能统计到“从头开始的区间”的关键初始化。',
+      },
+      {
+        id: 'subarray-sum-equals-k-solution',
+        title: '标准解法：前缀和 + 频次哈希表',
+        summary:
+          '准备哈希表 `countMap`，记录每个前缀和出现次数。扫描数组时不断累加前缀和，查找 `prefix - k` 的频次并加入答案，然后更新当前前缀和频次。遍历结束后返回答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在频次统计而不是位置记录。',
+          '是区间和计数模板题。',
+        ],
+        code: `function subarraySum(nums: number[], k: number): number {
+  const countMap = new Map<number, number>()
+  countMap.set(0, 1)
+
+  let prefix = 0
+  let answer = 0
+
+  for (const num of nums) {
+    prefix += num
+    answer += countMap.get(prefix - k) ?? 0
+    countMap.set(prefix, (countMap.get(prefix) ?? 0) + 1)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'subarray-sum-equals-k-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是误用滑动窗口；因为有负数时窗口和不会单调变化。另一个常见错误是把哈希表只当存在性判断，漏掉重复前缀和带来的多种区间。',
+        bullets: [
+          '易错点 1：用双指针处理含负数数组。',
+          '易错点 2：忘记初始化 `0 -> 1`。',
+          '易错点 3：哈希表没有存频次，只存了是否出现。',
+          '延伸方向：前缀和、哈希计数、区间和问题。',
+        ],
+      },
+    ],
+  },
 ];
