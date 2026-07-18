@@ -60868,4 +60868,106 @@ function maxDepth(root: Node | null): number {
       },
     ],
   },
+  {
+    id: 'binary-tree-tilt',
+    label: '563. LeetCode 563. 二叉树的坡度',
+    difficulty: '简单',
+    description:
+      '这题本质是一次后序遍历：递归返回子树和，同时顺手累计每个节点的坡度。',
+    outcome: '你能熟练使用“递归返回局部信息，顺便更新全局答案”的经典树题模板。',
+    sections: [
+      {
+        id: 'binary-tree-tilt-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，节点的坡度定义为左子树节点值之和与右子树节点值之和的绝对差。整棵树的坡度是所有节点坡度之和，要求返回这个总和。',
+        bullets: [
+          '每个节点都有自己的坡度。',
+          '坡度依赖左右子树元素和。',
+          '答案是所有节点坡度累加。',
+          '是二叉树后序遍历题。',
+        ],
+      },
+      {
+        id: 'binary-tree-tilt-postorder',
+        title: '因为要先知道左右子树和，所以天然适合后序遍历',
+        summary:
+          '当前节点的坡度必须先拿到左子树和与右子树和，因此处理顺序只能是先递归左右子树，再回到当前节点计算坡度。与此同时，当前节点所在整棵子树的和也要返回给父节点继续使用。',
+        bullets: [
+          '子树和是递归返回值。',
+          '坡度累加是全局副作用。',
+          '先孩子后父亲，典型后序遍历。',
+          '结构非常标准。',
+        ],
+      },
+      {
+        id: 'binary-tree-tilt-template',
+        title: '递归函数一手算“子树和”，一手更新“总坡度”',
+        summary:
+          '定义递归函数 `sum(node)` 返回以 `node` 为根的子树节点值总和。函数内部先算 `leftSum` 和 `rightSum`，然后用 `abs(leftSum - rightSum)` 更新总坡度，最后返回 `leftSum + rightSum + node.val`。',
+        bullets: [
+          '返回值和全局变量职责分明。',
+          '每个节点只访问一次。',
+          '逻辑简单但很有代表性。',
+          '是树题常用模板。',
+        ],
+        callout:
+          '很多树题都能归约到这个套路：递归函数返回某个局部指标，外部或闭包里维护全局最优/全局统计。',
+      },
+      {
+        id: 'binary-tree-tilt-solution',
+        title: '标准解法：后序遍历返回子树和',
+        summary:
+          '若节点为空返回 0。否则递归求左右子树和，累计当前节点坡度到全局答案，再返回当前子树总和。整棵树遍历完后，全局累计值就是答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在递归返回值的含义。',
+          '是后序遍历模板题。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(val = 0, left: TreeNode | null = null, right: TreeNode | null = null) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function findTilt(root: TreeNode | null): number {
+  let answer = 0
+
+  const subtreeSum = (node: TreeNode | null): number => {
+    if (!node) {
+      return 0
+    }
+
+    const leftSum = subtreeSum(node.left)
+    const rightSum = subtreeSum(node.right)
+    answer += Math.abs(leftSum - rightSum)
+
+    return leftSum + rightSum + node.val
+  }
+
+  subtreeSum(root)
+  return answer
+}`,
+      },
+      {
+        id: 'binary-tree-tilt-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把节点值差当成坡度，而不是左右子树和之差；或者递归只返回了当前节点值，没有把整个子树和向上汇报。',
+        bullets: [
+          '易错点 1：误把 `left.val - right.val` 当答案来源。',
+          '易错点 2：递归返回值不是完整子树和。',
+          '易错点 3：没有累加所有节点坡度，只算了根节点。',
+          '延伸方向：后序遍历、树形 DP、子树和统计。',
+        ],
+      },
+    ],
+  },
 ];
