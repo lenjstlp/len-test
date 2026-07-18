@@ -60762,4 +60762,110 @@ function maxDepth(root: Node | null): number {
       },
     ],
   },
+  {
+    id: 'longest-line-of-consecutive-one-in-matrix',
+    label: '562. LeetCode 562. 矩阵中最长的连续 1 线段',
+    difficulty: '中等',
+    description:
+      '这题不是只看横竖，还要同时统计对角线和反对角线。标准做法是 DP 记录四个方向的连续长度。',
+    outcome:
+      '你能把二维矩阵中的多方向连续问题拆成状态 DP，一次遍历同步维护多个方向。',
+    sections: [
+      {
+        id: 'longest-line-of-consecutive-one-in-matrix-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0` 和 `1` 的矩阵，要求返回其中连续 `1` 的最长线段长度。线段方向可以是水平、垂直、主对角线和反对角线。',
+        bullets: [
+          '要同时考虑四个方向。',
+          '只统计连续的 `1`。',
+          '返回的是最大长度。',
+          '是二维 DP 题。',
+        ],
+      },
+      {
+        id: 'longest-line-of-consecutive-one-in-matrix-state',
+        title: '每个格子都记录四个方向的结尾长度',
+        summary:
+          '如果 `mat[row][col] = 1`，那么它作为某条线段结尾时，四个方向的长度都可以从相邻位置推出来。可定义 `dp[row][col][0..3]` 分别表示以当前格结尾的水平、垂直、主对角线、反对角线连续 `1` 长度。',
+        bullets: [
+          '状态是“以当前点结尾”。',
+          '四个方向彼此独立。',
+          '遇到 `0` 时四个值自然为 0。',
+          '这是本题的标准建模。',
+        ],
+      },
+      {
+        id: 'longest-line-of-consecutive-one-in-matrix-transition',
+        title: '四个方向分别看左、上、左上、右上',
+        summary:
+          '当前格为 `1` 时，水平长度来自左边格子，垂直长度来自上边格子，主对角线来自左上角，反对角线来自右上角，每个值都在对应前驱基础上加 1。与此同时更新全局最大值即可。',
+        bullets: [
+          '水平看 `(row, col - 1)`。',
+          '垂直看 `(row - 1, col)`。',
+          '主对角线看 `(row - 1, col - 1)`。',
+          '反对角线看 `(row - 1, col + 1)`。',
+        ],
+        callout:
+          '矩阵 DP 的一个高频套路，是把状态定义成“以当前格子结尾的最优值”，这样转移往往只看固定几个相邻方向。',
+      },
+      {
+        id: 'longest-line-of-consecutive-one-in-matrix-solution',
+        title: '标准解法：四方向 DP',
+        summary:
+          '遍历整个矩阵。若当前格是 `1`，就计算四个方向的连续长度并更新答案；若是 `0`，对应状态保持 0。遍历结束后返回最大值。',
+        bullets: [
+          '时间复杂度是 `O(mn)`。',
+          '空间复杂度是 `O(mn)`。',
+          '实现重点在四个方向的边界判断。',
+          '是矩阵多方向 DP 代表题。',
+        ],
+        code: `function longestLine(mat: number[][]): number {
+  const rows = mat.length
+  const cols = mat[0].length
+  const dp = Array.from({ length: rows }, () =>
+    Array.from({ length: cols }, () => new Array<number>(4).fill(0)),
+  )
+
+  let answer = 0
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      if (mat[row][col] === 0) {
+        continue
+      }
+
+      dp[row][col][0] = (col > 0 ? dp[row][col - 1][0] : 0) + 1
+      dp[row][col][1] = (row > 0 ? dp[row - 1][col][1] : 0) + 1
+      dp[row][col][2] = row > 0 && col > 0 ? dp[row - 1][col - 1][2] + 1 : 1
+      dp[row][col][3] =
+        row > 0 && col + 1 < cols ? dp[row - 1][col + 1][3] + 1 : 1
+
+      answer = Math.max(
+        answer,
+        dp[row][col][0],
+        dp[row][col][1],
+        dp[row][col][2],
+        dp[row][col][3],
+      )
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'longest-line-of-consecutive-one-in-matrix-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只统计横竖两个方向，漏掉两条对角线；或者把反对角线前驱写错成左上角。',
+        bullets: [
+          '易错点 1：漏掉主对角线或反对角线。',
+          '易错点 2：四个方向的前驱格子写错。',
+          '易错点 3：边界判断不完整导致越界。',
+          '延伸方向：矩阵 DP、多方向状态、最长连续子结构。',
+        ],
+      },
+    ],
+  },
 ];
