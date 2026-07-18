@@ -60500,4 +60500,98 @@ function intersect(quadTree1: Node | null, quadTree2: Node | null): Node | null 
       },
     ],
   },
+  {
+    id: 'maximum-depth-of-n-ary-tree',
+    label: '559. LeetCode 559. N 叉树的最大深度',
+    difficulty: '简单',
+    description:
+      '这题和二叉树最大深度完全同构，只是“左右孩子”变成了“孩子列表”。',
+    outcome:
+      '你能把二叉树递归模板自然扩展到 N 叉树，理解“当前层 + 子树最大深度”的结构。',
+    sections: [
+      {
+        id: 'maximum-depth-of-n-ary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵 N 叉树，要求返回它的最大深度。最大深度指从根节点到最远叶子节点所经过的节点数。',
+        bullets: [
+          '根到叶的最长路径长度。',
+          '节点可能有多个孩子。',
+          '空树深度是 0。',
+          '是树递归基础题。',
+        ],
+      },
+      {
+        id: 'maximum-depth-of-n-ary-tree-recursion',
+        title: '当前节点深度等于 1 加上孩子中的最大深度',
+        summary:
+          '如果当前节点为空，深度是 0；如果不为空，它自己的这一层贡献 1，剩余深度取决于所有孩子子树中的最大值。因此只要递归遍历所有孩子，取最大深度再加 1 即可。',
+        bullets: [
+          '本质是标准树形递归。',
+          '只不过分支从 2 个变成多个。',
+          '每个节点都在汇总孩子结果。',
+          '转移关系非常直接。',
+        ],
+      },
+      {
+        id: 'maximum-depth-of-n-ary-tree-traversal',
+        title: 'DFS 最自然，BFS 也能按层做',
+        summary:
+          '这题既可以用 DFS 递归求子树高度，也可以用 BFS 一层一层数高度。若目的是练树的递归定义，用 DFS 最直接；若想练层序遍历，也能用队列完成。',
+        bullets: [
+          'DFS 更贴合“子树高度”定义。',
+          'BFS 更贴合“层数”概念。',
+          '两种方法本质都正确。',
+          '面试里 DFS 更常见。',
+        ],
+      },
+      {
+        id: 'maximum-depth-of-n-ary-tree-solution',
+        title: '标准解法：递归遍历所有孩子取最大值',
+        summary:
+          '若根节点为空，返回 0。否则遍历它的所有孩子，递归求每棵子树深度，取最大值后加 1 返回。这样整棵树的最大深度会自底向上汇总出来。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在遍历整个孩子数组。',
+          '是 N 叉树递归入门题。',
+        ],
+        code: `class Node {
+  val: number
+  children: Node[]
+
+  constructor(val?: number, children?: Node[]) {
+    this.val = val === undefined ? 0 : val
+    this.children = children ?? []
+  }
+}
+
+function maxDepth(root: Node | null): number {
+  if (!root) {
+    return 0
+  }
+
+  let deepest = 0
+
+  for (const child of root.children) {
+    deepest = Math.max(deepest, maxDepth(child))
+  }
+
+  return deepest + 1
+}`,
+      },
+      {
+        id: 'maximum-depth-of-n-ary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“节点数”与“边数”混淆，导致空树或单节点树结果出错；或者遍历孩子时漏掉某些分支。',
+        bullets: [
+          '易错点 1：空树没有返回 0。',
+          '易错点 2：忘记在最大子深度基础上加 1。',
+          '易错点 3：只看了第一个孩子，没有遍历完整个列表。',
+          '延伸方向：层序遍历、树高、N 叉树 DFS 模板。',
+        ],
+      },
+    ],
+  },
 ];
