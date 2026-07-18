@@ -60369,4 +60369,135 @@ LEFT JOIN Activity AS a
       },
     ],
   },
+  {
+    id: 'logical-or-of-two-binary-grids-represented-as-quad-trees',
+    label: '558. LeetCode 558. 四叉树交集',
+    difficulty: '中等',
+    description:
+      '这题是四叉树递归合并题，核心运算是布尔“或”。只要有一边是 `true` 叶子，就可以直接短路返回。',
+    outcome:
+      '你能把普通二叉树递归思路迁移到四叉树，并处理好叶子节点短路和子树压缩。',
+    sections: [
+      {
+        id: 'logical-or-of-two-binary-grids-represented-as-quad-trees-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两棵四叉树，分别表示两个二进制网格。要求返回它们按位做逻辑或之后得到的新四叉树。',
+        bullets: [
+          '四叉树每个内部节点有四个子节点。',
+          '叶子节点表示整块区域值相同。',
+          '目标运算是布尔 OR。',
+          '是树形递归合并题。',
+        ],
+      },
+      {
+        id: 'logical-or-of-two-binary-grids-represented-as-quad-trees-shortcut',
+        title: '遇到 `true` 叶子可以直接短路',
+        summary:
+          '因为 OR 运算里 `true OR anything = true`，所以如果某棵树当前节点是叶子且值为 `true`，结果整块区域一定为 `true`，可以直接返回该叶子节点。相反，如果当前叶子值为 `false`，结果就完全由另一棵树决定。',
+        bullets: [
+          '`true` 叶子有最强覆盖力。',
+          '`false` 叶子相当于没有贡献。',
+          '短路可以大幅简化递归。',
+          '这是本题最关键的剪枝。',
+        ],
+      },
+      {
+        id: 'logical-or-of-two-binary-grids-represented-as-quad-trees-merge',
+        title: '递归合并四个象限，必要时再压缩回叶子',
+        summary:
+          '如果两边当前都不是可直接短路的叶子，就递归合并四个子象限。合并完成后，再检查这四个结果是否都为叶子且值相同。若相同，说明可以压缩成一个更高层的叶子节点，否则保留内部节点结构。',
+        bullets: [
+          '四个象限相互独立递归。',
+          '递归后要做一次结构压缩。',
+          '压缩能保持结果树简洁。',
+          '是树合并题的常见收尾动作。',
+        ],
+        callout:
+          '这类“表示压缩结构”的树题，递归算出子结果后，通常都别忘了再做一轮“能不能合并回更小表示”的检查。',
+      },
+      {
+        id: 'logical-or-of-two-binary-grids-represented-as-quad-trees-solution',
+        title: '标准解法：递归合并 + 叶子压缩',
+        summary:
+          '先处理叶子短路：`true` 叶子直接返回，`false` 叶子返回另一棵树。否则递归合并四个子节点，最后检查四个子节点是否都为同值叶子，若是则压缩成一个叶子，否则返回内部节点。',
+        bullets: [
+          '时间复杂度取决于访问到的节点数。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在叶子短路和压缩判断。',
+          '是四叉树递归代表题。',
+        ],
+        code: `class Node {
+  val: boolean
+  isLeaf: boolean
+  topLeft: Node | null
+  topRight: Node | null
+  bottomLeft: Node | null
+  bottomRight: Node | null
+
+  constructor(
+    val: boolean,
+    isLeaf: boolean,
+    topLeft: Node | null = null,
+    topRight: Node | null = null,
+    bottomLeft: Node | null = null,
+    bottomRight: Node | null = null,
+  ) {
+    this.val = val
+    this.isLeaf = isLeaf
+    this.topLeft = topLeft
+    this.topRight = topRight
+    this.bottomLeft = bottomLeft
+    this.bottomRight = bottomRight
+  }
+}
+
+function intersect(quadTree1: Node | null, quadTree2: Node | null): Node | null {
+  if (!quadTree1) {
+    return quadTree2
+  }
+
+  if (!quadTree2) {
+    return quadTree1
+  }
+
+  if (quadTree1.isLeaf) {
+    return quadTree1.val ? quadTree1 : quadTree2
+  }
+
+  if (quadTree2.isLeaf) {
+    return quadTree2.val ? quadTree2 : quadTree1
+  }
+
+  const topLeft = intersect(quadTree1.topLeft, quadTree2.topLeft)
+  const topRight = intersect(quadTree1.topRight, quadTree2.topRight)
+  const bottomLeft = intersect(quadTree1.bottomLeft, quadTree2.bottomLeft)
+  const bottomRight = intersect(quadTree1.bottomRight, quadTree2.bottomRight)
+
+  const children = [topLeft, topRight, bottomLeft, bottomRight]
+  const canMerge = children.every(
+    (child) => child?.isLeaf && child.val === children[0]?.val,
+  )
+
+  if (canMerge) {
+    return new Node(children[0]!.val, true)
+  }
+
+  return new Node(false, false, topLeft, topRight, bottomLeft, bottomRight)
+}`,
+      },
+      {
+        id: 'logical-or-of-two-binary-grids-represented-as-quad-trees-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有利用 `true` 叶子的短路性质，导致递归写得很绕；或者合并完四个子节点后忘了压缩，结果树结构冗余。',
+        bullets: [
+          '易错点 1：把叶子和内部节点混着处理，逻辑混乱。',
+          '易错点 2：忘记 `true` 叶子可以直接返回。',
+          '易错点 3：四个同值叶子没有重新压缩。',
+          '延伸方向：四叉树、递归合并、树结构压缩。',
+        ],
+      },
+    ],
+  },
 ];
