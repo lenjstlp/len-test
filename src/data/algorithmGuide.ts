@@ -60190,4 +60190,107 @@ LEFT JOIN Activity AS a
       },
     ],
   },
+  {
+    id: 'next-greater-element-iii',
+    label: '556. LeetCode 556. 下一个更大元素 III',
+    difficulty: '中等',
+    description:
+      '这题本质上就是“下一个排列”模板，只不过输入是整数，输出时还要额外检查是否超过 32 位有符号整数范围。',
+    outcome:
+      '你能把数字问题还原成数组排列问题，熟练套用“寻找下降点、交换、反转后缀”的标准做法。',
+    sections: [
+      {
+        id: 'next-greater-element-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个正整数 `n`，要求用它的各位数字重新排列，找到严格大于 `n` 的最小整数。若不存在这样的数，或者结果超出 32 位有符号整数范围，则返回 `-1`。',
+        bullets: [
+          '必须由原数字的各位重新排列得到。',
+          '目标是“更大”且“尽量小”。',
+          '不存在就返回 `-1`。',
+          '是下一个排列的直接应用。',
+        ],
+      },
+      {
+        id: 'next-greater-element-iii-pattern',
+        title: '从右往左找第一个下降点',
+        summary:
+          '若想得到“刚刚大一点”的排列，应该尽量只修改靠右的位置。标准做法是：从右往左找到第一个满足 `digits[i] < digits[i + 1]` 的位置 `i`。它就是需要提升的位置。若找不到，说明整个数字从左到右已经是非递增排列，不可能变得更大。',
+        bullets: [
+          '下降点左边尽量不动。',
+          '下降点是“还能变大”的最后机会。',
+          '找不到下降点就没有答案。',
+          '这是整个算法的入口。',
+        ],
+      },
+      {
+        id: 'next-greater-element-iii-swap',
+        title: '找右侧刚好比它大的最小数字交换，再反转后缀',
+        summary:
+          '找到下降点后，再从右往左找第一个比 `digits[i]` 大的数字 `digits[j]`，交换两者。此时右侧后缀仍然是降序，所以要把后缀整体反转成升序，才能得到“比原数大但尽量小”的结果。',
+        bullets: [
+          '交换对象要选“刚好更大”的那个。',
+          '交换后后缀必须变成最小排列。',
+          '后缀原本是降序，因此反转即可。',
+          '这是下一个排列模板的核心步骤。',
+        ],
+        callout:
+          '很多排列题都可以归约到同一套模板。关键不是死记代码，而是理解“想最小幅度变大，就要从最右边开始修正”。',
+      },
+      {
+        id: 'next-greater-element-iii-solution',
+        title: '标准解法：下一个排列 + 范围检查',
+        summary:
+          '把整数转成字符数组。先找下降点，再找交换位置，交换后反转后缀，最后转回数字。若没有下降点，或转换后的结果大于 `2^31 - 1`，则返回 `-1`。',
+        bullets: [
+          '时间复杂度是 `O(m)`，`m` 是数字位数。',
+          '空间复杂度主要来自字符数组。',
+          '实现重点在下标查找与后缀反转。',
+          '是下一个排列模板题。',
+        ],
+        code: `function nextGreaterElement(n: number): number {
+  const digits = String(n).split('')
+  let pivot = digits.length - 2
+
+  while (pivot >= 0 && digits[pivot] >= digits[pivot + 1]) {
+    pivot -= 1
+  }
+
+  if (pivot < 0) {
+    return -1
+  }
+
+  let swapIndex = digits.length - 1
+  while (digits[swapIndex] <= digits[pivot]) {
+    swapIndex -= 1
+  }
+
+  ;[digits[pivot], digits[swapIndex]] = [digits[swapIndex], digits[pivot]]
+
+  let left = pivot + 1
+  let right = digits.length - 1
+  while (left < right) {
+    ;[digits[left], digits[right]] = [digits[right], digits[left]]
+    left += 1
+    right -= 1
+  }
+
+  const answer = Number(digits.join(''))
+  return answer > 2_147_483_647 ? -1 : answer
+}`,
+      },
+      {
+        id: 'next-greater-element-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是交换完以后只排序一部分后缀，或者忘记做 32 位整数范围判断；还有人会把“下一个更大”误写成“任意更大”。',
+        bullets: [
+          '易错点 1：找错交换位置，没有选右侧最靠右且更大的数。',
+          '易错点 2：交换后没把后缀变成最小升序。',
+          '易错点 3：忘记判断是否超出 32 位有符号整数。',
+          '延伸方向：下一个排列、排列构造、数字重排。',
+        ],
+      },
+    ],
+  },
 ];
