@@ -61375,4 +61375,101 @@ function findTilt(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'maximum-vacation-days',
+    label: '568. LeetCode 568. 最大休假天数',
+    difficulty: '困难',
+    description:
+      '这题是典型的周次 DP：每一周你只能待在某个城市，或者乘航班去别的城市，要在有限周数内拿到最多假期天数。',
+    outcome:
+      '你能把“每周去哪座城市”建成状态转移问题，并处理好航班矩阵和休假收益。',
+    sections: [
+      {
+        id: 'maximum-vacation-days-summary',
+        title: '题目在问什么',
+        summary:
+          '给定航班矩阵 `flights` 和每个城市每周可获得的休假天数 `days`。你从城市 0 出发，每周只能选择待在当前城市或乘航班去可达城市，要求在 `k` 周内获得最多休假天数。',
+        bullets: [
+          '每周只能做一次决策。',
+          '状态是“当前在什么城市”。',
+          '收益来自当前周所在城市。',
+          '是标准动态规划题。',
+        ],
+      },
+      {
+        id: 'maximum-vacation-days-state',
+        title: '状态必须同时记录“周数”和“所在城市”',
+        summary:
+          '第 `week` 周结束时，只有知道你在哪个城市，才能决定下一周能飞到哪里。因此可定义 `dp[week][city]` 表示到第 `week` 周结束时，停在 `city` 的最大休假天数。',
+        bullets: [
+          '周次和城市缺一不可。',
+          '每周的决策依赖上周位置。',
+          '收益是累积的。',
+          '这是本题最核心的状态设计。',
+        ],
+      },
+      {
+        id: 'maximum-vacation-days-transition',
+        title: '每周从可达城市中选一个最优前驱',
+        summary:
+          '如果上一周你在城市 `prev`，且 `flights[prev][city] = 1`，那么这一周你可以飞到 `city`。否则只能留在原地。对每个 `city`，枚举所有可能前驱城市，取前一周状态值最大的那个，再加上本周在该城市得到的休假天数。',
+        bullets: [
+          '只考虑能到达的前驱城市。',
+          '每周都要叠加本周收益。',
+          '前驱城市遍历是核心转移。',
+          '和路径最优很像。',
+        ],
+      },
+      {
+        id: 'maximum-vacation-days-solution',
+        title: '标准解法：按周滚动 DP',
+        summary:
+          '初始化第 0 周仅在城市 0。之后按周推进，对每个城市枚举所有前驱城市，若可直飞或原地停留，就尝试转移更新。最后一周所有城市中的最大值就是答案。',
+        bullets: [
+          '时间复杂度是 `O(k * n^2)`。',
+          '空间复杂度可以压到 `O(n)`。',
+          '实现重点在前驱可达判断。',
+          '是周次 DP 代表题。',
+        ],
+        code: `function maxVacationDays(flights: number[][], days: number[][]): number {
+  const cityCount = flights.length
+  const weeks = days[0].length
+  let dp = new Array<number>(cityCount).fill(-1)
+  dp[0] = 0
+
+  for (let week = 0; week < weeks; week += 1) {
+    const next = new Array<number>(cityCount).fill(-1)
+
+    for (let city = 0; city < cityCount; city += 1) {
+      for (let prev = 0; prev < cityCount; prev += 1) {
+        if (dp[prev] < 0) {
+          continue
+        }
+
+        if (prev === city || flights[prev][city] === 1) {
+          next[city] = Math.max(next[city], dp[prev] + days[city][week])
+        }
+      }
+    }
+
+    dp = next
+  }
+
+  return Math.max(...dp)
+}`,
+      },
+      {
+        id: 'maximum-vacation-days-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把城市当成最终状态而忘了周次；或者漏掉“原地停留”这条转移，导致答案偏小。',
+        bullets: [
+          '易错点 1：状态里没包含周次。',
+          '易错点 2：忘记可以留在原城市。',
+          '易错点 3：收益累加时周索引用错。',
+          '延伸方向：路径 DP、旅行规划、矩阵转移。',
+        ],
+      },
+    ],
+  },
 ];
