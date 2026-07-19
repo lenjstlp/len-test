@@ -61472,4 +61472,88 @@ function findTilt(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'median-employee-salary',
+    label: '569. LeetCode 569. 员工薪水中位数',
+    difficulty: '困难',
+    description:
+      '这题考 SQL 中位数。核心不是平均数，而是按薪水排序后找到中间那一行，偶数条记录时取中间两行平均。',
+    outcome: '你能用窗口函数或排序计数写出稳定的中位数查询。',
+    sections: [
+      {
+        id: 'median-employee-salary-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Employee` 中记录了员工和薪水。要求查询每个公司薪水的中位数。',
+        bullets: [
+          '按公司分组。',
+          '先排序再取中位数。',
+          '偶数个员工要取中间两人的平均值。',
+          '是 SQL 统计题。',
+        ],
+      },
+      {
+        id: 'median-employee-salary-middle',
+        title: '中位数本质上是排序后的中间位置',
+        summary:
+          '如果一组数有奇数个元素，中位数就是排序后正中间那个；如果有偶数个元素，中位数就是中间两个数的平均值。所以题目的关键是先给每个工资排顺序，再判断当前行是不是中间位置。',
+        bullets: [
+          '排序是第一步。',
+          '中位数看的是位置，不是数值大小关系。',
+          '奇偶长度要分开考虑。',
+          '这是统计题的核心思路。',
+        ],
+      },
+      {
+        id: 'median-employee-salary-window',
+        title: '窗口函数可以直接给出工资排名',
+        summary:
+          '使用 `ROW_NUMBER()` 按公司和薪水排序后，就能知道每个员工在本公司中的序号。再结合每个公司总人数，就能判断哪些行落在中间位置。',
+        bullets: [
+          'ROW_NUMBER 负责排序编号。',
+          'COUNT 负责总人数。',
+          '中位数行由序号决定。',
+          '实现简洁且可读性强。',
+        ],
+      },
+      {
+        id: 'median-employee-salary-solution',
+        title: '标准解法：按公司排序后定位中间两行',
+        summary:
+          '先对每家公司内部薪水排序并编号，再根据总人数判断中位数所在行。若总数为奇数，取中间一行；若为偶数，取中间两行平均值。最后按公司聚合输出结果。',
+        bullets: [
+          '时间复杂度取决于排序。',
+          '空间复杂度主要来自排序和临时编号。',
+          '实现重点是奇偶分支。',
+          '是 SQL 中位数模板题。',
+        ],
+        code: `WITH ranked AS (
+  SELECT
+    company,
+    salary,
+    ROW_NUMBER() OVER (PARTITION BY company ORDER BY salary) AS rn,
+    COUNT(*) OVER (PARTITION BY company) AS cnt
+  FROM Employee
+)
+SELECT
+  company,
+  AVG(salary) AS median
+FROM ranked
+WHERE rn IN (FLOOR((cnt + 1) / 2), FLOOR((cnt + 2) / 2))
+GROUP BY company;`,
+      },
+      {
+        id: 'median-employee-salary-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把平均数当中位数；或者没有按公司分区排序，导致不同公司的员工混到一起。',
+        bullets: [
+          '易错点 1：中位数写成平均数。',
+          '易错点 2：忘记按公司分区。',
+          '易错点 3：偶数个元素时只取了一行。',
+          '延伸方向：窗口函数、排序统计、分组中位数。',
+        ],
+      },
+    ],
+  },
 ];
