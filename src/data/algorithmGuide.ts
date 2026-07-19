@@ -60970,4 +60970,128 @@ function findTilt(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'find-the-closest-palindrome',
+    label: '564. LeetCode 564. 找到最近的回文数',
+    difficulty: '困难',
+    description:
+      '这题不是暴力枚举所有回文，而是只看几个关键候选：原前缀镜像、前缀加一镜像、前缀减一镜像，再补上边界回文。',
+    outcome:
+      '你能把“最近回文”问题压缩成有限候选比较，而不是被字符串搜索拖进暴力枚举。',
+    sections: [
+      {
+        id: 'find-the-closest-palindrome-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串形式的正整数 `n`，要求找到与它数值最接近的回文数，且不能返回它自己。如果有多个答案，返回更小的那个。',
+        bullets: [
+          '输入是字符串。',
+          '要求最近且不能等于原数。',
+          '同距离时选更小回文。',
+          '是经典构造题。',
+        ],
+      },
+      {
+        id: 'find-the-closest-palindrome-candidates',
+        title: '真正可能成为答案的候选其实很少',
+        summary:
+          '一个数最接近的回文，通常只会出现在它中间位置附近。把前半部分镜像回来是最自然的候选；但如果原数前半部分需要进位或借位，最近答案就可能来自前缀加一或前缀减一后的镜像。再额外考虑 `999...9` 和 `1000...0001` 这两个边界回文，就足够覆盖所有情况。',
+        bullets: [
+          '原前缀直接镜像。',
+          '前缀 + 1 再镜像。',
+          '前缀 - 1 再镜像。',
+          '边界回文必须补齐。',
+        ],
+      },
+      {
+        id: 'find-the-closest-palindrome-compare',
+        title: '比较时看绝对差，同差取更小值',
+        summary:
+          '把原数转成整数后，逐个比较候选回文与原数的绝对差。若差值更小，就更新答案；若差值相同，则取数值更小的那个回文。为了避免返回原数自己，要把原数候选排除掉。',
+        bullets: [
+          '比较核心是绝对差。',
+          '同差时选更小。',
+          '原数本身不能作为答案。',
+          '最终只需要在少量候选里筛选。',
+        ],
+        callout:
+          '这类“最近/最优”构造题，通常不是枚举所有结果，而是先找出数学上真正可能胜出的少量候选，再做比较。',
+      },
+      {
+        id: 'find-the-closest-palindrome-solution',
+        title: '标准解法：生成有限候选并比较',
+        summary:
+          '先生成三类镜像候选：前缀镜像、前缀加一镜像、前缀减一镜像；再加上两端边界回文。逐个计算与原数的差值，选出最优答案返回。',
+        bullets: [
+          '时间复杂度是常数级候选比较。',
+          '实现重点在前缀处理和边界构造。',
+          '注意去掉原数本身。',
+          '是回文构造题代表。',
+        ],
+        code: `function nearestPalindromic(n: string): string {
+  const length = n.length
+  const prefixLength = Math.ceil(length / 2)
+  const prefix = BigInt(n.slice(0, prefixLength))
+
+  const makePalindrome = (leftPart: string): string => {
+    const reversed =
+      length % 2 === 0
+        ? leftPart.split('').reverse().join('')
+        : leftPart.slice(0, -1).split('').reverse().join('')
+    return leftPart + reversed
+  }
+
+  const candidates = new Set<string>()
+  candidates.add(String(BigInt(10) ** BigInt(length - 1) - 1))
+  candidates.add(String(BigInt(10) ** BigInt(length) + 1))
+
+  for (const delta of [-1n, 0n, 1n]) {
+    const value = prefix + delta
+    if (value <= 0n) {
+      continue
+    }
+
+    const leftPart = value.toString()
+    candidates.add(makePalindrome(leftPart))
+  }
+
+  let answer = ''
+  let bestDiff: bigint | null = null
+  const original = BigInt(n)
+
+  for (const candidate of candidates) {
+    if (candidate === n) {
+      continue
+    }
+
+    const current = BigInt(candidate)
+    const diff = current > original ? current - original : original - current
+
+    if (
+      bestDiff === null ||
+      diff < bestDiff ||
+      (diff === bestDiff && current < BigInt(answer))
+    ) {
+      bestDiff = diff
+      answer = candidate
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'find-the-closest-palindrome-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是试图从 1 开始枚举所有回文；或者漏掉边界回文，导致像 `1000`、`999` 这类情况出错。',
+        bullets: [
+          '易错点 1：没有排除原数本身。',
+          '易错点 2：漏掉 `999...9` 和 `1000...0001`。',
+          '易错点 3：比较差值时没有处理同差取小。',
+          '延伸方向：回文构造、有限候选优化、字符串数值转换。',
+        ],
+      },
+    ],
+  },
 ];
