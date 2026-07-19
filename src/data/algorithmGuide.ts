@@ -61946,4 +61946,80 @@ function isSubtree(root: TreeNode | null, subRoot: TreeNode | null): boolean {
       },
     ],
   },
+  {
+    id: 'winning-candidate',
+    label: '574. LeetCode 574. Winning Candidate',
+    difficulty: '中等',
+    description:
+      '这题就是统计投票数：把 Vote 和 Candidate 关联后，按候选人分组计数，取票数最多的那个名字。',
+    outcome: '你能把“谁得票最多”直接写成聚合排序查询。',
+    sections: [
+      {
+        id: 'winning-candidate-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Candidate` 存候选人姓名，表 `Vote` 存每张票投给了谁。要求返回得票最多的候选人名字，题目保证没有平票。',
+        bullets: [
+          '先数票数。',
+          '再找最高票。',
+          '最后取对应姓名。',
+          '是投票统计题。',
+        ],
+      },
+      {
+        id: 'winning-candidate-join',
+        title: '先把投票表和候选人表连起来',
+        summary:
+          '因为 `Vote` 里只有候选人 id，没有姓名，所以要先和 `Candidate` 表做连接，把每张票对应到候选人名字上。随后就可以按名字分组统计票数。',
+        bullets: [
+          'Vote 提供票数。',
+          'Candidate 提供姓名。',
+          '连接后才能按人统计。',
+          '这是 SQL 的常规操作。',
+        ],
+      },
+      {
+        id: 'winning-candidate-group',
+        title: '按候选人分组后，票数最多的就是赢家',
+        summary:
+          '对每个候选人分组统计 `COUNT(*)`，然后按照票数降序排列，取第一名即可。因为题目保证没有平票，所以直接取第一条记录就够了。',
+        bullets: [
+          'GROUP BY 用于聚合票数。',
+          'ORDER BY COUNT(*) DESC 找最高票。',
+          'LIMIT 1 直接取赢家。',
+          '逻辑非常直接。',
+        ],
+      },
+      {
+        id: 'winning-candidate-solution',
+        title: '标准解法：JOIN + GROUP BY + ORDER BY',
+        summary:
+          '把两张表按候选人 id 关联后，按候选人分组统计票数，再按票数降序排序并取第一条。输出的就是最终赢家姓名。',
+        bullets: [
+          '时间复杂度主要来自分组统计。',
+          '空间复杂度主要来自聚合结果。',
+          '实现重点在分组字段和排序方向。',
+          '是投票统计模板题。',
+        ],
+        code: `SELECT c.Name
+FROM Candidate c
+JOIN Vote v ON c.Id = v.CandidateId
+GROUP BY c.Id, c.Name
+ORDER BY COUNT(*) DESC
+LIMIT 1;`,
+      },
+      {
+        id: 'winning-candidate-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忘记和 Candidate 表关联，导致只能拿到 id；或者分组后没有按票数降序排列，结果取错赢家。',
+        bullets: [
+          '易错点 1：没有 JOIN Candidate 表。',
+          '易错点 2：ORDER BY 方向写反。',
+          '易错点 3：GROUP BY 字段不完整。',
+          '延伸方向：投票统计、聚合排序、Top 1 查询。',
+        ],
+      },
+    ],
+  },
 ];
