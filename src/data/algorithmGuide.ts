@@ -61274,4 +61274,105 @@ function findTilt(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'permutation-in-string',
+    label: '567. LeetCode 567. 字符串的排列',
+    difficulty: '中等',
+    description:
+      '这题就是判断 `s2` 中是否存在一个子串，它和 `s1` 的字符组成完全一致。标准做法是固定长度滑动窗口加计数比较。',
+    outcome: '你能把“是否存在某个排列”转成固定窗口内字符频次是否匹配。',
+    sections: [
+      {
+        id: 'permutation-in-string-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s1` 和 `s2`，判断 `s2` 中是否存在一个长度等于 `s1` 的子串，其字符排列与 `s1` 相同。',
+        bullets: [
+          '只关心字符频次，不关心顺序。',
+          '窗口长度固定等于 `s1.length`。',
+          '存在一个满足即可返回 `true`。',
+          '是滑动窗口基础题。',
+        ],
+      },
+      {
+        id: 'permutation-in-string-window',
+        title: '窗口长度固定，所以每次只需要进一个、出一个',
+        summary:
+          '因为匹配窗口的长度和 `s1` 相同，所以扫描 `s2` 时，窗口每次扩展一个字符后，就要把左边最旧的那个字符移出去。这样窗口始终保持固定长度，比较起来也更稳定。',
+        bullets: [
+          '窗口长度固定是关键条件。',
+          '每次只做增量更新。',
+          '不需要重新统计整个窗口。',
+          '这就是滑动窗口的高效点。',
+        ],
+      },
+      {
+        id: 'permutation-in-string-counts',
+        title: '只要窗口内字符频次和 `s1` 完全一致就行',
+        summary:
+          '可以用两个长度为 26 的数组记录 `s1` 和当前窗口的字符频次。每次窗口滑动后比较两个数组是否相等，若相等则说明找到了一个排列。',
+        bullets: [
+          '字符集固定时数组计数最省事。',
+          '比较频次就是比较是否为排列。',
+          '如果字符集更大，也可以用 Map。',
+          '本题核心就是频次匹配。',
+        ],
+      },
+      {
+        id: 'permutation-in-string-solution',
+        title: '标准解法：固定窗口 + 频次数组',
+        summary:
+          '先统计 `s1` 的频次。然后在 `s2` 上滑动长度为 `s1.length` 的窗口，维护窗口频次并与目标频次比较。一旦相等就返回 `true`，遍历结束仍未命中则返回 `false`。',
+        bullets: [
+          '时间复杂度是 `O(n * 26)`，可视为线性。',
+          '空间复杂度是 `O(26)`。',
+          '实现重点是窗口更新顺序。',
+          '是固定窗口模板题。',
+        ],
+        code: `function checkInclusion(s1: string, s2: string): boolean {
+  if (s1.length > s2.length) {
+    return false
+  }
+
+  const need = new Array<number>(26).fill(0)
+  const window = new Array<number>(26).fill(0)
+  const base = 'a'.charCodeAt(0)
+
+  for (const ch of s1) {
+    need[ch.charCodeAt(0) - base] += 1
+  }
+
+  const same = (): boolean => need.every((count, index) => count === window[index])
+
+  let left = 0
+  for (let right = 0; right < s2.length; right += 1) {
+    window[s2.charCodeAt(right) - base] += 1
+
+    if (right - left + 1 > s1.length) {
+      window[s2.charCodeAt(left) - base] -= 1
+      left += 1
+    }
+
+    if (right - left + 1 === s1.length && same()) {
+      return true
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'permutation-in-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是窗口长度没固定好，导致比较对象不对；或者只比较字符集合是否一致，没比较频次。',
+        bullets: [
+          '易错点 1：窗口长度不是 `s1.length`。',
+          '易错点 2：只看字符种类，不看频次。',
+          '易错点 3：左右指针更新顺序写错。',
+          '延伸方向：滑动窗口、频次统计、排列判断。',
+        ],
+      },
+    ],
+  },
 ];
