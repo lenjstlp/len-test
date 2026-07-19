@@ -61747,4 +61747,109 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'subtree-of-another-tree',
+    label: '572. LeetCode 572. 另一个树的子树',
+    difficulty: '中等',
+    description:
+      '这题的关键不是单纯遍历，而是判断一棵树是否在另一棵树里完整出现。常见做法是递归比较，或者先序列化再做子串匹配。',
+    outcome: '你能把“子树判断”转成结构完全相同的递归比较问题。',
+    sections: [
+      {
+        id: 'subtree-of-another-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两棵二叉树 `root` 和 `subRoot`，判断 `subRoot` 是否是 `root` 的子树。子树要求结构和节点值都完全一致。',
+        bullets: [
+          '必须整棵结构匹配。',
+          '值和形状都不能差。',
+          '空树处理要清晰。',
+          '是树匹配题。',
+        ],
+      },
+      {
+        id: 'subtree-of-another-tree-match',
+        title: '先在主树上枚举每个节点作为起点',
+        summary:
+          '如果 `subRoot` 是 `root` 的子树，那么它的根一定对应 `root` 中某个节点。因此先在主树上遍历每个节点，若节点值与 `subRoot` 根值相同，就尝试从这两个节点开始做整棵树的匹配。',
+        bullets: [
+          '候选起点来自主树节点。',
+          '值相同才值得继续比较。',
+          '不是每个节点都要完整比一遍。',
+          '这是递归剪枝的第一步。',
+        ],
+      },
+      {
+        id: 'subtree-of-another-tree-compare',
+        title: '真正的比较要同时检查左右子树结构',
+        summary:
+          '判断两棵树是否完全相等时，需要同时满足：当前节点值相等、左子树相等、右子树相等。只要任意一项失败，整棵树就不匹配。这个 `sameTree` 函数是本题的核心基础。',
+        bullets: [
+          '节点值必须相同。',
+          '左子树和右子树都要匹配。',
+          '空节点与非空节点不相等。',
+          '这是结构比较模板。',
+        ],
+      },
+      {
+        id: 'subtree-of-another-tree-solution',
+        title: '标准解法：主树遍历 + 相等树比较',
+        summary:
+          '定义 `isSameTree` 判断两棵树是否完全相等；再定义 `isSubtree` 遍历主树每个节点，尝试把它当成子树根。只要有一次 `isSameTree` 成功，就返回 `true`。',
+        bullets: [
+          '时间复杂度最坏是 `O(mn)`。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在空节点的对称判断。',
+          '是树递归匹配题。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(val = 0, left: TreeNode | null = null, right: TreeNode | null = null) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function isSubtree(root: TreeNode | null, subRoot: TreeNode | null): boolean {
+  const isSameTree = (a: TreeNode | null, b: TreeNode | null): boolean => {
+    if (!a && !b) {
+      return true
+    }
+
+    if (!a || !b || a.val !== b.val) {
+      return false
+    }
+
+    return isSameTree(a.left, b.left) && isSameTree(a.right, b.right)
+  }
+
+  if (!root) {
+    return false
+  }
+
+  if (isSameTree(root, subRoot)) {
+    return true
+  }
+
+  return isSubtree(root.left, subRoot) || isSubtree(root.right, subRoot)
+}`,
+      },
+      {
+        id: 'subtree-of-another-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只比较节点值不比较结构；或者把空树的判断写反，导致边界情况出错。',
+        bullets: [
+          '易错点 1：只比值，不比形状。',
+          '易错点 2：空树和非空树比较没处理好。',
+          '易错点 3：漏掉主树左右子树的递归搜索。',
+          '延伸方向：树匹配、序列化、递归剪枝。',
+        ],
+      },
+    ],
+  },
 ];
