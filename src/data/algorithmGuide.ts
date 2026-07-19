@@ -61556,4 +61556,83 @@ GROUP BY company;`,
       },
     ],
   },
+  {
+    id: 'managers-with-at-least-5-direct-reports',
+    label: '570. LeetCode 570. 至少有 5 名直接下属的经理',
+    difficulty: '简单',
+    description:
+      '这题就是分组统计：统计每个经理名下的员工数，筛出数量不少于 5 的经理。',
+    outcome: '你能快速写出 group by + having 的基础统计查询。',
+    sections: [
+      {
+        id: 'managers-with-at-least-5-direct-reports-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Employee` 中有员工和经理关系，要求找出直接下属数量至少为 5 的经理姓名。',
+        bullets: [
+          '本质是分组计数。',
+          '按经理分组。',
+          '筛选下属数不少于 5。',
+          '是 SQL 基础题。',
+        ],
+      },
+      {
+        id: 'managers-with-at-least-5-direct-reports-group',
+        title: '先按 manager 分组，再统计员工数',
+        summary:
+          '从所有员工记录里，取出 `managerId` 作为分组键，统计每个经理名下出现了多少员工。由于题目要的是经理本人姓名，所以最后还要把经理表和统计结果关联起来。',
+        bullets: [
+          'managerId 是分组核心。',
+          '统计的是直接下属数量。',
+          '名字需要通过关联得到。',
+          '筛选条件放在 HAVING。',
+        ],
+      },
+      {
+        id: 'managers-with-at-least-5-direct-reports-having',
+        title: 'HAVING 专门过滤分组后的结果',
+        summary:
+          '`WHERE` 不能直接过滤聚合后的计数，所以必须使用 `HAVING COUNT(*) >= 5`。这样才能保留下属数量不少于 5 的经理分组。',
+        bullets: [
+          'WHERE 处理行级条件。',
+          'HAVING 处理组级条件。',
+          '这是 SQL 里的基础分界。',
+          '非常容易和 WHERE 混淆。',
+        ],
+      },
+      {
+        id: 'managers-with-at-least-5-direct-reports-solution',
+        title: '标准解法：分组计数后再筛选',
+        summary:
+          '先按 `managerId` 分组统计数量，再和员工表关联拿到经理姓名，最后筛选出计数至少为 5 的记录输出。若题目要求按姓名排序，也可以最后加 `ORDER BY`。',
+        bullets: [
+          '时间复杂度主要来自分组和排序。',
+          '空间复杂度主要来自聚合结果。',
+          '实现重点是 HAVING 的使用。',
+          '是 SQL 入门模板题。',
+        ],
+        code: `SELECT e1.name
+FROM Employee e1
+JOIN (
+  SELECT managerId
+  FROM Employee
+  WHERE managerId IS NOT NULL
+  GROUP BY managerId
+  HAVING COUNT(*) >= 5
+) t ON e1.id = t.managerId;`,
+      },
+      {
+        id: 'managers-with-at-least-5-direct-reports-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把 `WHERE` 和 `HAVING` 混用；或者把“经理自己”也算进了下属计数，导致结果偏大。',
+        bullets: [
+          '易错点 1：用 WHERE 过滤计数条件。',
+          '易错点 2：把经理本人计入下属数。',
+          '易错点 3：关联经理姓名时键写错。',
+          '延伸方向：分组统计、HAVING、组织架构查询。',
+        ],
+      },
+    ],
+  },
 ];
