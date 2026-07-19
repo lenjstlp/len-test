@@ -61852,4 +61852,98 @@ function isSubtree(root: TreeNode | null, subRoot: TreeNode | null): boolean {
       },
     ],
   },
+  {
+    id: 'squirrel-simulation',
+    label: '573. LeetCode 573. 松鼠模拟',
+    difficulty: '中等',
+    description:
+      '这题本质是在算：松鼠先去哪个坚果最省路。只要比较所有坚果到树的距离和松鼠到某个坚果的额外代价，就能找到最优起点。',
+    outcome: '你能把路径规划题转成距离差值最小化问题。',
+    sections: [
+      {
+        id: 'squirrel-simulation-summary',
+        title: '题目在问什么',
+        summary:
+          '松鼠从某个点出发，要把所有坚果搬到树的位置。每次只能拿一个坚果，搬运路径按曼哈顿距离计算。要求返回最少总路程。',
+        bullets: [
+          '树是最终投放点。',
+          '每个坚果都要被搬一次。',
+          '第一趟和后续趟的代价不一样。',
+          '是距离优化题。',
+        ],
+      },
+      {
+        id: 'squirrel-simulation-distance',
+        title: '大部分坚果都要“来回一趟”，只有第一颗有额外区别',
+        summary:
+          '如果直接从树出发去搬某个坚果，再回到树，每个坚果的代价都是 `2 * dist(tree, nut)`。但松鼠一开始不在树上，所以第一颗坚果的代价应该改成 `dist(squirrel, nut) + dist(tree, nut)`。因此只要找“第一颗坚果选谁最划算”即可。',
+        bullets: [
+          '所有坚果的基础成本都是两倍树距。',
+          '第一颗坚果有特殊起点成本。',
+          '总答案 = 基础总和 + 最优首颗的额外修正。',
+          '问题一下子就变简单了。',
+        ],
+      },
+      {
+        id: 'squirrel-simulation-best-first-nut',
+        title: '只需要挑出让“替换收益”最大的那颗坚果',
+        summary:
+          '把所有坚果都按“树往返一次”的成本先算出来，再对每个坚果比较：如果它作为第一颗被搬，则要把原来的 `2 * dist(tree, nut)` 替换成 `dist(squirrel, nut) + dist(tree, nut)`。选最省的一颗即可。',
+        bullets: [
+          '只比较第一颗坚果的差额。',
+          '其余坚果固定按树往返计算。',
+          '相当于找最小修正值。',
+          '是典型的基线 + 替换思路。',
+        ],
+      },
+      {
+        id: 'squirrel-simulation-solution',
+        title: '标准解法：先算总往返，再减去最优首颗差值',
+        summary:
+          '遍历所有坚果，先累加 `2 * dist(tree, nut)`。再计算每个坚果若作为第一颗时的差额 `dist(squirrel, nut) - dist(tree, nut)`，取其中最小值加到总和上。最终得到最少总路程。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在拆成基础成本和修正成本。',
+          '是距离优化模板题。',
+        ],
+        code: `function minDistance(
+  height: number,
+  width: number,
+  tree: number[],
+  squirrel: number[],
+  nuts: number[][],
+): number {
+  void height
+  void width
+
+  const dist = (a: number[], b: number[]): number =>
+    Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1])
+
+  let answer = 0
+  let bestDelta = Number.POSITIVE_INFINITY
+
+  for (const nut of nuts) {
+    const treeDist = dist(tree, nut)
+    answer += treeDist * 2
+    bestDelta = Math.min(bestDelta, dist(squirrel, nut) - treeDist)
+  }
+
+  return answer + bestDelta
+}`,
+      },
+      {
+        id: 'squirrel-simulation-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把每颗坚果都当成从松鼠出发去搬，忘了只有第一颗有差异；或者把“减去的修正”写反，导致答案更大。',
+        bullets: [
+          '易错点 1：所有坚果都按松鼠起点算。',
+          '易错点 2：没有把第一颗坚果单独处理。',
+          '易错点 3：差值方向写反。',
+          '延伸方向：距离最优化、基线修正、贪心选择。',
+        ],
+      },
+    ],
+  },
 ];
