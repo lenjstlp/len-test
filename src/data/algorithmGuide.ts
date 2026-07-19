@@ -61094,4 +61094,97 @@ function findTilt(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'array-nesting',
+    label: '565. LeetCode 565. 数组嵌套',
+    difficulty: '中等',
+    description:
+      '这题本质上是在一个置换数组里找环的最长长度。每个下标都指向下一个下标，直到形成闭环。',
+    outcome: '你能把数组映射关系看成图上的环，并用访问标记快速统计最长环长度。',
+    sections: [
+      {
+        id: 'array-nesting-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个长度为 `n` 的数组 `nums`，它是 `0..n-1` 的一个排列。定义 `S[k+1] = nums[S[k]]`，直到下一个值重复为止。要求返回最大的集合大小。',
+        bullets: [
+          '每个位置都指向另一个位置。',
+          '会形成若干个环。',
+          '要找最长环长度。',
+          '是数组环图题。',
+        ],
+      },
+      {
+        id: 'array-nesting-cycle',
+        title: '排列数组里的访问路径最终一定会进入环',
+        summary:
+          '因为 `nums` 是一个排列，每个数字都只会指向一个唯一位置，而且不会越界，所以从任意起点出发，沿着 `nums[index]` 一直走下去，最终一定会进入某个环。题目的答案就是所有环里最长的那个。',
+        bullets: [
+          '每个元素只有一个出边。',
+          '整体结构是若干个不相交环。',
+          '不存在分叉。',
+          '直接按图环处理即可。',
+        ],
+      },
+      {
+        id: 'array-nesting-visited',
+        title: '访问过的点不要重复走，否则会退化成重复遍历',
+        summary:
+          '如果从每个下标都重新开始走一遍，而没有全局 `visited`，同一个环会被反复统计很多次。正确做法是：遍历每个起点，若未访问过就沿着链一路走，并在过程中把经过的点都标记掉。',
+        bullets: [
+          '全局 visited 很关键。',
+          '每个点只计一次。',
+          '一个环走完就全部标记。',
+          '避免重复统计。',
+        ],
+      },
+      {
+        id: 'array-nesting-solution',
+        title: '标准解法：按环遍历并记录长度',
+        summary:
+          '遍历每个下标。如果它没访问过，就顺着 `nums` 继续跳转，直到回到已访问节点为止，统计当前环长度，并更新答案。所有下标都处理完后返回最大长度。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在环长度统计和 visited 标记。',
+          '是置换环入门题。',
+        ],
+        code: `function arrayNesting(nums: number[]): number {
+  const visited = new Array<boolean>(nums.length).fill(false)
+  let answer = 0
+
+  for (let start = 0; start < nums.length; start += 1) {
+    if (visited[start]) {
+      continue
+    }
+
+    let length = 0
+    let current = start
+
+    while (!visited[current]) {
+      visited[current] = true
+      current = nums[current]
+      length += 1
+    }
+
+    answer = Math.max(answer, length)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'array-nesting-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有做全局访问标记，导致同一个环被重复统计；或者在循环内部忘了先保存下一个位置，跳转过程被覆盖。',
+        bullets: [
+          '易错点 1：重复遍历同一个环。',
+          '易错点 2：跳转时下标更新顺序写错。',
+          '易错点 3：把集合长度算成访问次数之外的东西。',
+          '延伸方向：置换环、图遍历、数组映射问题。',
+        ],
+      },
+    ],
+  },
 ];
