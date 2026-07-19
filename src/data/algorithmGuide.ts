@@ -61187,4 +61187,91 @@ function findTilt(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'reshape-the-matrix',
+    label: '566. LeetCode 566. 重塑矩阵',
+    difficulty: '简单',
+    description:
+      '这题就是按行优先顺序把原矩阵重新塞进新形状里。只要元素总数一致，就能直接映射。',
+    outcome: '你能把二维数组重排问题，写成稳定的线性扫描索引映射。',
+    sections: [
+      {
+        id: 'reshape-the-matrix-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个矩阵 `mat` 和目标行列数 `r`、`c`，要求把 `mat` 重塑成一个新的 `r x c` 矩阵。若元素总数不一致，则直接返回原矩阵。',
+        bullets: [
+          '元素顺序必须保持不变。',
+          '总数不匹配就不能重塑。',
+          '本质是线性搬运。',
+          '是二维数组映射题。',
+        ],
+      },
+      {
+        id: 'reshape-the-matrix-row-major',
+        title: '按行优先顺序读入，再按行优先顺序写出',
+        summary:
+          '原矩阵中元素的读取顺序是从左到右、从上到下。新矩阵也按同样顺序填入。只要用一个线性下标去表示第几个元素，就能把“二维到二维”的变换拆成“二维到一维再到二维”。',
+        bullets: [
+          '读写顺序都要保持行优先。',
+          '只需一个线性计数器。',
+          '坐标映射非常稳定。',
+          '实现上没有复杂技巧。',
+        ],
+      },
+      {
+        id: 'reshape-the-matrix-index',
+        title: '第 k 个元素对应新矩阵的行列坐标',
+        summary:
+          '设线性序号为 `k`，那么它在新矩阵中的位置就是 `Math.floor(k / c)` 行和 `k % c` 列。只要按这个规则逐个填值，就能避免手工处理复杂坐标转换。',
+        bullets: [
+          '线性下标到二维坐标的换算是核心。',
+          '每个元素只写入一次。',
+          '不会丢顺序，也不会重复。',
+          '是数组映射的常规模板。',
+        ],
+      },
+      {
+        id: 'reshape-the-matrix-solution',
+        title: '标准解法：扁平化扫描并重建矩阵',
+        summary:
+          '先检查原矩阵总元素数是否等于 `r * c`。若不等，直接返回原矩阵。否则按行遍历原矩阵，依次把元素填入新矩阵对应位置，最终返回新矩阵。',
+        bullets: [
+          '时间复杂度是 `O(mn)`。',
+          '空间复杂度是 `O(rc)`。',
+          '实现重点在元素总数校验。',
+          '是二维数组重排基础题。',
+        ],
+        code: `function matrixReshape(mat: number[][], r: number, c: number): number[][] {
+  const rows = mat.length
+  const cols = mat[0].length
+
+  if (rows * cols !== r * c) {
+    return mat
+  }
+
+  const answer = Array.from({ length: r }, () => new Array<number>(c).fill(0))
+
+  for (let index = 0; index < rows * cols; index += 1) {
+    const value = mat[Math.floor(index / cols)][index % cols]
+    answer[Math.floor(index / c)][index % c] = value
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'reshape-the-matrix-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忘记先判断总元素数是否一致；或者映射时把新矩阵的列数和旧矩阵的列数混淆。',
+        bullets: [
+          '易错点 1：没有先比较元素总数。',
+          '易错点 2：行列换算公式写错。',
+          '易错点 3：误改了原矩阵顺序。',
+          '延伸方向：二维数组映射、矩阵变换、索引计算。',
+        ],
+      },
+    ],
+  },
 ];
