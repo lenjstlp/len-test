@@ -62096,4 +62096,119 @@ LIMIT 1;`,
       },
     ],
   },
+  {
+    id: 'out-of-boundary-paths',
+    label: '576. LeetCode 576. 出界的路径数',
+    difficulty: '中等',
+    description:
+      '这题是典型的“步数限制下的网格路径计数”。状态必须包含当前位置和已经走了多少步。',
+    outcome:
+      '你能把有限步数的移动问题建成动态规划，并把“走出边界”视作答案累加条件。',
+    sections: [
+      {
+        id: 'out-of-boundary-paths-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 `m x n` 网格、小球起点 `(startRow, startColumn)` 和最多可移动步数 `maxMove`。每次可向上下左右移动一格，要求统计有多少条路径能在最多 `maxMove` 步内离开网格边界。',
+        bullets: [
+          '步数有限制。',
+          '每步有四个方向。',
+          '走出边界就算一条成功路径。',
+          '是二维 DP 计数题。',
+        ],
+      },
+      {
+        id: 'out-of-boundary-paths-state',
+        title: '状态需要同时记录“还剩几步”和“当前坐标”',
+        summary:
+          '如果只知道当前坐标，不知道还能走几步，就无法判断未来还能产生多少路径。因此常见状态定义是：从位置 `(row, col)` 出发，在剩余 `move` 步内能走出边界的路径数。',
+        bullets: [
+          '坐标决定当前位置。',
+          '步数决定未来空间。',
+          '状态信息必须完整。',
+          '这是本题的核心建模。',
+        ],
+      },
+      {
+        id: 'out-of-boundary-paths-transition',
+        title: '往四个方向扩展，出界就直接贡献 1',
+        summary:
+          '从当前格子向四个方向移动。如果下一步走出了边界，那么这一条路径立刻贡献 1；如果还在网格内，就把问题递归或转移到“剩余步数减一”的新状态。',
+        bullets: [
+          '出界是答案来源。',
+          '未出界就继续递推。',
+          '四个方向完全对称。',
+          '每次都要对模数取余。',
+        ],
+        callout:
+          '这类题的关键，是把“成功条件”变成状态转移中的即时加分，而不是等到最后统一判断。',
+      },
+      {
+        id: 'out-of-boundary-paths-solution',
+        title: '标准解法：记忆化搜索或三维 DP',
+        summary:
+          '可用记忆化搜索实现：若当前位置已出界，返回 1；若剩余步数为 0，返回 0；否则递归累加四个方向的结果。用哈希或三维数组缓存状态，避免重复计算。',
+        bullets: [
+          '时间复杂度约为 `O(maxMove * m * n)`。',
+          '空间复杂度也是同级别。',
+          '实现重点在边界判断顺序。',
+          '是网格路径计数模板题。',
+        ],
+        code: `function findPaths(
+  m: number,
+  n: number,
+  maxMove: number,
+  startRow: number,
+  startColumn: number,
+): number {
+  const mod = 1_000_000_007
+  const memo = new Map<string, number>()
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+
+  const dfs = (row: number, col: number, moves: number): number => {
+    if (row < 0 || row >= m || col < 0 || col >= n) {
+      return 1
+    }
+
+    if (moves === 0) {
+      return 0
+    }
+
+    const key = row + ',' + col + ',' + moves
+    const cached = memo.get(key)
+    if (cached !== undefined) {
+      return cached
+    }
+
+    let total = 0
+    for (const [dr, dc] of directions) {
+      total = (total + dfs(row + dr, col + dc, moves - 1)) % mod
+    }
+
+    memo.set(key, total)
+    return total
+  }
+
+  return dfs(startRow, startColumn, maxMove)
+}`,
+      },
+      {
+        id: 'out-of-boundary-paths-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“走出边界”时返回 0，导致答案全丢；或者缓存状态时忘记把剩余步数作为 key 一部分。',
+        bullets: [
+          '易错点 1：出界时应该贡献 1 而不是 0。',
+          '易错点 2：状态里漏掉剩余步数。',
+          '易错点 3：没有及时取模导致溢出。',
+          '延伸方向：网格 DP、记忆化搜索、路径计数。',
+        ],
+      },
+    ],
+  },
 ];
