@@ -62285,4 +62285,81 @@ WHERE b.bonus < 1000 OR b.bonus IS NULL;`,
       },
     ],
   },
+  {
+    id: 'get-highest-answer-rate-question',
+    label: '578. LeetCode 578. Get Highest Answer Rate Question',
+    difficulty: '中等',
+    description:
+      '这题要求找出回答率最高的问题。关键是按问题分组，分别统计 show 次数和 answer 次数，再计算比例。',
+    outcome: '你能把比例类 SQL 题拆成分组计数，再做排序筛选。',
+    sections: [
+      {
+        id: 'get-highest-answer-rate-question-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `survey_log` 中记录了用户查看问题和回答问题的日志。要求找出回答率最高的问题 id。回答率定义为回答次数除以展示次数，题目保证只有一个答案。',
+        bullets: [
+          '按问题统计。',
+          '要分别数 show 和 answer。',
+          '最终比较比例大小。',
+          '是聚合统计题。',
+        ],
+      },
+      {
+        id: 'get-highest-answer-rate-question-count',
+        title: '先把每道题的展示数和回答数分别算出来',
+        summary:
+          '同一道题会有多条日志，所以必须按 `question_id` 分组。然后用条件聚合分别统计 `action = "show"` 的次数和 `action = "answer"` 的次数，为后续计算回答率做准备。',
+        bullets: [
+          '分组键是 question_id。',
+          'show 和 answer 要分开计数。',
+          '条件聚合最适合这类题。',
+          '统计是第一步。',
+        ],
+      },
+      {
+        id: 'get-highest-answer-rate-question-ratio',
+        title: '回答率就是 answer_count / show_count',
+        summary:
+          '得到每道题的两类计数后，直接计算比例并按降序排序即可。因为题目保证最终赢家唯一，所以取排序后的第一条记录就能得到答案。',
+        bullets: [
+          '比例是核心比较指标。',
+          '分母是展示数，不是总日志数。',
+          '需要按比例降序取 Top 1。',
+          '逻辑非常直接。',
+        ],
+      },
+      {
+        id: 'get-highest-answer-rate-question-solution',
+        title: '标准解法：条件聚合后按回答率排序',
+        summary:
+          '按问题分组，分别统计展示数和回答数，再计算回答率并按降序排序，最后取第一行输出问题 id。',
+        bullets: [
+          '时间复杂度主要来自分组和排序。',
+          '空间复杂度主要来自聚合结果。',
+          '实现重点在条件聚合表达式。',
+          '是 SQL 比例统计模板题。',
+        ],
+        code: `SELECT question_id AS survey_log
+FROM survey_log
+GROUP BY question_id
+ORDER BY
+  SUM(CASE WHEN action = 'answer' THEN 1 ELSE 0 END) * 1.0 /
+  SUM(CASE WHEN action = 'show' THEN 1 ELSE 0 END) DESC
+LIMIT 1;`,
+      },
+      {
+        id: 'get-highest-answer-rate-question-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接拿回答次数排序，忽略了展示次数；或者整数相除导致比例被截断。',
+        bullets: [
+          '易错点 1：只看 answer 次数，不看比率。',
+          '易错点 2：整数除法没有转成小数。',
+          '易错点 3：分母错用总日志数。',
+          '延伸方向：条件聚合、比率统计、Top 1 查询。',
+        ],
+      },
+    ],
+  },
 ];
