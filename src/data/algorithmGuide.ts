@@ -62451,4 +62451,81 @@ ORDER BY c.id ASC, c.month DESC;`,
       },
     ],
   },
+  {
+    id: 'count-student-number-in-departments',
+    label: '580. LeetCode 580. Count Student Number in Departments',
+    difficulty: '中等',
+    description:
+      '这题是按院系统计学生数，并且要把没有学生的院系也显示出来，所以主表应该是 Department。',
+    outcome: '你能判断何时该用左连接来保留“没有明细记录”的主表分组。',
+    sections: [
+      {
+        id: 'count-student-number-in-departments-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Student` 记录学生所属院系，表 `Department` 记录院系信息。要求统计每个院系的学生人数，并按人数降序、院系名称升序输出。',
+        bullets: [
+          '统计粒度是院系。',
+          '没有学生的院系也要出现。',
+          '结果有明确排序要求。',
+          '是分组关联题。',
+        ],
+      },
+      {
+        id: 'count-student-number-in-departments-left-join',
+        title: '要保留空院系，就必须从 Department 出发做左连接',
+        summary:
+          '如果从学生表出发，或者使用内连接，没有学生的院系根本不会出现在结果里。正确做法是以 `Department` 为主表，左连接 `Student`，这样学生为空时也能保留院系记录。',
+        bullets: [
+          'Department 决定结果全集。',
+          'Student 只是明细来源。',
+          '左连接能保留空院系。',
+          '这是本题的关键设计。',
+        ],
+      },
+      {
+        id: 'count-student-number-in-departments-group',
+        title: '按院系分组后统计学生 id 数量',
+        summary:
+          '连接完成后，按院系 id 和院系名分组，再统计学生记录数即可。若院系没有学生，由于左连接存在，`COUNT(student_id)` 会自然得到 0。',
+        bullets: [
+          '分组字段要能唯一标识院系。',
+          '计数列要选学生主键。',
+          '空连接结果会统计成 0。',
+          '逻辑很标准。',
+        ],
+      },
+      {
+        id: 'count-student-number-in-departments-solution',
+        title: '标准解法：Department 左连接 Student 后分组',
+        summary:
+          '以 `Department` 为主表左连接 `Student`，按院系分组统计学生数，再按人数降序和院系名升序排序输出。',
+        bullets: [
+          '时间复杂度主要来自连接和分组。',
+          '空间复杂度主要来自聚合结果。',
+          '实现重点在主表选择和排序要求。',
+          '是 SQL 统计题常见模板。',
+        ],
+        code: `SELECT
+  d.dept_name,
+  COUNT(s.student_id) AS student_number
+FROM Department d
+LEFT JOIN Student s ON d.dept_id = s.dept_id
+GROUP BY d.dept_id, d.dept_name
+ORDER BY student_number DESC, d.dept_name ASC;`,
+      },
+      {
+        id: 'count-student-number-in-departments-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是用内连接导致空院系丢失；或者没有按题目要求做二级排序。',
+        bullets: [
+          '易错点 1：把左连接写成内连接。',
+          '易错点 2：漏掉无学生院系。',
+          '易错点 3：排序条件不完整。',
+          '延伸方向：左连接、分组统计、排序规则实现。',
+        ],
+      },
+    ],
+  },
 ];
