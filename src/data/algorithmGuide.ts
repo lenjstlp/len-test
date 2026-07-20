@@ -62211,4 +62211,78 @@ LIMIT 1;`,
       },
     ],
   },
+  {
+    id: 'employee-bonus',
+    label: '577. LeetCode 577. Employee Bonus',
+    difficulty: '简单',
+    description:
+      '这题是基础关联查询。需要把员工表和奖金表连接起来，再筛出奖金小于 1000 或没有奖金的人。',
+    outcome: '你能熟练使用左连接处理“可能不存在关联记录”的 SQL 题。',
+    sections: [
+      {
+        id: 'employee-bonus-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Employee` 存员工信息，表 `Bonus` 存部分员工奖金。要求找出奖金小于 1000 或者没有奖金的员工姓名和奖金。',
+        bullets: [
+          '有些员工可能没有奖金记录。',
+          '条件是 `< 1000` 或 `NULL`。',
+          '输出姓名和奖金。',
+          '是左连接题。',
+        ],
+      },
+      {
+        id: 'employee-bonus-left-join',
+        title: '因为要保留“没有奖金”的员工，所以必须用左连接',
+        summary:
+          '如果使用内连接，没有奖金记录的员工会直接被过滤掉，不符合题意。左连接能保留员工表的全部行，奖金不存在时对应字段为 `NULL`，正好可以参与筛选。',
+        bullets: [
+          '内连接会丢失无奖金员工。',
+          '左连接保留完整员工集合。',
+          'NULL 正好表示“没有奖金”。',
+          '这是本题的关键点。',
+        ],
+      },
+      {
+        id: 'employee-bonus-condition',
+        title: '筛选条件要同时覆盖“小于 1000”和“为空”',
+        summary:
+          '连接完成后，对奖金列写条件：`bonus < 1000 OR bonus IS NULL`。这样既保留奖金过低的人，也保留根本没有奖金记录的人。',
+        bullets: [
+          '两个条件缺一不可。',
+          'NULL 不能用普通比较判断。',
+          'SQL 里要显式写 `IS NULL`。',
+          '是常见边界点。',
+        ],
+      },
+      {
+        id: 'employee-bonus-solution',
+        title: '标准解法：Employee 左连接 Bonus 再筛选',
+        summary:
+          '把 `Employee` 表作为主表，左连接 `Bonus` 表，再用奖金条件筛选即可。最后返回员工姓名和奖金字段。',
+        bullets: [
+          '时间复杂度取决于连接和筛选。',
+          '空间复杂度主要来自连接结果。',
+          '实现重点在左连接和 NULL 判断。',
+          '是 SQL 入门关联题。',
+        ],
+        code: `SELECT e.name, b.bonus
+FROM Employee e
+LEFT JOIN Bonus b ON e.empId = b.empId
+WHERE b.bonus < 1000 OR b.bonus IS NULL;`,
+      },
+      {
+        id: 'employee-bonus-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是用了内连接导致无奖金员工丢失；或者直接写 `bonus = NULL`，在 SQL 里这是无效判断。',
+        bullets: [
+          '易错点 1：把左连接写成内连接。',
+          '易错点 2：用 `= NULL` 判断空值。',
+          '易错点 3：漏掉奖金为空这一类员工。',
+          '延伸方向：外连接、NULL 判断、基础筛选。',
+        ],
+      },
+    ],
+  },
 ];
