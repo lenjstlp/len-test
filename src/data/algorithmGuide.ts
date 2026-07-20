@@ -62528,4 +62528,99 @@ ORDER BY student_number DESC, d.dept_name ASC;`,
       },
     ],
   },
+  {
+    id: 'shortest-unsorted-continuous-subarray',
+    label: '581. LeetCode 581. 最短无序连续子数组',
+    difficulty: '中等',
+    description:
+      '这题不是要真的排序整段再尝试所有区间，而是找出最左和最右两个被破坏的位置，圈定最短需要排序的范围。',
+    outcome:
+      '你能从整体有序性的破坏点入手，在线性时间内定位需要排序的最小区间。',
+    sections: [
+      {
+        id: 'shortest-unsorted-continuous-subarray-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums`，要求找到最短的连续子数组，只要把这段排序，整个数组就会变成升序。返回这段最短区间的长度。',
+        bullets: [
+          '目标是最短区间。',
+          '只排序这一段就够。',
+          '数组可能本来就有序。',
+          '是线性扫描题。',
+        ],
+      },
+      {
+        id: 'shortest-unsorted-continuous-subarray-break',
+        title: '从左到右和从右到左各扫一遍，找出有序性破坏边界',
+        summary:
+          '从左到右扫描时，持续维护到当前位置为止的最大值。如果当前数小于这个最大值，说明它应该更靠左，右边界就至少要扩到这里。反过来从右到左扫描，维护最小值；如果当前数大于这个最小值，说明它应该更靠右，左边界就至少要扩到这里。',
+        bullets: [
+          '左扫负责确定右边界。',
+          '右扫负责确定左边界。',
+          '维护的是历史极值。',
+          '这是本题的核心技巧。',
+        ],
+      },
+      {
+        id: 'shortest-unsorted-continuous-subarray-why',
+        title: '为什么只看极值就能定位区间',
+        summary:
+          '如果某个位置上的数比左边历史最大值还小，它一定不该待在当前位置，说明排序区间必须覆盖它。同理，如果某个位置上的数比右边历史最小值还大，它也一定属于待调整区间。把所有这类位置包起来，就是最短答案。',
+        bullets: [
+          '不合规元素一定落在目标区间内。',
+          '极值比较能直接发现不合规。',
+          '最终区间是所有问题点的最小包围盒。',
+          '因此不需要真的排序。',
+        ],
+        callout:
+          '很多“最短修复区间”问题，本质上都是在找哪些位置违反了全局顺序，再把这些位置整体包起来。',
+      },
+      {
+        id: 'shortest-unsorted-continuous-subarray-solution',
+        title: '标准解法：双向线性扫描',
+        summary:
+          '从左到右维护最大值，更新最右违规位置；再从右到左维护最小值，更新最左违规位置。若最终没有发现任何违规位置，说明数组本身有序，返回 0；否则返回 `right - left + 1`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在边界初始值和违规判断。',
+          '是线性扫描代表题。',
+        ],
+        code: `function findUnsortedSubarray(nums: number[]): number {
+  let left = -1
+  let right = -1
+  let maxSeen = Number.NEGATIVE_INFINITY
+  let minSeen = Number.POSITIVE_INFINITY
+
+  for (let i = 0; i < nums.length; i += 1) {
+    maxSeen = Math.max(maxSeen, nums[i])
+    if (nums[i] < maxSeen) {
+      right = i
+    }
+  }
+
+  for (let i = nums.length - 1; i >= 0; i -= 1) {
+    minSeen = Math.min(minSeen, nums[i])
+    if (nums[i] > minSeen) {
+      left = i
+    }
+  }
+
+  return right === -1 ? 0 : right - left + 1
+}`,
+      },
+      {
+        id: 'shortest-unsorted-continuous-subarray-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把区间只定在第一个逆序对附近，漏掉后面更远的受影响元素；或者数组本身有序时没有正确返回 0。',
+        bullets: [
+          '易错点 1：只看局部逆序，没有扩展完整边界。',
+          '易错点 2：有序数组时没返回 0。',
+          '易错点 3：左右扫描维护的极值方向写反。',
+          '延伸方向：双向扫描、最短修复区间、数组有序性判断。',
+        ],
+      },
+    ],
+  },
 ];
