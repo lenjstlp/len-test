@@ -62362,4 +62362,93 @@ LIMIT 1;`,
       },
     ],
   },
+  {
+    id: 'find-cumulative-salary-of-an-employee',
+    label: '579. LeetCode 579. Find Cumulative Salary of an Employee',
+    difficulty: '困难',
+    description:
+      '这题要求按员工和月份做 3 个月滚动薪资和，但要排除每个员工的最新月份。核心是自连接或窗口思路。',
+    outcome: '你能把滚动窗口统计题写成稳定的 SQL 区间聚合查询。',
+    sections: [
+      {
+        id: 'find-cumulative-salary-of-an-employee-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Employee` 记录员工在每个月的工资。要求计算每个员工每个月对应的“当前月及前两个月”的累计工资，但不包含该员工最新月份的结果。输出按 `id` 升序、`month` 降序排序。',
+        bullets: [
+          '窗口长度是 3 个月。',
+          '包含当前月和前两个月。',
+          '每个员工最新月要排除。',
+          '是 SQL 滚动求和题。',
+        ],
+      },
+      {
+        id: 'find-cumulative-salary-of-an-employee-window',
+        title: '每一行都要向前看最近 3 个月',
+        summary:
+          '对于某个员工在月份 `m` 的记录，累计工资应该把同一员工 `m`、`m-1`、`m-2` 这三个月的工资相加。如果其中某个月不存在记录，就自然不参与累加。',
+        bullets: [
+          '分组粒度是员工 id。',
+          '月份范围是当前月向前两个月。',
+          '不是按自然行数，而是按 month 值。',
+          '这是滚动累计的核心。',
+        ],
+      },
+      {
+        id: 'find-cumulative-salary-of-an-employee-latest',
+        title: '每个员工的最新月份必须先识别出来并排除',
+        summary:
+          '题目明确要求不显示员工最新月份的累计值。因此要先知道每个员工最大的 `month` 是多少，再在最终结果中过滤掉这些行。',
+        bullets: [
+          '每个员工都有自己的最新月。',
+          '不能全局只找一个最大月。',
+          '过滤发生在最终输出阶段。',
+          '这是本题最容易漏掉的条件。',
+        ],
+      },
+      {
+        id: 'find-cumulative-salary-of-an-employee-solution',
+        title: '标准解法：标记最新月 + 自连接聚合',
+        summary:
+          '先用窗口函数给每位员工标出 `max_month`。然后把当前月份表和原表按同一员工连接，只保留 `当前月 - 历史月 BETWEEN 0 AND 2` 的记录做求和。最后排除当前月等于 `max_month` 的行，并按要求排序输出。',
+        bullets: [
+          '时间复杂度主要来自连接和分组。',
+          '实现重点在月份区间条件。',
+          '最新月份过滤要放在最终结果。',
+          '是 SQL 滚动聚合代表题。',
+        ],
+        code: `WITH current_month AS (
+  SELECT
+    id,
+    month,
+    salary,
+    MAX(month) OVER (PARTITION BY id) AS max_month
+  FROM Employee
+)
+SELECT
+  c.id,
+  c.month,
+  SUM(p.salary) AS salary
+FROM current_month c
+JOIN Employee p
+  ON c.id = p.id
+ AND c.month - p.month BETWEEN 0 AND 2
+WHERE c.month <> c.max_month
+GROUP BY c.id, c.month
+ORDER BY c.id ASC, c.month DESC;`,
+      },
+      {
+        id: 'find-cumulative-salary-of-an-employee-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“前两个月”理解成前两条记录；或者漏掉最新月份过滤，导致结果多一行。',
+        bullets: [
+          '易错点 1：月份区间条件写错。',
+          '易错点 2：没有排除每位员工的最新月。',
+          '易错点 3：排序方向与题意不一致。',
+          '延伸方向：窗口函数、自连接、滚动汇总。',
+        ],
+      },
+    ],
+  },
 ];
