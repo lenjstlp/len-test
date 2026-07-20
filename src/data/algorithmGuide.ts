@@ -62022,4 +62022,78 @@ LIMIT 1;`,
       },
     ],
   },
+  {
+    id: 'distribute-candies',
+    label: '575. LeetCode 575. 分糖果',
+    difficulty: '简单',
+    description:
+      '这题本质是取最小值：妹妹最多只能拿到一半糖果，但她想让种类尽可能多，所以答案是“种类数”和“一半数量”中的较小者。',
+    outcome: '你能把计数题迅速化简成集合大小与容量上限的比较。',
+    sections: [
+      {
+        id: 'distribute-candies-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个长度为偶数的数组 `candyType`，表示不同糖果类型。需要把糖果平均分给哥哥和妹妹，问妹妹最多能拿到多少种不同类型的糖果。',
+        bullets: [
+          '总数一定是偶数。',
+          '妹妹只能拿到一半糖果。',
+          '目标是类型数尽量多。',
+          '是集合计数题。',
+        ],
+      },
+      {
+        id: 'distribute-candies-capacity',
+        title: '妹妹的上限由“只能拿一半”决定',
+        summary:
+          '无论糖果类型有多少，妹妹最终只能拿 `n / 2` 颗糖。因此她能拥有的不同种类数，绝不可能超过 `n / 2`。这是一个天然上限。',
+        bullets: [
+          '数量限制先给出上界。',
+          '每种至少要占一颗糖。',
+          '想增加种类，就要尽量一类拿一颗。',
+          '因此上限很直接。',
+        ],
+      },
+      {
+        id: 'distribute-candies-distinct',
+        title: '如果种类数本来就不够，那答案只能是种类总数',
+        summary:
+          '若数组中一共只有 `k` 种糖，而 `k < n / 2`，即便妹妹拿满一半，也不可能超过 `k` 种。因此最终答案就是 `min(不同类型数, n / 2)`。',
+        bullets: [
+          '种类数决定理论上限。',
+          '一半数量决定容量上限。',
+          '两者取较小值就是答案。',
+          '思路非常直接。',
+        ],
+      },
+      {
+        id: 'distribute-candies-solution',
+        title: '标准解法：Set 去重后取最小值',
+        summary:
+          '先用 `Set` 统计糖果类型总数 `distinctCount`，再返回 `Math.min(distinctCount, candyType.length / 2)` 即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在快速看出答案公式。',
+          '是哈希集合入门题。',
+        ],
+        code: `function distributeCandies(candyType: number[]): number {
+  const distinctCount = new Set(candyType).size
+  return Math.min(distinctCount, candyType.length / 2)
+}`,
+      },
+      {
+        id: 'distribute-candies-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把答案误写成不同类型总数，忽略了妹妹只能拿一半；或者反过来只返回一半数量，没有考虑类型数不足的情况。',
+        bullets: [
+          '易错点 1：忽略“只能拿一半”的限制。',
+          '易错点 2：只看数量，不看类型总数。',
+          '易错点 3：没有用集合去重统计类型。',
+          '延伸方向：Set 去重、容量上界、计数化简。',
+        ],
+      },
+    ],
+  },
 ];
