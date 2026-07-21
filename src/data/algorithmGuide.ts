@@ -62623,4 +62623,98 @@ ORDER BY student_number DESC, d.dept_name ASC;`,
       },
     ],
   },
+  {
+    id: 'kill-process',
+    label: '582. LeetCode 582. 杀掉进程',
+    difficulty: '中等',
+    description:
+      '这题本质是树的子树遍历。给定父子进程关系后，杀掉一个进程就等于收集它整棵子树上的所有节点。',
+    outcome:
+      '你能把父子数组关系还原成树或邻接表，再用 DFS/BFS 一次性拿到所有受影响进程。',
+    sections: [
+      {
+        id: 'kill-process-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `pid` 和 `ppid`，分别表示进程 id 和父进程 id。若要杀掉进程 `kill`，则它的所有子进程、孙进程也会一并被杀掉。要求返回所有会被杀掉的进程 id。',
+        bullets: [
+          '父子关系已经给出。',
+          '杀掉父进程会连带杀掉整棵子树。',
+          '返回所有受影响的进程。',
+          '是树遍历题。',
+        ],
+      },
+      {
+        id: 'kill-process-graph',
+        title: '先把父子关系建成邻接表',
+        summary:
+          '数组本身只是两列关系，不方便直接往下找所有孩子。最自然的做法是用哈希表把每个父进程映射到它的直接子进程列表，这样就能从 `kill` 一路向下遍历。',
+        bullets: [
+          'ppid 是父节点。',
+          'pid 是子节点。',
+          '父到子的映射是遍历基础。',
+          '邻接表最适合这类树结构。',
+        ],
+      },
+      {
+        id: 'kill-process-traversal',
+        title: '从 kill 节点出发，整棵子树都要收集',
+        summary:
+          '建好邻接表后，从 `kill` 进程出发做 DFS 或 BFS。访问到一个节点时，先把它加入答案，再继续访问它的所有孩子。遍历结束后，答案里就是所有被杀掉的进程。',
+        bullets: [
+          '起点就是 kill。',
+          '访问顺序不影响答案集合。',
+          '每个节点最多访问一次。',
+          '标准子树遍历模板。',
+        ],
+      },
+      {
+        id: 'kill-process-solution',
+        title: '标准解法：邻接表 + DFS',
+        summary:
+          '先扫描 `pid/ppid` 构建 `parent -> children` 的映射。然后从 `kill` 开始递归 DFS，把当前节点加入结果，并继续递归所有子节点。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在建图和子节点遍历。',
+          '是树/图入门题。',
+        ],
+        code: `function killProcess(pid: number[], ppid: number[], kill: number): number[] {
+  const childrenMap = new Map<number, number[]>()
+
+  for (let i = 0; i < pid.length; i += 1) {
+    const parent = ppid[i]
+    const list = childrenMap.get(parent) ?? []
+    list.push(pid[i])
+    childrenMap.set(parent, list)
+  }
+
+  const answer: number[] = []
+
+  const dfs = (processId: number): void => {
+    answer.push(processId)
+
+    for (const child of childrenMap.get(processId) ?? []) {
+      dfs(child)
+    }
+  }
+
+  dfs(kill)
+  return answer
+}`,
+      },
+      {
+        id: 'kill-process-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只收集了直接子进程，漏掉更深层后代；或者没有先建父到子的映射，导致每次都全表扫描找孩子。',
+        bullets: [
+          '易错点 1：只处理一层子进程。',
+          '易错点 2：没有建邻接表，复杂度退化。',
+          '易错点 3：忘记把 kill 自己也加入答案。',
+          '延伸方向：树遍历、邻接表、组织关系传播。',
+        ],
+      },
+    ],
+  },
 ];
