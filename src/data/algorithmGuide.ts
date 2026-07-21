@@ -63608,4 +63608,129 @@ function postorder(root: Node | null): number[] {
       },
     ],
   },
+  {
+    id: 'fraction-addition-and-subtraction',
+    label: '592. LeetCode 592. 分数加减运算',
+    difficulty: '中等',
+    description:
+      '这题核心是把字符串中的每个分数按顺序解析出来，统一累加到一个结果分子/分母上，并在每一步做约分。',
+    outcome: '你能把表达式解析和分数运算结合起来，稳定处理符号、通分和约分。',
+    sections: [
+      {
+        id: 'fraction-addition-and-subtraction-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含分数加减的表达式字符串，例如 `"-1/2+1/2+1/3"`，要求返回它的计算结果，格式为最简分数 `a/b`。',
+        bullets: [
+          '表达式里只有分数和 `+` `-`。',
+          '结果必须是最简分数。',
+          '分子可以为 0。',
+          '是字符串解析题。',
+        ],
+      },
+      {
+        id: 'fraction-addition-and-subtraction-parse',
+        title: '先把每一项分数和它前面的符号解析出来',
+        summary:
+          '从左到右扫描字符串。每次先判断当前项的正负号，再解析分子，跳过 `/`，再解析分母。这样就能依次拿到每个分数项的数值。',
+        bullets: [
+          '符号和数值要一起解析。',
+          '分子分母都是整数。',
+          '扫描指针顺序前进即可。',
+          '不需要复杂表达式栈。',
+        ],
+      },
+      {
+        id: 'fraction-addition-and-subtraction-combine',
+        title: '累加分数时，用通分公式更新分子分母',
+        summary:
+          '设当前结果为 `a/b`，新分数为 `c/d`，那么合并后的结果就是 `(a*d + c*b) / (b*d)`。每加入一项后，都可以立刻对结果做一次约分，这样数值规模更稳定。',
+        bullets: [
+          '通分公式是关键。',
+          '每一步都能立即合并。',
+          '约分能避免数字膨胀。',
+          '结果始终保持规范。',
+        ],
+      },
+      {
+        id: 'fraction-addition-and-subtraction-gcd',
+        title: '约分靠最大公约数，分母保持正数',
+        summary:
+          '每次更新结果后，用 `gcd(|numerator|, denominator)` 约分。若分子为 0，结果直接规整成 `0/1`。同时保持分母为正，便于统一输出格式。',
+        bullets: [
+          'gcd 是最简分数的基础。',
+          '分子为 0 时要归一化。',
+          '分母正号更统一。',
+          '约分是收尾关键。',
+        ],
+      },
+      {
+        id: 'fraction-addition-and-subtraction-solution',
+        title: '标准解法：顺序解析并滚动累加',
+        summary:
+          '维护当前结果分子 `numerator` 和分母 `denominator`，初始为 `0/1`。扫描表达式逐项解析分数，按通分公式更新结果，并用 gcd 约分。最终输出 `numerator/denominator`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在解析和约分。',
+          '是分数表达式处理代表题。',
+        ],
+        code: `function fractionAddition(expression: string): string {
+  let index = 0
+  let numerator = 0
+  let denominator = 1
+
+  const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b))
+
+  while (index < expression.length) {
+    let sign = 1
+    if (expression[index] === '+' || expression[index] === '-') {
+      sign = expression[index] === '-' ? -1 : 1
+      index += 1
+    }
+
+    let currentNumerator = 0
+    while (index < expression.length && expression[index] !== '/') {
+      currentNumerator = currentNumerator * 10 + Number(expression[index])
+      index += 1
+    }
+    currentNumerator *= sign
+    index += 1
+
+    let currentDenominator = 0
+    while (index < expression.length && expression[index] !== '+' && expression[index] !== '-') {
+      currentDenominator = currentDenominator * 10 + Number(expression[index])
+      index += 1
+    }
+
+    numerator = numerator * currentDenominator + currentNumerator * denominator
+    denominator *= currentDenominator
+
+    if (numerator === 0) {
+      denominator = 1
+      continue
+    }
+
+    const divisor = gcd(Math.abs(numerator), denominator)
+    numerator /= divisor
+    denominator /= divisor
+  }
+
+  return numerator + '/' + denominator
+}`,
+      },
+      {
+        id: 'fraction-addition-and-subtraction-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只把分子相加而忘了通分；或者最后没有约分，导致结果不是最简形式。',
+        bullets: [
+          '易错点 1：忽略通分公式。',
+          '易错点 2：符号解析位置写错。',
+          '易错点 3：没有每步或最后做约分。',
+          '延伸方向：字符串解析、有理数运算、gcd 应用。',
+        ],
+      },
+    ],
+  },
 ];
