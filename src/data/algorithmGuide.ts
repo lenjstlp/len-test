@@ -63273,4 +63273,101 @@ class FileSystem {
       },
     ],
   },
+  {
+    id: 'n-ary-tree-preorder-traversal',
+    label: '589. LeetCode 589. N 叉树的前序遍历',
+    difficulty: '简单',
+    description:
+      '这题就是把二叉树前序遍历推广到 N 叉树。顺序仍然是“先节点，再依次遍历所有孩子”。',
+    outcome: '你能把最基础的树遍历模板从二叉树平滑迁移到 N 叉树。',
+    sections: [
+      {
+        id: 'n-ary-tree-preorder-traversal-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵 N 叉树，要求按前序遍历顺序返回所有节点值。前序的顺序是：先访问当前节点，再按孩子列表顺序依次访问所有子树。',
+        bullets: [
+          '先根节点。',
+          '再按顺序遍历每个孩子。',
+          '结果是节点值数组。',
+          '是树遍历入门题。',
+        ],
+      },
+      {
+        id: 'n-ary-tree-preorder-traversal-order',
+        title: '前序遍历的核心是“先处理自己，再处理孩子”',
+        summary:
+          '无论是二叉树还是 N 叉树，前序遍历的定义都一样：当前节点的值先加入答案，然后再依次递归处理每个孩子节点。N 叉树只是把“左孩子、右孩子”扩展成了“孩子数组”。',
+        bullets: [
+          '遍历顺序由定义直接给出。',
+          '孩子数组要按原顺序处理。',
+          '每个节点只访问一次。',
+          '逻辑和二叉树完全同构。',
+        ],
+      },
+      {
+        id: 'n-ary-tree-preorder-traversal-recursion',
+        title: '递归写法最直接，遍历孩子数组即可',
+        summary:
+          '定义 DFS 函数，进入节点后先记录当前值，再循环遍历 `children` 数组，对每个孩子继续递归。因为树不存在回边，所以不需要 visited 标记。',
+        bullets: [
+          'DFS 很贴合树的定义。',
+          '循环遍历 children 是关键差异。',
+          '空节点直接返回。',
+          '实现非常直接。',
+        ],
+      },
+      {
+        id: 'n-ary-tree-preorder-traversal-solution',
+        title: '标准解法：DFS 前序遍历',
+        summary:
+          '若根节点为空返回空数组。否则递归处理：先把当前节点值加入结果，再按顺序遍历它的所有孩子。最终得到前序遍历序列。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在遍历顺序。',
+          '是 N 叉树前序模板题。',
+        ],
+        code: `class Node {
+  val: number
+  children: Node[]
+
+  constructor(val?: number, children?: Node[]) {
+    this.val = val === undefined ? 0 : val
+    this.children = children ?? []
+  }
+}
+
+function preorder(root: Node | null): number[] {
+  const answer: number[] = []
+
+  const dfs = (node: Node | null): void => {
+    if (!node) {
+      return
+    }
+
+    answer.push(node.val)
+    for (const child of node.children) {
+      dfs(child)
+    }
+  }
+
+  dfs(root)
+  return answer
+}`,
+      },
+      {
+        id: 'n-ary-tree-preorder-traversal-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把前序顺序写成了先孩子后根；或者遍历孩子数组时顺序颠倒，导致结果不符合题意。',
+        bullets: [
+          '易错点 1：把当前节点加入答案的时机放错。',
+          '易错点 2：孩子遍历顺序与输入顺序不一致。',
+          '易错点 3：空树没有返回空数组。',
+          '延伸方向：N 叉树后序、层序遍历、显式栈模拟。',
+        ],
+      },
+    ],
+  },
 ];
