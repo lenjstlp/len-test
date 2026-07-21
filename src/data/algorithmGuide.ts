@@ -63466,4 +63466,146 @@ function postorder(root: Node | null): number[] {
       },
     ],
   },
+  {
+    id: 'tag-validator',
+    label: '591. LeetCode 591. 标签验证器',
+    difficulty: '困难',
+    description:
+      '这题本质是手写一个简化版标签解析器。核心规则只有三块：合法标签名、标签嵌套匹配、CDATA 内容跳过解析。',
+    outcome: '你能用栈和顺序扫描实现一套严格的字符串结构校验逻辑。',
+    sections: [
+      {
+        id: 'tag-validator-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串形式的代码片段，判断它是否是合法标签代码。标签名必须是长度 1 到 9 的全大写字母；标签需要正确闭合；CDATA 片段内部不参与普通标签解析。',
+        bullets: [
+          '标签必须成对出现。',
+          '标签名有严格格式限制。',
+          'CDATA 要特殊处理。',
+          '整个字符串必须被一个根标签完整包住。',
+        ],
+      },
+      {
+        id: 'tag-validator-stack',
+        title: '标签嵌套匹配天然适合用栈',
+        summary:
+          '遇到开始标签就把标签名压栈，遇到结束标签就和栈顶匹配。若标签名不一致或栈为空，代码就非法。这个过程和括号匹配本质相同，只是这里匹配单位是标签名。',
+        bullets: [
+          '开始标签负责入栈。',
+          '结束标签负责和栈顶配对。',
+          '配对失败立即非法。',
+          '栈为空时不能再遇到内容。',
+        ],
+      },
+      {
+        id: 'tag-validator-cdata',
+        title: 'CDATA 内部内容全部原样跳过，不做标签解析',
+        summary:
+          '当扫描到 `<![CDATA[` 时，必须把后面一直到 `]]>` 的内容整体跳过。里面即使出现 `<TAG>` 之类的字符串，也都只是普通文本，不参与标签匹配。这是本题最容易写错的地方。',
+        bullets: [
+          'CDATA 只能出现在某个已打开标签内部。',
+          '开始标记和结束标记都要完整匹配。',
+          '内部内容一律忽略。',
+          '不能把内部尖括号当成标签。',
+        ],
+        callout:
+          '解析题的关键往往不在普通路径，而在“切换解释模式”的时刻。CDATA 就是这里最重要的模式切换点。',
+      },
+      {
+        id: 'tag-validator-root',
+        title: '整个字符串必须被唯一根标签完整包裹',
+        summary:
+          '除了标签匹配本身，还要保证整段代码从第一个字符开始就是一个合法起始标签，并且在根标签闭合后不能再出现任何额外内容。这意味着扫描过程中，一旦栈空了，当前位置就必须已经到达字符串结尾。',
+        bullets: [
+          '不能有裸文本出现在根标签外部。',
+          '根标签闭合后不能再有多余字符。',
+          '开头也不能不是标签。',
+          '这是整体合法性的最后约束。',
+        ],
+      },
+      {
+        id: 'tag-validator-solution',
+        title: '标准解法：顺序扫描 + 栈 + CDATA 特判',
+        summary:
+          '从左到右扫描字符串。遇到 CDATA 就整体跳过；遇到结束标签就和栈顶匹配；遇到开始标签就校验名字后入栈；普通字符则要求当前必须在某个标签内部。扫描结束后，栈为空且过程中没有违规，就是合法代码。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度主要来自标签栈。',
+          '实现重点在多分支解析顺序。',
+          '是字符串解析代表题。',
+        ],
+        code: `function isValid(code: string): boolean {
+  const stack: string[] = []
+  let index = 0
+
+  const isValidTagName = (name: string): boolean =>
+    name.length >= 1 &&
+    name.length <= 9 &&
+    [...name].every((ch) => ch >= 'A' && ch <= 'Z')
+
+  while (index < code.length) {
+    if (index > 0 && stack.length === 0) {
+      return false
+    }
+
+    if (code.startsWith('<![CDATA[', index)) {
+      if (stack.length === 0) {
+        return false
+      }
+      const end = code.indexOf(']]>', index)
+      if (end === -1) {
+        return false
+      }
+      index = end + 3
+      continue
+    }
+
+    if (code.startsWith('</', index)) {
+      const end = code.indexOf('>', index)
+      if (end === -1) {
+        return false
+      }
+      const tagName = code.slice(index + 2, end)
+      if (!isValidTagName(tagName) || stack.pop() !== tagName) {
+        return false
+      }
+      index = end + 1
+      continue
+    }
+
+    if (code.startsWith('<', index)) {
+      const end = code.indexOf('>', index)
+      if (end === -1) {
+        return false
+      }
+      const tagName = code.slice(index + 1, end)
+      if (!isValidTagName(tagName)) {
+        return false
+      }
+      stack.push(tagName)
+      index = end + 1
+      continue
+    }
+
+    index += 1
+  }
+
+  return stack.length === 0
+}`,
+      },
+      {
+        id: 'tag-validator-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有限制根标签外不能有内容；或者把 CDATA 内部内容继续按普通标签去解析。',
+        bullets: [
+          '易错点 1：CDATA 处理不完整。',
+          '易错点 2：标签名长度和大小写校验漏掉。',
+          '易错点 3：栈空后仍允许继续出现内容。',
+          '延伸方向：栈解析、语法校验、状态机扫描。',
+        ],
+      },
+    ],
+  },
 ];
