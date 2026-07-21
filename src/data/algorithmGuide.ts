@@ -62717,4 +62717,92 @@ ORDER BY student_number DESC, d.dept_name ASC;`,
       },
     ],
   },
+  {
+    id: 'delete-operation-for-two-strings',
+    label: '583. LeetCode 583. 两个字符串的删除操作',
+    difficulty: '中等',
+    description:
+      '这题本质和最长公共子序列是一回事。想让两个字符串变相同，就尽量保留它们共同的那部分，其余字符全部删除。',
+    outcome: '你能把“最少删除次数”转化为“最长公共子序列长度”问题。',
+    sections: [
+      {
+        id: 'delete-operation-for-two-strings-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个字符串 `word1` 和 `word2`，每次只能删除任意一个字符串中的一个字符。要求返回最少删除多少次，才能让两个字符串变得完全相同。',
+        bullets: [
+          '操作只有删除。',
+          '目标是最终两个字符串一样。',
+          '要最少操作次数。',
+          '是经典 DP 题。',
+        ],
+      },
+      {
+        id: 'delete-operation-for-two-strings-lcs',
+        title: '保留下来的最优部分，就是最长公共子序列',
+        summary:
+          '如果两个字符串最终变成同一个结果，那么这个结果一定是它们的一个公共子序列。为了让删除次数最少，就应该保留尽可能长的公共子序列，也就是最长公共子序列 LCS。',
+        bullets: [
+          '最终相同串必须是公共子序列。',
+          '保留得越长，删得越少。',
+          '最优保留目标就是 LCS。',
+          '这是本题的核心转化。',
+        ],
+      },
+      {
+        id: 'delete-operation-for-two-strings-formula',
+        title: '答案直接等于两串长度之和减去两倍 LCS',
+        summary:
+          '设最长公共子序列长度为 `lcs`。那么 `word1` 里要删除 `word1.length - lcs` 个字符，`word2` 里要删除 `word2.length - lcs` 个字符。总删除次数就是 `m + n - 2 * lcs`。',
+        bullets: [
+          '每边都只保留 LCS。',
+          '其余字符全部删除。',
+          '公式非常直接。',
+          '关键只是先把 lcs 算出来。',
+        ],
+      },
+      {
+        id: 'delete-operation-for-two-strings-solution',
+        title: '标准解法：先求 LCS，再套公式',
+        summary:
+          '用二维 DP 求 `word1` 和 `word2` 的最长公共子序列。若当前字符相同，则 `dp[i][j] = dp[i-1][j-1] + 1`；否则取上方和左方最大值。最后用长度公式计算最少删除次数。',
+        bullets: [
+          '时间复杂度是 `O(mn)`。',
+          '空间复杂度是 `O(mn)`。',
+          '实现重点在 LCS 转移。',
+          '是 LCS 变体模板题。',
+        ],
+        code: `function minDistance(word1: string, word2: string): number {
+  const rows = word1.length
+  const cols = word2.length
+  const dp = Array.from({ length: rows + 1 }, () => new Array<number>(cols + 1).fill(0))
+
+  for (let i = 1; i <= rows; i += 1) {
+    for (let j = 1; j <= cols; j += 1) {
+      if (word1[i - 1] === word2[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1] + 1
+      } else {
+        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1])
+      }
+    }
+  }
+
+  const lcs = dp[rows][cols]
+  return rows + cols - lcs * 2
+}`,
+      },
+      {
+        id: 'delete-operation-for-two-strings-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接去想删除过程，结果状态设计很绕；或者把它误当成编辑距离，加入了替换操作。',
+        bullets: [
+          '易错点 1：把题目误做成编辑距离。',
+          '易错点 2：没有先转化到 LCS。',
+          '易错点 3：LCS 转移时下标偏移写错。',
+          '延伸方向：最长公共子序列、编辑距离变体、字符串 DP。',
+        ],
+      },
+    ],
+  },
 ];
