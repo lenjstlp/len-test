@@ -63130,4 +63130,147 @@ LIMIT 1;`,
       },
     ],
   },
+  {
+    id: 'design-in-memory-file-system',
+    label: '588. LeetCode 588. 设计内存文件系统',
+    difficulty: '困难',
+    description:
+      '这题是典型设计题。核心是把路径结构建成一棵目录树，目录节点保存孩子映射，文件节点额外保存内容。',
+    outcome:
+      '你能用树形结构实现路径导航、目录创建、文件追加和按字典序列出子项。',
+    sections: [
+      {
+        id: 'design-in-memory-file-system-summary',
+        title: '题目在问什么',
+        summary:
+          '需要设计一个内存文件系统，支持 `ls`、`mkdir`、`addContentToFile`、`readContentFromFile` 四个操作。路径是类 Unix 风格，目录可以层层嵌套，文件内容支持追加。',
+        bullets: [
+          '路径有层级结构。',
+          '目录和文件要区分。',
+          '文件内容不是覆盖而是追加。',
+          '是数据结构设计题。',
+        ],
+      },
+      {
+        id: 'design-in-memory-file-system-tree',
+        title: '最自然的数据结构就是目录树',
+        summary:
+          '路径天然形成树结构：根目录下面有子目录或文件，子目录下面还能继续嵌套。因此最直接的方案是定义节点类型，每个节点保存名字、是否是文件、孩子映射，以及文件内容。',
+        bullets: [
+          '根节点对应 `/`。',
+          '目录节点有 children。',
+          '文件节点额外保存 content。',
+          '树结构和路径完全匹配。',
+        ],
+      },
+      {
+        id: 'design-in-memory-file-system-navigation',
+        title: '所有操作的核心都是“按路径逐段向下走”',
+        summary:
+          '无论是列目录、建目录，还是写文件，第一步都一样：把路径按 `/` 切段，然后从根节点开始逐层找到或创建目标节点。只要这一步封装好，剩下操作都很自然。',
+        bullets: [
+          '路径拆分是统一入口。',
+          '遍历每一段名字向下导航。',
+          'mkdir 和写文件需要按需创建节点。',
+          '这是整题最核心的公共逻辑。',
+        ],
+        callout:
+          '设计题通常不难在单个接口，而难在抽出公共底层操作。这里的公共操作就是路径解析和节点导航。',
+      },
+      {
+        id: 'design-in-memory-file-system-solution',
+        title: '标准解法：树节点 + 路径导航辅助函数',
+        summary:
+          '定义 `FileNode`，目录节点用 `children` 映射保存下一层，文件节点用 `content` 保存文本。`ls` 负责列出单个文件名或目录下所有孩子并排序；`mkdir` 逐层建目录；`addContentToFile` 导航到文件并追加内容；`readContentFromFile` 直接返回文件内容。',
+        bullets: [
+          '每次操作的时间复杂度和路径深度有关。',
+          '`ls` 目录时还要额外排序孩子名。',
+          '实现重点在目录节点和文件节点的统一表示。',
+          '是文件系统设计代表题。',
+        ],
+        code: `class FileNode {
+  name: string
+  isFile: boolean
+  content: string
+  children: Map<string, FileNode>
+
+  constructor(name: string, isFile = false) {
+    this.name = name
+    this.isFile = isFile
+    this.content = ''
+    this.children = new Map<string, FileNode>()
+  }
+}
+
+class FileSystem {
+  private root: FileNode
+
+  constructor() {
+    this.root = new FileNode('')
+  }
+
+  private split(path: string): string[] {
+    return path.split('/').filter(Boolean)
+  }
+
+  private traverse(path: string, create = false, asFile = false): FileNode {
+    const parts = this.split(path)
+    let current = this.root
+
+    for (let i = 0; i < parts.length; i += 1) {
+      const part = parts[i]
+      const isLast = i === parts.length - 1
+
+      if (!current.children.has(part) && create) {
+        current.children.set(part, new FileNode(part, isLast && asFile))
+      }
+
+      current = current.children.get(part)!
+    }
+
+    return current
+  }
+
+  ls(path: string): string[] {
+    if (path === '/') {
+      return [...this.root.children.keys()].sort()
+    }
+
+    const node = this.traverse(path)
+    if (node.isFile) {
+      return [node.name]
+    }
+
+    return [...node.children.keys()].sort()
+  }
+
+  mkdir(path: string): void {
+    this.traverse(path, true, false)
+  }
+
+  addContentToFile(filePath: string, content: string): void {
+    const node = this.traverse(filePath, true, true)
+    node.isFile = true
+    node.content += content
+  }
+
+  readContentFromFile(filePath: string): string {
+    return this.traverse(filePath).content
+  }
+}`,
+      },
+      {
+        id: 'design-in-memory-file-system-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有区分文件和目录；或者 `addContentToFile` 把内容覆盖掉，没有做追加。另一个常见错误是 `ls` 没有按字典序输出。',
+        bullets: [
+          '易错点 1：文件节点和目录节点职责混乱。',
+          '易错点 2：写文件时覆盖而不是追加。',
+          '易错点 3：目录输出没排序。',
+          '延伸方向：Trie/目录树、系统设计、路径解析。',
+        ],
+      },
+    ],
+  },
 ];
