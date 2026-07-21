@@ -62866,4 +62866,88 @@ WHERE referee_id <> 2 OR referee_id IS NULL;`,
       },
     ],
   },
+  {
+    id: 'investments-in-2016',
+    label: '585. LeetCode 585. 2016年的投资',
+    difficulty: '中等',
+    description:
+      '这题的关键不是直接求和，而是先筛出两类条件同时满足的保单：`tiv_2015` 至少与别人重复一次，且 `(lat, lon)` 是唯一坐标。',
+    outcome: '你能把多条件分组筛选题拆成两个集合条件，再做交集求和。',
+    sections: [
+      {
+        id: 'investments-in-2016-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Insurance` 记录了投保人的 2015/2016 保额以及坐标。要求求出满足以下条件的投保人 `tiv_2016` 总和：他的 `tiv_2015` 和至少一位别人相同，但他的城市坐标 `(lat, lon)` 不能和任何别人重复。',
+        bullets: [
+          '条件一：2015 保额重复。',
+          '条件二：坐标唯一。',
+          '最终求和的是 2016 保额。',
+          '是 SQL 分组筛选题。',
+        ],
+      },
+      {
+        id: 'investments-in-2016-two-filters',
+        title: '这题本质上是两个筛选集合的交集',
+        summary:
+          '先筛出所有 `tiv_2015` 出现次数大于 1 的记录；再筛出所有 `(lat, lon)` 只出现 1 次的记录。只有同时落在这两个集合里的投保人，才应该参与最终求和。',
+        bullets: [
+          '两个条件彼此独立。',
+          '一个看保额重复，一个看坐标唯一。',
+          '最终结果是交集。',
+          '这样拆开写最清楚。',
+        ],
+      },
+      {
+        id: 'investments-in-2016-group',
+        title: '一个条件按 tiv_2015 分组，一个条件按坐标分组',
+        summary:
+          '判断 2015 保额是否重复，必须按 `tiv_2015` 分组计数；判断坐标是否唯一，则要按 `(lat, lon)` 分组计数。两个分组粒度不同，所以通常会写成两个子查询或 CTE。',
+        bullets: [
+          '分组维度不一样。',
+          '不能用一次 group by 同时解决。',
+          'CTE 或子查询都合适。',
+          '结构上很典型。',
+        ],
+      },
+      {
+        id: 'investments-in-2016-solution',
+        title: '标准解法：两个子查询筛选后求和',
+        summary:
+          '先用一个子查询找出重复的 `tiv_2015`，再用另一个子查询找出唯一坐标。主查询只保留同时满足这两个条件的行，对 `tiv_2016` 求和，并按题目格式保留两位小数。',
+        bullets: [
+          '时间复杂度主要来自两次分组。',
+          '实现重点在两个条件的组合。',
+          '最终求和字段是 `tiv_2016`。',
+          '是条件交集统计代表题。',
+        ],
+        code: `SELECT ROUND(SUM(tiv_2016), 2) AS tiv_2016
+FROM Insurance
+WHERE tiv_2015 IN (
+  SELECT tiv_2015
+  FROM Insurance
+  GROUP BY tiv_2015
+  HAVING COUNT(*) > 1
+)
+AND (lat, lon) IN (
+  SELECT lat, lon
+  FROM Insurance
+  GROUP BY lat, lon
+  HAVING COUNT(*) = 1
+);`,
+      },
+      {
+        id: 'investments-in-2016-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“坐标唯一”误写成 `COUNT(*) > 1`；或者最终求和时求成了 `tiv_2015` 而不是 `tiv_2016`。',
+        bullets: [
+          '易错点 1：坐标条件方向写反。',
+          '易错点 2：保额条件和坐标条件混在一次分组里写坏。',
+          '易错点 3：最终求和字段选错。',
+          '延伸方向：多条件聚合、CTE/子查询、交集筛选。',
+        ],
+      },
+    ],
+  },
 ];
