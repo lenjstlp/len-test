@@ -63024,4 +63024,110 @@ LIMIT 1;`,
       },
     ],
   },
+  {
+    id: 'erect-the-fence',
+    label: '587. LeetCode 587. 安装栅栏',
+    difficulty: '困难',
+    description:
+      '这题本质是求二维点集的凸包，但和普通凸包不同，边界上的共线点也必须全部保留。',
+    outcome:
+      '你能用单调链算法求凸包，并知道在“保留边界共线点”时，转向条件该怎么改。',
+    sections: [
+      {
+        id: 'erect-the-fence-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干棵树的二维坐标，要求用最短的绳子把所有树围起来，并返回位于围栏边界上的所有点。',
+        bullets: [
+          '本质是求凸包。',
+          '边界上的点都要返回。',
+          '不仅是顶点，共线边界点也要保留。',
+          '是几何算法题。',
+        ],
+      },
+      {
+        id: 'erect-the-fence-cross',
+        title: '凸包判断靠叉积，判断拐向决定是否弹栈',
+        summary:
+          '在单调链算法里，我们按横坐标排序后依次建下凸壳和上凸壳。每加入一个新点，就看倒数三点的叉积符号。如果发生“向内拐”，说明中间那个点不在凸包上，需要弹出。',
+        bullets: [
+          '叉积正负表示拐向。',
+          '向内拐的点要删除。',
+          '上下凸壳逻辑一致。',
+          '这是单调链核心机制。',
+        ],
+      },
+      {
+        id: 'erect-the-fence-collinear',
+        title: '本题要保留共线边界点，所以不能把共线点弹掉',
+        summary:
+          '普通凸包题里，为了只保留顶点，常会在叉积小于等于 0 时弹栈。但本题要求边界上的共线点都保留，所以只有在叉积严格小于 0 时才弹栈。这样共线点能留在最终边界里。',
+        bullets: [
+          '关键区别在于共线点处理。',
+          '只在严格右拐时弹栈。',
+          '共线点自然保留下来。',
+          '这是本题和标准凸包的主要差异。',
+        ],
+        callout:
+          '几何题里，同一套算法常常只差一个不等号就会改变结果语义。这里“< 0” 和 “<= 0” 的区别，就是是否保留共线边界点。',
+      },
+      {
+        id: 'erect-the-fence-solution',
+        title: '标准解法：单调链构造上下凸壳',
+        summary:
+          '先按坐标排序。然后依次构造下凸壳和上凸壳，遇到严格右拐就弹出中间点。最后把两部分合并，并用集合去重，得到所有边界点。',
+        bullets: [
+          '时间复杂度主要是排序的 `O(n log n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在叉积和去重。',
+          '是凸包单调链代表题。',
+        ],
+        code: `function outerTrees(trees: number[][]): number[][] {
+  if (trees.length <= 1) {
+    return trees
+  }
+
+  const points = [...trees].sort((a, b) => (a[0] === b[0] ? a[1] - b[1] : a[0] - b[0]))
+  const cross = (o: number[], a: number[], b: number[]): number =>
+    (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+
+  const lower: number[][] = []
+  for (const point of points) {
+    while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], point) < 0) {
+      lower.pop()
+    }
+    lower.push(point)
+  }
+
+  const upper: number[][] = []
+  for (let i = points.length - 1; i >= 0; i -= 1) {
+    const point = points[i]
+    while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], point) < 0) {
+      upper.pop()
+    }
+    upper.push(point)
+  }
+
+  const hull = new Map<string, number[]>()
+  for (const point of [...lower, ...upper]) {
+    hull.set(point[0] + ',' + point[1], point)
+  }
+
+  return [...hull.values()]
+}`,
+      },
+      {
+        id: 'erect-the-fence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是沿用普通凸包模板把共线点弹掉；或者排序和去重处理不稳，导致边界点遗漏或重复。',
+        bullets: [
+          '易错点 1：把共线边界点误删。',
+          '易错点 2：叉积方向判断写反。',
+          '易错点 3：上下凸壳合并后没有去重。',
+          '延伸方向：凸包、叉积、单调链、几何边界问题。',
+        ],
+      },
+    ],
+  },
 ];
