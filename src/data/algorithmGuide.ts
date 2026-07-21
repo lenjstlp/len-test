@@ -63370,4 +63370,100 @@ function preorder(root: Node | null): number[] {
       },
     ],
   },
+  {
+    id: 'n-ary-tree-postorder-traversal',
+    label: '590. LeetCode 590. N 叉树的后序遍历',
+    difficulty: '简单',
+    description: '这题和前序遍历正好相反：先处理所有孩子，再处理当前节点。',
+    outcome: '你能明确区分前序和后序的时机差异，并把模板平移到 N 叉树。',
+    sections: [
+      {
+        id: 'n-ary-tree-postorder-traversal-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵 N 叉树，要求按后序遍历顺序返回节点值。后序的顺序是：先依次遍历所有孩子子树，最后访问当前节点。',
+        bullets: [
+          '先孩子，后根节点。',
+          '孩子顺序仍按原数组顺序。',
+          '返回遍历结果数组。',
+          '是树遍历基础题。',
+        ],
+      },
+      {
+        id: 'n-ary-tree-postorder-traversal-order',
+        title: '后序遍历的核心是“收完所有孩子结果，再收自己”',
+        summary:
+          '当前节点只有在它的所有孩子都处理完成后，才轮到自己加入结果。这种顺序很适合需要先拿子问题结果再处理父节点的场景。',
+        bullets: [
+          '节点值入栈时机比前序更晚。',
+          '所有孩子都要先递归完成。',
+          '顺序定义非常明确。',
+          '和前序只差一个加入答案的时机。',
+        ],
+      },
+      {
+        id: 'n-ary-tree-postorder-traversal-recursion',
+        title: '递归最自然：先循环 children，再加入当前值',
+        summary:
+          '定义 DFS，进入节点后先递归遍历所有孩子，等孩子全部完成后，再把当前节点值加入答案数组。这样天然满足后序定义。',
+        bullets: [
+          '空节点直接返回。',
+          'children 仍然要按顺序遍历。',
+          '最后一步才记录当前节点。',
+          '实现非常稳定。',
+        ],
+      },
+      {
+        id: 'n-ary-tree-postorder-traversal-solution',
+        title: '标准解法：DFS 后序遍历',
+        summary:
+          '若根节点为空返回空数组。否则递归遍历所有孩子，最后记录当前节点值。递归结束后答案数组就是整棵树的后序遍历结果。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在入结果时机。',
+          '是 N 叉树后序模板题。',
+        ],
+        code: `class Node {
+  val: number
+  children: Node[]
+
+  constructor(val?: number, children?: Node[]) {
+    this.val = val === undefined ? 0 : val
+    this.children = children ?? []
+  }
+}
+
+function postorder(root: Node | null): number[] {
+  const answer: number[] = []
+
+  const dfs = (node: Node | null): void => {
+    if (!node) {
+      return
+    }
+
+    for (const child of node.children) {
+      dfs(child)
+    }
+    answer.push(node.val)
+  }
+
+  dfs(root)
+  return answer
+}`,
+      },
+      {
+        id: 'n-ary-tree-postorder-traversal-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把答案加入时机放到了遍历孩子之前，结果写成了前序；或者孩子遍历顺序被改坏。',
+        bullets: [
+          '易错点 1：把后序写成前序。',
+          '易错点 2：孩子顺序不符合输入顺序。',
+          '易错点 3：空树边界漏处理。',
+          '延伸方向：N 叉树前序、层序遍历、栈模拟遍历。',
+        ],
+      },
+    ],
+  },
 ];
