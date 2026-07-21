@@ -62805,4 +62805,65 @@ ORDER BY student_number DESC, d.dept_name ASC;`,
       },
     ],
   },
+  {
+    id: 'find-customer-referee',
+    label: '584. LeetCode 584. 寻找用户推荐人',
+    difficulty: '简单',
+    description:
+      '这题就是一个带空值判断的筛选：找出推荐人不是 2 号，或者根本没有推荐人的客户。',
+    outcome: '你能正确处理 SQL 里“值不等于某数”和“值为空”同时存在的条件。',
+    sections: [
+      {
+        id: 'find-customer-referee-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Customer` 中有客户名和推荐人 id。要求找出推荐人不是 `2` 号的所有客户名，同时也包含没有推荐人的客户。',
+        bullets: [
+          '筛选的核心对象是 referee_id。',
+          '不等于 2 的要保留。',
+          '为空的也要保留。',
+          '是基础筛选题。',
+        ],
+      },
+      {
+        id: 'find-customer-referee-null',
+        title: '因为有空值，所以不能只写 `!= 2`',
+        summary:
+          '在 SQL 中，`NULL` 参与比较不会返回 true，因此若只写 `referee_id != 2`，那些没有推荐人的客户会被漏掉。必须显式补上 `OR referee_id IS NULL`。',
+        bullets: [
+          'NULL 不是普通值。',
+          '比较运算无法覆盖空值。',
+          '要显式写 `IS NULL`。',
+          '这是本题唯一容易漏的点。',
+        ],
+      },
+      {
+        id: 'find-customer-referee-solution',
+        title: '标准解法：筛选 `!= 2` 或 `IS NULL`',
+        summary:
+          '直接从 `Customer` 表里筛选出 `referee_id <> 2 OR referee_id IS NULL` 的记录，输出客户名即可。',
+        bullets: [
+          '时间复杂度主要来自表扫描。',
+          '空间复杂度可视为常数。',
+          '实现重点在空值条件。',
+          '是 SQL 入门题。',
+        ],
+        code: `SELECT name
+FROM Customer
+WHERE referee_id <> 2 OR referee_id IS NULL;`,
+      },
+      {
+        id: 'find-customer-referee-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是漏掉空值客户；或者把 `IS NULL` 写成 `= NULL`，导致判断失效。',
+        bullets: [
+          '易错点 1：只写 `!= 2`，漏掉空值。',
+          '易错点 2：用 `= NULL` 判断空值。',
+          '易错点 3：字段名写成了 referrer 或其他拼写。',
+          '延伸方向：NULL 处理、基础筛选、SQL 三值逻辑。',
+        ],
+      },
+    ],
+  },
 ];
