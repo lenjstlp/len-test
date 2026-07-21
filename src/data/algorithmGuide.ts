@@ -62950,4 +62950,78 @@ AND (lat, lon) IN (
       },
     ],
   },
+  {
+    id: 'customer-placing-the-largest-number-of-orders',
+    label: '586. LeetCode 586. 订单最多的客户',
+    difficulty: '简单',
+    description: '这题就是按客户统计订单数，然后取下单数量最多的那位客户 id。',
+    outcome: '你能快速写出最基础的 group by + order by + limit 组合查询。',
+    sections: [
+      {
+        id: 'customer-placing-the-largest-number-of-orders-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Orders` 记录了订单和客户 id。要求找出下单数量最多的客户编号，题目保证答案唯一。',
+        bullets: [
+          '统计的是订单数量。',
+          '按客户分组。',
+          '取数量最大的那个。',
+          '是聚合排序基础题。',
+        ],
+      },
+      {
+        id: 'customer-placing-the-largest-number-of-orders-group',
+        title: '先按 customer_number 分组统计订单数',
+        summary:
+          '每条订单都属于某个客户，所以直接按 `customer_number` 分组，然后统计每组订单条数即可得到每位客户的下单总数。',
+        bullets: [
+          '分组键就是客户编号。',
+          '订单条数就是下单数。',
+          '不需要关联其它表。',
+          '逻辑非常直接。',
+        ],
+      },
+      {
+        id: 'customer-placing-the-largest-number-of-orders-top1',
+        title: '排序后取第一名就是答案',
+        summary:
+          '拿到每位客户的订单数之后，按计数降序排序，取第一条记录即可。由于题目保证没有并列第一，不需要再额外处理平票情况。',
+        bullets: [
+          '降序对应最多订单。',
+          'LIMIT 1 直接取 Top 1。',
+          '题目保证唯一答案。',
+          '实现非常稳定。',
+        ],
+      },
+      {
+        id: 'customer-placing-the-largest-number-of-orders-solution',
+        title: '标准解法：GROUP BY 后 ORDER BY COUNT(*) DESC',
+        summary:
+          '从订单表出发，按客户编号分组，统计每个客户订单数，然后按订单数降序排列并取第一条。',
+        bullets: [
+          '时间复杂度主要来自分组和排序。',
+          '空间复杂度主要来自聚合结果。',
+          '实现重点在排序方向。',
+          '是 SQL Top 1 模板题。',
+        ],
+        code: `SELECT customer_number
+FROM Orders
+GROUP BY customer_number
+ORDER BY COUNT(*) DESC
+LIMIT 1;`,
+      },
+      {
+        id: 'customer-placing-the-largest-number-of-orders-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是排序方向写成升序；或者按订单 id 分组，完全偏离题意。',
+        bullets: [
+          '易错点 1：ORDER BY 方向写反。',
+          '易错点 2：GROUP BY 字段选错。',
+          '易错点 3：忘记 LIMIT 1。',
+          '延伸方向：聚合排序、Top N 查询、SQL 基础统计。',
+        ],
+      },
+    ],
+  },
 ];
