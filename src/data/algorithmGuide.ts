@@ -63978,4 +63978,78 @@ WHERE area >= 3000000 OR population >= 25000000;`,
       },
     ],
   },
+  {
+    id: 'classes-more-than-5-students',
+    label: '596. LeetCode 596. 超过5名学生的课',
+    difficulty: '简单',
+    description:
+      '这题本质还是分组计数。按班级分组后，筛掉人数不足 5 的班即可。',
+    outcome: '你能熟练区分 `WHERE` 和 `HAVING` 的职责，完成聚合后的条件筛选。',
+    sections: [
+      {
+        id: 'classes-more-than-5-students-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Courses` 中记录学生和所修课程。要求找出至少有 5 名学生选修的课程名称或课程编号。',
+        bullets: [
+          '按课程分组。',
+          '统计的是学生人数。',
+          '至少 5 名才保留。',
+          '是 SQL 分组题。',
+        ],
+      },
+      {
+        id: 'classes-more-than-5-students-group',
+        title: '先按 class 分组，再统计该组里有多少学生',
+        summary:
+          '每条记录都表示一名学生选修了一门课，因此只要按 `class` 分组，组内记录数就是这门课的学生人数。',
+        bullets: [
+          'class 是分组主键。',
+          '记录数就是选课人数。',
+          '逻辑没有额外关联。',
+          '非常标准的 group by 场景。',
+        ],
+      },
+      {
+        id: 'classes-more-than-5-students-having',
+        title: '聚合后的筛选必须放在 HAVING 里',
+        summary:
+          '因为筛选条件依赖 `COUNT(*)` 这样的聚合结果，所以不能放在 `WHERE` 中，而应写成 `HAVING COUNT(*) >= 5`。这是本题最基础也是最关键的语法点。',
+        bullets: [
+          'WHERE 发生在分组前。',
+          'HAVING 发生在分组后。',
+          '计数条件只能写在 HAVING。',
+          '是 SQL 基础知识点。',
+        ],
+      },
+      {
+        id: 'classes-more-than-5-students-solution',
+        title: '标准解法：GROUP BY + HAVING',
+        summary:
+          '从 `Courses` 表中按 `class` 分组，然后用 `HAVING COUNT(*) >= 5` 保留学生数至少为 5 的班级，最后输出班级字段即可。',
+        bullets: [
+          '时间复杂度主要来自分组统计。',
+          '空间复杂度主要来自聚合结果。',
+          '实现重点在 HAVING。',
+          '是 SQL 入门聚合题。',
+        ],
+        code: `SELECT class
+FROM Courses
+GROUP BY class
+HAVING COUNT(*) >= 5;`,
+      },
+      {
+        id: 'classes-more-than-5-students-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把聚合条件写进 `WHERE`；或者把阈值写成了 `> 5`，从而漏掉正好 5 人的班级。',
+        bullets: [
+          '易错点 1：误用 WHERE 过滤计数。',
+          '易错点 2：把 `>= 5` 写成 `> 5`。',
+          '易错点 3：GROUP BY 字段写错。',
+          '延伸方向：SQL 聚合、HAVING、分组统计。',
+        ],
+      },
+    ],
+  },
 ];
