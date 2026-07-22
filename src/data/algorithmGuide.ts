@@ -63917,4 +63917,65 @@ function postorder(root: Node | null): number[] {
       },
     ],
   },
+  {
+    id: 'big-countries',
+    label: '595. LeetCode 595. 大的国家',
+    difficulty: '简单',
+    description:
+      '这题就是最基础的条件筛选：面积够大或者人口够大，满足任一条件就是“大国”。',
+    outcome: '你能快速把自然语言条件翻译成 SQL 的 `WHERE ... OR ...` 筛选。',
+    sections: [
+      {
+        id: 'big-countries-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `World` 中记录国家名称、人口和面积。要求找出面积至少 `3000000` 或人口至少 `25000000` 的国家，并输出它们的名称、人口、面积。',
+        bullets: [
+          '两个条件满足其一即可。',
+          '输出字段固定。',
+          '不需要分组或排序。',
+          '是 SQL 基础筛选题。',
+        ],
+      },
+      {
+        id: 'big-countries-or',
+        title: '关键是“或”条件，不是“且”条件',
+        summary:
+          '题目说的是国家足够大有两种标准：面积大，或者人口大。因此条件连接词必须是 `OR`。如果写成 `AND`，会把只满足其中一项的大国错误过滤掉。',
+        bullets: [
+          '面积和人口是并列标准。',
+          '任意满足一个就应入选。',
+          'OR 是唯一关键点。',
+          '逻辑非常直接。',
+        ],
+      },
+      {
+        id: 'big-countries-solution',
+        title: '标准解法：直接 where 过滤',
+        summary:
+          '从 `World` 表中直接筛选出面积大于等于 `3000000` 或人口大于等于 `25000000` 的记录，然后返回要求字段。',
+        bullets: [
+          '时间复杂度主要来自表扫描。',
+          '空间复杂度可视为常数。',
+          '实现重点在条件逻辑准确。',
+          '是 SQL 入门题。',
+        ],
+        code: `SELECT name, population, area
+FROM World
+WHERE area >= 3000000 OR population >= 25000000;`,
+      },
+      {
+        id: 'big-countries-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把条件连接成 `AND`；或者写错比较阈值，导致结果不完整。',
+        bullets: [
+          '易错点 1：把 OR 写成 AND。',
+          '易错点 2：面积或人口阈值写错。',
+          '易错点 3：输出了题目不需要的字段。',
+          '延伸方向：基础筛选、逻辑连接词、SQL 入门语法。',
+        ],
+      },
+    ],
+  },
 ];
