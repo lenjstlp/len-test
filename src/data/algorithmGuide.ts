@@ -63831,4 +63831,90 @@ function postorder(root: Node | null): number[] {
       },
     ],
   },
+  {
+    id: 'longest-harmonious-subsequence',
+    label: '594. LeetCode 594. 最长和谐子序列',
+    difficulty: '简单',
+    description:
+      '这题的“和谐”要求是最大值和最小值差恰好为 1，所以只需要关注数值相邻的两个桶能拼出多长。',
+    outcome: '你能把子序列题快速转成频次统计问题，而不是误以为要做复杂 DP。',
+    sections: [
+      {
+        id: 'longest-harmonious-subsequence-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums`，要求找出最长和谐子序列长度。和谐子序列指的是：子序列中的最大值和最小值之差恰好等于 1。',
+        bullets: [
+          '是子序列，不要求连续。',
+          '最大值和最小值差必须正好是 1。',
+          '要最长长度。',
+          '是频次统计题。',
+        ],
+      },
+      {
+        id: 'longest-harmonious-subsequence-frequency',
+        title: '因为不要求连续，所以顺序不重要，频次最重要',
+        summary:
+          '既然题目允许删掉任意元素形成子序列，那么真正影响答案的不是原数组位置，而是每个数出现了多少次。只要某个值 `x` 和 `x + 1` 都出现了，就可以把它们全部拿来拼出一个和谐子序列。',
+        bullets: [
+          '顺序信息基本没用。',
+          '频次信息决定答案上限。',
+          '只需要关注相差 1 的值对。',
+          '这是本题的关键化简。',
+        ],
+      },
+      {
+        id: 'longest-harmonious-subsequence-pairs',
+        title: '答案来自某个 `x` 和 `x + 1` 的频次和',
+        summary:
+          '对每个数 `x`，若哈希表里同时存在 `x` 和 `x + 1`，那么它们能组成的和谐子序列长度就是 `count[x] + count[x + 1]`。遍历所有值，取最大即可。',
+        bullets: [
+          '相差超过 1 的不能一起构成答案。',
+          '只有成对相邻值才有效。',
+          '每种候选都能常数时间算出长度。',
+          '最终取最大值。',
+        ],
+      },
+      {
+        id: 'longest-harmonious-subsequence-solution',
+        title: '标准解法：哈希表统计频次',
+        summary:
+          '先用哈希表统计每个数字的出现次数。然后遍历哈希表中的每个键，如果同时存在 `key + 1`，就尝试更新答案为两者频次之和。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在只统计相邻值对。',
+          '是哈希频次模板题。',
+        ],
+        code: `function findLHS(nums: number[]): number {
+  const countMap = new Map<number, number>()
+
+  for (const num of nums) {
+    countMap.set(num, (countMap.get(num) ?? 0) + 1)
+  }
+
+  let answer = 0
+  for (const [num, count] of countMap) {
+    if (countMap.has(num + 1)) {
+      answer = Math.max(answer, count + countMap.get(num + 1)!)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'longest-harmonious-subsequence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它误当成连续子数组题；或者把差值写成“小于等于 1”，从而把全相等序列也算进去了。',
+        bullets: [
+          '易错点 1：误以为子序列必须连续。',
+          '易错点 2：把条件写成差值 `<= 1`。',
+          '易错点 3：没有用频次表，做了不必要的排序或 DP。',
+          '延伸方向：哈希计数、最长频次组合、子序列化简。',
+        ],
+      },
+    ],
+  },
 ];
