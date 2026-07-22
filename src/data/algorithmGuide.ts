@@ -63733,4 +63733,102 @@ function postorder(root: Node | null): number[] {
       },
     ],
   },
+  {
+    id: 'valid-square',
+    label: '593. LeetCode 593. 有效的正方形',
+    difficulty: '中等',
+    description:
+      '这题的关键不是去分类讨论点的顺序，而是直接看 6 组点对距离。正方形会有 4 条相等的短边和 2 条相等的长对角线。',
+    outcome:
+      '你能用距离性质而不是图形摆放顺序，稳定判断 4 个点能否构成正方形。',
+    sections: [
+      {
+        id: 'valid-square-summary',
+        title: '题目在问什么',
+        summary:
+          '给定平面上的 4 个点，判断它们能否构成一个有效正方形。点的输入顺序是任意的，不能假设已经按顺时针或逆时针排列。',
+        bullets: [
+          '输入顺序完全无序。',
+          '要判断的是正方形，不只是矩形。',
+          '重合点一定不合法。',
+          '是几何性质题。',
+        ],
+      },
+      {
+        id: 'valid-square-distance',
+        title: '无序点最稳的判断方式是看两两距离分布',
+        summary:
+          '4 个点两两配对一共有 6 个距离。若它们构成正方形，那么这 6 个距离只会出现两种不同数值：较小的 4 次对应 4 条边，较大的 2 次对应 2 条对角线。',
+        bullets: [
+          '总共只需要看 6 个距离。',
+          '边和对角线自然分成两类。',
+          '边长必须大于 0。',
+          '这是本题最核心的判定法。',
+        ],
+      },
+      {
+        id: 'valid-square-conditions',
+        title: '合法正方形要同时满足“4 短 2 长”和边长非零',
+        summary:
+          '如果 4 个点中有重合点，那么某些距离会是 0，直接非法。排除这种情况后，只要距离集合里刚好有两个不同值，而且出现次数分别是 4 和 2，就可以判断为正方形。',
+        bullets: [
+          '0 距离说明有重合点。',
+          '只出现两种距离才合理。',
+          '频次必须是 4 和 2。',
+          '不需要额外判断垂直关系。',
+        ],
+        callout:
+          '很多几何题在坐标无序时，优先考虑“不变量”。这里的距离分布就是最强的不变量之一。',
+      },
+      {
+        id: 'valid-square-solution',
+        title: '标准解法：统计 6 个平方距离的频次',
+        summary:
+          '计算 4 个点两两之间的平方距离，放进数组后统计不同值。若最小值是 0，则返回 `false`；否则当且仅当存在两个不同距离，且出现次数为 4 和 2，返回 `true`。',
+        bullets: [
+          '时间复杂度是常数级。',
+          '空间复杂度也是常数级。',
+          '实现重点在距离统计和边长非零。',
+          '是点集判方形代表题。',
+        ],
+        code: `function validSquare(p1: number[], p2: number[], p3: number[], p4: number[]): boolean {
+  const points = [p1, p2, p3, p4]
+  const distances: number[] = []
+
+  const dist2 = (a: number[], b: number[]): number =>
+    (a[0] - b[0]) * (a[0] - b[0]) + (a[1] - b[1]) * (a[1] - b[1])
+
+  for (let i = 0; i < points.length; i += 1) {
+    for (let j = i + 1; j < points.length; j += 1) {
+      distances.push(dist2(points[i], points[j]))
+    }
+  }
+
+  const countMap = new Map<number, number>()
+  for (const distance of distances) {
+    countMap.set(distance, (countMap.get(distance) ?? 0) + 1)
+  }
+
+  if (countMap.has(0) || countMap.size !== 2) {
+    return false
+  }
+
+  const counts = [...countMap.values()].sort((a, b) => a - b)
+  return counts[0] === 2 && counts[1] === 4
+}`,
+      },
+      {
+        id: 'valid-square-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是试图先把点排序成某种顺序，结果分类讨论很多；或者忘了排除边长为 0 的重合点情况。',
+        bullets: [
+          '易错点 1：对无序点做复杂排序讨论。',
+          '易错点 2：忘记检查 0 距离。',
+          '易错点 3：只检查 4 条边相等，没有检查对角线。',
+          '延伸方向：距离不变量、点集几何、矩形/菱形判定。',
+        ],
+      },
+    ],
+  },
 ];
