@@ -64052,4 +64052,91 @@ HAVING COUNT(*) >= 5;`,
       },
     ],
   },
+  {
+    id: 'friend-requests-i-overall-acceptance-rate',
+    label: '597. LeetCode 597. 好友申请 I：总体通过率',
+    difficulty: '简单',
+    description:
+      '这题要求的是总体通过率，不是按人分组。关键在于分子分母都要先去重，再用接受数除以请求数。',
+    outcome: '你能在 SQL 里正确处理去重计数和零分母保护。',
+    sections: [
+      {
+        id: 'friend-requests-i-overall-acceptance-rate-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `FriendRequest` 记录好友申请，表 `RequestAccepted` 记录好友申请被接受。要求计算总体通过率，也就是“被接受的不同好友对数量 / 发起申请的不同好友对数量”，结果保留两位小数。',
+        bullets: [
+          '统计的是总体，不分用户。',
+          '好友对要去重。',
+          '通过率是分子除以分母。',
+          '是 SQL 比率统计题。',
+        ],
+      },
+      {
+        id: 'friend-requests-i-overall-acceptance-rate-distinct',
+        title: '分子分母都必须按好友对去重',
+        summary:
+          '题目关注的是不同好友关系对，而不是原始日志条数。如果同一对用户重复发起请求，或重复出现在接受表中，都只能算一次。因此分子和分母都必须基于 `(sender_id, send_to_id)` 或对应接受对做 `DISTINCT` 计数。',
+        bullets: [
+          '原始记录可能重复。',
+          '好友对是统计单位。',
+          '去重是本题关键。',
+          '否则通过率会被放大或缩小。',
+        ],
+      },
+      {
+        id: 'friend-requests-i-overall-acceptance-rate-zero',
+        title: '分母可能为 0，所以要做保护',
+        summary:
+          '如果请求表里一条申请都没有，那么分母会变成 0。题目通常要求这种情况下返回 0.00，因此实现时需要用 `IFNULL`、`NULLIF` 或 `CASE` 避免除零错误。',
+        bullets: [
+          '零分母是边界条件。',
+          '不能直接裸除。',
+          '常见写法是 `NULLIF(count, 0)`。',
+          '结果格式仍要保留两位小数。',
+        ],
+      },
+      {
+        id: 'friend-requests-i-overall-acceptance-rate-solution',
+        title: '标准解法：两个去重计数相除',
+        summary:
+          '分别统计接受表中的不同好友对数量和请求表中的不同好友对数量，用前者除以后者，并对结果四舍五入到两位小数。若请求数为 0，则返回 0.00。',
+        bullets: [
+          '时间复杂度主要来自去重统计。',
+          '空间复杂度主要来自 distinct 结果。',
+          '实现重点在 distinct 和除零保护。',
+          '是 SQL 比率模板题。',
+        ],
+        code: `SELECT ROUND(
+  IFNULL(
+    (
+      SELECT COUNT(DISTINCT requester_id, accepter_id)
+      FROM RequestAccepted
+    ) /
+    NULLIF(
+      (
+        SELECT COUNT(DISTINCT sender_id, send_to_id)
+        FROM FriendRequest
+      ),
+      0
+    ),
+    0
+  ),
+  2
+) AS accept_rate;`,
+      },
+      {
+        id: 'friend-requests-i-overall-acceptance-rate-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接按总行数相除，没有去重；或者没有处理分母为 0 的情况，导致查询报错。',
+        bullets: [
+          '易错点 1：忽略好友对去重。',
+          '易错点 2：没有防止除以 0。',
+          '易错点 3：把接受数和请求数的字段配对写错。',
+          '延伸方向：去重统计、比率计算、SQL 边界处理。',
+        ],
+      },
+    ],
+  },
 ];
