@@ -64220,4 +64220,102 @@ HAVING COUNT(*) >= 5;`,
       },
     ],
   },
+  {
+    id: 'minimum-index-sum-of-two-lists',
+    label: '599. LeetCode 599. 两个列表的最小索引总和',
+    difficulty: '简单',
+    description:
+      '这题的目标不是找所有公共字符串，而是找索引和最小的公共字符串。最稳的做法是先给一个列表建索引表，再扫描另一个列表。',
+    outcome:
+      '你能用哈希表把双列表匹配问题降到线性时间，并同时维护最优值和并列答案。',
+    sections: [
+      {
+        id: 'minimum-index-sum-of-two-lists-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个字符串数组 `list1` 和 `list2`，找出它们共同拥有且索引和最小的餐馆名。若有多个答案并列最小，需要全部返回。',
+        bullets: [
+          '只看公共字符串。',
+          '比较指标是索引和。',
+          '可能有多个并列答案。',
+          '是哈希查找题。',
+        ],
+      },
+      {
+        id: 'minimum-index-sum-of-two-lists-hash',
+        title: '先把一个列表的名字映射到索引，另一个列表扫描时就能 O(1) 查到',
+        summary:
+          '如果暴力比较两个列表，每个元素都去另一个列表里找，会退化到二重循环。更高效的方式是先用哈希表记录 `list1` 中每个名字的位置，之后遍历 `list2` 时，若该名字存在于哈希表中，就能立即算出索引和。',
+        bullets: [
+          '哈希表负责快速定位。',
+          '把双重查找压成单次查找。',
+          '时间复杂度明显下降。',
+          '这是本题的标准做法。',
+        ],
+      },
+      {
+        id: 'minimum-index-sum-of-two-lists-best',
+        title: '一边扫描一边维护当前最小索引和',
+        summary:
+          '扫描第二个列表时，如果遇到公共字符串，就计算它的索引和。若比当前最优值更小，就清空答案并重新记录；若和当前最优值相同，就追加到答案中。',
+        bullets: [
+          '最优值需要动态更新。',
+          '更优时要清空旧答案。',
+          '并列时要保留所有候选。',
+          '维护逻辑很清晰。',
+        ],
+      },
+      {
+        id: 'minimum-index-sum-of-two-lists-solution',
+        title: '标准解法：哈希表 + 单次扫描',
+        summary:
+          '先把 `list1` 的元素和索引存入哈希表。再遍历 `list2`，对每个公共字符串计算索引和，并与当前最小值比较，按规则更新答案数组。',
+        bullets: [
+          '时间复杂度是 `O(m + n)`。',
+          '空间复杂度是 `O(m)`。',
+          '实现重点在最优值和答案列表的同步更新。',
+          '是哈希表入门题。',
+        ],
+        code: `function findRestaurant(list1: string[], list2: string[]): string[] {
+  const indexMap = new Map<string, number>()
+  for (let i = 0; i < list1.length; i += 1) {
+    indexMap.set(list1[i], i)
+  }
+
+  let best = Number.POSITIVE_INFINITY
+  const answer: string[] = []
+
+  for (let i = 0; i < list2.length; i += 1) {
+    const index = indexMap.get(list2[i])
+    if (index === undefined) {
+      continue
+    }
+
+    const sum = index + i
+    if (sum < best) {
+      best = sum
+      answer.length = 0
+      answer.push(list2[i])
+    } else if (sum === best) {
+      answer.push(list2[i])
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'minimum-index-sum-of-two-lists-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是找到更小索引和时忘记清空旧答案；或者只返回一个结果，漏掉并列最优的餐馆。',
+        bullets: [
+          '易错点 1：更优结果出现后没有重置答案数组。',
+          '易错点 2：忽略并列最优情况。',
+          '易错点 3：仍然使用双重循环暴力查找。',
+          '延伸方向：哈希查找、最优值维护、交集匹配。',
+        ],
+      },
+    ],
+  },
 ];
