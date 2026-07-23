@@ -64318,4 +64318,107 @@ HAVING COUNT(*) >= 5;`,
       },
     ],
   },
+  {
+    id: 'non-negative-integers-without-consecutive-ones',
+    label: '600. LeetCode 600. 不含连续1的非负整数',
+    difficulty: '困难',
+    description:
+      '这题不是逐个枚举，而是用二进制数位 DP 统计 `0..n` 中没有连续 `1` 的数有多少个。',
+    outcome:
+      '你能把二进制限制计数题转成数位 DP，并理解为什么可以像前缀一样逐位累加。',
+    sections: [
+      {
+        id: 'non-negative-integers-without-consecutive-ones-summary',
+        title: '题目在问什么',
+        summary:
+          '给定非负整数 `n`，要求统计区间 `[0, n]` 中二进制表示不包含连续两个 `1` 的整数个数。',
+        bullets: [
+          '检查的是二进制表示。',
+          '不能出现连续两个 `1`。',
+          '范围是 `0..n`。',
+          '是数位 DP 题。',
+        ],
+      },
+      {
+        id: 'non-negative-integers-without-consecutive-ones-observe',
+        title: '连续 1 约束只和前一个比特有关',
+        summary:
+          '如果当前位已经放了 `1`，那么下一位就不能再放 `1`。因此在统计方案时，只需要额外记住“上一位是不是 1”，再结合当前前缀是否已经严格小于 `n`，就能完整描述状态。',
+        bullets: [
+          '上一位状态足够表达连续性。',
+          '还需要记住是否受上界约束。',
+          '这就是典型数位 DP 状态。',
+          '状态很小但信息完整。',
+        ],
+      },
+      {
+        id: 'non-negative-integers-without-consecutive-ones-fib',
+        title: '不看上界时，本质上是斐波那契型计数',
+        summary:
+          '若只考虑长度为 `k` 的二进制串，且不允许连续 `1`，其可行方案数满足斐波那契递推：当前位置放 `0` 时，后面怎么放都行；当前位置放 `1` 时，下一位必须放 `0`。这也是为什么很多人会先用预处理数组做辅助。',
+        bullets: [
+          '二进制合法串数量有递推规律。',
+          '合法状态会像斐波那契一样增长。',
+          '这能帮助快速跳过前缀。',
+          '是本题的数学基础。',
+        ],
+      },
+      {
+        id: 'non-negative-integers-without-consecutive-ones-solution',
+        title: '标准解法：二进制数位 DP',
+        summary:
+          '先把 `n` 的二进制位从高到低取出。递归或迭代地处理每一位：若当前位置可以放 `0`，就继续；若可以放 `1`，则下一位必须受限。遇到 `n` 的某一位是 `1` 时，还可以把“当前位放 0”对应的整批合法数一次性加进答案。最后如果全过程没有出现连续 `1`，再把 `n` 自身算进去。',
+        bullets: [
+          '时间复杂度和二进制位数成正比。',
+          '空间复杂度可以做到 `O(1)` 或 `O(log n)`。',
+          '实现重点在位上限和连续性状态。',
+          '是数位 DP 代表题。',
+        ],
+        code: `function findIntegers(n: number): number {
+  const bits: number[] = []
+  let value = n
+  while (value > 0) {
+    bits.push(value & 1)
+    value >>= 1
+  }
+  if (bits.length === 0) {
+    return 1
+  }
+
+  const dp = new Array<number>(bits.length + 2).fill(0)
+  dp[0] = 1
+  dp[1] = 2
+  for (let i = 2; i < dp.length; i += 1) {
+    dp[i] = dp[i - 1] + dp[i - 2]
+  }
+
+  let answer = 0
+  let prevBit = 0
+  for (let i = bits.length - 1; i >= 0; i -= 1) {
+    if (bits[i] === 1) {
+      answer += dp[i]
+      if (prevBit === 1) {
+        return answer
+      }
+    }
+    prevBit = bits[i]
+  }
+
+  return answer + 1
+}`,
+      },
+      {
+        id: 'non-negative-integers-without-consecutive-ones-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接逐个枚举 `0..n` 再转二进制检查，复杂度太高；或者数位 DP 时漏掉“前一位是否为 1”的状态。',
+        bullets: [
+          '易错点 1：暴力枚举所有整数。',
+          '易错点 2：忘记连续性只和上一位有关。',
+          '易错点 3：把边界值 `n` 自身漏算或重复算。',
+          '延伸方向：数位 DP、二进制计数、斐波那契型转移。',
+        ],
+      },
+    ],
+  },
 ];
