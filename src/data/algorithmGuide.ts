@@ -64139,4 +64139,85 @@ HAVING COUNT(*) >= 5;`,
       },
     ],
   },
+  {
+    id: 'range-addition-ii',
+    label: '598. LeetCode 598. 区间加法 II',
+    difficulty: '简单',
+    description:
+      '这题的关键不是去真的模拟每次加一，而是观察最后最大值会出现在所有操作重叠的交集区域里。',
+    outcome: '你能从操作重叠关系中直接提炼答案，而不是做多余的矩阵更新。',
+    sections: [
+      {
+        id: 'range-addition-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 `m x n` 的矩阵，初始全是 0。每个操作 `[a, b]` 会让左上角 `a x b` 子矩阵中的每个元素都加 1。要求返回最终矩阵中最大整数出现了多少次。',
+        bullets: [
+          '每次只影响左上角某块区域。',
+          '最大值来自被加次数最多的位置。',
+          '要返回最大值的出现个数。',
+          '是观察题。',
+        ],
+      },
+      {
+        id: 'range-addition-ii-overlap',
+        title: '最大值一定出现在所有操作共同覆盖的区域',
+        summary:
+          '一次操作会给某个左上矩形整体加 1。那么被加次数最多的位置，就是那些落在所有操作重叠区域里的格子。这个重叠区域的行数就是所有 `a` 的最小值，列数就是所有 `b` 的最小值。',
+        bullets: [
+          '每个操作都从左上角开始。',
+          '共同覆盖区域才会拿到最多次加一。',
+          '交集大小由最小行列范围决定。',
+          '这是本题最核心的观察。',
+        ],
+      },
+      {
+        id: 'range-addition-ii-no-ops',
+        title: '如果没有任何操作，整个矩阵都是最大值',
+        summary:
+          '当 `ops` 为空时，矩阵所有位置都还是 0，而 0 也是最大值。这种情况下，答案就是整个矩阵大小 `m * n`。',
+        bullets: [
+          '空操作是特殊边界。',
+          '全矩阵值相同。',
+          '最大值出现次数就是总格数。',
+          '这个边界很容易漏掉。',
+        ],
+      },
+      {
+        id: 'range-addition-ii-solution',
+        title: '标准解法：取所有操作的最小行和最小列',
+        summary:
+          '初始化答案区域为整张矩阵的 `m` 行 `n` 列。遍历每个操作，不断更新最小的行上界和列上界。最终最大值出现次数就是 `minRow * minCol`。',
+        bullets: [
+          '时间复杂度是 `O(k)`，`k` 是操作数。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在识别交集区域。',
+          '是矩阵观察题代表。',
+        ],
+        code: `function maxCount(m: number, n: number, ops: number[][]): number {
+  let minRow = m
+  let minCol = n
+
+  for (const [row, col] of ops) {
+    minRow = Math.min(minRow, row)
+    minCol = Math.min(minCol, col)
+  }
+
+  return minRow * minCol
+}`,
+      },
+      {
+        id: 'range-addition-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是真的去构造和更新整个矩阵，复杂度完全没必要；或者误把答案理解成最大值本身，而不是最大值的出现次数。',
+        bullets: [
+          '易错点 1：做了多余的矩阵模拟。',
+          '易错点 2：把答案当成数值而不是个数。',
+          '易错点 3：空操作边界漏处理。',
+          '延伸方向：交集观察、矩阵操作化简、区间重叠。',
+        ],
+      },
+    ],
+  },
 ];
