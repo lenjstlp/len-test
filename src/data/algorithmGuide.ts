@@ -64628,4 +64628,106 @@ ORDER BY c1.seat_id;`,
       },
     ],
   },
+  {
+    id: 'design-compressed-string-iterator',
+    label: '604. LeetCode 604. 设计压缩字符串迭代器',
+    difficulty: '简单',
+    description:
+      '这题的重点是懒迭代，不要真的把压缩串完整展开，而是维护当前字符及其剩余次数。',
+    outcome:
+      '你能设计一个按需消费的字符串迭代器，并掌握“解析阶段 + 消费阶段”两段式实现。',
+    sections: [
+      {
+        id: 'design-compressed-string-iterator-summary',
+        title: '题目在问什么',
+        summary:
+          '给定压缩字符串，例如 `L1e2t1C1o1d1e1`，需要实现 `StringIterator`，支持 `next()` 和 `hasNext()`，按原始展开顺序逐个返回字符。',
+        bullets: [
+          '输入是字符加次数的压缩格式。',
+          '`next()` 返回下一个字符。',
+          '没有字符时返回空格字符。',
+          '是设计题而不是单纯解析题。',
+        ],
+      },
+      {
+        id: 'design-compressed-string-iterator-observe',
+        title: '不要预先展开整个字符串，直接记录字符和剩余次数',
+        summary:
+          '如果把字符串完整展开，长度可能非常大，空间会被浪费。更稳的办法是先解析出字符数组和对应计数数组，再用一个指针指向当前字符，每次 `next()` 消费一次计数，计数耗尽后再移动到下一个字符。',
+        bullets: [
+          '懒消费能避免大规模展开。',
+          '状态只需要字符数组、计数数组和指针。',
+          '实现清晰且节省空间。',
+          '这是设计题的标准思路。',
+        ],
+      },
+      {
+        id: 'design-compressed-string-iterator-solution',
+        title: '标准解法：先解析，再按剩余次数迭代',
+        summary:
+          '初始化时扫描压缩串，提取出每个字符以及它后面跟随的完整数字。之后 `next()` 先把指针移动到还剩次数的位置，返回当前字符并递减剩余计数；`hasNext()` 则只需判断后面是否还存在未消费完的字符。',
+        bullets: [
+          '初始化负责解析结构。',
+          '`next()` 负责消费当前块。',
+          '`hasNext()` 负责判断是否还有剩余。',
+          '实现重点是正确处理多位数计数。',
+        ],
+        code: `class StringIterator {
+  private readonly chars: string[] = []
+  private readonly counts: number[] = []
+  private index = 0
+
+  constructor(compressedString: string) {
+    let i = 0
+    while (i < compressedString.length) {
+      const char = compressedString[i]
+      i += 1
+
+      let count = 0
+      while (i < compressedString.length && /\\d/.test(compressedString[i])) {
+        count = count * 10 + Number(compressedString[i])
+        i += 1
+      }
+
+      this.chars.push(char)
+      this.counts.push(count)
+    }
+  }
+
+  private moveToNextAvailable(): void {
+    while (this.index < this.counts.length && this.counts[this.index] === 0) {
+      this.index += 1
+    }
+  }
+
+  next(): string {
+    this.moveToNextAvailable()
+    if (this.index === this.counts.length) {
+      return ' '
+    }
+
+    this.counts[this.index] -= 1
+    return this.chars[this.index]
+  }
+
+  hasNext(): boolean {
+    this.moveToNextAvailable()
+    return this.index < this.counts.length
+  }
+}`,
+      },
+      {
+        id: 'design-compressed-string-iterator-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接展开完整字符串，或者计数读取时只读一位数字，导致像 `a12` 这种输入被解析错。',
+        bullets: [
+          '易错点 1：把压缩串完全展开，浪费空间。',
+          '易错点 2：多位数计数解析错误。',
+          '易错点 3：`next()` 和 `hasNext()` 没同步跳过空计数块。',
+          '延伸方向：迭代器设计、懒加载、状态机实现。',
+        ],
+      },
+    ],
+  },
 ];
