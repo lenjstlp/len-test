@@ -65169,4 +65169,83 @@ FROM Triangle;`,
       },
     ],
   },
+  {
+    id: 'valid-triangle-number',
+    label: '611. LeetCode 611. 有效三角形的个数',
+    difficulty: '中等',
+    description:
+      '这题不能暴力三重循环硬数，排序后结合双指针，才能把三角形计数压到 `O(n^2)`。',
+    outcome:
+      '你能利用排序后的单调性，把三边组合计数问题优化成经典的双指针方案。',
+    sections: [
+      {
+        id: 'valid-triangle-number-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个非负整数数组，要求统计其中有多少组三元组可以组成三角形。三条边要来自数组中的不同下标。',
+        bullets: [
+          '需要统计三元组数量。',
+          '边长来自数组元素。',
+          '下标必须不同。',
+          '本质是满足条件的组合计数题。',
+        ],
+      },
+      {
+        id: 'valid-triangle-number-observe',
+        title: '排序后只需要检查两小边之和是否大于最大边',
+        summary:
+          '对三条升序边 `a <= b <= c` 来说，只要 `a + b > c` 成立，就一定能组成三角形。因此排序后可以固定最大边，再用左右指针寻找有多少对较小边满足条件。由于数组有序，若当前左边和右边已经满足条件，那么左指针到右指针之间的所有位置都满足。',
+        bullets: [
+          '排序带来单调性。',
+          '固定最大边后转成两数问题。',
+          '满足条件时可以一次性累计多组答案。',
+          '这是本题优化的关键。',
+        ],
+      },
+      {
+        id: 'valid-triangle-number-solution',
+        title: '标准解法：排序 + 固定最大边 + 双指针计数',
+        summary:
+          '先对数组升序排序。枚举每个位置作为最大边 `nums[k]`，再令左指针 `left` 指向开头，右指针 `right` 指向 `k - 1`。若 `nums[left] + nums[right] > nums[k]`，说明从 `left` 到 `right - 1` 与 `right` 组成的所有对都满足条件，答案增加 `right - left`，然后右指针左移；否则左指针右移。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度取决于排序实现。',
+          '实现重点在“一次性累计”这一步。',
+          '是双指针计数题代表。',
+        ],
+        code: `function triangleNumber(nums: number[]): number {
+  nums.sort((a, b) => a - b)
+
+  let count = 0
+  for (let k = nums.length - 1; k >= 2; k -= 1) {
+    let left = 0
+    let right = k - 1
+
+    while (left < right) {
+      if (nums[left] + nums[right] > nums[k]) {
+        count += right - left
+        right -= 1
+      } else {
+        left += 1
+      }
+    }
+  }
+
+  return count
+}`,
+      },
+      {
+        id: 'valid-triangle-number-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有先排序就直接双指针，导致单调性完全不存在；或者在满足条件时只加一，漏掉一整段可行组合。',
+        bullets: [
+          '易错点 1：忘记排序。',
+          '易错点 2：满足条件时没有一次性累加 `right - left`。',
+          '易错点 3：把零长度边也当成合法起点而逻辑混乱。',
+          '延伸方向：双指针计数、组合优化、排序后的单调性利用。',
+        ],
+      },
+    ],
+  },
 ];
