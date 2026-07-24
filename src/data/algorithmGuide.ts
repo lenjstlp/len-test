@@ -65103,4 +65103,70 @@ FROM Tree;`,
       },
     ],
   },
+  {
+    id: 'triangle-judgement',
+    label: '610. LeetCode 610. 判断三角形',
+    difficulty: '简单',
+    description:
+      '这题是最直接的三角形判定，只要抓住“三边中任意两边之和大于第三边”这个充要条件即可。',
+    outcome: '你能把数学判定条件干净地写成 SQL 分支表达式，并输出规范结果。',
+    sections: [
+      {
+        id: 'triangle-judgement-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Triangle` 中每条记录给出三条边 `x`、`y`、`z`。要求判断它们能否组成三角形，并返回 `Yes` 或 `No`。',
+        bullets: [
+          '每行单独判断。',
+          '输出是字符串结果。',
+          '本质是数学条件映射。',
+          '是 SQL 条件题。',
+        ],
+      },
+      {
+        id: 'triangle-judgement-observe',
+        title: '满足三角形不等式才成立',
+        summary:
+          '三条边能构成三角形，当且仅当任意两边之和都大于第三边。对于三条边来说，这三个条件必须同时满足，缺一不可。',
+        bullets: [
+          '是充要条件，不是经验规则。',
+          '三个不等式要同时成立。',
+          '任意一个失败都不能成三角形。',
+          '逻辑上非常直接。',
+        ],
+      },
+      {
+        id: 'triangle-judgement-solution',
+        title: '标准解法：`CASE WHEN` 直接映射三角形不等式',
+        summary:
+          '扫描 `Triangle` 表，对每一行用 `CASE WHEN` 判断 `x + y > z`、`x + z > y`、`y + z > x` 是否全部成立。全部成立返回 `Yes`，否则返回 `No`。',
+        bullets: [
+          '表达式简单清晰。',
+          '每行独立，不需要连接或分组。',
+          '实现成本很低。',
+          '适合做 SQL 条件语句入门题。',
+        ],
+        code: `SELECT x,
+  y,
+  z,
+  CASE
+    WHEN x + y > z AND x + z > y AND y + z > x THEN 'Yes'
+    ELSE 'No'
+  END AS triangle
+FROM Triangle;`,
+      },
+      {
+        id: 'triangle-judgement-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只判断最大的那条边是否小于另外两边之和，但又没有先找最大边；或者误把大于等于写成大于。',
+        bullets: [
+          '易错点 1：漏写某个不等式条件。',
+          '易错点 2：把严格大于写成大于等于。',
+          '易错点 3：输出字段名或返回值不符合题目要求。',
+          '延伸方向：数学建模、条件分支、数据校验。',
+        ],
+      },
+    ],
+  },
 ];
