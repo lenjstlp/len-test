@@ -64421,4 +64421,76 @@ HAVING COUNT(*) >= 5;`,
       },
     ],
   },
+  {
+    id: 'human-traffic-of-stadium',
+    label: '601. LeetCode 601. 体育馆的人流量',
+    difficulty: '困难',
+    description:
+      '这是一道 SQL 连续区间题，关键不是单独筛出 `people >= 100` 的记录，而是找出其中 `id` 连续且长度至少为 3 的整段数据。',
+    outcome:
+      '你能把“连续满足条件的记录段”转成 SQL 判断，并理解为什么最终要把整段都返回出来。',
+    sections: [
+      {
+        id: 'human-traffic-of-stadium-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Stadium` 记录每天的 `id`、日期和人流量。要求找出所有属于“至少连续三条且 `people >= 100`”区间的记录，并按日期升序返回。',
+        bullets: [
+          '先过滤人流量至少 100 的记录。',
+          '再判断 `id` 是否连续。',
+          '连续长度至少为 3。',
+          '返回的是整段中的所有记录。',
+        ],
+      },
+      {
+        id: 'human-traffic-of-stadium-observe',
+        title: '连续 3 天只是门槛，真正要返回的是整段所有满足条件的行',
+        summary:
+          '很多人会误以为只要找出某三个连续 `id` 即可，但题目要的是所有属于合法连续段的记录。所以更稳的思路是先找出能组成连续三元组的 `id`，再把这些三元组覆盖到的所有行去重返回。',
+        bullets: [
+          '三元组只是判定连续段存在的证据。',
+          '一个长区间会包含多个重叠三元组。',
+          '最终结果要去重。',
+          '核心是“覆盖整段”，不是“只取三条”。',
+        ],
+      },
+      {
+        id: 'human-traffic-of-stadium-solution',
+        title: '标准解法：枚举连续三元组，再回收所有覆盖到的记录',
+        summary:
+          '先把满足 `people >= 100` 的行参与三表连接，判断是否存在连续的三个 `id`。只要一行出现在任意一个合法三元组中，它就应该出现在答案里。最后按 `visit_date` 排序返回。',
+        bullets: [
+          '思路直接，适合题目数据规模。',
+          '重点在连续 `id` 条件的覆盖写法。',
+          '使用 `DISTINCT` 去重。',
+          '是 SQL 连续段题的典型做法。',
+        ],
+        code: `SELECT DISTINCT s1.*
+FROM Stadium s1
+JOIN Stadium s2
+  ON s2.people >= 100
+JOIN Stadium s3
+  ON s3.people >= 100
+WHERE s1.people >= 100
+  AND (
+    (s1.id = s2.id - 1 AND s1.id = s3.id - 2)
+    OR (s1.id = s2.id + 1 AND s1.id = s3.id - 1)
+    OR (s1.id = s2.id + 2 AND s1.id = s3.id + 1)
+  )
+ORDER BY visit_date;`,
+      },
+      {
+        id: 'human-traffic-of-stadium-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最常见的问题，是只返回三元组中的某一条起点记录，或者只判断某个固定方向的连续关系，导致长区间中的其他行被漏掉。',
+        bullets: [
+          '易错点 1：只返回长度恰好为 3 的片段。',
+          '易错点 2：漏掉长区间中的中间行或末尾行。',
+          '易错点 3：忘记先筛 `people >= 100`。',
+          '延伸方向：窗口函数分组、连续区间识别、SQL 序列问题。',
+        ],
+      },
+    ],
+  },
 ];
