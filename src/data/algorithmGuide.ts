@@ -64563,4 +64563,69 @@ LIMIT 1;`,
       },
     ],
   },
+  {
+    id: 'consecutive-available-seats',
+    label: '603. LeetCode 603. 连续空余座位',
+    difficulty: '简单',
+    description:
+      '这题本质上是在座位表里找“至少有一个相邻空位”的位置，因此重点不是全段，而是判断左右邻居是否存在可用座位。',
+    outcome: '你能用自连接快速识别相邻可用记录，并理解为什么答案需要去重。',
+    sections: [
+      {
+        id: 'consecutive-available-seats-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Cinema` 中每个座位有 `seat_id` 和是否空闲的标记 `free`。要求找出所有满足“自己空闲，且左右至少有一个相邻座位也空闲”的座位编号。',
+        bullets: [
+          '当前座位必须空闲。',
+          '至少存在一个相邻座位也空闲。',
+          '相邻的定义是 `seat_id` 差 1。',
+          '输出的是座位编号列表。',
+        ],
+      },
+      {
+        id: 'consecutive-available-seats-observe',
+        title: '只要能和左边或右边组成连续空位，这个座位就应该入选',
+        summary:
+          '题目不是找空位段的起点，而是找所有属于连续空位关系的座位。所以只要某个空位能和 `seat_id - 1` 或 `seat_id + 1` 的空位连上，它就要进入结果。由于一条记录可能同时匹配左右两侧，最终结果要去重。',
+        bullets: [
+          '左右任一侧可连通即可。',
+          '一个座位可能被匹配两次。',
+          '因此需要 `DISTINCT`。',
+          '逻辑上属于邻接判断题。',
+        ],
+      },
+      {
+        id: 'consecutive-available-seats-solution',
+        title: '标准解法：自连接检查左右相邻空位',
+        summary:
+          '把 `Cinema` 表和自己连接，判断另一个座位是否与当前座位编号相差 1，且两者都空闲。满足条件的当前座位就是答案。最后按 `seat_id` 升序返回。',
+        bullets: [
+          '自连接能直接表达邻接关系。',
+          '条件短，执行逻辑清晰。',
+          '结果需要去重。',
+          '是 SQL 邻接题常见写法。',
+        ],
+        code: `SELECT DISTINCT c1.seat_id
+FROM Cinema c1
+JOIN Cinema c2
+  ON ABS(c1.seat_id - c2.seat_id) = 1
+WHERE c1.free = 1
+  AND c2.free = 1
+ORDER BY c1.seat_id;`,
+      },
+      {
+        id: 'consecutive-available-seats-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只判断右邻居导致漏掉左侧匹配；或者忘记 `DISTINCT`，让同一个座位在两侧都匹配时重复返回。',
+        bullets: [
+          '易错点 1：只检查单侧邻居。',
+          '易错点 2：忘记结果去重。',
+          '易错点 3：没有先保证当前座位本身空闲。',
+          '延伸方向：邻接匹配、区间座位问题、SQL 自连接。',
+        ],
+      },
+    ],
+  },
 ];
