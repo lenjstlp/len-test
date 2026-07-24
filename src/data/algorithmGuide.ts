@@ -65019,4 +65019,88 @@ FROM Tree;`,
       },
     ],
   },
+  {
+    id: 'find-duplicate-file-in-system',
+    label: '609. LeetCode 609. 在系统中查找重复文件',
+    difficulty: '中等',
+    description:
+      '这题不是按文件名去重，而是按文件内容分组。真正的核心是正确解析路径字符串，并建立“内容 -> 文件路径列表”的映射。',
+    outcome:
+      '你能把字符串解析、哈希分组和结果过滤串起来，在线性时间内找出重复文件集合。',
+    sections: [
+      {
+        id: 'find-duplicate-file-in-system-summary',
+        title: '题目在问什么',
+        summary:
+          '输入是若干目录描述字符串，每条形如 `root/a 1.txt(abcd) 2.txt(efgh)`。要求找出所有内容相同的文件组，并返回这些组内的完整路径。',
+        bullets: [
+          '同组依据是文件内容相同。',
+          '返回的是完整文件路径。',
+          '每组至少包含两个文件。',
+          '本质是解析 + 分组题。',
+        ],
+      },
+      {
+        id: 'find-duplicate-file-in-system-observe',
+        title: '内容才是分组键，文件名和目录都只是路径信息',
+        summary:
+          '很多人会被输入格式绕住，但拆开后逻辑很简单：每条字符串第一个片段是目录，后面每个片段都是 `文件名(内容)`。只要把内容提出来当作哈希表键，把完整路径挂到这个键下面，最后筛出长度大于 1 的分组即可。',
+        bullets: [
+          '先拆目录，再拆文件片段。',
+          '内容是哈希键。',
+          '完整路径是结果值。',
+          '最后过滤重复组。',
+        ],
+      },
+      {
+        id: 'find-duplicate-file-in-system-solution',
+        title: '标准解法：解析输入后按内容聚合路径',
+        summary:
+          '遍历每一条目录描述，拿到根目录后继续扫描每个文件片段。对每个片段找到左括号位置，前半部分是文件名，括号内是内容。把完整路径加入 `Map<内容, 路径数组>` 中。最后收集所有长度至少为 2 的数组返回。',
+        bullets: [
+          '时间复杂度和输入总长度成正比。',
+          '空间复杂度主要是哈希表存储。',
+          '实现重点在字符串解析细节。',
+          '是哈希分组题的典型练习。',
+        ],
+        code: `function findDuplicate(paths: string[]): string[][] {
+  const contentMap = new Map<string, string[]>()
+
+  for (const path of paths) {
+    const parts = path.split(' ')
+    const directory = parts[0]
+
+    for (let i = 1; i < parts.length; i += 1) {
+      const file = parts[i]
+      const leftParenIndex = file.indexOf('(')
+      const fileName = file.slice(0, leftParenIndex)
+      const content = file.slice(leftParenIndex + 1, file.length - 1)
+      const fullPath = \`\${directory}/\${fileName}\`
+
+      const group = contentMap.get(content)
+      if (group === undefined) {
+        contentMap.set(content, [fullPath])
+      } else {
+        group.push(fullPath)
+      }
+    }
+  }
+
+  return Array.from(contentMap.values()).filter((group) => group.length > 1)
+}`,
+      },
+      {
+        id: 'find-duplicate-file-in-system-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是错误地把文件名当作分组依据；或者在解析 `文件名(内容)` 时切分位置写错，导致内容或路径提取异常。',
+        bullets: [
+          '易错点 1：按文件名而不是内容分组。',
+          '易错点 2：没有拼出完整路径。',
+          '易错点 3：括号解析边界写错。',
+          '延伸方向：哈希分组、字符串解析、文件系统建模。',
+        ],
+      },
+    ],
+  },
 ];
