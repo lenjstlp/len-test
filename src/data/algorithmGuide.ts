@@ -64954,4 +64954,69 @@ WHERE NOT EXISTS (
       },
     ],
   },
+  {
+    id: 'tree-node',
+    label: '608. LeetCode 608. 树节点',
+    difficulty: '中等',
+    description:
+      '这题要给每个节点打标签：根节点、内部节点还是叶子节点。判断依据其实只有两个：有没有父节点、有没有孩子节点。',
+    outcome: '你能把树结构信息映射成 SQL 条件分类，并写出清晰的多分支判断。',
+    sections: [
+      {
+        id: 'tree-node-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Tree` 中每条记录包含 `id` 和 `p_id`。`p_id` 为空表示没有父节点。要求给每个节点标记类型：`Root`、`Inner` 或 `Leaf`。',
+        bullets: [
+          '`p_id IS NULL` 说明是根节点。',
+          '有孩子的非根节点是内部节点。',
+          '没有孩子的非根节点是叶子节点。',
+          '本质是条件分类题。',
+        ],
+      },
+      {
+        id: 'tree-node-observe',
+        title: '节点类型只依赖父关系和子关系',
+        summary:
+          '判断一个节点属于哪一类，只需要回答两个问题：它有没有父节点？它有没有出现在别人的 `p_id` 中？第一个问题决定它是不是根，第二个问题决定它有没有孩子。',
+        bullets: [
+          '父关系决定是否为根。',
+          '子关系决定是内部还是叶子。',
+          '不需要真的遍历整棵树。',
+          '集合判断就够了。',
+        ],
+      },
+      {
+        id: 'tree-node-solution',
+        title: '标准解法：`CASE WHEN` + 子节点集合判断',
+        summary:
+          '直接遍历 `Tree` 表。若 `p_id` 为空，类型为 `Root`；否则检查该 `id` 是否出现在任意记录的 `p_id` 中，若出现则是 `Inner`，否则是 `Leaf`。',
+        bullets: [
+          '`CASE WHEN` 很适合表达分支分类。',
+          '孩子存在性可以用子查询判断。',
+          '逻辑简单但表达很完整。',
+          '是 SQL 分类题典型写法。',
+        ],
+        code: `SELECT id,
+  CASE
+    WHEN p_id IS NULL THEN 'Root'
+    WHEN id IN (SELECT p_id FROM Tree WHERE p_id IS NOT NULL) THEN 'Inner'
+    ELSE 'Leaf'
+  END AS type
+FROM Tree;`,
+      },
+      {
+        id: 'tree-node-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“有父节点”误认为“内部节点”，从而把没有孩子的普通节点也分错；或者在子查询里没有排除空 `p_id`。',
+        bullets: [
+          '易错点 1：没有区分“有父”与“有子”。',
+          '易错点 2：把所有非根节点都当成内部节点。',
+          '易错点 3：子查询没过滤空父节点值。',
+          '延伸方向：层级结构建模、存在性判断、SQL 分类逻辑。',
+        ],
+      },
+    ],
+  },
 ];
