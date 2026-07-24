@@ -64886,4 +64886,72 @@ ORDER BY c1.seat_id;`,
       },
     ],
   },
+  {
+    id: 'sales-person',
+    label: '607. LeetCode 607. 销售员',
+    difficulty: '简单',
+    description:
+      '这题是排除型 SQL，核心不是找卖给谁的人，而是找“从未给 RED 公司卖过东西”的销售员。',
+    outcome: '你能用 `NOT EXISTS` 稳定表达“没有发生过某类关联记录”的查询需求。',
+    sections: [
+      {
+        id: 'sales-person-summary',
+        title: '题目在问什么',
+        summary:
+          '给定销售员表、订单表和公司表，要求找出那些从来没有向名字为 `RED` 的公司卖过东西的销售员姓名。',
+        bullets: [
+          '最终输出销售员姓名。',
+          '关注的是是否给 `RED` 卖过。',
+          '只要卖过一次就要排除。',
+          '本质是反关联查询。',
+        ],
+      },
+      {
+        id: 'sales-person-observe',
+        title: '“从未发生过”最适合用 `NOT EXISTS` 表达',
+        summary:
+          '如果用普通连接再过滤，很容易在多订单场景下出现重复或逻辑绕弯。更直接的方式是：对每个销售员，检查是否存在一张订单，它关联的公司名为 `RED`。不存在则保留，存在则排除。',
+        bullets: [
+          '以销售员为主表逐个检查。',
+          '`EXISTS` 判断是否卖给过 RED。',
+          '`NOT EXISTS` 直接保留未命中的人。',
+          '语义清晰，扩展性也好。',
+        ],
+      },
+      {
+        id: 'sales-person-solution',
+        title: '标准解法：销售员主表 + `NOT EXISTS`',
+        summary:
+          '从 `SalesPerson` 表出发，子查询连接 `Orders` 和 `Company`，筛出当前销售员是否曾给 `RED` 公司成交过订单。如果不存在这样的订单，就返回该销售员的姓名。',
+        bullets: [
+          '逻辑直接映射题意。',
+          '避免了复杂分组。',
+          '适合这类“从未发生”问题。',
+          '是 SQL 反连接的经典写法。',
+        ],
+        code: `SELECT s.name
+FROM SalesPerson s
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM Orders o
+  JOIN Company c
+    ON c.com_id = o.com_id
+  WHERE o.sales_id = s.sales_id
+    AND c.name = 'RED'
+);`,
+      },
+      {
+        id: 'sales-person-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是先把所有订单连起来后再用 `c.name != "RED"` 过滤，这样会错误保留既卖给 RED 又卖给其他公司的销售员。',
+        bullets: [
+          '易错点 1：把“不等于 RED”当成“从未卖给 RED”。',
+          '易错点 2：忽略一个销售员可能有多张订单。',
+          '易错点 3：返回了 `sales_id` 而不是题目要求的 `name`。',
+          '延伸方向：反连接、存在性判断、多表过滤。',
+        ],
+      },
+    ],
+  },
 ];
