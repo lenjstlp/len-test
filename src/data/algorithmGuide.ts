@@ -64730,4 +64730,85 @@ ORDER BY c1.seat_id;`,
       },
     ],
   },
+  {
+    id: 'can-place-flowers',
+    label: '605. LeetCode 605. 种花问题',
+    difficulty: '简单',
+    description:
+      '这题是典型贪心，只要当前位置和左右邻居都没有花，就应该立刻种下，因为这不会影响更优解。',
+    outcome:
+      '你能用局部最优的方式在线判断是否还能继续种花，并写出边界处理干净的贪心代码。',
+    sections: [
+      {
+        id: 'can-place-flowers-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0` 和 `1` 的数组 `flowerbed`，`1` 表示已经种花，`0` 表示空地。要求判断是否还能再种下 `n` 朵花，并且不能有相邻的两朵花。',
+        bullets: [
+          '相邻位置不能同时种花。',
+          '已有花不能移动。',
+          '判断的是能否至少种下 `n` 朵。',
+          '是贪心入门题。',
+        ],
+      },
+      {
+        id: 'can-place-flowers-greedy',
+        title: '当前位置能种就立刻种，这是安全的局部最优',
+        summary:
+          '如果某个位置当前可种，延后种它不会带来额外收益，反而可能让后面更紧张。因此最自然的做法是从左到右扫描，只要当前格和左右邻居都为空，就立即种下并累计数量。',
+        bullets: [
+          '局部可种时无需犹豫。',
+          '立刻种不会损失全局最优。',
+          '从左到右扫描就够了。',
+          '这是典型贪心证明直觉。',
+        ],
+      },
+      {
+        id: 'can-place-flowers-solution',
+        title: '标准解法：线性扫描 + 邻居判断',
+        summary:
+          '遍历数组时，若当前位置为 `0`，并且左侧不存在花、右侧也不存在花，则在这里种下一朵并把计数加一。为了统一边界，可以把数组两端越界位置当成 `0` 处理。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在首尾边界判断。',
+          '修改原数组能让代码更直接。',
+        ],
+        code: `function canPlaceFlowers(flowerbed: number[], n: number): boolean {
+  let planted = 0
+
+  for (let i = 0; i < flowerbed.length; i += 1) {
+    if (flowerbed[i] === 1) {
+      continue
+    }
+
+    const left = i === 0 ? 0 : flowerbed[i - 1]
+    const right = i === flowerbed.length - 1 ? 0 : flowerbed[i + 1]
+
+    if (left === 0 && right === 0) {
+      flowerbed[i] = 1
+      planted += 1
+      if (planted >= n) {
+        return true
+      }
+    }
+  }
+
+  return planted >= n
+}`,
+      },
+      {
+        id: 'can-place-flowers-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是首尾边界判断写乱；或者虽然判断当前位置能种，却忘了真正把它标记为已种，导致后面重复使用同一个空位。',
+        bullets: [
+          '易错点 1：首尾位置边界处理错误。',
+          '易错点 2：种下后没有更新数组状态。',
+          '易错点 3：没有在达到 `n` 时提前返回。',
+          '延伸方向：贪心策略、局部最优证明、资源放置问题。',
+        ],
+      },
+    ],
+  },
 ];
