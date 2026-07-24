@@ -64811,4 +64811,79 @@ ORDER BY c1.seat_id;`,
       },
     ],
   },
+  {
+    id: 'construct-string-from-binary-tree',
+    label: '606. LeetCode 606. 根据二叉树创建字符串',
+    difficulty: '简单',
+    description:
+      '这题本质是前序遍历的字符串表达，但规则里对空括号有“只在必要时保留”的要求，这是实现重点。',
+    outcome:
+      '你能把树的递归遍历和字符串格式规则结合起来，正确处理“左空右不空”这种特殊情况。',
+    sections: [
+      {
+        id: 'construct-string-from-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，按前序遍历把它转成字符串。每个节点写成 `值(左子树)(右子树)` 的形式，但多余的空括号要省略，只有在右子树存在且左子树为空时，左括号对必须保留。',
+        bullets: [
+          '遍历顺序是前序。',
+          '括号表示孩子结构。',
+          '能省略的空括号要省略。',
+          '左空右非空时必须保留 `()`。',
+        ],
+      },
+      {
+        id: 'construct-string-from-binary-tree-rules',
+        title: '决定写不写括号，取决于左右孩子是否存在',
+        summary:
+          '当前节点的值一定要写。若左右孩子都为空，直接返回值即可；若只有左孩子，写 `值(左)`；若有右孩子，不管左孩子是否为空，都要写出左括号部分，此时左空要显式写成 `()`，否则结构会丢失。',
+        bullets: [
+          '叶子节点最简单。',
+          '只有左子树时可以省略右括号对。',
+          '右子树存在时左括号对不能乱省。',
+          '规则本质是避免结构歧义。',
+        ],
+      },
+      {
+        id: 'construct-string-from-binary-tree-solution',
+        title: '标准解法：递归前序构造字符串',
+        summary:
+          '递归函数负责返回“以当前节点为根的合法字符串”。先写当前值，再根据左右子树存在情况决定是否拼接括号部分。由于每个节点只访问一次，所以整体复杂度是线性的。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点是分情况拼接。',
+          '是树递归 + 格式化输出题。',
+        ],
+        code: `function tree2str(root: TreeNode | null): string {
+  if (root === null) {
+    return ''
+  }
+
+  const value = String(root.val)
+  if (root.left === null && root.right === null) {
+    return value
+  }
+
+  if (root.right === null) {
+    return \`\${value}(\${tree2str(root.left)})\`
+  }
+
+  return \`\${value}(\${tree2str(root.left)})(\${tree2str(root.right)})\`
+}`,
+      },
+      {
+        id: 'construct-string-from-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把所有空括号都删掉，结果在“左空右不空”时丢失树结构；或者把括号拼接规则写得过于复杂，导致分支遗漏。',
+        bullets: [
+          '易错点 1：错误省略左空右非空的 `()`。',
+          '易错点 2：叶子节点仍然输出多余括号。',
+          '易错点 3：递归返回空字符串的边界处理不清晰。',
+          '延伸方向：树序列化、递归格式化、前序遍历。',
+        ],
+      },
+    ],
+  },
 ];
