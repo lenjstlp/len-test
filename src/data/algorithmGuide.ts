@@ -64493,4 +64493,74 @@ ORDER BY visit_date;`,
       },
     ],
   },
+  {
+    id: 'friend-requests-ii-who-has-the-most-friends',
+    label: '602. LeetCode 602. 好友申请 II ：谁有最多的好友',
+    difficulty: '中等',
+    description:
+      '这题的关键是把好友关系看成双向边，因为一条接受记录会同时给申请人和接受人各增加一个好友。',
+    outcome:
+      '你能把双向关系展开成单列统计，再用分组聚合快速找出好友数量最多的人。',
+    sections: [
+      {
+        id: 'friend-requests-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `RequestAccepted` 中每条记录表示一对用户成为好友。要求统计谁拥有最多的好友，并返回这个人的 `id` 以及好友数量。',
+        bullets: [
+          '每条记录代表一条好友边。',
+          '好友关系是双向的。',
+          '需要统计每个人的总好友数。',
+          '最后返回数量最多的人。',
+        ],
+      },
+      {
+        id: 'friend-requests-ii-observe',
+        title: '一条好友记录会同时贡献给两个人',
+        summary:
+          '如果只按 `requester_id` 统计，会漏掉作为 `accepter_id` 出现的好友关系。因此要先把两列拆成同一列，形成“谁在一段关系中出现过一次，就加一”的统一视角。',
+        bullets: [
+          '不能只统计一侧字段。',
+          '双向关系要展开成两行。',
+          '展开后就能正常 `GROUP BY`。',
+          '这一步是整题核心。',
+        ],
+      },
+      {
+        id: 'friend-requests-ii-solution',
+        title: '标准解法：`UNION ALL` 展开双向关系后聚合',
+        summary:
+          '先把 `requester_id` 和 `accepter_id` 分别作为 `id` 取出，再用 `UNION ALL` 拼起来。这样每条好友关系会为两个人各贡献一次计数。最后按计数倒序取第一名即可。',
+        bullets: [
+          '`UNION ALL` 保留所有计数贡献。',
+          '聚合后按好友数降序。',
+          '`LIMIT 1` 直接取最多者。',
+          '是社交关系统计题常见套路。',
+        ],
+        code: `SELECT id, COUNT(*) AS num
+FROM (
+  SELECT requester_id AS id
+  FROM RequestAccepted
+  UNION ALL
+  SELECT accepter_id AS id
+  FROM RequestAccepted
+) AS friends
+GROUP BY id
+ORDER BY num DESC
+LIMIT 1;`,
+      },
+      {
+        id: 'friend-requests-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的错误，是忘记好友关系是双向的，只统计一边；或者误用 `UNION` 导致某些重复贡献被去重，结果偏小。',
+        bullets: [
+          '易错点 1：只统计 `requester_id` 或 `accepter_id`。',
+          '易错点 2：把 `UNION ALL` 写成 `UNION`。',
+          '易错点 3：排序后忘记只取第一名。',
+          '延伸方向：图度数统计、关系建模、SQL 聚合。',
+        ],
+      },
+    ],
+  },
 ];
