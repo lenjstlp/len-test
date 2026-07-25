@@ -65895,4 +65895,84 @@ ORDER BY rating DESC;`,
       },
     ],
   },
+  {
+    id: 'task-scheduler',
+    label: '621. LeetCode 621. 任务调度器',
+    difficulty: '中等',
+    description:
+      '这题的核心不是模拟执行顺序，而是抓住出现次数最多的任务会决定最短总时长的下界。',
+    outcome:
+      '你能从频次分布推出调度长度公式，并理解为什么答案要和任务总数取最大值。',
+    sections: [
+      {
+        id: 'task-scheduler-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一组任务和冷却时间 `n`，同类任务两次执行之间至少要间隔 `n` 个单位时间。要求求出完成所有任务所需的最短时间。',
+        bullets: [
+          '同类任务之间有冷却间隔。',
+          '不同任务可以填充空档。',
+          '目标是最短总时间。',
+          '是贪心计数题。',
+        ],
+      },
+      {
+        id: 'task-scheduler-observe',
+        title: '出现次数最多的任务决定骨架，其它任务负责填空',
+        summary:
+          '如果某个任务出现次数最多，设其频次为 `maxCount`，那么它至少会形成 `maxCount - 1` 个间隔，每个间隔长度至少为 `n + 1`。若有多个任务并列最高频，则最后一层还要额外占位。因此可以先算出理论骨架长度，再看其他任务是否足够把空档填满。',
+        bullets: [
+          '最高频任务决定调度框架。',
+          '其余任务负责填补空闲位。',
+          '并列最高频要单独处理尾部长度。',
+          '这是公式推导的核心。',
+        ],
+      },
+      {
+        id: 'task-scheduler-solution',
+        title: '标准解法：频次数组 + 调度长度公式',
+        summary:
+          '统计 26 个大写字母任务的频次，找到最高频次 `maxCount`，再统计有多少个任务拥有这个最高频次 `maxTasks`。理论最短时间是 `(maxCount - 1) * (n + 1) + maxTasks`。但如果任务种类足够多，把空档全填满后，真实答案不能小于任务总数，所以最终取两者最大值。',
+        bullets: [
+          '时间复杂度是 `O(tasks.length)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在并列最高频统计。',
+          '是公式型贪心题代表。',
+        ],
+        code: `function leastInterval(tasks: string[], n: number): number {
+  const counts = new Array<number>(26).fill(0)
+  for (const task of tasks) {
+    counts[task.charCodeAt(0) - 65] += 1
+  }
+
+  let maxCount = 0
+  for (const count of counts) {
+    maxCount = Math.max(maxCount, count)
+  }
+
+  let maxTasks = 0
+  for (const count of counts) {
+    if (count === maxCount) {
+      maxTasks += 1
+    }
+  }
+
+  const frameLength = (maxCount - 1) * (n + 1) + maxTasks
+  return Math.max(frameLength, tasks.length)
+}`,
+      },
+      {
+        id: 'task-scheduler-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只记住 `(maxCount - 1) * (n + 1) + 1` 这种不完整公式，忽略多个任务并列最高频的情况；或者忘了最后还要和任务总数取最大值。',
+        bullets: [
+          '易错点 1：漏掉并列最高频任务数量。',
+          '易错点 2：没有和 `tasks.length` 取最大值。',
+          '易错点 3：试图暴力模拟所有调度顺序。',
+          '延伸方向：贪心构造、频次统计、调度问题。',
+        ],
+      },
+    ],
+  },
 ];
