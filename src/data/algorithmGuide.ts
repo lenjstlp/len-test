@@ -65832,4 +65832,67 @@ FROM (
       },
     ],
   },
+  {
+    id: 'not-boring-movies',
+    label: '620. LeetCode 620. 有趣的电影',
+    difficulty: '简单',
+    description:
+      '这题本质是条件筛选：只保留奇数编号且描述不是 boring 的电影，再按评分倒序排。',
+    outcome: '你能把多条件过滤和排序写得清楚直接，不在简单题上绕弯。',
+    sections: [
+      {
+        id: 'not-boring-movies-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Cinema` 中记录电影编号、描述和评分。要求找出所有编号为奇数、且 `description` 不是 `boring` 的电影，并按评分降序返回。',
+        bullets: [
+          '只看奇数编号电影。',
+          '无聊电影要排除。',
+          '结果按评分倒序。',
+          '是基础筛选排序题。',
+        ],
+      },
+      {
+        id: 'not-boring-movies-observe',
+        title: '题目没有隐藏逻辑，关键是条件和排序同时写对',
+        summary:
+          '这类题没有复杂建模，重点是别漏条件。奇数编号可以用 `id % 2 = 1`，描述筛选用不等于 `boring`，最后按 `rating DESC` 排序即可。',
+        bullets: [
+          '条件写全比花哨技巧更重要。',
+          '奇偶判断最直接。',
+          '描述过滤是字符串比较。',
+          '排序字段不要写错。',
+        ],
+      },
+      {
+        id: 'not-boring-movies-solution',
+        title: '标准解法：条件过滤 + 评分降序',
+        summary:
+          '从 `Cinema` 表中直接筛出 `id` 为奇数且 `description` 不为 `boring` 的行，再按 `rating` 从高到低排序返回。',
+        bullets: [
+          '查询足够直接。',
+          '不需要聚合或连接。',
+          '逻辑与题意完全对应。',
+          '是 SQL 入门题。',
+        ],
+        code: `SELECT *
+FROM Cinema
+WHERE id % 2 = 1
+  AND description <> 'boring'
+ORDER BY rating DESC;`,
+      },
+      {
+        id: 'not-boring-movies-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把排序写成按 `id` 排，或者把偶数和奇数判断写反。虽然简单，但细节错了结果就全偏了。',
+        bullets: [
+          '易错点 1：奇偶条件写反。',
+          '易错点 2：排序字段写错。',
+          '易错点 3：忘记排除 `boring`。',
+          '延伸方向：SQL 条件过滤、排序、基础查询规范。',
+        ],
+      },
+    ],
+  },
 ];
