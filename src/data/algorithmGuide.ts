@@ -65248,4 +65248,71 @@ FROM Triangle;`,
       },
     ],
   },
+  {
+    id: 'shortest-distance-in-a-plane',
+    label: '612. LeetCode 612. 平面上的最短距离',
+    difficulty: '中等',
+    description:
+      '这题是 SQL + 几何基础题，核心在于枚举不同点对并取欧氏距离最小值，同时要避免自己和自己配对。',
+    outcome:
+      '你能把二维点的最短距离问题转成 SQL 自连接，并理解去重配对的写法。',
+    sections: [
+      {
+        id: 'shortest-distance-in-a-plane-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Point2D` 中每条记录表示平面上的一个点，包含 `x` 和 `y`。要求求出任意两个不同点之间的最短欧氏距离，并保留两位小数。',
+        bullets: [
+          '点在二维平面上。',
+          '要比较不同点对之间的距离。',
+          '答案是最小值。',
+          '结果要保留两位小数。',
+        ],
+      },
+      {
+        id: 'shortest-distance-in-a-plane-observe',
+        title: '不同点对只需要比较一次',
+        summary:
+          '若直接做全连接，会出现 `(a, b)` 和 `(b, a)` 两次重复配对，还会出现点和自己配对。更稳的写法是利用坐标顺序条件，只保留一半配对，例如要求 `p1.x < p2.x` 或 `p1.x = p2.x 且 p1.y < p2.y`。',
+        bullets: [
+          '要排除同一点配对。',
+          '要避免对称重复计算。',
+          '顺序条件能唯一确定一组点对。',
+          '这是 SQL 自连接题的常见技巧。',
+        ],
+      },
+      {
+        id: 'shortest-distance-in-a-plane-solution',
+        title: '标准解法：自连接枚举点对后取最小欧氏距离',
+        summary:
+          '将 `Point2D` 表与自己连接，按照顺序条件保留唯一点对，再使用距离公式 `sqrt((x1 - x2)^2 + (y1 - y2)^2)` 计算每组点对距离，最后取最小值并四舍五入到两位小数。',
+        bullets: [
+          '自连接负责枚举点对。',
+          '距离公式直接写进 SQL。',
+          '最终只取最小值。',
+          '适合这类几何枚举题。',
+        ],
+        code: `SELECT ROUND(
+  MIN(SQRT(POW(p1.x - p2.x, 2) + POW(p1.y - p2.y, 2))),
+  2
+) AS shortest
+FROM Point2D p1
+JOIN Point2D p2
+  ON p1.x < p2.x
+  OR (p1.x = p2.x AND p1.y < p2.y);`,
+      },
+      {
+        id: 'shortest-distance-in-a-plane-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有去掉重复点对，导致同一距离被重复计算；或者把平面距离误写成只看横纵坐标差值的简单和。',
+        bullets: [
+          '易错点 1：没有排除点和自己配对。',
+          '易错点 2：重复计算 `(a, b)` 和 `(b, a)`。',
+          '易错点 3：距离公式写错。',
+          '延伸方向：几何计算、SQL 自连接、枚举去重。',
+        ],
+      },
+    ],
+  },
 ];
