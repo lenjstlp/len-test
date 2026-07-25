@@ -65533,4 +65533,90 @@ JOIN company_average c
       },
     ],
   },
+  {
+    id: 'add-bold-tag-in-string',
+    label: '616. LeetCode 616. 给字符串添加加粗标签',
+    difficulty: '中等',
+    description:
+      '这题的关键不是逐个单词替换，而是先标记哪些字符区间应该被加粗，再把重叠区间合并后统一输出。',
+    outcome: '你能把子串匹配结果转成区间覆盖问题，并正确处理重叠和相邻区间。',
+    sections: [
+      {
+        id: 'add-bold-tag-in-string-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s` 和一个单词数组 `words`，要求把 `s` 中所有出现在 `words` 里的子串用 `<b>` 和 `</b>` 包起来。若多个区间重叠或相邻，需要合并成一个连续的加粗区间。',
+        bullets: [
+          '匹配来源是 `words` 中的所有单词。',
+          '命中的所有字符都要加粗。',
+          '重叠或相邻区间必须合并。',
+          '输出是带标签的新字符串。',
+        ],
+      },
+      {
+        id: 'add-bold-tag-in-string-observe',
+        title: '先标记字符是否应该加粗，再一次性生成结果',
+        summary:
+          '如果边匹配边插标签，很容易在重叠区间时处理混乱。更稳的做法是先用一个布尔数组记录每个字符是否属于至少一个匹配单词，然后扫描这个布尔数组，在“非加粗 -> 加粗”和“加粗 -> 非加粗”的边界处插入标签。',
+        bullets: [
+          '先分离“匹配”和“生成结果”两个阶段。',
+          '布尔数组能自然合并重叠区间。',
+          '相邻命中会形成连续 `true` 段。',
+          '这是本题标准建模方式。',
+        ],
+      },
+      {
+        id: 'add-bold-tag-in-string-solution',
+        title: '标准解法：布尔覆盖数组 + 边界插标签',
+        summary:
+          '遍历每个起点，检查是否能匹配到某个单词。若能匹配，就把对应范围标记成 `true`。随后再从左到右扫描字符串：进入一段 `true` 区间时写入 `<b>`，离开时写入 `</b>`，区间内照常追加字符即可。',
+        bullets: [
+          '时间复杂度取决于匹配方式。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在区间边界判断。',
+          '适合训练字符串区间处理能力。',
+        ],
+        code: `function addBoldTag(s: string, words: string[]): string {
+  const bold = new Array<boolean>(s.length).fill(false)
+
+  for (let i = 0; i < s.length; i += 1) {
+    for (const word of words) {
+      if (s.startsWith(word, i)) {
+        for (let j = i; j < i + word.length; j += 1) {
+          bold[j] = true
+        }
+      }
+    }
+  }
+
+  let result = ''
+  for (let i = 0; i < s.length; i += 1) {
+    if (bold[i] && (i === 0 || !bold[i - 1])) {
+      result += '<b>'
+    }
+
+    result += s[i]
+
+    if (bold[i] && (i === s.length - 1 || !bold[i + 1])) {
+      result += '</b>'
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'add-bold-tag-in-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把每次命中的区间都独立包标签，结果在重叠或相邻区间上产生多余的嵌套标签；或者只匹配第一个命中的单词，漏掉后续覆盖。',
+        bullets: [
+          '易错点 1：没有合并重叠或相邻区间。',
+          '易错点 2：匹配到一个单词就提前停止。',
+          '易错点 3：标签插入边界判断不完整。',
+          '延伸方向：区间合并、字符串构造、多模式匹配。',
+        ],
+      },
+    ],
+  },
 ];
