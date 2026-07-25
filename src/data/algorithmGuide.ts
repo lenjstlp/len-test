@@ -65450,4 +65450,87 @@ ORDER BY follower;`,
       },
     ],
   },
+  {
+    id: 'average-salary-departments-vs-company',
+    label: '615. LeetCode 615. 部门工资和公司工资比较',
+    difficulty: '困难',
+    description:
+      '这题要先按月份算部门平均工资，再按同月份算公司平均工资，最后做同月对比，关键是分清比较维度。',
+    outcome: '你能把多层聚合拆清楚，并完成“同月部门 vs 公司”的逐月比较。',
+    sections: [
+      {
+        id: 'average-salary-departments-vs-company-summary',
+        title: '题目在问什么',
+        summary:
+          '员工工资表记录了发薪日期和金额，员工表记录了员工所属部门。要求对每个月的每个部门，比较该部门平均工资与当月公司平均工资的大小关系，输出 `higher`、`lower` 或 `same`。',
+        bullets: [
+          '比较必须限定在同一个月。',
+          '部门平均工资按部门和月份聚合。',
+          '公司平均工资只按月份聚合。',
+          '最后输出比较结果。',
+        ],
+      },
+      {
+        id: 'average-salary-departments-vs-company-observe',
+        title: '部门均值和公司均值的聚合粒度不同，必须先各自算出来',
+        summary:
+          '如果直接把所有表连起来再比较，很容易把部门和公司两个层级混在一起。更稳的做法是先做两个中间结果：一个是“每月每部门平均工资”，另一个是“每月公司平均工资”，然后按月份把它们连起来比较。',
+        bullets: [
+          '先分层聚合，再做连接。',
+          '部门层和公司层是两个不同粒度。',
+          '月份是连接键。',
+          '这是整题建模核心。',
+        ],
+      },
+      {
+        id: 'average-salary-departments-vs-company-solution',
+        title: '标准解法：两个聚合子查询按月份连接后比较',
+        summary:
+          '先把 `salary` 和 `employee` 连接，求出每个月每个部门的平均工资。再单独求每个月全公司的平均工资。最后按月份连接两个结果，用 `CASE WHEN` 比较大小并输出标签。',
+        bullets: [
+          '月份要统一截取成年月格式。',
+          '先算均值，再比较。',
+          '最终输出部门、月份和比较结果。',
+          '是典型的分层聚合题。',
+        ],
+        code: `WITH department_average AS (
+  SELECT DATE_FORMAT(s.pay_date, '%Y-%m') AS pay_month,
+    e.department_id,
+    AVG(s.amount) AS department_avg
+  FROM Salary s
+  JOIN Employee e
+    ON e.employee_id = s.employee_id
+  GROUP BY DATE_FORMAT(s.pay_date, '%Y-%m'), e.department_id
+),
+company_average AS (
+  SELECT DATE_FORMAT(pay_date, '%Y-%m') AS pay_month,
+    AVG(amount) AS company_avg
+  FROM Salary
+  GROUP BY DATE_FORMAT(pay_date, '%Y-%m')
+)
+SELECT d.pay_month,
+  d.department_id,
+  CASE
+    WHEN d.department_avg > c.company_avg THEN 'higher'
+    WHEN d.department_avg < c.company_avg THEN 'lower'
+    ELSE 'same'
+  END AS comparison
+FROM department_average d
+JOIN company_average c
+  ON d.pay_month = c.pay_month;`,
+      },
+      {
+        id: 'average-salary-departments-vs-company-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忽略“按月比较”这个前提，直接拿部门整体均值和公司整体均值比较；或者部门聚合时少了月份维度。',
+        bullets: [
+          '易错点 1：没有按月比较。',
+          '易错点 2：部门聚合漏掉月份维度。',
+          '易错点 3：比较前没有先分别算出均值。',
+          '延伸方向：多层聚合、指标对比、时间维度分析。',
+        ],
+      },
+    ],
+  },
 ];
