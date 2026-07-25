@@ -65315,4 +65315,72 @@ JOIN Point2D p2
       },
     ],
   },
+  {
+    id: 'shortest-distance-in-a-line',
+    label: '613. LeetCode 613. 直线上的最短距离',
+    difficulty: '简单',
+    description:
+      '这题比平面版本更简单，排序后最短距离一定出现在相邻点之间，不需要枚举所有点对。',
+    outcome: '你能利用有序后的相邻性，把最短距离问题从全枚举降成相邻比较。',
+    sections: [
+      {
+        id: 'shortest-distance-in-a-line-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Point` 中每条记录只有一维坐标 `x`。要求求出任意两个不同点之间的最短距离。',
+        bullets: [
+          '点只在一条数轴上。',
+          '要找最短距离。',
+          '不同点之间才能比较。',
+          '是一维版本的最短距离题。',
+        ],
+      },
+      {
+        id: 'shortest-distance-in-a-line-observe',
+        title: '排序后，最短距离一定来自相邻点',
+        summary:
+          '在一维有序数轴上，如果两个点之间还夹着其他点，那么它们的距离不可能比某一对相邻点更小。因此只要把所有点排序，再比较相邻位置的差值，最小的那个就是答案。',
+        bullets: [
+          '不需要全量点对枚举。',
+          '核心是相邻性结论。',
+          '排序后的邻居就是候选。',
+          '这是本题的关键优化。',
+        ],
+      },
+      {
+        id: 'shortest-distance-in-a-line-solution',
+        title: '标准解法：排序后比较相邻点差值',
+        summary:
+          '先按 `x` 升序排列，再利用自连接或窗口函数，把每个点和它后一个点配对，计算差值。最后取这些相邻差值中的最小值即可。',
+        bullets: [
+          '逻辑核心是有序后看相邻。',
+          '实现上可以用自连接表达后继点。',
+          '最后只取最小差值。',
+          '是一维序列观察题。',
+        ],
+        code: `SELECT MIN(ABS(p1.x - p2.x)) AS shortest
+FROM Point p1
+JOIN Point p2
+  ON p1.x < p2.x
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM Point p3
+  WHERE p3.x > p1.x
+    AND p3.x < p2.x
+);`,
+      },
+      {
+        id: 'shortest-distance-in-a-line-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是照搬二维题继续比较所有点对，虽然能做出来，但没有抓住一维相邻性这个核心结构。',
+        bullets: [
+          '易错点 1：忽略“相邻点最优”结论。',
+          '易错点 2：把自己和自己配对。',
+          '易错点 3：没有保证比较的是后继点。',
+          '延伸方向：有序结构、相邻最优、窗口函数。',
+        ],
+      },
+    ],
+  },
 ];
