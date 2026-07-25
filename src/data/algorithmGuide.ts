@@ -65383,4 +65383,71 @@ WHERE NOT EXISTS (
       },
     ],
   },
+  {
+    id: 'second-degree-follower',
+    label: '614. LeetCode 614. 二度关注者',
+    difficulty: '中等',
+    description:
+      '这题统计的不是“有多少粉丝”，而是“被多少个已经关注过别人的用户关注”。关键是理解二度关注者的定义。',
+    outcome: '你能把关系表里的角色区分清楚，并用分组聚合统计二度关注数量。',
+    sections: [
+      {
+        id: 'second-degree-follower-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Follow` 中每条记录表示 `followee` 被 `follower` 关注。若某个 `follower` 自己也关注了别人，那么被他关注的人就多了一层“二度关注”贡献。题目要求找出所有拥有二度关注者的人及其数量。',
+        bullets: [
+          '关系方向是 `follower -> followee`。',
+          '二度关注者必须自己也出现在 `follower` 列里。',
+          '结果按 `followee` 统计。',
+          '是关系筛选 + 聚合题。',
+        ],
+      },
+      {
+        id: 'second-degree-follower-observe',
+        title: '先确定谁具备“继续关注别人”的资格，再统计他们关注了谁',
+        summary:
+          '定义里“二度”不是递归展开很多层，而是要求某个关注者自己也关注过别人。所以可以先找出所有出现在 `follower` 列中的用户集合，再统计这些人作为关注者时指向了哪些 `followee`。',
+        bullets: [
+          '先确定合法关注者集合。',
+          '再统计这些集合指向的对象。',
+          '按 `followee` 分组计数。',
+          '思路比直接多表绕来绕去更清楚。',
+        ],
+      },
+      {
+        id: 'second-degree-follower-solution',
+        title: '标准解法：过滤合法关注者后按被关注者分组',
+        summary:
+          '筛出那些 `follower` 本身也在 `followee` 或 `follower` 关系链中继续关注过别人。更直接地说，只要一个用户出现在 `follower` 列里，他就是一个能贡献二度关注的人。然后对这些记录按 `followee` 分组统计即可。',
+        bullets: [
+          '核心是理解“二度”的资格条件。',
+          '分组维度是被关注者。',
+          '结果输出用户和数量。',
+          '是 SQL 关系聚合题。',
+        ],
+        code: `SELECT f1.followee AS follower,
+  COUNT(*) AS num
+FROM Follow f1
+WHERE f1.follower IN (
+  SELECT DISTINCT follower
+  FROM Follow
+)
+GROUP BY f1.followee
+ORDER BY follower;`,
+      },
+      {
+        id: 'second-degree-follower-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“二度关注者”误解为图上的第二层 BFS，结果写得非常复杂；或者分组时按错列，统计成“谁关注了多少人”。',
+        bullets: [
+          '易错点 1：把定义理解得过度复杂。',
+          '易错点 2：按 `follower` 分组而不是按 `followee`。',
+          '易错点 3：没有先过滤具备资格的关注者。',
+          '延伸方向：社交关系建模、SQL 聚合、图关系简化。',
+        ],
+      },
+    ],
+  },
 ];
