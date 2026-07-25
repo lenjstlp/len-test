@@ -65975,4 +65975,120 @@ ORDER BY rating DESC;`,
       },
     ],
   },
+  {
+    id: 'design-circular-queue',
+    label: '622. LeetCode 622. 设计循环队列',
+    difficulty: '中等',
+    description:
+      '这题不是普通数组队列，而是固定容量的循环结构。关键是维护头指针、当前元素个数，以及取模移动。',
+    outcome:
+      '你能设计一个不搬移元素的环形队列，并把判满、判空、取头尾都处理干净。',
+    sections: [
+      {
+        id: 'design-circular-queue-summary',
+        title: '题目在问什么',
+        summary:
+          '实现一个固定大小的循环队列 `MyCircularQueue`，支持入队、出队、取队头、取队尾、判空、判满等操作。',
+        bullets: [
+          '队列容量固定。',
+          '尾部满了可以绕回数组开头。',
+          '所有操作都要求高效。',
+          '是典型数据结构设计题。',
+        ],
+      },
+      {
+        id: 'design-circular-queue-observe',
+        title: '不要真的移动元素，只维护头位置和当前长度',
+        summary:
+          '循环队列最容易写乱的地方，是头尾指针绕回时的边界处理。一个稳定方案是只保存 `front` 和 `size`：队尾位置可以由 `(front + size) % capacity` 推出，队尾元素位置也能由 `(front + size - 1 + capacity) % capacity` 计算出来。',
+        bullets: [
+          '状态越少，越不容易出错。',
+          '`front` 决定队头位置。',
+          '`size` 决定当前是否为空或已满。',
+          '取模负责环形回绕。',
+        ],
+      },
+      {
+        id: 'design-circular-queue-solution',
+        title: '标准解法：数组存储 + `front` + `size`',
+        summary:
+          '初始化长度为 `k` 的数组，并维护容量 `capacity`、队头索引 `front`、当前元素个数 `size`。入队时把元素写入逻辑队尾位置；出队时前移 `front`；判空判满只需比较 `size` 和 `0` 或 `capacity`。',
+        bullets: [
+          '所有操作都能做到 `O(1)`。',
+          '空间复杂度是 `O(k)`。',
+          '实现重点在尾部索引计算。',
+          '是循环结构设计的基础题。',
+        ],
+        code: `class MyCircularQueue {
+  private readonly values: number[]
+  private readonly capacity: number
+  private front = 0
+  private size = 0
+
+  constructor(k: number) {
+    this.values = new Array<number>(k).fill(0)
+    this.capacity = k
+  }
+
+  enQueue(value: number): boolean {
+    if (this.isFull()) {
+      return false
+    }
+
+    const rear = (this.front + this.size) % this.capacity
+    this.values[rear] = value
+    this.size += 1
+    return true
+  }
+
+  deQueue(): boolean {
+    if (this.isEmpty()) {
+      return false
+    }
+
+    this.front = (this.front + 1) % this.capacity
+    this.size -= 1
+    return true
+  }
+
+  Front(): number {
+    if (this.isEmpty()) {
+      return -1
+    }
+
+    return this.values[this.front]
+  }
+
+  Rear(): number {
+    if (this.isEmpty()) {
+      return -1
+    }
+
+    const rear = (this.front + this.size - 1 + this.capacity) % this.capacity
+    return this.values[rear]
+  }
+
+  isEmpty(): boolean {
+    return this.size === 0
+  }
+
+  isFull(): boolean {
+    return this.size === this.capacity
+  }
+}`,
+      },
+      {
+        id: 'design-circular-queue-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只维护头尾指针却分不清“空”和“满”；或者队头前移时忘了取模，导致越界。',
+        bullets: [
+          '易错点 1：没有额外维护 `size`，空满状态冲突。',
+          '易错点 2：索引回绕时忘记取模。',
+          '易错点 3：`Rear()` 位置计算偏一位。',
+          '延伸方向：环形数组、队列设计、固定容量缓冲区。',
+        ],
+      },
+    ],
+  },
 ];
