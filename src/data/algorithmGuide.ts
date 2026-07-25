@@ -65767,4 +65767,69 @@ ORDER BY row_num;`,
       },
     ],
   },
+  {
+    id: 'biggest-single-number',
+    label: '619. LeetCode 619. 只出现一次的最大数字',
+    difficulty: '简单',
+    description:
+      '这题就是先按数字分组计数，再从只出现一次的数字里选最大值，重点是把“唯一出现”条件表达清楚。',
+    outcome: '你能把去重统计和极值选择组合起来，写出简洁的 SQL 聚合查询。',
+    sections: [
+      {
+        id: 'biggest-single-number-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `MyNumbers` 中存放若干整数。要求找出只出现一次的数字里最大的那个；如果不存在这样的数字，返回 `null`。',
+        bullets: [
+          '先筛出出现次数为 1 的数字。',
+          '再从中找最大值。',
+          '若不存在则返回空。',
+          '是基础聚合题。',
+        ],
+      },
+      {
+        id: 'biggest-single-number-observe',
+        title: '唯一性判断必须发生在分组之后',
+        summary:
+          '题目要的是“值只出现一次”，不是“某一行没重复”。因此必须先按数字分组统计，再通过 `HAVING COUNT(*) = 1` 保留唯一值，最后再取这些值的最大者。',
+        bullets: [
+          '唯一性是按值统计的结果。',
+          '必须先 `GROUP BY`。',
+          '`HAVING` 才能过滤聚合后的组。',
+          '最后再取极值。',
+        ],
+      },
+      {
+        id: 'biggest-single-number-solution',
+        title: '标准解法：分组计数后取最大值',
+        summary:
+          '对 `MyNumbers` 表按 `num` 分组，用 `HAVING COUNT(*) = 1` 过滤掉重复数字，再对剩余分组取 `MAX(num)`。如果没有任何分组留下来，聚合结果自然会是 `null`。',
+        bullets: [
+          '查询简洁直接。',
+          '不需要额外连接。',
+          '空结果会自动返回 `null`。',
+          '是 SQL 聚合入门题。',
+        ],
+        code: `SELECT MAX(num) AS num
+FROM (
+  SELECT num
+  FROM MyNumbers
+  GROUP BY num
+  HAVING COUNT(*) = 1
+) AS singles;`,
+      },
+      {
+        id: 'biggest-single-number-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有分组就直接 `DISTINCT`，但 `DISTINCT` 只能去重，不能判断某个值是不是只出现过一次。',
+        bullets: [
+          '易错点 1：误把 `DISTINCT` 当作唯一值判断。',
+          '易错点 2：漏写 `HAVING COUNT(*) = 1`。',
+          '易错点 3：先取最大值再判断唯一性，顺序颠倒。',
+          '延伸方向：频次统计、极值选择、SQL 聚合。',
+        ],
+      },
+    ],
+  },
 ];
