@@ -65694,4 +65694,77 @@ JOIN company_average c
       },
     ],
   },
+  {
+    id: 'students-report-by-geography',
+    label: '618. LeetCode 618. 按地理位置报告学生',
+    difficulty: '困难',
+    description:
+      '这题是 SQL 透视表题，关键不是单纯分组，而是把不同大陆的学生按行号对齐后横向展开。',
+    outcome: '你能把分组排序结果编号，再用条件聚合实现按列透视输出。',
+    sections: [
+      {
+        id: 'students-report-by-geography-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Student` 记录学生姓名和所在大陆。要求把美洲、亚洲、欧洲的学生分别按姓名排序后，按相同行号对齐，最终输出成三列报告。',
+        bullets: [
+          '每个大陆内部都要按姓名排序。',
+          '三大洲结果要横向展开成三列。',
+          '行数由最多学生的洲决定。',
+          '本质是分组后透视输出。',
+        ],
+      },
+      {
+        id: 'students-report-by-geography-observe',
+        title: '先给每个大陆内部编号，才能跨大陆按行对齐',
+        summary:
+          '不同大陆学生数量不一样，直接 `GROUP BY` 无法对齐成三列。更稳的做法是先在每个大陆内部按姓名排序并生成行号，然后按这个行号做聚合：同一行号上的美洲、亚洲、欧洲学生分别落到不同列。',
+        bullets: [
+          '核心是“先编号，再对齐”。',
+          '行号是跨大陆对齐的桥梁。',
+          '最后用条件聚合转列。',
+          '这是典型透视表套路。',
+        ],
+      },
+      {
+        id: 'students-report-by-geography-solution',
+        title: '标准解法：窗口函数编号 + 条件聚合',
+        summary:
+          '先对每个大陆使用 `ROW_NUMBER()` 按姓名排序编号。然后按编号分组，使用 `MAX(CASE WHEN continent = ... THEN name END)` 把各大陆学生透视到对应列中，得到最终表格。',
+        bullets: [
+          '窗口函数负责分组内排序编号。',
+          '条件聚合负责转列。',
+          '空缺位置自然显示为空。',
+          '是 SQL 报表题常见模型。',
+        ],
+        code: `WITH ranked_students AS (
+  SELECT name,
+    continent,
+    ROW_NUMBER() OVER (
+      PARTITION BY continent
+      ORDER BY name
+    ) AS row_num
+  FROM Student
+)
+SELECT MAX(CASE WHEN continent = 'America' THEN name END) AS America,
+  MAX(CASE WHEN continent = 'Asia' THEN name END) AS Asia,
+  MAX(CASE WHEN continent = 'Europe' THEN name END) AS Europe
+FROM ranked_students
+GROUP BY row_num
+ORDER BY row_num;`,
+      },
+      {
+        id: 'students-report-by-geography-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有先给各大陆内部排序编号，直接尝试转列，结果完全对不齐；或者漏掉某个大陆导致列定义不完整。',
+        bullets: [
+          '易错点 1：没有先做分组内编号。',
+          '易错点 2：忘记按姓名排序。',
+          '易错点 3：透视时列名或条件写错。',
+          '延伸方向：窗口函数、透视报表、条件聚合。',
+        ],
+      },
+    ],
+  },
 ];
