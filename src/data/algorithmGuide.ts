@@ -65619,4 +65619,79 @@ JOIN company_average c
       },
     ],
   },
+  {
+    id: 'merge-two-binary-trees',
+    label: '617. LeetCode 617. 合并二叉树',
+    difficulty: '简单',
+    description:
+      '这题本质上是同步递归两棵树。重叠节点相加，不重叠节点直接继承现有那一棵。',
+    outcome: '你能写出结构对齐的树递归，并清楚处理空节点分支。',
+    sections: [
+      {
+        id: 'merge-two-binary-trees-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两棵二叉树，如果两个节点重叠，就把它们的值相加作为新节点值；如果某一位置只有一棵树存在节点，就直接沿用该节点。返回合并后的二叉树。',
+        bullets: [
+          '两棵树按位置对齐。',
+          '重叠节点相加。',
+          '单侧存在时直接保留。',
+          '返回一棵新树或复用原树都可以。',
+        ],
+      },
+      {
+        id: 'merge-two-binary-trees-observe',
+        title: '每个位置的决策只依赖当前位置的两个节点',
+        summary:
+          '对任意一对对齐节点，只需要判断三种情况：两个都空、只有一个非空、两个都非空。这个决策和子树以外的信息无关，因此天然适合递归处理。',
+        bullets: [
+          '是标准的树形分治问题。',
+          '当前层逻辑简单明确。',
+          '子问题结构和原问题一致。',
+          '递归最自然。',
+        ],
+      },
+      {
+        id: 'merge-two-binary-trees-solution',
+        title: '标准解法：同步递归合并左右子树',
+        summary:
+          '递归函数接收两棵树当前节点。若其中一个为空，就返回另一个；若都非空，就创建或复用一个节点，值为两者之和，再递归合并它们的左右孩子。',
+        bullets: [
+          '时间复杂度是访问节点总数级别。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在空节点分支。',
+          '是树递归基础题。',
+        ],
+        code: `function mergeTrees(
+  root1: TreeNode | null,
+  root2: TreeNode | null,
+): TreeNode | null {
+  if (root1 === null) {
+    return root2
+  }
+  if (root2 === null) {
+    return root1
+  }
+
+  const merged = new TreeNode(root1.val + root2.val)
+  merged.left = mergeTrees(root1.left, root2.left)
+  merged.right = mergeTrees(root1.right, root2.right)
+
+  return merged
+}`,
+      },
+      {
+        id: 'merge-two-binary-trees-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是在某个节点为空时仍继续访问它的孩子；或者把“非重叠节点直接继承”误写成返回空节点。',
+        bullets: [
+          '易错点 1：空节点判断顺序不对。',
+          '易错点 2：只合并了当前值，漏掉左右子树。',
+          '易错点 3：错误丢弃单侧存在的节点。',
+          '延伸方向：树形递归、分治合并、结构对齐。',
+        ],
+      },
+    ],
+  },
 ];
