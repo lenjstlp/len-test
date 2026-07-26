@@ -66259,4 +66259,91 @@ ORDER BY rating DESC;`,
       },
     ],
   },
+  {
+    id: 'minimum-factorization',
+    label: '625. LeetCode 625. 最小因式分解',
+    difficulty: '中等',
+    description:
+      '这题不是普通质因数分解，而是要把一个整数拆成若干个 `2..9` 的数字，并重新拼出字典序更小也就是数值更小的结果。',
+    outcome: '你能把分解、贪心和结果构造结合起来，并正确处理 32 位整数边界。',
+    sections: [
+      {
+        id: 'minimum-factorization-summary',
+        title: '题目在问什么',
+        summary:
+          '给定正整数 `num`，要求找到一个最小的正整数 `x`，使得 `x` 的每一位数字乘积等于 `num`。若不存在这样的 `x`，或者结果超出 32 位有符号整数范围，则返回 `0`。',
+        bullets: [
+          '目标是构造一个新的十进制整数。',
+          '这个整数各位数字乘积要等于 `num`。',
+          '要求数值尽可能小。',
+          '超范围或无解都返回 `0`。',
+        ],
+      },
+      {
+        id: 'minimum-factorization-observe',
+        title: '要让最终数字最小，就应该尽量先拿大因子分解，再把结果按升序拼接',
+        summary:
+          '如果从小因子开始拆，会产生更多位数，最终得到的数字反而更大。更稳的策略是从 `9` 到 `2` 尽量去整除 `num`，收集到的这些数字本身就是最少位数的拆法。之后把它们倒序拼接，就能得到数值最小的结果。',
+        bullets: [
+          '先用大因子，位数更少。',
+          '拆完后的数字要升序放到结果里。',
+          '收集顺序和拼接顺序相反。',
+          '这是贪心构造的核心。',
+        ],
+      },
+      {
+        id: 'minimum-factorization-solution',
+        title: '标准解法：从 9 到 2 贪心分解，再逆序构造答案',
+        summary:
+          '若 `num < 10`，答案就是 `num` 本身。否则从 `9` 递减到 `2`，只要当前因子能整除 `num`，就持续除掉并记录该因子。最后若剩余值不为 `1`，说明无法完全分解，返回 `0`。若能完全分解，就把记录到的因子逆序拼接，同时检查是否超过 32 位整数上限。',
+        bullets: [
+          '时间复杂度很低，因子范围固定。',
+          '空间复杂度取决于因子数量。',
+          '实现重点在构造顺序和溢出判断。',
+          '是构造型贪心题。',
+        ],
+        code: `function smallestFactorization(num: number): number {
+  if (num < 10) {
+    return num
+  }
+
+  const digits: number[] = []
+  let value = num
+
+  for (let factor = 9; factor >= 2; factor -= 1) {
+    while (value % factor === 0) {
+      digits.push(factor)
+      value /= factor
+    }
+  }
+
+  if (value !== 1) {
+    return 0
+  }
+
+  let answer = 0
+  for (let i = digits.length - 1; i >= 0; i -= 1) {
+    answer = answer * 10 + digits[i]
+    if (answer > 2_147_483_647) {
+      return 0
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'minimum-factorization-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是从 `2` 开始贪心分解，结果虽然乘积对了，但构造出的数字不最小；或者完全忘记检查 32 位整数溢出。',
+        bullets: [
+          '易错点 1：贪心方向写反。',
+          '易错点 2：没有检查最终结果是否超出 32 位上限。',
+          '易错点 3：剩余值不为 1 时仍然继续构造答案。',
+          '延伸方向：贪心构造、整数分解、边界溢出处理。',
+        ],
+      },
+    ],
+  },
 ];
