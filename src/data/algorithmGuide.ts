@@ -66091,4 +66091,97 @@ ORDER BY rating DESC;`,
       },
     ],
   },
+  {
+    id: 'add-one-row-to-tree',
+    label: '623. LeetCode 623. 在二叉树中增加一行',
+    difficulty: '中等',
+    description:
+      '这题的关键不是重建整棵树，而是在目标深度的上一层把原来的左右子树整体挂到新节点下面。',
+    outcome: '你能精准控制树的插入层级，并清楚处理根节点特判和子树重接。',
+    sections: [
+      {
+        id: 'add-one-row-to-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定二叉树根节点 `root`、插入值 `val` 和深度 `depth`。要求在第 `depth` 层插入一整行值为 `val` 的节点，原有子树要按规则挂到新节点下方。',
+        bullets: [
+          '插入的是一整层，不是单个节点。',
+          '原子树不能丢，要重新接回去。',
+          '`depth = 1` 时要新增根节点。',
+          '是树结构改造题。',
+        ],
+      },
+      {
+        id: 'add-one-row-to-tree-observe',
+        title: '真正要操作的是目标层的上一层',
+        summary:
+          '如果要在第 `depth` 层插入新节点，那么需要先找到所有位于第 `depth - 1` 层的节点。对于这些节点，新左节点接住原左子树，新右节点接住原右子树。这样原结构只在一层上发生局部改动。',
+        bullets: [
+          '操作层是 `depth - 1`。',
+          '原左子树挂到新左节点下。',
+          '原右子树挂到新右节点下。',
+          '核心是“局部重接”。',
+        ],
+      },
+      {
+        id: 'add-one-row-to-tree-solution',
+        title: '标准解法：DFS 找到上一层后原地插入',
+        summary:
+          '先处理 `depth === 1` 的特例，此时直接新建根节点并把原树挂到其左侧。否则使用 DFS 或 BFS 找到所有深度为 `depth - 1` 的节点，然后分别创建新的左右孩子，并把原左右子树接到这些新节点上。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度取决于遍历方式。',
+          '实现重点在根节点特判和重接顺序。',
+          '是树修改题的代表。',
+        ],
+        code: `function addOneRow(
+  root: TreeNode | null,
+  val: number,
+  depth: number,
+): TreeNode | null {
+  if (depth === 1) {
+    const newRoot = new TreeNode(val)
+    newRoot.left = root
+    return newRoot
+  }
+
+  const dfs = (node: TreeNode | null, currentDepth: number): void => {
+    if (node === null) {
+      return
+    }
+
+    if (currentDepth === depth - 1) {
+      const originalLeft = node.left
+      const originalRight = node.right
+
+      node.left = new TreeNode(val)
+      node.left.left = originalLeft
+
+      node.right = new TreeNode(val)
+      node.right.right = originalRight
+      return
+    }
+
+    dfs(node.left, currentDepth + 1)
+    dfs(node.right, currentDepth + 1)
+  }
+
+  dfs(root, 1)
+  return root
+}`,
+      },
+      {
+        id: 'add-one-row-to-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是插入新节点后直接覆盖掉原子树，没有先保存原左右孩子；或者把要操作的层误写成 `depth` 本身。',
+        bullets: [
+          '易错点 1：没有先保存原左右子树。',
+          '易错点 2：把插入操作写在错误深度。',
+          '易错点 3：漏掉 `depth === 1` 的新根特判。',
+          '延伸方向：树结构修改、DFS 分层定位、指针重接。',
+        ],
+      },
+    ],
+  },
 ];
