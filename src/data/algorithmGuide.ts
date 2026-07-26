@@ -66184,4 +66184,79 @@ ORDER BY rating DESC;`,
       },
     ],
   },
+  {
+    id: 'maximum-distance-in-arrays',
+    label: '624. LeetCode 624. 数组列表中的最大距离',
+    difficulty: '中等',
+    description:
+      '这题的重点是从不同数组中各取一个数。因为每个数组本身有序，所以候选只可能来自各数组的首尾元素。',
+    outcome: '你能利用有序数组的边界值，把跨数组最大差值问题在线性时间内解决。',
+    sections: [
+      {
+        id: 'maximum-distance-in-arrays-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干个已经升序排列的数组，需要从两个不同数组中各选一个数字，使得它们的绝对差最大，并返回这个最大值。',
+        bullets: [
+          '两个数必须来自不同数组。',
+          '每个数组内部已经有序。',
+          '目标是最大绝对差。',
+          '是边界值观察题。',
+        ],
+      },
+      {
+        id: 'maximum-distance-in-arrays-observe',
+        title: '最大差值只会出现在某个数组的最小值和另一个数组的最大值之间',
+        summary:
+          '因为每个数组有序，若要让差值最大，只需要考虑各数组的首元素和尾元素。扫描数组时，维护之前所有数组中的最小值 `minValue` 和最大值 `maxValue`，然后用当前数组的尾值去减 `minValue`，以及用 `maxValue` 去减当前数组的首值，就能得到所有合法跨数组候选。',
+        bullets: [
+          '只看每个数组的首尾元素。',
+          '当前数组不能和自己配对，所以要用“之前数组”的极值。',
+          '每一步只需要更新一次答案。',
+          '这是线性解法的核心。',
+        ],
+      },
+      {
+        id: 'maximum-distance-in-arrays-solution',
+        title: '标准解法：扫描数组并维护历史最小值和最大值',
+        summary:
+          '先用第一个数组初始化全局最小值和最大值。之后遍历每个新数组，先计算它和历史极值构成的两种最大差候选，再更新全局最小值和最大值。这样能保证每次比较都来自不同数组。',
+        bullets: [
+          '时间复杂度是 `O(n)`，其中 `n` 是数组个数。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在先算答案再更新极值。',
+          '是有序边界值题代表。',
+        ],
+        code: `function maxDistance(arrays: number[][]): number {
+  let minValue = arrays[0][0]
+  let maxValue = arrays[0][arrays[0].length - 1]
+  let answer = 0
+
+  for (let i = 1; i < arrays.length; i += 1) {
+    const current = arrays[i]
+    const first = current[0]
+    const last = current[current.length - 1]
+
+    answer = Math.max(answer, Math.abs(last - minValue), Math.abs(maxValue - first))
+    minValue = Math.min(minValue, first)
+    maxValue = Math.max(maxValue, last)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'maximum-distance-in-arrays-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接拿全局最小值和全局最大值相减，却没有检查它们是否来自同一个数组；或者更新极值顺序写反，导致当前数组和自己配对。',
+        bullets: [
+          '易错点 1：忽略“来自不同数组”的限制。',
+          '易错点 2：先更新极值再算答案。',
+          '易错点 3：没抓住只需看首尾元素这一点。',
+          '延伸方向：贪心扫描、边界值维护、跨集合最优值。',
+        ],
+      },
+    ],
+  },
 ];
