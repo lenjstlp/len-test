@@ -67058,4 +67058,81 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'sum-of-square-numbers',
+    label: '633. LeetCode 633. 平方数之和',
+    difficulty: '中等',
+    description:
+      '这题只需要判断一个数能否表示成两个平方数之和。最稳的做法是双指针从两端向中间逼近。',
+    outcome: '你能用平方和的单调性快速判断可行性，而不需要枚举所有组合。',
+    sections: [
+      {
+        id: 'sum-of-square-numbers-summary',
+        title: '题目在问什么',
+        summary:
+          '给定非负整数 `c`，判断是否存在整数 `a` 和 `b`，使得 `a^2 + b^2 = c`。',
+        bullets: [
+          '需要判断是否存在解。',
+          '`a` 和 `b` 都是非负整数即可。',
+          '只关心平方和是否等于目标值。',
+          '是双指针判断题。',
+        ],
+      },
+      {
+        id: 'sum-of-square-numbers-observe',
+        title: '平方和随着一端变大、另一端变小而单调变化',
+        summary:
+          '先让左指针表示较小平方根，右指针表示较大平方根。若当前平方和过大，就让右指针左移；若过小，就让左指针右移。因为平方函数单调递增，所以这个过程不会错过任何可行解。',
+        bullets: [
+          '从两端逼近最自然。',
+          '当前和过大就缩小右端。',
+          '当前和过小就增大左端。',
+          '单调性保证不会漏解。',
+        ],
+      },
+      {
+        id: 'sum-of-square-numbers-solution',
+        title: '标准解法：双指针从 `0` 和 `sqrt(c)` 夹逼',
+        summary:
+          '计算 `right = floor(sqrt(c))`，左指针从 `0` 开始。循环中比较 `left^2 + right^2` 与 `c`：若等于直接返回 `true`；若小于则左指针右移；若大于则右指针左移。直到两指针交错为止。',
+        bullets: [
+          '时间复杂度是 `O(sqrt(c))`。',
+          '空间复杂度是 `O(1)`。',
+          '实现简单且不会超时。',
+          '是数值单调性双指针题。',
+        ],
+        code: `function judgeSquareSum(c: number): boolean {
+  let left = 0
+  let right = Math.floor(Math.sqrt(c))
+
+  while (left <= right) {
+    const sum = left * left + right * right
+    if (sum === c) {
+      return true
+    }
+
+    if (sum < c) {
+      left += 1
+    } else {
+      right -= 1
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'sum-of-square-numbers-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接从 `0` 枚举到 `c`，复杂度太高；或者把平方根边界取错，漏掉等于 `sqrt(c)` 的那一项。',
+        bullets: [
+          '易错点 1：暴力枚举过多。',
+          '易错点 2：`right` 初始化没有取整。',
+          '易错点 3：指针移动方向写反。',
+          '延伸方向：双指针、平方和判定、单调搜索。',
+        ],
+      },
+    ],
+  },
 ];
