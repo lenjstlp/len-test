@@ -66904,4 +66904,158 @@ class Excel {
       },
     ],
   },
+  {
+    id: 'smallest-range-covering-elements-from-k-lists',
+    label: '632. LeetCode 632. 最小区间',
+    difficulty: '困难',
+    description:
+      '这题的核心是同时覆盖每个列表至少一个元素，所以要始终维护一个包含 k 个列表当前候选值的窗口。',
+    outcome: '你能用最小堆和当前最大值维护跨多个有序列表的最小覆盖区间。',
+    sections: [
+      {
+        id: 'smallest-range-covering-elements-from-k-lists-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `k` 个升序整数列表，要求找到一个最小闭区间 `[a, b]`，使得每个列表中至少有一个数字落在这个区间内。',
+        bullets: [
+          '每个列表都必须被覆盖到。',
+          '区间越短越好。',
+          '若长度相同，左端点更小更优。',
+          '是多路有序列表合并题。',
+        ],
+      },
+      {
+        id: 'smallest-range-covering-elements-from-k-lists-observe',
+        title: '任何时刻都要保留每个列表的一个代表值',
+        summary:
+          '因为区间必须覆盖所有列表，所以可以把问题看成：每个列表当前挑一个数，形成一个大小为 `k` 的候选集合。这个集合里的最小值和最大值决定当前区间。为了尝试缩小区间，只能推动当前最小值所在列表向前走，因为其他列表再往前不会去掉当前最小端点。',
+        bullets: [
+          '候选集合里始终包含每个列表一个元素。',
+          '当前区间由全局最小和全局最大决定。',
+          '只能移动最小值对应的列表指针。',
+          '最小堆很适合维护当前最小值。',
+        ],
+      },
+      {
+        id: 'smallest-range-covering-elements-from-k-lists-solution',
+        title: '标准解法：最小堆维护当前最小值，变量维护当前最大值',
+        summary:
+          '先把每个列表的第一个元素放入最小堆，并记录当前最大值。之后循环弹出最小值，检查当前 `[min, max]` 是否更优，再把该最小值所属列表的下一个元素加入堆，并更新最大值。只要某个列表耗尽，就无法继续覆盖所有列表，算法结束。',
+        bullets: [
+          '时间复杂度约为 `O(N log k)`。',
+          '空间复杂度是 `O(k)`。',
+          '实现重点在区间比较和堆节点信息。',
+          '是多路归并类题代表。',
+        ],
+        code: `type RangeNode = {
+  value: number
+  listIndex: number
+  elementIndex: number
+}
+
+class MinHeap {
+  private readonly values: RangeNode[] = []
+
+  push(node: RangeNode): void {
+    this.values.push(node)
+    let index = this.values.length - 1
+
+    while (index > 0) {
+      const parent = Math.floor((index - 1) / 2)
+      if (this.values[parent].value <= this.values[index].value) {
+        break
+      }
+
+      ;[this.values[parent], this.values[index]] = [this.values[index], this.values[parent]]
+      index = parent
+    }
+  }
+
+  pop(): RangeNode {
+    const top = this.values[0]
+    const last = this.values.pop()
+
+    if (this.values.length > 0 && last !== undefined) {
+      this.values[0] = last
+      let index = 0
+
+      while (true) {
+        let smallest = index
+        const left = index * 2 + 1
+        const right = index * 2 + 2
+
+        if (left < this.values.length && this.values[left].value < this.values[smallest].value) {
+          smallest = left
+        }
+        if (right < this.values.length && this.values[right].value < this.values[smallest].value) {
+          smallest = right
+        }
+        if (smallest === index) {
+          break
+        }
+
+        ;[this.values[index], this.values[smallest]] = [this.values[smallest], this.values[index]]
+        index = smallest
+      }
+    }
+
+    return top
+  }
+
+  size(): number {
+    return this.values.length
+  }
+}
+
+function smallestRange(nums: number[][]): number[] {
+  const heap = new MinHeap()
+  let currentMax = Number.NEGATIVE_INFINITY
+
+  for (let i = 0; i < nums.length; i += 1) {
+    const value = nums[i][0]
+    heap.push({ value, listIndex: i, elementIndex: 0 })
+    currentMax = Math.max(currentMax, value)
+  }
+
+  let bestLeft = 0
+  let bestRight = Number.POSITIVE_INFINITY
+
+  while (heap.size() === nums.length) {
+    const { value, listIndex, elementIndex } = heap.pop()
+
+    if (
+      currentMax - value < bestRight - bestLeft ||
+      (currentMax - value === bestRight - bestLeft && value < bestLeft)
+    ) {
+      bestLeft = value
+      bestRight = currentMax
+    }
+
+    const nextIndex = elementIndex + 1
+    if (nextIndex === nums[listIndex].length) {
+      break
+    }
+
+    const nextValue = nums[listIndex][nextIndex]
+    heap.push({ value: nextValue, listIndex, elementIndex: nextIndex })
+    currentMax = Math.max(currentMax, nextValue)
+  }
+
+  return [bestLeft, bestRight]
+}`,
+      },
+      {
+        id: 'smallest-range-covering-elements-from-k-lists-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有意识到必须始终保证每个列表都有一个候选值，结果把问题做成普通滑动窗口；或者忘了同步维护当前最大值。',
+        bullets: [
+          '易错点 1：某个列表耗尽后还继续更新答案。',
+          '易错点 2：没有维护当前最大值。',
+          '易错点 3：相同长度区间时没有比较左端点。',
+          '延伸方向：多路归并、堆维护、最优区间覆盖。',
+        ],
+      },
+    ],
+  },
 ];
