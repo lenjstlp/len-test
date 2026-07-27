@@ -66477,4 +66477,71 @@ END;`,
       },
     ],
   },
+  {
+    id: 'maximum-product-of-three-numbers',
+    label: '628. LeetCode 628. 三个数的最大乘积',
+    difficulty: '简单',
+    description:
+      '这题的关键是负数会改变乘积大小，所以答案不一定来自最大的三个正数，也可能来自两个最小负数和一个最大正数。',
+    outcome: '你能同时考虑正负数组合，快速得到三数最大乘积。',
+    sections: [
+      {
+        id: 'maximum-product-of-three-numbers-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组，要求从中选出三个数，使它们的乘积最大，并返回这个最大乘积。',
+        bullets: [
+          '只选三个数。',
+          '数组中可能有负数和零。',
+          '目标是最大乘积。',
+          '是正负数分类讨论题。',
+        ],
+      },
+      {
+        id: 'maximum-product-of-three-numbers-observe',
+        title: '最大结果只可能来自两种候选组合',
+        summary:
+          '排序后，最大乘积只可能来自两种情况：最大的三个数相乘，或者最小的两个数与最大的一个数相乘。第二种情况通常出现在两个最小数都是绝对值很大的负数时，它们相乘会变成很大的正数。',
+        bullets: [
+          '负负得正会改变最优解结构。',
+          '只需比较两个候选值。',
+          '排序后候选位置一眼可见。',
+          '这是本题最核心的观察。',
+        ],
+      },
+      {
+        id: 'maximum-product-of-three-numbers-solution',
+        title: '标准解法：排序后比较两种候选组合',
+        summary:
+          '先将数组升序排序。答案要么是末尾三个元素的乘积，要么是开头两个元素与最后一个元素的乘积。比较两者取最大值即可。',
+        bullets: [
+          '时间复杂度主要来自排序。',
+          '实现非常直接。',
+          '不需要枚举所有三元组。',
+          '是排序观察题代表。',
+        ],
+        code: `function maximumProduct(nums: number[]): number {
+  nums.sort((a, b) => a - b)
+
+  const n = nums.length
+  const option1 = nums[n - 1] * nums[n - 2] * nums[n - 3]
+  const option2 = nums[0] * nums[1] * nums[n - 1]
+
+  return Math.max(option1, option2)
+}`,
+      },
+      {
+        id: 'maximum-product-of-three-numbers-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是想当然地只取最大的三个数，完全忽略了负数成对出现时可能更优；或者仍然用三重循环暴力枚举。',
+        bullets: [
+          '易错点 1：忽略两个负数的贡献。',
+          '易错点 2：只考虑末尾三个数。',
+          '易错点 3：暴力枚举三元组，复杂度过高。',
+          '延伸方向：排序观察、正负数组合、极值比较。',
+        ],
+      },
+    ],
+  },
 ];
