@@ -66628,4 +66628,133 @@ END;`,
       },
     ],
   },
+  {
+    id: 'course-schedule-iii',
+    label: '630. LeetCode 630. 课程表 III',
+    difficulty: '困难',
+    description:
+      '这题是经典贪心。先按截止时间排序，再用一个最大堆维护当前已选课程时长，必要时踢掉最耗时的那门课。',
+    outcome: '你能把“尽量多选任务”的调度问题转成排序加堆的贪心方案。',
+    sections: [
+      {
+        id: 'course-schedule-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '每门课程都有持续时间 `duration` 和最晚结束时间 `lastDay`。从第 1 天开始依次上课，同一时间只能上一门课。要求最多能修多少门课程。',
+        bullets: [
+          '每门课有时长和截止日期。',
+          '课程之间不能并行。',
+          '目标是最大化课程数量。',
+          '是任务调度贪心题。',
+        ],
+      },
+      {
+        id: 'course-schedule-iii-observe',
+        title: '若当前总时长超期，就应该优先删掉已选课程里最耗时的那门',
+        summary:
+          '先按截止日期从早到晚考虑课程，是因为越早过期的任务越应该优先决策。遍历时先假设当前课程可以加入；如果总耗时超过当前课程的截止时间，说明已选集合必须删掉一门。为了尽量保留更多课程，最合理的做法是删掉时长最长的那门，因为它释放的时间最多。',
+        bullets: [
+          '排序决定决策顺序。',
+          '超期时必须回退一门课。',
+          '删最长课程最有利于后续安排。',
+          '最大堆正好支持这个操作。',
+        ],
+      },
+      {
+        id: 'course-schedule-iii-solution',
+        title: '标准解法：按截止时间排序 + 最大堆维护已选课程',
+        summary:
+          '先按 `lastDay` 升序排序。遍历每门课时，把它的时长加入总时间并压入最大堆。若总时间超过该课截止时间，就从堆里弹出时长最大的课程并减回总时间。遍历结束后，堆中课程数就是答案。',
+        bullets: [
+          '时间复杂度是 `O(n log n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在最大堆维护和回退逻辑。',
+          '是高频贪心题代表。',
+        ],
+        code: `class MaxHeap {
+  private readonly values: number[] = []
+
+  push(value: number): void {
+    this.values.push(value)
+    let index = this.values.length - 1
+
+    while (index > 0) {
+      const parent = Math.floor((index - 1) / 2)
+      if (this.values[parent] >= this.values[index]) {
+        break
+      }
+
+      ;[this.values[parent], this.values[index]] = [this.values[index], this.values[parent]]
+      index = parent
+    }
+  }
+
+  pop(): number {
+    const top = this.values[0]
+    const last = this.values.pop()
+
+    if (this.values.length > 0 && last !== undefined) {
+      this.values[0] = last
+      let index = 0
+
+      while (true) {
+        let largest = index
+        const left = index * 2 + 1
+        const right = index * 2 + 2
+
+        if (left < this.values.length && this.values[left] > this.values[largest]) {
+          largest = left
+        }
+        if (right < this.values.length && this.values[right] > this.values[largest]) {
+          largest = right
+        }
+        if (largest === index) {
+          break
+        }
+
+        ;[this.values[index], this.values[largest]] = [this.values[largest], this.values[index]]
+        index = largest
+      }
+    }
+
+    return top
+  }
+
+  size(): number {
+    return this.values.length
+  }
+}
+
+function scheduleCourse(courses: number[][]): number {
+  courses.sort((a, b) => a[1] - b[1])
+
+  const heap = new MaxHeap()
+  let totalTime = 0
+
+  for (const [duration, lastDay] of courses) {
+    totalTime += duration
+    heap.push(duration)
+
+    if (totalTime > lastDay) {
+      totalTime -= heap.pop()
+    }
+  }
+
+  return heap.size()
+}`,
+      },
+      {
+        id: 'course-schedule-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是超期时删掉当前课程而不是已选课程中最耗时的那门，导致错过更优组合；或者没有先按截止时间排序。',
+        bullets: [
+          '易错点 1：没有按 `lastDay` 排序。',
+          '易错点 2：超期时删除策略错误。',
+          '易错点 3：堆写成最小堆，回退方向反了。',
+          '延伸方向：贪心调度、堆维护、可行集合优化。',
+        ],
+      },
+    ],
+  },
 ];
