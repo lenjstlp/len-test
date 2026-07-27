@@ -66413,4 +66413,68 @@ ORDER BY id;`,
       },
     ],
   },
+  {
+    id: 'swap-salary',
+    label: '627. LeetCode 627. 交换工资',
+    difficulty: '简单',
+    description:
+      '这题不是查询题，而是更新题。目标是把所有男女性别标记整体互换，不需要借助临时表。',
+    outcome:
+      '你能用一条 SQL 更新语句完成双值互换，并理解为什么 `CASE WHEN` 足够处理。',
+    sections: [
+      {
+        id: 'swap-salary-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Salary` 中每条记录包含员工姓名、性别等信息，性别字段只有 `m` 和 `f`。要求将所有 `m` 改成 `f`，所有 `f` 改成 `m`。',
+        bullets: [
+          '是整表更新，不是筛选查询。',
+          '只有两种合法值 `m` 和 `f`。',
+          '需要一次性互换。',
+          '不需要中间临时存储。',
+        ],
+      },
+      {
+        id: 'swap-salary-observe',
+        title: '只有两个取值时，`CASE WHEN` 就是最稳的交换方式',
+        summary:
+          '因为性别字段只有两种值，所以不必担心多分支情况。直接在 `UPDATE` 中判断：如果当前是 `m` 就改成 `f`，否则改成 `m`。这会基于原值逐行计算，不会出现先改一部分后影响另一部分的连锁问题。',
+        bullets: [
+          '更新表达式使用的是每行原值。',
+          '两值互换最适合 `CASE WHEN`。',
+          '不需要额外列或临时变量。',
+          '实现非常直接。',
+        ],
+      },
+      {
+        id: 'swap-salary-solution',
+        title: '标准解法：一条 `UPDATE` 配合 `CASE WHEN`',
+        summary:
+          '直接更新 `sex` 列：若当前值为 `m`，则改成 `f`；否则改成 `m`。由于题目保证数据合法，所以 `ELSE` 分支覆盖的就是 `f`。',
+        bullets: [
+          '语句简洁清楚。',
+          '不依赖数据库方言技巧。',
+          '适合这类二值整体互换。',
+          '是 SQL 更新题入门范式。',
+        ],
+        code: `UPDATE Salary
+SET sex = CASE
+  WHEN sex = 'm' THEN 'f'
+  ELSE 'm'
+END;`,
+      },
+      {
+        id: 'swap-salary-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是误以为需要先把 `m` 改成临时值再改成 `f`，把简单问题复杂化；或者把题目当成 `SELECT` 查询题来写。',
+        bullets: [
+          '易错点 1：把整体互换写成多步更新。',
+          '易错点 2：误写成查询而不是更新。',
+          '易错点 3：分支条件和赋值方向写反。',
+          '延伸方向：条件更新、二值状态切换、SQL DML。',
+        ],
+      },
+    ],
+  },
 ];
