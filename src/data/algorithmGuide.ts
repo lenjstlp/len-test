@@ -66346,4 +66346,71 @@ ORDER BY rating DESC;`,
       },
     ],
   },
+  {
+    id: 'exchange-seats',
+    label: '626. LeetCode 626. 换座位',
+    difficulty: '中等',
+    description:
+      '这题的本质是按相邻奇偶位两两交换，唯一的特殊情况是最后一个座位在总数为奇数时保持不动。',
+    outcome: '你能把座位交换规则用 SQL 条件表达式写清楚，并处理好尾部边界。',
+    sections: [
+      {
+        id: 'exchange-seats-summary',
+        title: '题目在问什么',
+        summary:
+          '表 `Seat` 记录学生的座位编号 `id` 和姓名 `student`。要求将每对相邻学生交换座位：奇数位和它后面的偶数位互换；如果总人数为奇数，最后一个学生位置不变。',
+        bullets: [
+          '交换单位是相邻两个座位。',
+          '奇数位往后换，偶数位往前换。',
+          '最后一个落单座位不动。',
+          '输出仍按最终 `id` 升序。',
+        ],
+      },
+      {
+        id: 'exchange-seats-observe',
+        title: '每个位置的新编号只取决于自己当前编号和总座位数',
+        summary:
+          '这题不需要真的做复杂连接。对每一行来说，若 `id` 是奇数且不是最后一个座位，就变成 `id + 1`；若 `id` 是偶数，就变成 `id - 1`；若是奇数且刚好是最后一个座位，则保持不变。',
+        bullets: [
+          '规则是局部映射，不需要全表重排。',
+          '总座位数只用于判断最后一个奇数位。',
+          '`CASE WHEN` 最适合表达这类分支。',
+          '核心是尾部特判。',
+        ],
+      },
+      {
+        id: 'exchange-seats-solution',
+        title: '标准解法：`CASE WHEN` 计算交换后的编号',
+        summary:
+          '先用子查询拿到座位总数，然后在主查询里按奇偶编号决定新 `id`。最后按新 `id` 排序输出即可。这样无需自连接，也能精确表达交换结果。',
+        bullets: [
+          '时间复杂度取决于表扫描。',
+          '实现非常直接。',
+          '关键是判断最后一个奇数位不交换。',
+          '是 SQL 条件映射题代表。',
+        ],
+        code: `SELECT
+  CASE
+    WHEN id % 2 = 1 AND id <> (SELECT COUNT(*) FROM Seat) THEN id + 1
+    WHEN id % 2 = 0 THEN id - 1
+    ELSE id
+  END AS id,
+  student
+FROM Seat
+ORDER BY id;`,
+      },
+      {
+        id: 'exchange-seats-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有处理奇数总人数时最后一个座位的保留逻辑，导致它被错误地换到不存在的位置；或者排序仍按旧 `id` 输出。',
+        bullets: [
+          '易错点 1：最后一个奇数位没有特判。',
+          '易错点 2：偶数位方向写反。',
+          '易错点 3：结果排序按了旧编号。',
+          '延伸方向：条件映射、位置重排、SQL 分支表达。',
+        ],
+      },
+    ],
+  },
 ];
