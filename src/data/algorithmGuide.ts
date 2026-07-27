@@ -66757,4 +66757,151 @@ function scheduleCourse(courses: number[][]): number {
       },
     ],
   },
+  {
+    id: 'design-excel-sum-formula',
+    label: '631. LeetCode 631. 设计 Excel 求和公式',
+    difficulty: '困难',
+    description:
+      '这题不是简单二维数组，而是一个既支持直接赋值，又支持公式引用的表格系统。核心是把公式存下来，并在读取时递归求值。',
+    outcome:
+      '你能设计一个带依赖公式的二维表结构，并正确处理单元格引用与区间求和。',
+    sections: [
+      {
+        id: 'design-excel-sum-formula-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个 `Excel` 类，支持 `set`、`get` 和 `sum` 操作。单元格既可以直接设置成数字，也可以设置成由若干单元格或单元格区间组成的求和公式。',
+        bullets: [
+          '表格是二维坐标结构。',
+          '单元格可能存普通值，也可能存公式。',
+          '`sum` 需要记录依赖关系。',
+          '是数据结构设计题。',
+        ],
+      },
+      {
+        id: 'design-excel-sum-formula-observe',
+        title: '把公式表达式存下来，真正取值时再递归展开',
+        summary:
+          '一种稳定方案是让每个单元格存两类信息：直接数值，或者公式引用列表。若某格是公式格，`get` 时再递归地把它依赖的每个单元格值求出来。这样 `set` 会覆盖旧公式，`sum` 则会替换成新的公式定义。',
+        bullets: [
+          '值和公式是互斥状态。',
+          '公式更适合存“依赖描述”，而不是立即拍平。',
+          '`get` 负责递归求值。',
+          '设计重点在引用解析。',
+        ],
+      },
+      {
+        id: 'design-excel-sum-formula-solution',
+        title: '标准解法：单元格存值或公式，`get` 时递归计算',
+        summary:
+          '为每个单元格维护 `value` 和 `formula`。`set` 直接写值并清空公式。`sum` 解析字符串列表，把单点引用和区间引用统一展开成坐标列表保存下来，然后复用 `get` 递归求总和。只要题目保证不存在循环依赖，这种实现就足够稳定。',
+        bullets: [
+          '核心在引用解析和状态覆盖。',
+          '直接赋值会清空旧公式。',
+          '递归求值天然支持链式依赖。',
+          '是表格系统简化版设计题。',
+        ],
+        code: `type CellRef = [number, number]
+
+type ExcelCell = {
+  value: number
+  formula: CellRef[] | null
+}
+
+class Excel {
+  private readonly sheet: ExcelCell[][]
+
+  constructor(height: number, width: string) {
+    const columnCount = width.charCodeAt(0) - 64
+    this.sheet = Array.from({ length: height }, () =>
+      Array.from({ length: columnCount }, () => ({ value: 0, formula: null })),
+    )
+  }
+
+  private getCell(row: number, column: string): ExcelCell {
+    return this.sheet[row - 1][column.charCodeAt(0) - 65]
+  }
+
+  private getCellByIndex(row: number, columnIndex: number): ExcelCell {
+    return this.sheet[row][columnIndex]
+  }
+
+  private parseRef(ref: string): CellRef {
+    const columnIndex = ref.charCodeAt(0) - 65
+    const rowIndex = Number(ref.slice(1)) - 1
+    return [rowIndex, columnIndex]
+  }
+
+  private expandRange(range: string): CellRef[] {
+    if (!range.includes(':')) {
+      return [this.parseRef(range)]
+    }
+
+    const [start, end] = range.split(':')
+    const [startRow, startColumn] = this.parseRef(start)
+    const [endRow, endColumn] = this.parseRef(end)
+    const refs: CellRef[] = []
+
+    for (let row = startRow; row <= endRow; row += 1) {
+      for (let column = startColumn; column <= endColumn; column += 1) {
+        refs.push([row, column])
+      }
+    }
+
+    return refs
+  }
+
+  set(row: number, column: string, value: number): void {
+    const cell = this.getCell(row, column)
+    cell.value = value
+    cell.formula = null
+  }
+
+  get(row: number, column: string): number {
+    const cell = this.getCell(row, column)
+    if (cell.formula === null) {
+      return cell.value
+    }
+
+    let total = 0
+    for (const [refRow, refColumn] of cell.formula) {
+      const refCell = this.getCellByIndex(refRow, refColumn)
+      if (refCell.formula === null) {
+        total += refCell.value
+      } else {
+        total += this.get(refRow + 1, String.fromCharCode(refColumn + 65))
+      }
+    }
+
+    return total
+  }
+
+  sum(row: number, column: string, numbers: string[]): number {
+    const refs: CellRef[] = []
+    for (const entry of numbers) {
+      refs.push(...this.expandRange(entry))
+    }
+
+    const cell = this.getCell(row, column)
+    cell.formula = refs
+    cell.value = 0
+
+    return this.get(row, column)
+  }
+}`,
+      },
+      {
+        id: 'design-excel-sum-formula-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是 `set` 新值后没有清空旧公式，导致状态污染；或者区间引用没有真正展开，求和值少算了很多单元格。',
+        bullets: [
+          '易错点 1：`set` 没覆盖旧公式。',
+          '易错点 2：区间解析不完整。',
+          '易错点 3：公式引用链没有递归求值。',
+          '延伸方向：依赖计算、表格引擎、设计题状态管理。',
+        ],
+      },
+    ],
+  },
 ];
