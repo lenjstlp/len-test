@@ -66544,4 +66544,88 @@ END;`,
       },
     ],
   },
+  {
+    id: 'k-inverse-pairs-array',
+    label: '629. LeetCode 629. K 个逆序对数组',
+    difficulty: '困难',
+    description:
+      '这题不能暴力构造排列，而是典型的计数 DP。关键是把“把新数字 i 放到不同位置会新增多少逆序对”这个转移写出来。',
+    outcome: '你能把排列计数问题转成带前缀和优化的动态规划，并控制住复杂度。',
+    sections: [
+      {
+        id: 'k-inverse-pairs-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `n` 和 `k`，要求统计由 `1..n` 组成的所有排列中，恰好包含 `k` 个逆序对的排列数量，并对 `10^9 + 7` 取模。',
+        bullets: [
+          '数组由 `1..n` 恰好组成。',
+          '要精确统计逆序对数量等于 `k` 的方案数。',
+          '答案需要取模。',
+          '是排列计数 DP 题。',
+        ],
+      },
+      {
+        id: 'k-inverse-pairs-array-observe',
+        title: '把数字 i 插入已有排列时，会新增 0 到 i - 1 个逆序对',
+        summary:
+          '设 `dp[i][j]` 表示用 `1..i` 组成恰好 `j` 个逆序对的排列数。考虑把新数字 `i` 插入 `1..i-1` 的某个位置：若插在最右侧，新增 0 个逆序对；越往左插，新增逆序对越多，最多新增 `i - 1` 个。因此有转移 `dp[i][j] = sum(dp[i - 1][j - x])`，其中 `x` 从 `0` 到 `min(j, i - 1)`。',
+        bullets: [
+          '新增数字时只影响和它相关的逆序对。',
+          '新增逆序对数量有连续范围。',
+          '朴素转移是一个区间求和。',
+          '前缀和优化就是本题关键。',
+        ],
+      },
+      {
+        id: 'k-inverse-pairs-array-solution',
+        title: '标准解法：DP + 前缀和优化区间转移',
+        summary:
+          '使用一维滚动数组维护上一层 `dp`。对于当前 `i`，先构造前缀和数组，使 `dp[i][j]` 能在 `O(1)` 时间由一个区间和得到。这样总复杂度可以降到 `O(nk)`。',
+        bullets: [
+          '时间复杂度是 `O(nk)`。',
+          '空间复杂度可以压到 `O(k)`。',
+          '实现重点在区间左边界和取模。',
+          '是经典计数 DP 模板题。',
+        ],
+        code: `function kInversePairs(n: number, k: number): number {
+  const mod = 1_000_000_007
+  let dp = new Array<number>(k + 1).fill(0)
+  dp[0] = 1
+
+  for (let i = 1; i <= n; i += 1) {
+    const prefix = new Array<number>(k + 1).fill(0)
+    prefix[0] = dp[0]
+    for (let j = 1; j <= k; j += 1) {
+      prefix[j] = (prefix[j - 1] + dp[j]) % mod
+    }
+
+    const next = new Array<number>(k + 1).fill(0)
+    for (let j = 0; j <= k; j += 1) {
+      const left = j - (i - 1) - 1
+      next[j] = prefix[j]
+      if (left >= 0) {
+        next[j] = (next[j] - prefix[left] + mod) % mod
+      }
+    }
+
+    dp = next
+  }
+
+  return dp[k]
+}`,
+      },
+      {
+        id: 'k-inverse-pairs-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接按朴素三重循环转移，复杂度过高；或者前缀和减法后忘记补模，导致出现负数。',
+        bullets: [
+          '易错点 1：没有做前缀和优化。',
+          '易错点 2：区间左边界计算错一位。',
+          '易错点 3：取模减法后没有补上 `mod`。',
+          '延伸方向：排列计数、动态规划优化、前缀和转移。',
+        ],
+      },
+    ],
+  },
 ];
