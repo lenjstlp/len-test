@@ -68092,4 +68092,102 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'maximum-average-subarray-ii',
+    label: '644. LeetCode 644. 子数组最大平均数 II',
+    difficulty: '困难',
+    description:
+      '这题长度不再固定，而是至少为 `k`。直接求最大平均值不好做，但“答案是否至少为某个值”可以转成前缀和判定，因此适合二分答案。',
+    outcome: '你能把最大平均值问题转成判定问题，并用二分加前缀和完成优化。',
+    sections: [
+      {
+        id: 'maximum-average-subarray-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `nums` 和整数 `k`，要求找出长度至少为 `k` 的连续子数组中，平均值最大的那个，并返回这个最大平均值。',
+        bullets: [
+          '子数组长度至少为 `k`，不是固定值。',
+          '目标是最大平均值。',
+          '结果允许一定误差范围。',
+          '是二分答案题。',
+        ],
+      },
+      {
+        id: 'maximum-average-subarray-ii-observe',
+        title: '判断“是否存在平均值至少为 x 的子数组”比直接求最大值更容易',
+        summary:
+          '若猜一个平均值 `x`，把数组每个元素都减去 `x`，问题就变成：是否存在一个长度至少为 `k` 的子数组，其元素和大于等于 `0`。这个判定可以用前缀和完成。因为判定结果对 `x` 具有单调性，所以可以对答案二分搜索。',
+        bullets: [
+          '平均值问题常用“减去猜测值”变形。',
+          '判定问题具有单调性。',
+          '前缀和负责检查是否存在合法区间。',
+          '这是整题核心技巧。',
+        ],
+      },
+      {
+        id: 'maximum-average-subarray-ii-solution',
+        title: '标准解法：二分答案 + 前缀和最小前缀判定',
+        summary:
+          '二分范围可以设为数组最小值到最大值。对每个中间值 `mid`，把元素看成 `nums[i] - mid`，计算前缀和。若存在某个位置 `i`，使得当前前缀和减去此前长度至少为 `k` 的最小前缀和不小于 `0`，则说明存在平均值至少为 `mid` 的合法子数组。重复二分直到精度足够。',
+        bullets: [
+          '时间复杂度约为 `O(n log R)`。',
+          '空间复杂度可以做到 `O(1)` 附加空间。',
+          '实现重点在判定函数里维护最小前缀和。',
+          '是二分答案模板题。',
+        ],
+        code: `function findMaxAverage(nums: number[], k: number): number {
+  let left = Math.min(...nums)
+  let right = Math.max(...nums)
+
+  const canFind = (target: number): boolean => {
+    let prefixSum = 0
+    let prevPrefixSum = 0
+    let minPrevPrefixSum = 0
+
+    for (let i = 0; i < k; i += 1) {
+      prefixSum += nums[i] - target
+    }
+    if (prefixSum >= 0) {
+      return true
+    }
+
+    for (let i = k; i < nums.length; i += 1) {
+      prefixSum += nums[i] - target
+      prevPrefixSum += nums[i - k] - target
+      minPrevPrefixSum = Math.min(minPrevPrefixSum, prevPrefixSum)
+
+      if (prefixSum - minPrevPrefixSum >= 0) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  while (right - left > 1e-5) {
+    const mid = (left + right) / 2
+    if (canFind(mid)) {
+      left = mid
+    } else {
+      right = mid
+    }
+  }
+
+  return left
+}`,
+      },
+      {
+        id: 'maximum-average-subarray-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接套固定窗口思路，忽略了长度是“至少为 `k`”；或者在判定时没有维护长度至少为 `k` 之前的最小前缀和，导致漏解。',
+        bullets: [
+          '易错点 1：把题目误当成固定长度窗口。',
+          '易错点 2：判定函数的前缀和边界处理错误。',
+          '易错点 3：二分终止精度设置不合理。',
+          '延伸方向：二分答案、前缀和判定、平均值优化问题。',
+        ],
+      },
+    ],
+  },
 ];
