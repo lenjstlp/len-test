@@ -67681,4 +67681,114 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'solve-the-equation',
+    label: '640. LeetCode 640. 求解方程',
+    difficulty: '中等',
+    description:
+      '这题本质是把等式两边都整理成 `ax + b` 的形式，然后再做一次线性方程求解。',
+    outcome:
+      '你能把字符串方程解析成系数和常数项，并统一处理无解、唯一解和无限解。',
+    sections: [
+      {
+        id: 'solve-the-equation-summary',
+        title: '题目在问什么',
+        summary:
+          '给定只含 `x`、加减号和整数的线性方程字符串，例如 `x+5-3+x=6+x-2`，要求返回解的形式：`x=#value`、`Infinite solutions` 或 `No solution`。',
+        bullets: [
+          '方程是一元一次方程。',
+          '需要解析字符串表达式。',
+          '结果可能是唯一解、无解或无限解。',
+          '是字符串解析题。',
+        ],
+      },
+      {
+        id: 'solve-the-equation-observe',
+        title: '先把左右两边都化成 `系数 * x + 常数`',
+        summary:
+          '不管表达式多长，每一边最终都可以归并成两个量：`x` 的总系数和纯数字常数和。把右边整体移到左边后，就能得到 `coefficient * x = constant` 的标准形式，剩下只是分类讨论。',
+        bullets: [
+          '核心是提取 `x` 系数和常数项。',
+          '左右两边可以分别解析。',
+          '整理后就是基础代数。',
+          '实现重点在项的解析规则。',
+        ],
+      },
+      {
+        id: 'solve-the-equation-solution',
+        title: '标准解法：逐项解析两边表达式并合并',
+        summary:
+          '写一个函数解析单侧表达式，返回 `[xCoefficient, constant]`。扫描时处理符号、数字以及是否带 `x`。拿到左右两边后，计算总系数 `leftX - rightX` 和总常数 `rightConst - leftConst`。若总系数为 0，则根据总常数判断是无解还是无限解；否则返回唯一解。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在像 `x`、`-x`、`2x` 这类项的统一处理。',
+          '是表达式解析入门题。',
+        ],
+        code: `function solveEquation(equation: string): string {
+  const parse = (expression: string): [number, number] => {
+    let coefficient = 0
+    let constant = 0
+    let index = 0
+    let sign = 1
+
+    while (index < expression.length) {
+      if (expression[index] === '+') {
+        sign = 1
+        index += 1
+        continue
+      }
+      if (expression[index] === '-') {
+        sign = -1
+        index += 1
+        continue
+      }
+
+      let value = 0
+      let hasNumber = false
+      while (index < expression.length && /\\d/.test(expression[index])) {
+        value = value * 10 + Number(expression[index])
+        hasNumber = true
+        index += 1
+      }
+
+      if (index < expression.length && expression[index] === 'x') {
+        coefficient += sign * (hasNumber ? value : 1)
+        index += 1
+      } else {
+        constant += sign * value
+      }
+    }
+
+    return [coefficient, constant]
+  }
+
+  const [left, right] = equation.split('=')
+  const [leftX, leftConst] = parse(left)
+  const [rightX, rightConst] = parse(right)
+
+  const totalX = leftX - rightX
+  const totalConst = rightConst - leftConst
+
+  if (totalX === 0) {
+    return totalConst === 0 ? 'Infinite solutions' : 'No solution'
+  }
+
+  return \`x=\${totalConst / totalX}\`
+}`,
+      },
+      {
+        id: 'solve-the-equation-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有正确处理 `x` 前面省略系数的情况，比如 `x` 应视为 `1x`，`-x` 应视为 `-1x`；或者移项后符号方向写反。',
+        bullets: [
+          '易错点 1：`x`、`-x` 系数解析错误。',
+          '易错点 2：常数项移项后符号写反。',
+          '易错点 3：总系数为 0 时分类讨论不完整。',
+          '延伸方向：表达式解析、一元方程、字符串扫描。',
+        ],
+      },
+    ],
+  },
 ];
