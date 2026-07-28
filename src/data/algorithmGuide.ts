@@ -67213,4 +67213,94 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'design-log-storage-system',
+    label: '635. LeetCode 635. 设计日志存储系统',
+    difficulty: '中等',
+    description:
+      '这题的关键不是复杂索引，而是时间戳按固定格式排列，截断到指定粒度后可以直接做字符串范围比较。',
+    outcome: '你能利用时间字符串的字典序特性，快速实现按粒度检索日志。',
+    sections: [
+      {
+        id: 'design-log-storage-system-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个日志存储系统，支持插入 `(id, timestamp)`，以及按照给定开始时间、结束时间和粒度 `granularity` 检索日志 `id`。',
+        bullets: [
+          '时间戳格式固定为 `YYYY:MM:DD:HH:MM:SS`。',
+          '查询会指定粒度，比如年、月、日等。',
+          '需要返回落在范围内的日志 `id`。',
+          '是设计题加字符串处理题。',
+        ],
+      },
+      {
+        id: 'design-log-storage-system-observe',
+        title: '按粒度截断后，时间比较可以直接转成字符串前缀比较',
+        summary:
+          '因为时间戳各字段都固定宽度且从高位到低位排列，所以按某个粒度截断后的字符串仍然保留正确的时间顺序。例如按日比较时，只需要比较前 10 个字符对应的 `YYYY:MM:DD`。因此可以把所有时间戳保存下来，检索时按粒度裁剪后做范围判断。',
+        bullets: [
+          '固定格式保证字典序和时间序一致。',
+          '粒度不同，本质是保留不同长度前缀。',
+          '不一定需要复杂树结构。',
+          '核心是截断长度映射。',
+        ],
+      },
+      {
+        id: 'design-log-storage-system-solution',
+        title: '标准解法：顺序存储日志，查询时按粒度截断比较',
+        summary:
+          '用数组保存所有日志。为每种粒度预先定义对应的截断长度，例如年是 `4`，月是 `7`，日是 `10`。查询时把起止时间和日志时间戳都裁剪到该长度，若日志前缀在区间内，就把它的 `id` 加入答案。',
+        bullets: [
+          '实现简单直接。',
+          '插入操作是 `O(1)`。',
+          '查询复杂度和日志数量成正比。',
+          '适合题目设计意图。',
+        ],
+        code: `class LogSystem {
+  private readonly logs: Array<{ id: number; timestamp: string }> = []
+
+  private readonly lengths = new Map<string, number>([
+    ['Year', 4],
+    ['Month', 7],
+    ['Day', 10],
+    ['Hour', 13],
+    ['Minute', 16],
+    ['Second', 19],
+  ])
+
+  put(id: number, timestamp: string): void {
+    this.logs.push({ id, timestamp })
+  }
+
+  retrieve(start: string, end: string, granularity: string): number[] {
+    const length = this.lengths.get(granularity) as number
+    const startKey = start.slice(0, length)
+    const endKey = end.slice(0, length)
+    const answer: number[] = []
+
+    for (const log of this.logs) {
+      const key = log.timestamp.slice(0, length)
+      if (key >= startKey && key <= endKey) {
+        answer.push(log.id)
+      }
+    }
+
+    return answer
+  }
+}`,
+      },
+      {
+        id: 'design-log-storage-system-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把时间戳拆成数字再逐字段比较，代码变得很重；或者粒度对应的截断长度写错，导致边界范围判断失真。',
+        bullets: [
+          '易错点 1：粒度前缀长度映射错误。',
+          '易错点 2：没有利用固定格式的字典序特性。',
+          '易错点 3：起止范围比较写成严格不等，漏掉边界。',
+          '延伸方向：字符串时间索引、日志系统设计、区间检索。',
+        ],
+      },
+    ],
+  },
 ];
