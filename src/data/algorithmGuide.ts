@@ -67135,4 +67135,82 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'find-the-derangement-of-an-array',
+    label: '634. LeetCode 634. 寻找数组的错位排列',
+    difficulty: '中等',
+    description:
+      '这题不是枚举排列，而是经典组合 DP。关键是理解第一个元素放错位置后，会把问题拆成两个规模更小的子问题。',
+    outcome: '你能从错排定义推导出递推公式，并用线性 DP 稳定求值。',
+    sections: [
+      {
+        id: 'find-the-derangement-of-an-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数 `n`，要求统计由 `1..n` 组成的排列中，没有任何元素出现在原来位置上的排列数量，也就是错排数。',
+        bullets: [
+          '每个元素都不能留在原位。',
+          '答案是排列数量，不是具体排列。',
+          '结果需要对 `10^9 + 7` 取模。',
+          '是经典计数组合题。',
+        ],
+      },
+      {
+        id: 'find-the-derangement-of-an-array-observe',
+        title: '第一个元素放错后，会分裂成两种等价子情况',
+        summary:
+          '设 `dp[n]` 是 `n` 个元素的错排数。考虑元素 `1` 被放到位置 `i`，原来位置 `i` 上的元素记为 `x`。此时有两种情况：如果 `x` 放回位置 `1`，剩下 `n - 2` 个元素形成错排；如果 `x` 不放回位置 `1`，那么剩下 `n - 1` 个元素形成错排。由于 `i` 有 `n - 1` 种选择，所以递推式为 `dp[n] = (n - 1) * (dp[n - 1] + dp[n - 2])`。',
+        bullets: [
+          '第一个元素必须去别的位置。',
+          '被交换出来的元素决定子问题规模。',
+          '递推式是错排问题核心结论。',
+          '是组合分类讨论的典型推导。',
+        ],
+      },
+      {
+        id: 'find-the-derangement-of-an-array-solution',
+        title: '标准解法：按错排递推式做线性 DP',
+        summary:
+          '边界是 `dp[1] = 0`、`dp[2] = 1`。之后从 `3` 递推到 `n`，每一步按公式计算，并对 `10^9 + 7` 取模。由于只依赖前两项，空间还可以压缩成常数。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度可以做到 `O(1)`。',
+          '实现重点在边界值和取模。',
+          '是数学 DP 代表题。',
+        ],
+        code: `function findDerangement(n: number): number {
+  const mod = 1_000_000_007
+  if (n === 1) {
+    return 0
+  }
+  if (n === 2) {
+    return 1
+  }
+
+  let prev2 = 0
+  let prev1 = 1
+
+  for (let i = 3; i <= n; i += 1) {
+    const current = ((i - 1) * (prev1 + prev2)) % mod
+    prev2 = prev1
+    prev1 = current
+  }
+
+  return prev1
+}`,
+      },
+      {
+        id: 'find-the-derangement-of-an-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有搞清楚递推式中两个子情况的含义，直接硬背公式；或者边界 `n = 1`、`n = 2` 写错，导致整条递推都偏掉。',
+        bullets: [
+          '易错点 1：边界值写错。',
+          '易错点 2：忘记对结果取模。',
+          '易错点 3：把递推式误写成只依赖一项。',
+          '延伸方向：组合计数、递推推导、错排模型。',
+        ],
+      },
+    ],
+  },
 ];
