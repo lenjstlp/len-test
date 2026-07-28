@@ -67386,4 +67386,89 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'average-of-levels-in-binary-tree',
+    label: '637. LeetCode 637. 二叉树的层平均值',
+    difficulty: '简单',
+    description: '这题是标准层序遍历，每一层把节点值求和再除以节点数即可。',
+    outcome: '你能用 BFS 清晰地按层聚合二叉树数据。',
+    sections: [
+      {
+        id: 'average-of-levels-in-binary-tree-summary',
+        title: '题目在问什么',
+        summary: '给定二叉树根节点，要求返回每一层节点值的平均数。',
+        bullets: [
+          '结果按层从上到下输出。',
+          '每层都要单独统计。',
+          '平均值可能是小数。',
+          '是 BFS 基础题。',
+        ],
+      },
+      {
+        id: 'average-of-levels-in-binary-tree-observe',
+        title: '层序遍历天然把同一层节点聚在一起',
+        summary:
+          '只要用队列做 BFS，每次先记录当前队列长度，就能知道这一轮弹出的节点都属于同一层。把它们的值累加，再除以本层节点数，就得到该层平均值。',
+        bullets: [
+          '队列长度界定当前层范围。',
+          '层内节点一次性处理。',
+          '求和后除以层大小即可。',
+          '不需要额外复杂结构。',
+        ],
+      },
+      {
+        id: 'average-of-levels-in-binary-tree-solution',
+        title: '标准解法：BFS 逐层求和取平均',
+        summary:
+          '若根节点为空直接返回空数组。否则把根节点入队，循环中按当前层节点数弹出节点、累加数值，并把左右孩子加入队列。每层处理结束后将 `sum / size` 推入答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度取决于树的最大层宽。',
+          '实现重点在层边界控制。',
+          '是树 BFS 模板题。',
+        ],
+        code: `function averageOfLevels(root: TreeNode | null): number[] {
+  if (root === null) {
+    return []
+  }
+
+  const answer: number[] = []
+  const queue: TreeNode[] = [root]
+
+  while (queue.length > 0) {
+    const size = queue.length
+    let sum = 0
+
+    for (let i = 0; i < size; i += 1) {
+      const node = queue.shift() as TreeNode
+      sum += node.val
+
+      if (node.left !== null) {
+        queue.push(node.left)
+      }
+      if (node.right !== null) {
+        queue.push(node.right)
+      }
+    }
+
+    answer.push(sum / size)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'average-of-levels-in-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有在每层开始前固定层大小，导致不同层节点混在一起统计；或者用整数除法思维去处理平均值。',
+        bullets: [
+          '易错点 1：层边界没固定好。',
+          '易错点 2：左右孩子入队时机混乱。',
+          '易错点 3：平均值精度意识不足。',
+          '延伸方向：层序遍历、树层统计、BFS 聚合。',
+        ],
+      },
+    ],
+  },
 ];
