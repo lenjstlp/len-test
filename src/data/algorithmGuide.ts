@@ -67303,4 +67303,87 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'exclusive-time-of-functions',
+    label: '636. LeetCode 636. 函数的独占时间',
+    difficulty: '中等',
+    description:
+      '这题的关键是调用栈。当前正在执行的函数会被新函数打断，恢复时再继续累计自己的独占时间。',
+    outcome: '你能用栈准确模拟函数调用和返回过程，并正确处理时间片边界。',
+    sections: [
+      {
+        id: 'exclusive-time-of-functions-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `n` 个函数以及按时间顺序记录的日志，日志格式是 `id:start|end:timestamp`。要求求出每个函数真正独占运行的时间。',
+        bullets: [
+          '函数可能嵌套调用。',
+          '父函数被子函数执行时会暂停计时。',
+          '需要分别统计每个函数的独占时长。',
+          '是栈模拟题。',
+        ],
+      },
+      {
+        id: 'exclusive-time-of-functions-observe',
+        title: '当前栈顶函数就是正在消耗 CPU 时间的函数',
+        summary:
+          '按日志顺序扫描时，栈顶始终代表当前真正运行的函数。遇到新的 `start` 日志时，说明栈顶函数先运行到该时间点，然后被压栈的新函数打断；遇到 `end` 日志时，说明栈顶函数会一直运行到该时刻结束，并在下一时刻才轮到外层函数恢复执行。',
+        bullets: [
+          '栈天然表示调用关系。',
+          '`start` 会打断当前函数。',
+          '`end` 是包含当前时间点的闭区间。',
+          '时间边界处理是本题重点。',
+        ],
+      },
+      {
+        id: 'exclusive-time-of-functions-solution',
+        title: '标准解法：栈维护调用链，`prevTime` 维护上一时刻',
+        summary:
+          '使用栈保存当前调用链上的函数 `id`。额外维护 `prevTime` 表示上一段时间的起点。遇到 `start` 时，若栈非空，就把 `timestamp - prevTime` 这段时间加给栈顶函数，然后将新函数压栈并更新 `prevTime`。遇到 `end` 时，把 `timestamp - prevTime + 1` 加给栈顶函数，弹栈后把 `prevTime` 设为 `timestamp + 1`。',
+        bullets: [
+          '时间复杂度是 `O(logs.length)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在 `end` 日志多出的 `+1`。',
+          '是调用栈模拟题代表。',
+        ],
+        code: `function exclusiveTime(n: number, logs: string[]): number[] {
+  const answer = new Array<number>(n).fill(0)
+  const stack: number[] = []
+  let prevTime = 0
+
+  for (const log of logs) {
+    const [idText, type, timeText] = log.split(':')
+    const id = Number(idText)
+    const time = Number(timeText)
+
+    if (type === 'start') {
+      if (stack.length > 0) {
+        answer[stack[stack.length - 1]] += time - prevTime
+      }
+      stack.push(id)
+      prevTime = time
+    } else {
+      answer[stack[stack.length - 1]] += time - prevTime + 1
+      stack.pop()
+      prevTime = time + 1
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'exclusive-time-of-functions-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把 `end` 当成开区间，漏掉结束时刻本身；或者在遇到子函数 `start` 时，没有先把父函数已经运行的那段时间结算掉。',
+        bullets: [
+          '易错点 1：`end` 没有加上当前时刻。',
+          '易错点 2：父函数被打断前未结算。',
+          '易错点 3：`prevTime` 更新时机错误。',
+          '延伸方向：栈模拟、日志重放、调用链计时。',
+        ],
+      },
+    ],
+  },
 ];
