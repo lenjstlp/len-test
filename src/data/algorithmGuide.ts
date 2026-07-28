@@ -67471,4 +67471,106 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'shopping-offers',
+    label: '638. LeetCode 638. 大礼包',
+    difficulty: '中等',
+    description:
+      '这题不是贪心选最便宜礼包，而是搜索所有可能的组合。关键是状态规模不大，可以用 DFS 加记忆化做最优子结构。',
+    outcome: '你能把多商品礼包购买问题建模成状态搜索，并用记忆化避免重复计算。',
+    sections: [
+      {
+        id: 'shopping-offers-summary',
+        title: '题目在问什么',
+        summary:
+          '给定单品价格、若干礼包内容和购买需求 `needs`，要求在满足需求的前提下，求最小花费。',
+        bullets: [
+          '每种商品都有单买价格。',
+          '礼包可以包含多种商品。',
+          '不能买超需求的数量。',
+          '目标是总价最小。',
+        ],
+      },
+      {
+        id: 'shopping-offers-observe',
+        title: '每一种剩余需求都是一个状态',
+        summary:
+          '如果把当前还需要买多少商品作为状态，那么对一个状态的最优答案只取决于它本身。此时可以尝试两类决策：要么全部按单价买完，要么挑一个合法礼包使用一次，再递归求解剩余需求。取这些方案中的最小值就是当前状态答案。',
+        bullets: [
+          '剩余需求天然构成搜索状态。',
+          '礼包使用后会转到更小状态。',
+          '直接单买是保底方案。',
+          '这是标准记忆化搜索模型。',
+        ],
+      },
+      {
+        id: 'shopping-offers-solution',
+        title: '标准解法：DFS + 记忆化枚举礼包使用',
+        summary:
+          '递归函数接收当前 `needs`。先计算全部单买的成本作为初始答案。然后遍历每个礼包，若礼包不超过当前需求，就构造新的剩余需求并递归求值，用礼包价格加上子问题答案更新最优值。使用 `Map` 记忆化状态即可。',
+        bullets: [
+          '时间复杂度取决于状态数量。',
+          '状态维度通常很小。',
+          '实现重点在礼包合法性判断和状态序列化。',
+          '是搜索型 DP 题。',
+        ],
+        code: `function shoppingOffers(
+  price: number[],
+  special: number[][],
+  needs: number[],
+): number {
+  const memo = new Map<string, number>()
+
+  const dfs = (currentNeeds: number[]): number => {
+    const key = currentNeeds.join(',')
+    const cached = memo.get(key)
+    if (cached !== undefined) {
+      return cached
+    }
+
+    let best = 0
+    for (let i = 0; i < currentNeeds.length; i += 1) {
+      best += currentNeeds[i] * price[i]
+    }
+
+    for (const offer of special) {
+      const nextNeeds: number[] = []
+      let valid = true
+
+      for (let i = 0; i < currentNeeds.length; i += 1) {
+        if (offer[i] > currentNeeds[i]) {
+          valid = false
+          break
+        }
+        nextNeeds.push(currentNeeds[i] - offer[i])
+      }
+
+      if (!valid) {
+        continue
+      }
+
+      best = Math.min(best, offer[offer.length - 1] + dfs(nextNeeds))
+    }
+
+    memo.set(key, best)
+    return best
+  }
+
+  return dfs(needs)
+}`,
+      },
+      {
+        id: 'shopping-offers-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是看到“礼包”就用贪心选看起来最划算的那个，但局部最优不保证全局最优；或者礼包超出需求时仍然错误使用。',
+        bullets: [
+          '易错点 1：误用贪心。',
+          '易错点 2：礼包合法性判断不严。',
+          '易错点 3：没有做记忆化导致大量重复搜索。',
+          '延伸方向：状态搜索、记忆化 DFS、组合优化。',
+        ],
+      },
+    ],
+  },
 ];
