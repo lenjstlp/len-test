@@ -67573,4 +67573,112 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'decode-ways-ii',
+    label: '639. LeetCode 639. 解码方法 II',
+    difficulty: '困难',
+    description:
+      '这题比基础版多了 `*` 通配符，单字符和双字符的可解码数量都要分类讨论，因此最稳的是做位置 DP。',
+    outcome:
+      '你能系统处理带通配符的计数型转移，并把大量分类归纳成清晰的 DP 逻辑。',
+    sections: [
+      {
+        id: 'decode-ways-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定只包含数字和 `*` 的字符串，`*` 可以表示 `1..9` 中任意一个数字。要求统计这个字符串有多少种合法解码方式，并对 `10^9 + 7` 取模。',
+        bullets: [
+          '单字符和双字符都可能参与解码。',
+          '`*` 会带来多种替代可能。',
+          '要统计总方案数。',
+          '是字符串计数 DP 题。',
+        ],
+      },
+      {
+        id: 'decode-ways-ii-observe',
+        title: '每一位的答案取决于“单独解码”和“和前一位一起解码”两类贡献',
+        summary:
+          '和基础版一样，位置 `i` 的方案数由两部分组成：当前字符单独解码的贡献，以及当前字符和前一个字符合起来解码的贡献。不同的是，现在这两部分都要根据 `0`、普通数字和 `*` 做细分。例如单个 `*` 有 9 种，`1*` 有 9 种，`2*` 有 6 种，`**` 则有 15 种双字符组合。',
+        bullets: [
+          '转移框架仍然是两项相加。',
+          '难点在每种字符组合的计数。',
+          '把分类封装成辅助函数最清晰。',
+          '这是本题核心。',
+        ],
+      },
+      {
+        id: 'decode-ways-ii-solution',
+        title: '标准解法：滚动 DP + 单字符/双字符贡献函数',
+        summary:
+          '令 `dp[i]` 表示前 `i` 个字符的解码方案数。递推时，先计算当前位置字符单独解码可贡献多少种，再计算它和前一位组成双字符时可贡献多少种。由于每次只依赖前两项，可以把空间压缩成常数。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在分类函数的正确性。',
+          '是带通配符计数 DP 代表题。',
+        ],
+        code: `function numDecodings(s: string): number {
+  const mod = 1_000_000_007
+
+  const singleWays = (char: string): number => {
+    if (char === '*') {
+      return 9
+    }
+    if (char === '0') {
+      return 0
+    }
+    return 1
+  }
+
+  const pairWays = (first: string, second: string): number => {
+    if (first === '*' && second === '*') {
+      return 15
+    }
+    if (first === '*') {
+      if (second >= '0' && second <= '6') {
+        return 2
+      }
+      return 1
+    }
+    if (second === '*') {
+      if (first === '1') {
+        return 9
+      }
+      if (first === '2') {
+        return 6
+      }
+      return 0
+    }
+
+    const value = Number(first + second)
+    return value >= 10 && value <= 26 ? 1 : 0
+  }
+
+  let prev2 = 1
+  let prev1 = singleWays(s[0])
+
+  for (let i = 1; i < s.length; i += 1) {
+    const current =
+      (prev1 * singleWays(s[i]) + prev2 * pairWays(s[i - 1], s[i])) % mod
+    prev2 = prev1
+    prev1 = current
+  }
+
+  return prev1
+}`,
+      },
+      {
+        id: 'decode-ways-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把 `*` 只当作一种字符处理，遗漏它代表多个数字时的计数；或者 `**`、`1*`、`2*` 这些双字符组合数量写错。',
+        bullets: [
+          '易错点 1：单字符 `*` 贡献不是 1 而是 9。',
+          '易错点 2：双字符组合分类不全。',
+          '易错点 3：没有处理 `0` 不能单独解码。',
+          '延伸方向：字符串 DP、分类计数、通配符状态转移。',
+        ],
+      },
+    ],
+  },
 ];
