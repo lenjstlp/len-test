@@ -67791,4 +67791,137 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'design-circular-deque',
+    label: '641. LeetCode 641. 设计循环双端队列',
+    difficulty: '中等',
+    description:
+      '这题和循环队列相比，多了首尾双向插入删除。稳定解法仍然是环形数组加上头指针和当前大小。',
+    outcome: '你能设计一个支持双端操作的固定容量循环结构，并处理好所有边界。',
+    sections: [
+      {
+        id: 'design-circular-deque-summary',
+        title: '题目在问什么',
+        summary:
+          '实现一个固定大小的循环双端队列，支持从前后插入、从前后删除、获取前后元素，以及判空判满。',
+        bullets: [
+          '支持双端进出。',
+          '容量固定。',
+          '队列是环形结构。',
+          '是数据结构设计题。',
+        ],
+      },
+      {
+        id: 'design-circular-deque-observe',
+        title: '首尾位置都可以由 `front` 和 `size` 推导出来',
+        summary:
+          '和循环队列类似，只要保存 `front` 和 `size`，其余位置都能计算出来。前端插入时，把 `front` 向左移动一格再写值；后端插入时，把值写到 `(front + size) % capacity`；删除操作则只需相应移动 `front` 或减少 `size`。',
+        bullets: [
+          '状态尽量少最稳。',
+          '`front` 表示当前队头位置。',
+          '`size` 控制空满判断。',
+          '取模负责回绕。',
+        ],
+      },
+      {
+        id: 'design-circular-deque-solution',
+        title: '标准解法：环形数组 + `front` + `size`',
+        summary:
+          '维护一个长度为 `k` 的数组、容量 `capacity`、队头索引 `front` 和元素个数 `size`。双端插入删除都用取模调整索引，判空判满则比较 `size` 与 `0` 或 `capacity`。',
+        bullets: [
+          '所有操作都能做到 `O(1)`。',
+          '空间复杂度是 `O(k)`。',
+          '实现重点在前端插入删除的索引变换。',
+          '是环形结构扩展题。',
+        ],
+        code: `class MyCircularDeque {
+  private readonly values: number[]
+  private readonly capacity: number
+  private front = 0
+  private size = 0
+
+  constructor(k: number) {
+    this.values = new Array<number>(k).fill(0)
+    this.capacity = k
+  }
+
+  insertFront(value: number): boolean {
+    if (this.isFull()) {
+      return false
+    }
+
+    this.front = (this.front - 1 + this.capacity) % this.capacity
+    this.values[this.front] = value
+    this.size += 1
+    return true
+  }
+
+  insertLast(value: number): boolean {
+    if (this.isFull()) {
+      return false
+    }
+
+    const index = (this.front + this.size) % this.capacity
+    this.values[index] = value
+    this.size += 1
+    return true
+  }
+
+  deleteFront(): boolean {
+    if (this.isEmpty()) {
+      return false
+    }
+
+    this.front = (this.front + 1) % this.capacity
+    this.size -= 1
+    return true
+  }
+
+  deleteLast(): boolean {
+    if (this.isEmpty()) {
+      return false
+    }
+
+    this.size -= 1
+    return true
+  }
+
+  getFront(): number {
+    if (this.isEmpty()) {
+      return -1
+    }
+    return this.values[this.front]
+  }
+
+  getRear(): number {
+    if (this.isEmpty()) {
+      return -1
+    }
+    const rear = (this.front + this.size - 1) % this.capacity
+    return this.values[rear]
+  }
+
+  isEmpty(): boolean {
+    return this.size === 0
+  }
+
+  isFull(): boolean {
+    return this.size === this.capacity
+  }
+}`,
+      },
+      {
+        id: 'design-circular-deque-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是前端插入时先写值后移动 `front`，导致覆盖错误；或者删除尾部时试图真的去清空数组，其实只需要调整逻辑长度。',
+        bullets: [
+          '易错点 1：前端索引更新顺序写反。',
+          '易错点 2：空满状态判断不清。',
+          '易错点 3：尾部位置计算偏一位。',
+          '延伸方向：双端队列、环形数组、固定容量结构设计。',
+        ],
+      },
+    ],
+  },
 ];
