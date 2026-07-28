@@ -67924,4 +67924,100 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'design-search-autocomplete-system',
+    label: '642. LeetCode 642. 设计搜索自动补全系统',
+    difficulty: '困难',
+    description:
+      '这题本质是动态前缀查询。输入流不断增长，每输入一个字符都要返回以当前前缀开头的前三条热门句子。',
+    outcome: '你能设计一个增量式自动补全系统，并处理频次排序和字典序打平。',
+    sections: [
+      {
+        id: 'design-search-autocomplete-system-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个自动补全系统，初始化时给定若干句子及其出现次数。之后用户逐字符输入，系统需要在每次输入后返回当前前缀下最热门的前三条句子；输入 `#` 时表示当前句子结束，并将它写回系统。',
+        bullets: [
+          '查询是按字符流逐步进行的。',
+          '排名优先看热度，再看字典序。',
+          '`#` 会把当前句子加入历史。',
+          '是设计题加前缀检索题。',
+        ],
+      },
+      {
+        id: 'design-search-autocomplete-system-observe',
+        title: '当前前缀确定后，只需要在所有历史句子里筛出匹配项再排序',
+        summary:
+          '题目规模并不大，所以一种足够稳的方案是直接用哈希表记录每个句子的热度。每次输入普通字符时，把它追加到当前前缀中，然后扫描所有句子，筛出以该前缀开头的句子，再按“热度降序、字典序升序”排序取前三个。输入 `#` 时再把当前前缀计入哈希表。',
+        bullets: [
+          '热度信息适合用哈希表维护。',
+          '前缀查询可以直接做字符串匹配。',
+          '排序规则有两个优先级。',
+          '实现重点在状态维护。',
+        ],
+      },
+      {
+        id: 'design-search-autocomplete-system-solution',
+        title: '标准解法：哈希表存热度，输入时筛选匹配句子排序',
+        summary:
+          '构造函数把初始句子及频次写入 `Map`。系统维护一个 `current` 字符串作为当前输入前缀。`input(c)` 若遇到 `#`，就把 `current` 的热度加一并清空；否则把字符拼到 `current` 后，遍历所有句子筛出匹配前缀者，排序后返回前三名。',
+        bullets: [
+          '实现简单，逻辑清楚。',
+          '查询复杂度和句子数量有关。',
+          '适合题目给定规模。',
+          '是前缀系统设计的基础版。',
+        ],
+        code: `class AutocompleteSystem {
+  private readonly counts = new Map<string, number>()
+  private current = ''
+
+  constructor(sentences: string[], times: number[]) {
+    for (let i = 0; i < sentences.length; i += 1) {
+      this.counts.set(sentences[i], times[i])
+    }
+  }
+
+  input(c: string): string[] {
+    if (c === '#') {
+      this.counts.set(this.current, (this.counts.get(this.current) ?? 0) + 1)
+      this.current = ''
+      return []
+    }
+
+    this.current += c
+    const matches: string[] = []
+
+    for (const sentence of this.counts.keys()) {
+      if (sentence.startsWith(this.current)) {
+        matches.push(sentence)
+      }
+    }
+
+    matches.sort((a, b) => {
+      const countA = this.counts.get(a) as number
+      const countB = this.counts.get(b) as number
+      if (countA !== countB) {
+        return countB - countA
+      }
+      return a.localeCompare(b)
+    })
+
+    return matches.slice(0, 3)
+  }
+}`,
+      },
+      {
+        id: 'design-search-autocomplete-system-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是排序规则写反，把字典序优先级放到了热度前面；或者输入 `#` 后没有把当前句子写回系统，导致后续查询历史不完整。',
+        bullets: [
+          '易错点 1：排序优先级错误。',
+          '易错点 2：`#` 没有清空当前状态。',
+          '易错点 3：新增句子没有累加热度。',
+          '延伸方向：前缀系统、Trie 优化、热度排序设计。',
+        ],
+      },
+    ],
+  },
 ];
