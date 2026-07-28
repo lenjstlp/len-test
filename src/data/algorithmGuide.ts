@@ -68020,4 +68020,76 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'maximum-average-subarray-i',
+    label: '643. LeetCode 643. 子数组最大平均数 I',
+    difficulty: '简单',
+    description:
+      '这题求的是固定长度子数组的最大平均值。由于长度固定，最大平均值和最大区间和是同一个问题。',
+    outcome: '你能用滑动窗口在线更新固定长度区间和，并快速得到答案。',
+    sections: [
+      {
+        id: 'maximum-average-subarray-i-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums` 和整数 `k`，要求找出长度恰好为 `k` 的连续子数组中，平均值最大的那个，并返回该平均值。',
+        bullets: [
+          '子数组长度固定为 `k`。',
+          '只看连续子数组。',
+          '结果是最大平均值。',
+          '是固定窗口题。',
+        ],
+      },
+      {
+        id: 'maximum-average-subarray-i-observe',
+        title: '长度固定时，比较平均值等价于比较区间和',
+        summary:
+          '因为所有候选子数组长度都相同，谁的区间和更大，谁的平均值就更大。因此只要维护一个长度为 `k` 的滑动窗口，持续更新当前窗口和与历史最大和即可。',
+        bullets: [
+          '固定长度让问题大幅简化。',
+          '平均值无需每次单独比较。',
+          '窗口右移时是“加新减旧”。',
+          '是滑动窗口基础结论。',
+        ],
+      },
+      {
+        id: 'maximum-average-subarray-i-solution',
+        title: '标准解法：固定长度滑动窗口',
+        summary:
+          '先计算前 `k` 个元素的和作为初始窗口和，并记录最大值。之后窗口每向右移动一格，就加上新进入的元素、减去离开的元素，同时更新最大和。最后用最大和除以 `k` 即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在首个窗口初始化。',
+          '是固定窗口模板题。',
+        ],
+        code: `function findMaxAverage(nums: number[], k: number): number {
+  let windowSum = 0
+  for (let i = 0; i < k; i += 1) {
+    windowSum += nums[i]
+  }
+
+  let best = windowSum
+  for (let i = k; i < nums.length; i += 1) {
+    windowSum += nums[i] - nums[i - k]
+    best = Math.max(best, windowSum)
+  }
+
+  return best / k
+}`,
+      },
+      {
+        id: 'maximum-average-subarray-i-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是每次窗口移动后重新遍历求和，白白把复杂度拉高；或者首个窗口没有先算进去，导致漏掉最左侧候选。',
+        bullets: [
+          '易错点 1：没有复用上一个窗口和。',
+          '易错点 2：初始窗口漏处理。',
+          '易错点 3：把长度固定误写成可变窗口。',
+          '延伸方向：滑动窗口、固定区间最值、平均值变形。',
+        ],
+      },
+    ],
+  },
 ];
