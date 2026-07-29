@@ -68649,4 +68649,76 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: '4-keys-keyboard',
+    label: '651. LeetCode 651. 4 键键盘',
+    difficulty: '中等',
+    description:
+      '这题比 2 键版多了“全选”和更灵活的复制窗口。核心是决定从哪个时刻开始进入“复制一次、粘贴多次”的阶段。',
+    outcome:
+      '你能设计状态转移，找到复制粘贴切入点，从而求出最多能打印多少个 `A`。',
+    sections: [
+      {
+        id: '4-keys-keyboard-summary',
+        title: '题目在问什么',
+        summary:
+          '键盘有四个操作：打印 `A`、全选、复制、粘贴。给定最多能按键 `n` 次，要求得到屏幕上最多的 `A` 数量。',
+        bullets: [
+          '每次按键都算一次操作。',
+          '全选和复制常常要成对出现。',
+          '目标是最大化最终 `A` 数量。',
+          '是动态规划题。',
+        ],
+      },
+      {
+        id: '4-keys-keyboard-observe',
+        title: '最优策略通常会先正常输出一段，再切换到“全选 + 复制 + 多次粘贴”',
+        summary:
+          '如果某一步开始决定批量复制，那么一般会先在前面攒出一定数量的 `A`，随后执行 `Ctrl-A`、`Ctrl-C`，然后连续若干次 `Ctrl-V`。这说明对于第 `i` 步的最优值，可以尝试枚举一个更早的断点 `j`，让前 `j` 步先得到最佳结果，再用后面的步骤完成一次复制和若干次粘贴。',
+        bullets: [
+          '复制阶段前要先积累内容。',
+          '切换点是 DP 转移关键。',
+          '最后一段通常由多次粘贴组成。',
+          '适合枚举断点。',
+        ],
+      },
+      {
+        id: '4-keys-keyboard-solution',
+        title: '标准解法：DP 枚举复制起点',
+        summary:
+          '令 `dp[i]` 表示按 `i` 次键后最多能得到多少个 `A`。基础情况是每次都直接打印，所以 `dp[i] >= i`。然后枚举断点 `j`，表示前 `j` 步已经得到 `dp[j]` 个 `A`，之后用两步做全选和复制，剩余 `i - j - 2` 步全部用来粘贴，因此总数是 `dp[j] * (i - j - 1)`。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在粘贴次数推导。',
+          '是断点型 DP 代表题。',
+        ],
+        code: `function maxA(n: number): number {
+  const dp = new Array<number>(n + 1).fill(0)
+
+  for (let steps = 1; steps <= n; steps += 1) {
+    dp[steps] = dp[steps - 1] + 1
+
+    for (let split = 1; split <= steps - 3; split += 1) {
+      dp[steps] = Math.max(dp[steps], dp[split] * (steps - split - 1))
+    }
+  }
+
+  return dp[n]
+}`,
+      },
+      {
+        id: '4-keys-keyboard-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把复制阶段的收益写成 `steps - split - 2`，少算了一次原始内容保留；或者没有把“全选 + 复制”占用的两步算进去。',
+        bullets: [
+          '易错点 1：粘贴次数和乘数关系写错。',
+          '易错点 2：忘记全选复制要占两步。',
+          '易错点 3：基础“直接打印”方案没保留。',
+          '延伸方向：断点 DP、操作规划、复制粘贴类最优解。',
+        ],
+      },
+    ],
+  },
 ];
