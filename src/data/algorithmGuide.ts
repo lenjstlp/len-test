@@ -68267,4 +68267,77 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'maximum-length-of-pair-chain',
+    label: '646. LeetCode 646. 最长数对链',
+    difficulty: '中等',
+    description:
+      '这题和区间调度很像。若想让链尽可能长，就应该优先选择右端点更早结束的数对。',
+    outcome: '你能把数对连接问题转成经典贪心调度模型。',
+    sections: [
+      {
+        id: 'maximum-length-of-pair-chain-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干数对 `[a, b]`，若一个数对的后一个值小于另一个数对的前一个值，就能把它们连起来。要求找出最长链长度。',
+        bullets: [
+          '连接条件是前一对的结尾小于后一对的开头。',
+          '每个数对最多使用一次。',
+          '目标是最大链长度。',
+          '是区间贪心题。',
+        ],
+      },
+      {
+        id: 'maximum-length-of-pair-chain-observe',
+        title: '优先保留结束更早的数对，能给后面留下更多空间',
+        summary:
+          '如果两个候选数对都可以作为当前链的下一个元素，那么结束更早的那个更优，因为它对后续的限制更小。这与活动选择问题完全一致，因此按右端点排序后贪心选择即可。',
+        bullets: [
+          '结束早意味着更宽松的后续空间。',
+          '局部最优能导向全局最优。',
+          '模型和区间调度一致。',
+          '不需要复杂 DP。',
+        ],
+      },
+      {
+        id: 'maximum-length-of-pair-chain-solution',
+        title: '标准解法：按右端点排序后贪心选择',
+        summary:
+          '先按每个数对的第二个值升序排序。随后线性扫描，维护当前链最后一个数对的结束值。若新数对的起点大于当前结束值，就把它接到链上，并更新结束值和答案。',
+        bullets: [
+          '时间复杂度主要来自排序。',
+          '空间复杂度是 `O(1)` 附加空间。',
+          '实现重点在连接条件比较。',
+          '是区间贪心模板题。',
+        ],
+        code: `function findLongestChain(pairs: number[][]): number {
+  pairs.sort((a, b) => a[1] - b[1])
+
+  let count = 0
+  let currentEnd = Number.NEGATIVE_INFINITY
+
+  for (const [start, end] of pairs) {
+    if (start > currentEnd) {
+      count += 1
+      currentEnd = end
+    }
+  }
+
+  return count
+}`,
+      },
+      {
+        id: 'maximum-length-of-pair-chain-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是按左端点排序后贪心，结果会错过更优选择；或者把连接条件写成 `>=`，但题目要求是严格大于。',
+        bullets: [
+          '易错点 1：排序依据用错。',
+          '易错点 2：连接条件严格性写错。',
+          '易错点 3：误以为必须上 DP。',
+          '延伸方向：区间调度、贪心证明、链式选择问题。',
+        ],
+      },
+    ],
+  },
 ];
