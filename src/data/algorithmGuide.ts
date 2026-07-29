@@ -68416,4 +68416,78 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'replace-words',
+    label: '648. LeetCode 648. 单词替换',
+    difficulty: '中等',
+    description:
+      '这题要把句子里的单词替换成词根词典中最短的可匹配前缀。直接枚举前缀就能做出来。',
+    outcome: '你能把前缀匹配问题转成高效的词根查找，并按题意优先选择最短词根。',
+    sections: [
+      {
+        id: 'replace-words-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个词根字典和一句话。若句子中的某个单词存在词根前缀，就要用最短的那个词根替换它。最后返回替换后的句子。',
+        bullets: [
+          '匹配依据是前缀。',
+          '同一个单词可能匹配多个词根。',
+          '必须选择最短词根。',
+          '是字符串前缀题。',
+        ],
+      },
+      {
+        id: 'replace-words-observe',
+        title: '最短词根优先，意味着找到第一个合法前缀就可以停',
+        summary:
+          '如果把所有词根放进集合中，那么处理一个单词时，只要从长度 1 开始逐步尝试它的前缀，遇到第一个存在于词根集合中的前缀，就已经是题目要求的最短替代词根，无需继续往后找。',
+        bullets: [
+          '词根集合适合用哈希表存储。',
+          '前缀从短到长枚举最符合题意。',
+          '第一个命中就是最优答案。',
+          '实现不一定需要 Trie。',
+        ],
+      },
+      {
+        id: 'replace-words-solution',
+        title: '标准解法：哈希集合存词根，逐词枚举前缀',
+        summary:
+          '先把字典中的所有词根放进 `Set`。然后把句子拆成单词数组，逐个检查每个单词的所有前缀，一旦某个前缀在集合中出现，就用它替换当前单词；若一直没命中，则保留原单词。最后再把所有单词拼回句子。',
+        bullets: [
+          '时间复杂度取决于总字符数。',
+          '空间复杂度主要是词根集合。',
+          '实现重点在前缀枚举顺序。',
+          '是前缀匹配题常见写法。',
+        ],
+        code: `function replaceWords(dictionary: string[], sentence: string): string {
+  const roots = new Set<string>(dictionary)
+  const words = sentence.split(' ')
+
+  for (let i = 0; i < words.length; i += 1) {
+    for (let length = 1; length <= words[i].length; length += 1) {
+      const prefix = words[i].slice(0, length)
+      if (roots.has(prefix)) {
+        words[i] = prefix
+        break
+      }
+    }
+  }
+
+  return words.join(' ')
+}`,
+      },
+      {
+        id: 'replace-words-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是命中词根后继续搜索，结果把更长的词根错误地覆盖掉；或者匹配用成了“包含子串”而不是“前缀”。',
+        bullets: [
+          '易错点 1：没有优先最短词根。',
+          '易错点 2：把前缀判断写成普通包含。',
+          '易错点 3：替换后没有及时停止当前单词的搜索。',
+          '延伸方向：Trie、字符串前缀匹配、词典替换。',
+        ],
+      },
+    ],
+  },
 ];
