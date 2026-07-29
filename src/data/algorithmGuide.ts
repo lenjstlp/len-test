@@ -68340,4 +68340,80 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'palindromic-substrings',
+    label: '647. LeetCode 647. 回文子串',
+    difficulty: '中等',
+    description:
+      '这题求的是所有回文子串数量。最直接高效的做法是以每个位置为中心向两侧扩展。',
+    outcome: '你能利用回文的中心对称性质在线统计所有回文子串。',
+    sections: [
+      {
+        id: 'palindromic-substrings-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s`，要求统计其中有多少个回文子串。不同起止位置的子串，即使内容相同，也要分别计数。',
+        bullets: [
+          '统计的是子串，不是子序列。',
+          '相同内容、不同位置要分别计数。',
+          '单个字符本身也是回文。',
+          '是字符串回文统计题。',
+        ],
+      },
+      {
+        id: 'palindromic-substrings-observe',
+        title: '每个回文都能由某个中心向外扩展得到',
+        summary:
+          '回文串要么有一个字符作为中心，对应奇数长度；要么有两个字符之间的空隙作为中心，对应偶数长度。因此只要枚举所有可能中心，并不断向两边扩展检查字符是否相同，就能把所有回文子串统计出来。',
+        bullets: [
+          '奇偶长度回文要分别考虑。',
+          '中心扩展天然不会漏解。',
+          '每成功扩一层就得到一个新回文。',
+          '是本题最经典解法。',
+        ],
+      },
+      {
+        id: 'palindromic-substrings-solution',
+        title: '标准解法：中心扩展统计',
+        summary:
+          '写一个辅助函数，从给定左右指针开始向两边扩展，只要字符相同就把答案加一。主过程对每个下标做两次扩展：一次以它自己为中心，一次以它和右边字符之间为空隙的中心。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现简单直接。',
+          '是回文题基础模板。',
+        ],
+        code: `function countSubstrings(s: string): number {
+  let count = 0
+
+  const expand = (left: number, right: number): void => {
+    while (left >= 0 && right < s.length && s[left] === s[right]) {
+      count += 1
+      left -= 1
+      right += 1
+    }
+  }
+
+  for (let i = 0; i < s.length; i += 1) {
+    expand(i, i)
+    expand(i, i + 1)
+  }
+
+  return count
+}`,
+      },
+      {
+        id: 'palindromic-substrings-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只做奇数长度中心扩展，漏掉偶数长度回文；或者把不同位置的相同回文内容错误地去重。',
+        bullets: [
+          '易错点 1：漏掉偶数长度中心。',
+          '易错点 2：误以为相同内容只算一次。',
+          '易错点 3：扩展边界判断写错。',
+          '延伸方向：中心扩展、回文 DP、回文统计。',
+        ],
+      },
+    ],
+  },
 ];
