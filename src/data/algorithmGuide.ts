@@ -68880,4 +68880,83 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'maximum-binary-tree',
+    label: '654. LeetCode 654. 最大二叉树',
+    difficulty: '中等',
+    description:
+      '这题直接按定义构造即可。每次找当前区间最大值作为根，再递归构造左右部分。',
+    outcome: '你能把递归定义原样翻译成树构造代码，并保持边界清晰。',
+    sections: [
+      {
+        id: 'maximum-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个不含重复元素的数组，要求构造最大二叉树：根节点是数组最大值，左子树来自最大值左边部分，右子树来自右边部分。',
+        bullets: [
+          '根由当前区间最大值决定。',
+          '左右子树来自左右子数组。',
+          '数组元素互不重复。',
+          '是递归构造题。',
+        ],
+      },
+      {
+        id: 'maximum-binary-tree-observe',
+        title: '题目定义本身就是完整递归关系',
+        summary:
+          '对任意子数组，只要找到其中最大值的位置，就能立刻确定当前根节点，同时把问题拆成左右两个更小的子数组。因此最自然的实现就是递归函数处理一个闭区间或半开区间。',
+        bullets: [
+          '定义直接给出递归转移。',
+          '最大值位置切开左右区间。',
+          '空区间对应空节点。',
+          '实现思路非常直接。',
+        ],
+      },
+      {
+        id: 'maximum-binary-tree-solution',
+        title: '标准解法：递归找区间最大值建树',
+        summary:
+          '写一个函数处理 `nums[left..right]`。若区间为空返回 `null`；否则扫描区间找到最大值下标，创建根节点，再递归构造左区间和右区间对应的左右子树。',
+        bullets: [
+          '时间复杂度最坏是 `O(n^2)`。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在区间边界。',
+          '是定义型递归题。',
+        ],
+        code: `function constructMaximumBinaryTree(nums: number[]): TreeNode | null {
+  const build = (left: number, right: number): TreeNode | null => {
+    if (left > right) {
+      return null
+    }
+
+    let maxIndex = left
+    for (let i = left + 1; i <= right; i += 1) {
+      if (nums[i] > nums[maxIndex]) {
+        maxIndex = i
+      }
+    }
+
+    const root = new TreeNode(nums[maxIndex])
+    root.left = build(left, maxIndex - 1)
+    root.right = build(maxIndex + 1, right)
+    return root
+  }
+
+  return build(0, nums.length - 1)
+}`,
+      },
+      {
+        id: 'maximum-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是最大值下标左右区间划分写错，导致根节点被重复使用或元素丢失；或者空区间没有及时返回，递归边界混乱。',
+        bullets: [
+          '易错点 1：左右区间端点写错。',
+          '易错点 2：空区间边界处理不完整。',
+          '易错点 3：最大值查找范围不准确。',
+          '延伸方向：递归构造、区间分治、单调栈优化。',
+        ],
+      },
+    ],
+  },
 ];
