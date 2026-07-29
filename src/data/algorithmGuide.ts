@@ -68190,4 +68190,81 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'set-mismatch',
+    label: '645. LeetCode 645. 错误的集合',
+    difficulty: '简单',
+    description:
+      '这题的数组本应是 `1..n` 的一个排列，但其中一个数重复、一个数缺失。最直接稳妥的做法是计数定位这两个异常值。',
+    outcome: '你能把“重复一个、缺失一个”的错误集合问题快速还原出来。',
+    sections: [
+      {
+        id: 'set-mismatch-summary',
+        title: '题目在问什么',
+        summary:
+          '给定长度为 `n` 的数组 `nums`，它本应包含 `1..n` 中每个数一次，但现在有一个数字重复出现，导致另一个数字缺失。要求返回 `[重复值, 缺失值]`。',
+        bullets: [
+          '只有一个数重复。',
+          '只有一个数缺失。',
+          '答案顺序是先重复再缺失。',
+          '是数组计数题。',
+        ],
+      },
+      {
+        id: 'set-mismatch-observe',
+        title: '每个数字本该出现一次，所以频次异常最容易定位问题',
+        summary:
+          '如果额外开一个长度为 `n + 1` 的计数数组，扫描 `nums` 后就能直接看到：出现 2 次的是重复值，出现 0 次的是缺失值。相比数学求和法，这种方法更直观，也更不容易在实现里出错。',
+        bullets: [
+          '本质是频次校验。',
+          '重复值频次会变成 2。',
+          '缺失值频次会变成 0。',
+          '实现简单清楚。',
+        ],
+      },
+      {
+        id: 'set-mismatch-solution',
+        title: '标准解法：计数数组找频次为 2 和 0 的位置',
+        summary:
+          '先统计每个数字出现次数，再遍历 `1..n`。遇到频次为 `2` 的数字就记为重复值，频次为 `0` 的数字就记为缺失值，最后返回结果即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在结果顺序。',
+          '是频次数组模板题。',
+        ],
+        code: `function findErrorNums(nums: number[]): number[] {
+  const counts = new Array<number>(nums.length + 1).fill(0)
+  for (const num of nums) {
+    counts[num] += 1
+  }
+
+  let duplicate = 0
+  let missing = 0
+
+  for (let value = 1; value <= nums.length; value += 1) {
+    if (counts[value] === 2) {
+      duplicate = value
+    } else if (counts[value] === 0) {
+      missing = value
+    }
+  }
+
+  return [duplicate, missing]
+}`,
+      },
+      {
+        id: 'set-mismatch-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把返回顺序写反，或者漏掉频次为 0 的那个数，只找到了重复值。虽然题目简单，但细节不能掉。',
+        bullets: [
+          '易错点 1：返回顺序反了。',
+          '易错点 2：只找重复值没找缺失值。',
+          '易错点 3：计数数组下标范围开小了。',
+          '延伸方向：频次统计、数组纠错、排列异常检测。',
+        ],
+      },
+    ],
+  },
 ];
