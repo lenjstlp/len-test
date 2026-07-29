@@ -68721,4 +68721,87 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'find-duplicate-subtrees',
+    label: '652. LeetCode 652. 寻找重复的子树',
+    difficulty: '中等',
+    description:
+      '这题要比较的不是单个节点值，而是整棵子树结构和数值是否完全相同。最自然的做法是把子树序列化后统计频次。',
+    outcome: '你能用树序列化和哈希统计找出所有重复子树的根节点。',
+    sections: [
+      {
+        id: 'find-duplicate-subtrees-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，要求找出所有重复子树。两棵子树如果结构相同且对应节点值相同，就视为重复。答案只需返回每类重复子树中的任意一个根节点。',
+        bullets: [
+          '比较单位是整棵子树。',
+          '结构和值都必须一致。',
+          '同一类重复子树返回一个根即可。',
+          '是树哈希题。',
+        ],
+      },
+      {
+        id: 'find-duplicate-subtrees-observe',
+        title: '每棵子树都可以被唯一序列化成一个字符串',
+        summary:
+          '如果用后序遍历把一棵子树表示成 `根值,左序列,右序列`，并对空节点使用统一占位符，那么结构相同且值相同的子树就会得到完全相同的序列化结果。这样问题就转成：哪些序列化字符串出现了至少两次。',
+        bullets: [
+          '后序或前序都能做，只要空节点也编码。',
+          '相同子树会映射成相同表示。',
+          '频次达到 2 时就能加入答案。',
+          '这就是树结构去重的标准套路。',
+        ],
+      },
+      {
+        id: 'find-duplicate-subtrees-solution',
+        title: '标准解法：后序序列化 + 哈希表计数',
+        summary:
+          '递归返回每个节点对应子树的序列化字符串。用 `Map` 记录每种序列化出现次数；当某个序列化第一次从 1 变到 2 时，把当前节点加入答案。这样同一类重复子树只会加入一次。',
+        bullets: [
+          '时间复杂度与节点数相关。',
+          '空间复杂度主要是哈希表和递归栈。',
+          '实现重点在空节点占位和只收集一次。',
+          '是树序列化经典题。',
+        ],
+        code: `function findDuplicateSubtrees(root: TreeNode | null): Array<TreeNode | null> {
+  const counts = new Map<string, number>()
+  const answer: Array<TreeNode | null> = []
+
+  const dfs = (node: TreeNode | null): string => {
+    if (node === null) {
+      return '#'
+    }
+
+    const left = dfs(node.left)
+    const right = dfs(node.right)
+    const serial = \`\${node.val},\${left},\${right}\`
+    const count = (counts.get(serial) ?? 0) + 1
+    counts.set(serial, count)
+
+    if (count === 2) {
+      answer.push(node)
+    }
+
+    return serial
+  }
+
+  dfs(root)
+  return answer
+}`,
+      },
+      {
+        id: 'find-duplicate-subtrees-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是序列化时没有给空节点加占位符，导致不同结构可能冲突；或者频次大于 2 时重复加入答案。',
+        bullets: [
+          '易错点 1：空节点占位遗漏。',
+          '易错点 2：重复子树被加入多次。',
+          '易错点 3：只比较节点值没比较结构。',
+          '延伸方向：树哈希、序列化、结构去重。',
+        ],
+      },
+    ],
+  },
 ];
