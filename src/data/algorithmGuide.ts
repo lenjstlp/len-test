@@ -68490,4 +68490,87 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'dota2-senate',
+    label: '649. LeetCode 649. Dota2 参议院',
+    difficulty: '中等',
+    description:
+      '这题是循环博弈模拟。真正关键不在字符本身，而在两个阵营当前还保有多少个未来禁言权。',
+    outcome: '你能用队列精确模拟双方轮流出手的顺序，并判断最终胜者。',
+    sections: [
+      {
+        id: 'dota2-senate-summary',
+        title: '题目在问什么',
+        summary:
+          '给定由 `R` 和 `D` 组成的字符串，表示两党参议员的出场顺序。每轮当前参议员可以禁掉对方未来的一名参议员。问最终哪一党会宣布胜利。',
+        bullets: [
+          '双方轮流按顺序出场。',
+          '每次只能禁掉对方未来的一人。',
+          '被禁者失去后续权利。',
+          '是队列模拟题。',
+        ],
+      },
+      {
+        id: 'dota2-senate-observe',
+        title: '谁的下一次出场更早，谁就更有权先禁掉对方',
+        summary:
+          '可以分别记录两党参议员当前所在的位置。每次比较两个队列队头，位置更小的那个会先行动，并把自己重新排到下一轮末尾，也就是位置加上总长度。被压制的一方当前队头则直接出局。重复这个过程直到某一方队列为空。',
+        bullets: [
+          '队列天然保留“下一次出场顺序”。',
+          '先出场的人会先禁掉对手。',
+          '存位置比存字符更方便。',
+          '这是本题标准模拟方式。',
+        ],
+      },
+      {
+        id: 'dota2-senate-solution',
+        title: '标准解法：两个队列维护双方位置',
+        summary:
+          '初始化时，把 `R` 和 `D` 的下标分别放入两个队列。循环中弹出双方队头，谁的下标更小，谁就获胜当前轮，并把它的下标加上字符串长度后重新入队，表示它会在下一轮继续参与。最终剩下的队列对应的党派就是赢家。',
+        bullets: [
+          '时间复杂度是 `O(n)` 量级。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在下标回绕表示下一轮。',
+          '是博弈模拟经典题。',
+        ],
+        code: `function predictPartyVictory(senate: string): string {
+  const radiant: number[] = []
+  const dire: number[] = []
+
+  for (let i = 0; i < senate.length; i += 1) {
+    if (senate[i] === 'R') {
+      radiant.push(i)
+    } else {
+      dire.push(i)
+    }
+  }
+
+  while (radiant.length > 0 && dire.length > 0) {
+    const radiantIndex = radiant.shift() as number
+    const direIndex = dire.shift() as number
+
+    if (radiantIndex < direIndex) {
+      radiant.push(radiantIndex + senate.length)
+    } else {
+      dire.push(direIndex + senate.length)
+    }
+  }
+
+  return radiant.length > 0 ? 'Radiant' : 'Dire'
+}`,
+      },
+      {
+        id: 'dota2-senate-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是试图原地删除字符串字符，导致逻辑很乱；或者没有意识到“活下来的人会在下一轮继续出现”，漏掉了重新入队这一步。',
+        bullets: [
+          '易错点 1：没有重新安排胜者进入下一轮。',
+          '易错点 2：直接在字符串上删字符。',
+          '易错点 3：先后顺序判断写反。',
+          '延伸方向：队列模拟、循环博弈、顺序竞争问题。',
+        ],
+      },
+    ],
+  },
 ];
