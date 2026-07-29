@@ -68959,4 +68959,88 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'print-binary-tree',
+    label: '655. LeetCode 655. 输出二叉树',
+    difficulty: '中等',
+    description:
+      '这题不是普通遍历输出，而是按树高计算二维矩阵尺寸，再把每个节点放到对应的中间位置。',
+    outcome: '你能把树结构映射到二维坐标系，并按题目格式构造输出矩阵。',
+    sections: [
+      {
+        id: 'print-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，要求返回一个二维字符串矩阵来展示它。矩阵行数等于树高，列数等于 `2^height - 1`，每个节点要放在其子区间的正中间位置。',
+        bullets: [
+          '输出是二维字符串数组。',
+          '矩阵尺寸由树高决定。',
+          '每个节点都放在区间中点。',
+          '是树坐标映射题。',
+        ],
+      },
+      {
+        id: 'print-binary-tree-observe',
+        title: '先知道树高，才能知道每个节点应该落在哪个列区间中间',
+        summary:
+          '若当前节点负责的列区间是 `[left, right]`，那么它应该放在中间列 `mid = floor((left + right) / 2)`。它的左子树继续负责 `[left, mid - 1]`，右子树负责 `[mid + 1, right]`。因此只要先求出树高，整个布局就能递归完成。',
+        bullets: [
+          '树高决定矩阵大小。',
+          '每个节点都占据其区间中点。',
+          '左右子树递归缩小列区间。',
+          '布局逻辑很规则。',
+        ],
+      },
+      {
+        id: 'print-binary-tree-solution',
+        title: '标准解法：先求高度，再递归填矩阵',
+        summary:
+          '先递归求树高 `height`，创建一个 `height` 行、`2^height - 1` 列的矩阵并填充空字符串。然后用 DFS 递归填表：当前节点在指定行和列区间的中点写入值，再继续处理左右子树。',
+        bullets: [
+          '时间复杂度与节点数和矩阵规模相关。',
+          '空间复杂度主要是结果矩阵。',
+          '实现重点在列中点计算。',
+          '是树形布局题代表。',
+        ],
+        code: `function printTree(root: TreeNode | null): string[][] {
+  const getHeight = (node: TreeNode | null): number => {
+    if (node === null) {
+      return 0
+    }
+    return 1 + Math.max(getHeight(node.left), getHeight(node.right))
+  }
+
+  const height = getHeight(root)
+  const width = 2 ** height - 1
+  const matrix = Array.from({ length: height }, () => new Array<string>(width).fill(''))
+
+  const fill = (node: TreeNode | null, row: number, left: number, right: number): void => {
+    if (node === null || left > right) {
+      return
+    }
+
+    const middle = Math.floor((left + right) / 2)
+    matrix[row][middle] = String(node.val)
+    fill(node.left, row + 1, left, middle - 1)
+    fill(node.right, row + 1, middle + 1, right)
+  }
+
+  fill(root, 0, 0, width - 1)
+  return matrix
+}`,
+      },
+      {
+        id: 'print-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是矩阵列数公式写错，导致节点放不下；或者左右子树递归区间没有正确缩减，使布局整体偏移。',
+        bullets: [
+          '易错点 1：宽度不是节点数而是 `2^height - 1`。',
+          '易错点 2：中点位置计算错误。',
+          '易错点 3：左右区间递归边界写错。',
+          '延伸方向：树布局、递归坐标映射、可视化表示。',
+        ],
+      },
+    ],
+  },
 ];
