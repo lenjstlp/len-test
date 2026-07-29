@@ -68804,4 +68804,80 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'two-sum-iv-input-is-a-bst',
+    label: '653. LeetCode 653. 两数之和 IV - 输入二叉搜索树',
+    difficulty: '简单',
+    description:
+      '这题虽然输入是 BST，但本质目标仍然是判断树中是否存在两个节点值之和为 `k`。最稳做法是遍历时配合哈希集合。',
+    outcome: '你能把树上的两数之和问题转成遍历加查表，并快速判断是否存在解。',
+    sections: [
+      {
+        id: 'two-sum-iv-input-is-a-bst-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉搜索树和目标值 `k`，判断树中是否存在两个不同节点，使得它们的值之和等于 `k`。',
+        bullets: [
+          '两个节点必须不同。',
+          '只需要判断存在性。',
+          '输入虽然是 BST，但答案不限于相邻节点。',
+          '是树遍历题。',
+        ],
+      },
+      {
+        id: 'two-sum-iv-input-is-a-bst-observe',
+        title: '访问当前节点时，只要看目标差值是否已经出现过',
+        summary:
+          '和数组版两数之和一样，若当前节点值是 `value`，只要之前已经见过 `k - value`，就说明找到答案。BST 的有序性在这个做法里不是必须条件，因此直接做 DFS 或 BFS 配合哈希集合即可。',
+        bullets: [
+          '本质仍是两数之和查表。',
+          '哈希集合负责记录已见值。',
+          '遍历方式不限。',
+          '实现简单稳定。',
+        ],
+      },
+      {
+        id: 'two-sum-iv-input-is-a-bst-solution',
+        title: '标准解法：DFS + 哈希集合',
+        summary:
+          '遍历树时，先判断 `k - node.val` 是否已经在集合中。若存在，直接返回 `true`；否则把当前值加入集合，再继续搜索左右子树。若整棵树都遍历完还没找到，就返回 `false`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在先判断再加入集合。',
+          '是树版 two-sum 模板题。',
+        ],
+        code: `function findTarget(root: TreeNode | null, k: number): boolean {
+  const seen = new Set<number>()
+
+  const dfs = (node: TreeNode | null): boolean => {
+    if (node === null) {
+      return false
+    }
+
+    if (seen.has(k - node.val)) {
+      return true
+    }
+
+    seen.add(node.val)
+    return dfs(node.left) || dfs(node.right)
+  }
+
+  return dfs(root)
+}`,
+      },
+      {
+        id: 'two-sum-iv-input-is-a-bst-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把 BST 的性质想复杂了，硬做中序加双指针也能做，但没必要；或者先把当前值加入集合再判断，导致在某些逻辑里误用同一个节点。',
+        bullets: [
+          '易错点 1：先加入再判断顺序不严谨。',
+          '易错点 2：把问题过度复杂化。',
+          '易错点 3：忘记节点必须不同。',
+          '延伸方向：树遍历、哈希查找、BST 应用简化。',
+        ],
+      },
+    ],
+  },
 ];
