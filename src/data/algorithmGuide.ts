@@ -68573,4 +68573,80 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: '2-keys-keyboard',
+    label: '650. LeetCode 650. 只有两个键的键盘',
+    difficulty: '中等',
+    description:
+      '这题不是盲目复制粘贴，而是寻找最优拆分。若能把 `n` 拆成因子，答案就能由子问题转移过来。',
+    outcome: '你能从操作过程倒推出因子分解规律，并写出简洁的 DP 或数学解法。',
+    sections: [
+      {
+        id: '2-keys-keyboard-summary',
+        title: '题目在问什么',
+        summary:
+          '初始记事本上只有一个字符 `A`，只能执行两种操作：`Copy All` 和 `Paste`。要求得到恰好 `n` 个 `A` 的最少操作数。',
+        bullets: [
+          '开始时只有一个 `A`。',
+          '复制是整份复制。',
+          '粘贴会把当前剪贴板整段贴上。',
+          '目标是最少操作数。',
+        ],
+      },
+      {
+        id: '2-keys-keyboard-observe',
+        title: '若 n 能由某个因子乘出来，就能从较小状态一次复制多次粘贴到达',
+        summary:
+          '如果当前已经有 `d` 个 `A`，并且 `n` 是 `d` 的整数倍，那么可以先 `Copy All` 一次，再 `Paste` 若干次，把 `d` 扩展到 `n`。因此当 `d` 是 `n` 的因子时，`dp[n]` 可以由 `dp[d] + n / d` 转移过来。这说明最优策略和因子分解紧密相关。',
+        bullets: [
+          '一次复制后可以连续粘贴多次。',
+          '因子关系决定有效跳转。',
+          '从较大因子转移通常更划算。',
+          '问题本质是分解结构。',
+        ],
+      },
+      {
+        id: '2-keys-keyboard-solution',
+        title: '标准解法：DP 枚举因子转移',
+        summary:
+          '令 `dp[i]` 表示得到 `i` 个 `A` 的最少操作数，初始 `dp[1] = 0`。对每个 `i`，先默认 `dp[i] = i`，表示一路复制一次后粘贴 `i - 1` 次。然后枚举 `i` 的因子 `d`，若 `d` 能整除 `i`，则可用 `dp[d] + i / d` 或 `dp[i / d] + d` 更新答案。',
+        bullets: [
+          '时间复杂度约为 `O(n sqrt n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在因子枚举。',
+          '是因子型 DP 题。',
+        ],
+        code: `function minSteps(n: number): number {
+  const dp = new Array<number>(n + 1).fill(0)
+
+  for (let value = 2; value <= n; value += 1) {
+    dp[value] = value
+
+    for (let factor = 2; factor * factor <= value; factor += 1) {
+      if (value % factor !== 0) {
+        continue
+      }
+
+      dp[value] = Math.min(dp[value], dp[factor] + value / factor)
+      dp[value] = Math.min(dp[value], dp[value / factor] + factor)
+    }
+  }
+
+  return dp[n]
+}`,
+      },
+      {
+        id: '2-keys-keyboard-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把操作过程完全当作 BFS 暴搜，状态膨胀很快；或者只想到质因数分解结论，却不会从操作本身解释为什么成立。',
+        bullets: [
+          '易错点 1：没有利用因子关系。',
+          '易错点 2：转移只考虑一个方向的因子。',
+          '易错点 3：初始默认值设错。',
+          '延伸方向：因子 DP、操作逆推、质因数分解思路。',
+        ],
+      },
+    ],
+  },
 ];
