@@ -69043,4 +69043,102 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'coin-path',
+    label: '656. LeetCode 656. 金币路径',
+    difficulty: '困难',
+    description:
+      '这题要求的不只是最小代价，还要返回具体路径，而且同成本时要选字典序更小的路径，因此转移时要同时考虑代价和路径顺序。',
+    outcome: '你能把最短路径型 DP 和路径重建结合起来，并处理字典序打平。',
+    sections: [
+      {
+        id: 'coin-path-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `coins` 和最大跳跃长度 `maxJump`，从下标 `1` 出发，每次最多跳 `maxJump` 步，落在某个位置要支付对应金币代价，`-1` 表示该位置不可达。要求找到到达最后一个位置的最小总代价路径，若有多条最优路径，返回字典序最小的一条。',
+        bullets: [
+          '有些位置不可落脚。',
+          '每步跳跃长度有限制。',
+          '既要最小总代价，也要输出路径。',
+          '同成本时还要比字典序。',
+        ],
+      },
+      {
+        id: 'coin-path-observe',
+        title: '从后往前做 DP，更容易知道当前点跳到哪里最优',
+        summary:
+          '若 `dp[i]` 表示从位置 `i` 到终点的最小花费，那么当前位置只需要尝试未来 `maxJump` 个可达位置，挑选 `coins[i] + dp[next]` 最小的那个作为后继。由于题目还要求字典序最小，若代价相同，应该选择编号更小的后继位置，这样恢复出的路径会更靠前。',
+        bullets: [
+          '从后往前更方便做状态转移。',
+          '后继位置决定整条路径。',
+          '代价相同时要优先更小下标。',
+          '需要额外记录下一个跳转位置。',
+        ],
+      },
+      {
+        id: 'coin-path-solution',
+        title: '标准解法：逆向 DP 记录最小代价和下一跳',
+        summary:
+          '初始化 `dp[n - 1] = coins[n - 1]`，其余位置为无穷大。逆序遍历数组，对每个可达位置枚举所有允许的下一跳，更新最小代价与最佳后继。最后若起点不可达返回空数组，否则顺着 `nextIndex` 逐步恢复整条路径。',
+        bullets: [
+          '时间复杂度是 `O(n * maxJump)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在不可达状态和字典序打平。',
+          '是路径恢复型 DP 题。',
+        ],
+        code: `function cheapestJump(coins: number[], maxJump: number): number[] {
+  const n = coins.length
+  const dp = new Array<number>(n).fill(Number.POSITIVE_INFINITY)
+  const nextIndex = new Array<number>(n).fill(-1)
+
+  if (coins[n - 1] !== -1) {
+    dp[n - 1] = coins[n - 1]
+  }
+
+  for (let i = n - 2; i >= 0; i -= 1) {
+    if (coins[i] === -1) {
+      continue
+    }
+
+    for (let next = i + 1; next <= Math.min(n - 1, i + maxJump); next += 1) {
+      if (dp[next] === Number.POSITIVE_INFINITY) {
+        continue
+      }
+
+      const cost = coins[i] + dp[next]
+      if (cost < dp[i] || (cost === dp[i] && next < nextIndex[i])) {
+        dp[i] = cost
+        nextIndex[i] = next
+      }
+    }
+  }
+
+  if (dp[0] === Number.POSITIVE_INFINITY) {
+    return []
+  }
+
+  const path: number[] = []
+  let current = 0
+  while (current !== -1) {
+    path.push(current + 1)
+    current = nextIndex[current]
+  }
+
+  return path
+}`,
+      },
+      {
+        id: 'coin-path-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只算最小代价却没有保存路径；或者代价相同的时候没有按字典序打平，导致结果和题目要求不一致。',
+        bullets: [
+          '易错点 1：没有处理 `-1` 不可达位置。',
+          '易错点 2：没有保存下一跳信息。',
+          '易错点 3：同成本时字典序打平错误。',
+          '延伸方向：路径恢复 DP、最短路打平、区间跳跃问题。',
+        ],
+      },
+    ],
+  },
 ];
