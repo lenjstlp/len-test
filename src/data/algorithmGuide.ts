@@ -69141,4 +69141,80 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'robot-return-to-origin',
+    label: '657. LeetCode 657. 机器人能否返回原点',
+    difficulty: '简单',
+    description:
+      '这题本质是坐标累加。把上下左右移动翻译成平面坐标变化，最后看是否回到 `(0, 0)` 即可。',
+    outcome: '你能把简单的移动指令转成坐标模拟，并清晰处理方向增减。',
+    sections: [
+      {
+        id: 'robot-return-to-origin-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一串只包含 `U`、`D`、`L`、`R` 的移动指令，机器人从原点出发，问执行完后是否回到原点。',
+        bullets: [
+          '起点固定是原点。',
+          '四种字符分别表示上下左右。',
+          '只需要判断最终位置。',
+          '是基础模拟题。',
+        ],
+      },
+      {
+        id: 'robot-return-to-origin-observe',
+        title: '最终能否回原点，只取决于纵横坐标净变化是否为 0',
+        summary:
+          '执行顺序对最终是否回原点并不重要，只要统计上下是否互相抵消、左右是否互相抵消即可。也可以直接维护 `(x, y)` 坐标，最后检查它们是否都为 0。',
+        bullets: [
+          '上下影响纵坐标。',
+          '左右影响横坐标。',
+          '顺序不影响最终判定。',
+          '坐标法最直观。',
+        ],
+      },
+      {
+        id: 'robot-return-to-origin-solution',
+        title: '标准解法：遍历指令更新坐标',
+        summary:
+          '初始化横坐标 `x = 0`、纵坐标 `y = 0`。遍历每个字符，根据方向更新对应坐标。遍历完成后若 `x === 0 && y === 0`，说明机器人回到了原点。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在方向映射。',
+          '是字符模拟入门题。',
+        ],
+        code: `function judgeCircle(moves: string): boolean {
+  let x = 0
+  let y = 0
+
+  for (const move of moves) {
+    if (move === 'U') {
+      y += 1
+    } else if (move === 'D') {
+      y -= 1
+    } else if (move === 'L') {
+      x -= 1
+    } else {
+      x += 1
+    }
+  }
+
+  return x === 0 && y === 0
+}`,
+      },
+      {
+        id: 'robot-return-to-origin-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把左右坐标加减写反；或者只统计某一个方向维度，忘了原点判断需要横纵坐标都回到 0。',
+        bullets: [
+          '易错点 1：方向对应坐标变化写错。',
+          '易错点 2：只检查了一维坐标。',
+          '易错点 3：把最终是否回原点误写成经过原点。',
+          '延伸方向：坐标模拟、路径追踪、字符指令执行。',
+        ],
+      },
+    ],
+  },
 ];
