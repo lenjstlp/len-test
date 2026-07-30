@@ -69217,4 +69217,78 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'find-k-closest-elements',
+    label: '658. LeetCode 658. 找到 K 个最接近的元素',
+    difficulty: '中等',
+    description:
+      '这题最后返回的是有序连续窗口，不是任意散点集合。核心是找到长度为 `k` 的最佳窗口起点。',
+    outcome: '你能利用数组有序和窗口单调性，用二分搜索快速锁定最优区间。',
+    sections: [
+      {
+        id: 'find-k-closest-elements-summary',
+        title: '题目在问什么',
+        summary:
+          '给定升序数组 `arr`、整数 `k` 和目标值 `x`，要求找出最接近 `x` 的 `k` 个元素，并按升序返回。若距离相同，较小的元素更优。',
+        bullets: [
+          '输入数组本身有序。',
+          '结果要返回 `k` 个元素。',
+          '同距离时偏向更小值。',
+          '输出仍按升序排列。',
+        ],
+      },
+      {
+        id: 'find-k-closest-elements-observe',
+        title: '最优答案一定是原数组中的一段连续子数组',
+        summary:
+          '因为数组有序，最终保留下来的 `k` 个最接近元素一定能构成一个长度为 `k` 的连续窗口。问题就变成：这个窗口从哪里开始最优。比较窗口左右边界与 `x` 的距离，可以发现窗口起点具有单调性，因此可以对起点做二分。',
+        bullets: [
+          '答案不是散点，而是连续区间。',
+          '只需要确定窗口左端点。',
+          '左右边界比较能指导移动方向。',
+          '这就是二分的依据。',
+        ],
+      },
+      {
+        id: 'find-k-closest-elements-solution',
+        title: '标准解法：二分窗口左端点',
+        summary:
+          '设窗口左端点为 `left`，可选范围是 `0..arr.length - k`。二分时比较 `x - arr[mid]` 与 `arr[mid + k] - x`：若左侧更远，说明窗口应右移；否则说明当前或更左边更优。最终找到最优起点后，直接切出长度为 `k` 的子数组。',
+        bullets: [
+          '时间复杂度是 `O(log(n - k) + k)`。',
+          '空间复杂度取决于切片返回。',
+          '实现重点在距离比较方向。',
+          '是有序窗口二分题。',
+        ],
+        code: `function findClosestElements(arr: number[], k: number, x: number): number[] {
+  let left = 0
+  let right = arr.length - k
+
+  while (left < right) {
+    const middle = Math.floor((left + right) / 2)
+
+    if (x - arr[middle] > arr[middle + k] - x) {
+      left = middle + 1
+    } else {
+      right = middle
+    }
+  }
+
+  return arr.slice(left, left + k)
+}`,
+      },
+      {
+        id: 'find-k-closest-elements-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它做成“全数组按距离排序后取前 k 个”，虽然思路看似直观，但忽略了题目要求最终按升序返回且数组原本有序；或者二分比较时不清楚应该看 `mid + k` 位置。',
+        bullets: [
+          '易错点 1：没有利用数组有序和连续窗口性质。',
+          '易错点 2：二分比较边界写错。',
+          '易错点 3：同距离时没有偏向更小元素。',
+          '延伸方向：窗口二分、有序数组、最近元素选择。',
+        ],
+      },
+    ],
+  },
 ];
