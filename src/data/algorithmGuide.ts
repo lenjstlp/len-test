@@ -69790,4 +69790,84 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'non-decreasing-array',
+    label: '665. LeetCode 665. 非递减数列',
+    difficulty: '简单',
+    description:
+      '这题只允许最多修改一个元素，因此一旦发现逆序对，就必须当场做出最稳妥的修正判断。',
+    outcome: '你能在线识别逆序位置，并判断修改左边还是右边元素更安全。',
+    sections: [
+      {
+        id: 'non-decreasing-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums`，判断是否最多通过修改一个元素，就能让整个数组变成非递减数组。',
+        bullets: [
+          '最多只能改一个元素。',
+          '目标是全局满足 `nums[i] <= nums[i + 1]`。',
+          '只需要判断可行性。',
+          '是贪心判断题。',
+        ],
+      },
+      {
+        id: 'non-decreasing-array-observe',
+        title: '出现逆序时，只能在局部修复，而且只能犯错一次',
+        summary:
+          '当发现 `nums[i] > nums[i + 1]` 时，必须在这里做修改，否则后面无法补救。更稳的判断是：若 `i === 0` 或 `nums[i - 1] <= nums[i + 1]`，就把 `nums[i]` 降下来；否则只能把 `nums[i + 1]` 提上去。整个过程中如果逆序出现超过一次，就不可能完成。',
+        bullets: [
+          '逆序点是唯一需要修复的地方。',
+          '修改左边还是右边要看前一个元素。',
+          '只能容忍一次逆序修复。',
+          '是局部贪心题。',
+        ],
+      },
+      {
+        id: 'non-decreasing-array-solution',
+        title: '标准解法：线性扫描并在首次逆序处局部修正',
+        summary:
+          '遍历数组，记录是否已经修改过一次。每当发现逆序，就根据前一个元素与当前后继元素的关系决定修正哪一边。若已经修过一次还再次遇到逆序，直接返回 `false`；否则扫描结束返回 `true`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在修正哪一边的判断。',
+          '是经典贪心判断题。',
+        ],
+        code: `function checkPossibility(nums: number[]): boolean {
+  let changed = false
+
+  for (let i = 0; i < nums.length - 1; i += 1) {
+    if (nums[i] <= nums[i + 1]) {
+      continue
+    }
+
+    if (changed) {
+      return false
+    }
+
+    changed = true
+    if (i === 0 || nums[i - 1] <= nums[i + 1]) {
+      nums[i] = nums[i + 1]
+    } else {
+      nums[i + 1] = nums[i]
+    }
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'non-decreasing-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是发现逆序后随便改一边，没有检查对前后关系的影响；或者把“最多修改一个”理解成“可以删除一个元素”。',
+        bullets: [
+          '易错点 1：局部修正方向判断错误。',
+          '易错点 2：多次逆序仍试图继续修补。',
+          '易错点 3：误把修改题做成删除题。',
+          '延伸方向：贪心修复、数组有序性判断、局部到全局可行性。',
+        ],
+      },
+    ],
+  },
 ];
