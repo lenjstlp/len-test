@@ -69449,4 +69449,91 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'image-smoother',
+    label: '661. LeetCode 661. 图片平滑器',
+    difficulty: '简单',
+    description:
+      '这题本质是二维矩阵的邻域平均。对每个格子，收集它周围最多 9 个位置的值求平均即可。',
+    outcome: '你能清晰处理二维边界，并按题意做向下取整的局部平滑。',
+    sections: [
+      {
+        id: 'image-smoother-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一张灰度图矩阵 `img`，对每个位置用它自己和周围相邻格子的平均值替换，结果向下取整，返回平滑后的新矩阵。',
+        bullets: [
+          '每个格子最多看周围 8 个邻居。',
+          '边界位置邻居更少。',
+          '结果需要向下取整。',
+          '是二维模拟题。',
+        ],
+      },
+      {
+        id: 'image-smoother-observe',
+        title: '对每个格子独立统计有效邻域即可',
+        summary:
+          '平滑后的值只依赖当前位置周围的 3x3 区域。实现时对每个格子枚举 `[-1, 0, 1]` 的行列偏移，只要邻居坐标仍在矩阵范围内，就把它计入总和和数量，最后做整除。',
+        bullets: [
+          '边界通过坐标合法性判断过滤。',
+          '每个位置互不影响，适合直接构造新矩阵。',
+          '邻域大小固定，逻辑简单。',
+          '核心是不要越界。',
+        ],
+      },
+      {
+        id: 'image-smoother-solution',
+        title: '标准解法：枚举每个位置的 3x3 邻域',
+        summary:
+          '遍历矩阵中的每个单元格，初始化 `sum` 和 `count`，再枚举周围 9 个候选位置，若坐标合法就累加。完成后把 `Math.floor(sum / count)` 写入答案矩阵对应位置。',
+        bullets: [
+          '时间复杂度是 `O(mn)`，常数来自固定 9 个方向。',
+          '空间复杂度是 `O(mn)`。',
+          '实现重点在邻域边界判断。',
+          '是矩阵模拟基础题。',
+        ],
+        code: `function imageSmoother(img: number[][]): number[][] {
+  const rows = img.length
+  const columns = img[0].length
+  const answer = Array.from({ length: rows }, () => new Array<number>(columns).fill(0))
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      let sum = 0
+      let count = 0
+
+      for (let dr = -1; dr <= 1; dr += 1) {
+        for (let dc = -1; dc <= 1; dc += 1) {
+          const nextRow = row + dr
+          const nextColumn = column + dc
+          if (nextRow < 0 || nextRow >= rows || nextColumn < 0 || nextColumn >= columns) {
+            continue
+          }
+
+          sum += img[nextRow][nextColumn]
+          count += 1
+        }
+      }
+
+      answer[row][column] = Math.floor(sum / count)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'image-smoother-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是边界位置仍按 9 个格子平均，导致把不存在的邻居也算进去；或者直接原地改动原矩阵，影响后续位置计算。',
+        bullets: [
+          '易错点 1：邻域越界判断漏掉。',
+          '易错点 2：错误原地修改原矩阵。',
+          '易错点 3：平均值没有向下取整。',
+          '延伸方向：矩阵邻域遍历、卷积思想、边界处理。',
+        ],
+      },
+    ],
+  },
 ];
