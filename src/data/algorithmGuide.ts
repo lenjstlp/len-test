@@ -69870,4 +69870,103 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'path-sum-iv',
+    label: '666. LeetCode 666. 路径总和 IV',
+    difficulty: '中等',
+    description:
+      '这题给的不是普通树结构，而是压缩编码。关键是先把编码还原成“位置到值”的映射，再按路径递归累计到叶子。',
+    outcome: '你能从隐式树编码中恢复父子关系，并正确统计所有根到叶子的路径和。',
+    sections: [
+      {
+        id: 'path-sum-iv-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干三位整数，每个整数表示一棵二叉树中的一个节点：百位是深度，十位是该层位置，个位是节点值。要求计算所有根到叶子路径的路径和总和。',
+        bullets: [
+          '输入是压缩编码，不是显式树节点。',
+          '位置采用完全二叉树式编号。',
+          '要统计所有根到叶子的路径和之和。',
+          '是隐式树遍历题。',
+        ],
+      },
+      {
+        id: 'path-sum-iv-observe',
+        title: '只要知道节点位置，就能推出它的左右孩子位置',
+        summary:
+          '若某节点位于深度 `d`、位置 `p`，那么它的左孩子会在深度 `d + 1`、位置 `2p - 1`，右孩子会在深度 `d + 1`、位置 `2p`。因此先把所有编码存成“节点标识 -> 值”的哈希表，就能用 DFS 从根递归下去，沿途累计路径和，走到叶子时加进答案。',
+        bullets: [
+          '编码已经包含了父子定位信息。',
+          '哈希表适合做快速存在性判断。',
+          '叶子判定看左右孩子是否都不存在。',
+          '是隐式树转显式关系题。',
+        ],
+      },
+      {
+        id: 'path-sum-iv-solution',
+        title: '标准解法：哈希表存节点，再 DFS 统计路径和',
+        summary:
+          '先把每个编码解析成 `key = depth * 10 + position` 与节点值的映射。然后从根节点 `11` 出发递归：根据当前节点求出左右孩子键，若两者都不存在，说明到达叶子，把当前路径和加入答案；否则继续向存在的孩子递归。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在孩子位置公式。',
+          '是哈希 + DFS 题。',
+        ],
+        code: `function pathSum(nums: number[]): number {
+  const values = new Map<number, number>()
+
+  for (const num of nums) {
+    const depth = Math.floor(num / 100)
+    const position = Math.floor((num % 100) / 10)
+    const value = num % 10
+    values.set(depth * 10 + position, value)
+  }
+
+  let answer = 0
+
+  const dfs = (depth: number, position: number, pathSumValue: number): void => {
+    const key = depth * 10 + position
+    const value = values.get(key)
+    if (value === undefined) {
+      return
+    }
+
+    const currentSum = pathSumValue + value
+    const leftKey = (depth + 1) * 10 + (position * 2 - 1)
+    const rightKey = (depth + 1) * 10 + position * 2
+
+    const hasLeft = values.has(leftKey)
+    const hasRight = values.has(rightKey)
+    if (!hasLeft && !hasRight) {
+      answer += currentSum
+      return
+    }
+
+    if (hasLeft) {
+      dfs(depth + 1, position * 2 - 1, currentSum)
+    }
+    if (hasRight) {
+      dfs(depth + 1, position * 2, currentSum)
+    }
+  }
+
+  dfs(1, 1, 0)
+  return answer
+}`,
+      },
+      {
+        id: 'path-sum-iv-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是孩子位置公式写错，特别是左孩子位置应为 `2p - 1`；或者叶子判断不看哈希表存在性，导致错误提前结束。',
+        bullets: [
+          '易错点 1：左右孩子位置计算错误。',
+          '易错点 2：没有先把编码解析成统一键。',
+          '易错点 3：叶子判定条件不严谨。',
+          '延伸方向：隐式树编码、哈希建模、DFS 路径累加。',
+        ],
+      },
+    ],
+  },
 ];
