@@ -69291,4 +69291,91 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'split-array-into-consecutive-subsequences',
+    label: '659. LeetCode 659. 分割数组为连续子序列',
+    difficulty: '中等',
+    description:
+      '这题不是随便分组，而是每个子序列都必须连续且长度至少为 3。最稳的做法是同时维护“剩余数字频次”和“等待当前数字接上的子序列数量”。',
+    outcome: '你能用贪心精确判断当前数字该优先接到旧序列还是新开序列。',
+    sections: [
+      {
+        id: 'split-array-into-consecutive-subsequences-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个升序数组，要求判断能否把它拆成若干个连续递增的子序列，并且每个子序列长度都至少为 3。',
+        bullets: [
+          '数组已经升序。',
+          '每个子序列都必须连续。',
+          '每段长度至少为 3。',
+          '只需要判断能否拆分成功。',
+        ],
+      },
+      {
+        id: 'split-array-into-consecutive-subsequences-observe',
+        title: '当前数字若能接到已有序列后面，应优先接过去',
+        summary:
+          '当处理某个数字 `x` 时，若已经存在某条序列正等待 `x` 作为下一个元素，那么优先把 `x` 接上去最合理，因为这样能避免留下过短的断头序列。只有当不能接旧序列时，才尝试新开一个长度至少为 3 的序列，也就是同时消耗 `x`、`x+1`、`x+2`。',
+        bullets: [
+          '优先续接旧序列是核心贪心。',
+          '新开序列必须一次保证至少 3 个数。',
+          '需要同时知道剩余数字和等待需求。',
+          '这是本题关键决策。',
+        ],
+      },
+      {
+        id: 'split-array-into-consecutive-subsequences-solution',
+        title: '标准解法：两个哈希表做贪心',
+        summary:
+          '用 `count` 记录每个数字还剩多少个可用，用 `need` 记录有多少条序列正等待某个数字。遍历数组时，若当前数字已用完就跳过；否则优先看 `need[x]` 是否大于 0，若是就把它接到旧序列后；否则尝试消耗 `x+1` 和 `x+2` 新开一条序列。两种都做不到就返回 `false`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在两个哈希表含义。',
+          '是哈希贪心题代表。',
+        ],
+        code: `function isPossible(nums: number[]): boolean {
+  const count = new Map<number, number>()
+  const need = new Map<number, number>()
+
+  for (const num of nums) {
+    count.set(num, (count.get(num) ?? 0) + 1)
+  }
+
+  for (const num of nums) {
+    if ((count.get(num) ?? 0) === 0) {
+      continue
+    }
+
+    count.set(num, (count.get(num) as number) - 1)
+
+    if ((need.get(num) ?? 0) > 0) {
+      need.set(num, (need.get(num) as number) - 1)
+      need.set(num + 1, (need.get(num + 1) ?? 0) + 1)
+    } else if ((count.get(num + 1) ?? 0) > 0 && (count.get(num + 2) ?? 0) > 0) {
+      count.set(num + 1, (count.get(num + 1) as number) - 1)
+      count.set(num + 2, (count.get(num + 2) as number) - 1)
+      need.set(num + 3, (need.get(num + 3) ?? 0) + 1)
+    } else {
+      return false
+    }
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'split-array-into-consecutive-subsequences-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是一看到当前数字能新开序列就直接开，忽略了优先续接旧序列的重要性；或者新开序列时没有一次检查 `x+1` 和 `x+2` 是否都存在。',
+        bullets: [
+          '易错点 1：续接和新开优先级反了。',
+          '易错点 2：新开序列时检查不完整。',
+          '易错点 3：频次减少顺序写乱。',
+          '延伸方向：哈希贪心、序列拼接、局部最优策略。',
+        ],
+      },
+    ],
+  },
 ];
