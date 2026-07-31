@@ -69625,4 +69625,84 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'equal-tree-partition',
+    label: '663. LeetCode 663. 均匀树划分',
+    difficulty: '中等',
+    description:
+      '这题的关键不是随便找一条边，而是看是否存在某棵真子树的和，恰好等于整棵树总和的一半。',
+    outcome: '你能用子树和统计快速判断一棵树能否被切成两半。',
+    sections: [
+      {
+        id: 'equal-tree-partition-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，问是否能删除其中一条边，使得得到的两棵树节点值总和相等。',
+        bullets: [
+          '只能删除一条边。',
+          '要得到两棵非空树。',
+          '判断条件是两边节点和相等。',
+          '是树求和题。',
+        ],
+      },
+      {
+        id: 'equal-tree-partition-observe',
+        title: '删除一条边后，某一侧一定对应某棵子树',
+        summary:
+          '如果切掉一条边，那么分离出来的一侧一定是一棵完整子树。因此问题等价于：是否存在某个非整棵树的子树，它的节点和等于整棵树总和的一半。只要总和为偶数，且某个真子树和等于一半，就能成功划分。',
+        bullets: [
+          '切边问题可转成子树和判断。',
+          '整棵树总和必须是偶数。',
+          '不能把整棵树自己当作一半。',
+          '核心是统计所有子树和。',
+        ],
+      },
+      {
+        id: 'equal-tree-partition-solution',
+        title: '标准解法：后序遍历统计子树和',
+        summary:
+          '先用后序遍历计算每个节点为根的子树和，并把这些和放入数组或哈希表。得到整棵树总和后，若它是奇数直接返回 `false`。否则检查除根节点整棵树之外，是否存在子树和等于总和一半。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在排除整棵树本身。',
+          '是子树和统计题代表。',
+        ],
+        code: `function checkEqualTree(root: TreeNode | null): boolean {
+  const sums: number[] = []
+
+  const dfs = (node: TreeNode | null): number => {
+    if (node === null) {
+      return 0
+    }
+
+    const total = node.val + dfs(node.left) + dfs(node.right)
+    sums.push(total)
+    return total
+  }
+
+  const totalSum = dfs(root)
+  sums.pop()
+
+  if (totalSum % 2 !== 0) {
+    return false
+  }
+
+  return sums.includes(totalSum / 2)
+}`,
+      },
+      {
+        id: 'equal-tree-partition-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把整棵树总和也放进候选集合里，导致在总和为 0 等特殊情况下误判；或者没先判断总和奇偶。',
+        bullets: [
+          '易错点 1：没有排除根节点整棵树。',
+          '易错点 2：总和奇数时还继续搜索。',
+          '易错点 3：把任意节点和误当成可切分结果。',
+          '延伸方向：后序遍历、子树和哈希、树结构拆分。',
+        ],
+      },
+    ],
+  },
 ];
