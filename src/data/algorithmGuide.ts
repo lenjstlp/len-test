@@ -69705,4 +69705,89 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'strange-printer',
+    label: '664. LeetCode 664. 奇怪的打印机',
+    difficulty: '困难',
+    description:
+      '这题不是直接模拟打印顺序，而是区间 DP。关键在于相同字符可以在一次打印中跨越合并，从而减少操作数。',
+    outcome: '你能把字符串打印问题转成区间最优值，并利用相同字符合并优化转移。',
+    sections: [
+      {
+        id: 'strange-printer-summary',
+        title: '题目在问什么',
+        summary:
+          '有一台打印机每次只能打印一段相同字符，且可以覆盖之前内容。给定字符串 `s`，要求打印出它的最少操作次数。',
+        bullets: [
+          '一次只能打印同一个字符。',
+          '打印可以覆盖原有字符。',
+          '目标是最少操作次数。',
+          '是区间 DP 题。',
+        ],
+      },
+      {
+        id: 'strange-printer-observe',
+        title: '若区间两端存在相同字符，它们有机会合并到同一次打印里',
+        summary:
+          '设 `dp[i][j]` 表示打印子串 `s[i..j]` 的最少次数。最朴素地看，可以先打印 `s[i]`，再处理 `s[i+1..j]`。但如果区间中某个位置 `k` 满足 `s[k] === s[i]`，那么 `s[i]` 可以和 `s[k]` 在同一次打印中合并，从而尝试把区间拆成 `s[i..k-1]` 与 `s[k+1..j]` 两部分来优化答案。',
+        bullets: [
+          '区间 DP 的关键在合并相同字符。',
+          '覆盖打印提供了重叠优化空间。',
+          '相同字符不一定要单独打印。',
+          '这是本题转移核心。',
+        ],
+      },
+      {
+        id: 'strange-printer-solution',
+        title: '标准解法：区间 DP 枚举合并位置',
+        summary:
+          '初始化单个字符区间答案为 1。按区间长度从小到大递推，先令 `dp[i][j] = dp[i + 1][j] + 1`，表示把 `s[i]` 单独打印。然后枚举 `k` 属于 `(i + 1)..j`，若 `s[k] === s[i]`，则可以尝试用 `dp[i][k - 1] + dp[k + 1][j]` 更新答案。',
+        bullets: [
+          '时间复杂度是 `O(n^3)`。',
+          '空间复杂度是 `O(n^2)`。',
+          '实现重点在区间长度顺序和边界处理。',
+          '是典型区间 DP 代表题。',
+        ],
+        code: `function strangePrinter(s: string): number {
+  const n = s.length
+  if (n === 0) {
+    return 0
+  }
+
+  const dp = Array.from({ length: n }, () => new Array<number>(n).fill(0))
+
+  for (let i = n - 1; i >= 0; i -= 1) {
+    dp[i][i] = 1
+
+    for (let j = i + 1; j < n; j += 1) {
+      dp[i][j] = dp[i + 1][j] + 1
+
+      for (let k = i + 1; k <= j; k += 1) {
+        if (s[k] !== s[i]) {
+          continue
+        }
+
+        const middle = k === i + 1 ? 0 : dp[i + 1][k - 1]
+        dp[i][j] = Math.min(dp[i][j], middle + dp[k][j])
+      }
+    }
+  }
+
+  return dp[0][n - 1]
+}`,
+      },
+      {
+        id: 'strange-printer-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没抓住“相同字符可合并打印”这件事，导致转移退化成错误的线性递推；或者区间拆分边界写乱。',
+        bullets: [
+          '易错点 1：忽略相同字符合并机会。',
+          '易错点 2：区间 DP 遍历顺序错误。',
+          '易错点 3：边界区间长度处理不完整。',
+          '延伸方向：区间 DP、打印覆盖模型、合并优化。',
+        ],
+      },
+    ],
+  },
 ];
