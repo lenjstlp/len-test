@@ -69536,4 +69536,93 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'maximum-width-of-binary-tree',
+    label: '662. LeetCode 662. 二叉树最大宽度',
+    difficulty: '中等',
+    description:
+      '这题的宽度不是单纯节点个数，而是按完全二叉树位置编号后，两端位置差加一。',
+    outcome: '你能用层序遍历结合虚拟下标，正确计算带空洞的树层宽度。',
+    sections: [
+      {
+        id: 'maximum-width-of-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，要求返回所有层中最大的宽度。宽度定义为最左和最右非空节点在完全二叉树位置上的跨度，包括中间可能缺失的空位。',
+        bullets: [
+          '宽度不是简单节点数量。',
+          '中间的空位也计入跨度。',
+          '要求所有层中的最大值。',
+          '是树层遍历题。',
+        ],
+      },
+      {
+        id: 'maximum-width-of-binary-tree-observe',
+        title: '给每个节点一个完全二叉树下标，就能直接算层宽',
+        summary:
+          '若根节点编号为 `0`，则左孩子可记为 `2 * index`，右孩子记为 `2 * index + 1`。这样同一层最左和最右节点的编号差加一，就是这一层的真实宽度。因为编号可能变大，通常会在每层内做一次归一化，避免数值膨胀。',
+        bullets: [
+          '虚拟编号把空位信息编码进去了。',
+          '层宽等于最右编号减最左编号加一。',
+          '每层归一化能防止下标过大。',
+          '这是本题标准技巧。',
+        ],
+      },
+      {
+        id: 'maximum-width-of-binary-tree-solution',
+        title: '标准解法：BFS 维护节点及其编号',
+        summary:
+          '队列中同时保存节点和其虚拟编号。每层开始时记下最左编号，并把本层所有编号减去它作为偏移值。遍历本层节点时持续更新最右偏移值，层结束后宽度就是 `lastOffset + 1`。再把孩子及其下一层编号加入队列。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度取决于最大层宽。',
+          '实现重点在层内归一化。',
+          '是树层编号题代表。',
+        ],
+        code: `function widthOfBinaryTree(root: TreeNode | null): number {
+  if (root === null) {
+    return 0
+  }
+
+  let answer = 0
+  const queue: Array<[TreeNode, number]> = [[root, 0]]
+
+  while (queue.length > 0) {
+    const size = queue.length
+    const firstIndex = queue[0][1]
+    let lastOffset = 0
+
+    for (let i = 0; i < size; i += 1) {
+      const [node, index] = queue.shift() as [TreeNode, number]
+      const offset = index - firstIndex
+      lastOffset = offset
+
+      if (node.left !== null) {
+        queue.push([node.left, offset * 2])
+      }
+      if (node.right !== null) {
+        queue.push([node.right, offset * 2 + 1])
+      }
+    }
+
+    answer = Math.max(answer, lastOffset + 1)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'maximum-width-of-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把宽度误当成每层节点数；或者虚拟编号一直累乘而不做归一化，导致大树时数值不稳定。',
+        bullets: [
+          '易错点 1：忽略中间空位。',
+          '易错点 2：编号增长过大不做层内平移。',
+          '易错点 3：孩子编号公式写错。',
+          '延伸方向：完全二叉树编号、层序遍历、跨度统计。',
+        ],
+      },
+    ],
+  },
 ];
