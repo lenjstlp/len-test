@@ -70203,4 +70203,84 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'maximum-swap',
+    label: '670. LeetCode 670. 最大交换',
+    difficulty: '中等',
+    description:
+      '这题只允许交换一次，因此关键是找到最靠前、最值得被更大数字替换的位置。',
+    outcome: '你能通过记录每个数字最后出现的位置，一次交换就把结果推到最大。',
+    sections: [
+      {
+        id: 'maximum-swap-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个非负整数，你最多只能交换其中两位数字一次，要求返回能得到的最大数。',
+        bullets: [
+          '最多只能交换一次。',
+          '目标是数值最大化。',
+          '可能不需要交换。',
+          '是贪心构造题。',
+        ],
+      },
+      {
+        id: 'maximum-swap-observe',
+        title: '最优交换一定发生在尽量靠前的位置',
+        summary:
+          '如果要让结果最大，应该优先提升更高位数字。因此从左到右扫描时，只要能在右侧找到一个比当前位更大的数字，就值得考虑交换。为了让结果尽可能大，应选择右侧最大数字中最靠后的那个位置，这样还能保留中间位置的较大值。',
+        bullets: [
+          '高位优先决定大小关系。',
+          '右侧要找更大的数字。',
+          '同一个更大数字应优先取最靠后位置。',
+          '这是本题贪心核心。',
+        ],
+      },
+      {
+        id: 'maximum-swap-solution',
+        title: '标准解法：记录每个数字最后出现位置后贪心交换',
+        summary:
+          '先把整数转成字符数组，并记录每个数字 `0..9` 最后一次出现的位置。然后从左到右扫描当前位，尝试从 `9` 到当前位加一之间找一个更大的数字，若它最后出现位置在当前位右边，就立刻交换并返回结果。若始终找不到，就返回原数。',
+        bullets: [
+          '时间复杂度是 `O(d)`，`d` 是位数。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在最后出现位置的使用。',
+          '是数字贪心题代表。',
+        ],
+        code: `function maximumSwap(num: number): number {
+  const digits = String(num).split('')
+  const lastIndex = new Array<number>(10).fill(-1)
+
+  for (let i = 0; i < digits.length; i += 1) {
+    lastIndex[Number(digits[i])] = i
+  }
+
+  for (let i = 0; i < digits.length; i += 1) {
+    const current = Number(digits[i])
+
+    for (let digit = 9; digit > current; digit -= 1) {
+      if (lastIndex[digit] > i) {
+        const swapIndex = lastIndex[digit]
+        ;[digits[i], digits[swapIndex]] = [digits[swapIndex], digits[i]]
+        return Number(digits.join(''))
+      }
+    }
+  }
+
+  return num
+}`,
+      },
+      {
+        id: 'maximum-swap-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只找到一个更大数字就立刻交换，却没有优先考虑更高的数字；或者找到目标数字后选了最靠前位置，结果不是最优。',
+        bullets: [
+          '易错点 1：没有从 9 往下找可交换数字。',
+          '易错点 2：同数字时没有选最后出现位置。',
+          '易错点 3：没有意识到可能根本不需要交换。',
+          '延伸方向：数字贪心、位置选择、最大化构造。',
+        ],
+      },
+    ],
+  },
 ];
