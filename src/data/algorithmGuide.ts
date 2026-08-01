@@ -70616,4 +70616,140 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'cut-off-trees-for-golf-event',
+    label: '675. LeetCode 675. 为高尔夫比赛砍树',
+    difficulty: '困难',
+    description:
+      '这题不是一次路径搜索，而是要按树高从低到高依次前往每棵树的位置。核心是多次最短路累计。',
+    outcome:
+      '你能把网格上的多目标访问问题拆成若干次 BFS，并在不可达时及时终止。',
+    sections: [
+      {
+        id: 'cut-off-trees-for-golf-event-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一张森林地图，`0` 表示障碍，`1` 表示可走平地，大于 `1` 的数字表示树高。需要按树高从低到高依次砍树，并求总步数；若有任意一棵树不可达，返回 `-1`。',
+        bullets: [
+          '树必须按高度递增顺序砍。',
+          '每次移动是四联通网格步行。',
+          '障碍不能通过。',
+          '任意目标不可达就失败。',
+        ],
+      },
+      {
+        id: 'cut-off-trees-for-golf-event-observe',
+        title: '全局顺序已经固定，所以问题变成若干段最短路之和',
+        summary:
+          '因为砍树顺序由高度唯一决定，所以不需要做复杂全局搜索。只要先收集所有树并按高度排序，然后从当前位置到下一棵树做一次 BFS 最短路，成功则累加步数并更新当前位置，失败则直接返回 `-1``。',
+        bullets: [
+          '树高顺序固定后，没有决策分叉。',
+          '每一段都只是普通最短路。',
+          'BFS 适合无权网格最短步数。',
+          '这是整题拆解关键。',
+        ],
+      },
+      {
+        id: 'cut-off-trees-for-golf-event-solution',
+        title: '标准解法：排序树列表 + 多次 BFS',
+        summary:
+          '先遍历网格，把所有树 `(高度, 行, 列)` 收集后按高度排序。然后从起点 `(0, 0)` 出发，依次对每棵树运行 BFS，求当前位置到目标位置的最短步数。若某段不可达返回 `-1`，否则累计答案并继续下一棵树。',
+        bullets: [
+          '时间复杂度取决于树的数量乘每次 BFS 成本。',
+          '空间复杂度主要是 BFS 队列和访问标记。',
+          '实现重点在 BFS 返回最短步数。',
+          '是网格多目标最短路题。',
+        ],
+        code: `function cutOffTree(forest: number[][]): number {
+  const rows = forest.length
+  const columns = forest[0].length
+  const trees: Array<[number, number, number]> = []
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      if (forest[row][column] > 1) {
+        trees.push([forest[row][column], row, column])
+      }
+    }
+  }
+
+  trees.sort((a, b) => a[0] - b[0])
+
+  const bfs = (startRow: number, startColumn: number, targetRow: number, targetColumn: number): number => {
+    if (startRow === targetRow && startColumn === targetColumn) {
+      return 0
+    }
+
+    const visited = Array.from({ length: rows }, () => new Array<boolean>(columns).fill(false))
+    const queue: Array<[number, number, number]> = [[startRow, startColumn, 0]]
+    visited[startRow][startColumn] = true
+    const directions = [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ]
+
+    while (queue.length > 0) {
+      const [row, column, distance] = queue.shift() as [number, number, number]
+
+      for (const [dr, dc] of directions) {
+        const nextRow = row + dr
+        const nextColumn = column + dc
+
+        if (
+          nextRow < 0 ||
+          nextRow >= rows ||
+          nextColumn < 0 ||
+          nextColumn >= columns ||
+          visited[nextRow][nextColumn] ||
+          forest[nextRow][nextColumn] === 0
+        ) {
+          continue
+        }
+
+        if (nextRow === targetRow && nextColumn === targetColumn) {
+          return distance + 1
+        }
+
+        visited[nextRow][nextColumn] = true
+        queue.push([nextRow, nextColumn, distance + 1])
+      }
+    }
+
+    return -1
+  }
+
+  let totalSteps = 0
+  let currentRow = 0
+  let currentColumn = 0
+
+  for (const [, targetRow, targetColumn] of trees) {
+    const steps = bfs(currentRow, currentColumn, targetRow, targetColumn)
+    if (steps === -1) {
+      return -1
+    }
+
+    totalSteps += steps
+    currentRow = targetRow
+    currentColumn = targetColumn
+  }
+
+  return totalSteps
+}`,
+      },
+      {
+        id: 'cut-off-trees-for-golf-event-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是试图一次性做全局路径规划，实际上顺序已定没有必要；或者 BFS 里没有对障碍和越界做严格过滤。',
+        bullets: [
+          '易错点 1：没有先按树高排序。',
+          '易错点 2：BFS 访问控制不严导致重复搜索。',
+          '易错点 3：某段不可达时没有及时返回 `-1`。',
+          '延伸方向：网格 BFS、多目标最短路、路径分段求和。',
+        ],
+      },
+    ],
+  },
 ];
