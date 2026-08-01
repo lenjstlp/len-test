@@ -70128,4 +70128,79 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'trim-a-binary-search-tree',
+    label: '669. LeetCode 669. 修剪二叉搜索树',
+    difficulty: '中等',
+    description:
+      '这题利用 BST 性质能直接整片裁掉不合法分支，不需要一层层慢慢删。',
+    outcome: '你能结合 BST 有序性递归剪枝，快速保留区间内合法节点。',
+    sections: [
+      {
+        id: 'trim-a-binary-search-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉搜索树和区间 `[low, high]`，要求删除所有值不在区间内的节点，并返回修剪后的树根。',
+        bullets: [
+          '只保留区间内的节点。',
+          '最终仍需保持 BST 结构。',
+          '返回修剪后的根节点。',
+          '是 BST 剪枝题。',
+        ],
+      },
+      {
+        id: 'trim-a-binary-search-tree-observe',
+        title: '若当前节点过小或过大，可以整棵子树方向性丢弃',
+        summary:
+          '因为是 BST，若当前节点值小于 `low`，那么它的左子树一定都更小，整棵左子树都可以丢弃，只需要去右子树找答案；反过来若当前节点值大于 `high`，则右子树整片都可以丢弃。只有当前节点落在区间内时，才需要递归修剪它的左右孩子。',
+        bullets: [
+          'BST 性质提供了整片剪枝能力。',
+          '过小节点只可能从右边救回来。',
+          '过大节点只可能从左边救回来。',
+          '这是本题效率关键。',
+        ],
+      },
+      {
+        id: 'trim-a-binary-search-tree-solution',
+        title: '标准解法：递归按 BST 性质剪枝',
+        summary:
+          '递归函数处理当前节点。若节点为空返回空；若值小于 `low`，返回修剪右子树的结果；若值大于 `high`，返回修剪左子树的结果；否则保留当前节点，并递归修剪它的左右孩子。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在三种分支判断顺序。',
+          '是 BST 递归题代表。',
+        ],
+        code: `function trimBST(root: TreeNode | null, low: number, high: number): TreeNode | null {
+  if (root === null) {
+    return null
+  }
+
+  if (root.val < low) {
+    return trimBST(root.right, low, high)
+  }
+
+  if (root.val > high) {
+    return trimBST(root.left, low, high)
+  }
+
+  root.left = trimBST(root.left, low, high)
+  root.right = trimBST(root.right, low, high)
+  return root
+}`,
+      },
+      {
+        id: 'trim-a-binary-search-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有利用 BST 性质，写成普通二叉树全量删除；或者当前节点越界时仍然试图保留它，导致结构不合法。',
+        bullets: [
+          '易错点 1：没用到 BST 的方向性剪枝。',
+          '易错点 2：越界节点没有直接替换成子树结果。',
+          '易错点 3：左右子树递归赋值漏掉。',
+          '延伸方向：BST 剪枝、递归重构、区间过滤。',
+        ],
+      },
+    ],
+  },
 ];
