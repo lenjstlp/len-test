@@ -70370,4 +70370,84 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'bulb-switcher-ii',
+    label: '672. LeetCode 672. 灯泡开关 II',
+    difficulty: '中等',
+    description:
+      '这题看起来像状态爆炸，但真正不同的状态非常少。关键是发现按下按钮的顺序不重要，只看奇偶次数。',
+    outcome:
+      '你能用状态压缩和分类讨论，把看似复杂的开关问题压缩成常数规模分析。',
+    sections: [
+      {
+        id: 'bulb-switcher-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '有 `n` 个初始全亮的灯泡，四个按钮分别控制不同规则的翻转。最多按 `presses` 次，要求问最终可能出现多少种不同的灯泡状态。',
+        bullets: [
+          '四个按钮翻转规则不同。',
+          '最多按指定次数。',
+          '按钮可重复按。',
+          '要求的是不同状态数。',
+        ],
+      },
+      {
+        id: 'bulb-switcher-ii-observe',
+        title: '按钮只看按了奇数次还是偶数次，而且前 3 个灯已经决定全部模式',
+        summary:
+          '同一个按钮按两次等于没按，因此每个按钮只需要看按压次数的奇偶性。再进一步，因为翻转模式按周期重复，前 3 个灯的状态就足以唯一代表所有可能结果。所以问题可以压缩成一个极小的状态空间，只需按 `n` 和 `presses` 分类讨论。',
+        bullets: [
+          '按钮顺序不影响最终状态。',
+          '只关心每个按钮的奇偶按压。',
+          '模式周期性让前 3 个灯足够代表全局。',
+          '这是本题降维关键。',
+        ],
+      },
+      {
+        id: 'bulb-switcher-ii-solution',
+        title: '标准解法：按 n 和 presses 分类返回固定结果',
+        summary:
+          '根据状态压缩分析，可以直接得到结论：若 `presses = 0`，只有 1 种；若 `n = 1`，最多 2 种；若 `n = 2`，在 `presses = 1` 时有 3 种，否则有 4 种；若 `n >= 3`，`presses = 1` 时有 4 种，`presses = 2` 时有 7 种，`presses >= 3` 时有 8 种。',
+        bullets: [
+          '时间复杂度是 `O(1)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在分类边界。',
+          '是数学状态压缩题。',
+        ],
+        code: `function flipLights(n: number, presses: number): number {
+  if (presses === 0) {
+    return 1
+  }
+
+  if (n === 1) {
+    return 2
+  }
+
+  if (n === 2) {
+    return presses === 1 ? 3 : 4
+  }
+
+  if (presses === 1) {
+    return 4
+  }
+  if (presses === 2) {
+    return 7
+  }
+  return 8
+}`,
+      },
+      {
+        id: 'bulb-switcher-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是真的去 BFS/DFS 模拟所有按钮序列，复杂度和思路都过重；或者没有意识到 `n` 超过 3 之后不会再增加状态种类。',
+        bullets: [
+          '易错点 1：没有利用奇偶性消除重复操作。',
+          '易错点 2：漏掉 `n = 1`、`n = 2` 的特殊情况。',
+          '易错点 3：把顺序不同但结果相同的按钮序列重复计数。',
+          '延伸方向：状态压缩、数学归纳、模式周期性。',
+        ],
+      },
+    ],
+  },
 ];
