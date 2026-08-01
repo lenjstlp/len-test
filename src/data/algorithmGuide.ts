@@ -70283,4 +70283,91 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'second-minimum-node-in-a-binary-tree',
+    label: '671. LeetCode 671. 二叉树中第二小的节点',
+    difficulty: '简单',
+    description:
+      '这题利用了特殊树性质：每个非叶子节点值都等于两个孩子中的较小值，因此根节点一定是全树最小值。',
+    outcome: '你能借助树的特殊结构，只搜索可能成为第二小值的候选节点。',
+    sections: [
+      {
+        id: 'second-minimum-node-in-a-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵特殊二叉树：每个节点要么有两个孩子，要么没有孩子，且若有孩子，则其值等于两个孩子中较小者。要求找出树中的第二小值，若不存在则返回 `-1`。',
+        bullets: [
+          '根节点一定是最小值。',
+          '树满足特殊比较关系。',
+          '要找严格大于最小值的最小节点值。',
+          '不存在时返回 `-1`。',
+        ],
+      },
+      {
+        id: 'second-minimum-node-in-a-binary-tree-observe',
+        title: '只要节点值大于根值，它就是一个候选；等于根值时还得继续往下找',
+        summary:
+          '由于根值就是全树最小值，若某个节点值已经大于根值，那么它以及它的整棵子树中最小可能的候选值就是它自己；反过来，如果节点值仍等于根值，就说明更大的候选值只能出现在它的后代里，因此还需要继续递归搜索。',
+        bullets: [
+          '根值就是全树最小值。',
+          '大于根值的节点可直接成为候选。',
+          '等于根值的节点必须继续展开。',
+          '这是利用树性质的关键。',
+        ],
+      },
+      {
+        id: 'second-minimum-node-in-a-binary-tree-solution',
+        title: '标准解法：DFS 搜索大于根值的最小候选',
+        summary:
+          '记录根节点值 `minimum`。递归函数遇到空节点返回 `-1`；若当前节点值大于 `minimum`，直接返回该值；否则继续递归左右子树，并从两个结果中选出更小的有效值。',
+        bullets: [
+          '时间复杂度最坏是 `O(n)`。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在结果合并逻辑。',
+          '是利用特殊性质剪枝的题。',
+        ],
+        code: `function findSecondMinimumValue(root: TreeNode | null): number {
+  if (root === null) {
+    return -1
+  }
+
+  const minimum = root.val
+
+  const dfs = (node: TreeNode | null): number => {
+    if (node === null) {
+      return -1
+    }
+    if (node.val > minimum) {
+      return node.val
+    }
+
+    const left = dfs(node.left)
+    const right = dfs(node.right)
+
+    if (left === -1) {
+      return right
+    }
+    if (right === -1) {
+      return left
+    }
+    return Math.min(left, right)
+  }
+
+  return dfs(root)
+}`,
+      },
+      {
+        id: 'second-minimum-node-in-a-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把所有值都收集起来再排序，虽然能做但没利用树性质；或者把等于根值的节点误判成候选，导致返回最小值本身。',
+        bullets: [
+          '易错点 1：候选值必须严格大于最小值。',
+          '易错点 2：没有利用特殊树性质剪枝。',
+          '易错点 3：左右子树结果合并时对 `-1` 处理不完整。',
+          '延伸方向：树剪枝、特殊性质利用、最值搜索。',
+        ],
+      },
+    ],
+  },
 ];
