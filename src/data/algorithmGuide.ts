@@ -69969,4 +69969,82 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'beautiful-arrangement-ii',
+    label: '667. LeetCode 667. 优美的排列 II',
+    difficulty: '中等',
+    description:
+      '这题不是任意构造排列，而是要让相邻差值恰好出现 `k` 个不同结果。关键是先构造一个“锯齿”前缀。',
+    outcome: '你能把差值种类控制问题转成可证明正确的构造方案。',
+    sections: [
+      {
+        id: 'beautiful-arrangement-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `n` 和 `k`，要求构造一个由 `1..n` 组成的数组，使得相邻元素绝对差值中恰好有 `k` 个不同值。',
+        bullets: [
+          '数组必须是 `1..n` 的排列。',
+          '只看相邻元素差值。',
+          '不同差值种类数要恰好等于 `k`。',
+          '是构造题。',
+        ],
+      },
+      {
+        id: 'beautiful-arrangement-ii-observe',
+        title: '先用左右交替构造前 k+1 个数，就能制造出 k 种差值',
+        summary:
+          '如果从区间 `[1, k + 1]` 中交替取最小值、最大值、次小值、次大值，就会形成一个锯齿序列，它的相邻差值依次是 `k, k - 1, ..., 1`，恰好产生 `k` 种不同差值。后面的数只要按顺序接上，就不会引入新的差值种类。',
+        bullets: [
+          '前缀决定全部不同差值种类。',
+          '左右交替能得到连续递减的差值。',
+          '后续顺接不会增加新种类。',
+          '这是本题标准构造思路。',
+        ],
+      },
+      {
+        id: 'beautiful-arrangement-ii-solution',
+        title: '标准解法：左右双指针构造前缀，剩余部分顺序补齐',
+        summary:
+          '先令 `left = 1`、`right = k + 1`，交替把左右端点加入答案，直到区间用完。这样前 `k + 1` 个数已经制造出所需的 `k` 种差值。剩余 `k + 2..n` 按递增顺序追加即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)` 附加空间。',
+          '实现重点在交替取值顺序。',
+          '是构造型题代表。',
+        ],
+        code: `function constructArray(n: number, k: number): number[] {
+  const answer: number[] = []
+  let left = 1
+  let right = k + 1
+
+  while (left <= right) {
+    answer.push(left)
+    if (left !== right) {
+      answer.push(right)
+    }
+    left += 1
+    right -= 1
+  }
+
+  for (let value = k + 2; value <= n; value += 1) {
+    answer.push(value)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'beautiful-arrangement-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有真正控制差值种类，随手构造导致重复或缺失某些差值；或者后续补数时仍然继续交替，反而引入不必要的新差值。',
+        bullets: [
+          '易错点 1：前缀构造没有形成 `k..1` 的差值序列。',
+          '易错点 2：后缀补数方式错误。',
+          '易错点 3：把不同差值个数和差值总数混淆。',
+          '延伸方向：构造题、双指针、差值控制。',
+        ],
+      },
+    ],
+  },
 ];
