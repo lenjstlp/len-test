@@ -70850,4 +70850,82 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'map-sum-pairs',
+    label: '677. LeetCode 677. 键值映射',
+    difficulty: '中等',
+    description:
+      '这题既要支持插入键值，也要支持前缀求和。最稳方案是同时维护原始键值和前缀累计和。',
+    outcome:
+      '你能通过增量更新前缀和，做到每次插入后高效响应 `sum(prefix)` 查询。',
+    sections: [
+      {
+        id: 'map-sum-pairs-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个 `MapSum`，支持 `insert(key, val)` 和 `sum(prefix)`。`sum(prefix)` 要返回所有以该前缀开头的键对应值之和。',
+        bullets: [
+          '键是字符串，值是整数。',
+          '同一个键可以被重复插入并覆盖旧值。',
+          '查询按前缀聚合求和。',
+          '是设计题加前缀统计题。',
+        ],
+      },
+      {
+        id: 'map-sum-pairs-observe',
+        title: '重复插入同一个键时，真正影响的是增量差值',
+        summary:
+          '如果某个键原来值是 `old`，现在插入成 `new`，那么所有相关前缀的累计和只需要加上 `delta = new - old`。因此可以维护两个哈希表：一个记录每个键当前值，另一个记录每个前缀的总和。这样插入时沿所有前缀增量更新，查询时直接返回前缀和即可。',
+        bullets: [
+          '覆盖旧值时不能重复整笔累加。',
+          '差值更新是设计重点。',
+          '前缀和表能把查询降到 `O(1)`。',
+          '实现简单直观。',
+        ],
+      },
+      {
+        id: 'map-sum-pairs-solution',
+        title: '标准解法：键值表 + 前缀和表',
+        summary:
+          '用 `values` 记录每个完整键当前的值，用 `prefixSums` 记录每个前缀对应的总和。每次插入时先求出差值 `delta`，然后遍历该键的所有前缀，把 `delta` 累加到对应前缀和中。查询时直接读取 `prefixSums[prefix]` 即可。',
+        bullets: [
+          '插入复杂度和键长度成正比。',
+          '查询复杂度是 `O(1)`。',
+          '实现重点在差值而不是新值本身。',
+          '是前缀统计设计题。',
+        ],
+        code: `class MapSum {
+  private readonly values = new Map<string, number>()
+  private readonly prefixSums = new Map<string, number>()
+
+  insert(key: string, val: number): void {
+    const delta = val - (this.values.get(key) ?? 0)
+    this.values.set(key, val)
+
+    let prefix = ''
+    for (const char of key) {
+      prefix += char
+      this.prefixSums.set(prefix, (this.prefixSums.get(prefix) ?? 0) + delta)
+    }
+  }
+
+  sum(prefix: string): number {
+    return this.prefixSums.get(prefix) ?? 0
+  }
+}`,
+      },
+      {
+        id: 'map-sum-pairs-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是重复插入同一个键时直接把新值重新累加到所有前缀上，导致结果翻倍；或者查询时重新扫描所有键，没利用前缀累计信息。',
+        bullets: [
+          '易错点 1：没有处理覆盖旧值带来的差值更新。',
+          '易错点 2：前缀和表没有同步更新所有前缀。',
+          '易错点 3：把查询写成全表遍历。',
+          '延伸方向：Trie、前缀和维护、增量更新设计。',
+        ],
+      },
+    ],
+  },
 ];
