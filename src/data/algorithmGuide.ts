@@ -70450,4 +70450,93 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'number-of-longest-increasing-subsequence',
+    label: '673. LeetCode 673. 最长递增子序列的个数',
+    difficulty: '中等',
+    description:
+      '这题不是只求 LIS 长度，而是还要统计有多少条 LIS。每个位置都要同时维护“最长长度”和“方案数”。',
+    outcome:
+      '你能在经典 LIS 动态规划上叠加计数逻辑，正确合并不同来源的方案数。',
+    sections: [
+      {
+        id: 'number-of-longest-increasing-subsequence-summary',
+        title: '题目在问什么',
+        summary: '给定整数数组 `nums`，要求返回最长严格递增子序列的个数。',
+        bullets: [
+          '不只是最长长度，还要统计数量。',
+          '子序列不要求连续。',
+          '递增要求是严格大于。',
+          '是 DP 计数题。',
+        ],
+      },
+      {
+        id: 'number-of-longest-increasing-subsequence-observe',
+        title: '每个位置既要知道最长长度，也要知道达到该长度的方案数',
+        summary:
+          '令 `lengths[i]` 表示以 `nums[i]` 结尾的 LIS 最长长度，`counts[i]` 表示达到这个长度的方案数。枚举前面的 `j`，若 `nums[j] < nums[i]`，就可以从 `j` 转移到 `i`。如果发现更长长度，就替换 `lengths[i]` 和 `counts[i]`；如果发现同样长的路径，就把方案数累加进来。',
+        bullets: [
+          '长度和方案数是成对状态。',
+          '更长时覆盖，等长时累加。',
+          '状态定义直接贴合题意。',
+          '这是本题核心 DP 思路。',
+        ],
+      },
+      {
+        id: 'number-of-longest-increasing-subsequence-solution',
+        title: '标准解法：双层循环 DP 统计长度和个数',
+        summary:
+          '初始化所有位置 `lengths[i] = 1`、`counts[i] = 1`。然后双层循环枚举 `j < i` 做转移。最终再扫描所有位置，找出全局最长长度，并把所有达到该长度的位置方案数累加起来。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在覆盖与累加逻辑。',
+          '是 LIS 扩展题代表。',
+        ],
+        code: `function findNumberOfLIS(nums: number[]): number {
+  const lengths = new Array<number>(nums.length).fill(1)
+  const counts = new Array<number>(nums.length).fill(1)
+  let longest = 1
+
+  for (let i = 0; i < nums.length; i += 1) {
+    for (let j = 0; j < i; j += 1) {
+      if (nums[j] >= nums[i]) {
+        continue
+      }
+
+      if (lengths[j] + 1 > lengths[i]) {
+        lengths[i] = lengths[j] + 1
+        counts[i] = counts[j]
+      } else if (lengths[j] + 1 === lengths[i]) {
+        counts[i] += counts[j]
+      }
+    }
+
+    longest = Math.max(longest, lengths[i])
+  }
+
+  let answer = 0
+  for (let i = 0; i < nums.length; i += 1) {
+    if (lengths[i] === longest) {
+      answer += counts[i]
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'number-of-longest-increasing-subsequence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是发现更长路径时忘记重置方案数，只是继续累加；或者只求出了最长长度，却没有在末尾重新汇总对应方案数。',
+        bullets: [
+          '易错点 1：更长路径时没有覆盖旧方案数。',
+          '易错点 2：等长路径时漏掉累加。',
+          '易错点 3：全局统计时没有筛最长长度。',
+          '延伸方向：LIS 计数、双状态 DP、序列动态规划。',
+        ],
+      },
+    ],
+  },
 ];
