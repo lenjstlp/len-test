@@ -70539,4 +70539,81 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'longest-continuous-increasing-subsequence',
+    label: '674. LeetCode 674. 最长连续递增序列',
+    difficulty: '简单',
+    description:
+      '这题和 LIS 不同，要求的是连续递增子数组，所以只需线性扫描维护当前连续长度。',
+    outcome: '你能区分连续子数组与非连续子序列，并用一次遍历拿到最优答案。',
+    sections: [
+      {
+        id: 'longest-continuous-increasing-subsequence-summary',
+        title: '题目在问什么',
+        summary: '给定整数数组 `nums`，要求返回最长严格连续递增子数组的长度。',
+        bullets: [
+          '必须是连续子数组。',
+          '递增要求是严格大于。',
+          '只需要返回长度。',
+          '是线性扫描题。',
+        ],
+      },
+      {
+        id: 'longest-continuous-increasing-subsequence-observe',
+        title: '连续递增被打断时，当前长度就必须重置',
+        summary:
+          '若 `nums[i] > nums[i - 1]`，说明连续递增还能继续，当前长度加一；否则当前连续段被打断，只能从当前位置重新开始计数。边扫描边维护全局最大值即可。',
+        bullets: [
+          '连续性要求决定不能跳过元素。',
+          '一旦不递增就要重置。',
+          '当前长度和全局最优同时维护。',
+          '逻辑非常直接。',
+        ],
+      },
+      {
+        id: 'longest-continuous-increasing-subsequence-solution',
+        title: '标准解法：单次遍历维护当前连续长度',
+        summary:
+          '若数组为空直接返回 0。否则初始化当前长度和答案都为 1，从第二个元素开始遍历。若当前值大于前一个值，当前长度加一；否则重置为 1。每一步都更新最大值。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在重置时机。',
+          '是连续子数组模板题。',
+        ],
+        code: `function findLengthOfLCIS(nums: number[]): number {
+  if (nums.length === 0) {
+    return 0
+  }
+
+  let answer = 1
+  let currentLength = 1
+
+  for (let i = 1; i < nums.length; i += 1) {
+    if (nums[i] > nums[i - 1]) {
+      currentLength += 1
+    } else {
+      currentLength = 1
+    }
+
+    answer = Math.max(answer, currentLength)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'longest-continuous-increasing-subsequence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它和普通 LIS 混淆，上来就做 `O(n^2)` DP；或者忘了数组为空的边界值。',
+        bullets: [
+          '易错点 1：把连续题误做成子序列题。',
+          '易错点 2：递增中断后没有及时重置。',
+          '易错点 3：空数组边界漏处理。',
+          '延伸方向：滑动扫描、连续子数组、LIS 对比。',
+        ],
+      },
+    ],
+  },
 ];
