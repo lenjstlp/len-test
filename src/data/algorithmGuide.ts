@@ -70752,4 +70752,102 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'implement-magic-dictionary',
+    label: '676. LeetCode 676. 实现一个魔法字典',
+    difficulty: '中等',
+    description:
+      '这题不是普通字典查找，而是要求恰好修改一个字符后匹配成功。最直接的方式是按长度分组后逐个比较差异位数。',
+    outcome: '你能围绕“恰好一处不同”这个条件设计高效可读的查找逻辑。',
+    sections: [
+      {
+        id: 'implement-magic-dictionary-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个 `MagicDictionary`，支持先建立单词字典，再查询某个单词是否能通过“恰好修改一个字符”后匹配字典中的某个单词。',
+        bullets: [
+          '修改次数必须恰好为 1。',
+          '不能插入或删除字符，只能替换。',
+          '查询词和目标词长度必须相同。',
+          '是设计题加字符串比较题。',
+        ],
+      },
+      {
+        id: 'implement-magic-dictionary-observe',
+        title: '只有长度相同的单词才可能匹配，且差异位数必须正好为 1',
+        summary:
+          '由于只能替换字符，长度不同的单词可以直接排除。对同长度单词逐一比较字符位置，统计不同字符个数；只有当差异位数恰好等于 1 时，查询才返回 `true`。',
+        bullets: [
+          '长度是第一层剪枝条件。',
+          '差异位数是核心判定标准。',
+          '多于 1 处不同立即失败。',
+          '设计重点在恰好而不是至多。',
+        ],
+      },
+      {
+        id: 'implement-magic-dictionary-solution',
+        title: '标准解法：按长度分组存词，查询时逐词比较',
+        summary:
+          '建字典时，可把单词按长度存进 `Map<number, string[]>`。查询时只拿出同长度列表，逐个比较每个候选词与搜索词的不同字符数。只要存在某个候选词差异正好为 1，就返回 `true`，否则返回 `false`。',
+        bullets: [
+          '实现简单清楚。',
+          '长度分组能减少无效比较。',
+          '比较过程可以遇到差异大于 1 时提前停止。',
+          '适合题目规模。',
+        ],
+        code: `class MagicDictionary {
+  private readonly groups = new Map<number, string[]>()
+
+  buildDict(dictionary: string[]): void {
+    for (const word of dictionary) {
+      const bucket = this.groups.get(word.length)
+      if (bucket === undefined) {
+        this.groups.set(word.length, [word])
+      } else {
+        bucket.push(word)
+      }
+    }
+  }
+
+  search(searchWord: string): boolean {
+    const words = this.groups.get(searchWord.length)
+    if (words === undefined) {
+      return false
+    }
+
+    for (const word of words) {
+      let diff = 0
+
+      for (let i = 0; i < word.length; i += 1) {
+        if (word[i] !== searchWord[i]) {
+          diff += 1
+          if (diff > 1) {
+            break
+          }
+        }
+      }
+
+      if (diff === 1) {
+        return true
+      }
+    }
+
+    return false
+  }
+}`,
+      },
+      {
+        id: 'implement-magic-dictionary-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“恰好一个字符不同”误写成“最多一个字符不同”，从而把完全相同的单词也判成成功；或者没有按长度先过滤，做了很多无效比较。',
+        bullets: [
+          '易错点 1：把差异 0 也当成合法答案。',
+          '易错点 2：没有先按长度剪枝。',
+          '易错点 3：差异超过 1 时没有提前终止。',
+          '延伸方向：字符串相似度、设计题、模式匹配。',
+        ],
+      },
+    ],
+  },
 ];
