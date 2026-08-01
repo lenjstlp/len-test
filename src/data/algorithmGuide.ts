@@ -70047,4 +70047,85 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'kth-smallest-number-in-multiplication-table',
+    label: '668. LeetCode 668. 乘法表中第 k 小的数',
+    difficulty: '困难',
+    description:
+      '这题不能真的展开整个乘法表排序，而是典型的二分答案。关键在于快速统计“不大于某个值的表中元素个数”。',
+    outcome: '你能把乘法表排名问题转成单调计数判定，并用二分锁定答案。',
+    sections: [
+      {
+        id: 'kth-smallest-number-in-multiplication-table-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 `m x n` 的乘法表，其中第 `i` 行第 `j` 列是 `i * j`。要求找出这张表中第 `k` 小的数字。',
+        bullets: [
+          '乘法表隐式给出，不需要显式展开。',
+          '要求的是整体排序后的第 `k` 小。',
+          '表中可能有重复值。',
+          '是二分答案题。',
+        ],
+      },
+      {
+        id: 'kth-smallest-number-in-multiplication-table-observe',
+        title: '若能统计不大于 x 的元素个数，就能判断答案在 x 左右哪边',
+        summary:
+          '对某个猜测值 `x`，第 `i` 行中不大于 `x` 的元素个数是 `min(n, floor(x / i))`。把所有行加起来，就能得到整张表中不大于 `x` 的元素数目。这个计数随着 `x` 增大单调不减，因此可以对答案做二分搜索。',
+        bullets: [
+          '每一行都能独立快速计数。',
+          '总计数函数具有单调性。',
+          '二分的目标是找最小满足计数 >= k 的值。',
+          '这是本题核心思路。',
+        ],
+      },
+      {
+        id: 'kth-smallest-number-in-multiplication-table-solution',
+        title: '标准解法：二分答案 + 按行计数',
+        summary:
+          '二分范围设为 `1..m*n`。每次取中值 `mid`，统计整张表里不大于 `mid` 的元素个数。若个数至少为 `k`，说明答案不大于 `mid`，收缩右边界；否则收缩左边界。最终收敛值就是答案。',
+        bullets: [
+          '时间复杂度是 `O(m log(mn))`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在计数函数。',
+          '是排名型二分题代表。',
+        ],
+        code: `function findKthNumber(m: number, n: number, k: number): number {
+  let left = 1
+  let right = m * n
+
+  const countLessOrEqual = (target: number): number => {
+    let count = 0
+    for (let row = 1; row <= m; row += 1) {
+      count += Math.min(n, Math.floor(target / row))
+    }
+    return count
+  }
+
+  while (left < right) {
+    const middle = Math.floor((left + right) / 2)
+    if (countLessOrEqual(middle) >= k) {
+      right = middle
+    } else {
+      left = middle + 1
+    }
+  }
+
+  return left
+}`,
+      },
+      {
+        id: 'kth-smallest-number-in-multiplication-table-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把乘法表真的全部生成出来，复杂度完全不可接受；或者二分时找成了“计数大于 k”的位置，导致边界偏一位。',
+        bullets: [
+          '易错点 1：没有利用乘法表按行有序。',
+          '易错点 2：二分边界更新条件写错。',
+          '易错点 3：忽略表中重复值的存在。',
+          '延伸方向：二分答案、排名查询、隐式有序矩阵。',
+        ],
+      },
+    ],
+  },
 ];
