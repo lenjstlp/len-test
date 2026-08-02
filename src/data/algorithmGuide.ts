@@ -71011,4 +71011,105 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: '24-game',
+    label: '679. LeetCode 679. 24 点游戏',
+    difficulty: '困难',
+    description:
+      '这题本质是小规模全搜索。每次从当前数字集中选两个数做运算，再把结果放回去继续搜索。',
+    outcome: '你能在状态规模很小的前提下，完整枚举运算组合并正确处理浮点误差。',
+    sections: [
+      {
+        id: '24-game-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 4 个数字，允许使用加减乘除和括号，判断能否通过这些运算得到结果 `24`。',
+        bullets: [
+          '四个数都要参与。',
+          '运算顺序可通过括号改变。',
+          '除法存在非整数结果。',
+          '只需要判断是否可达。',
+        ],
+      },
+      {
+        id: '24-game-observe',
+        title: '每次选两个数做运算，相当于把问题规模从 4 降到 3',
+        summary:
+          '当前集合里有若干数时，只要任选两个数，计算它们通过加减乘除可能得到的结果，再把这个结果和剩余数字组成新集合继续递归即可。由于输入固定只有 4 个数，完整回溯完全可行。需要注意减法和除法有顺序之分，且除数不能为 0。',
+        bullets: [
+          '搜索树规模不大，暴力可接受。',
+          '减法和除法要区分左右顺序。',
+          '每一步都在缩小问题规模。',
+          '核心是回溯枚举。',
+        ],
+      },
+      {
+        id: '24-game-solution',
+        title: '标准解法：回溯枚举两两合并结果',
+        summary:
+          '递归函数接收当前数字数组。若数组只剩一个数，就判断它与 `24` 的差是否足够小。否则枚举两两组合，并尝试所有合法运算结果，构造下一层数组继续递归。只要有一条路径成功，就返回 `true`。',
+        bullets: [
+          '时间复杂度是常数量级搜索。',
+          '实现重点在生成下一层状态和浮点容差。',
+          '除法前必须判断除数不为 0。',
+          '是经典回溯题。',
+        ],
+        code: `function judgePoint24(cards: number[]): boolean {
+  const epsilon = 1e-6
+
+  const dfs = (numbers: number[]): boolean => {
+    if (numbers.length === 1) {
+      return Math.abs(numbers[0] - 24) < epsilon
+    }
+
+    for (let i = 0; i < numbers.length; i += 1) {
+      for (let j = 0; j < numbers.length; j += 1) {
+        if (i === j) {
+          continue
+        }
+
+        const next: number[] = []
+        for (let k = 0; k < numbers.length; k += 1) {
+          if (k !== i && k !== j) {
+            next.push(numbers[k])
+          }
+        }
+
+        const a = numbers[i]
+        const b = numbers[j]
+        const candidates = [a + b, a - b, a * b]
+        if (Math.abs(b) > epsilon) {
+          candidates.push(a / b)
+        }
+
+        for (const value of candidates) {
+          next.push(value)
+          if (dfs(next)) {
+            return true
+          }
+          next.pop()
+        }
+      }
+    }
+
+    return false
+  }
+
+  return dfs(cards)
+}`,
+      },
+      {
+        id: '24-game-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是为了去重把有顺序的减法和除法错误合并，导致漏解；或者直接用等号比较浮点结果，受精度影响判断失真。',
+        bullets: [
+          '易错点 1：减法和除法顺序被错误省略。',
+          '易错点 2：浮点比较没使用容差。',
+          '易错点 3：除数为 0 时未过滤。',
+          '延伸方向：回溯搜索、表达式构造、浮点容差处理。',
+        ],
+      },
+    ],
+  },
 ];
