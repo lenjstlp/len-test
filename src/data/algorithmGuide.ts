@@ -71277,4 +71277,79 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'baseball-game',
+    label: '682. LeetCode 682. 棒球比赛',
+    difficulty: '简单',
+    description:
+      '这题是顺序模拟，关键在于用栈保存历史有效得分，方便处理回退和依赖前几轮的操作。',
+    outcome: '你能把一组带回退规则的指令流转成稳定的栈模拟。',
+    sections: [
+      {
+        id: 'baseball-game-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一组操作记录，整数表示本轮得分，`+` 表示前两轮得分之和，`D` 表示前一轮的两倍，`C` 表示取消前一轮得分。要求计算所有有效回合的总得分。',
+        bullets: [
+          '操作按顺序执行。',
+          '有些操作依赖历史得分。',
+          '`C` 会撤销最近一轮有效分数。',
+          '是栈模拟题。',
+        ],
+      },
+      {
+        id: 'baseball-game-observe',
+        title: '历史有效得分天然适合用栈维护',
+        summary:
+          '每次新操作只会用到最近一轮或最近两轮得分，取消操作也只影响最后一个有效得分，因此用栈保存所有有效得分最自然。遇到 `+`、`D`、`C` 时，直接对栈顶若干元素做处理即可。',
+        bullets: [
+          '栈顶就是最近一轮有效得分。',
+          '回退操作和栈结构完全匹配。',
+          '只需要局部历史，不需要全量复杂状态。',
+          '实现简单直接。',
+        ],
+      },
+      {
+        id: 'baseball-game-solution',
+        title: '标准解法：栈保存有效得分，最后求和',
+        summary:
+          '遍历操作数组。若是整数则直接压栈；若是 `+` 就把栈顶两项求和后压栈；若是 `D` 就把栈顶翻倍后压栈；若是 `C` 就弹出栈顶。遍历结束后把栈中所有分数求和返回。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在 `+` 取最近两轮分数。',
+          '是指令流模拟基础题。',
+        ],
+        code: `function calPoints(operations: string[]): number {
+  const scores: number[] = []
+
+  for (const operation of operations) {
+    if (operation === '+') {
+      scores.push(scores[scores.length - 1] + scores[scores.length - 2])
+    } else if (operation === 'D') {
+      scores.push(scores[scores.length - 1] * 2)
+    } else if (operation === 'C') {
+      scores.pop()
+    } else {
+      scores.push(Number(operation))
+    }
+  }
+
+  return scores.reduce((sum, score) => sum + score, 0)
+}`,
+      },
+      {
+        id: 'baseball-game-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把 `+` 写成前两轮原始操作的和，而不是前两轮有效得分的和；或者 `C` 只把总分减掉却没真正撤销历史记录。',
+        bullets: [
+          '易错点 1：误解 `+` 的依赖对象。',
+          '易错点 2：`C` 没有同步删除栈中记录。',
+          '易错点 3：直接修改总分却丢失历史信息。',
+          '延伸方向：栈模拟、操作回退、指令流处理。',
+        ],
+      },
+    ],
+  },
 ];
