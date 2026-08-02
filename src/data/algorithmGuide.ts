@@ -71519,4 +71519,109 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'redundant-connection-ii',
+    label: '685. LeetCode 685. 冗余连接 II',
+    difficulty: '困难',
+    description:
+      '这题从无向图升级成有向图，多出来的复杂点是某个节点可能有两个父节点。标准做法要同时考虑“入度异常”和“有向环”两种情况。',
+    outcome: '你能把有向树异常边问题拆成几种互斥场景，并用并查集稳定找出答案。',
+    sections: [
+      {
+        id: 'redundant-connection-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个由 `1..n` 节点组成的有向图边集，它原本应是一棵有根树，但现在额外多了一条边。要求删除一条边，使剩余图重新成为有根树，并返回应删除的那条边。',
+        bullets: [
+          '图是有向图。',
+          '合法结果应是一棵有根树。',
+          '异常可能来自成环，也可能来自某节点有两个父亲。',
+          '是并查集分类题。',
+        ],
+      },
+      {
+        id: 'redundant-connection-ii-observe',
+        title: '问题只会落在“某节点入度为 2”或“出现环”这两类异常组合中',
+        summary:
+          '扫描边时，若发现某个节点已经有父节点，那么这条边和原先那条父边就是两个候选。随后再用并查集检查去掉后来的候选边后是否仍成环：若仍成环，说明应删除较早那条父边；若不成环，说明删除较晚那条候选边即可。若根本不存在入度为 2 的情况，则答案就是导致成环的那条边。',
+        bullets: [
+          '先处理入度异常，再处理环。',
+          '两个候选边是关键线索。',
+          '并查集负责判断是否成环。',
+          '这是本题标准分情况策略。',
+        ],
+      },
+      {
+        id: 'redundant-connection-ii-solution',
+        title: '标准解法：先找双父节点候选，再并查集判环',
+        summary:
+          '先用 `parentOf` 记录每个节点的父节点，找出是否存在某节点拥有两条入边，并记下两条候选边。然后重置并查集，遍历所有边时暂时跳过第二条候选边。若遍历中发现成环，则根据是否存在双父节点决定返回哪条边；若没有成环，则直接返回第二条候选边。',
+        bullets: [
+          '时间复杂度接近线性。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在候选边记录与跳过逻辑。',
+          '是并查集进阶题。',
+        ],
+        code: `function findRedundantDirectedConnection(edges: number[][]): number[] {
+  const size = edges.length
+  const parentOf = new Array<number>(size + 1).fill(0)
+  let candidate1: number[] | null = null
+  let candidate2: number[] | null = null
+
+  for (const [from, to] of edges) {
+    if (parentOf[to] === 0) {
+      parentOf[to] = from
+    } else {
+      candidate1 = [parentOf[to], to]
+      candidate2 = [from, to]
+      break
+    }
+  }
+
+  const unionParent = new Array<number>(size + 1).fill(0).map((_, index) => index)
+
+  const find = (node: number): number => {
+    if (unionParent[node] !== node) {
+      unionParent[node] = find(unionParent[node])
+    }
+    return unionParent[node]
+  }
+
+  const union = (a: number, b: number): boolean => {
+    const rootA = find(a)
+    const rootB = find(b)
+    if (rootA === rootB) {
+      return false
+    }
+    unionParent[rootB] = rootA
+    return true
+  }
+
+  for (const edge of edges) {
+    if (candidate2 !== null && edge[0] === candidate2[0] && edge[1] === candidate2[1]) {
+      continue
+    }
+
+    if (!union(edge[0], edge[1])) {
+      return candidate1 ?? edge
+    }
+  }
+
+  return candidate2 as number[]
+}`,
+      },
+      {
+        id: 'redundant-connection-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只会处理成环，不会处理某节点入度为 2 的情况；或者有了两个候选边后，没有在并查集阶段正确跳过第二条候选边做验证。',
+        bullets: [
+          '易错点 1：没先找双父节点候选边。',
+          '易错点 2：并查集验证阶段跳边逻辑错误。',
+          '易错点 3：成环时返回了错误候选边。',
+          '延伸方向：有向图异常、并查集分类讨论、树结构恢复。',
+        ],
+      },
+    ],
+  },
 ];
