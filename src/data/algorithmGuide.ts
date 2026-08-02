@@ -71790,4 +71790,116 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'knight-probability-in-chessboard',
+    label: '688. LeetCode 688. 骑士在棋盘上的概率',
+    difficulty: '中等',
+    description:
+      '这题不是找路径数量，而是每走一步都把概率均分给 8 个方向。最自然的模型是多步概率 DP。',
+    outcome:
+      '你能把棋盘随机游走问题写成状态转移，并准确累计仍留在棋盘内的概率。',
+    sections: [
+      {
+        id: 'knight-probability-in-chessboard-summary',
+        title: '题目在问什么',
+        summary:
+          '在 `n x n` 的棋盘上，一个骑士从 `(row, column)` 出发，随机等概率选择 8 个骑士移动方向，共移动 `k` 步。要求返回骑士仍留在棋盘内的概率。',
+        bullets: [
+          '每一步有 8 个等概率方向。',
+          '走出棋盘后就不再返回。',
+          '目标是 `k` 步后仍在棋盘内的概率。',
+          '是概率 DP 题。',
+        ],
+      },
+      {
+        id: 'knight-probability-in-chessboard-observe',
+        title: '第 step 步在某格子的概率，只来自上一步能跳到这里的格子',
+        summary:
+          '设 `dp[step][r][c]` 表示走完 `step` 步后位于格子 `(r, c)` 的概率。初始只有起点概率为 `1`。之后每一步把上一层每个格子的概率平均分成 8 份，分配到所有合法骑士落点中。最后把第 `k` 步所有格子的概率求和即可。',
+        bullets: [
+          '本质是分层概率传播。',
+          '每条合法边贡献当前概率的八分之一。',
+          '非法越界移动直接丢失概率。',
+          '是典型网格 DP。',
+        ],
+      },
+      {
+        id: 'knight-probability-in-chessboard-solution',
+        title: '标准解法：滚动数组按步转移概率',
+        summary:
+          '用两个 `n x n` 数组滚动表示当前步和下一步的概率分布。初始化起点位置概率为 `1`。每轮遍历所有格子，把当前概率按 8 个方向分发给棋盘内的合法位置。完成 `k` 轮后，把最后一层所有概率加总就是答案。',
+        bullets: [
+          '时间复杂度是 `O(k * n^2)`。',
+          '空间复杂度是 `O(n^2)`。',
+          '实现重点在 8 个骑士方向和滚动更新。',
+          '是随机游走概率题代表。',
+        ],
+        code: `function knightProbability(
+  n: number,
+  k: number,
+  row: number,
+  column: number,
+): number {
+  const directions = [
+    [1, 2],
+    [1, -2],
+    [-1, 2],
+    [-1, -2],
+    [2, 1],
+    [2, -1],
+    [-2, 1],
+    [-2, -1],
+  ]
+
+  let current = Array.from({ length: n }, () => new Array<number>(n).fill(0))
+  current[row][column] = 1
+
+  for (let step = 0; step < k; step += 1) {
+    const next = Array.from({ length: n }, () => new Array<number>(n).fill(0))
+
+    for (let r = 0; r < n; r += 1) {
+      for (let c = 0; c < n; c += 1) {
+        if (current[r][c] === 0) {
+          continue
+        }
+
+        for (const [dr, dc] of directions) {
+          const nextRow = r + dr
+          const nextColumn = c + dc
+          if (nextRow < 0 || nextRow >= n || nextColumn < 0 || nextColumn >= n) {
+            continue
+          }
+
+          next[nextRow][nextColumn] += current[r][c] / 8
+        }
+      }
+    }
+
+    current = next
+  }
+
+  let answer = 0
+  for (const values of current) {
+    for (const probability of values) {
+      answer += probability
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'knight-probability-in-chessboard-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把越界概率重新分配给其余合法方向，误解了题意；或者没有按步做滚动更新，导致同一步内状态相互污染。',
+        bullets: [
+          '易错点 1：越界方向的概率应直接损失。',
+          '易错点 2：当前层和下一层数组混用。',
+          '易错点 3：最终忘记累加所有格子的概率。',
+          '延伸方向：概率 DP、随机游走、棋盘状态转移。',
+        ],
+      },
+    ],
+  },
 ];
