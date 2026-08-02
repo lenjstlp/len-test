@@ -71433,4 +71433,90 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'redundant-connection',
+    label: '684. LeetCode 684. 冗余连接',
+    difficulty: '中等',
+    description:
+      '这题是在一棵树上多加了一条边，要求找出导致成环的那条。并查集是最直接的判环工具。',
+    outcome: '你能用并查集在线检测无向图成环，并找出最后那条多余边。',
+    sections: [
+      {
+        id: 'redundant-connection-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一张无向图的边列表，它原本是一棵树，但额外多了一条边。要求返回这条导致图中出现环的冗余边。',
+        bullets: [
+          '图是无向图。',
+          '原本连通且无环。',
+          '多出一条边后恰好多一个环。',
+          '要求返回成环那条边。',
+        ],
+      },
+      {
+        id: 'redundant-connection-observe',
+        title: '若一条边的两个端点已经连通，那么这条边就是多余边',
+        summary:
+          '并查集可以动态维护连通块。处理每条边时，若两个端点已经在同一个集合里，再连它们就一定会形成环；否则把两个集合合并。因为题目要求返回最后出现的冗余边，按原顺序扫描即可自然满足。',
+        bullets: [
+          '连通性判断是并查集擅长的问题。',
+          '同集合再连边就会成环。',
+          '顺序扫描天然保留题目要求。',
+          '这是无向图判环经典用法。',
+        ],
+      },
+      {
+        id: 'redundant-connection-solution',
+        title: '标准解法：并查集逐边合并',
+        summary:
+          '初始化每个节点自成集合。对每条边 `[u, v]`，先查找它们的根节点。若根相同，直接返回当前边；否则合并两个集合。遍历结束前一定会找到答案。',
+        bullets: [
+          '时间复杂度接近线性。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在路径压缩和按秩合并可选优化。',
+          '是并查集模板题。',
+        ],
+        code: `function findRedundantConnection(edges: number[][]): number[] {
+  const parent = new Array<number>(edges.length + 1).fill(0).map((_, index) => index)
+
+  const find = (node: number): number => {
+    if (parent[node] !== node) {
+      parent[node] = find(parent[node])
+    }
+    return parent[node]
+  }
+
+  const union = (a: number, b: number): boolean => {
+    const rootA = find(a)
+    const rootB = find(b)
+    if (rootA === rootB) {
+      return false
+    }
+    parent[rootA] = rootB
+    return true
+  }
+
+  for (const [u, v] of edges) {
+    if (!union(u, v)) {
+      return [u, v]
+    }
+  }
+
+  return []
+}`,
+      },
+      {
+        id: 'redundant-connection-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把无向图成环检测写成 DFS 重跑，复杂度和实现都更重；或者并查集初始化下标范围开小了，导致节点编号越界。',
+        bullets: [
+          '易错点 1：没有按顺序扫描边。',
+          '易错点 2：并查集父节点数组大小不够。',
+          '易错点 3：合并前没先判断是否已连通。',
+          '延伸方向：并查集、无向图判环、连通块维护。',
+        ],
+      },
+    ],
+  },
 ];
