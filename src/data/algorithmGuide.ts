@@ -71197,4 +71197,84 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'next-closest-time',
+    label: '681. LeetCode 681. 最近时刻',
+    difficulty: '中等',
+    description:
+      '这题不是简单加一分钟，而是要在 24 小时循环里找到下一个仅由原数字组成的合法时间。',
+    outcome: '你能把时间枚举和合法性校验结合起来，找到最近可复用数字的时刻。',
+    sections: [
+      {
+        id: 'next-closest-time-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个时间字符串 `HH:MM`，要求返回下一个最近的时间，且新时间只能使用原时间里出现过的数字。',
+        bullets: [
+          '时间按分钟递增寻找。',
+          '可重复使用原有数字。',
+          '超过午夜要循环到第二天。',
+          '是时间模拟题。',
+        ],
+      },
+      {
+        id: 'next-closest-time-observe',
+        title: '总共只有 24 * 60 种时间，直接往后枚举完全可行',
+        summary:
+          '把当前时间转成分钟数后，每次加一分钟并对 `24 * 60` 取模，就能按时间顺序枚举未来时刻。对每个候选时间，只需检查它的四个数字是否都属于原时间的数字集合，找到第一个合法者即为答案。',
+        bullets: [
+          '总状态数很小，暴力枚举足够快。',
+          '时间顺序由分钟值自然保证。',
+          '数字合法性用集合判断。',
+          '实现重点在分钟到时间字符串的转换。',
+        ],
+      },
+      {
+        id: 'next-closest-time-solution',
+        title: '标准解法：分钟枚举 + 数字集合校验',
+        summary:
+          '先把原时间中出现的数字放进集合，并把当前时间转成总分钟数。之后从 `current + 1` 开始逐分钟尝试，生成候选时间字符串，若其中四个数字都在集合中，就立即返回该字符串。',
+        bullets: [
+          '时间复杂度上界是 `O(1440)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在循环回绕和格式化补零。',
+          '是小状态枚举题。',
+        ],
+        code: `function nextClosestTime(time: string): string {
+  const digits = new Set<string>([time[0], time[1], time[3], time[4]])
+  const currentMinutes = Number(time.slice(0, 2)) * 60 + Number(time.slice(3))
+
+  for (let offset = 1; offset <= 24 * 60; offset += 1) {
+    const minutes = (currentMinutes + offset) % (24 * 60)
+    const hours = String(Math.floor(minutes / 60)).padStart(2, '0')
+    const mins = String(minutes % 60).padStart(2, '0')
+    const candidate = \`\${hours}:\${mins}\`
+
+    if (
+      digits.has(candidate[0]) &&
+      digits.has(candidate[1]) &&
+      digits.has(candidate[3]) &&
+      digits.has(candidate[4])
+    ) {
+      return candidate
+    }
+  }
+
+  return time
+}`,
+      },
+      {
+        id: 'next-closest-time-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只考虑比当前时刻大的当天时间，忘了第二天的循环；或者把“可重复使用原数字”误解成“每个数字使用次数不能超过原来出现次数”。',
+        bullets: [
+          '易错点 1：没处理跨天回绕。',
+          '易错点 2：误加了数字出现次数限制。',
+          '易错点 3：分钟转时间字符串时补零错误。',
+          '延伸方向：状态枚举、时间模拟、格式化输出。',
+        ],
+      },
+    ],
+  },
 ];
