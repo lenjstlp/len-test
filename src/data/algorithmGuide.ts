@@ -71352,4 +71352,85 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'k-empty-slots',
+    label: '683. LeetCode 683. K 个关闭的灯泡',
+    difficulty: '困难',
+    description:
+      '这题要找的是两盏已亮灯泡之间恰好隔着 `k` 个未亮位置，关键是把开灯顺序转成“每天这个位置何时亮起”。',
+    outcome: '你能利用天数数组和滑动窗口，在一遍扫描中找到最早满足条件的日子。',
+    sections: [
+      {
+        id: 'k-empty-slots-summary',
+        title: '题目在问什么',
+        summary:
+          '给定灯泡每天点亮的顺序 `bulbs` 和整数 `k`，要求找出最早的某一天，使得存在两盏已亮的灯泡，中间正好隔着 `k` 个灯泡，且这中间的灯泡在那天都还没亮。',
+        bullets: [
+          '每天只会点亮一个灯泡。',
+          '要找最早满足条件的天数。',
+          '中间的 `k` 个灯泡都必须仍未亮。',
+          '是顺序与区间判定题。',
+        ],
+      },
+      {
+        id: 'k-empty-slots-observe',
+        title: '先记录每个位置是哪一天亮，再做区间最小值式判断',
+        summary:
+          '若 `days[i]` 表示第 `i` 个位置在第几天亮起，那么想要位置 `left` 和 `right = left + k + 1` 成为候选，需要区间 `(left, right)` 中所有位置的亮灯天数都晚于 `max(days[left], days[right])`。可以用滑动窗口方式维护这个条件，窗口一旦被某个更早亮的中间位置破坏，就整体向前推进。',
+        bullets: [
+          '原问题先转成位置到天数的映射。',
+          '候选窗口长度固定为 `k + 2`。',
+          '中间若有更早亮的位置，就当前边界无效。',
+          '这是本题标准线性思路。',
+        ],
+      },
+      {
+        id: 'k-empty-slots-solution',
+        title: '标准解法：天数数组 + 滑动窗口扫描',
+        summary:
+          '构造 `days` 数组后，设窗口左右边界为 `left` 与 `right = left + k + 1`。扫描窗口内部位置 `i`，若 `days[i]` 小于等于任一边界亮起天数，说明窗口失效，需要从 `i` 重新开新窗口；若一路扫描到 `right` 都没被破坏，则该窗口合法，可用 `max(days[left], days[right])` 更新答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在窗口失效时的重置逻辑。',
+          '是数组窗口技巧题。',
+        ],
+        code: `function kEmptySlots(bulbs: number[], k: number): number {
+  const days = new Array<number>(bulbs.length)
+  for (let day = 0; day < bulbs.length; day += 1) {
+    days[bulbs[day] - 1] = day + 1
+  }
+
+  let answer = Number.POSITIVE_INFINITY
+  let left = 0
+  let right = k + 1
+
+  for (let index = 1; right < days.length; index += 1) {
+    if (days[index] < days[left] || days[index] <= days[right]) {
+      if (index === right) {
+        answer = Math.min(answer, Math.max(days[left], days[right]))
+      }
+
+      left = index
+      right = left + k + 1
+    }
+  }
+
+  return answer === Number.POSITIVE_INFINITY ? -1 : answer
+}`,
+      },
+      {
+        id: 'k-empty-slots-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是仍然按每天去动态维护亮灯集合，复杂度和实现都偏重；或者窗口失效条件里比较符号写错，导致等于边界天数时漏判。',
+        bullets: [
+          '易错点 1：没有先转换成天数数组。',
+          '易错点 2：窗口失效条件写错。',
+          '易错点 3：合法窗口时没有取两端较晚亮起的那一天。',
+          '延伸方向：位置与时间映射、滑动窗口、最早满足条件问题。',
+        ],
+      },
+    ],
+  },
 ];
