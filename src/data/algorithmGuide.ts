@@ -71702,4 +71702,92 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'longest-univalue-path',
+    label: '687. LeetCode 687. 最长同值路径',
+    difficulty: '中等',
+    description:
+      '这题要求的是边数，不是节点数。对每个节点，要分别考虑左右同值链能延伸多长，再组合成经过该节点的候选答案。',
+    outcome:
+      '你能在树递归中同时维护“向上可延伸的最长链”和“经过当前点的全局最优”。',
+    sections: [
+      {
+        id: 'longest-univalue-path-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，要求找出所有节点值相同的最长路径长度。路径可以经过任意节点，但长度按边数计算。',
+        bullets: [
+          '路径中所有节点值必须相同。',
+          '路径不一定经过根节点。',
+          '答案是边数，不是节点数。',
+          '是树递归题。',
+        ],
+      },
+      {
+        id: 'longest-univalue-path-observe',
+        title:
+          '每个节点最多向父亲贡献一条单边链，但本地答案可能由左右两边拼起来',
+        summary:
+          '对当前节点来说，左子树若根值与当前值相同，就能向上提供一条左链；右子树同理。返回给父节点时，只能选更长的一侧继续向上延伸。但经过当前节点的最佳路径，可能是左链长度加右链长度，这需要用全局变量持续更新。',
+        bullets: [
+          '向上返回值和本地答案不是一回事。',
+          '返回父节点时只能选单侧。',
+          '全局最优可能跨越左右两侧。',
+          '这是本题递归关键。',
+        ],
+      },
+      {
+        id: 'longest-univalue-path-solution',
+        title: '标准解法：后序递归统计左右同值链',
+        summary:
+          '递归函数返回“从当前节点出发，向下延伸的最长同值链长度”。先递归得到左右子树返回值，再根据孩子值是否等于当前值决定左链和右链长度。更新全局答案为 `leftPath + rightPath`，向上返回两者较大者。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在边数定义和返回值语义。',
+          '是树形 DP 题代表。',
+        ],
+        code: `function longestUnivaluePath(root: TreeNode | null): number {
+  let answer = 0
+
+  const dfs = (node: TreeNode | null): number => {
+    if (node === null) {
+      return 0
+    }
+
+    const leftLength = dfs(node.left)
+    const rightLength = dfs(node.right)
+
+    let leftPath = 0
+    let rightPath = 0
+
+    if (node.left !== null && node.left.val === node.val) {
+      leftPath = leftLength + 1
+    }
+    if (node.right !== null && node.right.val === node.val) {
+      rightPath = rightLength + 1
+    }
+
+    answer = Math.max(answer, leftPath + rightPath)
+    return Math.max(leftPath, rightPath)
+  }
+
+  dfs(root)
+  return answer
+}`,
+      },
+      {
+        id: 'longest-univalue-path-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把答案按节点数返回，导致结果多一；或者递归返回时把左右链都带给父节点，破坏路径定义。',
+        bullets: [
+          '易错点 1：边数和节点数混淆。',
+          '易错点 2：向上返回值错误地同时包含左右两边。',
+          '易错点 3：没有在当前节点更新全局答案。',
+          '延伸方向：树形 DP、路径合并、递归返回值设计。',
+        ],
+      },
+    ],
+  },
 ];
