@@ -70928,4 +70928,87 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'valid-parenthesis-string',
+    label: '678. LeetCode 678. 有效的括号字符串',
+    difficulty: '中等',
+    description:
+      '这题的难点在于 `*` 既可能当左括号、右括号，也可能当空字符。最稳的做法是维护“当前可能剩余左括号数量”的上下界。',
+    outcome:
+      '你能把多义字符带来的分支压缩成区间状态，用一次扫描完成合法性判断。',
+    sections: [
+      {
+        id: 'valid-parenthesis-string-summary',
+        title: '题目在问什么',
+        summary:
+          '给定只包含 `(`、`)` 和 `*` 的字符串，判断它是否能解释成一个合法括号串，其中 `*` 可以表示 `(`、`)` 或空字符串。',
+        bullets: [
+          '`*` 有三种可能含义。',
+          '目标是判断是否存在一种解释方式合法。',
+          '不需要输出具体解释。',
+          '是括号贪心题。',
+        ],
+      },
+      {
+        id: 'valid-parenthesis-string-observe',
+        title: '扫描到每一位时，未匹配左括号数量会落在一个区间里',
+        summary:
+          '设 `low` 表示最少可能剩余的左括号数，`high` 表示最多可能剩余的左括号数。遇到 `(` 时两者都加一；遇到 `)` 时两者都减一；遇到 `*` 时，最少值可以当作 `)` 或空而减一，最多值可以当作 `(` 而加一。只要 `high` 一度变成负数，就说明无论怎样解释都无法合法。',
+        bullets: [
+          '区间状态压缩了所有分支。',
+          '`low` 不能小于 0。',
+          '`high < 0` 说明彻底失败。',
+          '这是本题核心贪心。',
+        ],
+      },
+      {
+        id: 'valid-parenthesis-string-solution',
+        title: '标准解法：维护可能剩余左括号数的上下界',
+        summary:
+          '从左到右扫描字符串，按字符更新 `low` 和 `high`。每次都把 `low` 限制在不小于 0，因为最少剩余左括号数不可能为负。遍历结束后，只要 `low === 0`，就说明存在一种解释方式恰好把所有左括号匹配完。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在三种字符对应的区间更新。',
+          '是区间贪心代表题。',
+        ],
+        code: `function checkValidString(s: string): boolean {
+  let low = 0
+  let high = 0
+
+  for (const char of s) {
+    if (char === '(') {
+      low += 1
+      high += 1
+    } else if (char === ')') {
+      low -= 1
+      high -= 1
+    } else {
+      low -= 1
+      high += 1
+    }
+
+    if (high < 0) {
+      return false
+    }
+    low = Math.max(low, 0)
+  }
+
+  return low === 0
+}`,
+      },
+      {
+        id: 'valid-parenthesis-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把 `*` 固定成某一种角色处理，漏掉其他可能性；或者只记一个计数值，无法同时表达“最少”和“最多”两种可能状态。',
+        bullets: [
+          '易错点 1：`*` 处理不完整。',
+          '易错点 2：没有维护上下界而是只维护单一计数。',
+          '易错点 3：`low` 变负后没有及时拉回 0。',
+          '延伸方向：括号贪心、区间状态压缩、多义字符处理。',
+        ],
+      },
+    ],
+  },
 ];
