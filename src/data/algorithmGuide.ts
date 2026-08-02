@@ -71112,4 +71112,89 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'valid-palindrome-ii',
+    label: '680. LeetCode 680. 验证回文字符串 II',
+    difficulty: '简单',
+    description:
+      '这题允许最多删除一个字符，因此当双指针第一次失配时，只需要尝试跳过左边或右边各一次。',
+    outcome: '你能在回文双指针基础上加入一次容错判断，并保持逻辑清晰。',
+    sections: [
+      {
+        id: 'valid-palindrome-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s`，判断它是否能通过删除最多一个字符后，变成回文串。',
+        bullets: [
+          '最多只能删除一个字符。',
+          '删除也可以不发生。',
+          '只需要判断可行性。',
+          '是双指针题。',
+        ],
+      },
+      {
+        id: 'valid-palindrome-ii-observe',
+        title: '第一次失配时，只有两种补救方式',
+        summary:
+          '正常回文判断用双指针从两端往中间走。一旦 `s[left] !== s[right]`，因为只允许删一个字符，所以只能尝试两种情况：跳过左字符看剩余是否回文，或跳过右字符看剩余是否回文。只要有一种成立，答案就是 `true`。',
+        bullets: [
+          '容错机会只有一次。',
+          '失配后不需要继续做更多分叉。',
+          '本质是两次普通回文检查。',
+          '这是本题核心简化。',
+        ],
+      },
+      {
+        id: 'valid-palindrome-ii-solution',
+        title: '标准解法：双指针 + 辅助回文检查',
+        summary:
+          '主过程用双指针扫描字符串。若字符相同则继续收缩；若失配，就调用辅助函数分别检查 `left + 1..right` 和 `left..right - 1` 是否为回文。两者任一为真即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在失配后的分支检查。',
+          '是回文双指针扩展题。',
+        ],
+        code: `function validPalindrome(s: string): boolean {
+  const isPalindrome = (left: number, right: number): boolean => {
+    while (left < right) {
+      if (s[left] !== s[right]) {
+        return false
+      }
+      left += 1
+      right -= 1
+    }
+    return true
+  }
+
+  let left = 0
+  let right = s.length - 1
+
+  while (left < right) {
+    if (s[left] === s[right]) {
+      left += 1
+      right -= 1
+      continue
+    }
+
+    return isPalindrome(left + 1, right) || isPalindrome(left, right - 1)
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'valid-palindrome-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是失配后继续盲目多次删除，违背“最多一个字符”的限制；或者只尝试跳过一边，漏掉另一种可能性。',
+        bullets: [
+          '易错点 1：失配后没有同时检查跳左和跳右两种情况。',
+          '易错点 2：把可删除次数用成了多次。',
+          '易错点 3：辅助回文函数边界写错。',
+          '延伸方向：双指针、容错回文、字符串判定。',
+        ],
+      },
+    ],
+  },
 ];
