@@ -71624,4 +71624,82 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'repeated-string-match',
+    label: '686. LeetCode 686. 重复叠加字符串匹配',
+    difficulty: '中等',
+    description:
+      '这题要找最少重复次数，使得 `b` 成为重复后的 `a` 的子串。核心是次数只可能落在很小的几个候选值里。',
+    outcome: '你能通过长度关系快速锁定候选重复次数，并完成子串判定。',
+    sections: [
+      {
+        id: 'repeated-string-match-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `a` 和 `b`，要求返回最少把 `a` 重复多少次，才能让 `b` 成为重复后字符串的子串；若无论怎么重复都不可能，返回 `-1`。',
+        bullets: [
+          '目标是最少重复次数。',
+          '判断依据是 `b` 是否成为子串。',
+          '可能根本无解。',
+          '是字符串构造题。',
+        ],
+      },
+      {
+        id: 'repeated-string-match-observe',
+        title: '最少次数一定接近把长度补到不小于 b 的那一刻',
+        summary:
+          '若重复次数太少，长度都不够覆盖 `b`；若重复次数过多，多出来的部分只是在边界多绕一圈。因此只需要先把 `a` 重复到长度不小于 `b`，再额外检查多重复一次的情况，因为 `b` 可能跨越重复边界出现。',
+        bullets: [
+          '核心候选次数很少。',
+          '长度先补到不小于 `b` 是下界。',
+          '再多检查一次覆盖边界情况即可。',
+          '不需要无限尝试。',
+        ],
+      },
+      {
+        id: 'repeated-string-match-solution',
+        title: '标准解法：先补足长度，再检查当前和当前加一轮',
+        summary:
+          '不断拼接 `a`，直到构造串长度至少达到 `b.length`，此时若包含 `b` 就返回当前次数；否则再追加一份 `a` 再检查一次，若仍不包含，则返回 `-1`。',
+        bullets: [
+          '时间复杂度取决于字符串拼接和查找。',
+          '空间复杂度和构造串长度相关。',
+          '实现重点在只需多检查一轮。',
+          '是字符串边界匹配题。',
+        ],
+        code: `function repeatedStringMatch(a: string, b: string): number {
+  let repeated = a
+  let count = 1
+
+  while (repeated.length < b.length) {
+    repeated += a
+    count += 1
+  }
+
+  if (repeated.includes(b)) {
+    return count
+  }
+
+  repeated += a
+  if (repeated.includes(b)) {
+    return count + 1
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'repeated-string-match-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是补到长度够了就直接结束，漏掉 `b` 横跨两个重复块边界的情况；或者无限循环尝试重复，缺少明确停止条件。',
+        bullets: [
+          '易错点 1：少检查了一次跨边界情况。',
+          '易错点 2：没利用长度关系收缩搜索范围。',
+          '易错点 3：误把子串判定做成子序列判定。',
+          '延伸方向：字符串拼接、子串匹配、边界覆盖。',
+        ],
+      },
+    ],
+  },
 ];
