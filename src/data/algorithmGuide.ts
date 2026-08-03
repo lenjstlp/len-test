@@ -72208,4 +72208,84 @@ function getImportance(employees: Employee[], id: number): number {
       },
     ],
   },
+  {
+    id: 'top-k-frequent-words',
+    label: '692. LeetCode 692. 前 K 个高频单词',
+    difficulty: '中等',
+    description:
+      '这题不是单纯统计频次，关键在于双重排序规则：先按词频降序，再按字典序升序。',
+    outcome:
+      '你能熟练处理“统计 + 自定义排序”这一类题，并准确实现多关键字比较逻辑。',
+    sections: [
+      {
+        id: 'top-k-frequent-words-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个单词数组 `words` 和整数 `k`，要求返回出现频率最高的前 `k` 个单词。若两个单词频率相同，则按字典序较小的排在前面。',
+        bullets: [
+          '先看出现次数，再看字典序。',
+          '返回的是前 `k` 个单词列表。',
+          '相同频率下排序方向容易写反。',
+          '是哈希统计加排序题。',
+        ],
+      },
+      {
+        id: 'top-k-frequent-words-observe',
+        title: '先把频次统计清楚，再把排序规则写成明确比较器',
+        summary:
+          '这题的主体工作分两步：第一步用哈希表统计每个单词出现次数；第二步把单词集合转成数组，并按“频率高的优先，频率相同则字典序小的优先”排序。因为规则并不复杂，直接排序往往比强行上堆更直观。',
+        bullets: [
+          '哈希表负责统计词频。',
+          '排序比较器要严格覆盖两层规则。',
+          '频率不同按降序，频率相同按升序。',
+          '是典型数据整理题。',
+        ],
+      },
+      {
+        id: 'top-k-frequent-words-solution',
+        title: '标准解法：频次表 + 自定义排序',
+        summary:
+          '先遍历 `words`，用 `Map<string, number>` 统计词频。再取出所有不同单词组成数组 `uniqueWords`，调用排序函数：若词频不同，按词频从大到小排；若词频相同，按字符串字典序从小到大排。最后截取前 `k` 个结果返回。',
+        bullets: [
+          '时间复杂度主要来自排序。',
+          '空间复杂度和不同单词数量相关。',
+          '实现重点在比较器条件顺序。',
+          '是字符串统计排序题代表。',
+        ],
+        code: `function topKFrequent(words: string[], k: number): string[] {
+  const frequencyMap = new Map<string, number>()
+
+  for (const word of words) {
+    frequencyMap.set(word, (frequencyMap.get(word) ?? 0) + 1)
+  }
+
+  const uniqueWords = [...frequencyMap.keys()]
+  uniqueWords.sort((first, second) => {
+    const frequencyDiff =
+      (frequencyMap.get(second) ?? 0) - (frequencyMap.get(first) ?? 0)
+
+    if (frequencyDiff !== 0) {
+      return frequencyDiff
+    }
+
+    return first.localeCompare(second)
+  })
+
+  return uniqueWords.slice(0, k)
+}`,
+      },
+      {
+        id: 'top-k-frequent-words-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把相同频率下的字典序方向写反；或者比较器里直接返回布尔值，导致排序结果不稳定。',
+        bullets: [
+          '易错点 1：相同频率时应按字典序升序。',
+          '易错点 2：比较器没有返回负数、零、正数语义。',
+          '易错点 3：只排序词频，没有处理并列情况。',
+          '延伸方向：Top K、排序规则设计、堆与排序取舍。',
+        ],
+      },
+    ],
+  },
 ];
