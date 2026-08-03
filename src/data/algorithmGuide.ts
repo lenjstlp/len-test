@@ -72364,4 +72364,119 @@ function getImportance(employees: Employee[], id: number): number {
       },
     ],
   },
+  {
+    id: 'number-of-distinct-islands',
+    label: '694. LeetCode 694. 不同岛屿的数量',
+    difficulty: '中等',
+    description:
+      '这题不是数岛屿个数，而是判断岛屿形状是否相同。关键在于为每个岛屿构造一个与平移无关的标准表示。',
+    outcome: '你能在网格 DFS 中抽取结构特征，把岛屿形状编码成可去重的签名。',
+    sections: [
+      {
+        id: 'number-of-distinct-islands-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0` 和 `1` 的二维网格，其中 `1` 表示陆地。岛屿由上下左右相连的陆地组成。要求返回不同形状的岛屿数量，两个岛屿若仅通过平移可以重合，则认为形状相同。',
+        bullets: [
+          '目标不是岛屿总数，而是不同形状数量。',
+          '只考虑平移，不考虑旋转和翻转。',
+          '上下左右四方向连通。',
+          '是网格遍历加形状编码题。',
+        ],
+      },
+      {
+        id: 'number-of-distinct-islands-observe',
+        title: '每个岛屿都可以相对起点记录路径或相对坐标',
+        summary:
+          '只要能为岛屿构造一个平移不变的表示，就可以放进集合去重。常见做法有两种：记录从起点开始 DFS 的路径编码，或记录每个陆地点相对于起点的坐标偏移。这里采用相对坐标法：第一次进入某个岛屿时，把起点设为基准点，之后把所有陆地点的 `(row - baseRow, col - baseCol)` 依次记录下来，就得到该岛屿的形状签名。',
+        bullets: [
+          '关键是消除绝对坐标影响。',
+          '相对坐标天然具有平移不变性。',
+          '每个岛屿遍历完后形成一个签名串。',
+          '集合去重即可得到答案。',
+        ],
+      },
+      {
+        id: 'number-of-distinct-islands-solution',
+        title: '标准解法：DFS 收集相对坐标签名',
+        summary:
+          '遍历整个网格，遇到尚未访问的陆地就启动一次 DFS。设当前岛屿起点为 `(baseRow, baseCol)`，递归遍历岛屿中所有陆地，并把每个点的相对坐标 `row - baseRow` 和 `col - baseCol` 记录到数组。DFS 完成后把数组拼成字符串签名，放入 `Set` 中。所有格子遍历结束后，集合大小就是不同岛屿数量。',
+        bullets: [
+          '时间复杂度是 `O(m * n)`。',
+          '空间复杂度主要来自访问标记和递归栈。',
+          '实现重点在统一的签名构造方式。',
+          '是岛屿形状判重题。',
+        ],
+        code: `function numDistinctIslands(grid: number[][]): number {
+  const rows = grid.length
+  const columns = grid[0].length
+  const visited = Array.from({ length: rows }, () =>
+    new Array<boolean>(columns).fill(false),
+  )
+  const shapes = new Set<string>()
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+
+  const dfs = (
+    row: number,
+    column: number,
+    baseRow: number,
+    baseColumn: number,
+    shape: string[],
+  ): void => {
+    visited[row][column] = true
+    shape.push((row - baseRow).toString() + ',' + (column - baseColumn).toString())
+
+    for (const [deltaRow, deltaColumn] of directions) {
+      const nextRow = row + deltaRow
+      const nextColumn = column + deltaColumn
+
+      if (
+        nextRow < 0 ||
+        nextRow >= rows ||
+        nextColumn < 0 ||
+        nextColumn >= columns ||
+        visited[nextRow][nextColumn] ||
+        grid[nextRow][nextColumn] === 0
+      ) {
+        continue
+      }
+
+      dfs(nextRow, nextColumn, baseRow, baseColumn, shape)
+    }
+  }
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      if (grid[row][column] === 0 || visited[row][column]) {
+        continue
+      }
+
+      const shape: string[] = []
+      dfs(row, column, row, column, shape)
+      shapes.add(shape.join('|'))
+    }
+  }
+
+  return shapes.size
+}`,
+      },
+      {
+        id: 'number-of-distinct-islands-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接把绝对坐标作为签名，导致平移后的同形岛屿无法判重；或者遍历顺序不稳定，造成相同形状的签名字符串不一致。',
+        bullets: [
+          '易错点 1：没有转换成相对坐标。',
+          '易错点 2：DFS 顺序不固定导致签名不稳定。',
+          '易错点 3：访问标记缺失导致重复遍历。',
+          '延伸方向：岛屿问题、网格 DFS、形状编码。',
+        ],
+      },
+    ],
+  },
 ];
