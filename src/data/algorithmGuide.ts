@@ -72098,4 +72098,114 @@ function getImportance(employees: Employee[], id: number): number {
       },
     ],
   },
+  {
+    id: 'stickers-to-spell-word',
+    label: '691. LeetCode 691. 贴纸拼词',
+    difficulty: '困难',
+    description:
+      '这题不是简单贪心拿贴纸，而是要围绕“剩余还缺哪些字符”做状态搜索，核心是把目标串压缩成可记忆化的状态。',
+    outcome: '你能把字符串覆盖问题转成记忆化搜索，并通过字符计数削减无效分支。',
+    sections: [
+      {
+        id: 'stickers-to-spell-word-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干贴纸字符串 `stickers` 和目标字符串 `target`。每张贴纸可以拆开使用其中字符，且同一类贴纸可以重复选。要求拼出 `target` 至少需要多少张贴纸，若无法拼出返回 `-1`。',
+        bullets: [
+          '贴纸字符可以打散使用。',
+          '同一张贴纸不能无限复用，但同类贴纸可重复选。',
+          '目标是最少贴纸数量。',
+          '是状态搜索题。',
+        ],
+      },
+      {
+        id: 'stickers-to-spell-word-observe',
+        title: '真正的状态不是已经用了哪些贴纸，而是还剩哪些字符没凑齐',
+        summary:
+          '如果直接记录用了哪些贴纸，状态空间会非常大。更好的状态设计是“当前还缺的目标字符串”。每次选择一张贴纸，就尽可能消去这份剩余需求中的字符，得到一个更小的剩余串。因为同样的剩余串会被反复遇到，所以非常适合做记忆化搜索。',
+        bullets: [
+          '剩余需求比使用历史更适合作状态。',
+          '每次应用贴纸，本质是在减少需求串。',
+          '记忆化能避免大量重复计算。',
+          '字符计数是实现核心。',
+        ],
+      },
+      {
+        id: 'stickers-to-spell-word-solution',
+        title: '标准解法：字符计数预处理 + 记忆化 DFS',
+        summary:
+          '先把每张贴纸转换成 26 个字母的计数数组。定义 `dfs(rest)` 表示拼出剩余字符串 `rest` 所需的最少贴纸数。遍历每张贴纸，若它对 `rest` 的首字符没有帮助就跳过；否则用它消去 `rest` 中能覆盖的字符，构造新的剩余串 `nextRest` 并递归求解。对所有可行选择取最小值，并把结果缓存起来。',
+        bullets: [
+          '时间复杂度依赖状态数和剪枝效果。',
+          '空间复杂度主要来自记忆化表。',
+          '实现重点在如何从剩余串构造下一状态。',
+          '是搜索加记忆化经典题。',
+        ],
+        code: `function minStickers(stickers: string[], target: string): number {
+  const counts = stickers.map((sticker) => {
+    const count = new Array<number>(26).fill(0)
+    for (const char of sticker) {
+      count[char.charCodeAt(0) - 97] += 1
+    }
+    return count
+  })
+
+  const memo = new Map<string, number>()
+  memo.set('', 0)
+
+  const dfs = (rest: string): number => {
+    const cached = memo.get(rest)
+    if (cached !== undefined) {
+      return cached
+    }
+
+    const need = new Array<number>(26).fill(0)
+    for (const char of rest) {
+      need[char.charCodeAt(0) - 97] += 1
+    }
+
+    let answer = Number.POSITIVE_INFINITY
+
+    for (const count of counts) {
+      const firstCharIndex = rest.charCodeAt(0) - 97
+      if (count[firstCharIndex] === 0) {
+        continue
+      }
+
+      let nextRest = ''
+      for (let index = 0; index < 26; index += 1) {
+        const remain = Math.max(0, need[index] - count[index])
+        if (remain > 0) {
+          nextRest += String.fromCharCode(97 + index).repeat(remain)
+        }
+      }
+
+      const nextAnswer = dfs(nextRest)
+      if (nextAnswer !== -1) {
+        answer = Math.min(answer, nextAnswer + 1)
+      }
+    }
+
+    const result = answer === Number.POSITIVE_INFINITY ? -1 : answer
+    memo.set(rest, result)
+    return result
+  }
+
+  return dfs(target.split('').sort().join(''))
+}`,
+      },
+      {
+        id: 'stickers-to-spell-word-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是尝试用局部最优贪心选择“当前覆盖最多字符”的贴纸，但这种策略无法保证全局最优；或者没有做记忆化，导致同一剩余状态被指数级重复搜索。',
+        bullets: [
+          '易错点 1：误用贪心替代最优搜索。',
+          '易错点 2：没有缓存剩余状态结果。',
+          '易错点 3：下一状态字符串构造不规范，导致同态状态无法复用。',
+          '延伸方向：状态压缩、记忆化搜索、字符频次建模。',
+        ],
+      },
+    ],
+  },
 ];
