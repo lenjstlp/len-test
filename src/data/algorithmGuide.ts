@@ -72288,4 +72288,80 @@ function getImportance(employees: Employee[], id: number): number {
       },
     ],
   },
+  {
+    id: 'binary-number-with-alternating-bits',
+    label: '693. LeetCode 693. 交替位二进制数',
+    difficulty: '简单',
+    description:
+      '这题考的是二进制位模式判断。只要抓住“相邻两位必须不同”这个条件，写法可以非常简洁。',
+    outcome:
+      '你能把数位模式判断转成位运算或逐位比较，快速验证一个整数的二进制结构。',
+    sections: [
+      {
+        id: 'binary-number-with-alternating-bits-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个正整数 `n`，判断它的二进制表示中，相邻两位是否始终一正一反交替出现。若是则返回 `true`，否则返回 `false`。',
+        bullets: [
+          '只关心二进制表示。',
+          '相邻位必须不同。',
+          '任意一对相邻位相同都不合法。',
+          '是位运算入门题。',
+        ],
+      },
+      {
+        id: 'binary-number-with-alternating-bits-observe',
+        title: '不断取最低位，与上一位比较即可',
+        summary:
+          '最直接的思路是从最低位开始逐位检查。先记录当前最低位，然后右移一位，再看新的最低位是否与前一位相同。若出现相同，就说明不是交替位；若直到所有位检查完都没冲突，就说明合法。',
+        bullets: [
+          '逐位检查逻辑最直观。',
+          '每次只需关注当前位和上一位。',
+          '右移可以自然推进扫描过程。',
+          '实现非常短小。',
+        ],
+      },
+      {
+        id: 'binary-number-with-alternating-bits-solution',
+        title: '标准解法：逐位右移比较相邻位',
+        summary:
+          '先取出最低位作为 `previousBit`。然后不断将 `n` 右移一位，每轮取新的最低位 `currentBit`。如果 `currentBit === previousBit`，说明相邻两位相同，直接返回 `false`；否则更新 `previousBit` 并继续。循环结束后返回 `true`。',
+        bullets: [
+          '时间复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在位提取和右移。',
+          '是位运算基础检查题。',
+        ],
+        code: `function hasAlternatingBits(n: number): boolean {
+  let value = n
+  let previousBit = value & 1
+  value >>= 1
+
+  while (value > 0) {
+    const currentBit = value & 1
+    if (currentBit === previousBit) {
+      return false
+    }
+
+    previousBit = currentBit
+    value >>= 1
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'binary-number-with-alternating-bits-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是位移顺序写乱，导致比较的是同一位；或者把十进制数字的相邻字符当成了题目要求，偏离了二进制语义。',
+        bullets: [
+          '易错点 1：没有先记录上一位再右移。',
+          '易错点 2：比较的不是二进制位而是字符串字符。',
+          '易错点 3：循环终止条件写错漏掉最高位。',
+          '延伸方向：位运算、位模式识别、数字表示。',
+        ],
+      },
+    ],
+  },
 ];
