@@ -72590,4 +72590,82 @@ function getImportance(employees: Employee[], id: number): number {
       },
     ],
   },
+  {
+    id: 'count-binary-substrings',
+    label: '696. LeetCode 696. 计数二进制子串',
+    difficulty: '简单',
+    description:
+      '这题不是枚举所有子串，而是抓住相邻分组长度之间的关系。每两个相邻的 0/1 分组都能贡献确定数量的合法子串。',
+    outcome: '你能从连续分组角度分析字符串，而不是落回低效的暴力枚举。',
+    sections: [
+      {
+        id: 'count-binary-substrings-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个二进制字符串 `s`，要求统计其中有多少个非空子串满足：`0` 和 `1` 数量相同，并且所有 `0` 与所有 `1` 在子串中分别连续出现。',
+        bullets: [
+          '子串中只能由一段连续的 0 和一段连续的 1 组成。',
+          '两段长度必须相等。',
+          '目标是统计数量，不是列出内容。',
+          '是分组统计题。',
+        ],
+      },
+      {
+        id: 'count-binary-substrings-observe',
+        title: '答案来自相邻分组，贡献值等于两组长度较小者',
+        summary:
+          '把字符串按连续相同字符分组，比如 `0011100` 会分成长度序列 `[2, 3, 2]`。任意一个合法子串，都一定跨越某两个相邻分组，例如一段 0 接一段 1，或一段 1 接一段 0。对于两个相邻分组长度 `a` 和 `b`，它们能贡献的合法子串数量正好是 `min(a, b)`。',
+        bullets: [
+          '不需要枚举具体子串边界。',
+          '只需关心连续分组长度。',
+          '相邻组之间独立贡献答案。',
+          '是非常典型的观察题。',
+        ],
+      },
+      {
+        id: 'count-binary-substrings-solution',
+        title: '标准解法：维护当前分组长度和上一个分组长度',
+        summary:
+          '遍历字符串时，持续统计当前连续分组长度 `currentGroupLength`。一旦字符发生变化，就把当前分组转交给 `previousGroupLength`，并重置当前分组长度为 `1`。在遍历过程中，只要 `previousGroupLength >= currentGroupLength`，就说明以当前位置结尾可以形成一个新的合法子串，于是答案加一。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在分组切换时机。',
+          '是字符串线性扫描题代表。',
+        ],
+        code: `function countBinarySubstrings(s: string): number {
+  let previousGroupLength = 0
+  let currentGroupLength = 1
+  let answer = 0
+
+  for (let index = 1; index < s.length; index += 1) {
+    if (s[index] === s[index - 1]) {
+      currentGroupLength += 1
+    } else {
+      previousGroupLength = currentGroupLength
+      currentGroupLength = 1
+    }
+
+    if (previousGroupLength >= currentGroupLength) {
+      answer += 1
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'count-binary-substrings-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是一上来枚举所有子串再检查，复杂度过高；或者虽然想到了分组，但没有理解为什么答案是相邻两组长度的较小值。',
+        bullets: [
+          '易错点 1：暴力枚举全部子串导致 `O(n^2)` 甚至更高。',
+          '易错点 2：分组切换时忘记保存上一组长度。',
+          '易错点 3：没有在遍历过程中实时累计答案。',
+          '延伸方向：分组统计、双指针观察、字符串结构分析。',
+        ],
+      },
+    ],
+  },
 ];
