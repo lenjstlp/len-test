@@ -71902,4 +71902,112 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'maximum-sum-of-3-non-overlapping-subarrays',
+    label: '689. LeetCode 689. 三个无重叠子数组的最大和',
+    difficulty: '困难',
+    description:
+      '这题难点不在滑动窗口本身，而在如何把三个固定长度窗口拆成“左边最优 + 中间当前 + 右边最优”的组合问题。',
+    outcome:
+      '你能把多段不重叠区间最优问题转成前后缀最优下标预处理，再在线枚举中间段完成组合。',
+    sections: [
+      {
+        id: 'maximum-sum-of-3-non-overlapping-subarrays-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums` 和长度 `k`，要求找出 3 个长度都为 `k` 且彼此不重叠的子数组，使它们的元素和最大，并返回这 3 个子数组的起始下标。若有多组答案，返回字典序最小的一组。',
+        bullets: [
+          '三个子数组长度固定，都是 `k`。',
+          '三个区间不能重叠。',
+          '目标是总和最大，同时兼顾字典序最小。',
+          '是区间最优组合题。',
+        ],
+      },
+      {
+        id: 'maximum-sum-of-3-non-overlapping-subarrays-observe',
+        title: '先固定中间段，再分别在左右两边找最优窗口',
+        summary:
+          '若中间窗口起点确定为 `mid`，那么左边只能在 `[0, mid - k]` 范围里选一个长度为 `k` 的最优窗口，右边只能在 `[mid + k, end]` 范围里选一个最优窗口。于是问题变成：预处理每个位置左侧最优窗口起点和右侧最优窗口起点，再枚举中间窗口即可完成三段组合。',
+        bullets: [
+          '固定中间段后，左右选择彼此独立。',
+          '需要先得到所有长度为 `k` 窗口的和。',
+          '左侧最优和右侧最优都可以用前后缀下标数组维护。',
+          '字典序要求会影响相等时的取舍规则。',
+        ],
+      },
+      {
+        id: 'maximum-sum-of-3-non-overlapping-subarrays-solution',
+        title: '标准解法：窗口和 + 左右最优下标预处理',
+        summary:
+          '先用滑动窗口求出每个长度为 `k` 的窗口和数组 `windowSums`。然后构造 `leftBest[i]` 表示 `[0, i]` 范围内最大窗口和对应的最优起点，构造 `rightBest[i]` 表示 `[i, end]` 范围内最大窗口和对应的最优起点。最后枚举中间窗口起点 `mid`，组合 `leftBest[mid - k]`、`mid`、`rightBest[mid + k]`，更新最大总和即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在相等时的字典序处理。',
+          '是固定区间长度组合题代表。',
+        ],
+        code: `function maxSumOfThreeSubarrays(nums: number[], k: number): number[] {
+  const windowCount = nums.length - k + 1
+  const windowSums = new Array<number>(windowCount).fill(0)
+
+  let sum = 0
+  for (let index = 0; index < nums.length; index += 1) {
+    sum += nums[index]
+    if (index >= k) {
+      sum -= nums[index - k]
+    }
+    if (index >= k - 1) {
+      windowSums[index - k + 1] = sum
+    }
+  }
+
+  const leftBest = new Array<number>(windowCount).fill(0)
+  let bestLeft = 0
+  for (let index = 0; index < windowCount; index += 1) {
+    if (windowSums[index] > windowSums[bestLeft]) {
+      bestLeft = index
+    }
+    leftBest[index] = bestLeft
+  }
+
+  const rightBest = new Array<number>(windowCount).fill(0)
+  let bestRight = windowCount - 1
+  for (let index = windowCount - 1; index >= 0; index -= 1) {
+    if (windowSums[index] >= windowSums[bestRight]) {
+      bestRight = index
+    }
+    rightBest[index] = bestRight
+  }
+
+  let answer = [0, k, k * 2]
+  let maxTotal = -1
+
+  for (let mid = k; mid < windowCount - k; mid += 1) {
+    const left = leftBest[mid - k]
+    const right = rightBest[mid + k]
+    const total = windowSums[left] + windowSums[mid] + windowSums[right]
+
+    if (total > maxTotal) {
+      maxTotal = total
+      answer = [left, mid, right]
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'maximum-sum-of-3-non-overlapping-subarrays-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把三个窗口直接三重循环枚举导致超时；或者虽然做了预处理，但相等时左右两边的比较规则写反，破坏了字典序最小要求。',
+        bullets: [
+          '易错点 1：没有先预处理长度为 `k` 的窗口和。',
+          '易错点 2：`rightBest` 相等时没保留更小下标。',
+          '易错点 3：中间段可选范围写错导致越界或重叠。',
+          '延伸方向：滑动窗口、前后缀最优、区间组合 DP 思维。',
+        ],
+      },
+    ],
+  },
 ];
