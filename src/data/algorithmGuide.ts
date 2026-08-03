@@ -72479,4 +72479,115 @@ function getImportance(employees: Employee[], id: number): number {
       },
     ],
   },
+  {
+    id: 'max-area-of-island',
+    label: '695. LeetCode 695. 岛屿的最大面积',
+    difficulty: '中等',
+    description:
+      '这题是经典岛屿 DFS 模板题，核心就是每次搜完整个连通块，并统计该连通块包含多少个陆地点。',
+    outcome:
+      '你能熟练用 DFS 或 BFS 遍历网格连通块，并在遍历过程中同步累积面积信息。',
+    sections: [
+      {
+        id: 'max-area-of-island-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0` 和 `1` 的二维网格，其中 `1` 表示陆地。岛屿由上下左右相连的陆地构成。要求返回所有岛屿中的最大面积，如果没有岛屿则返回 `0`。',
+        bullets: [
+          '面积指岛屿中陆地格子的数量。',
+          '岛屿通过四方向连通。',
+          '需要找所有连通块中的最大值。',
+          '是网格连通块统计题。',
+        ],
+      },
+      {
+        id: 'max-area-of-island-observe',
+        title: '每遇到一块新陆地，就把整座岛一次性搜完并计数',
+        summary:
+          '遍历网格时，一旦遇到尚未访问的陆地，就说明找到一座新岛。此时用 DFS 或 BFS 从这个点出发，把整座岛上的所有相连陆地都访问掉，并统计本次遍历覆盖了多少格。这个计数就是当前岛屿面积，再和全局最大值比较即可。',
+        bullets: [
+          '每个格子最多访问一次。',
+          '一次 DFS 对应一整座岛。',
+          '面积就是当前连通块大小。',
+          '流程和“岛屿数量”题非常接近。',
+        ],
+      },
+      {
+        id: 'max-area-of-island-solution',
+        title: '标准解法：DFS 递归累计当前岛屿面积',
+        summary:
+          '遍历每个格子，若当前位置是陆地且未访问，则启动 DFS。递归函数访问当前格子后，向四个方向扩展，把所有连通陆地的面积加总后返回。每次 DFS 返回值就是当前岛屿面积，用它更新全局最大面积即可。',
+        bullets: [
+          '时间复杂度是 `O(m * n)`。',
+          '空间复杂度主要来自访问标记和递归栈。',
+          '实现重点在边界判断和去重访问。',
+          '是岛屿 DFS 基础题代表。',
+        ],
+        code: `function maxAreaOfIsland(grid: number[][]): number {
+  const rows = grid.length
+  const columns = grid[0].length
+  const visited = Array.from({ length: rows }, () =>
+    new Array<boolean>(columns).fill(false),
+  )
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+
+  const dfs = (row: number, column: number): number => {
+    visited[row][column] = true
+    let area = 1
+
+    for (const [deltaRow, deltaColumn] of directions) {
+      const nextRow = row + deltaRow
+      const nextColumn = column + deltaColumn
+
+      if (
+        nextRow < 0 ||
+        nextRow >= rows ||
+        nextColumn < 0 ||
+        nextColumn >= columns ||
+        visited[nextRow][nextColumn] ||
+        grid[nextRow][nextColumn] === 0
+      ) {
+        continue
+      }
+
+      area += dfs(nextRow, nextColumn)
+    }
+
+    return area
+  }
+
+  let maxArea = 0
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      if (grid[row][column] === 0 || visited[row][column]) {
+        continue
+      }
+
+      maxArea = Math.max(maxArea, dfs(row, column))
+    }
+  }
+
+  return maxArea
+}`,
+      },
+      {
+        id: 'max-area-of-island-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只在发现新岛时加一，没有真正统计整座岛的面积；或者访问标记放得太晚，导致重复递归甚至死循环。',
+        bullets: [
+          '易错点 1：把“数岛”模板误套到“算面积”题上。',
+          '易错点 2：访问标记没有在进入节点时立刻设置。',
+          '易错点 3：边界判断不完整导致越界访问。',
+          '延伸方向：网格 DFS、连通块统计、洪水填充。',
+        ],
+      },
+    ],
+  },
 ];
