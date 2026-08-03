@@ -72010,4 +72010,92 @@ function smallestRange(nums: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'employee-importance',
+    label: '690. LeetCode 690. 员工的重要性',
+    difficulty: '中等',
+    description:
+      '这题本质不是组织架构模拟，而是从一个员工出发，在树状或图状从属关系中累加整棵下属子树的权重。',
+    outcome:
+      '你能先建立 id 到员工对象的映射，再用 DFS 或 BFS 遍历整条下属链完成聚合。',
+    sections: [
+      {
+        id: 'employee-importance-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干员工信息，每个员工包含 `id`、`importance` 和直接下属 `subordinates`。再给一个员工 `id`，要求返回该员工及其所有直接、间接下属的重要性总和。',
+        bullets: [
+          '需要把整条下属链都算进去。',
+          '每个员工通过 `id` 唯一标识。',
+          '输入天然形成层级关系。',
+          '是图遍历加聚合题。',
+        ],
+      },
+      {
+        id: 'employee-importance-observe',
+        title: '先把员工数组变成索引表，再从目标员工向下遍历',
+        summary:
+          '如果每次找下属员工都在线性扫描数组，整体效率会很差。更合理的做法是先用哈希表建立 `id -> employee` 映射，这样拿到任意下属 id 时，都能 `O(1)` 找到对应对象。之后从给定员工出发，用 DFS 或 BFS 把整棵下属树走完并累加权重即可。',
+        bullets: [
+          '数组先转映射表是关键预处理。',
+          '遍历方式可选 DFS 或 BFS。',
+          '本质是在层级图中做可达节点求和。',
+          '每个员工只需要访问一次。',
+        ],
+      },
+      {
+        id: 'employee-importance-solution',
+        title: '标准解法：哈希表建图 + 深度优先遍历',
+        summary:
+          '先遍历员工数组，构造 `Map<number, Employee>`。定义递归函数 `dfs(id)`，表示返回该员工及全部下属的重要性总和。函数先取出当前员工的 `importance`，再递归遍历其所有下属并累加结果。最终返回 `dfs(targetId)` 即可。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度主要来自映射表和递归栈。',
+          '实现重点在快速定位员工对象。',
+          '是基础图遍历题。',
+        ],
+        code: `type Employee = {
+  id: number
+  importance: number
+  subordinates: number[]
+}
+
+function getImportance(employees: Employee[], id: number): number {
+  const employeeMap = new Map<number, Employee>()
+
+  for (const employee of employees) {
+    employeeMap.set(employee.id, employee)
+  }
+
+  const dfs = (employeeId: number): number => {
+    const employee = employeeMap.get(employeeId)
+    if (employee === undefined) {
+      return 0
+    }
+
+    let total = employee.importance
+    for (const subordinateId of employee.subordinates) {
+      total += dfs(subordinateId)
+    }
+
+    return total
+  }
+
+  return dfs(id)
+}`,
+      },
+      {
+        id: 'employee-importance-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是每处理一个下属 id 都去原数组里线性查找员工，导致代码啰嗦且效率差；或者只累加了直接下属，漏掉了更深层的间接下属。',
+        bullets: [
+          '易错点 1：没有先建立 `id -> employee` 映射。',
+          '易错点 2：只算直接下属，没有继续递归。',
+          '易错点 3：递归函数返回值语义不清晰。',
+          '延伸方向：树遍历、图遍历、组织结构聚合。',
+        ],
+      },
+    ],
+  },
 ];
