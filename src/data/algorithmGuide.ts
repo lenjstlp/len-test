@@ -73365,4 +73365,83 @@ function searchUnknownSize(reader: ArrayReader, target: number): number {
       },
     ],
   },
+  {
+    id: 'binary-search',
+    label: '704. LeetCode 704. 二分查找',
+    difficulty: '简单',
+    description:
+      '二分查找的核心不是记住模板，而是始终维护一个明确的候选区间，并保证每次循环都能排除至少一半元素。',
+    outcome:
+      '你能正确处理闭区间二分的边界、循环条件和中点更新，避免常见的死循环与漏解。',
+    sections: [
+      {
+        id: 'binary-search-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个升序排列的整数数组 `nums` 和目标值 `target`，要求返回目标值的下标。如果数组中不存在目标值，则返回 `-1`。',
+        bullets: [
+          '数组已经按升序排列。',
+          '目标是返回任意一个匹配下标。',
+          '找不到时返回 `-1`。',
+          '是二分查找基础题。',
+        ],
+      },
+      {
+        id: 'binary-search-observe',
+        title: '有序性允许我们每次排除一半候选区间',
+        summary:
+          '维护一个闭区间 `[left, right]`，中点为 `middle`。如果 `nums[middle]` 等于目标，直接返回；如果中点值小于目标，左半部分都不可能满足条件，因此令 `left = middle + 1`；如果中点值大于目标，则令 `right = middle - 1`。循环结束意味着候选区间为空。',
+        bullets: [
+          '闭区间初始化为 `0` 到 `nums.length - 1`。',
+          '找到目标时立即返回。',
+          '排除中点后边界必须加一或减一。',
+          '循环条件和区间定义必须保持一致。',
+        ],
+      },
+      {
+        id: 'binary-search-solution',
+        title: '标准解法：闭区间二分查找',
+        summary:
+          '使用 `while (left <= right)` 处理闭区间。每次计算中点并比较值，命中则返回中点下标；否则根据大小关系移动一侧边界。循环结束时 `left > right`，说明所有候选位置都已排除，返回 `-1`。',
+        bullets: [
+          '时间复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在边界更新和终止条件。',
+          '是大量查找问题的基础模板。',
+        ],
+        code: `function search(nums: number[], target: number): number {
+  let left = 0
+  let right = nums.length - 1
+
+  while (left <= right) {
+    const middle = left + Math.floor((right - left) / 2)
+
+    if (nums[middle] === target) {
+      return middle
+    }
+
+    if (nums[middle] < target) {
+      left = middle + 1
+    } else {
+      right = middle - 1
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'binary-search-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是使用闭区间却写成 `left < right`，或移动边界时没有排除中点，导致漏掉答案或死循环。',
+        bullets: [
+          '易错点 1：区间定义和循环条件不匹配。',
+          '易错点 2：边界更新没有使用 `middle + 1` 或 `middle - 1`。',
+          '易错点 3：中点计算直接相加可能造成整数溢出。',
+          '延伸方向：左边界二分、右边界二分、旋转数组和答案二分。',
+        ],
+      },
+    ],
+  },
 ];
