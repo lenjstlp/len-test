@@ -72865,4 +72865,93 @@ function getImportance(employees: Employee[], id: number): number {
       },
     ],
   },
+  {
+    id: 'falling-squares',
+    label: '699. LeetCode 699. 掉落的方块',
+    difficulty: '困难',
+    description:
+      '每个方块落下后会叠在与它水平重叠的最高方块上。题目的重点是把“二维落块”抽象成一维区间高度更新。',
+    outcome:
+      '你能用区间重叠关系模拟叠放过程，并理解什么时候简单模拟已经足够，什么时候才需要线段树。',
+    sections: [
+      {
+        id: 'falling-squares-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一组方块，每个方块由 `[left, sideLength]` 表示，代表它从水平位置 `left` 开始、边长为 `sideLength` 的正方形。方块依次掉落，若与之前的方块水平重叠，就会落在这些方块的最高顶部上。要求返回每次掉落后的全局最高高度。',
+        bullets: [
+          '方块按给定顺序依次落下。',
+          '只要水平区间有重叠，就会产生支撑关系。',
+          '新方块的高度是支撑高度加自身边长。',
+          '是区间模拟和高度维护题。',
+        ],
+      },
+      {
+        id: 'falling-squares-observe',
+        title: '每个方块只需要寻找之前重叠区间的最高高度',
+        summary:
+          '把一个正方形看成水平区间 `[left, left + sideLength)` 和一个顶部高度。新方块的底部高度等于所有与它水平重叠的旧方块顶部高度最大值；如果没有重叠，底部高度就是 `0`。因此每次只需要扫描之前已经落下的方块，计算重叠区间的最大顶部高度。',
+        bullets: [
+          '水平区间使用半开区间更容易判断重叠。',
+          '重叠条件是 `left < otherRight && otherLeft < right`。',
+          '新高度由最高支撑面决定。',
+          '题目数据规模较小时，`O(n^2)` 模拟足够清晰。',
+        ],
+      },
+      {
+        id: 'falling-squares-solution',
+        title: '标准解法：维护已落下区间和顶部高度',
+        summary:
+          '用数组保存已经落下的每个方块的左边界、右边界和顶部高度。处理新方块时，先遍历旧方块，找到所有水平重叠区间并取它们顶部高度的最大值，再计算当前方块顶部高度 `baseHeight + sideLength`。把新方块加入数组，并更新全局最高高度。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在区间半开表示和重叠判断。',
+          '若数据规模更大，可升级为坐标压缩加线段树。',
+        ],
+        code: `type FallingSquare = {
+  left: number
+  right: number
+  height: number
+}
+
+function fallingSquares(positions: number[][]): number[] {
+  const squares: FallingSquare[] = []
+  const answer: number[] = []
+  let globalHeight = 0
+
+  for (const [left, sideLength] of positions) {
+    const right = left + sideLength
+    let baseHeight = 0
+
+    for (const square of squares) {
+      const overlaps = left < square.right && square.left < right
+      if (overlaps) {
+        baseHeight = Math.max(baseHeight, square.height)
+      }
+    }
+
+    const height = baseHeight + sideLength
+    squares.push({ left, right, height })
+    globalHeight = Math.max(globalHeight, height)
+    answer.push(globalHeight)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'falling-squares-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“重叠方块的高度”错误地累加，实际上新方块只落在最高支撑面上；或者把边界相接误判成重叠。',
+        bullets: [
+          '易错点 1：把所有重叠高度相加而不是取最大值。',
+          '易错点 2：边界刚好相接时错误判断为重叠。',
+          '易错点 3：更新了当前高度却忘记更新全局最高高度。',
+          '延伸方向：区间重叠、扫描模拟、坐标压缩、线段树。',
+        ],
+      },
+    ],
+  },
 ];
