@@ -72954,4 +72954,86 @@ function fallingSquares(positions: number[][]): number[] {
       },
     ],
   },
+  {
+    id: 'search-in-a-binary-search-tree',
+    label: '700. LeetCode 700. 二叉搜索树中的搜索',
+    difficulty: '简单',
+    description:
+      '二叉搜索树的价值就在于节点值的有序性。每比较一次，就能排除整棵左子树或右子树。',
+    outcome:
+      '你能利用 BST 的大小关系做定向查找，而不是把它当成普通二叉树遍历。',
+    sections: [
+      {
+        id: 'search-in-a-binary-search-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉搜索树和一个整数 `val`，要求找到值等于 `val` 的节点，并返回以该节点为根的子树；如果不存在则返回 `null`。',
+        bullets: [
+          '左子树所有节点值小于根节点。',
+          '右子树所有节点值大于根节点。',
+          '找到目标后要返回整个子树根节点。',
+          '是 BST 基础查找题。',
+        ],
+      },
+      {
+        id: 'search-in-a-binary-search-tree-observe',
+        title: '每次比较都能决定下一步只走一侧',
+        summary:
+          '如果当前节点值等于目标值，直接返回当前节点；如果目标值更小，目标只可能在左子树；如果目标值更大，目标只可能在右子树。这个判断过程会把普通二叉树的两路搜索缩减成单路搜索。',
+        bullets: [
+          '当前值等于目标值时立即结束。',
+          '目标更小时向左走。',
+          '目标更大时向右走。',
+          '不需要同时遍历左右子树。',
+        ],
+      },
+      {
+        id: 'search-in-a-binary-search-tree-solution',
+        title: '标准解法：沿 BST 的有序方向迭代查找',
+        summary:
+          '从根节点开始循环。只要当前节点不为空，就比较当前值与目标值：相等则返回当前节点，小于目标则移动到右孩子，大于目标则移动到左孩子。循环结束仍未找到时返回 `null`。',
+        bullets: [
+          '时间复杂度是 `O(h)`，`h` 是树高。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在返回节点而不是只返回布尔值。',
+          '是 BST 查找的基础模板。',
+        ],
+        code: `type TreeNode = {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+}
+
+function searchBST(root: TreeNode | null, value: number): TreeNode | null {
+  let current = root
+
+  while (current !== null) {
+    if (current.val === value) {
+      return current
+    }
+
+    if (value < current.val) {
+      current = current.left
+    } else {
+      current = current.right
+    }
+  }
+
+  return null
+}`,
+      },
+      {
+        id: 'search-in-a-binary-search-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忘记 BST 的方向规则，退化成完整 DFS；或者找到目标值后只返回 `true`，没有返回题目要求的节点子树。',
+        bullets: [
+          '易错点 1：把 BST 当普通二叉树遍历。',
+          '易错点 2：左右方向判断写反。',
+          '易错点 3：返回值类型和题目要求不一致。',
+          '延伸方向：BST 查找、插入、删除和有序遍历。',
+        ],
+      },
+    ],
+  },
 ];
