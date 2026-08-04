@@ -73036,4 +73036,109 @@ function searchBST(root: TreeNode | null, value: number): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'insert-into-a-binary-search-tree',
+    label: '701. LeetCode 701. 二叉搜索树中的插入操作',
+    difficulty: '中等',
+    description:
+      'BST 插入的核心不是重新排序，而是沿着大小关系找到唯一的空位置，把新节点接到正确方向上。',
+    outcome:
+      '你能在不破坏 BST 性质的前提下完成节点插入，并理解递归和迭代两种写法的状态含义。',
+    sections: [
+      {
+        id: 'insert-into-a-binary-search-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉搜索树和一个整数 `val`，要求把值为 `val` 的新节点插入树中，并返回插入后的根节点。题目保证新值不会和树中已有值重复。',
+        bullets: [
+          '新节点必须保持 BST 有序性质。',
+          '小于当前节点就向左走。',
+          '大于当前节点就向右走。',
+          '最终要返回原树根节点。',
+        ],
+      },
+      {
+        id: 'insert-into-a-binary-search-tree-observe',
+        title: '沿搜索路径走到第一个空孩子位置',
+        summary:
+          '插入过程和搜索过程几乎相同，只是搜索失败的终点不再返回 `null`，而是在这个空位置创建新节点。如果新值小于当前节点，就继续检查左孩子；如果新值大于当前节点，就检查右孩子。第一个为空的孩子就是唯一合法插入位置。',
+        bullets: [
+          '搜索路径由节点值大小关系唯一决定。',
+          '空孩子位置就是插入点。',
+          '不需要重建整棵树。',
+          '插入后中序遍历仍然有序。',
+        ],
+      },
+      {
+        id: 'insert-into-a-binary-search-tree-solution',
+        title: '标准解法：迭代找到插入位置并连接新节点',
+        summary:
+          '如果根节点为空，直接创建并返回新节点。否则从根开始迭代：新值小于当前值时检查左孩子，新值大于当前值时检查右孩子。如果对应孩子为空，就在该位置挂载新节点并结束；否则继续向下移动。整个过程始终保留原根节点。',
+        bullets: [
+          '时间复杂度是 `O(h)`，`h` 是树高。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在空树和空孩子两个边界。',
+          '是 BST 修改操作基础模板。',
+        ],
+        code: `type InsertTreeNode = {
+  val: number
+  left: InsertTreeNode | null
+  right: InsertTreeNode | null
+}
+
+function insertIntoBST(
+  root: InsertTreeNode | null,
+  value: number,
+): InsertTreeNode {
+  if (root === null) {
+    return {
+      val: value,
+      left: null,
+      right: null,
+    }
+  }
+
+  let current = root
+
+  while (true) {
+    if (value < current.val) {
+      if (current.left === null) {
+        current.left = {
+          val: value,
+          left: null,
+          right: null,
+        }
+        break
+      }
+      current = current.left
+    } else {
+      if (current.right === null) {
+        current.right = {
+          val: value,
+          left: null,
+          right: null,
+        }
+        break
+      }
+      current = current.right
+    }
+  }
+
+  return root
+}`,
+      },
+      {
+        id: 'insert-into-a-binary-search-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是找到空位置后返回了新节点，导致丢失原树根；或者插入方向写反，破坏了二叉搜索树的有序结构。',
+        bullets: [
+          '易错点 1：空树没有单独处理。',
+          '易错点 2：插入完成后错误返回当前节点。',
+          '易错点 3：左右方向判断和搜索逻辑不一致。',
+          '延伸方向：BST 插入、删除、平衡树和旋转。',
+        ],
+      },
+    ],
+  },
 ];
