@@ -73230,4 +73230,139 @@ function searchUnknownSize(reader: ArrayReader, target: number): number {
       },
     ],
   },
+  {
+    id: 'kth-largest-element-in-a-stream',
+    label: '703. LeetCode 703. 数据流中的第 K 大元素',
+    difficulty: '简单',
+    description:
+      '数据会不断追加，不能每次都重新排序。只保留最大的 K 个元素，并让其中最小的那个作为堆顶，就能实时得到第 K 大元素。',
+    outcome: '你能理解固定容量最小堆在 Top K 和数据流问题中的通用价值。',
+    sections: [
+      {
+        id: 'kth-largest-element-in-a-stream-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个数据结构，初始化时给定整数 `k` 和一组初始数字。之后每次加入一个新数字，都要返回当前所有数字中的第 `k` 大元素。',
+        bullets: [
+          '数据会持续追加。',
+          '每次追加后都要立即返回结果。',
+          '不要求维护全部元素的完整排序。',
+          '是数据流和 Top K 题。',
+        ],
+      },
+      {
+        id: 'kth-largest-element-in-a-stream-observe',
+        title: '只维护最大的 K 个元素，第 K 大就是这组元素中的最小值',
+        summary:
+          '如果完整保存并排序所有数据，每次新增元素都会产生额外开销。实际上，对于第 K 大元素来说，排在第 K 名之后的元素没有价值，可以直接丢弃。维护一个大小最多为 `k` 的最小堆：堆中保存当前最大的 K 个元素，堆顶就是这 K 个元素里最小的一个，也就是全局第 K 大。',
+        bullets: [
+          '堆的容量始终最多为 `k`。',
+          '新元素进入后，若堆超容量就删除最小值。',
+          '堆顶对应当前第 K 大元素。',
+          '这是最小堆处理 Top K 的标准模型。',
+        ],
+      },
+      {
+        id: 'kth-largest-element-in-a-stream-solution',
+        title: '标准解法：固定容量的最小堆',
+        summary:
+          '实现一个最小堆，初始化时依次加入已有数字。每次调用 `add` 时把新数字压入堆，如果堆大小超过 `k`，就弹出堆顶最小值。最终堆顶始终是当前数据流中的第 `k` 大元素。',
+        bullets: [
+          '初始化复杂度可写成 `O(n log k)`。',
+          '每次添加的时间复杂度是 `O(log k)`。',
+          '空间复杂度是 `O(k)`。',
+          '实现重点在上浮、下沉和容量控制。',
+        ],
+        code: `class KthLargest {
+  private readonly k: number
+  private readonly heap: number[] = []
+
+  constructor(k: number, nums: number[]) {
+    this.k = k
+    for (const value of nums) {
+      this.add(value)
+    }
+  }
+
+  add(value: number): number {
+    this.heap.push(value)
+    this.siftUp(this.heap.length - 1)
+
+    if (this.heap.length > this.k) {
+      this.removeMin()
+    }
+
+    return this.heap[0]
+  }
+
+  private siftUp(index: number): void {
+    let current = index
+
+    while (current > 0) {
+      const parent = Math.floor((current - 1) / 2)
+      if (this.heap[parent] <= this.heap[current]) {
+        break
+      }
+
+      ;[this.heap[parent], this.heap[current]] = [
+        this.heap[current],
+        this.heap[parent],
+      ]
+      current = parent
+    }
+  }
+
+  private removeMin(): void {
+    const last = this.heap.pop() as number
+    if (this.heap.length === 0) {
+      return
+    }
+
+    this.heap[0] = last
+    let current = 0
+
+    while (true) {
+      const left = current * 2 + 1
+      const right = current * 2 + 2
+      let smallest = current
+
+      if (
+        left < this.heap.length &&
+        this.heap[left] < this.heap[smallest]
+      ) {
+        smallest = left
+      }
+      if (
+        right < this.heap.length &&
+        this.heap[right] < this.heap[smallest]
+      ) {
+        smallest = right
+      }
+      if (smallest === current) {
+        break
+      }
+
+      ;[this.heap[current], this.heap[smallest]] = [
+        this.heap[smallest],
+        this.heap[current],
+      ]
+      current = smallest
+    }
+  }
+}`,
+      },
+      {
+        id: 'kth-largest-element-in-a-stream-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是使用最大堆保留全部大值，结果还需要额外找第 K 个；或者堆容量超过 `k` 后没有删除最小值，导致堆顶失去第 K 大的语义。',
+        bullets: [
+          '易错点 1：方向选反，应该使用最小堆。',
+          '易错点 2：堆大小没有固定为 `k`。',
+          '易错点 3：只实现插入，没有正确维护堆顶。',
+          '延伸方向：Top K、优先队列、实时统计和限流窗口。',
+        ],
+      },
+    ],
+  },
 ];
