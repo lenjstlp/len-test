@@ -72760,4 +72760,109 @@ function getImportance(employees: Employee[], id: number): number {
       },
     ],
   },
+  {
+    id: 'partition-to-k-equal-sum-subsets',
+    label: '698. LeetCode 698. 划分为 k 个相等的子集',
+    difficulty: '中等',
+    description:
+      '这题本质是把数组元素装进 `k` 个容量相同的桶。普通暴力会产生大量重复分支，排序、跳过相同桶和提前剪枝是能否通过的关键。',
+    outcome:
+      '你能把集合划分问题建模成回溯搜索，并通过目标和、桶状态和对称性剪枝降低搜索量。',
+    sections: [
+      {
+        id: 'partition-to-k-equal-sum-subsets-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组 `nums` 和整数 `k`，要求判断是否可以把数组中的所有元素恰好划分成 `k` 个非空子集，使每个子集的元素和都相等。',
+        bullets: [
+          '每个数字必须使用且只能使用一次。',
+          '最终需要得到 `k` 个非空子集。',
+          '每个子集的和必须相同。',
+          '是集合划分和回溯搜索题。',
+        ],
+      },
+      {
+        id: 'partition-to-k-equal-sum-subsets-observe',
+        title: '先算出每个桶的目标和，再逐个把数字放入桶',
+        summary:
+          '如果数组总和不能被 `k` 整除，答案一定是 `false`。目标桶和为 `total / k`。接下来把数字从大到小处理，尝试放入当前还没超过目标的桶。由于桶本身没有顺序，多个空桶之间是对称的：如果一个数字放入某个空桶失败，那么放入其它空桶也会得到等价状态，可以直接跳过。',
+        bullets: [
+          '总和整除性是第一层剪枝。',
+          '大数字优先更容易尽早发现失败。',
+          '桶之间无序，空桶尝试一次即可。',
+          '当前桶和超过目标时立刻回退。',
+        ],
+      },
+      {
+        id: 'partition-to-k-equal-sum-subsets-solution',
+        title: '标准解法：排序 + 桶回溯 + 对称性剪枝',
+        summary:
+          '先计算目标和并将数字按降序排列。用 `bucketSums` 保存每个桶当前的和，递归处理数组下标 `index`。尝试把当前数字放进每一个不超目标的桶，递归处理下一个数字；如果成功则返回 `true`，否则撤销选择。若当前桶和与之前某个桶相同，跳过本次尝试，因为两个状态完全等价。',
+        bullets: [
+          '时间复杂度最坏是指数级。',
+          '空间复杂度是 `O(k + n)`。',
+          '实现重点在回退和对称状态剪枝。',
+          '是回溯题中的桶模型代表。',
+        ],
+        code: `function canPartitionKSubsets(nums: number[], k: number): boolean {
+  const total = nums.reduce((sum, value) => sum + value, 0)
+  if (total % k !== 0) {
+    return false
+  }
+
+  const target = total / k
+  const values = [...nums].sort((first, second) => second - first)
+  if (values[0] > target) {
+    return false
+  }
+
+  const bucketSums = new Array<number>(k).fill(0)
+
+  const backtrack = (index: number): boolean => {
+    if (index === values.length) {
+      return true
+    }
+
+    const value = values[index]
+    const visitedSums = new Set<number>()
+
+    for (let bucket = 0; bucket < k; bucket += 1) {
+      const currentSum = bucketSums[bucket]
+      if (visitedSums.has(currentSum) || currentSum + value > target) {
+        continue
+      }
+
+      visitedSums.add(currentSum)
+      bucketSums[bucket] += value
+
+      if (backtrack(index + 1)) {
+        return true
+      }
+
+      bucketSums[bucket] -= value
+      if (currentSum === 0) {
+        break
+      }
+    }
+
+    return false
+  }
+
+  return backtrack(0)
+}`,
+      },
+      {
+        id: 'partition-to-k-equal-sum-subsets-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有先检查总和整除，或者把每个桶当成有序对象导致重复搜索；另外，排序方向错误也会让剪枝效果明显变差。',
+        bullets: [
+          '易错点 1：总和不能整除时仍继续回溯。',
+          '易错点 2：空桶之间重复尝试相同状态。',
+          '易错点 3：没有在选择失败后恢复桶状态。',
+          '延伸方向：回溯剪枝、集合划分、状态对称性。',
+        ],
+      },
+    ],
+  },
 ];
