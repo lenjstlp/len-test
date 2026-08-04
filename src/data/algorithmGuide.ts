@@ -73141,4 +73141,93 @@ function insertIntoBST(
       },
     ],
   },
+  {
+    id: 'search-in-a-sorted-array-of-unknown-size',
+    label: '702. LeetCode 702. 搜索长度未知的有序数组',
+    difficulty: '中等',
+    description:
+      '数组本身有序，但不能直接读取长度。解决方式是先指数扩张找到一个足够大的搜索边界，再在边界内执行普通二分查找。',
+    outcome:
+      '你能把“无法获得长度”的限制转化为动态边界搜索，并掌握指数搜索的通用套路。',
+    sections: [
+      {
+        id: 'search-in-a-sorted-array-of-unknown-size-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个升序数组，但只能通过 `reader.get(index)` 读取指定下标的值，不能直接知道数组长度。越界读取会返回一个很大的哨兵值。要求找到目标值 `target` 的下标，找不到返回 `-1`。',
+        bullets: [
+          '数组升序排列。',
+          '不能读取数组长度。',
+          '越界位置通过哨兵值表示。',
+          '是边界搜索和二分查找组合题。',
+        ],
+      },
+      {
+        id: 'search-in-a-sorted-array-of-unknown-size-observe',
+        title: '先用指数增长找到右边界，再在范围内二分',
+        summary:
+          '普通二分查找需要一个明确的左右边界，但这里不知道数组长度。可以从 `right = 1` 开始，每次将右边界扩大一倍，直到 `reader.get(right)` 已经不小于目标值。此时目标如果存在，一定落在 `[right / 2, right]` 范围内，接下来就可以使用标准二分查找。',
+        bullets: [
+          '指数扩张可以在对数次数内找到有效边界。',
+          '右边界不需要刚好等于数组最后一个下标。',
+          '哨兵值可以参与比较并自然停止扩张。',
+          '边界确定后，二分部分与普通有序数组一致。',
+        ],
+      },
+      {
+        id: 'search-in-a-sorted-array-of-unknown-size-solution',
+        title: '标准解法：指数搜索边界 + 闭区间二分',
+        summary:
+          '先设置 `left = 0`、`right = 1`，不断检查 `reader.get(right)`。只要该值小于目标，就把 `left` 更新为当前 `right`，并将 `right` 翻倍。找到覆盖目标的范围后，在 `[left, right]` 上进行二分：值小于目标就右移左边界，值大于目标就左移右边界，命中则返回下标。',
+        bullets: [
+          '时间复杂度是 `O(log p)`，`p` 是目标所在位置。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在指数扩张后的左边界保存。',
+          '是未知边界搜索的典型模板。',
+        ],
+        code: `type ArrayReader = {
+  get(index: number): number
+}
+
+function searchUnknownSize(reader: ArrayReader, target: number): number {
+  let left = 0
+  let right = 1
+
+  while (reader.get(right) < target) {
+    left = right
+    right *= 2
+  }
+
+  while (left <= right) {
+    const middle = left + Math.floor((right - left) / 2)
+    const value = reader.get(middle)
+
+    if (value === target) {
+      return middle
+    }
+
+    if (value < target) {
+      left = middle + 1
+    } else {
+      right = middle - 1
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'search-in-a-sorted-array-of-unknown-size-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把 `right` 直接当成数组长度使用；或者指数扩张后没有保留前一轮边界，导致二分左边界丢失。',
+        bullets: [
+          '易错点 1：尝试读取不存在的数组长度。',
+          '易错点 2：指数扩张时没有同步更新 `left`。',
+          '易错点 3：越界哨兵值的比较规则处理错误。',
+          '延伸方向：指数搜索、无界二分、远程数据分页定位。',
+        ],
+      },
+    ],
+  },
 ];
