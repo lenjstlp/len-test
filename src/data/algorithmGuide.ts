@@ -72668,4 +72668,96 @@ function getImportance(employees: Employee[], id: number): number {
       },
     ],
   },
+  {
+    id: 'degree-of-an-array',
+    label: '697. LeetCode 697. 数组的度',
+    difficulty: '简单',
+    description:
+      '这题表面上是在找最高频元素，真正的关键是：在频率达到数组度的元素中，找它最短的首尾覆盖区间。',
+    outcome:
+      '你能同时维护元素频次、第一次出现位置和最后一次出现位置，把频率统计题转成区间长度比较题。',
+    sections: [
+      {
+        id: 'degree-of-an-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个非空整数数组 `nums`，数组的度定义为其中任意元素出现次数的最大值。要求找出一个连续子数组，使它和原数组拥有相同的度，并且长度最短，返回这个最短长度。',
+        bullets: [
+          '先求原数组的最大频率。',
+          '子数组必须保留这个最大频率。',
+          '长度越短越好。',
+          '是频率和区间结合题。',
+        ],
+      },
+      {
+        id: 'degree-of-an-array-observe',
+        title: '达到最高频率的元素，最短覆盖区间就是它的首尾范围',
+        summary:
+          '假设某个元素出现次数等于数组的度，那么子数组必须包含它的全部出现位置，否则该元素在子数组中的频率会下降。要包含它的全部出现位置，最短区间只能从它第一次出现的位置延伸到最后一次出现的位置。因此只需要找出所有达到最高频率的元素，比较它们的首尾区间长度。',
+        bullets: [
+          '不需要枚举所有连续子数组。',
+          '完整覆盖元素的所有出现位置是必要条件。',
+          '首尾位置决定最短覆盖区间。',
+          '一次遍历就能收集所需信息。',
+        ],
+      },
+      {
+        id: 'degree-of-an-array-solution',
+        title: '标准解法：统计频次、首位和末位后比较区间长度',
+        summary:
+          '第一次遍历数组时，用 `Map` 记录每个数字的出现次数、第一次出现下标和最后一次出现下标。遍历结束后先得到数组的度，再遍历频次表，只处理频次等于数组度的元素，计算 `last - first + 1` 并取最小值。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在同时保存三个维度的信息。',
+          '是哈希统计题的经典变体。',
+        ],
+        code: `function findShortestSubArray(nums: number[]): number {
+  const frequency = new Map<number, number>()
+  const firstIndex = new Map<number, number>()
+  const lastIndex = new Map<number, number>()
+
+  for (let index = 0; index < nums.length; index += 1) {
+    const value = nums[index]
+    frequency.set(value, (frequency.get(value) ?? 0) + 1)
+
+    if (!firstIndex.has(value)) {
+      firstIndex.set(value, index)
+    }
+    lastIndex.set(value, index)
+  }
+
+  let degree = 0
+  for (const count of frequency.values()) {
+    degree = Math.max(degree, count)
+  }
+
+  let answer = nums.length
+  for (const [value, count] of frequency) {
+    if (count !== degree) {
+      continue
+    }
+
+    const first = firstIndex.get(value) as number
+    const last = lastIndex.get(value) as number
+    answer = Math.min(answer, last - first + 1)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'degree-of-an-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只返回最高频率，却忽略了题目要求的最短连续子数组；或者只保存第一次出现位置，没有保存最后一次位置。',
+        bullets: [
+          '易错点 1：把数组的度直接当成答案。',
+          '易错点 2：遗漏频率相同的多个候选元素。',
+          '易错点 3：区间长度忘记加一。',
+          '延伸方向：频次统计、区间覆盖、哈希表建模。',
+        ],
+      },
+    ],
+  },
 ];
