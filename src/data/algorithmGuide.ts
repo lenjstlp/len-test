@@ -73853,4 +73853,77 @@ function insertIntoSortedCircular(
       },
     ],
   },
+  {
+    id: 'to-lower-case',
+    label: '709. LeetCode 709. 转换成小写字母',
+    difficulty: '简单',
+    description:
+      '这题看似简单，但很适合认识 ASCII 字符编码：大写字母和对应小写字母之间存在固定的数值偏移。',
+    outcome: '你能理解字符串不可变处理、字符编码范围判断和线性转换。',
+    sections: [
+      {
+        id: 'to-lower-case-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串 `s`，其中只包含英文字母和空格，要求把所有大写英文字母转换成小写字母，其他字符保持不变。',
+        bullets: [
+          '只有大写英文字母需要转换。',
+          '小写字母和空格保持原样。',
+          '输出一个新的字符串。',
+          '是字符编码入门题。',
+        ],
+      },
+      {
+        id: 'to-lower-case-observe',
+        title: '大写字母 A-Z 与小写字母 a-z 相差固定编码值',
+        summary:
+          'ASCII 中大写字母 `A-Z` 连续排列，小写字母 `a-z` 也连续排列，而且对应字符之间相差 `32`。因此遍历每个字符：如果编码在 `A` 到 `Z` 范围内，就加上 `32`；否则原样保留。',
+        bullets: [
+          '先判断字符是否位于大写字母范围。',
+          '编码偏移是固定值 `32`。',
+          '不需要修改原字符串中的字符。',
+          '一次扫描即可完成转换。',
+        ],
+      },
+      {
+        id: 'to-lower-case-solution',
+        title: '标准解法：遍历字符并按 ASCII 范围转换',
+        summary:
+          '将字符串拆成字符数组，逐个获取字符编码。若编码位于大写字母范围，就构造对应的小写字符；否则直接把原字符放入结果数组。最后把结果数组拼接成字符串。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在字符范围和编码转换。',
+          '实际工程中也可以直接使用 `toLowerCase`。',
+        ],
+        code: `function toLowerCase(s: string): string {
+  const result: string[] = []
+
+  for (const char of s) {
+    const code = char.charCodeAt(0)
+
+    if (code >= 65 && code <= 90) {
+      result.push(String.fromCharCode(code + 32))
+    } else {
+      result.push(char)
+    }
+  }
+
+  return result.join('')
+}`,
+      },
+      {
+        id: 'to-lower-case-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把所有字符都强行加 `32`，导致小写字母和空格被破坏；或者混淆字符编码和字符本身的比较。',
+        bullets: [
+          '易错点 1：没有先判断是否为大写字母。',
+          '易错点 2：编码范围写错导致边界字符漏转。',
+          '易错点 3：误以为字符串可以原地修改。',
+          '延伸方向：ASCII、Unicode、字符串不可变和国际化大小写。',
+        ],
+      },
+    ],
+  },
 ];
