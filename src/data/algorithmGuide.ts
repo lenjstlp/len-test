@@ -73926,4 +73926,92 @@ function insertIntoSortedCircular(
       },
     ],
   },
+  {
+    id: 'random-pick-with-blacklist',
+    label: '710. LeetCode 710. 黑名单中的随机数',
+    difficulty: '困难',
+    description:
+      '随机数范围很大，不能每次随机到黑名单后再重试。核心做法是把随机空间压缩成合法数字数量，并把低区间里的黑名单值映射到高区间的合法值。',
+    outcome:
+      '你能掌握“黑名单随机”中的区间映射思想，把拒绝采样优化成固定时间的随机选择。',
+    sections: [
+      {
+        id: 'random-pick-with-blacklist-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个数据结构，给定整数 `n` 和黑名单 `blacklist`，每次调用 `pick` 时等概率返回 `[0, n)` 中不在黑名单里的整数。',
+        bullets: [
+          '每个合法数字出现概率必须相同。',
+          '不能简单地随机后不断重试黑名单。',
+          '调用次数可能很多，需要高效。',
+          '是随机映射和区间压缩题。',
+        ],
+      },
+      {
+        id: 'random-pick-with-blacklist-observe',
+        title: '随机选择前 M 个位置，再把其中的黑名单位置映射出去',
+        summary:
+          '合法数字总数是 `m = n - blacklist.length`。只需要在 `[0, m)` 中等概率随机一个索引。这个区间中可能包含黑名单数字，因此把这些低区间黑名单值映射到 `[m, n)` 中的合法数字。高区间里本来属于黑名单的数字不会被作为映射目标。',
+        bullets: [
+          '随机空间从 `n` 缩小到合法数字数量 `m`。',
+          '只需要处理低区间内的黑名单值。',
+          '映射目标从高区间寻找合法数字。',
+          '每次 pick 都可以做到 `O(1)`。',
+        ],
+      },
+      {
+        id: 'random-pick-with-blacklist-solution',
+        title: '标准解法：黑名单映射 + 压缩随机区间',
+        summary:
+          '先计算合法数量 `available = n - blacklist.length`，把所有黑名单值放入集合。遍历黑名单中小于 `available` 的值，为它们从 `available` 开始寻找尚未被拉黑的高区间数字，并建立映射。调用 `pick` 时随机生成 `[0, available)` 中的值，如果存在映射就返回映射值，否则返回原值。',
+        bullets: [
+          '初始化时间复杂度是 `O(b)`，`b` 是黑名单长度。',
+          '每次 pick 的平均时间复杂度是 `O(1)`。',
+          '空间复杂度是 `O(b)`。',
+          '实现重点在高区间指针和映射合法性。',
+        ],
+        code: `class RandomPickWithBlacklist {
+  private readonly available: number
+  private readonly mapping = new Map<number, number>()
+
+  constructor(n: number, blacklist: number[]) {
+    this.available = n - blacklist.length
+
+    const blocked = new Set(blacklist)
+    let nextAllowed = this.available
+
+    for (const value of blacklist) {
+      if (value >= this.available) {
+        continue
+      }
+
+      while (blocked.has(nextAllowed)) {
+        nextAllowed += 1
+      }
+
+      this.mapping.set(value, nextAllowed)
+      nextAllowed += 1
+    }
+  }
+
+  pick(): number {
+    const value = Math.floor(Math.random() * this.available)
+    return this.mapping.get(value) ?? value
+  }
+}`,
+      },
+      {
+        id: 'random-pick-with-blacklist-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是随机范围仍然使用 `[0, n)`，然后通过重试规避黑名单；或者映射目标没有跳过高区间里的黑名单，导致返回非法值。',
+        bullets: [
+          '易错点 1：没有把随机空间缩小到合法数量。',
+          '易错点 2：映射目标仍然是黑名单数字。',
+          '易错点 3：`available` 和高区间起点混淆。',
+          '延伸方向：拒绝采样、离散分布、缓存映射和随机数据结构。',
+        ],
+      },
+    ],
+  },
 ];
