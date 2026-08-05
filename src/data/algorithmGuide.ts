@@ -74260,4 +74260,88 @@ function numDistinctIslands2(grid: number[][]): number {
       },
     ],
   },
+  {
+    id: 'subarray-product-less-than-k',
+    label: '713. LeetCode 713. 乘积小于 K 的子数组',
+    difficulty: '中等',
+    description:
+      '因为数组元素都是正数，右边界扩大时乘积只会变大，左边界收缩时乘积只会变小，因此可以用滑动窗口在线统计所有合法子数组。',
+    outcome:
+      '你能识别正数条件带来的单调性，并掌握“固定右端点时新增窗口数量”的滑动窗口计数方法。',
+    sections: [
+      {
+        id: 'subarray-product-less-than-k-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个正整数数组 `nums` 和正整数 `k`，要求统计连续子数组中元素乘积严格小于 `k` 的数量。',
+        bullets: [
+          '数组中的元素全部是正整数。',
+          '子数组必须连续。',
+          '乘积必须严格小于 `k`。',
+          '是滑动窗口计数题。',
+        ],
+      },
+      {
+        id: 'subarray-product-less-than-k-observe',
+        title: '固定右端点后，窗口内所有后缀都是合法子数组',
+        summary:
+          '维护一个乘积小于 `k` 的最小窗口 `[left, right]`。每次右端点加入新数字后，如果乘积不小于 `k`，就不断右移左端点并除掉左侧元素，直到窗口重新合法。此时以 `right` 结尾的合法子数组有 `right - left + 1` 个，分别对应从 `left` 到 `right` 的所有起点。',
+        bullets: [
+          '正数保证除去左端元素后乘积单调变小。',
+          '每个右端点只需维护一个最小合法窗口。',
+          '新增答案数量就是当前窗口长度。',
+          '当 `k <= 1` 时没有任何合法子数组。',
+        ],
+      },
+      {
+        id: 'subarray-product-less-than-k-solution',
+        title: '标准解法：乘积窗口 + 右端点计数',
+        summary:
+          '先处理 `k <= 1` 的特殊情况。然后使用 `left`、`product` 和 `answer` 三个变量遍历数组。每次把当前值乘入窗口，若乘积大于等于 `k`，就移动左边界并除去对应元素。窗口合法后，把当前窗口长度累加到答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在严格小于条件和除法收缩。',
+          '是正数数组滑动窗口的经典模板。',
+        ],
+        code: `function numSubarrayProductLessThanK(
+  nums: number[],
+  k: number,
+): number {
+  if (k <= 1) {
+    return 0
+  }
+
+  let left = 0
+  let product = 1
+  let answer = 0
+
+  for (let right = 0; right < nums.length; right += 1) {
+    product *= nums[right]
+
+    while (product >= k) {
+      product /= nums[left]
+      left += 1
+    }
+
+    answer += right - left + 1
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'subarray-product-less-than-k-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忘记 `k <= 1` 时答案必为零；或者窗口合法后只把答案加一，漏掉了以当前右端点结尾的所有合法后缀。',
+        bullets: [
+          '易错点 1：把严格小于写成小于等于。',
+          '易错点 2：没有处理 `k <= 1`。',
+          '易错点 3：新增答案只加一而不是加窗口长度。',
+          '延伸方向：和大于等于 K、最长合法窗口、正数单调性。',
+        ],
+      },
+    ],
+  },
 ];
