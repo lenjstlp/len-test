@@ -74014,4 +74014,157 @@ function insertIntoSortedCircular(
       },
     ],
   },
+  {
+    id: 'number-of-distinct-islands-ii',
+    label: '711. LeetCode 711. 不同岛屿的数量 II',
+    difficulty: '困难',
+    description:
+      '相比普通的不同岛屿，这题还允许旋转和翻转。关键是为一个岛屿生成 8 种变换后的标准坐标签名，取其中字典序最小者。',
+    outcome:
+      '你能用坐标变换和规范化解决几何形状同构问题，理解“枚举所有等价变换再取最小表示”的套路。',
+    sections: [
+      {
+        id: 'number-of-distinct-islands-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个二维网格，岛屿由上下左右相连的陆地组成。若两个岛屿可以通过平移、旋转或翻转重合，则认为它们形状相同。要求返回不同形状岛屿的数量。',
+        bullets: [
+          '允许平移、旋转和翻转。',
+          '不允许缩放或改变形状。',
+          '需要比较岛屿的几何结构。',
+          '是网格遍历和坐标规范化题。',
+        ],
+      },
+      {
+        id: 'number-of-distinct-islands-ii-observe',
+        title: '为每个岛屿生成 8 个变换签名，取最小签名作为唯一表示',
+        summary:
+          '先用 DFS 收集一个岛屿的相对坐标点。二维平面中，旋转和翻转一共可以产生 8 种等价方向。对每个点分别应用 8 种坐标变换，然后把变换后的点整体平移到最小行、最小列都为 `0`，排序并序列化。8 个签名中取字典序最小的一个，就能保证同形岛屿得到相同结果。',
+        bullets: [
+          '相对坐标先消除平移影响。',
+          '8 个变换覆盖旋转和镜像组合。',
+          '每种变换都要重新平移归一化。',
+          '规范化后使用集合去重。',
+        ],
+      },
+      {
+        id: 'number-of-distinct-islands-ii-solution',
+        title: '标准解法：DFS 收集坐标 + 8 种变换规范化',
+        summary:
+          '遍历网格并用 DFS 收集每个岛屿的相对坐标。对坐标点应用 8 组符号和交换组合，分别求出变换后所有点的最小行列并归一化。将每组归一化坐标排序、拼接成字符串，取所有签名中的最小值加入 `Set`。最终集合大小就是不同岛屿数量。',
+        bullets: [
+          '时间复杂度是 `O(m * n)`，常数包含 8 种变换。',
+          '空间复杂度主要来自访问标记和岛屿坐标。',
+          '实现重点在坐标变换和稳定排序。',
+          '是几何等价类规范化的代表题。',
+        ],
+        code: `type IslandPoint = [number, number]
+
+function numDistinctIslands2(grid: number[][]): number {
+  const rows = grid.length
+  const columns = grid[0].length
+  const visited = Array.from({ length: rows }, () =>
+    new Array<boolean>(columns).fill(false),
+  )
+  const shapes = new Set<string>()
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+
+  const collect = (
+    row: number,
+    column: number,
+    baseRow: number,
+    baseColumn: number,
+    points: IslandPoint[],
+  ): void => {
+    visited[row][column] = true
+    points.push([row - baseRow, column - baseColumn])
+
+    for (const [deltaRow, deltaColumn] of directions) {
+      const nextRow = row + deltaRow
+      const nextColumn = column + deltaColumn
+
+      if (
+        nextRow < 0 ||
+        nextRow >= rows ||
+        nextColumn < 0 ||
+        nextColumn >= columns ||
+        visited[nextRow][nextColumn] ||
+        grid[nextRow][nextColumn] === 0
+      ) {
+        continue
+      }
+
+      collect(nextRow, nextColumn, baseRow, baseColumn, points)
+    }
+  }
+
+  const getSignature = (points: IslandPoint[]): string => {
+    const transformations = [
+      [1, 1, 1, 1],
+      [1, -1, 1, -1],
+      [-1, 1, -1, 1],
+      [-1, -1, -1, -1],
+      [1, 1, -1, -1],
+      [1, -1, -1, 1],
+      [-1, 1, 1, -1],
+      [-1, -1, 1, 1],
+    ]
+    const signatures: string[] = []
+
+    for (const [rowSign, columnSign, swapRowSign, swapColumnSign] of transformations) {
+      const transformed = points.map(([row, column]) => [
+        row * rowSign + column * columnSign,
+        row * swapRowSign + column * swapColumnSign,
+      ])
+      const minRow = Math.min(...transformed.map(([row]) => row))
+      const minColumn = Math.min(...transformed.map(([, column]) => column))
+
+      const normalized = transformed
+        .map(([row, column]) => [row - minRow, column - minColumn])
+        .sort(
+          ([firstRow, firstColumn], [secondRow, secondColumn]) =>
+            firstRow - secondRow || firstColumn - secondColumn,
+        )
+
+      signatures.push(normalized.map((point) => point.join(',')).join('|'))
+    }
+
+    signatures.sort()
+    return signatures[0]
+  }
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      if (grid[row][column] === 0 || visited[row][column]) {
+        continue
+      }
+
+      const points: IslandPoint[] = []
+      collect(row, column, row, column, points)
+      shapes.add(getSignature(points))
+    }
+  }
+
+  return shapes.size
+}`,
+      },
+      {
+        id: 'number-of-distinct-islands-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只处理旋转而忘记翻转；或者变换后没有重新平移归一化，导致同一个形状因为绝对坐标不同而生成不同签名。',
+        bullets: [
+          '易错点 1：8 种变换没有覆盖完整。',
+          '易错点 2：没有对每种变换分别归一化。',
+          '易错点 3：坐标排序不稳定导致签名顺序不同。',
+          '延伸方向：几何规范化、形状同构、坐标变换。',
+        ],
+      },
+    ],
+  },
 ];
