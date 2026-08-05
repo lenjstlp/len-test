@@ -73749,4 +73749,108 @@ class MyLinkedList {
       },
     ],
   },
+  {
+    id: 'insert-into-a-sorted-circular-linked-list',
+    label: '708. LeetCode 708. 循环有序列表的插入',
+    difficulty: '中等',
+    description:
+      '循环链表没有明确的头尾，插入时既要处理普通的有序区间，也要处理从最大值跳回最小值的断点。',
+    outcome:
+      '你能在没有尾指针和固定起点的循环结构中，正确识别插入位置和边界情况。',
+    sections: [
+      {
+        id: 'insert-into-a-sorted-circular-linked-list-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个循环升序链表的任意节点 `head` 和一个新值 `insertVal`，要求把新值插入链表，并返回原来的任意节点。链表可能为空，也可能只有一个节点。',
+        bullets: [
+          '链表按循环方向保持非递减顺序。',
+          '返回哪个节点都可以，只要链表结构正确。',
+          '最大值和最小值之间存在一个下降断点。',
+          '是循环链表指针题。',
+        ],
+      },
+      {
+        id: 'insert-into-a-sorted-circular-linked-list-observe',
+        title: '插入点只有两类：普通有序区间或循环断点',
+        summary:
+          '在普通区间中，若 `current.val <= insertVal <= next.val`，新节点应该插在 `current` 和 `next` 之间。另一种情况是遇到断点，即 `current.val > next.val`，这意味着从最大值跳到了最小值，此时只要新值大于等于当前最大值，或小于等于下一个最小值，就应该插在断点处。若整圈都找不到特殊位置，说明所有节点值相同或新值落在任意位置都合法。',
+        bullets: [
+          '普通区间判断使用左右值夹住插入值。',
+          '断点表示最大值和最小值的连接处。',
+          '循环遍历必须设置停止条件。',
+          '所有值相同的链表可以插在任意位置。',
+        ],
+      },
+      {
+        id: 'insert-into-a-sorted-circular-linked-list-solution',
+        title: '标准解法：沿环遍历一圈寻找合法前后节点',
+        summary:
+          '空链表时创建一个自环节点。非空时从 `head` 开始循环检查 `current` 和 `next`：先判断普通区间，再判断断点区间。如果找到合法位置就插入并返回；如果走回起点仍未找到，就在当前位置后插入，因为此时任意位置都不会破坏循环有序性质。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在断点条件和回到起点的终止。',
+          '是循环链表边界判断代表题。',
+        ],
+        code: `type CircularNode = {
+  val: number
+  next: CircularNode
+}
+
+function insertIntoSortedCircular(
+  head: CircularNode | null,
+  insertVal: number,
+): CircularNode {
+  const node: CircularNode = {
+    val: insertVal,
+    next: null as unknown as CircularNode,
+  }
+
+  if (head === null) {
+    node.next = node
+    return node
+  }
+
+  let current = head
+
+  while (true) {
+    const next = current.next
+    const inNormalRange =
+      current.val <= insertVal && insertVal <= next.val
+    const isBreakPoint = current.val > next.val
+    const fitsBreakPoint =
+      insertVal >= current.val || insertVal <= next.val
+
+    if (inNormalRange || (isBreakPoint && fitsBreakPoint)) {
+      node.next = next
+      current.next = node
+      return head
+    }
+
+    current = next
+    if (current === head) {
+      break
+    }
+  }
+
+  node.next = current.next
+  current.next = node
+  return head
+}`,
+      },
+      {
+        id: 'insert-into-a-sorted-circular-linked-list-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只处理普通区间而遗漏最大值到最小值的断点；或者使用无限循环却没有判断是否回到了起点。',
+        bullets: [
+          '易错点 1：忽略循环链表中的下降断点。',
+          '易错点 2：单节点链表没有正确形成自环。',
+          '易错点 3：走完一圈后没有兜底插入。',
+          '延伸方向：循环链表、约瑟夫环、环形缓存。',
+        ],
+      },
+    ],
+  },
 ];
