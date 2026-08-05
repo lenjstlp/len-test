@@ -73633,4 +73633,120 @@ function searchUnknownSize(reader: ArrayReader, target: number): number {
       },
     ],
   },
+  {
+    id: 'design-linked-list',
+    label: '707. LeetCode 707. 设计链表',
+    difficulty: '中等',
+    description:
+      '这题要求实现链表的完整基础接口，难点集中在头节点、尾节点、越界下标和删除节点时的前驱处理。',
+    outcome: '你能独立实现单链表，并掌握带哨兵节点的链表操作模板。',
+    sections: [
+      {
+        id: 'design-linked-list-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个单链表，支持按下标读取节点、头部插入、尾部插入、指定位置插入以及删除指定位置节点。下标从 `0` 开始。',
+        bullets: [
+          '读取越界下标时返回 `-1`。',
+          '在下标 `0` 前插入就是头插。',
+          '下标等于当前长度时允许尾插。',
+          '删除越界下标时不做任何操作。',
+        ],
+      },
+      {
+        id: 'design-linked-list-observe',
+        title: '用哨兵节点统一处理头部插入和删除',
+        summary:
+          '如果直接操作真实头节点，头插和删除头节点都需要额外分支。增加一个不存放业务值的哨兵节点，让真实头节点始终位于 `dummy.next`，那么所有插入和删除都可以统一转化为“找到目标位置前的前驱节点，再修改 next 指针”。',
+        bullets: [
+          '哨兵节点可以消除头节点特殊分支。',
+          '插入节点需要找到前驱节点。',
+          '删除节点需要让前驱跳过目标节点。',
+          '维护 size 可以快速判断下标合法性。',
+        ],
+      },
+      {
+        id: 'design-linked-list-solution',
+        title: '标准解法：哨兵节点 + 单链表指针操作',
+        summary:
+          '链表内部保存 `size` 和 `dummy` 哨兵节点。`get` 找到目标节点后返回值；`addAtIndex` 先检查下标，再走到插入位置前驱，把新节点插入前后节点之间；`deleteAtIndex` 找到前驱后跳过目标节点，并同步减少长度。',
+        bullets: [
+          '按下标访问和插入删除的时间复杂度是 `O(n)`。',
+          '头部插入和删除可以做到 `O(1)`。',
+          '空间复杂度是 `O(n)`。',
+          '是链表指针操作的完整基础模板。',
+        ],
+        code: `type ListNode = {
+  val: number
+  next: ListNode | null
+}
+
+class MyLinkedList {
+  private readonly dummy: ListNode = { val: 0, next: null }
+  private size = 0
+
+  get(index: number): number {
+    if (index < 0 || index >= this.size) {
+      return -1
+    }
+
+    return this.getNodeBefore(index).next?.val ?? -1
+  }
+
+  addAtHead(value: number): void {
+    this.addAtIndex(0, value)
+  }
+
+  addAtTail(value: number): void {
+    this.addAtIndex(this.size, value)
+  }
+
+  addAtIndex(index: number, value: number): void {
+    if (index < 0 || index > this.size) {
+      return
+    }
+
+    const previous = this.getNodeBefore(index)
+    previous.next = {
+      val: value,
+      next: previous.next,
+    }
+    this.size += 1
+  }
+
+  deleteAtIndex(index: number): void {
+    if (index < 0 || index >= this.size) {
+      return
+    }
+
+    const previous = this.getNodeBefore(index)
+    previous.next = previous.next?.next ?? null
+    this.size -= 1
+  }
+
+  private getNodeBefore(index: number): ListNode {
+    let current = this.dummy
+
+    for (let step = 0; step < index; step += 1) {
+      current = current.next as ListNode
+    }
+
+    return current
+  }
+}`,
+      },
+      {
+        id: 'design-linked-list-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“插入下标”和“目标节点下标”混淆；或者删除节点后忘记更新链表长度，导致后续边界判断全部错误。',
+        bullets: [
+          '易错点 1：`addAtIndex(size, value)` 应该允许尾插。',
+          '易错点 2：删除节点时没有保存或找到前驱。',
+          '易错点 3：头节点变化后没有保持统一入口。',
+          '延伸方向：双向链表、环形链表、LRU 链表结构。',
+        ],
+      },
+    ],
+  },
 ];
