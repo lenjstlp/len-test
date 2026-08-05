@@ -74167,4 +74167,97 @@ function numDistinctIslands2(grid: number[][]): number {
       },
     ],
   },
+  {
+    id: 'minimum-ascii-delete-sum-for-two-strings',
+    label: '712. LeetCode 712. 两个字符串的最小 ASCII 删除和',
+    difficulty: '中等',
+    description:
+      '这题不是求最长公共子序列，而是允许删除字符并为每次删除付出 ASCII 代价，核心是定义两个前缀如何变成相同字符串。',
+    outcome:
+      '你能把字符串编辑问题建模成二维 DP，并清晰处理字符相等、删除左字符和删除右字符三种情况。',
+    sections: [
+      {
+        id: 'minimum-ascii-delete-sum-for-two-strings-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个字符串 `s1` 和 `s2`，每次可以从任意一个字符串中删除一个字符，删除字符的代价等于它的 ASCII 值。要求让两个字符串相等时的最小总删除代价。',
+        bullets: [
+          '只能删除字符，不能替换或插入。',
+          '删除成本与字符 ASCII 值有关。',
+          '最终两个字符串必须完全相同。',
+          '是字符串动态规划题。',
+        ],
+      },
+      {
+        id: 'minimum-ascii-delete-sum-for-two-strings-observe',
+        title: '状态表示两个前缀变相同的最小代价',
+        summary:
+          '设 `dp[i][j]` 表示 `s1` 前 `i` 个字符和 `s2` 前 `j` 个字符变成相同字符串所需的最小删除和。如果两个末尾字符相同，可以保留它们，答案来自 `dp[i - 1][j - 1]`；如果不同，就必须删除其中一个，分别尝试删除 `s1[i - 1]` 或 `s2[j - 1]`，取代价更小的方案。',
+        bullets: [
+          '字符相同可以同时保留。',
+          '字符不同时只能删除左边或右边一个。',
+          '空字符串状态需要累加另一侧所有字符的 ASCII 值。',
+          '状态转移只依赖左上、上方和左方。',
+        ],
+      },
+      {
+        id: 'minimum-ascii-delete-sum-for-two-strings-solution',
+        title: '标准解法：前缀动态规划',
+        summary:
+          '初始化第一行和第一列：把一个非空前缀变成空字符串，必须删除该前缀的全部字符。随后按行列填表：字符相等时复制左上角；字符不等时取“删除 `s1` 当前字符”和“删除 `s2` 当前字符”的较小值。最终 `dp[m][n]` 就是答案。',
+        bullets: [
+          '时间复杂度是 `O(m * n)`。',
+          '空间复杂度是 `O(m * n)`。',
+          '可以进一步压缩到 `O(n)` 空间。',
+          '是带权删除成本的字符串 DP。',
+        ],
+        code: `function minimumDeleteSum(s1: string, s2: string): number {
+  const rows = s1.length
+  const columns = s2.length
+  const dp = Array.from({ length: rows + 1 }, () =>
+    new Array<number>(columns + 1).fill(0),
+  )
+
+  for (let row = 1; row <= rows; row += 1) {
+    dp[row][0] = dp[row - 1][0] + s1.charCodeAt(row - 1)
+  }
+
+  for (let column = 1; column <= columns; column += 1) {
+    dp[0][column] = dp[0][column - 1] + s2.charCodeAt(column - 1)
+  }
+
+  for (let row = 1; row <= rows; row += 1) {
+    for (let column = 1; column <= columns; column += 1) {
+      const firstChar = s1[row - 1]
+      const secondChar = s2[column - 1]
+
+      if (firstChar === secondChar) {
+        dp[row][column] = dp[row - 1][column - 1]
+      } else {
+        const deleteFirst =
+          dp[row - 1][column] + s1.charCodeAt(row - 1)
+        const deleteSecond =
+          dp[row][column - 1] + s2.charCodeAt(column - 1)
+        dp[row][column] = Math.min(deleteFirst, deleteSecond)
+      }
+    }
+  }
+
+  return dp[rows][columns]
+}`,
+      },
+      {
+        id: 'minimum-ascii-delete-sum-for-two-strings-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是字符不同时同时删除两个字符，错过只删除一侧的更优方案；或者初始化空字符串状态时没有累加字符 ASCII 值。',
+        bullets: [
+          '易错点 1：字符不同时错误地直接相加两侧删除代价。',
+          '易错点 2：第一行和第一列初始化为零。',
+          '易错点 3：把字符相等时也当成必须删除。',
+          '延伸方向：编辑距离、最长公共子序列、带权字符串 DP。',
+        ],
+      },
+    ],
+  },
 ];
