@@ -74105,14 +74105,14 @@ function numDistinctIslands2(grid: number[][]): number {
 
   const getSignature = (points: IslandPoint[]): string => {
     const transformations = [
-      [1, 1, 1, 1],
-      [1, -1, 1, -1],
-      [-1, 1, -1, 1],
-      [-1, -1, -1, -1],
-      [1, 1, -1, -1],
-      [1, -1, -1, 1],
-      [-1, 1, 1, -1],
-      [-1, -1, 1, 1],
+      [1, 0, 0, 1],
+      [1, 0, 0, -1],
+      [-1, 0, 0, 1],
+      [-1, 0, 0, -1],
+      [0, 1, 1, 0],
+      [0, -1, 1, 0],
+      [0, 1, -1, 0],
+      [0, -1, -1, 0],
     ]
     const signatures: string[] = []
 
