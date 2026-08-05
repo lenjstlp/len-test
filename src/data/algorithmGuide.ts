@@ -74418,4 +74418,141 @@ function numDistinctIslands2(grid: number[][]): number {
       },
     ],
   },
+  {
+    id: 'range-module',
+    label: '715. LeetCode 715. Range 模块',
+    difficulty: '困难',
+    description:
+      '这题维护的是一组动态变化的整数区间。核心是始终保持区间有序且互不重叠，从而把新增、查询和删除统一成区间合并与切分。',
+    outcome:
+      '你能掌握半开区间 `[left, right)` 的工程化表示，并理解区间集合在更新时如何保持规范状态。',
+    sections: [
+      {
+        id: 'range-module-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个区间模块，支持 `addRange(left, right)` 添加覆盖区间、`queryRange(left, right)` 查询整个区间是否被覆盖，以及 `removeRange(left, right)` 删除区间覆盖。所有区间都使用半开区间 `[left, right)`。',
+        bullets: [
+          '添加区间可以和已有区间重叠。',
+          '查询要求整个范围都被覆盖。',
+          '删除区间可能把已有区间切成两段。',
+          '是动态区间集合维护题。',
+        ],
+      },
+      {
+        id: 'range-module-observe',
+        title: '始终维护排序且互不重叠的区间集合',
+        summary:
+          '如果内部区间始终按左端点升序排列，并且任意两个区间不重叠，那么三种操作都可以直接围绕这个不变量实现。添加时合并所有相交或相邻区间；查询时寻找可能覆盖目标的区间；删除时保留目标区间左侧和右侧仍然有效的部分。',
+        bullets: [
+          '半开区间能清晰表达边界是否覆盖。',
+          '添加操作负责合并区间不变量。',
+          '删除操作负责切分区间。',
+          '查询只需要判断是否存在一个完整覆盖区间。',
+        ],
+      },
+      {
+        id: 'range-module-solution',
+        title: '标准解法：有序不重叠区间数组',
+        summary:
+          '使用 `intervals` 保存规范化后的区间列表。`addRange` 遍历所有区间，先保留完全在新区间左侧的区间，再合并所有相交或相邻区间，最后保留右侧区间。`queryRange` 找到左端点不晚于目标左端点的候选区间，判断其右端点是否覆盖目标右端点。`removeRange` 则把已有区间拆成目标左侧和目标右侧两部分。',
+        bullets: [
+          '数组实现的单次操作复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在半开区间边界和删除切分。',
+          '数据规模更大时可以使用平衡树或区间树。',
+        ],
+        code: `class RangeModule {
+  private intervals: Array<[number, number]> = []
+
+  addRange(left: number, right: number): void {
+    if (left >= right) {
+      return
+    }
+
+    const next: Array<[number, number]> = []
+    let index = 0
+
+    while (
+      index < this.intervals.length &&
+      this.intervals[index][1] < left
+    ) {
+      next.push(this.intervals[index])
+      index += 1
+    }
+
+    let mergedLeft = left
+    let mergedRight = right
+
+    while (
+      index < this.intervals.length &&
+      this.intervals[index][0] <= mergedRight
+    ) {
+      mergedLeft = Math.min(mergedLeft, this.intervals[index][0])
+      mergedRight = Math.max(mergedRight, this.intervals[index][1])
+      index += 1
+    }
+
+    next.push([mergedLeft, mergedRight])
+
+    while (index < this.intervals.length) {
+      next.push(this.intervals[index])
+      index += 1
+    }
+
+    this.intervals = next
+  }
+
+  queryRange(left: number, right: number): boolean {
+    for (const [intervalLeft, intervalRight] of this.intervals) {
+      if (intervalLeft > left) {
+        return false
+      }
+      if (intervalLeft <= left && right <= intervalRight) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  removeRange(left: number, right: number): void {
+    if (left >= right) {
+      return
+    }
+
+    const next: Array<[number, number]> = []
+
+    for (const [intervalLeft, intervalRight] of this.intervals) {
+      if (intervalRight <= left || intervalLeft >= right) {
+        next.push([intervalLeft, intervalRight])
+        continue
+      }
+
+      if (intervalLeft < left) {
+        next.push([intervalLeft, left])
+      }
+      if (right < intervalRight) {
+        next.push([right, intervalRight])
+      }
+    }
+
+    this.intervals = next
+  }
+}`,
+      },
+      {
+        id: 'range-module-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把闭区间和半开区间混用，导致边界相接时错误合并或错误覆盖；或者删除时只移除完整包含的区间，没有处理左右两侧切分。',
+        bullets: [
+          '易错点 1：`[left, right)` 的右端点不属于覆盖范围。',
+          '易错点 2：新增区间合并时漏掉相邻区间。',
+          '易错点 3：删除区间没有保留左右残余部分。',
+          '延伸方向：区间树、线段树、扫描线和时间段调度。',
+        ],
+      },
+    ],
+  },
 ];
