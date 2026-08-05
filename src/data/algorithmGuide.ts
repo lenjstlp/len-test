@@ -74344,4 +74344,78 @@ function numDistinctIslands2(grid: number[][]): number {
       },
     ],
   },
+  {
+    id: 'best-time-to-buy-and-sell-stock-with-transaction-fee',
+    label: '714. LeetCode 714. 买卖股票的最佳时机含手续费',
+    difficulty: '中等',
+    description:
+      '这题不是简单地找每次上涨，而是要决定何时买入、何时卖出，并把交易手续费纳入状态转移。',
+    outcome:
+      '你能用两个状态描述持股和不持股的最大收益，并把多次交易压缩成常数空间 DP。',
+    sections: [
+      {
+        id: 'best-time-to-buy-and-sell-stock-with-transaction-fee-summary',
+        title: '题目在问什么',
+        summary:
+          '给定每天的股票价格 `prices` 和每笔交易的手续费 `fee`。每天最多持有一股股票，可以多次买卖，但卖出股票时需要支付手续费。要求返回能够获得的最大利润。',
+        bullets: [
+          '同一时间最多持有一股股票。',
+          '可以买卖多次，但必须先卖出再买入。',
+          '每次完成交易需要支付手续费。',
+          '是股票状态动态规划题。',
+        ],
+      },
+      {
+        id: 'best-time-to-buy-and-sell-stock-with-transaction-fee-observe',
+        title: '每天只关心持股和不持股两种最优状态',
+        summary:
+          '在处理第 `i` 天后，维护两个状态：`cash` 表示当天结束时不持股的最大收益，`hold` 表示当天结束时持股的最大收益。新的一天可以选择什么都不做，也可以从另一状态转移：不持股状态可以由昨天不持股或今天卖出得到；持股状态可以由昨天持股或今天买入得到。',
+        bullets: [
+          '卖出时扣除手续费，避免重复扣费。',
+          '持股状态的收益可以是负数。',
+          '每一天只依赖前一天两个状态。',
+          '状态更新需要使用旧值，不能覆盖后再计算另一个状态。',
+        ],
+      },
+      {
+        id: 'best-time-to-buy-and-sell-stock-with-transaction-fee-solution',
+        title: '标准解法：两状态滚动 DP',
+        summary:
+          '初始化 `cash = 0`，表示开始时不持股；`hold = -prices[0]`，表示第一天买入后的收益。遍历后续价格时，先根据旧状态计算新的不持股收益和持股收益。最终不持股状态一定不差于持股状态，因此返回 `cash`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在手续费放入卖出转移。',
+          '是买卖股票问题的状态机模板。',
+        ],
+        code: `function maxProfitWithFee(prices: number[], fee: number): number {
+  let cash = 0
+  let hold = -prices[0]
+
+  for (let index = 1; index < prices.length; index += 1) {
+    const price = prices[index]
+    const previousCash = cash
+    const previousHold = hold
+
+    cash = Math.max(previousCash, previousHold + price - fee)
+    hold = Math.max(previousHold, previousCash - price)
+  }
+
+  return cash
+}`,
+      },
+      {
+        id: 'best-time-to-buy-and-sell-stock-with-transaction-fee-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是买入和卖出都扣手续费，导致手续费被重复计算；或者更新 `cash` 后直接用新值计算 `hold`，破坏了同一天状态转移的语义。',
+        bullets: [
+          '易错点 1：手续费扣除两次。',
+          '易错点 2：状态更新顺序覆盖了前一天的值。',
+          '易错点 3：初始化持股状态为零而不是负买入价。',
+          '延伸方向：冷冻期、交易次数限制、股票状态机。',
+        ],
+      },
+    ],
+  },
 ];
