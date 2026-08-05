@@ -73535,4 +73535,102 @@ function searchUnknownSize(reader: ArrayReader, target: number): number {
       },
     ],
   },
+  {
+    id: 'design-hash-map',
+    label: '706. LeetCode 706. 设计哈希映射',
+    difficulty: '简单',
+    description:
+      '哈希映射和哈希集合的差别在于：桶中不再只保存 key，而是保存 key 与 value 的对应关系，并且同一个 key 的新 value 要覆盖旧 value。',
+    outcome:
+      '你能实现基础哈希映射，并明确区分新增键、更新键、删除键和查询不存在键的行为。',
+    sections: [
+      {
+        id: 'design-hash-map-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个哈希映射，支持 `put(key, value)`、`get(key)` 和 `remove(key)` 三个操作。不能直接使用语言内置的哈希映射结构。',
+        bullets: [
+          '同一个 key 再次 put 时要更新 value。',
+          '查询不存在的 key 返回 `-1`。',
+          '删除不存在的 key 时保持安全。',
+          '是哈希表设计题。',
+        ],
+      },
+      {
+        id: 'design-hash-map-observe',
+        title: '桶内保存键值对，put 时区分更新和新增',
+        summary:
+          '可以复用哈希集合的桶数组结构，只是桶内元素从单个数字变成 `[key, value]`。`put` 时先在桶内查找 key，如果找到就修改对应 value；如果找不到才追加新的键值对。`get` 和 `remove` 则根据 key 在对应桶内完成操作。',
+        bullets: [
+          '哈希冲突依然通过桶内链表或数组处理。',
+          '更新已有 key 不能创建重复记录。',
+          '查询失败需要返回约定的哨兵值。',
+          '数据结构核心是 key 的唯一性。',
+        ],
+      },
+      {
+        id: 'design-hash-map-solution',
+        title: '标准解法：桶数组存储键值对',
+        summary:
+          '准备固定数量的桶，每个桶保存键值对数组。通过取模得到桶下标后，`put` 在桶内查找 key 并更新或插入；`get` 找到后返回 value；`remove` 找到后删除对应键值对。实现中把定位桶的逻辑统一封装，避免三种操作出现不一致。',
+        bullets: [
+          '平均时间复杂度接近 `O(1)`。',
+          '最坏时间复杂度与冲突桶长度相关。',
+          '空间复杂度是 `O(n + bucketCount)`。',
+          '是哈希表 key-value 语义的基础实现。',
+        ],
+        code: `class MyHashMap {
+  private readonly bucketCount = 769
+  private readonly buckets: Array<Array<[number, number]>>
+
+  constructor() {
+    this.buckets = Array.from({ length: this.bucketCount }, () => [])
+  }
+
+  put(key: number, value: number): void {
+    const bucket = this.buckets[this.getIndex(key)]
+    const entry = bucket.find((item) => item[0] === key)
+
+    if (entry !== undefined) {
+      entry[1] = value
+      return
+    }
+
+    bucket.push([key, value])
+  }
+
+  get(key: number): number {
+    const bucket = this.buckets[this.getIndex(key)]
+    const entry = bucket.find((item) => item[0] === key)
+    return entry === undefined ? -1 : entry[1]
+  }
+
+  remove(key: number): void {
+    const bucket = this.buckets[this.getIndex(key)]
+    const index = bucket.findIndex((item) => item[0] === key)
+
+    if (index !== -1) {
+      bucket.splice(index, 1)
+    }
+  }
+
+  private getIndex(key: number): number {
+    return key % this.bucketCount
+  }
+}`,
+      },
+      {
+        id: 'design-hash-map-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是 `put` 时直接追加导致同一个 key 出现多份；或者 `remove` 删除了错误的桶元素，导致后续查询得到旧数据。',
+        bullets: [
+          '易错点 1：更新 key 时没有覆盖旧 value。',
+          '易错点 2：查询不存在 key 时返回值不符合约定。',
+          '易错点 3：只比较 value，没有按 key 定位。',
+          '延伸方向：哈希集合、哈希表扩容、Map 的迭代语义。',
+        ],
+      },
+    ],
+  },
 ];
