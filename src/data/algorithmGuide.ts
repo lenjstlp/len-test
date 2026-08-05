@@ -73444,4 +73444,95 @@ function searchUnknownSize(reader: ArrayReader, target: number): number {
       },
     ],
   },
+  {
+    id: 'design-hash-set',
+    label: '705. LeetCode 705. 设计哈希集合',
+    difficulty: '简单',
+    description:
+      '这题要求从零设计一个集合结构，重点不是调用现成的 `Set`，而是理解哈希、桶和冲突处理的基本思路。',
+    outcome:
+      '你能用数组桶实现一个基础哈希集合，并理解为什么哈希表需要处理冲突。',
+    sections: [
+      {
+        id: 'design-hash-set-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个哈希集合，支持 `add(key)`、`remove(key)` 和 `contains(key)` 三个操作。集合中不允许出现重复元素，题目不允许直接使用内置哈希集合。',
+        bullets: [
+          '添加重复 key 时不能产生重复数据。',
+          '删除不存在的 key 时不能报错。',
+          '查询只返回是否存在。',
+          '是哈希表设计入门题。',
+        ],
+      },
+      {
+        id: 'design-hash-set-observe',
+        title: '先把 key 映射到桶，再在桶内处理冲突',
+        summary:
+          '最简单的实现是准备一个固定大小的桶数组，用 `key % bucketCount` 得到桶下标。不同 key 可能映射到同一个桶，这就是哈希冲突。可以让每个桶保存一个数组，在桶内用线性查找完成添加、删除和查询。',
+        bullets: [
+          '哈希函数负责把 key 映射到桶。',
+          '冲突不能覆盖旧数据。',
+          '桶内数组可以实现链地址法。',
+          '桶数量越大，平均冲突越少。',
+        ],
+      },
+      {
+        id: 'design-hash-set-solution',
+        title: '标准解法：桶数组 + 链地址法',
+        summary:
+          '创建固定数量的桶，每个桶是一个数字数组。添加时先计算桶下标，只有桶中不存在该 key 才追加；删除时找到 key 后移除；查询时检查桶内是否包含 key。这个版本重点展示哈希集合的结构，而不是追求复杂的扩容策略。',
+        bullets: [
+          '平均时间复杂度接近 `O(1)`。',
+          '最坏时间复杂度与单桶长度相关。',
+          '空间复杂度是 `O(n + bucketCount)`。',
+          '是理解哈希冲突处理的基础实现。',
+        ],
+        code: `class MyHashSet {
+  private readonly bucketCount = 769
+  private readonly buckets: number[][]
+
+  constructor() {
+    this.buckets = Array.from({ length: this.bucketCount }, () => [])
+  }
+
+  add(key: number): void {
+    const bucket = this.buckets[this.getIndex(key)]
+    if (!bucket.includes(key)) {
+      bucket.push(key)
+    }
+  }
+
+  remove(key: number): void {
+    const bucket = this.buckets[this.getIndex(key)]
+    const index = bucket.indexOf(key)
+
+    if (index !== -1) {
+      bucket.splice(index, 1)
+    }
+  }
+
+  contains(key: number): boolean {
+    return this.buckets[this.getIndex(key)].includes(key)
+  }
+
+  private getIndex(key: number): number {
+    return key % this.bucketCount
+  }
+}`,
+      },
+      {
+        id: 'design-hash-set-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把 key 直接当数组下标，忽略范围和冲突；或者添加时不检查重复，导致集合语义被破坏。',
+        bullets: [
+          '易错点 1：没有处理多个 key 映射到同一桶。',
+          '易错点 2：重复添加导致数据重复。',
+          '易错点 3：删除不存在元素时下标处理错误。',
+          '延伸方向：哈希映射、扩容、负载因子和开放寻址。',
+        ],
+      },
+    ],
+  },
 ];
