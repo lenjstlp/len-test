@@ -74953,4 +74953,89 @@ class MaxStack {
       },
     ],
   },
+  {
+    id: 'longest-word-in-dictionary',
+    label: '720. LeetCode 720. 词典中最长的单词',
+    difficulty: '简单',
+    description:
+      '一个候选单词只有在它的所有前缀也都存在时才有效。这意味着判断顺序非常重要，按长度递增处理会最自然。',
+    outcome: '你能利用集合和排序，在前缀逐步可构建的条件下筛选出最优单词。',
+    sections: [
+      {
+        id: 'longest-word-in-dictionary-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个单词数组 `words`，要求找出其中最长的单词，且该单词可以由词典中其他单词逐步添加一个字母构成。若有多个答案，返回字典序最小的那个。',
+        bullets: [
+          '每一步都只能在前一个单词后多加一个字母。',
+          '所有中间前缀都必须在词典中存在。',
+          '优先比较长度，再比较字典序。',
+          '是排序与集合判断题。',
+        ],
+      },
+      {
+        id: 'longest-word-in-dictionary-observe',
+        title: '如果短前缀已经确认可构建，长单词只需检查去掉最后一个字符的前缀',
+        summary:
+          '按长度从短到长遍历单词时，一个单词要想合法，只需要确认它去掉最后一个字符后的前缀已经是合法单词。因为更短的前缀会在构建过程中被逐步保证。这样就能用一个集合保存“已验证可构建”的单词。',
+        bullets: [
+          '长度为 1 的单词天然可以作为起点。',
+          '核心检查对象是去掉最后一个字符后的前缀。',
+          '已通过验证的单词放入集合复用。',
+          '排序要兼顾长度和字典序。',
+        ],
+      },
+      {
+        id: 'longest-word-in-dictionary-solution',
+        title: '标准解法：排序后逐步扩展合法单词集合',
+        summary:
+          '先将单词按长度升序、字典序升序排序。遍历每个单词：若长度为 1，或它的前缀已在合法集合中，就把它加入集合。每次加入合法集合时，若它长度更长，或者长度相同但字典序更小，就更新答案。',
+        bullets: [
+          '时间复杂度主要来自排序。',
+          '空间复杂度与单词数量相关。',
+          '实现重点在排序规则和前缀集合维护。',
+          '是构建型字符串题代表。',
+        ],
+        code: `function longestWord(words: string[]): string {
+  const values = [...words].sort((first, second) => {
+    if (first.length !== second.length) {
+      return first.length - second.length
+    }
+
+    return first.localeCompare(second)
+  })
+
+  const valid = new Set<string>()
+  let answer = ''
+
+  for (const word of values) {
+    if (word.length === 1 || valid.has(word.slice(0, -1))) {
+      valid.add(word)
+
+      if (
+        word.length > answer.length ||
+        (word.length === answer.length && word.localeCompare(answer) < 0)
+      ) {
+        answer = word
+      }
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'longest-word-in-dictionary-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只检查单词是否存在某个短前缀，却没有保证前缀链是逐层完整的；或者排序时没有在相同长度下处理字典序。',
+        bullets: [
+          '易错点 1：误把“存在任意前缀”当成“所有构建步骤都存在”。',
+          '易错点 2：同长度答案没有取字典序更小者。',
+          '易错点 3：没有按长度递增处理导致前缀状态不可复用。',
+          '延伸方向：Trie、字符串构建、字典序和前缀问题。',
+        ],
+      },
+    ],
+  },
 ];
