@@ -75247,4 +75247,126 @@ class MaxStack {
       },
     ],
   },
+  {
+    id: 'candy-crush',
+    label: '723. LeetCode 723. 粉碎糖果',
+    difficulty: '中等',
+    description:
+      '这题本质是一个不断重复的网格模拟：先标记所有可消除块，再整体下落，直到棋盘稳定为止。',
+    outcome:
+      '你能把“同时消除”和“统一下落”拆成两个阶段，写出稳定的迭代网格模拟。',
+    sections: [
+      {
+        id: 'candy-crush-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个二维棋盘，每个数字代表一种糖果。若横向或纵向存在三个及以上相同数字连续相邻，这些糖果会被同时消除，然后上方糖果下落填补空位。要求返回最终稳定后的棋盘。',
+        bullets: [
+          '一次轮次中所有满足条件的糖果同时消除。',
+          '消除后同列糖果整体下落。',
+          '稳定表示再也没有三连及以上的相同糖果。',
+          '是网格迭代模拟题。',
+        ],
+      },
+      {
+        id: 'candy-crush-observe',
+        title: '不能边扫描边真正删除，要先统一标记',
+        summary:
+          '如果扫描到一个三连就立刻清零，会影响同一轮后续判断，破坏“同时消除”的要求。因此每一轮要分成两步：先遍历棋盘，找出所有应消除的位置并做标记；再统一把这些位置清零，然后对每一列执行下落操作。',
+        bullets: [
+          '标记阶段和执行阶段必须分离。',
+          '同一个格子可能同时属于横向和纵向三连。',
+          '下落操作按列处理最自然。',
+          '只要本轮发生过消除，就继续下一轮。',
+        ],
+      },
+      {
+        id: 'candy-crush-solution',
+        title: '标准解法：循环执行“标记 -> 清除 -> 下落”',
+        summary:
+          '每一轮先检查横向和纵向，若存在连续三个及以上绝对值相同且非零的格子，就把它们标记为负数。遍历结束后，把所有负数视作待消除元素。随后逐列从下往上收集仍然保留的正数，写回列底部，剩余顶部补零。重复这个过程直到某一轮没有任何标记发生。',
+        bullets: [
+          '时间复杂度与轮数和网格大小相关。',
+          '空间复杂度可以做到 `O(1)` 额外空间。',
+          '实现重点在使用绝对值比较和列压缩。',
+          '是经典的网格稳定模拟。',
+        ],
+        code: `function candyCrush(board: number[][]): number[][] {
+  const rows = board.length
+  const columns = board[0].length
+  let changed = true
+
+  while (changed) {
+    changed = false
+
+    for (let row = 0; row < rows; row += 1) {
+      for (let column = 0; column + 2 < columns; column += 1) {
+        const value = Math.abs(board[row][column])
+        if (
+          value !== 0 &&
+          Math.abs(board[row][column + 1]) === value &&
+          Math.abs(board[row][column + 2]) === value
+        ) {
+          board[row][column] = -value
+          board[row][column + 1] = -value
+          board[row][column + 2] = -value
+          changed = true
+        }
+      }
+    }
+
+    for (let row = 0; row + 2 < rows; row += 1) {
+      for (let column = 0; column < columns; column += 1) {
+        const value = Math.abs(board[row][column])
+        if (
+          value !== 0 &&
+          Math.abs(board[row + 1][column]) === value &&
+          Math.abs(board[row + 2][column]) === value
+        ) {
+          board[row][column] = -value
+          board[row + 1][column] = -value
+          board[row + 2][column] = -value
+          changed = true
+        }
+      }
+    }
+
+    if (!changed) {
+      break
+    }
+
+    for (let column = 0; column < columns; column += 1) {
+      let writeRow = rows - 1
+
+      for (let row = rows - 1; row >= 0; row -= 1) {
+        if (board[row][column] > 0) {
+          board[writeRow][column] = board[row][column]
+          writeRow -= 1
+        }
+      }
+
+      while (writeRow >= 0) {
+        board[writeRow][column] = 0
+        writeRow -= 1
+      }
+    }
+  }
+
+  return board
+}`,
+      },
+      {
+        id: 'candy-crush-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是发现三连后立即清零，导致同一轮判断错乱；或者下落时没有从列底部开始写回，破坏重力方向。',
+        bullets: [
+          '易错点 1：没有先标记再统一消除。',
+          '易错点 2：比较时没有取绝对值，导致负标记被漏掉。',
+          '易错点 3：本轮消除后没有继续迭代到稳定状态。',
+          '延伸方向：网格模拟、消消乐类规则引擎、状态稳定。',
+        ],
+      },
+    ],
+  },
 ];
