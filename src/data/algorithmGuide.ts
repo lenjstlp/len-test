@@ -75144,4 +75144,107 @@ class MaxStack {
       },
     ],
   },
+  {
+    id: 'remove-comments',
+    label: '722. LeetCode 722. 删除注释',
+    difficulty: '中等',
+    description:
+      '这题不是简单的字符串替换，因为块注释可能跨行，必须维护当前是否处于块注释内部的状态。',
+    outcome: '你能用状态机方式扫描源码文本，准确处理行注释、块注释和跨行拼接。',
+    sections: [
+      {
+        id: 'remove-comments-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个源码字符串数组，每个元素表示源码的一行。需要删除其中的行注释 `//` 和块注释 `/* ... */`，返回删除注释后的源码行数组。',
+        bullets: [
+          '块注释可以跨越多行。',
+          '行注释从 `//` 开始直到该行结束。',
+          '注释中的内容全部忽略。',
+          '是字符串状态扫描题。',
+        ],
+      },
+      {
+        id: 'remove-comments-observe',
+        title: '核心状态只有一个：当前是否在块注释内部',
+        summary:
+          '逐字符扫描时，最重要的是记录当前是否位于块注释中。若不在块注释里，遇到 `//` 直接结束当前行；遇到 `/*` 则切换到块注释状态。若在块注释里，只有遇到 `*/` 才能退出。只有不在块注释中的普通字符才应该加入当前构造行。',
+        bullets: [
+          '行注释会立刻截断当前行。',
+          '块注释会跨行延续状态。',
+          '退出块注释后同一行后续内容仍需继续解析。',
+          '空结果行不一定要加入答案。',
+        ],
+      },
+      {
+        id: 'remove-comments-solution',
+        title: '标准解法：按字符扫描并维护块注释状态',
+        summary:
+          '遍历每一行源码，若当前不在块注释中，就新建一个结果缓冲区。之后用下标扫描当前行：在非块注释状态下，先检查 `//` 和 `/*`；在块注释状态下，寻找 `*/`。只有普通字符才写入缓冲区。每行处理结束后，如果当前不在块注释中且缓冲区非空，就把这一行加入答案。',
+        bullets: [
+          '时间复杂度与源码总字符数成正比。',
+          '空间复杂度主要来自结果缓冲区。',
+          '实现重点在双字符模式匹配和状态切换。',
+          '是小型词法扫描题代表。',
+        ],
+        code: `function removeComments(source: string[]): string[] {
+  const answer: string[] = []
+  let inBlockComment = false
+  let currentLine = ''
+
+  for (const line of source) {
+    if (!inBlockComment) {
+      currentLine = ''
+    }
+
+    let index = 0
+    while (index < line.length) {
+      const current = line[index]
+      const next = index + 1 < line.length ? line[index + 1] : ''
+
+      if (!inBlockComment && current === '/' && next === '/') {
+        break
+      }
+
+      if (!inBlockComment && current === '/' && next === '*') {
+        inBlockComment = true
+        index += 2
+        continue
+      }
+
+      if (inBlockComment && current === '*' && next === '/') {
+        inBlockComment = false
+        index += 2
+        continue
+      }
+
+      if (!inBlockComment) {
+        currentLine += current
+      }
+
+      index += 1
+    }
+
+    if (!inBlockComment && currentLine.length > 0) {
+      answer.push(currentLine)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'remove-comments-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是对每一行独立处理，导致跨行块注释失效；或者退出块注释后直接结束当前行，漏掉了同一行后面的有效代码。',
+        bullets: [
+          '易错点 1：没有维护跨行块注释状态。',
+          '易错点 2：把 `/*` 和 `//` 的优先级处理错。',
+          '易错点 3：空结果行处理不一致。',
+          '延伸方向：词法分析、状态机、代码预处理。',
+        ],
+      },
+    ],
+  },
 ];
