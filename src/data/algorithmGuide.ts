@@ -75038,4 +75038,110 @@ class MaxStack {
       },
     ],
   },
+  {
+    id: 'accounts-merge',
+    label: '721. LeetCode 721. 账户合并',
+    difficulty: '中等',
+    description:
+      '同一个人可能在多个账户中重复出现邮箱，真正的连接关系是邮箱而不是账户下标。把共享邮箱的账户合到同一连通分量即可。',
+    outcome: '你能用并查集把共享标识的信息合并起来，并在合并后重新组织结果。',
+    sections: [
+      {
+        id: 'accounts-merge-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干账户，每个账户第一项是用户名，后面是若干邮箱。若两个账户有任意一个相同邮箱，就认为它们属于同一个人，需要合并成一个账户并返回合并结果。',
+        bullets: [
+          '用户名相同不代表一定是同一个人。',
+          '真正的合并依据是共享邮箱。',
+          '合并后邮箱需要去重并排序。',
+          '是图连通性与并查集题。',
+        ],
+      },
+      {
+        id: 'accounts-merge-observe',
+        title: '共享邮箱会把多个账户连成同一组',
+        summary:
+          '把每个账户看成一个节点。如果两个账户拥有相同邮箱，它们就应该连通。遍历所有邮箱时，只要发现邮箱已经属于之前某个账户，就把当前账户和那个账户合并。最后按根节点收集所有邮箱，就得到每个人的完整账户信息。',
+        bullets: [
+          '邮箱到账户的映射负责发现连接关系。',
+          '并查集负责维护账户分组。',
+          '同一连通块内的邮箱最终要合并到一起。',
+          '输出时再统一排序邮箱。',
+        ],
+      },
+      {
+        id: 'accounts-merge-solution',
+        title: '标准解法：邮箱映射 + 并查集分组',
+        summary:
+          '先建立并查集，初始时每个账户独立。遍历所有账户中的邮箱，若邮箱第一次出现，就记录它属于当前账户；否则将当前账户与该邮箱之前所属账户合并。第二轮遍历邮箱归属表，按照账户根节点收集所有邮箱集合，最后拼出用户名和排序后的邮箱列表。',
+        bullets: [
+          '时间复杂度主要来自并查集和排序。',
+          '路径压缩后合并查询接近常数时间。',
+          '实现重点在邮箱归属映射和最终分组。',
+          '是典型的“共享字段合并”问题。',
+        ],
+        code: `function accountsMerge(accounts: string[][]): string[][] {
+  const parent = new Array<number>(accounts.length).fill(0).map((_, index) => index)
+  const emailOwner = new Map<string, number>()
+
+  const find = (index: number): number => {
+    if (parent[index] !== index) {
+      parent[index] = find(parent[index])
+    }
+    return parent[index]
+  }
+
+  const union = (first: number, second: number): void => {
+    const rootFirst = find(first)
+    const rootSecond = find(second)
+    if (rootFirst !== rootSecond) {
+      parent[rootSecond] = rootFirst
+    }
+  }
+
+  for (let index = 0; index < accounts.length; index += 1) {
+    for (let emailIndex = 1; emailIndex < accounts[index].length; emailIndex += 1) {
+      const email = accounts[index][emailIndex]
+
+      if (emailOwner.has(email)) {
+        union(index, emailOwner.get(email) as number)
+      } else {
+        emailOwner.set(email, index)
+      }
+    }
+  }
+
+  const groupedEmails = new Map<number, string[]>()
+  for (const [email, owner] of emailOwner) {
+    const root = find(owner)
+    if (!groupedEmails.has(root)) {
+      groupedEmails.set(root, [])
+    }
+    groupedEmails.get(root)?.push(email)
+  }
+
+  const answer: string[][] = []
+  for (const [root, emails] of groupedEmails) {
+    emails.sort((first, second) => first.localeCompare(second))
+    answer.push([accounts[root][0], ...emails])
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'accounts-merge-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是按用户名直接合并账户，忽略了不同人可能同名；或者并查集合并后没有按根节点重新归集邮箱。',
+        bullets: [
+          '易错点 1：错误地把用户名当唯一标识。',
+          '易错点 2：邮箱归属映射没有触发 union。',
+          '易错点 3：输出阶段遗漏邮箱排序。',
+          '延伸方向：并查集、社交关系合并、实体归一化。',
+        ],
+      },
+    ],
+  },
 ];
