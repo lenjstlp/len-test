@@ -74555,4 +74555,162 @@ function numDistinctIslands2(grid: number[][]): number {
       },
     ],
   },
+  {
+    id: 'max-stack',
+    label: '716. LeetCode 716. 最大栈',
+    difficulty: '困难',
+    description:
+      '这题不是普通栈，而是既要支持栈顶操作，又要支持删除当前最大值。关键在于同时维护“后进先出”和“按值定位”的两种能力。',
+    outcome:
+      '你能把双向链表和有序映射组合起来，理解多索引数据结构如何服务不同操作语义。',
+    sections: [
+      {
+        id: 'max-stack-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个栈，除了 `push`、`pop`、`top` 外，还要支持 `peekMax` 返回当前最大值，以及 `popMax` 删除并返回当前最大值。若最大值有多个，删除最靠近栈顶的那个。',
+        bullets: [
+          '普通栈操作仍然要高效支持。',
+          '最大值操作要基于当前所有元素。',
+          '删除最大值时要删掉最靠近栈顶的一份。',
+          '是复合数据结构设计题。',
+        ],
+      },
+      {
+        id: 'max-stack-observe',
+        title: '栈顺序和最大值顺序不是同一个索引体系',
+        summary:
+          '单靠一个栈很难快速删除中间的最大值，因为它可能不在栈顶。一个可行思路是用双向链表维护栈顺序，用有序映射按值管理所有节点位置。这样 `top` 和 `pop` 面向链表尾部，`peekMax` 和 `popMax` 面向映射中的最大键。',
+        bullets: [
+          '链表尾部天然对应栈顶。',
+          '同一数值可能出现多次，需要保存节点列表。',
+          '最大值查询依赖有序键。',
+          '删除节点时必须同步更新两套结构。',
+        ],
+      },
+      {
+        id: 'max-stack-solution',
+        title: '标准解法：双向链表 + 有序映射',
+        summary:
+          '使用双向链表保存入栈顺序，尾节点就是栈顶。再用 `Map<number, DoublyNode[]>` 保存每个值对应的链表节点栈，并维护一个有序值数组来模拟有序映射。`push` 时把新节点挂到尾部，同时记录到对应值列表；`popMax` 时找到最大键，取出该值列表中最后一个节点并从链表中删除即可。',
+        bullets: [
+          '链表操作可以做到 `O(1)` 删除任意已知节点。',
+          '若有真正平衡树，最大值操作可以更高效。',
+          '实现重点在重复值和节点同步移除。',
+          '是多视角索引设计代表题。',
+        ],
+        code: `type DoublyNode = {
+  value: number
+  prev: DoublyNode | null
+  next: DoublyNode | null
+}
+
+class MaxStack {
+  private readonly head: DoublyNode = { value: 0, prev: null, next: null }
+  private readonly tail: DoublyNode = { value: 0, prev: null, next: null }
+  private readonly groups = new Map<number, DoublyNode[]>()
+  private readonly values: number[] = []
+
+  constructor() {
+    this.head.next = this.tail
+    this.tail.prev = this.head
+  }
+
+  push(x: number): void {
+    const node: DoublyNode = { value: x, prev: null, next: null }
+    this.insertBeforeTail(node)
+
+    if (!this.groups.has(x)) {
+      this.groups.set(x, [])
+      const index = this.lowerBound(x)
+      this.values.splice(index, 0, x)
+    }
+
+    this.groups.get(x)?.push(node)
+  }
+
+  pop(): number {
+    const node = this.tail.prev as DoublyNode
+    this.removeNode(node)
+    this.removeFromGroup(node.value)
+    return node.value
+  }
+
+  top(): number {
+    return (this.tail.prev as DoublyNode).value
+  }
+
+  peekMax(): number {
+    return this.values[this.values.length - 1]
+  }
+
+  popMax(): number {
+    const maxValue = this.peekMax()
+    const nodes = this.groups.get(maxValue) as DoublyNode[]
+    const node = nodes.pop() as DoublyNode
+    this.removeNode(node)
+
+    if (nodes.length === 0) {
+      this.groups.delete(maxValue)
+      this.values.pop()
+    }
+
+    return maxValue
+  }
+
+  private insertBeforeTail(node: DoublyNode): void {
+    const previous = this.tail.prev as DoublyNode
+    previous.next = node
+    node.prev = previous
+    node.next = this.tail
+    this.tail.prev = node
+  }
+
+  private removeNode(node: DoublyNode): void {
+    ;(node.prev as DoublyNode).next = node.next
+    ;(node.next as DoublyNode).prev = node.prev
+  }
+
+  private removeFromGroup(value: number): void {
+    const nodes = this.groups.get(value) as DoublyNode[]
+    nodes.pop()
+
+    if (nodes.length === 0) {
+      this.groups.delete(value)
+      const index = this.lowerBound(value)
+      this.values.splice(index, 1)
+    }
+  }
+
+  private lowerBound(target: number): number {
+    let left = 0
+    let right = this.values.length
+
+    while (left < right) {
+      const middle = left + Math.floor((right - left) / 2)
+      if (this.values[middle] < target) {
+        left = middle + 1
+      } else {
+        right = middle
+      }
+    }
+
+    return left
+  }
+}`,
+      },
+      {
+        id: 'max-stack-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是 `popMax` 时删掉了最早出现的最大值，而题目要求删掉最靠近栈顶的那个；或者只从一种结构里删除节点，导致两套索引不同步。',
+        bullets: [
+          '易错点 1：重复最大值删除顺序错误。',
+          '易错点 2：链表删除后没有同步更新值映射。',
+          '易错点 3：值集合删除时误删了非空分组。',
+          '延伸方向：LRU、双向链表、平衡树和多索引缓存。',
+        ],
+      },
+    ],
+  },
 ];
