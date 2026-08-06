@@ -74785,4 +74785,82 @@ class MaxStack {
       },
     ],
   },
+  {
+    id: 'maximum-length-of-repeated-subarray',
+    label: '718. LeetCode 718. 最长重复子数组',
+    difficulty: '中等',
+    description:
+      '这题求的是两个数组中连续且相同的一段，不是子序列。状态转移必须围绕“当前位置结尾的最长公共后缀”展开。',
+    outcome:
+      '你能区分子数组和子序列问题，并用二维 DP 计算最长公共连续片段长度。',
+    sections: [
+      {
+        id: 'maximum-length-of-repeated-subarray-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个整数数组 `nums1` 和 `nums2`，要求找出它们公共的、长度最长的连续子数组，并返回这个长度。',
+        bullets: [
+          '必须是连续片段。',
+          '两个数组中的元素值要一一相同。',
+          '目标是最大长度，不是片段内容。',
+          '是数组动态规划题。',
+        ],
+      },
+      {
+        id: 'maximum-length-of-repeated-subarray-observe',
+        title: '状态表示以两个位置结尾的最长公共后缀',
+        summary:
+          '设 `dp[i][j]` 表示以 `nums1[i - 1]` 和 `nums2[j - 1]` 结尾的最长公共连续子数组长度。如果这两个元素相等，那么可以在左上角状态基础上加一；如果不相等，说明连续性被打断，当前状态只能是零。',
+        bullets: [
+          '相等才能延续连续长度。',
+          '不相等时必须清零，不能继承别的方向。',
+          '答案是所有状态中的最大值。',
+          '这和最长公共子序列的转移完全不同。',
+        ],
+      },
+      {
+        id: 'maximum-length-of-repeated-subarray-solution',
+        title: '标准解法：最长公共后缀 DP',
+        summary:
+          '建立 `(m + 1) x (n + 1)` 的 DP 表，默认初始化为零。遍历两个数组时，若当前位置元素相等，就令 `dp[i][j] = dp[i - 1][j - 1] + 1`，并更新全局最大值；否则保持 `0`。最终最大值就是答案。',
+        bullets: [
+          '时间复杂度是 `O(m * n)`。',
+          '空间复杂度是 `O(m * n)`。',
+          '可以进一步压缩到一维滚动数组。',
+          '是连续匹配问题的标准建模方式。',
+        ],
+        code: `function findLength(nums1: number[], nums2: number[]): number {
+  const rows = nums1.length
+  const columns = nums2.length
+  const dp = Array.from({ length: rows + 1 }, () =>
+    new Array<number>(columns + 1).fill(0),
+  )
+  let answer = 0
+
+  for (let row = 1; row <= rows; row += 1) {
+    for (let column = 1; column <= columns; column += 1) {
+      if (nums1[row - 1] === nums2[column - 1]) {
+        dp[row][column] = dp[row - 1][column - 1] + 1
+        answer = Math.max(answer, dp[row][column])
+      }
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'maximum-length-of-repeated-subarray-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是误用最长公共子序列模板，在元素不相等时取上方或左方最大值，结果会把不连续的片段错误拼接起来。',
+        bullets: [
+          '易错点 1：把连续子数组写成子序列转移。',
+          '易错点 2：不相等时忘记清零。',
+          '易错点 3：只返回右下角而不是全局最大值。',
+          '延伸方向：最长公共子串、滚动数组、对角线扫描。',
+        ],
+      },
+    ],
+  },
 ];
