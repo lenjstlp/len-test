@@ -75542,4 +75542,134 @@ function splitListToParts(
       },
     ],
   },
+  {
+    id: 'number-of-atoms',
+    label: '726. LeetCode 726. 原子的数量',
+    difficulty: '困难',
+    description:
+      '化学式解析的难点在于括号嵌套和倍数传播。最自然的做法是用栈维护每一层括号内部的原子计数。',
+    outcome:
+      '你能把嵌套表达式解析成层级计数问题，并在退出括号时把局部统计按倍数合并回上一层。',
+    sections: [
+      {
+        id: 'number-of-atoms-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个化学式字符串 `formula`，要求统计其中每种原子的数量，并按原子名字典序输出结果。原子名由一个大写字母开头，后面可跟若干小写字母；括号后的数字表示整组原子需要乘上该倍数。',
+        bullets: [
+          '没有数字时默认数量为 `1`。',
+          '括号可以嵌套。',
+          '输出时原子名字典序升序。',
+          '是字符串解析与栈题。',
+        ],
+      },
+      {
+        id: 'number-of-atoms-observe',
+        title: '每遇到一个括号层，就开启一份局部计数表',
+        summary:
+          '解析过程中，普通原子直接计入当前层计数表；遇到左括号时把当前层压栈，开启新的一层；遇到右括号时，先读取右括号后的倍数，再把当前层的每种原子都乘上该倍数，合并回上一层。这样就能自然处理任意深度的嵌套结构。',
+        bullets: [
+          '栈负责保存外层上下文。',
+          '当前层只关心本括号内的局部统计。',
+          '右括号后的数字会整体作用于这一层。',
+          '原子名和数字都需要按连续字符读取。',
+        ],
+      },
+      {
+        id: 'number-of-atoms-solution',
+        title: '标准解法：栈 + 哈希表逐字符解析',
+        summary:
+          '用一个栈保存外层计数表，当前层用 `Map<string, number>` 维护。扫描字符串时：左括号入栈；右括号时读取倍数并把当前层乘倍后合并回栈顶；遇到原子名时读取完整名字，再读取后续数量并加入当前层。扫描结束后，把最终计数按字典序拼接成答案字符串。',
+        bullets: [
+          '时间复杂度与化学式长度成正比。',
+          '空间复杂度主要来自栈和各层计数表。',
+          '实现重点在原子名解析、数字解析和括号合并。',
+          '是嵌套表达式解析题代表。',
+        ],
+        code: `function countOfAtoms(formula: string): string {
+  const stack: Array<Map<string, number>> = []
+  let current = new Map<string, number>()
+  let index = 0
+
+  const readNumber = (): number => {
+    if (index >= formula.length || formula[index] < '0' || formula[index] > '9') {
+      return 1
+    }
+
+    let value = 0
+    while (index < formula.length && formula[index] >= '0' && formula[index] <= '9') {
+      value = value * 10 + Number(formula[index])
+      index += 1
+    }
+
+    return value
+  }
+
+  while (index < formula.length) {
+    const char = formula[index]
+
+    if (char === '(') {
+      stack.push(current)
+      current = new Map<string, number>()
+      index += 1
+      continue
+    }
+
+    if (char === ')') {
+      index += 1
+      const multiplier = readNumber()
+      const merged = stack.pop() as Map<string, number>
+
+      for (const [atom, count] of current) {
+        merged.set(atom, (merged.get(atom) ?? 0) + count * multiplier)
+      }
+
+      current = merged
+      continue
+    }
+
+    let atom = formula[index]
+    index += 1
+
+    while (
+      index < formula.length &&
+      formula[index] >= 'a' &&
+      formula[index] <= 'z'
+    ) {
+      atom += formula[index]
+      index += 1
+    }
+
+    const count = readNumber()
+    current.set(atom, (current.get(atom) ?? 0) + count)
+  }
+
+  const atoms = [...current.keys()].sort((first, second) => first.localeCompare(second))
+  let answer = ''
+
+  for (const atom of atoms) {
+    answer += atom
+    const count = current.get(atom) as number
+    if (count > 1) {
+      answer += count.toString()
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'number-of-atoms-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是在遇到右括号后只把当前层总数乘倍，而没有对每种原子分别乘倍；或者原子名读取时只取了首字母，漏掉了后续小写字母。',
+        bullets: [
+          '易错点 1：右括号倍数没有逐原子分发。',
+          '易错点 2：没有给缺省数量补 `1`。',
+          '易错点 3：括号嵌套时没有保存外层上下文。',
+          '延伸方向：表达式解析、栈、编译原理中的词法和语法处理。',
+        ],
+      },
+    ],
+  },
 ];
