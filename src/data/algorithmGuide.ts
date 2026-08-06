@@ -75369,4 +75369,76 @@ class MaxStack {
       },
     ],
   },
+  {
+    id: 'find-pivot-index',
+    label: '724. LeetCode 724. 寻找数组的中心下标',
+    difficulty: '简单',
+    description:
+      '中心下标的定义本质上是前缀和与剩余和相等。只要先拿到总和，再线性维护左侧和，就能在一次遍历里判断每个位置。',
+    outcome: '你能把左右两侧和相等的问题转成总和与前缀和的关系式。',
+    sections: [
+      {
+        id: 'find-pivot-index-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组 `nums`，要求返回其中心下标。中心下标定义为：该位置左侧所有元素和等于右侧所有元素和。若存在多个，返回最左边的那个；若不存在，返回 `-1`。',
+        bullets: [
+          '中心下标本身的值不计入左右两边和。',
+          '优先返回最左侧满足条件的位置。',
+          '数组可能包含负数。',
+          '是前缀和基础题。',
+        ],
+      },
+      {
+        id: 'find-pivot-index-observe',
+        title: '左和已知时，右和可以由总和减出来',
+        summary:
+          '设当前位置左侧和为 `leftSum`，总和为 `total`，当前位置值为 `nums[i]`。那么右侧和就是 `total - leftSum - nums[i]`。因此只要线性扫描数组，实时维护左侧和，就能在每个位置 `O(1)` 判断是否为中心下标。',
+        bullets: [
+          '先求总和避免每次重复算右侧和。',
+          '判断公式是 `leftSum === total - leftSum - nums[i]`。',
+          '判断后再更新左侧和最自然。',
+          '一次遍历即可完成查找。',
+        ],
+      },
+      {
+        id: 'find-pivot-index-solution',
+        title: '标准解法：总和 + 运行中前缀和',
+        summary:
+          '先求出数组总和 `total`。然后从左到右扫描数组，当前位置先判断左右和是否相等；若相等立即返回当前下标。若不相等，就把当前值累加到 `leftSum` 中继续扫描。遍历结束仍未命中则返回 `-1`。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在判断和更新顺序。',
+          '是前缀和思维的入门模板。',
+        ],
+        code: `function pivotIndex(nums: number[]): number {
+  const total = nums.reduce((sum, value) => sum + value, 0)
+  let leftSum = 0
+
+  for (let index = 0; index < nums.length; index += 1) {
+    if (leftSum === total - leftSum - nums[index]) {
+      return index
+    }
+
+    leftSum += nums[index]
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'find-pivot-index-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是先把当前位置加入左和再判断，导致左右区域定义错位；或者把右侧和写成 `total - leftSum`，忘记减去当前位置本身。',
+        bullets: [
+          '易错点 1：判断顺序写反。',
+          '易错点 2：右侧和公式漏减当前位置。',
+          '易错点 3：找到答案后没有立即返回最左位置。',
+          '延伸方向：前缀和、区间和、平衡下标问题。',
+        ],
+      },
+    ],
+  },
 ];
