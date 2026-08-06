@@ -75441,4 +75441,105 @@ class MaxStack {
       },
     ],
   },
+  {
+    id: 'split-linked-list-in-parts',
+    label: '725. LeetCode 725. 分隔链表',
+    difficulty: '中等',
+    description:
+      '这题的核心不是链表操作本身，而是先算清楚每一段应该分到多少个节点：基础长度和前几段额外多一个节点。',
+    outcome:
+      '你能把平均分配问题转成“商 + 余数”规则，并在链表上安全地断开每一段。',
+    sections: [
+      {
+        id: 'split-linked-list-in-parts-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个单链表头节点 `head` 和整数 `k`，要求把链表分成 `k` 个连续部分，长度尽可能平均。若不能整除，前面的部分比后面的部分至多多一个节点。返回这 `k` 个部分的头节点数组。',
+        bullets: [
+          '每个部分都必须保持原链表顺序。',
+          '前面的部分长度不小于后面的部分。',
+          '有些部分可能为空。',
+          '是链表拆分题。',
+        ],
+      },
+      {
+        id: 'split-linked-list-in-parts-observe',
+        title: '先算总长度，再用商和余数决定每段大小',
+        summary:
+          '如果总长度是 `length`，那么每段至少有 `Math.floor(length / k)` 个节点，前 `length % k` 段各自再多一个节点。这样每段目标长度就完全确定了。之后只需顺着链表走，按目标长度切断即可。',
+        bullets: [
+          '先知道长度，分段规则才明确。',
+          '余数决定哪些前置部分要多拿一个节点。',
+          '每切出一段后要把尾部 `next` 断开。',
+          '空段直接返回 `null`。',
+        ],
+      },
+      {
+        id: 'split-linked-list-in-parts-solution',
+        title: '标准解法：统计长度后按目标大小逐段切分',
+        summary:
+          '先遍历链表求总长度。设 `baseSize = Math.floor(length / k)`，`extra = length % k`。然后从前到后构造 `k` 段：当前段长度是 `baseSize + (index < extra ? 1 : 0)`。记录当前段头节点后，向后走到这一段尾部，把尾部 `next` 断开，再继续处理下一段。',
+        bullets: [
+          '时间复杂度是 `O(n + k)`。',
+          '空间复杂度是 `O(k)`，来自结果数组。',
+          '实现重点在尾部断链和空段处理。',
+          '是链表按规则拆分的标准题。',
+        ],
+        code: `type SplitListNode = {
+  val: number
+  next: SplitListNode | null
+}
+
+function splitListToParts(
+  head: SplitListNode | null,
+  k: number,
+): Array<SplitListNode | null> {
+  let length = 0
+  let current = head
+
+  while (current !== null) {
+    length += 1
+    current = current.next
+  }
+
+  const baseSize = Math.floor(length / k)
+  const extra = length % k
+  const answer: Array<SplitListNode | null> = new Array(k).fill(null)
+  current = head
+
+  for (let index = 0; index < k; index += 1) {
+    const partSize = baseSize + (index < extra ? 1 : 0)
+    if (partSize === 0) {
+      answer[index] = null
+      continue
+    }
+
+    answer[index] = current
+
+    for (let step = 1; step < partSize; step += 1) {
+      current = (current as SplitListNode).next
+    }
+
+    const nextPart = (current as SplitListNode).next
+    ;(current as SplitListNode).next = null
+    current = nextPart
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'split-linked-list-in-parts-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把多出来的节点平均分散到后面而不是前面；或者切出一段后没有断开尾指针，导致多段共享后续链表。',
+        bullets: [
+          '易错点 1：余数分配顺序写反。',
+          '易错点 2：遍历到段尾后忘记断开 `next`。',
+          '易错点 3：空段没有返回 `null`。',
+          '延伸方向：链表分段、负载均衡分配、商余拆分。',
+        ],
+      },
+    ],
+  },
 ];
