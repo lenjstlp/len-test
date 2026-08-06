@@ -74863,4 +74863,94 @@ class MaxStack {
       },
     ],
   },
+  {
+    id: 'find-k-th-smallest-pair-distance',
+    label: '719. LeetCode 719. 找出第 K 小的数对距离',
+    difficulty: '困难',
+    description:
+      '这题不是枚举所有数对后排序，而是对“答案距离”做二分，并高效统计“距离不超过 mid 的数对有多少个”。',
+    outcome: '你能把“第 k 小”问题转成答案二分，并结合双指针完成单调计数。',
+    sections: [
+      {
+        id: 'find-k-th-smallest-pair-distance-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums` 和整数 `k`，数对距离定义为两个数差的绝对值。要求返回所有数对距离中第 `k` 小的那个值。',
+        bullets: [
+          '数对由两个不同下标组成。',
+          '距离是绝对值差。',
+          '目标是第 `k` 小，不是去重后的第 `k` 小。',
+          '是答案二分题。',
+        ],
+      },
+      {
+        id: 'find-k-th-smallest-pair-distance-observe',
+        title: '距离阈值越大，满足条件的数对数量只会更多',
+        summary:
+          '先将数组排序。若给定一个候选距离 `mid`，可以统计有多少数对满足差值不超过 `mid`。随着 `mid` 增大，满足条件的数对数只会单调不减，因此可以对答案距离做二分，寻找最小的、能覆盖至少 `k` 个数对的距离值。',
+        bullets: [
+          '排序后数对差值判断更容易。',
+          '计数函数关于距离阈值具有单调性。',
+          '关键在于快速统计差值不超过 `mid` 的数对个数。',
+          '双指针能把计数降到线性时间。',
+        ],
+      },
+      {
+        id: 'find-k-th-smallest-pair-distance-solution',
+        title: '标准解法：排序 + 双指针计数 + 二分答案',
+        summary:
+          '将数组排序后，二分距离范围 `[0, max - min]`。对每个中间值 `mid`，用双指针统计满足 `nums[right] - nums[left] <= mid` 的数对个数：固定右端点时，合法左边界之后的所有位置都能与它组成有效数对。若计数不少于 `k`，说明答案不大于 `mid`，继续向左收缩；否则向右扩大。',
+        bullets: [
+          '时间复杂度是 `O(n log W)`，`W` 是值域宽度。',
+          '计数过程每次是 `O(n)`。',
+          '实现重点在双指针计数和二分边界。',
+          '是“第 k 小 + 单调计数”题的代表。',
+        ],
+        code: `function smallestDistancePair(nums: number[], k: number): number {
+  const values = [...nums].sort((first, second) => first - second)
+  let left = 0
+  let right = values[values.length - 1] - values[0]
+
+  const countPairs = (limit: number): number => {
+    let count = 0
+    let start = 0
+
+    for (let end = 0; end < values.length; end += 1) {
+      while (values[end] - values[start] > limit) {
+        start += 1
+      }
+
+      count += end - start
+    }
+
+    return count
+  }
+
+  while (left < right) {
+    const middle = left + Math.floor((right - left) / 2)
+
+    if (countPairs(middle) >= k) {
+      right = middle
+    } else {
+      left = middle + 1
+    }
+  }
+
+  return left
+}`,
+      },
+      {
+        id: 'find-k-th-smallest-pair-distance-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把数对全部生成出来导致空间和时间都爆炸；或者计数时把 `end - start + 1` 当成新增数对数，错误地把自己和自己配成一对。',
+        bullets: [
+          '易错点 1：误用暴力枚举所有数对。',
+          '易错点 2：双指针计数公式写错。',
+          '易错点 3：二分条件方向反了，导致找成第 `k` 大。',
+          '延伸方向：答案二分、双指针计数、有序数组距离问题。',
+        ],
+      },
+    ],
+  },
 ];
