@@ -76619,4 +76619,109 @@ function splitListToParts(
       },
     ],
   },
+  {
+    id: 'sentence-similarity-ii',
+    label: '737. LeetCode 737. 句子相似性 II',
+    difficulty: '中等',
+    description:
+      '与上一题不同，这题的相似关系允许传递，因此单词对形成的是连通分量问题，并查集是最直接的建模方式。',
+    outcome: '你能根据关系是否具备传递性，正确从哈希集合升级到并查集。',
+    sections: [
+      {
+        id: 'sentence-similarity-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个句子和若干相似单词对。相似关系是对称且可传递的，判断两个句子是否相似：它们长度必须相同，且每个对应单词相同或处于同一个相似连通分量。',
+        bullets: [
+          '句子长度必须相同。',
+          '相似关系对称。',
+          '相似关系可传递。',
+          '是字符串并查集题。',
+        ],
+      },
+      {
+        id: 'sentence-similarity-ii-observe',
+        title: '可传递的相似关系等价于图中的连通性',
+        summary:
+          '把每个单词视为节点，每对相似词视为一条无向边。由于相似可以传递，两个词相似当且仅当它们在同一个连通分量中。并查集能够不断合并相似词对，并在比较句子时快速判断两个词的根是否相同。',
+        bullets: [
+          '每个单词需要一个并查集父节点。',
+          '相似词对执行 union。',
+          '比较时检查两个单词的根。',
+          '从未出现过的不同单词不可能相似。',
+        ],
+      },
+      {
+        id: 'sentence-similarity-ii-solution',
+        title: '标准解法：字符串并查集',
+        summary:
+          '用 `Map<string, string>` 保存每个单词的父节点。`find` 负责初始化单词并做路径压缩，`union` 负责合并相似词。最后逐位置比较两个句子中的单词：相同直接通过，不同则只有根节点相同才通过。',
+        bullets: [
+          '时间复杂度接近 `O(p + n)`。',
+          '路径压缩后查询和合并接近常数时间。',
+          '空间复杂度与不同单词数相关。',
+          '是语义关系传递建模题。',
+        ],
+        code: `function areSentencesSimilarTwo(
+  sentence1: string[],
+  sentence2: string[],
+  similarPairs: string[][],
+): boolean {
+  if (sentence1.length !== sentence2.length) {
+    return false
+  }
+
+  const parent = new Map<string, string>()
+
+  const find = (word: string): string => {
+    if (!parent.has(word)) {
+      parent.set(word, word)
+    }
+
+    const root = parent.get(word) as string
+    if (root !== word) {
+      parent.set(word, find(root))
+    }
+
+    return parent.get(word) as string
+  }
+
+  const union = (first: string, second: string): void => {
+    const rootFirst = find(first)
+    const rootSecond = find(second)
+    if (rootFirst !== rootSecond) {
+      parent.set(rootSecond, rootFirst)
+    }
+  }
+
+  for (const [first, second] of similarPairs) {
+    union(first, second)
+  }
+
+  for (let index = 0; index < sentence1.length; index += 1) {
+    if (
+      sentence1[index] !== sentence2[index] &&
+      find(sentence1[index]) !== find(sentence2[index])
+    ) {
+      return false
+    }
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'sentence-similarity-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是沿用上一题的直接关系集合，漏掉间接相似；或者不同单词没有初始化父节点就直接比较。',
+        bullets: [
+          '易错点 1：误把可传递关系当直接关系。',
+          '易错点 2：没有做路径压缩导致查询效率变差。',
+          '易错点 3：不同长度句子没有提前返回。',
+          '延伸方向：并查集、同义词归类、实体关系合并。',
+        ],
+      },
+    ],
+  },
 ];
