@@ -75776,4 +75776,88 @@ function splitListToParts(
       },
     ],
   },
+  {
+    id: 'self-dividing-numbers',
+    label: '728. LeetCode 728. 自除数',
+    difficulty: '简单',
+    description:
+      '自除数判断的关键在逐位检查：每一位都不能是 0，并且原数必须能被这一位整除。',
+    outcome: '你能把一个整数拆成各位数字进行约束验证，并完成区间枚举。',
+    sections: [
+      {
+        id: 'self-dividing-numbers-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个整数 `left` 和 `right`，要求返回这个闭区间内所有自除数。自除数是指一个数能被它的每一位数字整除，且各位数字都不能是 `0`。',
+        bullets: [
+          '需要检查区间中的每个整数。',
+          '数字中出现 `0` 就不可能是自除数。',
+          '必须被每一位数字整除。',
+          '是数位拆分题。',
+        ],
+      },
+      {
+        id: 'self-dividing-numbers-observe',
+        title: '判断单个数时，只需不断取个位并缩短原数',
+        summary:
+          '对一个候选整数，复制一份临时变量，不断取 `digit = value % 10`。若 `digit === 0`，或原数不能整除 `digit`，就直接判定失败；否则把临时变量除以 `10` 去掉个位，继续检查下一位。所有位都通过时，这个数就是自除数。',
+        bullets: [
+          '原数用于整除判断，临时变量用于拆位。',
+          '取模和整除就能完成数位扫描。',
+          '任何一位失败都可以提前结束。',
+          '单个数判断复杂度与位数相关。',
+        ],
+      },
+      {
+        id: 'self-dividing-numbers-solution',
+        title: '标准解法：区间遍历 + 逐位校验',
+        summary:
+          '遍历 `left` 到 `right` 的每一个整数。定义辅助函数 `isSelfDividing(num)`，按位检查该数是否满足条件。若满足，就把它加入答案数组。最终返回答案。',
+        bullets: [
+          '时间复杂度约为区间长度乘以数字位数。',
+          '空间复杂度取决于结果数组。',
+          '实现重点在拆位过程与原数分离。',
+          '是基础数位模拟题。',
+        ],
+        code: `function selfDividingNumbers(left: number, right: number): number[] {
+  const answer: number[] = []
+
+  const isSelfDividing = (num: number): boolean => {
+    let value = num
+
+    while (value > 0) {
+      const digit = value % 10
+      if (digit === 0 || num % digit !== 0) {
+        return false
+      }
+
+      value = Math.floor(value / 10)
+    }
+
+    return true
+  }
+
+  for (let value = left; value <= right; value += 1) {
+    if (isSelfDividing(value)) {
+      answer.push(value)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'self-dividing-numbers-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忘记排除数字 `0`；或者在拆位过程中直接修改了原数，导致后续整除判断对象错误。',
+        bullets: [
+          '易错点 1：没有单独处理 `digit === 0`。',
+          '易错点 2：整除判断错用被不断缩小后的变量。',
+          '易错点 3：循环边界没有覆盖 `right`。',
+          '延伸方向：数位 DP 前的基础数位操作、各位统计类问题。',
+        ],
+      },
+    ],
+  },
 ];
