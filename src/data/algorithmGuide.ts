@@ -76875,4 +76875,88 @@ function splitListToParts(
       },
     ],
   },
+  {
+    id: 'delete-and-earn',
+    label: '740. LeetCode 740. 删除并获得点数',
+    difficulty: '中等',
+    description:
+      '选择某个数字会让相邻数字全部失效，因此可以先按数字聚合收益，再把问题转成打家劫舍。',
+    outcome:
+      '你能把看似删除操作复杂的数字选择题，转换成相邻冲突下的线性动态规划。',
+    sections: [
+      {
+        id: 'delete-and-earn-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums`，选择一个数字 `x` 可以获得 `x` 分，但之后所有值为 `x - 1` 和 `x + 1` 的数字都会被删除。要求计算可以获得的最大点数。',
+        bullets: [
+          '同一个数字出现多次可以全部选择。',
+          '选择数字会影响相邻数值，而不是相邻下标。',
+          '选择顺序不影响最终最优值。',
+          '是值域 DP 题。',
+        ],
+      },
+      {
+        id: 'delete-and-earn-observe',
+        title: '先把相同数字聚合成总收益，再处理相邻数字冲突',
+        summary:
+          '对于数字 `x`，如果最终决定选择它，那么所有 `x` 都应该一起选择，总收益是 `x * count[x]`。选择 `x` 后不能选择 `x - 1` 和 `x + 1`，这和打家劫舍中不能选择相邻房屋完全一致。于是只需要在数字值域上做“不相邻选择”的 DP。',
+        bullets: [
+          '相同数字的收益可以先合并。',
+          '冲突关系发生在数值相邻而不是数组相邻。',
+          '缺失的数字收益视为零。',
+          '值域较大时可以用排序后的不同数字优化遍历。',
+        ],
+      },
+      {
+        id: 'delete-and-earn-solution',
+        title: '标准解法：值域聚合 + 打家劫舍 DP',
+        summary:
+          '先统计每个数字出现次数，并找到最大值。定义 `take` 表示处理到当前数字且选择当前数字时的最大收益，`skip` 表示不选择当前数字的最大收益。若当前数字与上一个数字连续，就选择当前数字时不能使用上一个数字的 `take`；若不连续，则两种状态都可以转移自上一步最大值。',
+        bullets: [
+          '时间复杂度是 `O(n + maxValue)`。',
+          '空间复杂度是 `O(maxValue)`。',
+          '实现重点在连续值与断档值的状态转移。',
+          '是打家劫舍在值域上的变体。',
+        ],
+        code: `function deleteAndEarn(nums: number[]): number {
+  if (nums.length === 0) {
+    return 0
+  }
+
+  const maximum = Math.max(...nums)
+  const points = new Array<number>(maximum + 1).fill(0)
+
+  for (const value of nums) {
+    points[value] += value
+  }
+
+  let skip = 0
+  let take = 0
+
+  for (let value = 0; value <= maximum; value += 1) {
+    const previousSkip = skip
+    const previousTake = take
+
+    skip = Math.max(previousSkip, previousTake)
+    take = previousSkip + points[value]
+  }
+
+  return Math.max(skip, take)
+}`,
+      },
+      {
+        id: 'delete-and-earn-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接按原数组下标做相邻判断，忽略冲突发生在数值上；或者相同数字没有先聚合，导致重复计算选择收益。',
+        bullets: [
+          '易错点 1：把数组位置相邻误当成数字相邻。',
+          '易错点 2：相同数字收益没有乘出现次数。',
+          '易错点 3：连续数字状态转移错误地同时使用两种状态。',
+          '延伸方向：打家劫舍、值域 DP、稀疏数字优化。',
+        ],
+      },
+    ],
+  },
 ];
