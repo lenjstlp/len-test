@@ -76191,4 +76191,104 @@ function splitListToParts(
       },
     ],
   },
+  {
+    id: 'flood-fill',
+    label: '733. LeetCode 733. 图像渲染',
+    difficulty: '简单',
+    description:
+      '图像渲染就是从起点出发，把所有四方向连通且颜色相同的像素改成新颜色，是网格 DFS/BFS 的基础模板。',
+    outcome:
+      '你能在二维网格中进行连通块遍历，并正确处理原颜色与目标颜色相同的提前返回。',
+    sections: [
+      {
+        id: 'flood-fill-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个二维图像数组、起始坐标 `(sr, sc)` 和新颜色 `color`，需要把起点所在的同色连通区域全部替换为新颜色。连通只考虑上下左右四个方向。',
+        bullets: [
+          '只替换与起点原颜色相同的像素。',
+          '只考虑四方向连通。',
+          '其它颜色的边界不能穿透。',
+          '是网格遍历入门题。',
+        ],
+      },
+      {
+        id: 'flood-fill-observe',
+        title: '原颜色和新颜色相同时必须立即结束',
+        summary:
+          '递归或 BFS 都可以完成遍历。先记录起点原颜色，只有颜色等于原颜色的格子才继续扩展。特别要注意：若原颜色本来就等于新颜色，继续递归会反复访问同一批格子，因此必须直接返回。',
+        bullets: [
+          '起点原颜色是连通区域判定标准。',
+          '修改颜色也可以作为访问标记。',
+          '越界和异色格子直接跳过。',
+          '同色替换是关键边界条件。',
+        ],
+      },
+      {
+        id: 'flood-fill-solution',
+        title: '标准解法：递归 DFS 填充连通块',
+        summary:
+          '先读取起点颜色 `originalColor`。若它等于新颜色，直接返回原图。否则定义 DFS：检查坐标是否合法且颜色是否等于原颜色，满足条件就把当前格改为新颜色，再向四个方向递归。DFS 结束后返回图像。',
+        bullets: [
+          '时间复杂度是 `O(m * n)`。',
+          '空间复杂度主要来自递归栈。',
+          '实现重点在边界判断和提前返回。',
+          '也可以改用队列实现 BFS。',
+        ],
+        code: `function floodFill(
+  image: number[][],
+  sr: number,
+  sc: number,
+  color: number,
+): number[][] {
+  const originalColor = image[sr][sc]
+  if (originalColor === color) {
+    return image
+  }
+
+  const rows = image.length
+  const columns = image[0].length
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+
+  const dfs = (row: number, column: number): void => {
+    if (
+      row < 0 ||
+      row >= rows ||
+      column < 0 ||
+      column >= columns ||
+      image[row][column] !== originalColor
+    ) {
+      return
+    }
+
+    image[row][column] = color
+
+    for (const [deltaRow, deltaColumn] of directions) {
+      dfs(row + deltaRow, column + deltaColumn)
+    }
+  }
+
+  dfs(sr, sc)
+  return image
+}`,
+      },
+      {
+        id: 'flood-fill-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是原颜色与新颜色相同仍继续递归，导致无限递归；或者错误地允许斜向连通。',
+        bullets: [
+          '易错点 1：遗漏同色替换的提前返回。',
+          '易错点 2：越界检查不完整。',
+          '易错点 3：把八方向误当成四方向。',
+          '延伸方向：岛屿问题、连通块、BFS 最短路。',
+        ],
+      },
+    ],
+  },
 ];
