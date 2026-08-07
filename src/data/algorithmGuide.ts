@@ -76383,4 +76383,96 @@ function splitListToParts(
       },
     ],
   },
+  {
+    id: 'asteroid-collision',
+    label: '735. LeetCode 735. 小行星碰撞',
+    difficulty: '中等',
+    description:
+      '碰撞只会发生在右移小行星左边、左移小行星右边的相向组合。栈可以保存尚未确定命运的右移小行星。',
+    outcome:
+      '你能用栈模拟局部冲突不断向左传播的过程，并处理相等、较大和连续碰撞。',
+    sections: [
+      {
+        id: 'asteroid-collision-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组，每个数字绝对值表示小行星大小，正负号表示移动方向。相向移动的小行星相撞，较小者爆炸，大小相等则都爆炸。要求返回最终剩余的小行星。',
+        bullets: [
+          '正数向右移动，负数向左移动。',
+          '同向小行星不会相撞。',
+          '只有正数在左、负数在右时可能相撞。',
+          '是栈模拟题。',
+        ],
+      },
+      {
+        id: 'asteroid-collision-observe',
+        title: '新来的左移小行星可能连续撞掉栈顶多个右移小行星',
+        summary:
+          '从左到右扫描数组，用栈保存暂时安全的小行星。当当前小行星是左移，且栈顶是右移时，二者相向，需要比较大小。若当前小行星更大，就继续与新的栈顶碰撞；若更小则当前小行星消失；若相等则双方都消失。',
+        bullets: [
+          '栈顶代表最近可能发生碰撞的小行星。',
+          '一次新元素可能触发多次连续碰撞。',
+          '比较的是绝对值大小。',
+          '碰撞结束后才决定当前元素是否入栈。',
+        ],
+      },
+      {
+        id: 'asteroid-collision-solution',
+        title: '标准解法：栈维护未决小行星',
+        summary:
+          '遍历每个小行星。若当前是左移且栈顶是右移，就循环比较：栈顶绝对值小则弹出并继续；相等则弹出且当前消失；栈顶更大则当前消失。若当前最终仍未消失，就压入栈。扫描结束后栈中的元素就是答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '每个小行星至多入栈出栈一次。',
+          '空间复杂度是 `O(n)`。',
+          '是栈处理相邻冲突的经典模型。',
+        ],
+        code: `function asteroidCollision(asteroids: number[]): number[] {
+  const stack: number[] = []
+
+  for (const asteroid of asteroids) {
+    let alive = true
+
+    while (
+      alive &&
+      asteroid < 0 &&
+      stack.length > 0 &&
+      stack[stack.length - 1] > 0
+    ) {
+      const top = stack[stack.length - 1]
+
+      if (top < -asteroid) {
+        stack.pop()
+        continue
+      }
+
+      if (top === -asteroid) {
+        stack.pop()
+      }
+
+      alive = false
+    }
+
+    if (alive) {
+      stack.push(asteroid)
+    }
+  }
+
+  return stack
+}`,
+      },
+      {
+        id: 'asteroid-collision-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是让同向小行星发生碰撞；或者当前左移小行星撞掉一个栈顶后没有继续检查，漏掉连续碰撞。',
+        bullets: [
+          '易错点 1：没有限制相向的正左负右组合。',
+          '易错点 2：碰撞后没有循环继续比较。',
+          '易错点 3：相等大小时只删除了一方。',
+          '延伸方向：单调栈、表达式消解、局部冲突模拟。',
+        ],
+      },
+    ],
+  },
 ];
