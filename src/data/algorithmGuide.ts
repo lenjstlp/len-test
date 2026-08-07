@@ -76475,4 +76475,148 @@ function splitListToParts(
       },
     ],
   },
+  {
+    id: 'parse-lisp-expression',
+    label: '736. LeetCode 736. Lisp 语法解析',
+    difficulty: '困难',
+    description:
+      '这题的难点是嵌套表达式与局部变量作用域。递归解析负责表达式结构，作用域栈负责变量在不同 let 层级中的遮蔽关系。',
+    outcome:
+      '你能实现一个小型表达式解释器，处理 token 读取、递归求值和局部作用域。',
+    sections: [
+      {
+        id: 'parse-lisp-expression-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 Lisp 风格表达式，只包含 `add`、`mult` 和 `let` 三种形式。`let` 可以连续绑定变量，变量只在当前表达式内部生效。要求计算整个表达式的结果。',
+        bullets: [
+          '`add` 计算两个表达式之和。',
+          '`mult` 计算两个表达式之积。',
+          '`let` 支持局部变量绑定与遮蔽。',
+          '是递归下降解析题。',
+        ],
+      },
+      {
+        id: 'parse-lisp-expression-observe',
+        title: '表达式嵌套结构天然适合递归，变量环境天然适合作用域栈',
+        summary:
+          '每个括号表达式都可以递归求值。解析到普通 token 时，它要么是数字，要么是变量名；变量应从最内层作用域向外查找。进入一个 `let` 表达式时新建局部作用域，绑定只写入该层；退出时自动丢弃该层，从而实现变量遮蔽。',
+        bullets: [
+          '当前字符串下标是解析器的共享状态。',
+          'token 读取需要跳过空格并在空格或右括号处停止。',
+          '变量查找必须从内层向外层进行。',
+          'let 的最后一项是表达式，不是变量绑定。',
+        ],
+      },
+      {
+        id: 'parse-lisp-expression-solution',
+        title: '标准解法：递归下降解析 + 作用域栈',
+        summary:
+          '定义 `evaluateExpression` 递归函数。若当前位置不是左括号，就读取数字或变量；若是左括号，读取操作符并分别处理 `add`、`mult`、`let`。`let` 进入时压入新 `Map`，依次解析变量绑定，直到最后一个普通 token 或嵌套表达式作为结果表达式，结束后弹出作用域。',
+        bullets: [
+          '时间复杂度与表达式长度成正比。',
+          '空间复杂度主要来自递归深度和作用域栈。',
+          '实现重点在下标推进和 let 的结束判断。',
+          '是解释器与编译原理入门题。',
+        ],
+        code: `function evaluateLisp(expression: string): number {
+  let index = 0
+  const scopes: Array<Map<string, number>> = [new Map<string, number>()]
+
+  const skipSpaces = (): void => {
+    while (expression[index] === ' ') {
+      index += 1
+    }
+  }
+
+  const readToken = (): string => {
+    const start = index
+    while (
+      index < expression.length &&
+      expression[index] !== ' ' &&
+      expression[index] !== ')'
+    ) {
+      index += 1
+    }
+    return expression.slice(start, index)
+  }
+
+  const resolve = (token: string): number => {
+    if (token[0] === '-' || (token[0] >= '0' && token[0] <= '9')) {
+      return Number(token)
+    }
+
+    for (let level = scopes.length - 1; level >= 0; level -= 1) {
+      const value = scopes[level].get(token)
+      if (value !== undefined) {
+        return value
+      }
+    }
+
+    return 0
+  }
+
+  const evaluateExpression = (): number => {
+    if (expression[index] !== '(') {
+      return resolve(readToken())
+    }
+
+    index += 1
+    const operator = readToken()
+    skipSpaces()
+
+    if (operator === 'add' || operator === 'mult') {
+      const first = evaluateExpression()
+      skipSpaces()
+      const second = evaluateExpression()
+      index += 1
+      return operator === 'add' ? first + second : first * second
+    }
+
+    const local = new Map<string, number>()
+    scopes.push(local)
+
+    while (true) {
+      skipSpaces()
+
+      if (expression[index] === '(') {
+        const result = evaluateExpression()
+        index += 1
+        scopes.pop()
+        return result
+      }
+
+      const token = readToken()
+      skipSpaces()
+
+      if (expression[index] === ')') {
+        const result = resolve(token)
+        index += 1
+        scopes.pop()
+        return result
+      }
+
+      const value = evaluateExpression()
+      local.set(token, value)
+      skipSpaces()
+    }
+  }
+
+  return evaluateExpression()
+}`,
+      },
+      {
+        id: 'parse-lisp-expression-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是让 let 变量污染外层作用域；或者把 let 最后一个表达式误当成变量和值的一对绑定。',
+        bullets: [
+          '易错点 1：变量查找方向从外向内。',
+          '易错点 2：没有在 let 结束时弹出局部作用域。',
+          '易错点 3：右括号消费时机不一致。',
+          '延伸方向：递归下降解析、解释器、作用域链。',
+        ],
+      },
+    ],
+  },
 ];
