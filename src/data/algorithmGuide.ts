@@ -75672,4 +75672,108 @@ function splitListToParts(
       },
     ],
   },
+  {
+    id: 'minimum-window-subsequence',
+    label: '727. LeetCode 727. 最小窗口子序列',
+    difficulty: '困难',
+    description:
+      '这题和最小覆盖子串不同，目标不是字符计数覆盖，而是让 `s2` 作为子序列完整落在 `s1` 的某个最短连续窗口中。',
+    outcome:
+      '你能区分子串覆盖和子序列匹配问题，并用双阶段扫描收缩出最短合法窗口。',
+    sections: [
+      {
+        id: 'minimum-window-subsequence-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s1` 和 `s2`，要求在 `s1` 中找到一个最短连续子串，使得 `s2` 是这个子串的子序列。若有多个答案，返回起点最靠左的那个；若不存在，返回空字符串。',
+        bullets: [
+          '窗口本身必须是 `s1` 的连续子串。',
+          '`s2` 在窗口内只要求按顺序出现，不要求连续。',
+          '优先最短，再优先最左。',
+          '是双指针与子序列匹配题。',
+        ],
+      },
+      {
+        id: 'minimum-window-subsequence-observe',
+        title: '先向右找到一个可行窗口，再向左回退缩到最短',
+        summary:
+          '可以从 `s1` 左到右扫描，用一个指针匹配 `s2`。一旦成功匹配到 `s2` 的最后一个字符，就说明找到了一段以当前位置结尾的可行窗口。接下来反向回退：从这个结尾往左重新倒着匹配 `s2`，把窗口左边界尽量收紧。这样每发现一个可行窗口，都能立刻得到它在当前结尾下的最短形式。',
+        bullets: [
+          '前向扫描负责找到一个合法结尾。',
+          '反向回退负责把左边界压到最紧。',
+          '每次收缩后继续从新左边界后面往前扫。',
+          '是“扩张后回缩”的序列匹配思路。',
+        ],
+      },
+      {
+        id: 'minimum-window-subsequence-solution',
+        title: '标准解法：前向匹配 + 反向收缩',
+        summary:
+          '用指针 `right` 扫描 `s1`，同时推进 `s2` 的匹配位置。若 `s2` 全部匹配完成，就从当前 `right` 开始反向走，倒着匹配 `s2`，直到找到这段窗口的最左起点。记录最优答案后，把 `right` 放回这个起点的下一位，继续寻找后续更短窗口。',
+        bullets: [
+          '时间复杂度通常写作 `O(m * n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在前后两次扫描的边界控制。',
+          '是最小窗口类题目的变体。',
+        ],
+        code: `function minWindowSubsequence(s1: string, s2: string): string {
+  let answerStart = -1
+  let answerLength = Number.POSITIVE_INFINITY
+  let right = 0
+
+  while (right < s1.length) {
+    let patternIndex = 0
+
+    while (right < s1.length) {
+      if (s1[right] === s2[patternIndex]) {
+        patternIndex += 1
+        if (patternIndex === s2.length) {
+          break
+        }
+      }
+
+      right += 1
+    }
+
+    if (right === s1.length) {
+      break
+    }
+
+    let left = right
+    patternIndex = s2.length - 1
+
+    while (patternIndex >= 0) {
+      if (s1[left] === s2[patternIndex]) {
+        patternIndex -= 1
+      }
+      left -= 1
+    }
+
+    left += 1
+    const length = right - left + 1
+    if (length < answerLength) {
+      answerLength = length
+      answerStart = left
+    }
+
+    right = left + 1
+  }
+
+  return answerStart === -1 ? '' : s1.slice(answerStart, answerStart + answerLength)
+}`,
+      },
+      {
+        id: 'minimum-window-subsequence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是套用最小覆盖子串的字符计数模板，那会完全丢失子序列顺序约束；或者反向收缩完成后没有把左边界加回一步，导致窗口多缩掉一个字符。',
+        bullets: [
+          '易错点 1：把子序列问题错写成字符频次问题。',
+          '易错点 2：反向回退结束后左边界校正错误。',
+          '易错点 3：找到一个窗口后继续扫描的位置处理不当。',
+          '延伸方向：最小窗口、双指针、序列匹配、DP 版本优化。',
+        ],
+      },
+    ],
+  },
 ];
