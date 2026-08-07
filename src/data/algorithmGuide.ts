@@ -75860,4 +75860,76 @@ function splitListToParts(
       },
     ],
   },
+  {
+    id: 'my-calendar-i',
+    label: '729. LeetCode 729. 我的日程安排表 I',
+    difficulty: '中等',
+    description:
+      '这题的本质是动态维护一组互不重叠的时间区间。每次新增预订时，只要和任意已有区间重叠就必须拒绝。',
+    outcome: '你能熟练判断半开区间重叠关系，并维护一个始终合法的区间集合。',
+    sections: [
+      {
+        id: 'my-calendar-i-summary',
+        title: '题目在问什么',
+        summary:
+          '实现一个日程表类，支持 `book(start, end)`。若新区间 `[start, end)` 与已有任意预订重叠，就返回 `false`；否则把它加入日程表并返回 `true`。',
+        bullets: [
+          '时间区间使用半开区间 `[start, end)`。',
+          '允许边界相接，不算重叠。',
+          '任意重叠都要拒绝这次预订。',
+          '是区间判重题。',
+        ],
+      },
+      {
+        id: 'my-calendar-i-observe',
+        title: '两个半开区间重叠的条件非常直接',
+        summary:
+          '对于已有区间 `[left, right)` 和新区间 `[start, end)`，它们重叠当且仅当 `start < right && left < end`。因此只要遍历所有已有预订，检查是否存在满足这个条件的区间即可。若没有重叠，就能安全插入。',
+        bullets: [
+          '边界相接时不会命中重叠条件。',
+          '重叠判断是这题唯一核心逻辑。',
+          '数据规模不大时，线性扫描足够。',
+          '区间一旦通过，就可以直接加入集合。',
+        ],
+      },
+      {
+        id: 'my-calendar-i-solution',
+        title: '标准解法：维护已预订区间数组并逐个检查',
+        summary:
+          '用一个数组保存所有已成功预订的区间。每次调用 `book` 时，遍历数组中的所有区间，只要发现任意一个与新区间重叠，就返回 `false`。若全部检查通过，就把新区间加入数组并返回 `true`。',
+        bullets: [
+          '单次预订时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在半开区间重叠条件。',
+          '是后续日程表系列题的基础版本。',
+        ],
+        code: `class MyCalendar {
+  private readonly bookings: Array<[number, number]> = []
+
+  book(start: number, end: number): boolean {
+    for (const [left, right] of this.bookings) {
+      if (start < right && left < end) {
+        return false
+      }
+    }
+
+    this.bookings.push([start, end])
+    return true
+  }
+}`,
+      },
+      {
+        id: 'my-calendar-i-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把边界相接误判为重叠；或者使用闭区间思路写条件，导致 `[10, 20)` 与 `[20, 30)` 这种合法情况被错误拒绝。',
+        bullets: [
+          '易错点 1：没有明确使用半开区间语义。',
+          '易错点 2：重叠判断条件写成了 `<=`。',
+          '易错点 3：通过检查后忘记把新区间存起来。',
+          '延伸方向：扫描线、平衡树、我的日程安排表 II/III。',
+        ],
+      },
+    ],
+  },
 ];
