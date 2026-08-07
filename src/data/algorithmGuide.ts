@@ -76291,4 +76291,96 @@ function splitListToParts(
       },
     ],
   },
+  {
+    id: 'sentence-similarity',
+    label: '734. LeetCode 734. 句子相似性',
+    difficulty: '简单',
+    description:
+      '这题的相似关系只看直接给出的单词对，不具备传递性。每个位置的单词都必须相同或直接相似。',
+    outcome: '你能根据关系是否传递选择合适的数据结构，而不是错误地套用并查集。',
+    sections: [
+      {
+        id: 'sentence-similarity-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个单词数组和一组相似单词对，判断两个句子是否相似。两个句子只有长度相同，且每个位置的单词相同或属于一对直接相似词时，才认为相似。',
+        bullets: [
+          '句子长度必须相同。',
+          '相似关系是对称的。',
+          '相似关系不具有传递性。',
+          '是哈希关系查询题。',
+        ],
+      },
+      {
+        id: 'sentence-similarity-observe',
+        title: '直接相似和传递相似是两类不同问题',
+        summary:
+          '本题只允许使用题目直接给出的相似词对。例如 `great` 和 `good` 相似，`good` 和 `fine` 相似，并不代表 `great` 和 `fine` 相似。因此不需要连通性结构，只需把每个单词的直接相似词放入集合，逐位置查询即可。',
+        bullets: [
+          '单词相同永远合法。',
+          '不同单词时必须检查直接相似关系。',
+          '相似对要双向保存。',
+          '长度不同时可以直接返回 false。',
+        ],
+      },
+      {
+        id: 'sentence-similarity-solution',
+        title: '标准解法：构建双向相似词集合',
+        summary:
+          '先判断两句话长度是否相同。再遍历相似词对，用 `Map<string, Set<string>>` 双向建立关系。最后按下标比较两个句子的单词：相同则继续；不同则检查第一个单词的相似集合中是否包含第二个单词，不包含就返回 `false`。',
+        bullets: [
+          '时间复杂度是 `O(p + n)`。',
+          '空间复杂度是 `O(p)`。',
+          '实现重点在双向关系和直接关系语义。',
+          '是关系建模的基础题。',
+        ],
+        code: `function areSentencesSimilar(
+  sentence1: string[],
+  sentence2: string[],
+  similarPairs: string[][],
+): boolean {
+  if (sentence1.length !== sentence2.length) {
+    return false
+  }
+
+  const similar = new Map<string, Set<string>>()
+
+  for (const [first, second] of similarPairs) {
+    if (!similar.has(first)) {
+      similar.set(first, new Set<string>())
+    }
+    if (!similar.has(second)) {
+      similar.set(second, new Set<string>())
+    }
+
+    similar.get(first)?.add(second)
+    similar.get(second)?.add(first)
+  }
+
+  for (let index = 0; index < sentence1.length; index += 1) {
+    const first = sentence1[index]
+    const second = sentence2[index]
+
+    if (first !== second && !similar.get(first)?.has(second)) {
+      return false
+    }
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'sentence-similarity-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把直接相似关系错误地当成可传递关系；或者只存储单向关系，导致交换两个句子后结果变化。',
+        bullets: [
+          '易错点 1：误用并查集处理非传递关系。',
+          '易错点 2：相似词对没有双向保存。',
+          '易错点 3：忽略句子长度不一致。',
+          '延伸方向：图关系、句子相似性 II、语义匹配。',
+        ],
+      },
+    ],
+  },
 ];
