@@ -76724,4 +76724,79 @@ function splitListToParts(
       },
     ],
   },
+  {
+    id: 'monotone-increasing-digits',
+    label: '738. LeetCode 738. 单调递增的数字',
+    difficulty: '中等',
+    description:
+      '要找不大于 `n` 的最大单调递增数字，关键是在第一次出现下降的位置回退一位，并把后面的数字全部改成 9。',
+    outcome: '你能理解数字字符串上的贪心回退，并处理连续借位造成的连锁变化。',
+    sections: [
+      {
+        id: 'monotone-increasing-digits-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个非负整数 `n`，要求返回小于等于 `n` 的最大单调递增数字。单调递增表示从左到右每一位数字都不小于前一位。',
+        bullets: [
+          '结果不能大于 `n`。',
+          '结果的数字从左到右非递减。',
+          '要最大化结果。',
+          '是贪心和数字处理题。',
+        ],
+      },
+      {
+        id: 'monotone-increasing-digits-observe',
+        title: '第一次下降位置决定必须回退，后缀改成 9 才能最大',
+        summary:
+          '从左到右检查数字，若发现 `digits[index - 1] > digits[index]`，说明当前数字已经不是单调递增。为了让结果不超过原数，需要把前一位减一；为了让后缀尽可能大，前一位之后全部置为 9。减一可能让更前面的数字再次发生下降，所以要继续向左回退。',
+        bullets: [
+          '第一次下降位置是贪心修改起点。',
+          '回退后缀全部变成 9。',
+          '连续相同数字也可能触发借位。',
+          '最终结果天然不大于原数。',
+        ],
+      },
+      {
+        id: 'monotone-increasing-digits-solution',
+        title: '标准解法：找到下降点后统一回退和填 9',
+        summary:
+          '把数字转成字符数组，设置 `marker` 表示后缀开始填 9 的位置。扫描相邻数字，若前一位大于后一位，就把前一位减一，并让 `marker` 指向后一位。扫描结束后把 `marker` 之后的所有数字改成 9，再转回整数。',
+        bullets: [
+          '时间复杂度是 `O(d)`，`d` 为数字位数。',
+          '空间复杂度是 `O(d)`。',
+          '实现重点在回退后的连续检查。',
+          '是数字字符串贪心题。',
+        ],
+        code: `function monotoneIncreasingDigits(n: number): number {
+  const digits = String(n).split('').map(Number)
+  let marker = digits.length
+
+  for (let index = digits.length - 1; index > 0; index -= 1) {
+    if (digits[index - 1] > digits[index]) {
+      digits[index - 1] -= 1
+      marker = index
+    }
+  }
+
+  for (let index = marker; index < digits.length; index += 1) {
+    digits[index] = 9
+  }
+
+  return Number(digits.join(''))
+}`,
+      },
+      {
+        id: 'monotone-increasing-digits-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是找到下降点后只修改一次，忽略减一会继续影响前面的数字；或者把后缀填成 0，错过最大化目标。',
+        bullets: [
+          '易错点 1：借位链没有向前传播。',
+          '易错点 2：后缀没有全部改成 9。',
+          '易错点 3：从左向右修改导致状态处理复杂。',
+          '延伸方向：数字贪心、数位 DP、字典序最大化。',
+        ],
+      },
+    ],
+  },
 ];
