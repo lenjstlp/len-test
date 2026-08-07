@@ -76799,4 +76799,80 @@ function splitListToParts(
       },
     ],
   },
+  {
+    id: 'daily-temperatures',
+    label: '739. LeetCode 739. 每日温度',
+    difficulty: '中等',
+    description:
+      '每一天要找右侧第一个更高温度，适合用单调递减栈保存还没有找到答案的下标。',
+    outcome: '你能识别“下一个更大元素”模式，并通过单调栈在线结算等待中的位置。',
+    sections: [
+      {
+        id: 'daily-temperatures-summary',
+        title: '题目在问什么',
+        summary:
+          '给定每天的温度数组 `temperatures`，要求返回一个数组，其中 `answer[i]` 表示从第 `i` 天开始，需要等待多少天才能遇到更高温度；如果之后没有更高温度，则为 `0`。',
+        bullets: [
+          '目标是右侧第一个严格更大值。',
+          '没有更高温度时返回零。',
+          '每个位置只需要一个最近有效答案。',
+          '是单调栈经典题。',
+        ],
+      },
+      {
+        id: 'daily-temperatures-observe',
+        title: '当前更高温度可以一次性解决多个更早的等待位置',
+        summary:
+          '从左到右扫描温度，用栈保存温度仍然没有升高的下标，并保持这些下标对应的温度单调递减。当当前温度高于栈顶温度时，说明当前天就是栈顶下标等待的第一个更高温度，弹出并填写距离；如果当前温度还不够高，就继续入栈等待未来。',
+        bullets: [
+          '栈中保存的是尚未结算的下标。',
+          '栈顶是最容易被当前温度解决的位置。',
+          '每个下标只入栈和出栈一次。',
+          '严格更高要使用 `>`。',
+        ],
+      },
+      {
+        id: 'daily-temperatures-solution',
+        title: '标准解法：单调递减下标栈',
+        summary:
+          '初始化答案数组为零。遍历每一天的温度，当前温度大于栈顶温度时，不断弹出栈顶下标并写入 `currentIndex - previousIndex`。处理完所有可结算位置后，把当前下标压入栈。最终仍在栈中的位置答案保持零。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在栈中保存下标而不是温度。',
+          '是下一个更大元素问题的标准变体。',
+        ],
+        code: `function dailyTemperatures(temperatures: number[]): number[] {
+  const answer = new Array<number>(temperatures.length).fill(0)
+  const stack: number[] = []
+
+  for (let index = 0; index < temperatures.length; index += 1) {
+    while (
+      stack.length > 0 &&
+      temperatures[index] > temperatures[stack[stack.length - 1]]
+    ) {
+      const previousIndex = stack.pop() as number
+      answer[previousIndex] = index - previousIndex
+    }
+
+    stack.push(index)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'daily-temperatures-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是栈中保存温度导致无法直接计算距离；或者使用大于等于，错误地把相同温度当成更高温度。',
+        bullets: [
+          '易错点 1：没有保存下标。',
+          '易错点 2：相同温度被错误结算。',
+          '易错点 3：遍历结束后错误地给未结算位置赋值。',
+          '延伸方向：单调栈、下一个更大元素、柱状图最大矩形。',
+        ],
+      },
+    ],
+  },
 ];
