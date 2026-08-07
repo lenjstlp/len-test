@@ -76035,4 +76035,83 @@ function splitListToParts(
       },
     ],
   },
+  {
+    id: 'my-calendar-ii',
+    label: '731. LeetCode 731. 我的日程安排表 II',
+    difficulty: '中等',
+    description:
+      '这题允许双重预订但禁止三重预订。核心是把所有已经发生过的双重重叠区间单独记录下来，作为下一次预订的禁区。',
+    outcome: '你能通过维护不同重叠层级的区间集合，控制动态预订的最大并发度。',
+    sections: [
+      {
+        id: 'my-calendar-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个日程表，支持 `book(start, end)`。允许某个时间段被预订两次，但任何时间都不能被预订三次。若新增预订会造成三重重叠，则返回 `false`。',
+        bullets: [
+          '允许单重和双重预订。',
+          '禁止任何三重预订。',
+          '时间区间仍使用半开区间。',
+          '是动态区间重叠题。',
+        ],
+      },
+      {
+        id: 'my-calendar-ii-observe',
+        title: '已有的双重重叠区间，就是新增预订不能触碰的禁区',
+        summary:
+          '如果新预订和任何一段已有双重重叠区间相交，就会形成三重预订，必须拒绝。若没有触碰禁区，新预订可以与若干已有单重预订相交；这些交集会成为新的双重重叠区间，需要记录下来。最后再把新预订加入单重预订集合。',
+        bullets: [
+          '先检查双重区间，再计算新增双重区间。',
+          '不能先写入新预订再检查。',
+          '新增双重区间等于新预订与旧预订的交集。',
+          '半开区间重叠条件保持一致。',
+        ],
+      },
+      {
+        id: 'my-calendar-ii-solution',
+        title: '标准解法：预订区间 + 双重重叠区间',
+        summary:
+          '使用 `bookings` 保存所有已接受预订，使用 `overlaps` 保存所有已存在的双重重叠区间。每次 `book` 时先检查新预订是否与 `overlaps` 交叠，若交叠直接返回 `false`。否则遍历 `bookings`，把所有交集加入 `overlaps`，最后将新预订加入 `bookings`。',
+        bullets: [
+          '单次预订最坏时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n^2)`，取决于交集数量。',
+          '实现重点在交集边界计算。',
+          '是分层区间管理的基础模型。',
+        ],
+        code: `class MyCalendarTwo {
+  private readonly bookings: Array<[number, number]> = []
+  private readonly overlaps: Array<[number, number]> = []
+
+  book(start: number, end: number): boolean {
+    for (const [left, right] of this.overlaps) {
+      if (start < right && left < end) {
+        return false
+      }
+    }
+
+    for (const [left, right] of this.bookings) {
+      if (start < right && left < end) {
+        this.overlaps.push([Math.max(start, left), Math.min(end, right)])
+      }
+    }
+
+    this.bookings.push([start, end])
+    return true
+  }
+}`,
+      },
+      {
+        id: 'my-calendar-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只统计新预订与单重预订的数量，却没有保留双重重叠的具体时间范围；或者在发现交叠后仍然把新预订写入集合。',
+        bullets: [
+          '易错点 1：没有先检查双重重叠禁区。',
+          '易错点 2：把两个区间并集误当成交集。',
+          '易错点 3：拒绝预订后仍修改内部状态。',
+          '延伸方向：扫描线、差分数组、区间并发控制。',
+        ],
+      },
+    ],
+  },
 ];
