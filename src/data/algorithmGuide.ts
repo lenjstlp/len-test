@@ -76114,4 +76114,81 @@ function splitListToParts(
       },
     ],
   },
+  {
+    id: 'my-calendar-iii',
+    label: '732. LeetCode 732. 我的日程安排表 III',
+    difficulty: '困难',
+    description:
+      '这题不再拒绝预订，而是每次新增后返回历史最大并发数。把每个区间拆成开始加一、结束减一的事件，就能通过扫描累积得到答案。',
+    outcome: '你能用差分事件和扫描线统计任意时刻的最大重叠次数。',
+    sections: [
+      {
+        id: 'my-calendar-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个日程表，支持 `book(start, end)`。每次预订都可以成功，但需要返回截至当前为止，任意时间点上的最大预订重叠次数。',
+        bullets: [
+          '所有预订都允许加入。',
+          '每次调用都要返回新的最大重叠层数。',
+          '使用半开区间 `[start, end)`。',
+          '是扫描线和差分统计题。',
+        ],
+      },
+      {
+        id: 'my-calendar-iii-observe',
+        title: '区间开始记加一，区间结束记减一',
+        summary:
+          '每个预订 `[start, end)` 可以转化为两个事件：在 `start` 时并发数加一，在 `end` 时并发数减一。把所有事件按时间排序后顺序累加，累加过程中的最大值就是任意时间点上的最大并发预订数。',
+        bullets: [
+          '半开区间使开始和结束事件边界清晰。',
+          '同一时刻的增减可以先合并到一个差分值。',
+          '按时间顺序累加差分即可恢复并发数。',
+          '最大前缀和就是答案。',
+        ],
+      },
+      {
+        id: 'my-calendar-iii-solution',
+        title: '标准解法：差分表 + 有序时间扫描',
+        summary:
+          '使用 `Map` 保存时间点的差分值。每次预订时对开始时间加一、结束时间减一。然后取出所有时间点并排序，依次累加差分值，同时维护最大值。若使用平衡树可以优化更新效率；入门实现直接排序即可清楚表达扫描线思想。',
+        bullets: [
+          '单次调用时间复杂度是 `O(n log n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在差分累计和事件排序。',
+          '是会议室、并发统计类题的通用模型。',
+        ],
+        code: `class MyCalendarThree {
+  private readonly changes = new Map<number, number>()
+
+  book(start: number, end: number): number {
+    this.changes.set(start, (this.changes.get(start) ?? 0) + 1)
+    this.changes.set(end, (this.changes.get(end) ?? 0) - 1)
+
+    const times = [...this.changes.keys()].sort((first, second) => first - second)
+    let active = 0
+    let maximum = 0
+
+    for (const time of times) {
+      active += this.changes.get(time) as number
+      maximum = Math.max(maximum, active)
+    }
+
+    return maximum
+  }
+}`,
+      },
+      {
+        id: 'my-calendar-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接只比较新预订和已有预订的重叠次数，忽略多段区间可以在同一点累积；或者没有按时间顺序扫描差分事件。',
+        bullets: [
+          '易错点 1：没有把区间转换成差分事件。',
+          '易错点 2：事件时间点未排序就直接累计。',
+          '易错点 3：结束事件方向写成加一。',
+          '延伸方向：扫描线、差分数组、容量规划和峰值并发。',
+        ],
+      },
+    ],
+  },
 ];
