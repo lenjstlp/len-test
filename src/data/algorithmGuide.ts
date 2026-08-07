@@ -75932,4 +75932,107 @@ function splitListToParts(
       },
     ],
   },
+  {
+    id: 'count-different-palindromic-subsequences',
+    label: '730. LeetCode 730. 统计不同回文子序列',
+    difficulty: '困难',
+    description:
+      '这题要求统计不同的回文子序列，难点不在判断回文，而在处理相同字符造成的重复计数。区间 DP 必须额外定位内部相同字符的位置。',
+    outcome: '你能理解区间 DP 的去重转移，并处理模运算下的加减边界。',
+    sections: [
+      {
+        id: 'count-different-palindromic-subsequences-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只由 `a`、`b`、`c`、`d` 构成的字符串，要求统计其中不同的非空回文子序列数量。结果需要对 `1_000_000_007` 取模。',
+        bullets: [
+          '子序列不要求连续。',
+          '只统计不同内容，不重复计数相同字符串。',
+          '回文长度可以为 `1`。',
+          '是区间动态规划难题。',
+        ],
+      },
+      {
+        id: 'count-different-palindromic-subsequences-observe',
+        title: '两端字符相同时，要根据内部相同字符数量决定如何去重',
+        summary:
+          '设 `dp[left][right]` 表示子串 `s[left..right]` 中不同回文子序列数量。当两端字符不同时，可以用包含排除合并两个区间；当两端字符相同时，两端包裹内部回文会产生新回文，但内部是否还存在同字符会决定重复量：不存在、存在一个、存在多个时的转移各不相同。',
+        bullets: [
+          '区间长度从小到大填表。',
+          '字符不同使用包含排除。',
+          '字符相同时需要向内定位首次和末次相同字符。',
+          '每一步都要保持结果在模数范围内。',
+        ],
+      },
+      {
+        id: 'count-different-palindromic-subsequences-solution',
+        title: '标准解法：区间 DP + 内部重复字符定位',
+        summary:
+          '先初始化所有单字符区间为 `1`。按区间长度递增计算：若两端字符不同，使用 `dp[left + 1][right] + dp[left][right - 1] - dp[left + 1][right - 1]`；若相同，则在内部查找相同字符出现位置，并分别处理不存在、只有一个、存在多个的情况。每次写入前都进行模运算归一化。',
+        bullets: [
+          '时间复杂度是 `O(n^3)`，可进一步预处理降到 `O(n^2)`。',
+          '空间复杂度是 `O(n^2)`。',
+          '实现重点在重复处理和负数取模。',
+          '是经典的区间 DP 去重题。',
+        ],
+        code: `function countPalindromicSubsequences(s: string): number {
+  const modulo = 1_000_000_007
+  const length = s.length
+  const dp = Array.from({ length }, () => new Array<number>(length).fill(0))
+
+  for (let index = 0; index < length; index += 1) {
+    dp[index][index] = 1
+  }
+
+  for (let size = 2; size <= length; size += 1) {
+    for (let left = 0; left + size <= length; left += 1) {
+      const right = left + size - 1
+
+      if (s[left] !== s[right]) {
+        dp[left][right] =
+          dp[left + 1][right] +
+          dp[left][right - 1] -
+          dp[left + 1][right - 1]
+      } else {
+        let low = left + 1
+        let high = right - 1
+
+        while (low <= high && s[low] !== s[left]) {
+          low += 1
+        }
+        while (low <= high && s[high] !== s[left]) {
+          high -= 1
+        }
+
+        if (low > high) {
+          dp[left][right] = dp[left + 1][right - 1] * 2 + 2
+        } else if (low === high) {
+          dp[left][right] = dp[left + 1][right - 1] * 2 + 1
+        } else {
+          dp[left][right] =
+            dp[left + 1][right - 1] * 2 - dp[low + 1][high - 1]
+        }
+      }
+
+      dp[left][right] = (dp[left][right] + modulo) % modulo
+    }
+  }
+
+  return dp[0][length - 1]
+}`,
+      },
+      {
+        id: 'count-different-palindromic-subsequences-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把相同两端统一写成两倍内部结果，忽略内部重复字符带来的去重差异；或者模运算后保留负数。',
+        bullets: [
+          '易错点 1：没有区分内部相同字符数量。',
+          '易错点 2：减法后没有加模数归一化。',
+          '易错点 3：区间 DP 填表顺序错误。',
+          '延伸方向：回文 DP、区间 DP、去重计数。',
+        ],
+      },
+    ],
+  },
 ];
