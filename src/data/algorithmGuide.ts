@@ -77399,4 +77399,89 @@ function findClosestLeaf(
       },
     ],
   },
+  {
+    id: 'prefix-and-suffix-search',
+    label: '745. LeetCode 745. 前缀和后缀搜索',
+    difficulty: '困难',
+    description:
+      '这题要同时匹配前缀和后缀，并返回索引最大的单词。最稳妥的做法是把所有前缀和后缀组合预处理成一个可直接查询的哈希表。',
+    outcome:
+      '你能把双条件字符串查询转成预处理索引问题，并在查询阶段做到常数时间。',
+    sections: [
+      {
+        id: 'prefix-and-suffix-search-summary',
+        title: '题目在问什么',
+        summary:
+          '给定单词数组，设计一个支持 `f(pref, suff)` 的结构，返回同时以 `pref` 开头且以 `suff` 结尾的单词中，索引最大的那个。若不存在，返回 `-1`。',
+        bullets: [
+          '同时满足前缀和后缀两个条件。',
+          '答案取索引最大的单词。',
+          '查询次数可能很多。',
+          '是预处理字符串查询题。',
+        ],
+      },
+      {
+        id: 'prefix-and-suffix-search-observe',
+        title: '把每个单词的所有前缀和后缀组合都存起来',
+        summary:
+          '对于一个单词，只要预先生成所有可能的 `prefix#suffix` 组合，并记录这个单词的索引，那么查询时就只需要拼出同样的 key 查表即可。由于题目要求返回最大索引，因此如果多个单词生成了同一个 key，后写入的更大索引应覆盖旧值。',
+        bullets: [
+          '前缀和后缀都可以包含空串。',
+          '组合 key 需要一个不冲突的分隔符。',
+          '重复 key 时保留更大索引。',
+          '预处理换取查询速度。',
+        ],
+      },
+      {
+        id: 'prefix-and-suffix-search-solution',
+        title: '标准解法：双重枚举前后缀并建立哈希映射',
+        summary:
+          '构造时遍历每个单词的所有前缀长度和后缀长度，生成“前缀 + 分隔符 + 后缀”作为键，并记录当前单词索引。查询时只需把入参拼成相同形式并返回映射值。由于所有组合都已预处理，查询过程只需一次哈希查找。',
+        bullets: [
+          '预处理时间复杂度较高。',
+          '查询时间复杂度是 `O(1)`。',
+          '空间复杂度与组合数量相关。',
+          '是“空间换时间”的典型题。',
+        ],
+        code: `class WordFilter {
+  private readonly indexMap = new Map<string, number>()
+
+  constructor(words: string[]) {
+    for (let index = 0; index < words.length; index += 1) {
+      const word = words[index]
+
+      for (let prefixLength = 0; prefixLength <= word.length; prefixLength += 1) {
+        const prefix = word.slice(0, prefixLength)
+
+        for (
+          let suffixStart = 0;
+          suffixStart <= word.length;
+          suffixStart += 1
+        ) {
+          const suffix = word.slice(suffixStart)
+          this.indexMap.set(prefix + '#' + suffix, index)
+        }
+      }
+    }
+  }
+
+  f(pref: string, suff: string): number {
+    return this.indexMap.get(pref + '#' + suff) ?? -1
+  }
+}`,
+      },
+      {
+        id: 'prefix-and-suffix-search-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只存前缀或者只存后缀，导致无法同时过滤；或者组合键分隔符不唯一，造成不同前后缀冲突。',
+        bullets: [
+          '易错点 1：没有同时预处理前缀和后缀。',
+          '易错点 2：重复 key 没有保留更大索引。',
+          '易错点 3：分隔符选择不安全。',
+          '延伸方向：Trie、双条件检索、空间换时间。',
+        ],
+      },
+    ],
+  },
 ];
