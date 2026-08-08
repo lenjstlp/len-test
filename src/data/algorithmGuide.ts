@@ -77632,4 +77632,96 @@ function findClosestLeaf(
       },
     ],
   },
+  {
+    id: 'shortest-completing-word',
+    label: '748. LeetCode 748. 最短完整词',
+    difficulty: '简单',
+    description:
+      '车牌中的数字和空格没有意义，真正需要匹配的是字母频次。候选单词只要覆盖车牌中每个字母的需求，就可以参与最短长度比较。',
+    outcome: '你能把混合字符串约束转成大小写无关的字符频次覆盖问题。',
+    sections: [
+      {
+        id: 'shortest-completing-word-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个车牌字符串 `licensePlate` 和单词数组 `words`，要求返回最短的完整词。完整词需要包含车牌中所有字母，忽略大小写、数字和空格；同一个字母出现多次时，单词也必须至少出现相同次数。',
+        bullets: [
+          '车牌中的数字和空格忽略。',
+          '字母匹配不区分大小写。',
+          '频次也必须满足。',
+          '长度相同则返回数组中先出现的词。',
+        ],
+      },
+      {
+        id: 'shortest-completing-word-observe',
+        title: '先统计车牌需求，再检查每个单词是否覆盖',
+        summary:
+          '将车牌转为小写后，只统计 `a-z` 的字母频次。对于每个候选单词同样统计字母频次，逐个比较是否满足车牌需求。满足条件的单词中保留长度最短者；使用严格小于更新，可以自然保留先出现的同长度单词。',
+        bullets: [
+          '车牌和候选词使用同一套计数规则。',
+          '候选词只需覆盖需求，不要求长度相等。',
+          '长度比较决定最优答案。',
+          '频次数组比反复查找字符更稳定。',
+        ],
+      },
+      {
+        id: 'shortest-completing-word-solution',
+        title: '标准解法：字母频次统计 + 最短覆盖筛选',
+        summary:
+          '定义 `countLetters` 函数，将字符串中的英文字母转为 26 长度计数数组。先计算车牌需求，再遍历候选单词：若每个字母计数都不少于需求，并且单词长度小于当前答案，就更新答案。最后返回记录的单词。',
+        bullets: [
+          '时间复杂度与车牌长度和所有候选词长度总和相关。',
+          '空间复杂度是 `O(1)` 的固定字母表。',
+          '实现重点在忽略非字母字符和大小写归一化。',
+          '是频次覆盖类字符串题。',
+        ],
+        code: `function shortestCompletingWord(
+  licensePlate: string,
+  words: string[],
+): string {
+  const countLetters = (value: string): number[] => {
+    const counts = new Array<number>(26).fill(0)
+
+    for (const char of value.toLowerCase()) {
+      const code = char.charCodeAt(0) - 97
+      if (code >= 0 && code < 26) {
+        counts[code] += 1
+      }
+    }
+
+    return counts
+  }
+
+  const need = countLetters(licensePlate)
+  let answer = ''
+
+  for (const word of words) {
+    const counts = countLetters(word)
+    const completes = need.every((required, index) => counts[index] >= required)
+
+    if (
+      completes &&
+      (answer === '' || word.length < answer.length)
+    ) {
+      answer = word
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'shortest-completing-word-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只判断字母是否出现而不判断出现次数；或者把车牌中的数字也当成必须匹配的字符。',
+        bullets: [
+          '易错点 1：忽略重复字母的频次要求。',
+          '易错点 2：没有统一转换成小写。',
+          '易错点 3：非字母字符错误参与统计。',
+          '延伸方向：字符计数、滑动窗口、频次覆盖。',
+        ],
+      },
+    ],
+  },
 ];
