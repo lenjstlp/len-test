@@ -76959,4 +76959,108 @@ function splitListToParts(
       },
     ],
   },
+  {
+    id: 'cherry-pickup',
+    label: '741. LeetCode 741. 摘樱桃',
+    difficulty: '困难',
+    description:
+      '这题表面上是两次从左上到右下的路径搜索，实际上可以把两个人同步走的状态压缩成一个三维区间 DP。',
+    outcome:
+      '你能把往返路径问题转成同步行走问题，并在状态转移中同时处理两个位置的收益。',
+    sections: [
+      {
+        id: 'cherry-pickup-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个网格，`1` 表示樱桃，`0` 表示空地，`-1` 表示障碍。要求从左上到右下走一趟再返回，沿途最多收集多少樱桃，且同一个樱桃只能收集一次。',
+        bullets: [
+          '障碍不能经过。',
+          '樱桃最多只能拿一次。',
+          '路径可以看成两个人同时从左上走到右下。',
+          '是同步 DP 题。',
+        ],
+      },
+      {
+        id: 'cherry-pickup-observe',
+        title: '两次路径可以合并成两个同步前进的人',
+        summary:
+          '如果把“去程”和“回程”看成两个同时从 `(0,0)` 走到 `(n-1,n-1)` 的人，那么在任意时刻两人走过的步数相同。设当前步数为 `k`，则两人的行列满足 `r1 + c1 = k`、`r2 + c2 = k`。这样就把原问题转成了一个四维状态压缩后的三维 DP。',
+        bullets: [
+          '同步步数把路径问题压缩了。',
+          '两个位置共享同一个总步数。',
+          '同一格樱桃只能在状态里算一次。',
+          '障碍和越界状态直接视作无效。',
+        ],
+      },
+      {
+        id: 'cherry-pickup-solution',
+        title: '标准解法：按步数推进的三维 DP',
+        summary:
+          '定义 `dp[k][r1][r2]` 表示两个人都走了 `k` 步时，分别站在 `(r1, k - r1)` 和 `(r2, k - r2)` 所能获得的最大樱桃数。每一层从上一层的四种组合转移过来，取最大值。若两个位置重合，只加一次樱桃；若遇到障碍或越界，状态保持无效。最后答案是走到终点时的最大值。',
+        bullets: [
+          '时间复杂度是 `O(n^3)`。',
+          '空间复杂度可优化到 `O(n^2)`。',
+          '实现重点在步数、坐标和边界同步。',
+          '是路径同步类 DP 的经典题。',
+        ],
+        code: `function cherryPickup(grid: number[][]): number {
+  const n = grid.length
+  const NEG = Number.NEGATIVE_INFINITY
+  let previous = Array.from({ length: n }, () => new Array<number>(n).fill(NEG))
+  previous[0][0] = grid[0][0]
+
+  for (let step = 1; step <= 2 * (n - 1); step += 1) {
+    const current = Array.from({ length: n }, () => new Array<number>(n).fill(NEG))
+
+    for (let row1 = Math.max(0, step - (n - 1)); row1 <= Math.min(n - 1, step); row1 += 1) {
+      const column1 = step - row1
+      if (column1 < 0 || column1 >= n || grid[row1][column1] === -1) {
+        continue
+      }
+
+      for (let row2 = Math.max(0, step - (n - 1)); row2 <= Math.min(n - 1, step); row2 += 1) {
+        const column2 = step - row2
+        if (column2 < 0 || column2 >= n || grid[row2][column2] === -1) {
+          continue
+        }
+
+        let best = previous[row1][row2]
+        if (row1 > 0) best = Math.max(best, previous[row1 - 1][row2])
+        if (row2 > 0) best = Math.max(best, previous[row1][row2 - 1])
+        if (row1 > 0 && row2 > 0) {
+          best = Math.max(best, previous[row1 - 1][row2 - 1])
+        }
+
+        if (best === NEG) {
+          continue
+        }
+
+        let cherries = grid[row1][column1]
+        if (row1 !== row2) {
+          cherries += grid[row2][column2]
+        }
+        current[row1][row2] = Math.max(current[row1][row2], best + cherries)
+      }
+    }
+
+    previous = current
+  }
+
+  return Math.max(0, previous[n - 1][n - 1])
+}`,
+      },
+      {
+        id: 'cherry-pickup-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把去程和回程分开做贪心，导致重复拿樱桃或错过全局最优；或者同步状态里没有对重合位置去重。',
+        bullets: [
+          '易错点 1：把双路径问题拆成两个独立最短路。',
+          '易错点 2：两个位置重合时重复加樱桃。',
+          '易错点 3：障碍和无效状态没有彻底过滤。',
+          '延伸方向：双人同步 DP、路径合并、状态压缩。',
+        ],
+      },
+    ],
+  },
 ];
