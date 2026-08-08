@@ -77178,4 +77178,149 @@ function findClosestLeaf(
       },
     ],
   },
+  {
+    id: 'network-delay-time',
+    label: '743. LeetCode 743. 网络延迟时间',
+    difficulty: '中等',
+    description:
+      '信号从一个节点出发沿有向带权边传播，最终时间由最晚收到信号的节点决定，本质是单源最短路后取最大距离。',
+    outcome: '你能识别网络传播问题中的最短路模型，并用 Dijkstra 处理非负边权。',
+    sections: [
+      {
+        id: 'network-delay-time-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `n` 个节点和若干有向边 `times[i] = [u, v, w]`，从节点 `k` 发出信号，要求返回所有节点都收到信号所需的最短时间。如果无法让所有节点收到，返回 `-1`。',
+        bullets: [
+          '边是有向的。',
+          '边权表示传播耗时。',
+          '同一个节点可能有多条路径到达。',
+          '是单源最短路题。',
+        ],
+      },
+      {
+        id: 'network-delay-time-observe',
+        title: '每个节点收到信号的最早时间就是源点到它的最短路',
+        summary:
+          '信号可以沿不同路径传播，节点最终收到信号的时间取所有路径耗时的最小值。源点到每个节点的最短距离求出后，所有距离中的最大值就是最后一个节点收到信号的时间。由于边权非负，Dijkstra 可以逐步确定最短距离。',
+        bullets: [
+          '先求所有最短距离，再取最大值。',
+          '有向边不能反向使用。',
+          '非负权边适合 Dijkstra。',
+          '不可达节点会导致最终答案为 `-1`。',
+        ],
+      },
+      {
+        id: 'network-delay-time-solution',
+        title: '标准解法：邻接表 + 最小堆 Dijkstra',
+        summary:
+          '先用邻接表保存每个节点的出边。距离数组初始为无穷大，源点距离为 `0`。每次从最小堆取出当前距离最小的节点，若该记录不是最新距离就跳过；否则尝试松弛所有出边。最后检查是否存在无穷大距离，并返回最大最短距离。',
+        bullets: [
+          '时间复杂度是 `O((n + e) log n)`。',
+          '空间复杂度是 `O(n + e)`。',
+          '实现重点在过期堆记录和松弛操作。',
+          '是网络传播问题的标准建模。',
+        ],
+        code: `function networkDelayTime(
+  times: number[][],
+  n: number,
+  k: number,
+): number {
+  const graph = Array.from({ length: n + 1 }, () => [])
+
+  for (const [from, to, weight] of times) {
+    graph[from].push([to, weight])
+  }
+
+  const distance = new Array<number>(n + 1).fill(Number.POSITIVE_INFINITY)
+  distance[k] = 0
+  const heap: Array<[number, number]> = [[0, k]]
+
+  const push = (value: [number, number]): void => {
+    heap.push(value)
+    let index = heap.length - 1
+
+    while (index > 0) {
+      const parent = Math.floor((index - 1) / 2)
+      if (heap[parent][0] <= heap[index][0]) {
+        break
+      }
+
+      ;[heap[parent], heap[index]] = [heap[index], heap[parent]]
+      index = parent
+    }
+  }
+
+  const pop = (): [number, number] => {
+    const top = heap[0]
+    const last = heap.pop() as [number, number]
+
+    if (heap.length > 0) {
+      heap[0] = last
+      let index = 0
+
+      while (true) {
+        const left = index * 2 + 1
+        const right = index * 2 + 2
+        let smallest = index
+
+        if (left < heap.length && heap[left][0] < heap[smallest][0]) {
+          smallest = left
+        }
+        if (right < heap.length && heap[right][0] < heap[smallest][0]) {
+          smallest = right
+        }
+        if (smallest === index) {
+          break
+        }
+
+        ;[heap[index], heap[smallest]] = [heap[smallest], heap[index]]
+        index = smallest
+      }
+    }
+
+    return top
+  }
+
+  while (heap.length > 0) {
+    const [currentDistance, node] = pop()
+
+    if (currentDistance !== distance[node]) {
+      continue
+    }
+
+    for (const [nextNode, weight] of graph[node]) {
+      const nextDistance = currentDistance + weight
+      if (nextDistance < distance[nextNode]) {
+        distance[nextNode] = nextDistance
+        push([nextDistance, nextNode])
+      }
+    }
+  }
+
+  let answer = 0
+  for (let node = 1; node <= n; node += 1) {
+    if (distance[node] === Number.POSITIVE_INFINITY) {
+      return -1
+    }
+    answer = Math.max(answer, distance[node])
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'network-delay-time-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把有向边当成无向边；或者遇到一个节点后只记录第一次到达时间，没有进行更短路径松弛。',
+        bullets: [
+          '易错点 1：边方向处理错误。',
+          '易错点 2：没有跳过过期的堆记录。',
+          '易错点 3：只返回源点到某个节点的距离。',
+          '延伸方向：Dijkstra、Bellman-Ford、最短路和网络路由。',
+        ],
+      },
+    ],
+  },
 ];
