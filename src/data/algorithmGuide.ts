@@ -77555,4 +77555,81 @@ function findClosestLeaf(
       },
     ],
   },
+  {
+    id: 'largest-number-at-least-twice-of-others',
+    label: '747. LeetCode 747. 至少是其他数字两倍的最大数',
+    difficulty: '简单',
+    description:
+      '只要找出最大值和第二大值，就能判断最大值是否至少是其余所有数字的两倍。',
+    outcome: '你能把“和所有其他元素比较”的条件压缩成只比较最大值与第二大值。',
+    sections: [
+      {
+        id: 'largest-number-at-least-twice-of-others-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组 `nums`，找出其中最大的元素。如果它至少是数组中每个其他元素两倍，返回它的下标；否则返回 `-1`。',
+        bullets: [
+          '数组中最大元素可能不唯一。',
+          '要求与所有其他元素比较。',
+          '返回的是下标而不是数值。',
+          '是一次扫描题。',
+        ],
+      },
+      {
+        id: 'largest-number-at-least-twice-of-others-observe',
+        title: '只需要比较最大值和第二大值',
+        summary:
+          '最大值要满足至少是所有其他数字两倍，只要它至少是第二大值的两倍，就必然满足其他更小数字。反过来，如果连第二大值都无法满足，那么答案一定不存在。扫描过程中同时维护最大值和第二大值及其下标即可。',
+        bullets: [
+          '第二大值是最强约束。',
+          '最大值下标需要单独保存。',
+          '相等最大值会让条件失败，除非数组只有一个元素。',
+          '不需要排序整个数组。',
+        ],
+      },
+      {
+        id: 'largest-number-at-least-twice-of-others-solution',
+        title: '标准解法：单次扫描维护前两大值',
+        summary:
+          '遍历数组，维护最大值 `largest`、其下标以及第二大值 `secondLargest`。遇到更大的数时，旧最大值降为第二大；否则必要时更新第二大。最后判断 `largest >= 2 * secondLargest`，满足则返回最大值下标。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在最大值更新时同步移动第二大值。',
+          '是极值压缩思维的简单题。',
+        ],
+        code: `function dominantIndex(nums: number[]): number {
+  let largest = -1
+  let secondLargest = -1
+  let largestIndex = -1
+
+  for (let index = 0; index < nums.length; index += 1) {
+    const value = nums[index]
+
+    if (value > largest) {
+      secondLargest = largest
+      largest = value
+      largestIndex = index
+    } else if (value > secondLargest) {
+      secondLargest = value
+    }
+  }
+
+  return largest >= 2 * secondLargest ? largestIndex : -1
+}`,
+      },
+      {
+        id: 'largest-number-at-least-twice-of-others-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是排序后返回了数值位置而不是原数组下标；或者更新最大值时忘记把旧最大值转移到第二大值。',
+        bullets: [
+          '易错点 1：返回排序后下标。',
+          '易错点 2：最大值更新时丢失旧最大值。',
+          '易错点 3：没有考虑多个最大值相等的情况。',
+          '延伸方向：前两大值、流式极值、Top K 简化。',
+        ],
+      },
+    ],
+  },
 ];
