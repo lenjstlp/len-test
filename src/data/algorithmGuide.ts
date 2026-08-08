@@ -77323,4 +77323,80 @@ function findClosestLeaf(
       },
     ],
   },
+  {
+    id: 'find-smallest-letter-greater-than-target',
+    label: '744. LeetCode 744. 寻找比目标字母大的最小字母',
+    difficulty: '简单',
+    description:
+      '这个题就是在有序字符数组里找第一个严格大于目标字符的元素，并且数组是循环意义上的，所以找不到时要回到首字母。',
+    outcome: '你能把字符查找问题写成标准的右侧边界二分。',
+    sections: [
+      {
+        id: 'find-smallest-letter-greater-than-target-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个按升序排列的字符数组 `letters`，以及一个目标字符 `target`。要求返回数组中严格大于 `target` 的最小字符。如果不存在，则返回数组中的第一个字符。',
+        bullets: [
+          '数组按升序排列。',
+          '要求严格大于目标字符。',
+          '找不到时要循环回第一个字符。',
+          '是字母版二分查找。',
+        ],
+      },
+      {
+        id: 'find-smallest-letter-greater-than-target-observe',
+        title: '本质是找右侧第一个满足条件的位置',
+        summary:
+          '由于数组有序，只要找到第一个大于 `target` 的位置就完成了。若所有字符都不大于目标，说明应该返回首字符。循环语义可以理解为数组末尾之后紧跟着数组开头，因此只要二分结束没有命中，默认返回 `letters[0]`。',
+        bullets: [
+          '与标准二分的不同点是严格大于。',
+          '找不到时回到数组首位。',
+          '字符比较可以直接用字典序。',
+          '返回值总是存在。',
+        ],
+      },
+      {
+        id: 'find-smallest-letter-greater-than-target-solution',
+        title: '标准解法：右边界二分找第一个更大字符',
+        summary:
+          '维护闭区间 `[left, right]`，不断计算中点。若中点字符大于目标字符，就把答案候选放到左侧；否则把左边界移到中点右侧。二分结束后，若没有字符大于目标，直接返回 `letters[0]`；否则返回找到的候选字符。',
+        bullets: [
+          '时间复杂度是 `O(log n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在严格大于和默认回绕值。',
+          '是右边界二分模板。',
+        ],
+        code: `function nextGreatestLetter(letters: string[], target: string): string {
+  let left = 0
+  let right = letters.length - 1
+  let answer = letters[0]
+
+  while (left <= right) {
+    const middle = left + Math.floor((right - left) / 2)
+
+    if (letters[middle] > target) {
+      answer = letters[middle]
+      right = middle - 1
+    } else {
+      left = middle + 1
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'find-smallest-letter-greater-than-target-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把“严格大于”写成“大于等于”；或者找不到结果时直接返回最后一个字符，漏掉循环回绕规则。',
+        bullets: [
+          '易错点 1：比较条件不是严格大于。',
+          '易错点 2：没有处理回绕到首字符。',
+          '易错点 3：二分边界和循环条件不一致。',
+          '延伸方向：右边界二分、字符查找、循环数组搜索。',
+        ],
+      },
+    ],
+  },
 ];
