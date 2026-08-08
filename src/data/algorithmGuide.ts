@@ -77484,4 +77484,75 @@ function findClosestLeaf(
       },
     ],
   },
+  {
+    id: 'min-cost-climbing-stairs',
+    label: '746. LeetCode 746. 使用最小花费爬楼梯',
+    difficulty: '简单',
+    description:
+      '每次可以走一步或两步，落到某个台阶需要支付对应成本。把“到达某个台阶的最小花费”作为状态即可。',
+    outcome:
+      '你能把跳跃选择转成线性动态规划，并理解终点不一定是数组中的一个收费台阶。',
+    sections: [
+      {
+        id: 'min-cost-climbing-stairs-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `cost`，其中 `cost[i]` 是站在第 `i` 个台阶上需要支付的费用。每次可以向上走一步或两步，要求到达楼梯顶部的最小花费。',
+        bullets: [
+          '可以从下标 `0` 或 `1` 开始。',
+          '顶部在数组最后一个下标之后。',
+          '到达顶部不再额外支付费用。',
+          '是线性 DP 题。',
+        ],
+      },
+      {
+        id: 'min-cost-climbing-stairs-observe',
+        title: '到达当前台阶的最小花费只来自前一阶或前两阶',
+        summary:
+          '设 `dp[i]` 表示到达第 `i` 个台阶并站在这里的最小花费，则它可以从 `i - 1` 或 `i - 2` 转移而来，并加上当前台阶成本。最终顶部可以从最后一个或倒数第二个台阶到达，因此答案是两个状态中的较小值。',
+        bullets: [
+          '当前状态只依赖前两个状态。',
+          '起点可以从第 0 或第 1 阶开始。',
+          '顶部本身没有 `cost`。',
+          '可以压缩为两个变量。',
+        ],
+      },
+      {
+        id: 'min-cost-climbing-stairs-solution',
+        title: '标准解法：滚动数组维护前两阶最优成本',
+        summary:
+          '初始化到达第 0 阶和第 1 阶的成本分别为 `cost[0]`、`cost[1]`。从第 2 阶开始计算当前最小成本，并滚动更新前两个状态。遍历结束后，返回最后两个状态的最小值。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在顶部位置的含义。',
+          '是跳跃型线性 DP 模板。',
+        ],
+        code: `function minCostClimbingStairs(cost: number[]): number {
+  let previousTwo = cost[0]
+  let previousOne = cost[1]
+
+  for (let index = 2; index < cost.length; index += 1) {
+    const current = cost[index] + Math.min(previousOne, previousTwo)
+    previousTwo = previousOne
+    previousOne = current
+  }
+
+  return Math.min(previousTwo, previousOne)
+}`,
+      },
+      {
+        id: 'min-cost-climbing-stairs-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把到达顶部误认为要支付一个额外成本；或者只返回最后一个台阶状态，漏掉从倒数第二阶跨两步到顶部的情况。',
+        bullets: [
+          '易错点 1：起点和顶部状态理解错误。',
+          '易错点 2：只考虑走一步，漏掉跨两阶。',
+          '易错点 3：返回状态没有取最后两阶最小值。',
+          '延伸方向：跳跃 DP、路径最小代价、滚动数组。',
+        ],
+      },
+    ],
+  },
 ];
