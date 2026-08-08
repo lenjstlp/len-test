@@ -77063,4 +77063,119 @@ function splitListToParts(
       },
     ],
   },
+  {
+    id: 'closest-leaf-in-a-binary-tree',
+    label: '742. LeetCode 742. 二叉树最近的叶节点',
+    difficulty: '中等',
+    description:
+      '树上的最近距离可以通过把父子关系补成双向边来处理。找到目标节点后，从它开始 BFS，首次遇到叶子节点就是最近叶子。',
+    outcome: '你能把树上的无向距离问题转换成图上的最短路问题。',
+    sections: [
+      {
+        id: 'closest-leaf-in-a-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树和目标值 `k`，要求返回距离目标节点最近的叶节点值。叶节点定义为没有左孩子和右孩子的节点。',
+        bullets: [
+          '距离按树上的边数计算。',
+          '目标值在树中只出现一次。',
+          '可以向父节点和子节点移动。',
+          '是树与 BFS 结合题。',
+        ],
+      },
+      {
+        id: 'closest-leaf-in-a-binary-tree-observe',
+        title: '先记录父节点，再从目标节点做无向 BFS',
+        summary:
+          '原始树只能从父节点走向子节点，但寻找最近叶子时还需要从目标节点向上走。因此第一次遍历树时记录每个节点的父节点，并找到目标节点。第二次从目标节点开始 BFS，每次扩展父节点、左孩子和右孩子，第一次遇到叶节点时即可返回。',
+        bullets: [
+          '父节点映射把树变成隐式无向图。',
+          'BFS 按距离层次扩展。',
+          '访问集合防止父子之间来回走。',
+          '首次遇到叶子保证距离最短。',
+        ],
+      },
+      {
+        id: 'closest-leaf-in-a-binary-tree-solution',
+        title: '标准解法：建父指针图 + BFS 找最近叶子',
+        summary:
+          '先 DFS 遍历树，记录每个节点的父节点并找到目标节点。然后将目标节点放入队列，逐层取出节点，若它没有左右孩子则返回其值；否则将未访问的父节点、左孩子和右孩子加入队列。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在树节点身份和访问集合。',
+          '是树上最近点搜索的通用模板。',
+        ],
+        code: `type ClosestLeafNode = {
+  val: number
+  left: ClosestLeafNode | null
+  right: ClosestLeafNode | null
+}
+
+function findClosestLeaf(
+  root: ClosestLeafNode,
+  k: number,
+): number {
+  const parent = new Map<ClosestLeafNode, ClosestLeafNode | null>()
+  let target: ClosestLeafNode | null = null
+
+  const buildParent = (
+    node: ClosestLeafNode | null,
+    previous: ClosestLeafNode | null,
+  ): void => {
+    if (node === null) {
+      return
+    }
+
+    parent.set(node, previous)
+    if (node.val === k) {
+      target = node
+    }
+
+    buildParent(node.left, node)
+    buildParent(node.right, node)
+  }
+
+  buildParent(root, null)
+
+  const queue: ClosestLeafNode[] = [target as ClosestLeafNode]
+  const visited = new Set<ClosestLeafNode>(queue)
+
+  for (let head = 0; head < queue.length; head += 1) {
+    const node = queue[head]
+    if (node.left === null && node.right === null) {
+      return node.val
+    }
+
+    const neighbors = [
+      node.left,
+      node.right,
+      parent.get(node) ?? null,
+    ]
+
+    for (const neighbor of neighbors) {
+      if (neighbor !== null && !visited.has(neighbor)) {
+        visited.add(neighbor)
+        queue.push(neighbor)
+      }
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'closest-leaf-in-a-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只在子树内部找叶子，漏掉通过父节点到达的更近叶子；或者 BFS 没有访问集合，导致节点在父子之间无限往返。',
+        bullets: [
+          '易错点 1：没有建立父节点关系。',
+          '易错点 2：没有用 BFS 而使用无剪枝 DFS。',
+          '易错点 3：没有记录已访问节点。',
+          '延伸方向：树转图、无向 BFS、多源最短路。',
+        ],
+      },
+    ],
+  },
 ];
