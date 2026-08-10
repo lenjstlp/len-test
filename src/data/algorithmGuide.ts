@@ -78688,4 +78688,96 @@ function findClosestLeaf(
       },
     ],
   },
+  {
+    id: 'employee-free-time',
+    label: '759. LeetCode 759. 员工空闲时间',
+    difficulty: '困难',
+    description:
+      '所有员工的工作时间段并起来之后，空闲时间其实就是这些合并后区间之间的缝隙。',
+    outcome:
+      '你能把多员工日程问题转成区间合并问题，并从合并结果中提取公共空档。',
+    sections: [
+      {
+        id: 'employee-free-time-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干员工各自的有序不重叠工作区间列表，要求找出所有员工共同的有限长度空闲时间区间。',
+        bullets: [
+          '同一员工内部区间已排序且互不重叠。',
+          '答案要找的是所有员工都空闲的时间段。',
+          '无穷区间不计入答案。',
+          '是区间合并题。',
+        ],
+      },
+      {
+        id: 'employee-free-time-observe',
+        title: '公共空闲时间就是全体工作区间合并后的间隙',
+        summary:
+          '把所有员工的工作区间放到一起排序并合并，就得到“至少有一名员工在工作”的总忙碌时间段。两个相邻忙碌区间之间的空档，恰好就是所有员工都不工作的公共空闲时间。',
+        bullets: [
+          '先求忙碌时间的并集。',
+          '并集之间的间隔就是公共空闲。',
+          '区间合并天然适合排序后扫描。',
+          '每个空闲区间必须有正长度。',
+        ],
+      },
+      {
+        id: 'employee-free-time-solution',
+        title: '标准解法：扁平化区间后排序合并',
+        summary:
+          '先把所有员工的工作区间扁平化到一个数组中，再按开始时间排序。维护当前合并区间，若下一个区间与它重叠或相接，就更新当前结束时间；否则，两者之间的空档加入答案，并开启新的当前区间。扫描结束后返回所有空档。',
+        bullets: [
+          '时间复杂度主要来自排序。',
+          '空间复杂度与区间总数相关。',
+          '实现重点在区间扁平化和相接区间处理。',
+          '是会议安排类问题的基础模型。',
+        ],
+        code: `type Interval = {
+  start: number
+  end: number
+}
+
+function employeeFreeTime(schedule: Interval[][]): Interval[] {
+  const intervals: Interval[] = []
+
+  for (const employee of schedule) {
+    for (const interval of employee) {
+      intervals.push({ start: interval.start, end: interval.end })
+    }
+  }
+
+  intervals.sort((first, second) => first.start - second.start)
+
+  const answer: Interval[] = []
+  let current = intervals[0]
+
+  for (let index = 1; index < intervals.length; index += 1) {
+    const interval = intervals[index]
+
+    if (interval.start <= current.end) {
+      current.end = Math.max(current.end, interval.end)
+      continue
+    }
+
+    answer.push({ start: current.end, end: interval.start })
+    current = interval
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'employee-free-time-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是按员工逐个求交集，流程复杂且容易漏边界；或者合并区间时没有把相接区间视作连续忙碌时间。',
+        bullets: [
+          '易错点 1：没有先把所有工作区间统一排序。',
+          '易错点 2：相接区间被错误当成空闲间隔。',
+          '易错点 3：当前合并区间对象更新不正确。',
+          '延伸方向：区间并集、会议室、日程交集。',
+        ],
+      },
+    ],
+  },
 ];
