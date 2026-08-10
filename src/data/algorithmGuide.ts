@@ -78241,4 +78241,74 @@ function findClosestLeaf(
       },
     ],
   },
+  {
+    id: 'reach-a-number',
+    label: '754. LeetCode 754. 到达终点数字',
+    difficulty: '中等',
+    description:
+      '每一步步长固定递增，但方向可选。关键不是搜索所有路径，而是利用总和和奇偶性直接推导最少步数。',
+    outcome: '你能从数学性质出发，把看似指数级的路径选择问题压缩成线性试探。',
+    sections: [
+      {
+        id: 'reach-a-number-summary',
+        title: '题目在问什么',
+        summary:
+          '从数字 `0` 出发，第 `i` 步必须走 `i` 个单位，可以向左也可以向右。给定目标值 `target`，要求返回到达目标所需的最少步数。',
+        bullets: [
+          '第 1 步走 1，第 2 步走 2，以此类推。',
+          '每一步方向可选。',
+          '目标可以是正数也可以是负数。',
+          '是数学贪心题。',
+        ],
+      },
+      {
+        id: 'reach-a-number-observe',
+        title: '先越过目标，再看多出来的距离能否通过改方向抵消',
+        summary:
+          '由于目标关于原点对称，可以先取绝对值。不断累加步长直到总和不小于目标。此时如果 `sum - target` 是偶数，就能通过把若干步改成反方向来抵消这段差值，因为改一次方向会让总位移减少两倍该步长。若差值是奇数，就继续多走一步，直到差值变成偶数。',
+        bullets: [
+          '目标可先取绝对值。',
+          '关键条件是 `sum >= target` 且 `sum - target` 为偶数。',
+          '多走一步会改变总和奇偶性。',
+          '不需要真的选择哪些步反向。',
+        ],
+      },
+      {
+        id: 'reach-a-number-solution',
+        title: '标准解法：累加步长直到满足奇偶条件',
+        summary:
+          '令 `target` 取绝对值。用 `step` 和 `sum` 不断累加：`step += 1`，`sum += step`。只要 `sum < target` 或 `sum - target` 为奇数，就继续循环。循环结束时的 `step` 就是最少步数。',
+        bullets: [
+          '时间复杂度约为 `O(sqrt(target))`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在奇偶性判断。',
+          '是数论观察替代搜索的典型题。',
+        ],
+        code: `function reachNumber(target: number): number {
+  const goal = Math.abs(target)
+  let step = 0
+  let sum = 0
+
+  while (sum < goal || (sum - goal) % 2 !== 0) {
+    step += 1
+    sum += step
+  }
+
+  return step
+}`,
+      },
+      {
+        id: 'reach-a-number-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只看到 `sum >= target` 就停止，忽略奇偶性；或者没有先取绝对值，重复处理对称情况。',
+        bullets: [
+          '易错点 1：忽略差值的偶数条件。',
+          '易错点 2：没有使用对称性简化负目标。',
+          '易错点 3：试图显式搜索方向组合。',
+          '延伸方向：数学构造、奇偶性、步长问题。',
+        ],
+      },
+    ],
+  },
 ];
