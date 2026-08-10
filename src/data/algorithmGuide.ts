@@ -78601,4 +78601,91 @@ function findClosestLeaf(
       },
     ],
   },
+  {
+    id: 'bold-words-in-string',
+    label: '758. LeetCode 758. 字符串中的加粗单词',
+    difficulty: '简单',
+    description:
+      '本题的重点不是替换字符串，而是先标记哪些字符需要加粗，再把连续加粗区间一次性包进标签。',
+    outcome: '你能先做区间标记，再做线性重建，避免字符串插入引发的边界混乱。',
+    sections: [
+      {
+        id: 'bold-words-in-string-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个单词数组 `words` 和字符串 `s`，要求把 `s` 中所有匹配任意单词的子串用 `<b>` 和 `</b>` 包起来。重叠或相邻的加粗区间需要合并成一个整体。',
+        bullets: [
+          '匹配到的所有位置都要加粗。',
+          '重叠区间要合并。',
+          '相邻区间也要合并。',
+          '是区间标记题。',
+        ],
+      },
+      {
+        id: 'bold-words-in-string-observe',
+        title: '先标记每个字符是否应该加粗，再统一输出标签',
+        summary:
+          '遍历字符串的每个起点，检查有哪些单词能在这里匹配成功。若匹配成功，就把对应区间中的字符全部标记为加粗。最终再线性扫描整个字符串：进入一段连续加粗区间时输出 `<b>`，结束时输出 `</b>`。',
+        bullets: [
+          '标记阶段和拼接阶段分离最稳定。',
+          '字符级布尔数组天然支持重叠合并。',
+          '相邻加粗段会在连续标记中自动合并。',
+          '不需要复杂的区间排序。',
+        ],
+      },
+      {
+        id: 'bold-words-in-string-solution',
+        title: '标准解法：布尔标记数组 + 线性重建',
+        summary:
+          '创建与字符串等长的布尔数组 `bold`。对每个起点和每个单词，若 `s` 从该起点开始匹配该单词，就把对应范围标记为 `true`。之后从左到右构造答案：遇到 `bold[i]` 为真且前一个位置不加粗时，先写入 `<b>`；写入当前字符；若当前加粗且下一个位置不加粗，则写入 `</b>`。',
+        bullets: [
+          '时间复杂度与字符串长度和单词总长度相关。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在标签打开和关闭时机。',
+          '是区间标记型字符串题。',
+        ],
+        code: `function boldWords(words: string[], s: string): string {
+  const bold = new Array<boolean>(s.length).fill(false)
+
+  for (let start = 0; start < s.length; start += 1) {
+    for (const word of words) {
+      if (s.startsWith(word, start)) {
+        for (let index = start; index < start + word.length; index += 1) {
+          bold[index] = true
+        }
+      }
+    }
+  }
+
+  let answer = ''
+
+  for (let index = 0; index < s.length; index += 1) {
+    if (bold[index] && (index === 0 || !bold[index - 1])) {
+      answer += '<b>'
+    }
+
+    answer += s[index]
+
+    if (bold[index] && (index === s.length - 1 || !bold[index + 1])) {
+      answer += '</b>'
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'bold-words-in-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是匹配一个单词后立刻插入标签，导致后续重叠区间很难合并；或者相邻区间错误地拆成两个加粗片段。',
+        bullets: [
+          '易错点 1：没有先做整体标记。',
+          '易错点 2：相邻加粗段没有合并。',
+          '易错点 3：标签闭合时机写错。',
+          '延伸方向：区间合并、富文本标记、字符串重建。',
+        ],
+      },
+    ],
+  },
 ];
