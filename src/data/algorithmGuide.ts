@@ -78311,4 +78311,95 @@ function findClosestLeaf(
       },
     ],
   },
+  {
+    id: 'pour-water',
+    label: '755. LeetCode 755. 倒水',
+    difficulty: '中等',
+    description:
+      '每一滴水都会尽量向左流，再向右流，最后才落在当前位置。实现关键是严格按题目顺序寻找最终落点。',
+    outcome: '你能把局部流动规则稳定翻译成逐滴模拟过程。',
+    sections: [
+      {
+        id: 'pour-water-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一列地形高度数组 `heights`、倒水量 `volume` 和倒水位置 `k`。每一滴水会优先向左找更低位置，找不到再向右，左右都找不到就落在 `k` 位置。要求返回所有水滴落下后的最终高度数组。',
+        bullets: [
+          '一次只处理一滴水。',
+          '优先向左，再向右。',
+          '只有更低位置才能继续流动。',
+          '是逐步模拟题。',
+        ],
+      },
+      {
+        id: 'pour-water-observe',
+        title: '每滴水都只需要在当前位置附近找最优落点',
+        summary:
+          '一滴水的行为完全由当前地形决定。向左搜索时，只要后一个位置不高于前一个位置，就可以继续走；记录沿途遇到的最低位置。若左边存在严格更低的位置，就落在那里；否则按同样规则向右找；若右边也没有更低位置，就落在 `k`。',
+        bullets: [
+          '搜索过程中要允许走过相同高度的平台。',
+          '最终落点必须是搜索到的最低位置之一。',
+          '左侧优先级高于右侧。',
+          '每滴水落下后会改变后续地形。',
+        ],
+      },
+      {
+        id: 'pour-water-solution',
+        title: '标准解法：逐滴搜索左最低点，再搜索右最低点',
+        summary:
+          '循环 `volume` 次，每次先从 `k` 向左搜索，记录最低高度位置；若找到比 `k` 更低的位置，就给那里加一并进入下一滴。否则再从 `k` 向右执行同样搜索；若仍找不到更低位置，就给 `k` 加一。全部处理完成后返回更新后的数组。',
+        bullets: [
+          '时间复杂度与水滴数和地形长度相关。',
+          '空间复杂度是 `O(1)` 额外空间。',
+          '实现重点在平台移动规则和左右优先级。',
+          '是规则模拟类题目。',
+        ],
+        code: `function pourWater(heights: number[], volume: number, k: number): number[] {
+  const values = [...heights]
+
+  for (let drop = 0; drop < volume; drop += 1) {
+    let best = k
+
+    for (let index = k - 1; index >= 0; index -= 1) {
+      if (values[index] > values[index + 1]) {
+        break
+      }
+      if (values[index] < values[best]) {
+        best = index
+      }
+    }
+    if (best !== k) {
+      values[best] += 1
+      continue
+    }
+
+    for (let index = k + 1; index < values.length; index += 1) {
+      if (values[index] > values[index - 1]) {
+        break
+      }
+      if (values[index] < values[best]) {
+        best = index
+      }
+    }
+
+    values[best] += 1
+  }
+
+  return values
+}`,
+      },
+      {
+        id: 'pour-water-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是搜索时遇到相同高度就错误停止；或者左右都存在低点时没有先执行左侧优先规则。',
+        bullets: [
+          '易错点 1：平台移动规则写错。',
+          '易错点 2：左右优先级顺序颠倒。',
+          '易错点 3：每滴水后没有更新高度数组。',
+          '延伸方向：地形模拟、流体近似、局部最优路径。',
+        ],
+      },
+    ],
+  },
 ];
