@@ -77884,4 +77884,87 @@ function findClosestLeaf(
       },
     ],
   },
+  {
+    id: 'number-of-corner-rectangles',
+    label: '750. LeetCode 750. 角矩形的数量',
+    difficulty: '中等',
+    description:
+      '矩形由四个角上的 `1` 决定，因此问题可以转成“选两列，看有多少行同时在这两列上是 1”。',
+    outcome: '你能把二维矩形计数压缩成列对统计，从而避免四重枚举。',
+    sections: [
+      {
+        id: 'number-of-corner-rectangles-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0` 和 `1` 的矩阵，要求统计由四个角上的 `1` 构成的轴对齐矩形数量。',
+        bullets: [
+          '矩形内部值不重要，只看四个角。',
+          '矩形边必须与坐标轴平行。',
+          '四个角都必须是 `1`。',
+          '是二维计数题。',
+        ],
+      },
+      {
+        id: 'number-of-corner-rectangles-observe',
+        title: '固定两行或两列都可以，核心是共享的 1 的数量',
+        summary:
+          '若固定两列，统计有多少行在这两列上同时为 `1`。假设这样的行数是 `count`，那么任选两行就能形成一个角矩形，贡献 `count * (count - 1) / 2`。也可以反过来固定两行，本质相同。',
+        bullets: [
+          '共享列对或行对是核心结构。',
+          '一组行中共有多少共同的 1 决定矩形数量。',
+          '组合数自然出现。',
+          '不需要真的画出矩形。',
+        ],
+      },
+      {
+        id: 'number-of-corner-rectangles-solution',
+        title: '标准解法：遍历行并累计列对出现次数',
+        summary:
+          '遍历每一行，找出本行中所有值为 `1` 的列下标。对于这行中任意一对列 `(c1, c2)`，如果之前已有若干行也在这两列上为 `1`，那么这些行都能和当前行组成矩形。于是先把该列对出现次数加入答案，再把它的出现次数加一。',
+        bullets: [
+          '时间复杂度与每行的 1 的数量平方相关。',
+          '空间复杂度由列对哈希表决定。',
+          '实现重点在列对编码。',
+          '是组合计数与哈希的典型结合。',
+        ],
+        code: `function countCornerRectangles(grid: number[][]): number {
+  const pairCount = new Map<string, number>()
+  let answer = 0
+
+  for (const row of grid) {
+    const columns: number[] = []
+
+    for (let column = 0; column < row.length; column += 1) {
+      if (row[column] === 1) {
+        columns.push(column)
+      }
+    }
+
+    for (let first = 0; first < columns.length; first += 1) {
+      for (let second = first + 1; second < columns.length; second += 1) {
+        const key = columns[first].toString() + ',' + columns[second].toString()
+        const previous = pairCount.get(key) ?? 0
+        answer += previous
+        pairCount.set(key, previous + 1)
+      }
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'number-of-corner-rectangles-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是四重循环暴力枚举四个角导致效率差；或者在累计矩形时忘记先加已有次数再更新当前列对计数。',
+        bullets: [
+          '易错点 1：暴力枚举四个点。',
+          '易错点 2：列对计数更新顺序写反。',
+          '易错点 3：列对 key 设计不稳定。',
+          '延伸方向：稀疏矩阵计数、组合哈希。',
+        ],
+      },
+    ],
+  },
 ];
