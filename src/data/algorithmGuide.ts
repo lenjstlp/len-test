@@ -78154,4 +78154,91 @@ function findClosestLeaf(
       },
     ],
   },
+  {
+    id: 'cracking-the-safe',
+    label: '753. LeetCode 753. 破解保险箱',
+    difficulty: '困难',
+    description:
+      '这题要构造一个最短字符串，使得所有长度为 `n` 的密码都作为子串出现一次。它本质上就是构造 De Bruijn 序列。',
+    outcome: '你能识别序列覆盖问题背后的欧拉回路结构，并用 DFS 构造答案。',
+    sections: [
+      {
+        id: 'cracking-the-safe-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数字范围 `0..k-1` 和密码长度 `n`，要求输出一个最短字符串，使得所有长度为 `n` 的可能密码都作为它的连续子串出现至少一次。',
+        bullets: [
+          '所有可能密码都要被覆盖。',
+          '答案要尽量短。',
+          '字符集大小是 `k`。',
+          '是序列覆盖构造题。',
+        ],
+      },
+      {
+        id: 'cracking-the-safe-observe',
+        title: '把长度为 n-1 的串当节点，长度为 n 的串当边',
+        summary:
+          '每个长度为 `n - 1` 的字符串看作图中的节点，追加一个数字就得到一条长度为 `n` 的边。要求所有长度为 `n` 的密码都出现一次，等价于要求每条边恰好走一次，这就是有向图上的欧拉回路问题。构造出的边访问序列正对应一条 De Bruijn 序列。',
+        bullets: [
+          '节点数量是 `k^(n-1)`。',
+          '边数量是 `k^n`。',
+          '每条边恰好访问一次最合适。',
+          'Hierholzer 算法适合构造欧拉回路。',
+        ],
+      },
+      {
+        id: 'cracking-the-safe-solution',
+        title: '标准解法：DFS 构造 De Bruijn 序列',
+        summary:
+          '从全零的长度 `n - 1` 前缀开始 DFS。每次尝试追加一个数字，得到一条尚未访问的边；访问后递归进入其后缀节点。回溯时把当前追加的数字写入答案。最终再在答案末尾补上起始前缀，就得到最短覆盖串。',
+        bullets: [
+          '时间复杂度是 `O(k^n)`。',
+          '空间复杂度主要来自访问集合。',
+          '实现重点在边访问而不是点访问。',
+          '是 De Bruijn 序列的标准构造法。',
+        ],
+        code: `function crackSafe(n: number, k: number): string {
+  if (n === 1) {
+    let answer = ''
+    for (let digit = 0; digit < k; digit += 1) {
+      answer += digit.toString()
+    }
+    return answer
+  }
+
+  const visited = new Set<string>()
+  const answer: string[] = []
+  const start = '0'.repeat(n - 1)
+
+  const dfs = (node: string): void => {
+    for (let digit = 0; digit < k; digit += 1) {
+      const edge = node + digit.toString()
+      if (visited.has(edge)) {
+        continue
+      }
+
+      visited.add(edge)
+      dfs(edge.slice(1))
+      answer.push(digit.toString())
+    }
+  }
+
+  dfs(start)
+  return start + answer.reverse().join('')
+}`,
+      },
+      {
+        id: 'cracking-the-safe-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把状态当成普通 DFS 去重，结果无法保证覆盖所有密码且长度最短；或者访问的是节点而不是长度为 `n` 的边。',
+        bullets: [
+          '易错点 1：没有识别出欧拉回路结构。',
+          '易错点 2：访问标记写在节点而非边上。',
+          '易错点 3：答案拼接顺序和回溯时机错误。',
+          '延伸方向：De Bruijn 序列、欧拉回路、字符串构造。',
+        ],
+      },
+    ],
+  },
 ];
