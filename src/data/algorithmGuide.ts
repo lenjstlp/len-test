@@ -78402,4 +78402,115 @@ function findClosestLeaf(
       },
     ],
   },
+  {
+    id: 'pyramid-transition-matrix',
+    label: '756. LeetCode 756. 金字塔转换矩阵',
+    difficulty: '中等',
+    description:
+      '底层每两个相邻字符会限制上一层可放的字符集合，因此本质是按层回溯构造所有可能的上一层字符串。',
+    outcome: '你能把局部组合规则整理成映射表，并通过回溯搜索整层构造是否可行。',
+    sections: [
+      {
+        id: 'pyramid-transition-matrix-summary',
+        title: '题目在问什么',
+        summary:
+          '给定底层字符串 `bottom` 和若干允许规则 `ABC`，表示当下一层相邻两个字符是 `AB` 时，上层可以放 `C`。要求判断是否能最终搭出只有一个字符的金字塔顶层。',
+        bullets: [
+          '规则只约束相邻两个字符。',
+          '一个字符对可能对应多个可选上层字符。',
+          '只需要判断是否存在一种可行构造。',
+          '是回溯构造题。',
+        ],
+      },
+      {
+        id: 'pyramid-transition-matrix-observe',
+        title: '把每个二元字符对映射到可放置的上层字符集合',
+        summary:
+          '先把所有规则整理成 `pair -> candidates` 映射。然后对当前层逐对生成上一层：若当前层的第 `i` 和 `i+1` 位对应多个候选字符，就需要在这些候选中回溯尝试。只要某条路径能一直构造到长度为 1，就说明答案为真。',
+        bullets: [
+          '规则预处理能减少重复查表。',
+          '上一层的构造是典型 DFS 分支。',
+          '当前层一旦某对没有候选字符可直接失败。',
+          '记忆化可以避免重复搜索同一层字符串。',
+        ],
+      },
+      {
+        id: 'pyramid-transition-matrix-solution',
+        title: '标准解法：规则映射 + 记忆化回溯',
+        summary:
+          '先用 `Map<string, string[]>` 保存每个长度为 2 的字符对对应的所有候选字符。定义递归函数 `canBuild(level)`：若 `level.length === 1` 返回真；否则用回溯逐位构造上一层字符串，构造完成后递归判断。将每个层字符串的真假结果缓存起来，避免重复搜索。',
+        bullets: [
+          '时间复杂度取决于分支数量。',
+          '记忆化能显著减少重复层搜索。',
+          '实现重点在两层递归：构造上一层和验证下一层。',
+          '是字符串回溯与状态缓存结合题。',
+        ],
+        code: `function pyramidTransition(bottom: string, allowed: string[]): boolean {
+  const transitions = new Map<string, string[]>()
+
+  for (const rule of allowed) {
+    const key = rule.slice(0, 2)
+    if (!transitions.has(key)) {
+      transitions.set(key, [])
+    }
+    transitions.get(key)?.push(rule[2])
+  }
+
+  const memo = new Map<string, boolean>()
+
+  const canBuild = (level: string): boolean => {
+    if (level.length === 1) {
+      return true
+    }
+
+    const cached = memo.get(level)
+    if (cached !== undefined) {
+      return cached
+    }
+
+    const nextLevel: string[] = []
+
+    const dfs = (index: number): boolean => {
+      if (index === level.length - 1) {
+        return canBuild(nextLevel.join(''))
+      }
+
+      const candidates = transitions.get(level.slice(index, index + 2))
+      if (candidates === undefined) {
+        return false
+      }
+
+      for (const char of candidates) {
+        nextLevel.push(char)
+        if (dfs(index + 1)) {
+          return true
+        }
+        nextLevel.pop()
+      }
+
+      return false
+    }
+
+    const result = dfs(0)
+    memo.set(level, result)
+    return result
+  }
+
+  return canBuild(bottom)
+}`,
+      },
+      {
+        id: 'pyramid-transition-matrix-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把每个字符对只映射到一个候选字符，忽略多分支；或者构造上一层时直接贪心选一个字符，错过后续可行方案。',
+        bullets: [
+          '易错点 1：没有处理一个字符对对应多个结果。',
+          '易错点 2：缺少记忆化导致重复层爆炸。',
+          '易错点 3：上一层构造没有完整回溯。',
+          '延伸方向：回溯、状态压缩、文法推导。',
+        ],
+      },
+    ],
+  },
 ];
