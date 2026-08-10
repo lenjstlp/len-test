@@ -78513,4 +78513,92 @@ function findClosestLeaf(
       },
     ],
   },
+  {
+    id: 'set-intersection-size-at-least-two',
+    label: '757. LeetCode 757. 设置交集大小至少为 2',
+    difficulty: '困难',
+    description:
+      '这题要从多个区间中选出尽量少的整数，使每个区间至少包含其中两个。正确贪心依赖对区间排序后尽量在右端补点。',
+    outcome:
+      '你能处理“每个区间至少覆盖 k 个点”的贪心构造，并理解为什么右端选点最优。',
+    sections: [
+      {
+        id: 'set-intersection-size-at-least-two-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干区间 `[start, end]`，要求选出一个整数集合 `S`，使每个区间与 `S` 的交集至少包含两个元素，并让 `S` 的大小最小。',
+        bullets: [
+          '每个区间至少要覆盖 2 个选中的整数。',
+          '目标是总选点数最少。',
+          '区间是闭区间。',
+          '是区间贪心构造题。',
+        ],
+      },
+      {
+        id: 'set-intersection-size-at-least-two-observe',
+        title: '按右端点优先排序，缺几个点就从区间右端往左补几个',
+        summary:
+          '若区间右端更小，它对未来的选择限制更强，应优先处理。先按右端点升序、左端点降序排序。对当前区间，统计已经选中的点中有多少落在区间内；如果不足 2，就从区间右端开始往左补点。这样新补的点尽量靠右，可以被后续更多区间复用。',
+        bullets: [
+          '右端点小的区间优先处理。',
+          '左端点降序有助于避免嵌套区间干扰。',
+          '新点尽量选在右边最划算。',
+          '每个区间只需要知道当前已覆盖点数。',
+        ],
+      },
+      {
+        id: 'set-intersection-size-at-least-two-solution',
+        title: '标准解法：排序后维护已选点并在右端补足',
+        summary:
+          '将区间排序后，维护一个递增数组 `picked` 表示已选的整数。处理每个区间时，从 `picked` 的末尾向前统计有多少点落在当前区间。若已有 0 个点，就补 `end - 1` 和 `end`；若已有 1 个点，就补 `end`；若已有至少 2 个点则无需操作。最终 `picked.length` 就是答案。',
+        bullets: [
+          '时间复杂度实现上通常是 `O(n^2)`。',
+          '空间复杂度由选点数量决定。',
+          '实现重点在排序规则和补点顺序。',
+          '是较难的区间贪心证明题。',
+        ],
+        code: `function intersectionSizeTwo(intervals: number[][]): number {
+  intervals.sort((first, second) => {
+    if (first[1] !== second[1]) {
+      return first[1] - second[1]
+    }
+
+    return second[0] - first[0]
+  })
+
+  const picked: number[] = []
+
+  for (const [start, end] of intervals) {
+    let covered = 0
+
+    for (let index = picked.length - 1; index >= 0; index -= 1) {
+      if (picked[index] < start) {
+        break
+      }
+      covered += 1
+    }
+
+    for (let value = end - (1 - covered); covered < 2; value += 1) {
+      picked.push(value)
+      covered += 1
+    }
+  }
+
+  return picked.length
+}`,
+      },
+      {
+        id: 'set-intersection-size-at-least-two-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是补点时从左端开始选，导致后续复用率变差；或者排序规则写反，先处理了限制更弱的区间。',
+        bullets: [
+          '易错点 1：排序没有按右端点升序。',
+          '易错点 2：补点没有尽量靠右。',
+          '易错点 3：当前区间覆盖点数统计错误。',
+          '延伸方向：区间 stabbing、最小点覆盖、贪心证明。',
+        ],
+      },
+    ],
+  },
 ];
