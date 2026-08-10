@@ -78063,4 +78063,95 @@ function findClosestLeaf(
       },
     ],
   },
+  {
+    id: 'open-the-lock',
+    label: '752. LeetCode 752. 打开转盘锁',
+    difficulty: '中等',
+    description:
+      '每次拨动一个轮盘只会产生 8 个相邻状态，目标是最短步数，天然是无权图最短路问题。',
+    outcome: '你能把字符串状态空间建模成图，并用 BFS 求最短步数。',
+    sections: [
+      {
+        id: 'open-the-lock-summary',
+        title: '题目在问什么',
+        summary:
+          '四位转盘锁初始状态为 `0000`。每次可以拨动任意一位向上或向下转一格，若状态落在死锁集合中则不能进入。给定目标状态 `target`，要求返回打开锁的最少步数；若无法到达返回 `-1`。',
+        bullets: [
+          '每一步只能拨动一位一格。',
+          '死锁状态不可访问。',
+          '要求最少步数。',
+          '是状态图 BFS 题。',
+        ],
+      },
+      {
+        id: 'open-the-lock-observe',
+        title: '所有状态等权，最少步数就是 BFS 层数',
+        summary:
+          '每个四位字符串都可以视为一个图节点，拨动一位上下各一格会产生相邻节点。因为每次操作代价相同，最少步数就是从 `0000` 到 `target` 的最短边数。BFS 会按层扩展状态，第一次遇到目标时即得到最短答案。',
+        bullets: [
+          '每个状态最多生成 8 个邻居。',
+          '访问集合避免重复搜索。',
+          '死锁应在入队前过滤。',
+          '起点若是死锁可以直接失败。',
+        ],
+      },
+      {
+        id: 'open-the-lock-solution',
+        title: '标准解法：BFS 扩展 8 个邻居状态',
+        summary:
+          '先将死锁数组转为集合。若起点 `0000` 已是死锁，直接返回 `-1`。否则从 `0000` 开始 BFS，队列中保存状态字符串及其步数。对于每个状态，依次尝试拨动四个位置的上下方向，构造新状态；若新状态未访问且不是死锁，就加入队列。遇到目标立即返回步数。',
+        bullets: [
+          '时间复杂度上界是所有状态数 `10^4`。',
+          '空间复杂度同样受状态总数限制。',
+          '实现重点在字符轮转和访问判重。',
+          '是典型的小状态空间最短路题。',
+        ],
+        code: `function openLock(deadends: string[], target: string): number {
+  const blocked = new Set(deadends)
+  if (blocked.has('0000')) {
+    return -1
+  }
+
+  const queue: Array<[string, number]> = [['0000', 0]]
+  const visited = new Set<string>(['0000'])
+
+  for (let head = 0; head < queue.length; head += 1) {
+    const [state, steps] = queue[head]
+    if (state === target) {
+      return steps
+    }
+
+    for (let index = 0; index < 4; index += 1) {
+      const digit = Number(state[index])
+
+      for (const delta of [-1, 1]) {
+        const nextDigit = (digit + delta + 10) % 10
+        const nextState =
+          state.slice(0, index) + nextDigit.toString() + state.slice(index + 1)
+
+        if (!blocked.has(nextState) && !visited.has(nextState)) {
+          visited.add(nextState)
+          queue.push([nextState, steps + 1])
+        }
+      }
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'open-the-lock-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把 BFS 写成 DFS 导致拿不到最短步数；或者对字符轮转处理错误，没有把 `0` 和 `9` 连起来。',
+        bullets: [
+          '易错点 1：起点死锁没有提前返回。',
+          '易错点 2：轮盘上拨下拨没有模 10 处理。',
+          '易错点 3：访问标记放得太晚导致重复入队。',
+          '延伸方向：双向 BFS、状态压缩图搜索。',
+        ],
+      },
+    ],
+  },
 ];
