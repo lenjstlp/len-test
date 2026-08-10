@@ -77724,4 +77724,164 @@ function findClosestLeaf(
       },
     ],
   },
+  {
+    id: 'contain-virus',
+    label: '749. LeetCode 749. 隔离病毒',
+    difficulty: '困难',
+    description:
+      '这题不是简单扩散模拟，而是每一轮都要找出威胁范围最大的病毒区域进行隔离，其他区域继续扩散。',
+    outcome:
+      '你能把网格上的多区域扩散过程拆成“识别区域、评估威胁、隔离一块、扩散其余”四个稳定步骤。',
+    sections: [
+      {
+        id: 'contain-virus-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个包含 `0` 和 `1` 的网格，`1` 表示病毒感染区域。每天可以选择一个病毒区域用防火墙完全隔离，使其不再扩散；其余未隔离区域会向相邻的未感染单元扩散。要求返回最终建造的防火墙总数。',
+        bullets: [
+          '每天只能隔离一个连通病毒区域。',
+          '被隔离的区域之后不再扩散。',
+          '未隔离区域会同时扩散。',
+          '是多轮网格模拟题。',
+        ],
+      },
+      {
+        id: 'contain-virus-observe',
+        title: '每轮都要优先隔离威胁最多未感染格子的区域',
+        summary:
+          '对于每个病毒连通块，需要统计三件事：它能感染到哪些未感染格子、覆盖这些格子需要多少面墙、以及它自身包含哪些感染格子。每天应选择威胁到未感染格子数量最多的区域隔离，因为题目明确要求这样做；其它区域则向各自威胁到的格子扩散。',
+        bullets: [
+          '威胁范围按“不同未感染格子数量”比较。',
+          '造墙数量按边界接触次数累加。',
+          '区域识别适合 DFS 或 BFS。',
+          '隔离与扩散必须分开执行。',
+        ],
+      },
+      {
+        id: 'contain-virus-solution',
+        title: '标准解法：逐轮识别区域并模拟隔离与扩散',
+        summary:
+          '在每一轮中，先遍历网格找出所有病毒区域。对每个区域，用 DFS 收集感染格子、它威胁到的未感染格子集合以及所需墙数。找出威胁范围最大的区域，将其中格子标记为已隔离；其它区域则把各自威胁到的格子全部感染。重复直到没有区域能继续扩散。',
+        bullets: [
+          '时间复杂度与模拟轮数和网格大小有关。',
+          '空间复杂度主要来自访问标记和区域集合。',
+          '实现重点在墙数统计和同轮扩散分离。',
+          '是策略型网格模拟代表题。',
+        ],
+        code: `function containVirus(isInfected: number[][]): number {
+  const rows = isInfected.length
+  const columns = isInfected[0].length
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+  let answer = 0
+
+  while (true) {
+    const visited = Array.from({ length: rows }, () =>
+      new Array<boolean>(columns).fill(false),
+    )
+    const regions: Array<Array<[number, number]>> = []
+    const frontiers: Array<Set<string>> = []
+    const walls: number[] = []
+
+    for (let row = 0; row < rows; row += 1) {
+      for (let column = 0; column < columns; column += 1) {
+        if (isInfected[row][column] !== 1 || visited[row][column]) {
+          continue
+        }
+
+        const region: Array<[number, number]> = []
+        const frontier = new Set<string>()
+        let wallCount = 0
+        const stack: Array<[number, number]> = [[row, column]]
+        visited[row][column] = true
+
+        while (stack.length > 0) {
+          const [currentRow, currentColumn] = stack.pop() as [number, number]
+          region.push([currentRow, currentColumn])
+
+          for (const [deltaRow, deltaColumn] of directions) {
+            const nextRow = currentRow + deltaRow
+            const nextColumn = currentColumn + deltaColumn
+
+            if (
+              nextRow < 0 ||
+              nextRow >= rows ||
+              nextColumn < 0 ||
+              nextColumn >= columns
+            ) {
+              continue
+            }
+
+            if (isInfected[nextRow][nextColumn] === 0) {
+              wallCount += 1
+              frontier.add(nextRow.toString() + ',' + nextColumn.toString())
+            } else if (
+              isInfected[nextRow][nextColumn] === 1 &&
+              !visited[nextRow][nextColumn]
+            ) {
+              visited[nextRow][nextColumn] = true
+              stack.push([nextRow, nextColumn])
+            }
+          }
+        }
+
+        regions.push(region)
+        frontiers.push(frontier)
+        walls.push(wallCount)
+      }
+    }
+
+    if (regions.length === 0) {
+      break
+    }
+
+    let target = 0
+    for (let index = 1; index < frontiers.length; index += 1) {
+      if (frontiers[index].size > frontiers[target].size) {
+        target = index
+      }
+    }
+
+    if (frontiers[target].size === 0) {
+      break
+    }
+
+    answer += walls[target]
+
+    for (let index = 0; index < regions.length; index += 1) {
+      if (index === target) {
+        for (const [row, column] of regions[index]) {
+          isInfected[row][column] = -1
+        }
+        continue
+      }
+
+      for (const cell of frontiers[index]) {
+        const [row, column] = cell.split(',').map(Number)
+        isInfected[row][column] = 1
+      }
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'contain-virus-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是用“墙数最多”而不是“威胁格子最多”来选隔离区域；或者让被隔离区域在同一轮继续参与扩散。',
+        bullets: [
+          '易错点 1：选错每日隔离目标。',
+          '易错点 2：扩散时没有排除被隔离区域。',
+          '易错点 3：把不同边界共享的未感染格子重复计成威胁面积。',
+          '延伸方向：策略模拟、网格连通块、多阶段更新。',
+        ],
+      },
+    ],
+  },
 ];
