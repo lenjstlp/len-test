@@ -77967,4 +77967,100 @@ function findClosestLeaf(
       },
     ],
   },
+  {
+    id: 'ip-to-cidr',
+    label: '751. LeetCode 751. IP 到 CIDR',
+    difficulty: '中等',
+    description:
+      '这题要把一个连续 IP 区间拆成尽可能少的 CIDR 块，核心是每次贪心取当前起点能容纳的最大对齐块。',
+    outcome: '你能把 IP 地址转为整数区间，并利用二进制对齐性质构造 CIDR 表示。',
+    sections: [
+      {
+        id: 'ip-to-cidr-summary',
+        title: '题目在问什么',
+        summary:
+          '给定起始 IP 地址和数量 `n`，要求用最少数量的 CIDR 块精确覆盖这 `n` 个连续 IP 地址。',
+        bullets: [
+          '覆盖范围必须连续且无重无漏。',
+          '目标是块数量最少。',
+          'CIDR 块大小必须是 2 的幂且满足地址对齐。',
+          '是位运算与贪心题。',
+        ],
+      },
+      {
+        id: 'ip-to-cidr-observe',
+        title: '每一步都取起点处可用的最大对齐块',
+        summary:
+          '一个 CIDR 块既受剩余数量限制，也受当前起始地址的低位对齐限制。当前地址能容纳的最大块大小由最低位的 `1` 决定，再和剩余数量允许的最大 2 的幂取较小值。选定块后，起点向后移动，剩余数量减少，继续贪心即可。',
+        bullets: [
+          '对齐限制来自地址二进制尾零个数。',
+          '数量限制来自剩余地址数。',
+          '每次尽量取大块能保证块数最少。',
+          'IP 与整数转换是实现基础。',
+        ],
+      },
+      {
+        id: 'ip-to-cidr-solution',
+        title: '标准解法：整数化 IP 后按对齐块贪心切分',
+        summary:
+          '先将起始 IP 转为 32 位整数。循环处理剩余数量：计算当前地址最低位决定的最大块大小，再将块大小缩小到不超过剩余数量。记录对应的 CIDR 前缀长度，随后更新起始地址和剩余数量。最后把每个块再转回 IP 字符串。',
+        bullets: [
+          '时间复杂度与生成块数相关。',
+          '空间复杂度与答案块数相关。',
+          '实现重点在最低位和前缀长度计算。',
+          '是二进制贪心的经典应用。',
+        ],
+        code: `function ipToCIDR(ip: string, n: number): string[] {
+  const ipToNumber = (value: string): number => {
+    return value.split('.').reduce((result, part) => result * 256 + Number(part), 0)
+  }
+
+  const numberToIp = (value: number): string => {
+    const parts = new Array<string>(4)
+
+    for (let index = 3; index >= 0; index -= 1) {
+      parts[index] = String(value % 256)
+      value = Math.floor(value / 256)
+    }
+
+    return parts.join('.')
+  }
+
+  const answer: string[] = []
+  let current = ipToNumber(ip)
+  let remaining = n
+
+  while (remaining > 0) {
+    let blockSize = current & -current
+    if (blockSize === 0) {
+      blockSize = 1 << 31
+    }
+
+    while (blockSize > remaining) {
+      blockSize >>= 1
+    }
+
+    const prefixLength = 32 - Math.floor(Math.log2(blockSize))
+    answer.push(numberToIp(current) + '/' + prefixLength.toString())
+    current += blockSize
+    remaining -= blockSize
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'ip-to-cidr-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只按剩余数量取最大块，忽略了起始地址的对齐限制；或者前缀长度和块大小的换算写反。',
+        bullets: [
+          '易错点 1：没有同时考虑对齐和数量两种约束。',
+          '易错点 2：IP 与整数互转顺序错误。',
+          '易错点 3：块大小为 0 时没有处理整数边界。',
+          '延伸方向：CIDR、位运算、区间覆盖。',
+        ],
+      },
+    ],
+  },
 ];
