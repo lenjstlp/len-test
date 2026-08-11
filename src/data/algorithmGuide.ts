@@ -79097,4 +79097,107 @@ function employeeFreeTime(schedule: Interval[][]): Interval[] {
       },
     ],
   },
+  {
+    id: 'largest-plus-sign',
+    label: '764. LeetCode 764. 最大加号标志',
+    difficulty: '中等',
+    description:
+      '一个加号的阶数由中心点向四个方向能延伸的最短臂长决定，因此每个格子都需要知道四个方向连续 1 的长度。',
+    outcome: '你能通过多方向 DP 预处理网格信息，再在每个中心点上聚合答案。',
+    sections: [
+      {
+        id: 'largest-plus-sign-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 `n x n` 的网格，默认全是 `1`，再给出一些值为 `0` 的矿点位置。要求返回只由 `1` 构成的最大轴对齐加号标志的阶数。',
+        bullets: [
+          '阶数等于中心加上四个方向连续 1 的最短长度。',
+          '矿点位置不能作为加号的一部分。',
+          '返回的是最大阶数，不是面积。',
+          '是多方向 DP 题。',
+        ],
+      },
+      {
+        id: 'largest-plus-sign-observe',
+        title: '每个格子的答案由四个方向连续 1 的最小值决定',
+        summary:
+          '若以某个格子为中心，一个合法加号需要上下左右都连续存在足够多的 `1`。因此可以分别计算每个格子向左、向右、向上、向下连续 `1` 的数量。这个格子的最大加号阶数，就是四个值中的最小者。',
+        bullets: [
+          '四个方向都要满足。',
+          '某一方向短板直接限制阶数。',
+          '四次线性扫描就能预处理方向信息。',
+          '最后再枚举中心取最大值。',
+        ],
+      },
+      {
+        id: 'largest-plus-sign-solution',
+        title: '标准解法：四方向连续 1 计数',
+        summary:
+          '先构造一个全 `1` 网格，并把矿点置为 `0`。初始化 `dp` 为 `n`，然后按行从左到右、从右到左扫描更新左右连续长度，再按列从上到下、从下到上扫描更新上下连续长度，每次用最小值更新 `dp`。最后遍历 `dp` 中的最大值即为答案。',
+        bullets: [
+          '时间复杂度是 `O(n^2)`。',
+          '空间复杂度是 `O(n^2)`。',
+          '实现重点在四次扫描和最小值合并。',
+          '是网格多方向信息预处理代表题。',
+        ],
+        code: `function orderOfLargestPlusSign(n: number, mines: number[][]): number {
+  const blocked = new Set<string>()
+  for (const [row, column] of mines) {
+    blocked.add(row.toString() + ',' + column.toString())
+  }
+
+  const dp = Array.from({ length: n }, () => new Array<number>(n).fill(n))
+
+  for (let row = 0; row < n; row += 1) {
+    let count = 0
+    for (let column = 0; column < n; column += 1) {
+      count = blocked.has(row.toString() + ',' + column.toString()) ? 0 : count + 1
+      dp[row][column] = Math.min(dp[row][column], count)
+    }
+
+    count = 0
+    for (let column = n - 1; column >= 0; column -= 1) {
+      count = blocked.has(row.toString() + ',' + column.toString()) ? 0 : count + 1
+      dp[row][column] = Math.min(dp[row][column], count)
+    }
+  }
+
+  for (let column = 0; column < n; column += 1) {
+    let count = 0
+    for (let row = 0; row < n; row += 1) {
+      count = blocked.has(row.toString() + ',' + column.toString()) ? 0 : count + 1
+      dp[row][column] = Math.min(dp[row][column], count)
+    }
+
+    count = 0
+    for (let row = n - 1; row >= 0; row -= 1) {
+      count = blocked.has(row.toString() + ',' + column.toString()) ? 0 : count + 1
+      dp[row][column] = Math.min(dp[row][column], count)
+    }
+  }
+
+  let answer = 0
+  for (const row of dp) {
+    for (const value of row) {
+      answer = Math.max(answer, value)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'largest-plus-sign-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只统计某两个方向而漏掉另外两个；或者把阶数误解成臂长总和而不是最短方向长度。',
+        bullets: [
+          '易错点 1：没有四方向全部预处理。',
+          '易错点 2：中心矿点未正确清零。',
+          '易错点 3：答案取值方式错误。',
+          '延伸方向：十字形 DP、最大正方形、多方向前缀信息。',
+        ],
+      },
+    ],
+  },
 ];
