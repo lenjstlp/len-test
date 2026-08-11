@@ -79481,4 +79481,87 @@ function employeeFreeTime(schedule: Interval[][]): Interval[] {
       },
     ],
   },
+  {
+    id: 'max-chunks-to-make-sorted-ii',
+    label: '768. LeetCode 768. 最多能完成排序的块 II',
+    difficulty: '困难',
+    description:
+      '数组中有重复值时，块边界不能只看最大值，还要看整个前缀和排序后前缀的关系。',
+    outcome: '你能把“切块后各自排序再拼接”的约束，转成前缀多重集合相等判断。',
+    sections: [
+      {
+        id: 'max-chunks-to-make-sorted-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个可能包含重复元素的数组，要求把数组分成尽可能多的块，每块各自排序后拼接，整个数组能够变成非递减序列。返回最大块数。',
+        bullets: [
+          '允许重复元素。',
+          '每块内部可以独立排序。',
+          '目标是块数最多。',
+          '是前缀集合比较题。',
+        ],
+      },
+      {
+        id: 'max-chunks-to-make-sorted-ii-observe',
+        title: '某个位置能不能切块，取决于左侧多重集合和排序后前缀是否一致',
+        summary:
+          '如果数组没有重复值，只看前缀最大值和排序后前缀最大值就够了。但有重复值时，必须比较前缀多重集合是否与排序后前缀完全一致。若某个位置左侧的原始前缀和排序后前缀在元素计数上完全相同，就可以在这里切块。',
+        bullets: [
+          '重复值使得单看最大值不够。',
+          '边界是前缀多重集合相等的地方。',
+          '可以通过计数差累计判断。',
+          '块边界处前缀状态必须完全归零。',
+        ],
+      },
+      {
+        id: 'max-chunks-to-make-sorted-ii-solution',
+        title: '标准解法：前缀计数差归零即成块',
+        summary:
+          '建立一个计数差字典，遍历原数组时对当前值加一，同时对排序后数组对应位置的值减一。若某个位置之后所有计数差都为零，说明原数组前缀和排序后前缀拥有相同的多重集合，可以切成一个块。重复统计即可得到最大块数。',
+        bullets: [
+          '时间复杂度取决于排序。',
+          '空间复杂度与不同数值数量相关。',
+          '实现重点在计数差清零判断。',
+          '是多重集合贪心切块题。',
+        ],
+        code: `function maxChunksToSorted(arr: number[]): number {
+  const sorted = [...arr].sort((first, second) => first - second)
+  const count = new Map<number, number>()
+  let answer = 0
+
+  const update = (value: number, delta: number): void => {
+    const next = (count.get(value) ?? 0) + delta
+    if (next === 0) {
+      count.delete(value)
+    } else {
+      count.set(value, next)
+    }
+  }
+
+  for (let index = 0; index < arr.length; index += 1) {
+    update(arr[index], 1)
+    update(sorted[index], -1)
+
+    if (count.size === 0) {
+      answer += 1
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'max-chunks-to-make-sorted-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接沿用无重复版本的最大值切块逻辑；或者计数差没有同步删除零项，导致无法判断前缀是否真的归零。',
+        bullets: [
+          '易错点 1：把无重复版本的规则直接套过来。',
+          '易错点 2：前缀计数差为 0 时没有清理。',
+          '易错点 3：排序数组前缀没有同步处理。',
+          '延伸方向：多重集合、前缀平衡、数组分块。',
+        ],
+      },
+    ],
+  },
 ];
