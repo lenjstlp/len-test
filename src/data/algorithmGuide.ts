@@ -78935,4 +78935,86 @@ function employeeFreeTime(schedule: Interval[][]): Interval[] {
       },
     ],
   },
+  {
+    id: 'prime-number-of-set-bits-in-binary-representation',
+    label: '762. LeetCode 762. 二进制表示中质数个计算置位',
+    difficulty: '简单',
+    description:
+      '这题分成两件小事：统计每个数的二进制 1 的个数，再判断这个个数是不是质数。',
+    outcome: '你能熟练做位计数，并把结果应用到区间统计。',
+    sections: [
+      {
+        id: 'prime-number-of-set-bits-in-binary-representation-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个整数 `left` 和 `right`，统计区间内有多少个数的二进制表示中 `1` 的个数是质数。',
+        bullets: [
+          '区间是闭区间。',
+          '关注的是二进制中 1 的数量。',
+          '判断对象是这个数量是否为质数。',
+          '是位运算与枚举题。',
+        ],
+      },
+      {
+        id: 'prime-number-of-set-bits-in-binary-representation-observe',
+        title: '值域不大时，质数集合可以直接预先写好',
+        summary:
+          '一个整数的二进制长度有限，因此置位个数的可能值范围并不大。对常见整数范围来说，1 的数量最多也就二十几。于是可以先把可能出现的质数个数放进集合，再逐个统计区间中的数有多少个 1，最后查集合即可。',
+        bullets: [
+          '质数判断不必每次现算。',
+          '区间内逐个枚举即可。',
+          '位计数可以用循环或内置操作。',
+          '整体实现很直接。',
+        ],
+      },
+      {
+        id: 'prime-number-of-set-bits-in-binary-representation-solution',
+        title: '标准解法：位计数 + 质数集合',
+        summary:
+          '先准备质数集合 `{2, 3, 5, 7, 11, 13, 17, 19}`。然后遍历 `left` 到 `right` 的每个数，用循环统计其二进制中 `1` 的个数。若该计数在质数集合中，就把答案加一。最后返回总数。',
+        bullets: [
+          '时间复杂度与区间长度和位数相关。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在位计数循环。',
+          '是基础位运算统计题。',
+        ],
+        code: `function countPrimeSetBits(left: number, right: number): number {
+  const primes = new Set([2, 3, 5, 7, 11, 13, 17, 19])
+  let answer = 0
+
+  const countBits = (value: number): number => {
+    let count = 0
+    let current = value
+
+    while (current > 0) {
+      count += current & 1
+      current >>= 1
+    }
+
+    return count
+  }
+
+  for (let value = left; value <= right; value += 1) {
+    if (primes.has(countBits(value))) {
+      answer += 1
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'prime-number-of-set-bits-in-binary-representation-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把数字本身是否为质数和置位个数是否为质数混淆；或者位计数时右移逻辑写错。',
+        bullets: [
+          '易错点 1：判断对象搞错。',
+          '易错点 2：质数集合范围准备不完整。',
+          '易错点 3：位计数没有正确累计。',
+          '延伸方向：汉明重量、位运算优化、前缀统计。',
+        ],
+      },
+    ],
+  },
 ];
