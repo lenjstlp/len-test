@@ -79286,4 +79286,73 @@ function employeeFreeTime(schedule: Interval[][]): Interval[] {
       },
     ],
   },
+  {
+    id: 'toeplitz-matrix',
+    label: '766. LeetCode 766. 托普利茨矩阵',
+    difficulty: '简单',
+    description:
+      '托普利茨矩阵的定义非常直接：每个元素都必须等于它左上角的元素，只要逐格比较即可。',
+    outcome: '你能把矩阵的结构性定义直接翻译成稳定的遍历检查。',
+    sections: [
+      {
+        id: 'toeplitz-matrix-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个矩阵，判断它是否是托普利茨矩阵。托普利茨矩阵要求从左上到右下的每条对角线上的元素都相同。',
+        bullets: [
+          '只要某条对角线上有不同元素就失败。',
+          '第一行和第一列天然是每条对角线的起点。',
+          '输出布尔值。',
+          '是矩阵检查题。',
+        ],
+      },
+      {
+        id: 'toeplitz-matrix-observe',
+        title: '每个非首行首列元素只需要和左上角比较',
+        summary:
+          '如果一个矩阵满足托普利茨性质，那么任意位置 `(row, column)` 的元素，都必须等于 `(row - 1, column - 1)`。反过来，只要所有非首行首列元素都满足这个条件，整张矩阵就一定是托普利茨矩阵。',
+        bullets: [
+          '局部相等即可推出整条对角线相等。',
+          '不需要逐条对角线单独扫描。',
+          '遍历从第二行第二列开始。',
+          '一旦发现不等就能立即返回。',
+        ],
+      },
+      {
+        id: 'toeplitz-matrix-solution',
+        title: '标准解法：逐格比较左上邻居',
+        summary:
+          '从 `row = 1`、`column = 1` 开始遍历矩阵。对每个位置比较 `matrix[row][column]` 和 `matrix[row - 1][column - 1]`。若有任何一处不同，立即返回 `false`；全部检查完毕则返回 `true`。',
+        bullets: [
+          '时间复杂度是 `O(m * n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在起始下标和提前返回。',
+          '是定义直译型题目。',
+        ],
+        code: `function isToeplitzMatrix(matrix: number[][]): boolean {
+  for (let row = 1; row < matrix.length; row += 1) {
+    for (let column = 1; column < matrix[0].length; column += 1) {
+      if (matrix[row][column] !== matrix[row - 1][column - 1]) {
+        return false
+      }
+    }
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'toeplitz-matrix-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是比较成了上方或左方邻居；或者从第一行第一列开始比较导致越界。',
+        bullets: [
+          '易错点 1：比较方向错误。',
+          '易错点 2：遍历起点越界。',
+          '易错点 3：发现错误后没有立即结束。',
+          '延伸方向：矩阵特征判断、对角线遍历。',
+        ],
+      },
+    ],
+  },
 ];
