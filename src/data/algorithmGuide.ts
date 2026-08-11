@@ -79017,4 +79017,84 @@ function employeeFreeTime(schedule: Interval[][]): Interval[] {
       },
     ],
   },
+  {
+    id: 'partition-labels',
+    label: '763. LeetCode 763. 划分字母区间',
+    difficulty: '中等',
+    description:
+      '每个字符只能出现在一个片段里，因此片段边界必须至少覆盖它内部所有字符的最后一次出现位置。',
+    outcome: '你能通过预处理最后出现位置，把字符串分段问题转成一次线性扫描。',
+    sections: [
+      {
+        id: 'partition-labels-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s`，要求把它尽可能切分成多个片段，使得每个字母最多只出现在一个片段中。返回各片段的长度。',
+        bullets: [
+          '相同字母不能跨越两个片段。',
+          '希望切分出的片段尽量多。',
+          '输出每段的长度。',
+          '是贪心扫描题。',
+        ],
+      },
+      {
+        id: 'partition-labels-observe',
+        title: '当前片段的右边界由片段内字符的最远末次出现决定',
+        summary:
+          '先记录每个字符在字符串中的最后一次出现位置。然后从左到右扫描，维护当前片段必须延伸到的最远位置 `end`。每遇到一个字符，就用它的最后位置更新 `end`。当扫描下标刚好走到 `end`，说明当前片段中的所有字符都不会再出现在后面，可以安全切断。',
+        bullets: [
+          '最后出现位置是切分依据。',
+          '片段右边界会被内部字符不断推远。',
+          '走到边界时立刻切分最优。',
+          '整个过程只需一次扫描。',
+        ],
+      },
+      {
+        id: 'partition-labels-solution',
+        title: '标准解法：最后位置表 + 贪心切段',
+        summary:
+          '第一遍遍历字符串，记录每个字符的最后出现位置。第二遍扫描时，维护当前片段起点 `start` 和最远结束位置 `end`。若当前下标达到 `end`，就把 `end - start + 1` 加入答案，并将下一个位置设为新片段起点。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是字符集大小。',
+          '实现重点在边界更新和切分时机。',
+          '是贪心边界问题的经典例子。',
+        ],
+        code: `function partitionLabels(s: string): number[] {
+  const last = new Map<string, number>()
+
+  for (let index = 0; index < s.length; index += 1) {
+    last.set(s[index], index)
+  }
+
+  const answer: number[] = []
+  let start = 0
+  let end = 0
+
+  for (let index = 0; index < s.length; index += 1) {
+    end = Math.max(end, last.get(s[index]) as number)
+
+    if (index === end) {
+      answer.push(end - start + 1)
+      start = index + 1
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'partition-labels-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只看当前字符是否结束，而不是看当前片段内所有字符的最远结束；或者切分后没有重置片段起点。',
+        bullets: [
+          '易错点 1：边界只由当前字符决定。',
+          '易错点 2：切段时机晚了或早了。',
+          '易错点 3：没有先预处理最后出现位置。',
+          '延伸方向：区间合并、贪心边界、字符串分段。',
+        ],
+      },
+    ],
+  },
 ];
