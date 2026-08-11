@@ -78780,4 +78780,82 @@ function employeeFreeTime(schedule: Interval[][]): Interval[] {
       },
     ],
   },
+  {
+    id: 'find-anagram-mappings',
+    label: '760. LeetCode 760. 找出变位映射',
+    difficulty: '简单',
+    description:
+      '这题的本质是建立数值到下标的映射关系，然后把一个数组中的元素翻译成另一个数组中的对应位置。',
+    outcome: '你能把数组对应关系快速转成哈希映射，避免重复线性查找。',
+    sections: [
+      {
+        id: 'find-anagram-mappings-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个数组 `nums1` 和 `nums2`，它们互为变位词。要求返回一个映射数组 `mapping`，使得 `mapping[i]` 是 `nums1[i]` 在 `nums2` 中的某个下标。',
+        bullets: [
+          '两个数组长度相同。',
+          '元素值相同但顺序可能不同。',
+          '若有重复值，返回任意合法下标即可。',
+          '是哈希映射题。',
+        ],
+      },
+      {
+        id: 'find-anagram-mappings-observe',
+        title: '先把 nums2 的值映射到下标，再逐个翻译 nums1',
+        summary:
+          '如果每处理一个 `nums1[i]` 都去 `nums2` 里线性搜索，下界就是 `O(n^2)`。更高效的方式是先遍历 `nums2`，建立“值 -> 下标列表”映射。之后遍历 `nums1` 时，直接取出对应值在 `nums2` 中的一个下标即可。',
+        bullets: [
+          '预处理把查找降为常数时间。',
+          '重复值可以用下标数组保存。',
+          '映射只要求任意合法答案。',
+          '整体流程是两次线性遍历。',
+        ],
+      },
+      {
+        id: 'find-anagram-mappings-solution',
+        title: '标准解法：值到下标数组的哈希表',
+        summary:
+          '先遍历 `nums2`，将每个值出现的位置保存到哈希表中。随后遍历 `nums1`，从哈希表中取出该值对应的一个下标加入答案。为了处理重复值，可以把下标存进数组，并在取用时弹出一个位置。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在重复值的下标管理。',
+          '是典型的值到位置映射问题。',
+        ],
+        code: `function anagramMappings(nums1: number[], nums2: number[]): number[] {
+  const indices = new Map<number, number[]>()
+
+  for (let index = 0; index < nums2.length; index += 1) {
+    const value = nums2[index]
+    if (!indices.has(value)) {
+      indices.set(value, [])
+    }
+    indices.get(value)?.push(index)
+  }
+
+  const answer: number[] = []
+
+  for (const value of nums1) {
+    const positions = indices.get(value) as number[]
+    answer.push(positions.pop() as number)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'find-anagram-mappings-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是假设元素不重复，只存一个下标，结果在有重复值时映射错误；或者每次都去 `nums2` 里顺序查找，浪费时间。',
+        bullets: [
+          '易错点 1：重复值下标被覆盖。',
+          '易错点 2：没有利用哈希表降低复杂度。',
+          '易错点 3：弹出下标后没有正确维护数组。',
+          '延伸方向：哈希表、位置索引、数组重排。',
+        ],
+      },
+    ],
+  },
 ];
