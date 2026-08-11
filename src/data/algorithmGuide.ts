@@ -79200,4 +79200,90 @@ function employeeFreeTime(schedule: Interval[][]): Interval[] {
       },
     ],
   },
+  {
+    id: 'couples-holding-hands',
+    label: '765. LeetCode 765. 情侣牵手',
+    difficulty: '困难',
+    description:
+      '每对情侣的编号天然成组，关键是不断把当前座位上的人和他真正的伴侣放到一起，最少交换次数可以通过贪心逐对修正得到。',
+    outcome: '你能在座位重排问题中维护位置映射，并用局部交换达成全局最优。',
+    sections: [
+      {
+        id: 'couples-holding-hands-summary',
+        title: '题目在问什么',
+        summary:
+          '一排座位上坐着若干情侣，情侣编号分别是 `(0,1)`、`(2,3)`、`(4,5)` 等。每次可以交换任意两个人的位置，要求用最少交换次数让每对情侣都坐在一起。',
+        bullets: [
+          '每对情侣编号相邻且同组。',
+          '每次交换可选任意两个人。',
+          '要求最少交换次数。',
+          '是贪心与位置映射题。',
+        ],
+      },
+      {
+        id: 'couples-holding-hands-observe',
+        title: '按双人座位块逐个修正，当前块一旦正确就无需再动',
+        summary:
+          '从左到右每两个座位作为一个块处理。若第一个人的伴侣已经坐在同块第二个位置，就无需处理；否则只要把伴侣换到这里来，就能立刻修正这一对，并且不会增加之前块的错误。为了快速找到伴侣所在位置，需要维护“人 -> 座位下标”的映射。',
+        bullets: [
+          '伴侣编号可由异或 1 得到。',
+          '每次交换都会固定一对情侣。',
+          '位置映射让查找伴侣变为常数时间。',
+          '局部最优交换可以得到全局最优。',
+        ],
+      },
+      {
+        id: 'couples-holding-hands-solution',
+        title: '标准解法：位置映射 + 贪心交换',
+        summary:
+          '先建立每个人当前所在座位的映射 `position`。然后每次处理偶数下标 `i`：令 `partner = row[i] ^ 1`，若 `row[i + 1]` 不是伴侣，就找到伴侣所在位置 `partnerIndex`，把 `row[i + 1]` 与 `row[partnerIndex]` 交换，并同步更新位置映射。交换次数加一。全部处理完后即得答案。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(n)`。',
+          '实现重点在交换后同步更新位置映射。',
+          '是情侣配对问题的经典贪心解。',
+        ],
+        code: `function minSwapsCouples(row: number[]): number {
+  const position = new Map<number, number>()
+
+  for (let index = 0; index < row.length; index += 1) {
+    position.set(row[index], index)
+  }
+
+  let answer = 0
+
+  for (let index = 0; index < row.length; index += 2) {
+    const partner = row[index] ^ 1
+    if (row[index + 1] === partner) {
+      continue
+    }
+
+    const partnerIndex = position.get(partner) as number
+    const current = row[index + 1]
+
+    row[partnerIndex] = current
+    row[index + 1] = partner
+
+    position.set(current, partnerIndex)
+    position.set(partner, index + 1)
+    answer += 1
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'couples-holding-hands-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是交换数组后忘记同步更新位置映射；或者伴侣编号计算写错，没有利用 `x ^ 1` 的配对规律。',
+        bullets: [
+          '易错点 1：位置映射更新不完整。',
+          '易错点 2：伴侣编号判断错误。',
+          '易错点 3：把问题做成暴力搜索。',
+          '延伸方向：置换交换、并查集建模、最少交换次数。',
+        ],
+      },
+    ],
+  },
 ];
