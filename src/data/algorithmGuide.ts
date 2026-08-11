@@ -79635,4 +79635,203 @@ function employeeFreeTime(schedule: Interval[][]): Interval[] {
       },
     ],
   },
+  {
+    id: 'basic-calculator-iv',
+    label: '770. LeetCode 770. 基本计算器 IV',
+    difficulty: '困难',
+    description:
+      '这题要求解析包含变量、加减乘和括号的表达式，并输出化简后的多项式结果。核心是把表达式求值抽象成多项式代数运算。',
+    outcome:
+      '你能把复杂表达式解析成可组合的多项式结构，并完成符号计算和排序输出。',
+    sections: [
+      {
+        id: 'basic-calculator-iv-summary',
+        title: '题目在问什么',
+        summary:
+          '给定表达式 `expression`、变量赋值列表 `evalvars` 和对应数值 `evalints`，要求把表达式化简成多项式并输出规范格式。若某些变量没有赋值，它们将作为符号保留。',
+        bullets: [
+          '支持 `+`、`-`、`*` 和括号。',
+          '已知变量可替换为数值。',
+          '未赋值变量保留为符号项。',
+          '结果需要按次数和字典序排序。',
+        ],
+      },
+      {
+        id: 'basic-calculator-iv-observe',
+        title: '表达式本质上是多项式的递归组合',
+        summary:
+          '一个数字是常数多项式，一个变量要么被替换成常数，要么保留为单项式。加法和减法就是多项式系数相加减，乘法就是单项式笛卡尔积并合并同类项。只要能递归地解析表达式并在每个运算符处组合多项式，就能完成化简。',
+        bullets: [
+          '常数项可以看作空单项式。',
+          '同类项通过相同变量组合键合并。',
+          '乘法要把两个多项式的所有项两两相乘。',
+          '括号只是改变优先级。',
+        ],
+      },
+      {
+        id: 'basic-calculator-iv-solution',
+        title: '标准解法：递归下降解析 + 多项式运算',
+        summary:
+          '先把变量赋值转成 `Map<string, number>`。递归解析表达式时，使用 `parseExpr -> parseTerm -> parseFactor` 三层函数处理优先级。多项式用 `Map<string, number>` 表示，其中键是按字典序排序后的变量组合，空字符串表示常数项。最后把多项式按次数降序、字典序升序格式化输出。',
+        bullets: [
+          '时间复杂度依赖表达式规模和项数膨胀。',
+          '空间复杂度依赖中间多项式大小。',
+          '实现重点在多项式乘法和规范排序。',
+          '是表达式解析与符号运算综合题。',
+        ],
+        code: `type Polynomial = Map<string, number>
+
+function basicCalculatorIV(
+  expression: string,
+  evalvars: string[],
+  evalints: number[],
+): string[] {
+  const values = new Map<string, number>()
+  for (let index = 0; index < evalvars.length; index += 1) {
+    values.set(evalvars[index], evalints[index])
+  }
+
+  const tokens = expression.match(/[A-Za-z]+|\\d+|[()+\\-*]/g) as string[]
+  let index = 0
+
+  const makeConstant = (value: number): Polynomial => {
+    const polynomial: Polynomial = new Map()
+    if (value !== 0) {
+      polynomial.set('', value)
+    }
+    return polynomial
+  }
+
+  const makeVariable = (name: string): Polynomial => {
+    const polynomial: Polynomial = new Map()
+    polynomial.set(name, 1)
+    return polynomial
+  }
+
+  const add = (first: Polynomial, second: Polynomial, sign: number): Polynomial => {
+    const result: Polynomial = new Map(first)
+    for (const [key, value] of second) {
+      const next = (result.get(key) ?? 0) + sign * value
+      if (next === 0) {
+        result.delete(key)
+      } else {
+        result.set(key, next)
+      }
+    }
+    return result
+  }
+
+  const multiply = (first: Polynomial, second: Polynomial): Polynomial => {
+    const result: Polynomial = new Map()
+
+    for (const [leftKey, leftValue] of first) {
+      for (const [rightKey, rightValue] of second) {
+        const merged = [leftKey, rightKey]
+          .filter((item) => item !== '')
+          .join('*')
+          .split('*')
+          .filter((item) => item.length > 0)
+          .sort()
+          .join('*')
+        const next = (result.get(merged) ?? 0) + leftValue * rightValue
+        if (next === 0) {
+          result.delete(merged)
+        } else {
+          result.set(merged, next)
+        }
+      }
+    }
+
+    return result
+  }
+
+  const parseFactor = (): Polynomial => {
+    const token = tokens[index]
+    index += 1
+
+    if (token === '(') {
+      const result = parseExpr()
+      index += 1
+      return result
+    }
+
+    if (/^\\d+$/.test(token)) {
+      return makeConstant(Number(token))
+    }
+
+    if (values.has(token)) {
+      return makeConstant(values.get(token) as number)
+    }
+
+    return makeVariable(token)
+  }
+
+  const parseTerm = (): Polynomial => {
+    let result = parseFactor()
+
+    while (index < tokens.length && tokens[index] === '*') {
+      index += 1
+      result = multiply(result, parseFactor())
+    }
+
+    return result
+  }
+
+  const parseExpr = (): Polynomial => {
+    let result = parseTerm()
+
+    while (index < tokens.length && tokens[index] !== ')') {
+      const operator = tokens[index]
+      index += 1
+      const next = parseTerm()
+      result = operator === '+' ? add(result, next, 1) : add(result, next, -1)
+    }
+
+    return result
+  }
+
+  const polynomial = parseExpr()
+  const items = [...polynomial.entries()]
+
+  items.sort((first, second) => {
+    const degreeFirst = first[0] === '' ? 0 : first[0].split('*').length
+    const degreeSecond = second[0] === '' ? 0 : second[0].split('*').length
+
+    if (degreeFirst !== degreeSecond) {
+      return degreeSecond - degreeFirst
+    }
+
+    return first[0].localeCompare(second[0])
+  })
+
+  const answer: string[] = []
+  for (const [key, value] of items) {
+    if (value === 0) {
+      continue
+    }
+
+    if (key === '') {
+      answer.push(value.toString())
+    } else {
+      answer.push(value.toString() + '*' + key)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'basic-calculator-iv-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把加减乘优先级处理错；或者多项式乘法后没有合并同类项，导致结果项数爆炸且顺序混乱。',
+        bullets: [
+          '易错点 1：表达式优先级解析不对。',
+          '易错点 2：同类项合并遗漏。',
+          '易错点 3：输出排序规则写反。',
+          '延伸方向：解析器、符号运算、表达式树。',
+        ],
+      },
+    ],
+  },
 ];
