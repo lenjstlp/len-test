@@ -79355,4 +79355,130 @@ function employeeFreeTime(schedule: Interval[][]): Interval[] {
       },
     ],
   },
+  {
+    id: 'reorganize-string',
+    label: '767. LeetCode 767. 重构字符串',
+    difficulty: '中等',
+    description:
+      '这题要把字符重新排列，使相邻字符不相同。核心是优先使用剩余次数最多的字符，同时避免刚放置的字符立即再次出现。',
+    outcome: '你能把字符串重排问题建模成最大频次优先的贪心调度。',
+    sections: [
+      {
+        id: 'reorganize-string-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s`，要求重新排列字符，使得任意相邻两个字符都不相同；若无法做到则返回空字符串。',
+        bullets: [
+          '所有字符都必须保留。',
+          '相邻字符不能相同。',
+          '不存在可行方案时返回空串。',
+          '是贪心重排题。',
+        ],
+      },
+      {
+        id: 'reorganize-string-observe',
+        title: '总是优先放剩余次数最多的字符，但不能连续放同一个',
+        summary:
+          '如果当前剩余次数最多的字符都无法被安排，那它再往后只会更难安排。因此每一步都应优先选择剩余次数最大的可用字符。为了避免刚放置的字符再次立即出现，可以把它暂时保留一轮，等下一轮再放回候选池。',
+        bullets: [
+          '最大频次字符最难处理，应优先安排。',
+          '刚放置的字符需要暂时冷却。',
+          '如果最大频次超过 `(n + 1) / 2`，一定无解。',
+          '堆能方便维护当前最强候选。',
+        ],
+      },
+      {
+        id: 'reorganize-string-solution',
+        title: '标准解法：最大堆 + 冷却一个字符',
+        summary:
+          '先统计所有字符频次并放入最大堆。每次从堆中弹出两个当前频次最高的字符，依次追加到答案中，并把它们的剩余频次减一后再放回堆。若最后堆中还剩一个字符且其频次为 1，就把它补到末尾；否则返回空串。',
+        bullets: [
+          '时间复杂度是 `O(n log a)`，`a` 为字符种类数。',
+          '空间复杂度是 `O(a)`。',
+          '实现重点在两字符一组处理。',
+          '是经典的频次重排题。',
+        ],
+        code: `function reorganizeString(s: string): string {
+  const counts = new Map<string, number>()
+  for (const char of s) {
+    counts.set(char, (counts.get(char) ?? 0) + 1)
+  }
+
+  let maxCount = 0
+  for (const count of counts.values()) {
+    maxCount = Math.max(maxCount, count)
+  }
+  if (maxCount > Math.ceil(s.length / 2)) {
+    return ''
+  }
+
+  const heap: Array<[number, string]> = []
+
+  const push = (item: [number, string]): void => {
+    heap.push(item)
+    let index = heap.length - 1
+    while (index > 0) {
+      const parent = Math.floor((index - 1) / 2)
+      if (heap[parent][0] >= heap[index][0]) break
+      ;[heap[parent], heap[index]] = [heap[index], heap[parent]]
+      index = parent
+    }
+  }
+
+  const pop = (): [number, string] => {
+    const top = heap[0]
+    const last = heap.pop() as [number, string]
+    if (heap.length > 0) {
+      heap[0] = last
+      let index = 0
+      while (true) {
+        const left = index * 2 + 1
+        const right = index * 2 + 2
+        let largest = index
+        if (left < heap.length && heap[left][0] > heap[largest][0]) largest = left
+        if (right < heap.length && heap[right][0] > heap[largest][0]) largest = right
+        if (largest === index) break
+        ;[heap[index], heap[largest]] = [heap[largest], heap[index]]
+        index = largest
+      }
+    }
+    return top
+  }
+
+  for (const [char, count] of counts) {
+    push([count, char])
+  }
+
+  let answer = ''
+  while (heap.length >= 2) {
+    const [count1, char1] = pop()
+    const [count2, char2] = pop()
+    answer += char1 + char2
+    if (count1 - 1 > 0) push([count1 - 1, char1])
+    if (count2 - 1 > 0) push([count2 - 1, char2])
+  }
+
+  if (heap.length === 1) {
+    const [count, char] = pop()
+    if (count > 1) return ''
+    answer += char
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'reorganize-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只按字典序排序而不是按剩余频次排序；或者一次只放一个字符，结果把高频字符留到最后无处可放。',
+        bullets: [
+          '易错点 1：没有先判断是否可能有解。',
+          '易错点 2：没有使用最大频次优先策略。',
+          '易错点 3：连续放置同一字符。',
+          '延伸方向：重排、调度、最大堆字符串构造。',
+        ],
+      },
+    ],
+  },
 ];
