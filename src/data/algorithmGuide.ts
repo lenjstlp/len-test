@@ -78858,4 +78858,81 @@ function employeeFreeTime(schedule: Interval[][]): Interval[] {
       },
     ],
   },
+  {
+    id: 'special-binary-string',
+    label: '761. LeetCode 761. 特殊的二进制序列',
+    difficulty: '困难',
+    description:
+      '特殊二进制串和合法括号串结构等价，关键在于把原串拆成若干最外层特殊块，然后递归重排这些块的内部。',
+    outcome:
+      '你能识别字符串中的递归嵌套结构，并通过局部排序构造字典序最大的结果。',
+    sections: [
+      {
+        id: 'special-binary-string-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个特殊二进制串 `s`，要求通过交换两个连续特殊子串的位置，得到字典序最大的结果。特殊二进制串定义为：`1` 和 `0` 数量相等，且任意前缀中 `1` 的数量不少于 `0`。',
+        bullets: [
+          '只允许交换连续的特殊子串。',
+          '目标是字典序最大。',
+          '特殊串结构类似合法括号序列。',
+          '是递归分治题。',
+        ],
+      },
+      {
+        id: 'special-binary-string-observe',
+        title: '最外层一定能拆成若干独立特殊块',
+        summary:
+          '从左到右扫描，用计数差维护当前块的平衡状态。每当差值回到 0，就说明形成了一个最外层完整特殊块，形如 `1 + inner + 0`。块与块之间可以重排，因此只要递归求出每个块内部的最优形式，再把这些块按字典序降序排序拼接即可。',
+        bullets: [
+          '平衡点就是一个最外层特殊块的结束位置。',
+          '块内部仍然是特殊二进制串，可递归处理。',
+          '块之间降序排序可最大化整体字典序。',
+          '和合法括号串分块完全同构。',
+        ],
+      },
+      {
+        id: 'special-binary-string-solution',
+        title: '标准解法：递归拆块后按降序拼接',
+        summary:
+          '扫描字符串，遇到一个最外层特殊块时，取出中间部分递归处理，再重新包上首尾的 `1` 和 `0`。所有块处理完成后，按字典序从大到小排序，再连接成最终答案。递归到长度较小时自然停止。',
+        bullets: [
+          '时间复杂度主要来自递归分解和排序。',
+          '空间复杂度与递归深度和块数量相关。',
+          '实现重点在平衡计数和降序排序。',
+          '是字符串递归构造题代表。',
+        ],
+        code: `function makeLargestSpecial(s: string): string {
+  const parts: string[] = []
+  let balance = 0
+  let start = 0
+
+  for (let index = 0; index < s.length; index += 1) {
+    balance += s[index] === '1' ? 1 : -1
+
+    if (balance === 0) {
+      const inner = s.slice(start + 1, index)
+      parts.push('1' + makeLargestSpecial(inner) + '0')
+      start = index + 1
+    }
+  }
+
+  parts.sort((first, second) => second.localeCompare(first))
+  return parts.join('')
+}`,
+      },
+      {
+        id: 'special-binary-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只对最外层块排序却不递归优化内部；或者平衡计数回到 0 后没有及时切块，导致块边界错误。',
+        bullets: [
+          '易错点 1：遗漏内部递归处理。',
+          '易错点 2：块排序方向写反。',
+          '易错点 3：把特殊串误当普通平衡串。',
+          '延伸方向：括号串同构、递归分治、字典序构造。',
+        ],
+      },
+    ],
+  },
 ];
