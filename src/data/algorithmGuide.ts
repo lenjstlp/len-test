@@ -79564,4 +79564,75 @@ function employeeFreeTime(schedule: Interval[][]): Interval[] {
       },
     ],
   },
+  {
+    id: 'max-chunks-to-make-sorted',
+    label: '769. LeetCode 769. 最多能完成排序的块',
+    difficulty: '中等',
+    description:
+      '当数组是 `0..n-1` 的一个排列时，块边界可以由前缀最大值是否等于当前位置下标来判断。',
+    outcome: '你能把排列的分块问题简化成单调前缀判断。',
+    sections: [
+      {
+        id: 'max-chunks-to-make-sorted-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个由 `0..n-1` 组成的排列数组，要求把它分成尽可能多的块，使得每块单独排序后拼接起来，整个数组能够变成升序。',
+        bullets: [
+          '数组没有重复值。',
+          '是 `0..n-1` 的排列。',
+          '目标是最多块数。',
+          '是排列前缀贪心题。',
+        ],
+      },
+      {
+        id: 'max-chunks-to-make-sorted-observe',
+        title: '前缀中最大的值如果刚好等于当前位置，就能切块',
+        summary:
+          '因为数组是 `0..n-1` 的排列，所以前缀中的最大值如果等于当前位置下标，说明前缀里的所有数都已经落在 `0..i` 范围内。排序后这些数一定可以恰好组成前缀有序段，因此这里可以切出一个块。',
+        bullets: [
+          '前缀最大值决定是否能切块。',
+          '没有重复值时判断条件非常简单。',
+          '块越早切越多。',
+          '一次扫描就能完成。',
+        ],
+      },
+      {
+        id: 'max-chunks-to-make-sorted-solution',
+        title: '标准解法：维护前缀最大值',
+        summary:
+          '从左到右遍历数组，持续更新前缀最大值。若当前前缀最大值恰好等于当前位置下标，就说明可以在这里切出一块，答案加一。最后返回总块数。',
+        bullets: [
+          '时间复杂度是 `O(n)`。',
+          '空间复杂度是 `O(1)`。',
+          '实现重点在前缀最大值和当前位置比较。',
+          '是无重复排列的块切分模板。',
+        ],
+        code: `function maxChunksToSorted(arr: number[]): number {
+  let answer = 0
+  let maximum = 0
+
+  for (let index = 0; index < arr.length; index += 1) {
+    maximum = Math.max(maximum, arr[index])
+    if (maximum === index) {
+      answer += 1
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'max-chunks-to-make-sorted-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把排序后的数组也真的排序一遍去比较，复杂度更高；或者把前缀最大值和当前值比较，写错成和最后一个值比较。',
+        bullets: [
+          '易错点 1：没有利用排列性质。',
+          '易错点 2：前缀最大值判断条件写错。',
+          '易错点 3：把题目和带重复值版本混淆。',
+          '延伸方向：数组分块、排列性质、前缀极值。',
+        ],
+      },
+    ],
+  },
 ];
