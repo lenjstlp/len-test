@@ -79834,4 +79834,75 @@ function basicCalculatorIV(
       },
     ],
   },
+  {
+    id: 'jewels-and-stones',
+    label: '771. LeetCode 771. 宝石与石头',
+    difficulty: '简单',
+    description:
+      '这题给定字符串 `jewels` 和 `stones`，要求统计 `stones` 中有多少字符属于宝石集合。核心是把“是否属于某集合”的判断降到常数时间。',
+    outcome:
+      '你能把一次简单的计数题转成哈希集合查询，并理解为什么集合比双重遍历更直接。',
+    sections: [
+      {
+        id: 'jewels-and-stones-summary',
+        title: '题目在问什么',
+        summary:
+          '字符串 `jewels` 中的每个字符都代表一种宝石类型，`stones` 中的每个字符代表一块石头。要求统计这些石头里一共有多少块属于宝石。',
+        bullets: [
+          '宝石类型由 `jewels` 给出。',
+          '石头列表由 `stones` 给出。',
+          '字符大小写敏感。',
+          '返回满足条件的石头数量。',
+        ],
+      },
+      {
+        id: 'jewels-and-stones-observe',
+        title: '本质就是成员查询加计数',
+        summary:
+          '如果每块石头都去 `jewels` 里顺序查找，能做但不够干净。更自然的方式是先把宝石字符放进 `Set`，然后遍历 `stones`，遇到属于集合的字符就累加答案。',
+        bullets: [
+          '`Set` 的查找平均是常数时间。',
+          '遍历石头时只做一次成员判断。',
+          '大小写敏感意味着不能做大小写归一化。',
+          '这是典型的哈希集合入门题。',
+        ],
+      },
+      {
+        id: 'jewels-and-stones-solution',
+        title: '标准解法：哈希集合统计',
+        summary:
+          '先用 `jewels` 构建 `Set<string>`，再遍历 `stones`。如果当前字符在集合中，就把计数器加一。这样时间复杂度是 `O(j + s)`，空间复杂度是 `O(j)`。',
+        bullets: [
+          '时间复杂度：`O(j + s)`。',
+          '空间复杂度：`O(j)`。',
+          '实现重点是先建集合，再遍历计数。',
+          '适合作为哈希表题的第一层练习。',
+        ],
+        code: `function numJewelsInStones(jewels: string, stones: string): number {
+  const jewelSet = new Set(jewels.split(''))
+  let count = 0
+
+  for (const stone of stones) {
+    if (jewelSet.has(stone)) {
+      count += 1
+    }
+  }
+
+  return count
+}`,
+      },
+      {
+        id: 'jewels-and-stones-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题代码不长，但初学者容易把它写成双重循环，或者忘记大小写敏感，导致结果错误。',
+        bullets: [
+          '易错点 1：直接双重遍历，代码更啰嗦。',
+          '易错点 2：忽略大小写敏感。',
+          '易错点 3：把字符当成单词去切分。',
+          '延伸方向：哈希集合、频次统计、字符串计数。',
+        ],
+      },
+    ],
+  },
 ];
