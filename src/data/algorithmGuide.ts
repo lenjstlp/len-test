@@ -80043,4 +80043,109 @@ function basicCalculatorIV(
       },
     ],
   },
+  {
+    id: 'sliding-puzzle',
+    label: '773. LeetCode 773. 滑动谜题',
+    difficulty: '困难',
+    description:
+      '这题要求把 `2 x 3` 的滑动谜题从初始状态变成目标状态。核心不是模拟乱动，而是把每个棋盘状态看成图上的一个节点，再做最短路搜索。',
+    outcome: '你能把棋盘变换问题抽象成状态图，并用 BFS 求出最少操作步数。',
+    sections: [
+      {
+        id: 'sliding-puzzle-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 `2 x 3` 棋盘，数字 `0` 表示空格。每一步可以把空格与上下左右相邻位置交换，要求返回把棋盘变成 `[[1,2,3],[4,5,0]]` 的最少步数；如果无法到达，则返回 `-1`。',
+        bullets: [
+          '棋盘固定为 `2 x 3`。',
+          '`0` 表示空白格。',
+          '每次只能和相邻格交换。',
+          '要求最少步数，所以适合 BFS。',
+        ],
+      },
+      {
+        id: 'sliding-puzzle-observe',
+        title: '状态数量有限，天然适合广度优先搜索',
+        summary:
+          '`2 x 3` 棋盘总共只有 `6! = 720` 种排列，状态空间很小。把棋盘拍平成字符串后，每个字符串就是一个状态；`0` 能交换到的位置也可以预处理出来。只要从起点做 BFS，第一次到达目标状态时的层数就是最少步数。',
+        bullets: [
+          '每个棋盘布局都能编码成字符串。',
+          '`0` 的可移动位置是固定邻接表。',
+          'BFS 首次到达目标时保证步数最小。',
+          '状态去重可以避免反复来回搜索。',
+        ],
+      },
+      {
+        id: 'sliding-puzzle-solution',
+        title: '标准解法：状态压缩 + BFS',
+        summary:
+          '先把初始棋盘转成字符串，如 `123450`。然后维护队列做 BFS，队列里存当前状态和步数。每次找到字符 `0` 的位置，根据邻接表生成所有下一状态。如果某个新状态等于目标，直接返回当前步数加一；如果搜索完还没到达，返回 `-1`。',
+        bullets: [
+          '时间复杂度：`O(6! * 6)`，实际很小。',
+          '空间复杂度：`O(6!)`。',
+          '实现重点是状态编码和去重。',
+          '这是状态搜索题的标准模板之一。',
+        ],
+        code: `function slidingPuzzle(board: number[][]): number {
+  const target = '123450'
+  const start = board[0].concat(board[1]).join('')
+
+  if (start === target) {
+    return 0
+  }
+
+  const neighbors = [
+    [1, 3],
+    [0, 2, 4],
+    [1, 5],
+    [0, 4],
+    [1, 3, 5],
+    [2, 4],
+  ]
+
+  const visited = new Set<string>([start])
+  const queue: Array<[string, number]> = [[start, 0]]
+  let head = 0
+
+  while (head < queue.length) {
+    const [state, step] = queue[head]
+    head += 1
+
+    const zeroIndex = state.indexOf('0')
+
+    for (const nextIndex of neighbors[zeroIndex]) {
+      const chars = state.split('')
+      ;[chars[zeroIndex], chars[nextIndex]] = [chars[nextIndex], chars[zeroIndex]]
+      const nextState = chars.join('')
+
+      if (visited.has(nextState)) {
+        continue
+      }
+
+      if (nextState === target) {
+        return step + 1
+      }
+
+      visited.add(nextState)
+      queue.push([nextState, step + 1])
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'sliding-puzzle-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有做状态去重，导致队列不断回到老状态；或者把二维坐标移动写得太复杂，最后不如直接对拍平后的索引建邻接表。',
+        bullets: [
+          '易错点 1：忘记 `visited` 去重。',
+          '易错点 2：交换字符后没有恢复或重新复制。',
+          '易错点 3：把最短步数问题写成 DFS。',
+          '延伸方向：状态压缩、双向 BFS、八数码问题。',
+        ],
+      },
+    ],
+  },
 ];
