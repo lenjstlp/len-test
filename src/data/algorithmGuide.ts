@@ -79905,4 +79905,142 @@ function basicCalculatorIV(
       },
     ],
   },
+  {
+    id: 'basic-calculator-iii',
+    label: '772. LeetCode 772. 基本计算器 III',
+    difficulty: '困难',
+    description:
+      '这题要求计算包含 `+`、`-`、`*`、`/` 和括号的表达式。核心不是公式推导，而是把运算优先级和括号层级处理清楚。',
+    outcome:
+      '你能用递归下降解析器稳定处理多级优先级表达式，并把括号计算和四则运算整合起来。',
+    sections: [
+      {
+        id: 'basic-calculator-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串表达式 `s`，里面可能包含空格、数字、四则运算符和括号。要求返回整个表达式的计算结果，除法按整数截断处理。',
+        bullets: [
+          '表达式包含 `+ - * /`。',
+          '支持括号改变优先级。',
+          '字符串里可能有空格。',
+          '结果是一个整数。',
+        ],
+      },
+      {
+        id: 'basic-calculator-iii-observe',
+        title: '表达式求值关键在优先级分层',
+        summary:
+          '如果把所有运算都按从左到右处理，会把乘除和括号算错。更稳的做法是按优先级拆成 `expr`、`term`、`factor` 三层：`expr` 处理加减，`term` 处理乘除，`factor` 处理数字和括号，这样结构天然贴合题意。',
+        bullets: [
+          '数字和括号是最底层单元。',
+          '乘除优先于加减。',
+          '括号里的内容可以递归求值。',
+          '递归下降比硬写状态机更易维护。',
+        ],
+      },
+      {
+        id: 'basic-calculator-iii-solution',
+        title: '标准解法：递归下降解析表达式',
+        summary:
+          '先去掉空格或在扫描时跳过空格，然后用一个全局下标递归解析。`parseExpr` 负责连续的加减，`parseTerm` 负责连续的乘除，`parseFactor` 负责读取数字或进入括号。这样每层只关心自己这一层的规则，逻辑清晰且不容易错。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`，主要来自递归栈。',
+          '实现重点是括号返回后要正确移动指针。',
+          '这是表达式求值题的标准模板。',
+        ],
+        code: `function calculate(expression: string): number {
+  const chars = expression
+  let index = 0
+
+  const skipSpaces = () => {
+    while (index < chars.length && chars[index] === ' ') {
+      index += 1
+    }
+  }
+
+  const parseNumber = (): number => {
+    skipSpaces()
+    let value = 0
+    while (index < chars.length && /\\d/.test(chars[index])) {
+      value = value * 10 + Number(chars[index])
+      index += 1
+    }
+    return value
+  }
+
+  const parseFactor = (): number => {
+    skipSpaces()
+
+    if (chars[index] === '(') {
+      index += 1
+      const value = parseExpr()
+      skipSpaces()
+      index += 1
+      return value
+    }
+
+    return parseNumber()
+  }
+
+  const parseTerm = (): number => {
+    let value = parseFactor()
+
+    while (true) {
+      skipSpaces()
+      const operator = chars[index]
+
+      if (operator !== '*' && operator !== '/') {
+        break
+      }
+
+      index += 1
+      const next = parseFactor()
+
+      if (operator === '*') {
+        value *= next
+      } else {
+        value = Math.trunc(value / next)
+      }
+    }
+
+    return value
+  }
+
+  const parseExpr = (): number => {
+    let value = parseTerm()
+
+    while (true) {
+      skipSpaces()
+      const operator = chars[index]
+
+      if (operator !== '+' && operator !== '-') {
+        break
+      }
+
+      index += 1
+      const next = parseTerm()
+      value = operator === '+' ? value + next : value - next
+    }
+
+    return value
+  }
+
+  return parseExpr()
+}`,
+      },
+      {
+        id: 'basic-calculator-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把乘除和加减混在同一层处理，或者括号返回后漏掉右括号，导致后续扫描位置错乱。',
+        bullets: [
+          '易错点 1：没有正确区分优先级层次。',
+          '易错点 2：处理空格时漏判。',
+          '易错点 3：整数除法没有用截断规则。',
+          '延伸方向：表达式树、递归下降、编译原理入门。',
+        ],
+      },
+    ],
+  },
 ];
