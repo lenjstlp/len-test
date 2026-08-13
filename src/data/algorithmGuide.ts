@@ -80645,4 +80645,71 @@ function splitBST(
       },
     ],
   },
+  {
+    id: 'k-th-symbol-in-grammar',
+    label: '779. LeetCode 779. 第K个语法符号',
+    difficulty: '中等',
+    description:
+      '这题要求在一个递归生成的二进制语法表中，找到第 `n` 行第 `k` 个符号。核心不是构造整行，而是追溯当前位置来自上一层的哪个父节点。',
+    outcome:
+      '你能把递归定义转成父子关系推导，并用递归或位运算思路避免无意义的整行构造。',
+    sections: [
+      {
+        id: 'k-th-symbol-in-grammar-summary',
+        title: '题目在问什么',
+        summary:
+          '第 1 行是 `0`。之后每一行都由上一行替换而来：`0 -> 01`，`1 -> 10`。给定 `n` 和 `k`，要求返回第 `n` 行第 `k` 个字符的值。',
+        bullets: [
+          '每个字符都会扩展成两个字符。',
+          '不能真的生成整张表。',
+          '目标是求某个位置的单个值。',
+          '递归定义天然暗示可逆推。',
+        ],
+      },
+      {
+        id: 'k-th-symbol-in-grammar-observe',
+        title: '当前字符只取决于父节点和左右孩子身份',
+        summary:
+          '第 `n` 行第 `k` 个字符，一定来自第 `n - 1` 行的第 `Math.ceil(k / 2)` 个字符。如果它是父节点的左孩子，值和父节点相同；如果是右孩子，值和父节点相反。因此可以一路向上追溯，直到回到第一行。',
+        bullets: [
+          '奇数位置是左孩子，偶数位置是右孩子。',
+          '左孩子继承父值，右孩子翻转父值。',
+          '整题只需要沿一条祖先链回溯。',
+          '不用生成任何中间行。',
+        ],
+      },
+      {
+        id: 'k-th-symbol-in-grammar-solution',
+        title: '标准解法：递归回溯父节点',
+        summary:
+          '递归函数 `kthGrammar(n, k)`：如果 `n === 1`，返回 `0`。否则先求父节点 `kthGrammar(n - 1, Math.ceil(k / 2))`。若 `k` 是奇数，返回父值；若 `k` 是偶数，返回父值异或 `1`。这样每次问题规模缩小一层。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`，来自递归栈。',
+          '实现重点是父节点位置和翻转规则。',
+          '这是递归定义反向求值的经典题。',
+        ],
+        code: `function kthGrammar(n: number, k: number): number {
+  if (n === 1) {
+    return 0
+  }
+
+  const parent = kthGrammar(n - 1, Math.ceil(k / 2))
+  return k % 2 === 1 ? parent : parent ^ 1
+}`,
+      },
+      {
+        id: 'k-th-symbol-in-grammar-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题常见错误是试图把第 `n` 行真的构造出来，导致空间爆炸；或者把奇偶位置和是否翻转的关系写反。',
+        bullets: [
+          '易错点 1：暴力生成整行字符串。',
+          '易错点 2：父节点位置取值偏移一位。',
+          '易错点 3：左右孩子翻转规则写反。',
+          '延伸方向：递归树、位运算、分治回溯。',
+        ],
+      },
+    ],
+  },
 ];
