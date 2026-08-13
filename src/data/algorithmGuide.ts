@@ -80794,4 +80794,80 @@ function splitBST(
       },
     ],
   },
+  {
+    id: 'rabbits-in-forest',
+    label: '781. LeetCode 781. 森林中的兔子',
+    difficulty: '中等',
+    description:
+      '这题要求根据兔子的回答，推断森林中最少有多少只兔子。核心是把相同回答的兔子按组打包，而不是简单累加回答值。',
+    outcome:
+      '你能把计数题抽象成分组装箱问题，并用哈希统计结合向上取整完成最小值计算。',
+    sections: [
+      {
+        id: 'rabbits-in-forest-summary',
+        title: '题目在问什么',
+        summary:
+          '每只兔子回答一个数字 `x`，表示“还有 `x` 只兔子和我颜色相同”。给定所有回答，要求推断森林中最少有多少只兔子。',
+        bullets: [
+          '回答 `x` 意味着同色组大小是 `x + 1`。',
+          '相同回答的兔子不一定都来自同一组。',
+          '要求最少总数量。',
+          '关键在于如何把回答按组安放。',
+        ],
+      },
+      {
+        id: 'rabbits-in-forest-observe',
+        title: '相同回答要按容量为 x + 1 的组来装',
+        summary:
+          '如果一只兔子回答 `x`，那它所在颜色组最多容纳 `x + 1` 只同色兔子。对于所有回答 `x` 的兔子，设数量为 `count`，最少需要 `Math.ceil(count / (x + 1))` 组，每组贡献 `x + 1` 只兔子。因此不能简单把 `count + x` 相加，而要按组向上取整。',
+        bullets: [
+          '同一回答值对应固定组容量。',
+          '一个组不满也必须按整组计数。',
+          '哈希统计后逐种回答独立计算。',
+          '这是“分组向上取整”类题的经典模型。',
+        ],
+      },
+      {
+        id: 'rabbits-in-forest-solution',
+        title: '标准解法：哈希计数 + 分组向上取整',
+        summary:
+          '先统计每个回答值出现的次数。对于某个回答 `answer` 和出现次数 `count`，组大小是 `groupSize = answer + 1`，所需组数是 `Math.ceil(count / groupSize)`，因此贡献 `groups * groupSize` 只兔子。把所有回答值的贡献累加，就是最少兔子总数。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`，最坏情况下每个回答都不同。',
+          '实现重点是每类回答按组容量计算。',
+          '不能把未满的一组按实际出现数量计入。',
+        ],
+        code: `function numRabbits(answers: number[]): number {
+  const counter = new Map<number, number>()
+
+  for (const answer of answers) {
+    counter.set(answer, (counter.get(answer) ?? 0) + 1)
+  }
+
+  let total = 0
+
+  for (const [answer, count] of counter) {
+    const groupSize = answer + 1
+    const groups = Math.ceil(count / groupSize)
+    total += groups * groupSize
+  }
+
+  return total
+}`,
+      },
+      {
+        id: 'rabbits-in-forest-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题容易把每只兔子的回答彼此独立理解，结果重复计算。真正应该先按回答值聚类，再按组容量做向上取整。',
+        bullets: [
+          '易错点 1：把每只兔子的回答都单独展开。',
+          '易错点 2：忘记未满一组也要算整组。',
+          '易错点 3：组大小误写成 `answer` 而不是 `answer + 1`。',
+          '延伸方向：哈希统计、分组贪心、向上取整建模。',
+        ],
+      },
+    ],
+  },
 ];
