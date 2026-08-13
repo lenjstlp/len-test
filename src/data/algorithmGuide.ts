@@ -80148,4 +80148,95 @@ function basicCalculatorIV(
       },
     ],
   },
+  {
+    id: 'minimize-max-distance-to-gas-station',
+    label: '774. LeetCode 774. 最小化去加油站的最大距离',
+    difficulty: '困难',
+    description:
+      '这题要求在若干加油站之间再新建 `k` 个站点，让相邻站点的最大距离尽量小。核心是把“最优值是多少”转成“某个答案是否可行”的二分判定问题。',
+    outcome: '你能识别连续实数答案上的二分模板，并用贪心计数完成可行性校验。',
+    sections: [
+      {
+        id: 'minimize-max-distance-to-gas-station-summary',
+        title: '题目在问什么',
+        summary:
+          '给定升序数组 `stations` 表示已有加油站位置，再给定一个整数 `k`，表示最多新增 `k` 个站点。要求最小化所有相邻加油站之间的最大距离，并返回这个最小值。',
+        bullets: [
+          '站点位置已经有序。',
+          '可以新增恰好或至多 `k` 个站点。',
+          '目标是最小化最大间距。',
+          '答案是一个浮点数。',
+        ],
+      },
+      {
+        id: 'minimize-max-distance-to-gas-station-observe',
+        title: '最优值通常不好直接构造，但很好判定',
+        summary:
+          '如果直接决定每个区间分多少段，会变成复杂分配问题。换个角度，假设最大允许间距是 `d`，那么每段区间长度 `gap` 至少需要新增 `Math.ceil(gap / d) - 1` 个站点。把所有区间的需求加起来，就能判断 `d` 是否可行。',
+        bullets: [
+          '答案越大，越容易满足条件。',
+          '答案越小，需要新增的站点越多。',
+          '这满足单调性，适合二分。',
+          '判定函数本质是区间分段计数。',
+        ],
+      },
+      {
+        id: 'minimize-max-distance-to-gas-station-solution',
+        title: '标准解法：实数二分 + 贪心计数',
+        summary:
+          '二分答案 `d`，左边界可以取 `0`，右边界取最大相邻距离。每次枚举所有相邻区间，统计为了让每段长度不超过 `d` 至少要新增多少站点。如果总需求不超过 `k`，说明 `d` 可行，可以继续收缩右边界；否则收缩左边界。二分足够多次后返回右边界。',
+        bullets: [
+          '时间复杂度：`O(n log W)`，`W` 是精度迭代次数。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是新增站点数量的计算。',
+          '这是答案二分在实数场景下的典型题。',
+        ],
+        code: `function minmaxGasDist(stations: number[], k: number): number {
+  let left = 0
+  let right = 0
+
+  for (let index = 1; index < stations.length; index += 1) {
+    right = Math.max(right, stations[index] - stations[index - 1])
+  }
+
+  const canLimit = (distance: number): boolean => {
+    let required = 0
+
+    for (let index = 1; index < stations.length; index += 1) {
+      const gap = stations[index] - stations[index - 1]
+      required += Math.ceil(gap / distance) - 1
+      if (required > k) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+  for (let round = 0; round < 60; round += 1) {
+    const mid = (left + right) / 2
+    if (canLimit(mid)) {
+      right = mid
+    } else {
+      left = mid
+    }
+  }
+
+  return right
+}`,
+      },
+      {
+        id: 'minimize-max-distance-to-gas-station-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把新增站点数写成 `Math.floor(gap / d)`，导致刚好整除时多算一个；或者二分次数太少，精度不够。',
+        bullets: [
+          '易错点 1：区间分段公式写错。',
+          '易错点 2：把整数二分模板硬套到浮点数。',
+          '易错点 3：返回值精度控制不稳。',
+          '延伸方向：答案二分、最小化最大值、连续值判定。',
+        ],
+      },
+    ],
+  },
 ];
