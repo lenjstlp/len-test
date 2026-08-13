@@ -80712,4 +80712,86 @@ function splitBST(
       },
     ],
   },
+  {
+    id: 'reaching-points',
+    label: '780. LeetCode 780. 到达终点',
+    difficulty: '困难',
+    description:
+      '这题要求判断是否能从起点 `(sx, sy)` 经过若干次变换到达 `(tx, ty)`。核心不是正向搜索，而是从终点反推，用取模快速回退。',
+    outcome:
+      '你能识别逆向推导比正向搜索更高效的场景，并掌握欧几里得式的快速缩减思路。',
+    sections: [
+      {
+        id: 'reaching-points-summary',
+        title: '题目在问什么',
+        summary:
+          '初始点为 `(sx, sy)`，每次可以把点变成 `(x + y, y)` 或 `(x, x + y)`。给定目标点 `(tx, ty)`，要求判断是否存在一系列操作从起点到达终点。',
+        bullets: [
+          '每次只能给其中一个坐标加上另一个坐标。',
+          '正向搜索状态增长非常快。',
+          '要求的是可达性判断。',
+          '终点坐标都不小于起点时才有机会成功。',
+        ],
+      },
+      {
+        id: 'reaching-points-observe',
+        title: '正向难搜，逆向非常自然',
+        summary:
+          '从终点反推时，如果 `tx > ty`，那么上一步一定是某个 `(tx - ty, ty)`，并且这个减法可以连续做很多次，所以直接写成 `tx %= ty` 更快；反过来，如果 `ty > tx`，就让 `ty %= tx`。这和辗转相除法非常像。',
+        bullets: [
+          '较大的坐标一定由较小的那个加出来。',
+          '连续减法可以压缩成取模。',
+          '只要有一个坐标回到起点，就能线性判定剩余部分。',
+          '逆向比正向节省大量搜索分支。',
+        ],
+      },
+      {
+        id: 'reaching-points-solution',
+        title: '标准解法：逆向取模缩减',
+        summary:
+          '只要 `tx >= sx` 且 `ty >= sy`，就持续逆向缩减。若 `tx > ty`，令 `tx %= ty`；若 `ty > tx`，令 `ty %= tx`。循环结束后，只需判断是否刚好回到一边相等的可直达状态：例如 `tx === sx` 时，看 `ty - sy` 是否能被 `sx` 整除。',
+        bullets: [
+          '时间复杂度接近 `O(log max(tx, ty))`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是循环结束后的边界判定。',
+          '本质上和欧几里得算法同源。',
+        ],
+        code: `function reachingPoints(sx: number, sy: number, tx: number, ty: number): boolean {
+  while (tx > sx && ty > sy && tx !== ty) {
+    if (tx > ty) {
+      tx %= ty
+    } else {
+      ty %= tx
+    }
+  }
+
+  if (tx === sx && ty === sy) {
+    return true
+  }
+
+  if (tx === sx) {
+    return ty >= sy && (ty - sy) % sx === 0
+  }
+
+  if (ty === sy) {
+    return tx >= sx && (tx - sx) % sy === 0
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'reaching-points-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是从起点 BFS 或 DFS，状态很快爆炸；或者逆推时只做一次减法，没有用取模优化。',
+        bullets: [
+          '易错点 1：正向暴力搜索超时。',
+          '易错点 2：逆向时把连续减法写成单步循环。',
+          '易错点 3：忘记处理一边已经回到起点的边界情况。',
+          '延伸方向：欧几里得算法、逆向思维、数论可达性。',
+        ],
+      },
+    ],
+  },
 ];
