@@ -80239,4 +80239,76 @@ function basicCalculatorIV(
       },
     ],
   },
+  {
+    id: 'global-and-local-inversions',
+    label: '775. LeetCode 775. 全局倒置与局部倒置',
+    difficulty: '中等',
+    description:
+      '这题要求判断一个排列中全局倒置的数量是否等于局部倒置的数量。核心是识别“局部倒置一定是全局倒置”，再判断是否存在距离超过 1 的倒置。',
+    outcome:
+      '你能把计数相等问题转化为检查是否存在不相邻的逆序对，并掌握前缀最大值的线性扫描。',
+    sections: [
+      {
+        id: 'global-and-local-inversions-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 `0` 到 `n - 1` 的排列。如果 `i < j` 且 `nums[i] > nums[j]`，就构成全局倒置；如果 `i + 1 = j`，则是局部倒置。要求判断全局倒置数量是否等于局部倒置数量。',
+        bullets: [
+          '数组是一个排列。',
+          '相邻逆序对属于局部倒置。',
+          '局部倒置一定属于全局倒置。',
+          '只要不存在距离大于 1 的逆序对即可。',
+        ],
+      },
+      {
+        id: 'global-and-local-inversions-observe',
+        title: '不要真的去数两种倒置',
+        summary:
+          '因为每个局部倒置天然也是全局倒置，所以两者数量相等的充要条件是不存在非相邻的逆序对。扫描到位置 `index` 时，只要此前两位及更早位置的最大值大于当前值，就说明存在距离至少为 2 的逆序对。',
+        bullets: [
+          '局部倒置无需单独完整统计。',
+          '维护前缀最大值即可发现远距离逆序。',
+          '排列性质保证了判断可以线性完成。',
+          '这是“数量相等转不存在坏情况”的典型思路。',
+        ],
+      },
+      {
+        id: 'global-and-local-inversions-solution',
+        title: '标准解法：前缀最大值扫描',
+        summary:
+          '从下标 `2` 开始遍历。维护 `maxValue`，表示下标 `index - 2` 及之前的最大值。如果 `maxValue > nums[index]`，说明存在一个与当前元素不相邻的更大元素，直接返回 `false`。每轮结束后更新下一轮需要的前缀最大值。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '检查对象是距离至少为 2 的逆序对。',
+          '不需要排序，也不需要计算倒置总数。',
+        ],
+        code: `function isIdealPermutation(nums: number[]): boolean {
+  let maxValue = nums[0]
+
+  for (let index = 2; index < nums.length; index += 1) {
+    if (maxValue > nums[index]) {
+      return false
+    }
+
+    maxValue = Math.max(maxValue, nums[index - 1])
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'global-and-local-inversions-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题容易误以为必须分别统计全局倒置和局部倒置，最后写出高复杂度代码。真正关键是排除非相邻逆序对。',
+        bullets: [
+          '易错点 1：把全局倒置直接用双重循环统计。',
+          '易错点 2：前缀最大值维护范围偏移一位。',
+          '易错点 3：忘记局部倒置本身已包含在全局倒置中。',
+          '延伸方向：逆序对、前缀极值、排列性质。',
+        ],
+      },
+    ],
+  },
 ];
