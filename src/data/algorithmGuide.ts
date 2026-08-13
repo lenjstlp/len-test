@@ -80399,4 +80399,98 @@ function splitBST(
       },
     ],
   },
+  {
+    id: 'swap-adjacent-in-lr-string',
+    label: '777. LeetCode 777. 在 LR 字符串中交换相邻字符',
+    difficulty: '中等',
+    description:
+      '这题要求判断能否通过若干次合法交换，把 `start` 变成 `end`。核心不是真的模拟交换，而是抓住 `L` 只能左移、`R` 只能右移的约束。',
+    outcome:
+      '你能从字符移动规则中提炼不变量，并用双指针在线性时间内完成可达性判断。',
+    sections: [
+      {
+        id: 'swap-adjacent-in-lr-string-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个只包含 `L`、`R`、`X` 的字符串。一次操作可以把 `XL` 变成 `LX`，或把 `RX` 变成 `XR`。要求判断能否从 `start` 经过若干次操作变成 `end`。',
+        bullets: [
+          '`L` 只能向左移动。',
+          '`R` 只能向右移动。',
+          '`X` 表示空位。',
+          '要求判断是否可达，不要求输出过程。',
+        ],
+      },
+      {
+        id: 'swap-adjacent-in-lr-string-observe',
+        title: '字符相对顺序不能变，移动方向也不能违背规则',
+        summary:
+          '忽略所有 `X` 后，`start` 和 `end` 中剩余的 `L`、`R` 顺序必须完全一致，否则无论怎么换都不可能成功。之后再用双指针对齐每个非 `X` 字符的位置：`L` 不能从更左的位置移动到更右，`R` 不能从更右的位置移动到更左。',
+        bullets: [
+          '去掉 `X` 后的字符序列必须一致。',
+          '`L` 的目标位置不能大于原位置。',
+          '`R` 的目标位置不能小于原位置。',
+          '这就是整题的全部判定条件。',
+        ],
+      },
+      {
+        id: 'swap-adjacent-in-lr-string-solution',
+        title: '标准解法：双指针跳过 X',
+        summary:
+          '两个指针分别扫描 `start` 和 `end`。每次先跳过 `X`，然后比较当前非 `X` 字符是否一致。如果不一致，直接返回 `false`。若字符为 `L`，则 `start` 中的位置必须不小于 `end` 中的位置；若字符为 `R`，则必须不大于。扫描结束后还要确认两边剩余的字符都只是 `X`。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '重点是不需要真的交换字符串。',
+          '属于不变量判定类字符串题。',
+        ],
+        code: `function canTransform(start: string, end: string): boolean {
+  let left = 0
+  let right = 0
+
+  while (left < start.length || right < end.length) {
+    while (left < start.length && start[left] === 'X') {
+      left += 1
+    }
+
+    while (right < end.length && end[right] === 'X') {
+      right += 1
+    }
+
+    if (left === start.length || right === end.length) {
+      return left === start.length && right === end.length
+    }
+
+    if (start[left] !== end[right]) {
+      return false
+    }
+
+    if (start[left] === 'L' && left < right) {
+      return false
+    }
+
+    if (start[left] === 'R' && left > right) {
+      return false
+    }
+
+    left += 1
+    right += 1
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'swap-adjacent-in-lr-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是上来就模拟交换，结果写得复杂还容易超时。真正应该抓的是字符顺序和方向限制两个不变量。',
+        bullets: [
+          '易错点 1：试图暴力模拟全部交换过程。',
+          '易错点 2：只比较字符顺序，不检查位置方向。',
+          '易错点 3：扫描结束后没有处理尾部剩余 `X`。',
+          '延伸方向：双指针、不变量、字符串可达性判断。',
+        ],
+      },
+    ],
+  },
 ];
