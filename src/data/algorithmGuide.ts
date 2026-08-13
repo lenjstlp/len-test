@@ -80311,4 +80311,92 @@ function basicCalculatorIV(
       },
     ],
   },
+  {
+    id: 'split-bst',
+    label: '776. LeetCode 776. 拆分二叉搜索树',
+    difficulty: '中等',
+    description:
+      '这题要求把一棵二叉搜索树按给定值 `target` 拆成两棵树，一棵所有节点值都不大于 `target`，另一棵都大于 `target`。核心是利用 BST 的有序性递归裁剪子树。',
+    outcome: '你能基于 BST 性质设计递归分治，并在返回结果时正确重连左右子树。',
+    sections: [
+      {
+        id: 'split-bst-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉搜索树根节点 `root` 和整数 `target`，要求返回一个长度为 2 的数组：第一棵树包含所有值 `<= target` 的节点，第二棵树包含所有值 `> target` 的节点，并尽量保持原有父子关系。',
+        bullets: [
+          '输入是一棵 BST。',
+          '需要返回两棵拆分后的树。',
+          '节点不能丢失，也不能重复。',
+          'BST 有序性是解题关键。',
+        ],
+      },
+      {
+        id: 'split-bst-observe',
+        title: '根节点决定去哪里，另一侧递归拆分',
+        summary:
+          '如果 `root.val <= target`，那么根节点和它的左子树都应该留在第一棵树里，只有右子树可能需要继续拆分；反过来，如果 `root.val > target`，根节点和右子树都属于第二棵树，左子树要继续拆分。每次递归只会进入一侧，因此结构很清晰。',
+        bullets: [
+          'BST 左子树都更小，右子树都更大。',
+          '每次只需要递归拆分一边。',
+          '返回值要同时携带两棵树的根。',
+          '拆分后要把被保留的一侧重新接回去。',
+        ],
+      },
+      {
+        id: 'split-bst-solution',
+        title: '标准解法：递归分治',
+        summary:
+          '定义 `splitBST(root, target)` 返回 `[smallTree, largeTree]`。当 `root.val <= target` 时，递归拆分 `root.right`，然后把返回的小树接回 `root.right`，并让 `root` 作为第一棵树的根。否则递归拆分 `root.left`，把返回的大树接回 `root.left`，并让 `root` 作为第二棵树的根。',
+        bullets: [
+          '时间复杂度：`O(h)` 到 `O(n)`，取决于树高。',
+          '空间复杂度：`O(h)`，来自递归栈。',
+          '实现重点是递归返回后的子树重连。',
+          '这是 BST 结构化递归的经典题。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(val = 0, left: TreeNode | null = null, right: TreeNode | null = null) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function splitBST(
+  root: TreeNode | null,
+  target: number,
+): [TreeNode | null, TreeNode | null] {
+  if (root === null) {
+    return [null, null]
+  }
+
+  if (root.val <= target) {
+    const [smallTree, largeTree] = splitBST(root.right, target)
+    root.right = smallTree
+    return [root, largeTree]
+  }
+
+  const [smallTree, largeTree] = splitBST(root.left, target)
+  root.left = largeTree
+  return [smallTree, root]
+}`,
+      },
+      {
+        id: 'split-bst-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题常见错误是两边都递归拆，结果把问题复杂化；或者拆完后子树没有正确接回原根节点，导致结构断裂。',
+        bullets: [
+          '易错点 1：忽略 BST 性质，递归到两边。',
+          '易错点 2：返回值顺序写反。',
+          '易错点 3：子树重连时接错方向。',
+          '延伸方向：BST 裁剪、分治递归、树结构重组。',
+        ],
+      },
+    ],
+  },
 ];
