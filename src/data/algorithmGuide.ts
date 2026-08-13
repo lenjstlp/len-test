@@ -80493,4 +80493,156 @@ function splitBST(
       },
     ],
   },
+  {
+    id: 'swim-in-rising-water',
+    label: '778. LeetCode 778. 水位上升的泳池中游泳',
+    difficulty: '困难',
+    description:
+      '这题要求在一个网格里，从左上角走到右下角，并最小化路径上经过位置的最大高度。核心是把“最早什么时候能通”转成最小化路径最大代价的问题。',
+    outcome:
+      '你能把网格通路题转成最短路变体，并理解优先队列如何维护当前最优状态。',
+    sections: [
+      {
+        id: 'swim-in-rising-water-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 `n x n` 网格，`grid[row][col]` 表示该位置的高度。时间 `t` 时，水位上升到 `t`，只有高度不超过 `t` 的格子可以进入。要求返回从左上角到右下角所需的最小时间。',
+        bullets: [
+          '每个格子有一个高度。',
+          '时间越大，可走的格子越多。',
+          '目标是尽早从起点走到终点。',
+          '答案等于路径上的最大高度最小值。',
+        ],
+      },
+      {
+        id: 'swim-in-rising-water-observe',
+        title: '不是比步数，而是比路径上的最高点',
+        summary:
+          '一条路径什么时候可走，取决于路径上最高的那个格子高度。所以问题变成：在所有从起点到终点的路径中，找一条使得“路径最大值”最小。这个模型和最短路很像，只不过路径代价不是累加，而是取经过点的最大值。',
+        bullets: [
+          '状态代价是路径最大高度。',
+          '每次扩展相邻格子时要更新当前最大值。',
+          '优先访问当前最大值更小的状态。',
+          '这正适合优先队列版 Dijkstra。',
+        ],
+      },
+      {
+        id: 'swim-in-rising-water-solution',
+        title: '标准解法：优先队列最短路',
+        summary:
+          '把每个格子看成图上的点，边连接上下左右四个方向。优先队列中存 `[当前路径代价, row, col]`，代价定义为从起点到该格子路径上的最大高度。每次弹出代价最小的状态，首次到达终点时，这个代价就是答案。',
+        bullets: [
+          '时间复杂度：`O(n^2 log n)`。',
+          '空间复杂度：`O(n^2)`。',
+          '实现重点是代价更新为 `Math.max(current, grid[nextRow][nextCol])`。',
+          '这是 Dijkstra 在非加和代价场景下的典型应用。',
+        ],
+        code: `function swimInWater(grid: number[][]): number {
+  const size = grid.length
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+  const visited = Array.from({ length: size }, () => Array<boolean>(size).fill(false))
+  const heap: Array<[number, number, number]> = [[grid[0][0], 0, 0]]
+
+  const siftUp = (index: number) => {
+    let current = index
+    while (current > 0) {
+      const parent = Math.floor((current - 1) / 2)
+      if (heap[parent][0] <= heap[current][0]) {
+        break
+      }
+      ;[heap[parent], heap[current]] = [heap[current], heap[parent]]
+      current = parent
+    }
+  }
+
+  const siftDown = (index: number) => {
+    let current = index
+    while (true) {
+      let smallest = current
+      const left = current * 2 + 1
+      const right = current * 2 + 2
+
+      if (left < heap.length && heap[left][0] < heap[smallest][0]) {
+        smallest = left
+      }
+
+      if (right < heap.length && heap[right][0] < heap[smallest][0]) {
+        smallest = right
+      }
+
+      if (smallest === current) {
+        break
+      }
+
+      ;[heap[smallest], heap[current]] = [heap[current], heap[smallest]]
+      current = smallest
+    }
+  }
+
+  const push = (item: [number, number, number]) => {
+    heap.push(item)
+    siftUp(heap.length - 1)
+  }
+
+  const pop = (): [number, number, number] => {
+    const top = heap[0]
+    const last = heap.pop() as [number, number, number]
+    if (heap.length > 0) {
+      heap[0] = last
+      siftDown(0)
+    }
+    return top
+  }
+
+  while (heap.length > 0) {
+    const [cost, row, col] = pop()
+
+    if (visited[row][col]) {
+      continue
+    }
+
+    visited[row][col] = true
+
+    if (row === size - 1 && col === size - 1) {
+      return cost
+    }
+
+    for (const [deltaRow, deltaCol] of directions) {
+      const nextRow = row + deltaRow
+      const nextCol = col + deltaCol
+
+      if (nextRow < 0 || nextRow >= size || nextCol < 0 || nextCol >= size) {
+        continue
+      }
+
+      if (visited[nextRow][nextCol]) {
+        continue
+      }
+
+      push([Math.max(cost, grid[nextRow][nextCol]), nextRow, nextCol])
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'swim-in-rising-water-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题常见错误是把它当普通 BFS，只按步数扩展，结果忽略了高度代价。真正比较的是路径中的最大高度，而不是路径长度。',
+        bullets: [
+          '易错点 1：误用普通 BFS。',
+          '易错点 2：代价累加写错成求和。',
+          '易错点 3：访问标记时机不当导致重复状态太多。',
+          '延伸方向：Dijkstra、最小化最大值路径、并查集离线解法。',
+        ],
+      },
+    ],
+  },
 ];
