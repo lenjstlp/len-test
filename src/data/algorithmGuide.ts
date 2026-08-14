@@ -80870,4 +80870,112 @@ function splitBST(
       },
     ],
   },
+  {
+    id: 'transform-to-chessboard',
+    label: '782. LeetCode 782. 变为棋盘',
+    difficulty: '困难',
+    description:
+      '这题要求通过交换整行或整列，把一个 0/1 矩阵变成棋盘。核心不是暴力交换，而是先判断矩阵是否具备棋盘结构的必要条件，再分别计算行列最少交换次数。',
+    outcome: '你能从矩阵变换题中提炼结构不变量，并用计数方法算出最少操作次数。',
+    sections: [
+      {
+        id: 'transform-to-chessboard-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 `n x n` 的 0/1 矩阵，每次可以交换任意两行或任意两列。要求返回把矩阵变成标准棋盘的最少交换次数；如果无论如何都做不到，就返回 `-1`。',
+        bullets: [
+          '棋盘要求相邻位置值不同。',
+          '只能交换整行或整列。',
+          '需要最少交换次数。',
+          '不合法时直接返回 `-1`。',
+        ],
+      },
+      {
+        id: 'transform-to-chessboard-observe',
+        title: '先看矩阵结构是否合法，再谈最少交换',
+        summary:
+          '如果一个矩阵能变成棋盘，那么任意两个位置必须满足异或关系：`board[0][0] ^ board[row][0] ^ board[0][col] ^ board[row][col] === 0`。这意味着所有行只会分成两类互补模式，列也同理。结构合法后，再分别统计第一行和第一列与目标棋盘模式的偏差，换算最少交换次数。',
+        bullets: [
+          '合法性判定比交换过程更关键。',
+          '行模式和列模式都只能有两类。',
+          '交换次数可拆成“行最少交换 + 列最少交换”。',
+          '奇偶长度下的目标模式处理略有区别。',
+        ],
+      },
+      {
+        id: 'transform-to-chessboard-solution',
+        title: '标准解法：结构校验 + 行列独立计数',
+        summary:
+          '先枚举所有位置检查异或合法性。然后统计第一行和第一列中 `1` 的数量，以及已经与 `0101...` 模式对齐的位置数。若 `1` 的数量不在合法范围内，直接返回 `-1`。最后根据 `n` 的奇偶性，分别算出行和列最少需要多少次交换，再相加得到答案。',
+        bullets: [
+          '时间复杂度：`O(n^2)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是合法性判定和奇偶分类讨论。',
+          '这是矩阵不变量题的代表题之一。',
+        ],
+        code: `function movesToChessboard(board: number[][]): number {
+  const size = board.length
+
+  for (let row = 0; row < size; row += 1) {
+    for (let col = 0; col < size; col += 1) {
+      if ((board[0][0] ^ board[row][0] ^ board[0][col] ^ board[row][col]) !== 0) {
+        return -1
+      }
+    }
+  }
+
+  let rowSum = 0
+  let colSum = 0
+  let rowSwap = 0
+  let colSwap = 0
+
+  for (let index = 0; index < size; index += 1) {
+    rowSum += board[0][index]
+    colSum += board[index][0]
+    if (board[index][0] === index % 2) {
+      rowSwap += 1
+    }
+    if (board[0][index] === index % 2) {
+      colSwap += 1
+    }
+  }
+
+  if (
+    rowSum < Math.floor(size / 2) ||
+    rowSum > Math.ceil(size / 2) ||
+    colSum < Math.floor(size / 2) ||
+    colSum > Math.ceil(size / 2)
+  ) {
+    return -1
+  }
+
+  if (size % 2 === 1) {
+    if (rowSwap % 2 === 1) {
+      rowSwap = size - rowSwap
+    }
+    if (colSwap % 2 === 1) {
+      colSwap = size - colSwap
+    }
+  } else {
+    rowSwap = Math.min(rowSwap, size - rowSwap)
+    colSwap = Math.min(colSwap, size - colSwap)
+  }
+
+  return (rowSwap + colSwap) / 2
+}`,
+      },
+      {
+        id: 'transform-to-chessboard-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是一上来真的模拟行列交换，结果状态空间过大；或者只看第一行，忽略了整个矩阵的结构合法性。',
+        bullets: [
+          '易错点 1：没有先做异或合法性校验。',
+          '易错点 2：奇数维和偶数维的交换次数公式混用。',
+          '易错点 3：把行交换和列交换耦合处理。',
+          '延伸方向：矩阵不变量、模式匹配、构造题。',
+        ],
+      },
+    ],
+  },
 ];
