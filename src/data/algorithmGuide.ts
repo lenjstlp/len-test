@@ -81159,4 +81159,92 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'is-graph-bipartite',
+    label: '785. LeetCode 785. 判断二分图',
+    difficulty: '中等',
+    description:
+      '这题要求判断一个无向图能否分成两个点集，使得每条边都连接两个不同点集。核心是图染色：相邻节点必须染成不同颜色。',
+    outcome: '你能把图结构约束转成染色问题，并用 BFS 或 DFS 处理非连通图。',
+    sections: [
+      {
+        id: 'is-graph-bipartite-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个无向图的邻接表 `graph`，要求判断它是否是二分图。也就是能否把所有节点分成两组，使得任意边的两个端点不在同一组。',
+        bullets: [
+          '图可能不是连通的。',
+          '相邻节点必须分到不同组。',
+          '组的具体内容不重要，只要能合法划分。',
+          '本质是图的二染色问题。',
+        ],
+      },
+      {
+        id: 'is-graph-bipartite-observe',
+        title: '把两个点集理解成两种颜色',
+        summary:
+          '如果一个图是二分图，那么它一定能被涂成两种颜色，并且每条边连接的两个节点颜色不同。反过来，只要在遍历过程中发现某条边两端颜色相同，就能立刻判定失败。因为图可能非连通，所以需要从每个未染色节点出发补一轮搜索。',
+        bullets: [
+          '二分图和二染色是等价条件。',
+          '每个连通块都要单独处理。',
+          '冲突边一出现就能提前结束。',
+          'BFS 和 DFS 都能做。',
+        ],
+      },
+      {
+        id: 'is-graph-bipartite-solution',
+        title: '标准解法：BFS 染色',
+        summary:
+          '用数组 `colors` 记录每个节点的颜色，`0` 表示未染色，`1` 和 `-1` 表示两种颜色。遍历所有节点，遇到未染色节点就启动 BFS，把它染成 `1`。搜索时把所有邻居染成相反颜色；如果某个邻居已经染色且颜色和当前节点相同，直接返回 `false`。',
+        bullets: [
+          '时间复杂度：`O(V + E)`。',
+          '空间复杂度：`O(V)`。',
+          '实现重点是非连通图要遍历所有起点。',
+          '这是图染色模板题。',
+        ],
+        code: `function isBipartite(graph: number[][]): boolean {
+  const colors = Array<number>(graph.length).fill(0)
+
+  for (let node = 0; node < graph.length; node += 1) {
+    if (colors[node] !== 0) {
+      continue
+    }
+
+    const queue = [node]
+    colors[node] = 1
+
+    for (let head = 0; head < queue.length; head += 1) {
+      const current = queue[head]
+
+      for (const next of graph[current]) {
+        if (colors[next] === 0) {
+          colors[next] = -colors[current]
+          queue.push(next)
+          continue
+        }
+
+        if (colors[next] === colors[current]) {
+          return false
+        }
+      }
+    }
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'is-graph-bipartite-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只从 0 号节点出发搜索，忽略了非连通图；或者染色时没把邻居设成相反颜色。',
+        bullets: [
+          '易错点 1：没有遍历所有连通块。',
+          '易错点 2：冲突检测条件写反。',
+          '易错点 3：把有向图思路误套到无向图上。',
+          '延伸方向：图染色、并查集、奇环判定。',
+        ],
+      },
+    ],
+  },
 ];
