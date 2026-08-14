@@ -81071,4 +81071,92 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'letter-case-permutation',
+    label: '784. LeetCode 784. 字母大小写全排列',
+    difficulty: '中等',
+    description:
+      '这题要求把字符串中每个字母都尝试大小写两种形式，生成所有可能结果。核心是回溯枚举：数字原样保留，字母分支扩展。',
+    outcome:
+      '你能熟练使用回溯处理字符串分支枚举问题，并清楚什么时候该复制路径、什么时候原地回退。',
+    sections: [
+      {
+        id: 'letter-case-permutation-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个由字母和数字组成的字符串 `s`，要求返回把其中所有字母独立切换为小写或大写后得到的全部字符串。',
+        bullets: [
+          '数字字符不能变化。',
+          '每个字母都有两种选择。',
+          '结果顺序通常不重要。',
+          '本质是组合枚举。',
+        ],
+      },
+      {
+        id: 'letter-case-permutation-observe',
+        title: '每个位置只关心本位如何扩展',
+        summary:
+          '从左到右处理字符串时，如果当前字符是数字，就只能原样加入路径；如果是字母，就产生小写和大写两个分支。这样每层只决定一个字符，天然适合回溯或 DFS 枚举。',
+        bullets: [
+          '字母位产生二叉分支。',
+          '数字位只有单分支。',
+          '路径长度固定等于原字符串长度。',
+          '属于经典回溯模板题。',
+        ],
+      },
+      {
+        id: 'letter-case-permutation-solution',
+        title: '标准解法：DFS 回溯生成所有结果',
+        summary:
+          '用一个字符数组作为当前路径，递归处理下标 `index`。若 `index` 到达末尾，就把路径拼成字符串加入答案。若当前位置是数字，只递归一条分支；若是字母，则分别填入小写和大写，递归两次。',
+        bullets: [
+          '时间复杂度：`O(2^m * n)`，`m` 是字母个数。',
+          '空间复杂度：`O(n)`，不计结果集。',
+          '实现重点是判断字母还是数字。',
+          '结果数由字母数量决定。',
+        ],
+        code: `function letterCasePermutation(text: string): string[] {
+  const chars = text.split('')
+  const path = Array<string>(chars.length)
+  const answer: string[] = []
+
+  const dfs = (index: number) => {
+    if (index === chars.length) {
+      answer.push(path.join(''))
+      return
+    }
+
+    const current = chars[index]
+
+    if (/\\d/.test(current)) {
+      path[index] = current
+      dfs(index + 1)
+      return
+    }
+
+    path[index] = current.toLowerCase()
+    dfs(index + 1)
+
+    path[index] = current.toUpperCase()
+    dfs(index + 1)
+  }
+
+  dfs(0)
+  return answer
+}`,
+      },
+      {
+        id: 'letter-case-permutation-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把数字也当成需要分支的字符；或者路径复用时没有正确覆盖当前位置，导致结果串错乱。',
+        bullets: [
+          '易错点 1：数字和字母没有分开处理。',
+          '易错点 2：回溯路径状态管理混乱。',
+          '易错点 3：结果数组里重复 push 同一个可变对象。',
+          '延伸方向：回溯、字符串枚举、子集生成。',
+        ],
+      },
+    ],
+  },
 ];
