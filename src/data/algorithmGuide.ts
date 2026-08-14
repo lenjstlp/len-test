@@ -81428,4 +81428,95 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'rotated-digits',
+    label: '788. LeetCode 788. 旋转数字',
+    difficulty: '中等',
+    description:
+      '这题要求统计从 `1` 到 `n` 中有多少个数字在旋转 180 度后仍然有效且会变成不同数字。核心是逐位检查：既要合法，又要至少出现一次“真正变化”的数字。',
+    outcome:
+      '你能把数字性质判定拆成逐位规则，并清楚地区分“合法但不变”和“合法且变化”两种状态。',
+    sections: [
+      {
+        id: 'rotated-digits-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数 `n`，把每个数字 `1` 到 `n` 都旋转 180 度。要求统计其中有多少个数字旋转后仍是有效数字，并且结果与原数字不同。',
+        bullets: [
+          '`0`、`1`、`8` 旋转后不变。',
+          '`2`、`5`、`6`、`9` 旋转后会变成其他合法数字。',
+          '`3`、`4`、`7` 非法。',
+          '只有“合法且变化”的数字才算好数。',
+        ],
+      },
+      {
+        id: 'rotated-digits-observe',
+        title: '每一位只需要判断属于哪一类',
+        summary:
+          '一个数字是否是好数，完全由它的各位决定。只要出现 `3`、`4`、`7` 中任意一个，就非法；如果所有位都合法，但全部来自 `0`、`1`、`8`，那旋转后不会变化，也不算答案；必须至少出现一位来自 `2`、`5`、`6`、`9`，才是好数。',
+        bullets: [
+          '非法位会直接否定整个数字。',
+          '变化位决定它是否真正变成不同数字。',
+          '可用布尔标记记录是否发生变化。',
+          '这是典型的逐位分类判断题。',
+        ],
+      },
+      {
+        id: 'rotated-digits-solution',
+        title: '标准解法：逐个枚举并逐位验证',
+        summary:
+          '从 `1` 枚举到 `n`，对每个数字执行逐位检查。循环取出最低位，如果遇到非法位直接返回 `false`；如果遇到 `2`、`5`、`6`、`9`，就把 `changed` 标记设为 `true`。所有位检查完后，如果 `changed` 为 `true`，说明它是一个好数。',
+        bullets: [
+          '时间复杂度：`O(n log n)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是区分非法位与变化位。',
+          '数据范围不大时直接枚举最稳妥。',
+        ],
+        code: `function rotatedDigits(limit: number): number {
+  const isGood = (value: number): boolean => {
+    let current = value
+    let changed = false
+
+    while (current > 0) {
+      const digit = current % 10
+
+      if (digit === 3 || digit === 4 || digit === 7) {
+        return false
+      }
+
+      if (digit === 2 || digit === 5 || digit === 6 || digit === 9) {
+        changed = true
+      }
+
+      current = Math.floor(current / 10)
+    }
+
+    return changed
+  }
+
+  let answer = 0
+
+  for (let value = 1; value <= limit; value += 1) {
+    if (isGood(value)) {
+      answer += 1
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'rotated-digits-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把 `0`、`1`、`8` 也算进答案，但它们旋转后并没有变化；或者遇到非法位时没有立即终止。',
+        bullets: [
+          '易错点 1：合法不变数字被误计入答案。',
+          '易错点 2：忘记非法位 `3`、`4`、`7`。',
+          '易错点 3：逐位取数时没有正确更新当前值。',
+          '延伸方向：数位 DP、逐位分类、状态压缩。',
+        ],
+      },
+    ],
+  },
 ];
