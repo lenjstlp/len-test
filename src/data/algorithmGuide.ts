@@ -81519,4 +81519,75 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'escape-the-ghosts',
+    label: '789. LeetCode 789. 逃脱阻碍者',
+    difficulty: '中等',
+    description:
+      '这题要求判断你能否先于所有阻碍者到达目标点。核心不是模拟追逐，而是比较曼哈顿距离：所有人速度相同，谁距离目标更近谁更有优势。',
+    outcome:
+      '你能快速识别网格最短路中的曼哈顿距离模型，并把追逐问题转成简单的距离比较。',
+    sections: [
+      {
+        id: 'escape-the-ghosts-summary',
+        title: '题目在问什么',
+        summary:
+          '你从原点 `(0, 0)` 出发，阻碍者从各自坐标出发，所有人每步都能上下左右移动一格。给定目标点 `target`，如果你能在阻碍者之前或不被拦截地到达目标，返回 `true`，否则返回 `false`。',
+        bullets: [
+          '所有人移动速度相同。',
+          '路径不需要真的构造出来。',
+          '关键是目标点的到达先后。',
+          '阻碍者只要能先到或同时到，就能拦住你。',
+        ],
+      },
+      {
+        id: 'escape-the-ghosts-observe',
+        title: '最短步数就是曼哈顿距离',
+        summary:
+          '在四连通网格中，从一个点走到另一个点的最短步数就是曼哈顿距离。你到目标的最少步数固定为 `|x| + |y|`。只要存在某个阻碍者到目标的曼哈顿距离小于等于你，那么它就能至少和你同时到达目标，从而让你无法安全到达。',
+        bullets: [
+          '不需要考虑绕路，因为最短路长度已确定。',
+          '比较的是到目标点的理论最短步数。',
+          '同时到达也算失败。',
+          '问题本质是一次最小值比较。',
+        ],
+      },
+      {
+        id: 'escape-the-ghosts-solution',
+        title: '标准解法：比较到目标的曼哈顿距离',
+        summary:
+          '先计算你从原点到目标点的曼哈顿距离 `myDistance`。然后遍历每个阻碍者，计算它到目标点的距离 `ghostDistance`。如果存在 `ghostDistance <= myDistance`，说明你无法逃脱，直接返回 `false`；全部阻碍者都更远时，返回 `true`。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是同时到达也判失败。',
+          '属于结论型几何网格题。',
+        ],
+        code: `function escapeGhosts(ghosts: number[][], target: number[]): boolean {
+  const myDistance = Math.abs(target[0]) + Math.abs(target[1])
+
+  for (const [row, col] of ghosts) {
+    const ghostDistance = Math.abs(row - target[0]) + Math.abs(col - target[1])
+    if (ghostDistance <= myDistance) {
+      return false
+    }
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'escape-the-ghosts-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是真的去搜索路径或模拟移动过程，结果把简单问题复杂化。真正关键只有到目标的最短步数比较。',
+        bullets: [
+          '易错点 1：把问题误写成 BFS 搜路。',
+          '易错点 2：忽略“同时到达也失败”这一条件。',
+          '易错点 3：曼哈顿距离公式写错。',
+          '延伸方向：曼哈顿距离、博弈直觉、最短路建模。',
+        ],
+      },
+    ],
+  },
 ];
