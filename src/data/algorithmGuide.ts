@@ -81247,4 +81247,99 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'k-th-smallest-prime-fraction',
+    label: '786. LeetCode 786. 第 K 个最小的质数分数',
+    difficulty: '中等',
+    description:
+      '这题要求在一个递增质数数组中，找出第 `k` 小的分数 `arr[i] / arr[j]`。核心是避免枚举全部分数排序，而是利用分数大小的单调性做答案二分。',
+    outcome: '你能把分数排序问题转成阈值计数问题，并掌握双指针配合二分的用法。',
+    sections: [
+      {
+        id: 'k-th-smallest-prime-fraction-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个严格递增数组 `arr`，其中元素是 `1` 和若干质数。对所有 `i < j` 的位置，可以形成分数 `arr[i] / arr[j]`。要求返回其中第 `k` 小的那个分数。',
+        bullets: [
+          '只允许 `i < j`。',
+          '分数都在 `(0, 1]` 范围内。',
+          '不能把所有分数都生成后再全量排序。',
+          '输出的是分子和分母本身。',
+        ],
+      },
+      {
+        id: 'k-th-smallest-prime-fraction-observe',
+        title: '先猜一个值，再数有多少分数不超过它',
+        summary:
+          '如果给定一个阈值 `mid`，我们可以快速统计有多少个分数 `arr[i] / arr[j] <= mid`。因为数组递增，固定分母后满足条件的分子下标具有单调性，所以可以用双指针在线性时间完成统计。只要能数出“小于等于 mid 的个数”，就能在 `(0, 1)` 上二分答案。',
+        bullets: [
+          '关键是计数函数具有单调性。',
+          '统计过程中还能顺便维护不超过 `mid` 的最大分数。',
+          '双指针能把每轮统计压到 `O(n)`。',
+          '属于典型的答案二分题。',
+        ],
+      },
+      {
+        id: 'k-th-smallest-prime-fraction-solution',
+        title: '标准解法：实数二分 + 双指针计数',
+        summary:
+          '在 `(0, 1)` 上二分一个阈值 `mid`。遍历每个分母位置 `right`，移动分子指针 `left`，统计有多少分数不超过 `mid`。同时记录这些合法分数中的最大值 `bestNumerator / bestDenominator`。若计数等于 `k`，当前记录的就是答案；若计数小于 `k`，说明阈值偏小；否则阈值偏大。',
+        bullets: [
+          '时间复杂度约为 `O(n log W)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是计数和最优分数同步维护。',
+          '浮点二分的终止方式可以用固定轮数。',
+        ],
+        code: `function kthSmallestPrimeFraction(arr: number[], k: number): number[] {
+  let left = 0
+  let right = 1
+
+  for (let round = 0; round < 60; round += 1) {
+    const mid = (left + right) / 2
+    let count = 0
+    let numerator = 0
+    let denominator = 1
+    let start = 0
+
+    for (let end = 1; end < arr.length; end += 1) {
+      while (start < end && arr[start] / arr[end] <= mid) {
+        start += 1
+      }
+
+      count += start
+
+      if (start > 0 && numerator * arr[end] < denominator * arr[start - 1]) {
+        numerator = arr[start - 1]
+        denominator = arr[end]
+      }
+    }
+
+    if (count === k) {
+      return [numerator, denominator]
+    }
+
+    if (count < k) {
+      left = mid
+    } else {
+      right = mid
+    }
+  }
+
+  return []
+}`,
+      },
+      {
+        id: 'k-th-smallest-prime-fraction-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是真的生成所有分数后排序，复杂度不必要地变高；或者双指针计数时把 `<= mid` 的边界写错。',
+        bullets: [
+          '易错点 1：暴力构造全部分数。',
+          '易错点 2：计数过程中分子指针移动方向写错。',
+          '易错点 3：比较两个分数大小时直接用浮点数导致精度抖动。',
+          '延伸方向：答案二分、分数比较、双指针计数。',
+        ],
+      },
+    ],
+  },
 ];
