@@ -81666,4 +81666,88 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'custom-sort-string',
+    label: '791. LeetCode 791. 自定义字符串排序',
+    difficulty: '中等',
+    description:
+      '这题要求按照给定的自定义顺序重排字符串 `s`。核心是先统计频次，再按 `order` 指定的优先级输出字符。',
+    outcome:
+      '你能把排序约束题转成频次分配问题，并熟练使用哈希统计简化重排逻辑。',
+    sections: [
+      {
+        id: 'custom-sort-string-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `order` 和 `s`，其中 `order` 中的字符互不重复，表示一种自定义字符顺序。要求重新排列 `s`，使得在 `order` 中出现的字符都尽量按这个顺序排列。',
+        bullets: [
+          '`order` 定义了部分字符的优先级。',
+          '`s` 中可能包含不在 `order` 里的字符。',
+          '不在 `order` 中的字符放在后面即可。',
+          '只要求满足顺序，不要求唯一答案。',
+        ],
+      },
+      {
+        id: 'custom-sort-string-observe',
+        title: '不需要真的比较排序，只要按顺序吐出频次',
+        summary:
+          '如果先统计 `s` 中每个字符出现了多少次，那么对 `order` 里的字符，按顺序把它们重复输出对应次数即可。等 `order` 走完后，再把剩余未处理的字符补到结果末尾。整个过程本质是频次分桶，而不是真做比较排序。',
+        bullets: [
+          '统计频次后，输出顺序就完全可控。',
+          '`order` 中的字符优先输出。',
+          '剩余字符保持任意顺序都合法。',
+          '这是哈希计数重排题。',
+        ],
+      },
+      {
+        id: 'custom-sort-string-solution',
+        title: '标准解法：哈希计数 + 按顺序构造结果',
+        summary:
+          '先用 `Map<string, number>` 统计 `s` 中每个字符的出现次数。然后遍历 `order`，若当前字符在计数表里，就把它重复加入答案并从表中删除。最后遍历表里剩余字符，把它们按各自频次追加到答案末尾。这样时间复杂度是线性的。',
+        bullets: [
+          '时间复杂度：`O(n + m)`。',
+          '空间复杂度：`O(字符种类数)`。',
+          '实现重点是先按 `order` 消耗频次，再处理剩余字符。',
+          '不需要调用通用排序函数。',
+        ],
+        code: `function customSortString(order: string, text: string): string {
+  const counter = new Map<string, number>()
+
+  for (const char of text) {
+    counter.set(char, (counter.get(char) ?? 0) + 1)
+  }
+
+  const answer: string[] = []
+
+  for (const char of order) {
+    const count = counter.get(char) ?? 0
+    for (let index = 0; index < count; index += 1) {
+      answer.push(char)
+    }
+    counter.delete(char)
+  }
+
+  for (const [char, count] of counter) {
+    for (let index = 0; index < count; index += 1) {
+      answer.push(char)
+    }
+  }
+
+  return answer.join('')
+}`,
+      },
+      {
+        id: 'custom-sort-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题常见错误是直接给每个字符打权重再排序，虽然能做，但比频次统计更绕；或者忘记处理不在 `order` 中的剩余字符。',
+        bullets: [
+          '易错点 1：遗漏 `order` 外的字符。',
+          '易错点 2：误以为结果顺序必须唯一。',
+          '易错点 3：用排序解法把问题复杂化。',
+          '延伸方向：哈希计数、字符重排、自定义优先级。',
+        ],
+      },
+    ],
+  },
 ];
