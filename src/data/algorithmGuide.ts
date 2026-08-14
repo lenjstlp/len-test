@@ -81750,4 +81750,92 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'number-of-matching-subsequences',
+    label: '792. LeetCode 792. 匹配子序列的单词数',
+    difficulty: '中等',
+    description:
+      '这题要求统计有多少个单词是字符串 `s` 的子序列。核心不是对每个单词都从头扫描 `s`，而是把等待某个字符的单词分桶推进。',
+    outcome:
+      '你能把多模式匹配问题转成状态队列流转，并掌握“按下一期待字符分发”的高效技巧。',
+    sections: [
+      {
+        id: 'number-of-matching-subsequences-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s` 和字符串数组 `words`，要求统计 `words` 中有多少个单词是 `s` 的子序列。',
+        bullets: [
+          '子序列要求保持相对顺序。',
+          '每个单词都可能长度不同。',
+          '需要统计总个数，不是去重后的种类数。',
+          '不能暴力对每个单词都完整扫描 `s`。',
+        ],
+      },
+      {
+        id: 'number-of-matching-subsequences-observe',
+        title: '让单词去等待字符，而不是反复扫描主串',
+        summary:
+          '可以把每个单词当前“下一位想匹配什么字符”作为状态，把它挂到对应字符的桶里。遍历 `s` 时，遇到字符 `c`，就把等待 `c` 的所有单词取出来推进一步：如果这个单词已经匹配完，就计数；否则根据它下一位需要的字符，再放回新的桶里。这样每个单词的每个字符只被处理一次。',
+        bullets: [
+          '主串只遍历一次。',
+          '每个单词状态只前进，不回退。',
+          '桶的键就是下一期待匹配的字符。',
+          '这是“流式推进状态”的典型技巧。',
+        ],
+      },
+      {
+        id: 'number-of-matching-subsequences-solution',
+        title: '标准解法：字符桶 + 指针推进',
+        summary:
+          '先准备 26 个桶，每个桶里放若干状态 `[word, index]`，表示这个单词当前要匹配 `word[index]`。初始化时把所有单词按首字符分桶。随后遍历 `s` 的每个字符，把对应桶当前快照取出并清空；对其中每个状态，若 `index + 1` 已到单词末尾，就把答案加一，否则把它放进它下一位字符对应的桶里。',
+        bullets: [
+          '时间复杂度：`O(|s| + 所有单词总长度)`。',
+          '空间复杂度：`O(所有单词总长度)`。',
+          '实现重点是遍历当前桶时先取快照，避免边遍历边追加。',
+          '比逐个单词双指针扫描更高效。',
+        ],
+        code: `function numMatchingSubseq(text: string, words: string[]): number {
+  const buckets: Array<Array<[string, number]>> = Array.from({ length: 26 }, () => [])
+  const getBucketIndex = (char: string) => char.charCodeAt(0) - 97
+
+  for (const word of words) {
+    buckets[getBucketIndex(word[0])].push([word, 0])
+  }
+
+  let answer = 0
+
+  for (const char of text) {
+    const bucketIndex = getBucketIndex(char)
+    const currentBucket = buckets[bucketIndex]
+    buckets[bucketIndex] = []
+
+    for (const [word, index] of currentBucket) {
+      const nextIndex = index + 1
+
+      if (nextIndex === word.length) {
+        answer += 1
+        continue
+      }
+
+      buckets[getBucketIndex(word[nextIndex])].push([word, nextIndex])
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'number-of-matching-subsequences-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是对每个单词都用双指针从头扫一遍 `s`，在数据量大时效率不够；或者遍历桶时直接往同一个桶追加，导致状态重复处理。',
+        bullets: [
+          '易错点 1：没有利用多个单词之间的共享扫描过程。',
+          '易错点 2：遍历当前桶时没先清空或拷贝快照。',
+          '易错点 3：字符到桶下标的映射写错。',
+          '延伸方向：状态机、流式处理、桶分发优化。',
+        ],
+      },
+    ],
+  },
 ];
