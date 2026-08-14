@@ -81590,4 +81590,80 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'domino-and-tromino-tiling',
+    label: '790. LeetCode 790. 多米诺和托米诺平铺',
+    difficulty: '中等',
+    description:
+      '这题要求计算用多米诺骨牌和 L 形托米诺骨牌铺满 `2 x n` 棋盘的方案数。核心是建立状态转移，而不是手动画铺法枚举。',
+    outcome: '你能从平铺问题中抽象出有限状态动态规划，并推导出简洁的递推关系。',
+    sections: [
+      {
+        id: 'domino-and-tromino-tiling-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数 `n`，要求返回使用 `2 x 1` 多米诺骨牌和可旋转的 L 形托米诺骨牌，铺满 `2 x n` 棋盘的不同方案数。答案需要对 `1_000_000_007` 取模。',
+        bullets: [
+          '棋盘固定为 `2 x n`。',
+          '骨牌有两类：多米诺和托米诺。',
+          '托米诺可以旋转使用。',
+          '最终只需要方案总数。',
+        ],
+      },
+      {
+        id: 'domino-and-tromino-tiling-observe',
+        title: '关键是描述“最后一列缺不缺角”',
+        summary:
+          '如果只记录“前 `i` 列铺满的方案数”，托米诺带来的缺角状态不好表达。更自然的做法是同时维护铺满状态和“上缺一格/下缺一格”的悬挂状态。由于上下缺角是对称的，最终可以把转移压缩成经典递推：`dp[i] = 2 * dp[i - 1] + dp[i - 3]`。',
+        bullets: [
+          '托米诺会制造或消除缺角状态。',
+          '缺角状态是建模重点。',
+          '压缩后递推比直接三维状态更简洁。',
+          '这是平铺 DP 的代表题。',
+        ],
+      },
+      {
+        id: 'domino-and-tromino-tiling-solution',
+        title: '标准解法：动态规划递推',
+        summary:
+          '设 `dp[i]` 表示铺满 `2 x i` 棋盘的方案数。基础值是 `dp[0] = 1`、`dp[1] = 1`、`dp[2] = 2`。进一步推导可得：到第 `i` 列时，要么在 `dp[i - 1]` 的基础上再加一个竖着的多米诺；要么在 `dp[i - 2]` 的基础上再加两个横着的多米诺；要么借助托米诺与缺角状态组合，最终合并成 `dp[i] = 2 * dp[i - 1] + dp[i - 3]`。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`，也可压缩为 `O(1)`。',
+          '实现重点是基础状态和取模。',
+          '递推式是这题最核心的结论。',
+        ],
+        code: `function numTilings(n: number): number {
+  const mod = 1_000_000_007
+
+  if (n <= 2) {
+    return n
+  }
+
+  const dp = Array<number>(n + 1).fill(0)
+  dp[0] = 1
+  dp[1] = 1
+  dp[2] = 2
+
+  for (let length = 3; length <= n; length += 1) {
+    dp[length] = (2 * dp[length - 1] + dp[length - 3]) % mod
+  }
+
+  return dp[n]
+}`,
+      },
+      {
+        id: 'domino-and-tromino-tiling-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接凭感觉写递推，漏掉托米诺造成的缺角状态；或者基础值没设全，导致从 `n = 3` 开始答案就错。',
+        bullets: [
+          '易错点 1：把问题误简化成普通斐波那契。',
+          '易错点 2：基础状态 `dp[0]`、`dp[1]`、`dp[2]` 设置错误。',
+          '易错点 3：忘记按题意取模。',
+          '延伸方向：状态压缩 DP、轮廓线 DP、平铺问题建模。',
+        ],
+      },
+    ],
+  },
 ];
