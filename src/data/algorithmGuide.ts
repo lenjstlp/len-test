@@ -81342,4 +81342,90 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'cheapest-flights-within-k-stops',
+    label: '787. LeetCode 787. K 站中转内最便宜的航班',
+    difficulty: '中等',
+    description:
+      '这题要求在最多经过 `k` 次中转的限制下，找到从起点到终点的最低价格。核心是把“边数受限的最短路”从普通 Dijkstra 中分离出来，用分层动态规划或 Bellman-Ford 处理。',
+    outcome: '你能识别带步数限制的最短路模型，并用松弛迭代安全地控制中转次数。',
+    sections: [
+      {
+        id: 'cheapest-flights-within-k-stops-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `n` 个城市和若干航班 `flights`，每条航班表示起点、终点和价格。要求在最多 `k` 次中转内，从 `src` 到 `dst` 的最低价格；如果无法到达，返回 `-1`。',
+        bullets: [
+          '每条边有价格权重。',
+          '路径不能无限长，有中转次数约束。',
+          '目标是最低总花费。',
+          '和普通最短路相比，多了边数限制。',
+        ],
+      },
+      {
+        id: 'cheapest-flights-within-k-stops-observe',
+        title: '限制中转次数，本质是限制使用边的层数',
+        summary:
+          '最多 `k` 次中转，等价于最多使用 `k + 1` 条航班边。如果直接用普通最短路，可能会提前利用过多边数得到不合法路径。更稳的做法是做 `k + 1` 轮松弛，每一轮只基于上一轮的结果更新下一轮，这样天然保证使用的边数不会超限。',
+        bullets: [
+          '每一轮松弛代表多走一条边。',
+          '必须从上一轮快照更新，不能原地污染。',
+          '属于受限边数的 Bellman-Ford 变体。',
+          '状态里隐含了“用了多少步”。',
+        ],
+      },
+      {
+        id: 'cheapest-flights-within-k-stops-solution',
+        title: '标准解法：Bellman-Ford 按轮松弛',
+        summary:
+          '初始化 `costs[src] = 0`，其余为无穷大。然后执行 `k + 1` 轮：复制当前数组为 `nextCosts`，遍历所有航班 `[from, to, price]`，如果上一轮 `costs[from]` 可达，就尝试用 `costs[from] + price` 更新 `nextCosts[to]`。每轮结束后替换为 `nextCosts`。最终 `costs[dst]` 即答案。',
+        bullets: [
+          '时间复杂度：`O((k + 1) * m)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是每轮要基于上轮快照更新。',
+          '这比硬改 Dijkstra 更稳定直接。',
+        ],
+        code: `function findCheapestPrice(
+  cityCount: number,
+  flights: number[][],
+  src: number,
+  dst: number,
+  k: number,
+): number {
+  const costs = Array<number>(cityCount).fill(Number.POSITIVE_INFINITY)
+  costs[src] = 0
+
+  for (let round = 0; round <= k; round += 1) {
+    const nextCosts = [...costs]
+
+    for (const [from, to, price] of flights) {
+      if (costs[from] === Number.POSITIVE_INFINITY) {
+        continue
+      }
+
+      nextCosts[to] = Math.min(nextCosts[to], costs[from] + price)
+    }
+
+    for (let city = 0; city < cityCount; city += 1) {
+      costs[city] = nextCosts[city]
+    }
+  }
+
+  return costs[dst] === Number.POSITIVE_INFINITY ? -1 : costs[dst]
+}`,
+      },
+      {
+        id: 'cheapest-flights-within-k-stops-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是原地松弛导致同一轮重复利用新结果，相当于偷偷多走了几条边；或者把 `k` 次中转误解成最多 `k` 条边。',
+        bullets: [
+          '易错点 1：没有使用上一轮快照。',
+          '易错点 2：中转次数和边数关系理解错。',
+          '易错点 3：无穷大状态参与加法时没有判空。',
+          '延伸方向：Bellman-Ford、分层图最短路、动态规划。',
+        ],
+      },
+    ],
+  },
 ];
