@@ -80978,4 +80978,97 @@ function splitBST(
       },
     ],
   },
+  {
+    id: 'minimum-distance-between-bst-nodes',
+    label: '783. LeetCode 783. 二叉搜索树节点最小距离',
+    difficulty: '简单',
+    description:
+      '这题要求找出二叉搜索树中任意两个不同节点值的最小差值。核心在于利用 BST 的中序遍历有序性质，把问题转成有序数组相邻差值最小值。',
+    outcome:
+      '你能把树上的最值问题转成有序遍历问题，并掌握中序遍历中的状态维护。',
+    sections: [
+      {
+        id: 'minimum-distance-between-bst-nodes-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉搜索树，要求返回任意两个不同节点值之间的最小差的绝对值。',
+        bullets: [
+          '输入是一棵 BST。',
+          '需要比较任意两个节点值。',
+          '目标是最小绝对差。',
+          '不需要真的两两比较所有节点。',
+        ],
+      },
+      {
+        id: 'minimum-distance-between-bst-nodes-observe',
+        title: 'BST 的中序遍历天然有序',
+        summary:
+          '二叉搜索树做中序遍历时，访问序列一定是严格递增的。有序序列中，最小差值一定出现在相邻元素之间，因此遍历时只要记录上一个访问到的节点值，持续更新最小差即可。',
+        bullets: [
+          'BST 的结构信息直接给了有序性。',
+          '最小差不会跨过中间元素出现。',
+          '只需维护前一个值和当前答案。',
+          '不必额外存完整数组。',
+        ],
+      },
+      {
+        id: 'minimum-distance-between-bst-nodes-solution',
+        title: '标准解法：中序遍历 + 相邻比较',
+        summary:
+          '递归或迭代做中序遍历。每访问一个节点时，如果之前已有 `prev`，就用当前值减去 `prev` 更新答案，然后把当前值记成新的 `prev`。遍历结束后得到全局最小差值。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(h)`，来自递归栈。',
+          '实现重点是中序顺序和前驱值维护。',
+          '这是 BST 中序模板题。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(val = 0, left: TreeNode | null = null, right: TreeNode | null = null) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function minDiffInBST(root: TreeNode | null): number {
+  let previous: number | null = null
+  let answer = Number.MAX_SAFE_INTEGER
+
+  const inorder = (node: TreeNode | null) => {
+    if (node === null) {
+      return
+    }
+
+    inorder(node.left)
+
+    if (previous !== null) {
+      answer = Math.min(answer, node.val - previous)
+    }
+    previous = node.val
+
+    inorder(node.right)
+  }
+
+  inorder(root)
+  return answer
+}`,
+      },
+      {
+        id: 'minimum-distance-between-bst-nodes-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忘了利用 BST 的有序特性，直接把所有节点收集后暴力比较；或者前一个节点值的更新时机写错。',
+        bullets: [
+          '易错点 1：没有用中序遍历。',
+          '易错点 2：把最小差误认为和根节点有关。',
+          '易错点 3：`previous` 初始化和判空处理不严谨。',
+          '延伸方向：BST 中序、前驱后继、树上最值问题。',
+        ],
+      },
+    ],
+  },
 ];
