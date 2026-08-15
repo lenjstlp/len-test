@@ -81838,4 +81838,94 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'preimage-size-of-factorial-zeroes-function',
+    label: '793. LeetCode 793. 阶乘函数后 K 个零',
+    difficulty: '困难',
+    description:
+      '这题要求判断有多少个非负整数 `x` 满足 `x!` 末尾恰好有 `k` 个零。核心不是直接算阶乘，而是利用“末尾零个数”函数的单调性做边界查找。',
+    outcome:
+      '你能把“满足某函数值等于 k 的输入个数”转成两次二分边界搜索，并理解为什么答案只会是 `0` 或 `5`。',
+    sections: [
+      {
+        id: 'preimage-size-of-factorial-zeroes-function-summary',
+        title: '题目在问什么',
+        summary:
+          '定义函数 `f(x)` 表示 `x!` 末尾有多少个零。给定整数 `k`，要求返回满足 `f(x) = k` 的非负整数 `x` 的个数。',
+        bullets: [
+          '不需要真的计算 `x!`。',
+          '末尾零来自因子 `10 = 2 * 5`。',
+          '在阶乘里，`2` 的个数总是更多，所以关键只看 `5`。',
+          '目标是统计满足等式的输入数量。',
+        ],
+      },
+      {
+        id: 'preimage-size-of-factorial-zeroes-function-observe',
+        title: '先把问题变成找函数值首次达到某个数的位置',
+        summary:
+          '函数 `f(x)` 是单调不减的，因为 `x` 变大后，阶乘里只会包含更多的因子 `5`。如果我们能找到最小的 `x` 使得 `f(x) >= k`，再找到最小的 `x` 使得 `f(x) >= k + 1`，那么这两个边界的差值，就是满足 `f(x) = k` 的整数个数。由于 `f(x)` 每次跳跃都以 5 的倍数为单位出现，最终答案只会是 `0` 或 `5`。',
+        bullets: [
+          '`f(x)` 可通过不断除以 `5` 累加得到。',
+          '单调函数天然适合二分边界。',
+          '等于 `k` 的区间长度就是两个 lower bound 的差。',
+          '这题本质是“值域计数转边界查找”。',
+        ],
+      },
+      {
+        id: 'preimage-size-of-factorial-zeroes-function-solution',
+        title: '标准解法：二分查找两个边界',
+        summary:
+          '先写一个函数 `countZeroes(x)`，返回 `x!` 末尾零的个数：不断执行 `x = Math.floor(x / 5)` 并累加。然后写 `lowerBound(target)`，二分找到最小的 `x` 使得 `countZeroes(x) >= target`。最终答案是 `lowerBound(k + 1) - lowerBound(k)`。如果不存在恰好等于 `k` 的区间，这个差就是 `0`；否则一定是 `5`。',
+        bullets: [
+          '时间复杂度：`O(log^2 k)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是边界二分和零个数统计函数。',
+          '不需要枚举任何具体阶乘值。',
+        ],
+        code: `function preimageSizeFZF(k: number): number {
+  const countZeroes = (value: number): number => {
+    let current = value
+    let total = 0
+
+    while (current > 0) {
+      current = Math.floor(current / 5)
+      total += current
+    }
+
+    return total
+  }
+
+  const lowerBound = (target: number): number => {
+    let left = 0
+    let right = 5 * (target + 1)
+
+    while (left < right) {
+      const mid = Math.floor((left + right) / 2)
+      if (countZeroes(mid) >= target) {
+        right = mid
+      } else {
+        left = mid + 1
+      }
+    }
+
+    return left
+  }
+
+  return lowerBound(k + 1) - lowerBound(k)
+}`,
+      },
+      {
+        id: 'preimage-size-of-factorial-zeroes-function-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是以为答案可能很多，试图逐个枚举 `x` 去验证；或者二分上界取得太小，导致漏解。',
+        bullets: [
+          '易错点 1：直接枚举 `x` 计算零的个数，效率太差。',
+          '易错点 2：把 `f(x)` 错看成严格单调函数。',
+          '易错点 3：二分边界只找一个，没有用差值统计区间长度。',
+          '延伸方向：二分答案、lower bound、数论计数函数。',
+        ],
+      },
+    ],
+  },
 ];
