@@ -82271,4 +82271,92 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'smallest-rotation-with-highest-score',
+    label: '798. LeetCode 798. 得分最高的最小轮调',
+    difficulty: '困难',
+    description:
+      '这题要求找到一个轮调次数 `k`，使数组在轮调后的得分最高。核心不是真的枚举每次轮调后的数组，而是分析每个元素对哪些 `k` 有贡献，并用差分统计总分变化。',
+    outcome:
+      '你能把轮调评分问题转成区间加减问题，并掌握差分数组在环形贡献统计中的用法。',
+    sections: [
+      {
+        id: 'smallest-rotation-with-highest-score-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `nums`，把数组左旋 `k` 次后，如果某个元素 `nums[i]` 在新位置 `newIndex` 满足 `nums[i] <= newIndex`，就贡献 1 分。要求返回使得总得分最高的最小 `k`。',
+        bullets: [
+          '每个 `k` 都对应一次轮调结果。',
+          '元素是否得分只和它的新下标有关。',
+          '目标是找到最高分对应的最小轮调次数。',
+          '直接模拟所有 `k` 会比较低效。',
+        ],
+      },
+      {
+        id: 'smallest-rotation-with-highest-score-observe',
+        title: '每个元素只会在某些轮调区间内失分',
+        summary:
+          '固定元素 `nums[i]` 后，随着轮调次数变化，它的新位置按环形规律移动。可以推导出：它只会在某个区间内“不满足 `nums[i] <= newIndex`”，其余轮调都会得分。于是问题就变成，对每个元素把“不好”的轮调区间做差分标记，最后前缀累加得到每个 `k` 的总分变化。',
+        bullets: [
+          '轮调问题可以转成区间贡献问题。',
+          '差分非常适合批量处理区间加减。',
+          '由于是环形区间，需要注意取模和拆段。',
+          '最终只需一次线性扫描找最大值。',
+        ],
+      },
+      {
+        id: 'smallest-rotation-with-highest-score-solution',
+        title: '标准解法：差分数组统计每个轮调的得分变化',
+        summary:
+          '设数组长度为 `n`，初始化 `changes` 长度为 `n`。对于元素 `nums[i]`，可以算出它开始失分和恢复得分的边界，用差分在 `changes` 上做加减。随后从 `k = 0` 开始累加差分，得到每个轮调的分数变化，维护最高分及其最小下标即可。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是元素贡献区间的边界推导。',
+          '这是环形差分的代表题。',
+        ],
+        code: `function bestRotation(nums: number[]): number {
+  const size = nums.length
+  const changes = Array<number>(size).fill(0)
+
+  for (let index = 0; index < size; index += 1) {
+    const left = (index - nums[index] + 1 + size) % size
+    const right = (index + 1) % size
+    changes[left] -= 1
+    changes[right] += 1
+
+    if (left > right) {
+      changes[0] -= 1
+    }
+  }
+
+  let bestIndex = 0
+  let bestScore = -size
+  let score = 0
+
+  for (let rotation = 0; rotation < size; rotation += 1) {
+    score += changes[rotation] + 1
+    if (score > bestScore) {
+      bestScore = score
+      bestIndex = rotation
+    }
+  }
+
+  return bestIndex
+}`,
+      },
+      {
+        id: 'smallest-rotation-with-highest-score-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接模拟每次轮调去重新评分，复杂度过高；或者差分边界推导错一位，导致整体答案偏移。',
+        bullets: [
+          '易错点 1：没有把元素贡献转换成区间处理。',
+          '易错点 2：环形区间跨过 0 时漏掉补偿。',
+          '易错点 3：更新最优解时没有保留最小下标。',
+          '延伸方向：差分数组、环形数组、贡献统计。',
+        ],
+      },
+    ],
+  },
 ];
