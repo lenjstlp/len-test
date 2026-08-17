@@ -81928,4 +81928,123 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'valid-tic-tac-toe-state',
+    label: '794. LeetCode 794. 有效的井字游戏',
+    difficulty: '中等',
+    description:
+      '这题要求判断一个井字棋盘面是否可能从合法对局中产生。核心不是搜索整个博弈过程，而是检查落子数量和胜负状态之间是否自洽。',
+    outcome:
+      '你能把棋盘合法性判断拆成计数约束与终局约束，并用规则校验代替复杂回溯。',
+    sections: [
+      {
+        id: 'valid-tic-tac-toe-state-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 `3 x 3` 井字棋盘，字符只可能是 `X`、`O` 或空格。要求判断该棋盘状态是否可能由双方轮流落子得到，其中 `X` 总是先手。',
+        bullets: [
+          '`X` 和 `O` 轮流下子。',
+          '`X` 先手，因此 `X` 数量只能等于 `O` 或多 1。',
+          '如果有人已经赢了，后续不能再继续落子。',
+          '需要判断整个局面是否合法。',
+        ],
+      },
+      {
+        id: 'valid-tic-tac-toe-state-observe',
+        title: '合法局面必须同时满足数量关系和胜负关系',
+        summary:
+          '任何合法棋盘都要先满足基础数量关系：`countX === countO` 或 `countX === countO + 1`。再进一步，如果 `X` 获胜，那么它一定比 `O` 多下了一步；如果 `O` 获胜，那么双方落子数必须相等。两边同时获胜的局面一定非法，因为真实对局一旦一方赢下就会结束。',
+        bullets: [
+          '先手规则决定了数量上下界。',
+          '胜负状态会反向约束计数结果。',
+          '双赢局面不可能出现。',
+          '不需要回溯所有走法。',
+        ],
+      },
+      {
+        id: 'valid-tic-tac-toe-state-solution',
+        title: '标准解法：计数 + 胜线检查',
+        summary:
+          '先遍历棋盘统计 `X` 和 `O` 的数量。然后写一个 `wins(player)` 函数，检查 3 行、3 列和 2 条对角线是否有同一玩家连成线。若数量关系不合法，直接返回 `false`；若 `X` 获胜但 `countX !== countO + 1`，返回 `false`；若 `O` 获胜但 `countX !== countO`，也返回 `false`；否则返回 `true`。',
+        bullets: [
+          '时间复杂度：`O(1)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是把数量规则和胜负规则结合起来。',
+          '属于规则校验型题目。',
+        ],
+        code: `function validTicTacToe(board: string[]): boolean {
+  let countX = 0
+  let countO = 0
+
+  for (const row of board) {
+    for (const cell of row) {
+      if (cell === 'X') {
+        countX += 1
+      } else if (cell === 'O') {
+        countO += 1
+      }
+    }
+  }
+
+  const wins = (player: 'X' | 'O'): boolean => {
+    for (let index = 0; index < 3; index += 1) {
+      if (
+        board[index][0] === player &&
+        board[index][1] === player &&
+        board[index][2] === player
+      ) {
+        return true
+      }
+
+      if (
+        board[0][index] === player &&
+        board[1][index] === player &&
+        board[2][index] === player
+      ) {
+        return true
+      }
+    }
+
+    return (
+      (board[0][0] === player && board[1][1] === player && board[2][2] === player) ||
+      (board[0][2] === player && board[1][1] === player && board[2][0] === player)
+    )
+  }
+
+  if (!(countX === countO || countX === countO + 1)) {
+    return false
+  }
+
+  const xWins = wins('X')
+  const oWins = wins('O')
+
+  if (xWins && oWins) {
+    return false
+  }
+
+  if (xWins && countX !== countO + 1) {
+    return false
+  }
+
+  if (oWins && countX !== countO) {
+    return false
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'valid-tic-tac-toe-state-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只检查 `X`、`O` 的数量，而忽略了获胜后不能继续落子的约束；或者没有排除双方同时获胜的非法局面。',
+        bullets: [
+          '易错点 1：只看计数，不看胜负关系。',
+          '易错点 2：忽略 `X` 先手这一前提。',
+          '易错点 3：双赢局面没有判掉。',
+          '延伸方向：博弈状态校验、棋盘规则、有限状态判断。',
+        ],
+      },
+    ],
+  },
 ];
