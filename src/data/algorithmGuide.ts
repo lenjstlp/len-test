@@ -82191,4 +82191,84 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'all-paths-from-source-to-target',
+    label: '797. LeetCode 797. 所有可能的路径',
+    difficulty: '中等',
+    description:
+      '这题要求列出 DAG 中从起点到终点的所有路径。核心是回溯 DFS：沿着有向边走到底，到达终点时记录当前路径。',
+    outcome:
+      '你能用深度优先搜索枚举有向无环图中的全部路径，并掌握路径压栈与回退的写法。',
+    sections: [
+      {
+        id: 'all-paths-from-source-to-target-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个有向无环图 `graph`，节点编号从 `0` 到 `n - 1`。要求返回从节点 `0` 到节点 `n - 1` 的所有可能路径。',
+        bullets: [
+          '图保证是 DAG，没有环。',
+          '起点固定是 `0`。',
+          '终点固定是 `n - 1`。',
+          '需要输出所有路径，而不是只判断是否存在。',
+        ],
+      },
+      {
+        id: 'all-paths-from-source-to-target-observe',
+        title: '无环条件让路径枚举天然适合 DFS',
+        summary:
+          '因为图中没有环，所以从起点出发做 DFS 不会陷入无限递归。每次沿当前节点的所有出边继续搜索，把节点加入路径；一旦到达终点，就把这条路径拷贝到答案里。然后回退，继续尝试其他分支。',
+        bullets: [
+          'DAG 消除了环检测的复杂度。',
+          '路径是一个典型的回溯状态。',
+          '到达终点时需要拷贝当前路径。',
+          '这是图搜索与回溯的结合题。',
+        ],
+      },
+      {
+        id: 'all-paths-from-source-to-target-solution',
+        title: '标准解法：DFS 回溯枚举路径',
+        summary:
+          '维护一个数组 `path` 表示当前搜索路径，初始为 `[0]`。递归函数 `dfs(node)`：如果 `node === target`，就把 `path` 的拷贝放入答案；否则遍历它的所有邻居，把邻居加入 `path`，递归后再弹出。由于图无环，不需要额外的 `visited` 数组。',
+        bullets: [
+          '时间复杂度与所有输出路径总长度相关。',
+          '空间复杂度：`O(n)`，不计答案集。',
+          '实现重点是路径拷贝和回退。',
+          '属于回溯模板题。',
+        ],
+        code: `function allPathsSourceTarget(graph: number[][]): number[][] {
+  const target = graph.length - 1
+  const path = [0]
+  const answer: number[][] = []
+
+  const dfs = (node: number) => {
+    if (node === target) {
+      answer.push([...path])
+      return
+    }
+
+    for (const next of graph[node]) {
+      path.push(next)
+      dfs(next)
+      path.pop()
+    }
+  }
+
+  dfs(0)
+  return answer
+}`,
+      },
+      {
+        id: 'all-paths-from-source-to-target-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是到达终点时直接把 `path` 推入答案而不拷贝，导致后续回退把已记录结果也改掉；或者错误地加了全局 `visited`，反而漏掉合法路径。',
+        bullets: [
+          '易错点 1：结果里没有拷贝路径。',
+          '易错点 2：把 DAG 也当成一般图去做全局去重。',
+          '易错点 3：回退时忘记 `pop()`。',
+          '延伸方向：回溯、DAG 路径计数、拓扑图搜索。',
+        ],
+      },
+    ],
+  },
 ];
