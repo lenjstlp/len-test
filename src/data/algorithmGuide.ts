@@ -82359,4 +82359,87 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'champagne-tower',
+    label: '799. LeetCode 799. 香槟塔',
+    difficulty: '中等',
+    description:
+      '这题要求模拟把香槟倒入杯塔后，指定杯中的液体量。核心不是真的构建无限塔，而是只传播每一层溢出的部分。',
+    outcome:
+      '你能把层级溢出问题建模成动态规划，并清楚每个杯子只接收来自上一层两侧溢出的液体。',
+    sections: [
+      {
+        id: 'champagne-tower-summary',
+        title: '题目在问什么',
+        summary:
+          '向最顶端的杯子倒入 `poured` 杯香槟。每个杯子最多装 1 杯，超出的部分会均分流向下一层的左右两个杯子。给定 `queryRow` 和 `queryGlass`，要求返回目标杯中的香槟量。',
+        bullets: [
+          '每个杯子容量上限是 1。',
+          '只有溢出的部分才会继续向下流。',
+          '目标是查询某个杯子的最终液量。',
+          '不需要模拟无限深，只需模拟到目标行。',
+        ],
+      },
+      {
+        id: 'champagne-tower-observe',
+        title: '每一层只依赖上一层的溢出量',
+        summary:
+          '一个杯子最终能得到多少液体，只取决于它左上和右上的杯子各自溢出了多少。因此可以用二维 DP 或逐层数组来模拟。对某个杯子，如果当前量超过 1，那么多出来的 `(value - 1) / 2` 会流向下一层两个位置；若不超过 1，则没有任何溢出。',
+        bullets: [
+          '传播的是“溢出量”，不是杯中总量。',
+          '状态只依赖上一层。',
+          '模拟到查询行就够了。',
+          '这是层次递推模型。',
+        ],
+      },
+      {
+        id: 'champagne-tower-solution',
+        title: '标准解法：逐层动态规划模拟溢出',
+        summary:
+          '准备一个二维数组 `dp`，其中 `dp[row][col]` 表示倒入该杯的总量。初始 `dp[0][0] = poured`。从第 0 行开始逐层处理：如果 `dp[row][col] > 1`，就把超出的部分均分给 `dp[row + 1][col]` 和 `dp[row + 1][col + 1]`。最终返回 `Math.min(1, dp[queryRow][queryGlass])`。',
+        bullets: [
+          '时间复杂度：`O(queryRow^2)`。',
+          '空间复杂度：`O(queryRow^2)`。',
+          '实现重点是只传播溢出部分。',
+          '答案最多为 1，需要截断。',
+        ],
+        code: `function champagneTower(
+  poured: number,
+  queryRow: number,
+  queryGlass: number,
+): number {
+  const dp = Array.from({ length: queryRow + 2 }, (_, row) =>
+    Array<number>(row + 1).fill(0),
+  )
+  dp[0][0] = poured
+
+  for (let row = 0; row <= queryRow; row += 1) {
+    for (let col = 0; col <= row; col += 1) {
+      if (dp[row][col] <= 1) {
+        continue
+      }
+
+      const overflow = (dp[row][col] - 1) / 2
+      dp[row + 1][col] += overflow
+      dp[row + 1][col + 1] += overflow
+    }
+  }
+
+  return Math.min(1, dp[queryRow][queryGlass])
+}`,
+      },
+      {
+        id: 'champagne-tower-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把整杯液体都继续往下传，而不是只传超过 1 的部分；或者忘记最终答案要截断到 1。',
+        bullets: [
+          '易错点 1：传播量写成当前总量而不是溢出量。',
+          '易错点 2：没有对最终杯量做 `Math.min(1, ...)`。',
+          '易错点 3：数组层数开小，访问下一层越界。',
+          '延伸方向：动态规划、层次传播、模拟题。',
+        ],
+      },
+    ],
+  },
 ];
