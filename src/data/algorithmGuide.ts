@@ -82125,4 +82125,70 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'rotate-string',
+    label: '796. LeetCode 796. 旋转字符串',
+    difficulty: '简单',
+    description:
+      '这题要求判断字符串 `s` 是否能通过若干次左旋变成 `goal`。核心结论很直接：所有旋转结果都一定是 `s + s` 的子串。',
+    outcome:
+      '你能识别字符串旋转问题中的拼接不变量，并用一个简单结论把过程判断转成子串判断。',
+    sections: [
+      {
+        id: 'rotate-string-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个字符串 `s` 和 `goal`。每次操作可以把 `s` 的第一个字符移到末尾。要求判断经过若干次操作后，`s` 是否能变成 `goal`。',
+        bullets: [
+          '只能做循环左移。',
+          '字符串长度必须一致才有可能成功。',
+          '不要求输出具体旋转次数。',
+          '目标是布尔判断。',
+        ],
+      },
+      {
+        id: 'rotate-string-observe',
+        title: '所有旋转结果都藏在 s + s 里',
+        summary:
+          '把字符串 `s` 与自己拼接得到 `s + s`，那么 `s` 的任意循环左移结果都会成为这个新串的一个长度为 `|s|` 的连续子串。反过来，如果 `goal` 不是 `s + s` 的子串，就不可能通过旋转得到它。',
+        bullets: [
+          '旋转不会改变字符串长度。',
+          '`s + s` 包含了所有循环位移结果。',
+          '这是判断旋转等价的经典技巧。',
+          '问题因此退化成长度判断 + 子串判断。',
+        ],
+      },
+      {
+        id: 'rotate-string-solution',
+        title: '标准解法：长度校验 + 子串查询',
+        summary:
+          '先判断 `s.length === goal.length`。若长度不同，直接返回 `false`。若长度相同，只需检查 `goal` 是否是 `(s + s)` 的子串即可。若是，则说明存在某次旋转能把 `s` 变成 `goal`；否则不能。',
+        bullets: [
+          '时间复杂度：`O(n)` 到 `O(n^2)`，取决于子串实现。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是先做长度校验。',
+          '是非常典型的字符串结论题。',
+        ],
+        code: `function rotateString(source: string, goal: string): boolean {
+  if (source.length !== goal.length) {
+    return false
+  }
+
+  return (source + source).includes(goal)
+}`,
+      },
+      {
+        id: 'rotate-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是真的一轮轮模拟旋转，虽然也能做，但没有必要；或者忘了长度不同的情况必须先排除。',
+        bullets: [
+          '易错点 1：忽略长度必须相等。',
+          '易错点 2：暴力模拟所有旋转过程。',
+          '易错点 3：把右旋和左旋的等价关系想复杂。',
+          '延伸方向：字符串匹配、循环同构、KMP 思维。',
+        ],
+      },
+    ],
+  },
 ];
