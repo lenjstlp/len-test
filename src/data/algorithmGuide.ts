@@ -82047,4 +82047,82 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'number-of-subarrays-with-bounded-maximum',
+    label: '795. LeetCode 795. 区间子数组个数',
+    difficulty: '中等',
+    description:
+      '这题要求统计最大值落在 `[left, right]` 范围内的连续子数组个数。核心不是枚举每个子数组，而是把问题转成“最大值不超过某上界”的计数差。',
+    outcome: '你能把区间限制类计数题化简成前缀连续段计数，并掌握容斥式的思路。',
+    sections: [
+      {
+        id: 'number-of-subarrays-with-bounded-maximum-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `nums` 和两个整数 `left`、`right`，要求统计所有连续子数组中，最大元素满足 `left <= max <= right` 的子数组数量。',
+        bullets: [
+          '子数组必须连续。',
+          '约束是针对子数组最大值。',
+          '不能暴力枚举所有子数组再求最大值。',
+          '结果通常比直接枚举更适合做计数转换。',
+        ],
+      },
+      {
+        id: 'number-of-subarrays-with-bounded-maximum-observe',
+        title: '把答案写成两个“最大值不超过上界”的差',
+        summary:
+          '如果我们能统计“最大值不超过 `right`”的子数组数量，再减去“最大值不超过 `left - 1`”的子数组数量，剩下的就正好是最大值落在 `[left, right]` 的子数组数量。因为这相当于做了一次值域容斥。',
+        bullets: [
+          '关键转换是 `count(max <= right) - count(max < left)`。',
+          '只要会算“最大值不超过 bound”的数量就够了。',
+          '这个子问题可以线性完成。',
+          '本质是容斥 + 连续段计数。',
+        ],
+      },
+      {
+        id: 'number-of-subarrays-with-bounded-maximum-solution',
+        title: '标准解法：线性统计最大值不超过 bound 的子数组数',
+        summary:
+          '定义函数 `countAtMost(bound)`：从左到右遍历数组，维护以当前位置结尾、且所有元素都不超过 `bound` 的连续子数组个数 `length`。若当前值 `<= bound`，则 `length += 1`；否则 `length = 0`。每次把 `length` 加入答案。最终结果为 `countAtMost(right) - countAtMost(left - 1)`。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是“以当前位置结尾”的连续合法段计数。',
+          '这是子数组计数题的常见套路。',
+        ],
+        code: `function numSubarrayBoundedMax(nums: number[], left: number, right: number): number {
+  const countAtMost = (bound: number): number => {
+    let answer = 0
+    let length = 0
+
+    for (const value of nums) {
+      if (value <= bound) {
+        length += 1
+      } else {
+        length = 0
+      }
+
+      answer += length
+    }
+
+    return answer
+  }
+
+  return countAtMost(right) - countAtMost(left - 1)
+}`,
+      },
+      {
+        id: 'number-of-subarrays-with-bounded-maximum-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接去找“最大值在区间内”的条件，结果状态很难维护。更稳的方式是先转成两个上界计数的差。',
+        bullets: [
+          '易错点 1：没有做值域转换，直接硬算原问题。',
+          '易错点 2：把不超过 `bound` 写成小于 `bound`。',
+          '易错点 3：遇到非法值后没有把连续长度清零。',
+          '延伸方向：容斥、子数组计数、单调性质转换。',
+        ],
+      },
+    ],
+  },
 ];
