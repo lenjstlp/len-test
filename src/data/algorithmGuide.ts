@@ -82442,4 +82442,73 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'similar-rgb-color',
+    label: '800. LeetCode 800. 相似 RGB 颜色',
+    difficulty: '简单',
+    description:
+      '这题要求把一个 24 位十六进制颜色，替换成距离最近的简写色值。核心是发现简写颜色的每一段都必须是 `00`、`11`、`22` 到 `ff` 这种重复十六进制形式。',
+    outcome:
+      '你能把颜色匹配问题拆成 3 个独立的一维最近值问题，并掌握十六进制到整数的转换思路。',
+    sections: [
+      {
+        id: 'similar-rgb-color-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个形如 `#AABBCC` 的颜色字符串，要求返回与之最相似的简写颜色。所谓简写颜色，指的是 `#XYZ` 展开后对应的 `#XXYYZZ`，也就是每个通道必须由两个相同的十六进制字符组成。',
+        bullets: [
+          '输入固定是 6 位十六进制颜色。',
+          '目标颜色每个通道只能是 `00`、`11` 到 `ff` 这种形式。',
+          '相似度由颜色距离决定。',
+          '三个通道可以独立处理。',
+        ],
+      },
+      {
+        id: 'similar-rgb-color-observe',
+        title: '每个通道只需要找最接近的 17 的倍数',
+        summary:
+          '像 `aa`、`bb` 这样的双字符十六进制值，本质上分别对应 `17 * digit`。因此对每个通道，例如 `AB`，先把它转成十进制整数，再找最接近的 `0, 17, 34, ..., 255` 中的一个。因为三个通道的平方距离彼此独立，所以逐通道分别找最近值即可得到整体最优解。',
+        bullets: [
+          '简写通道值总是 17 的倍数。',
+          '每个通道可以独立最优化。',
+          '最后再把最近值转回双字符十六进制。',
+          '这题本质是离散最近值匹配。',
+        ],
+      },
+      {
+        id: 'similar-rgb-color-solution',
+        title: '标准解法：逐通道四舍五入到最近的 17 倍数',
+        summary:
+          '对颜色串中的 3 个通道分别处理。先把两位十六进制解析为整数 `value`，然后令 `index = Math.round(value / 17)`，即可得到最接近的简写通道编号。再把这个编号转成一位十六进制字符并重复两次。三个通道拼接后，就是答案。',
+        bullets: [
+          '时间复杂度：`O(1)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是十六进制解析和格式化。',
+          '不用枚举全部 4096 个简写色值。',
+        ],
+        code: `function similarRGB(color: string): string {
+  const convert = (part: string): string => {
+    const value = Number.parseInt(part, 16)
+    const index = Math.round(value / 17)
+    const digit = index.toString(16)
+    return digit + digit
+  }
+
+  return '#' + convert(color.slice(1, 3)) + convert(color.slice(3, 5)) + convert(color.slice(5, 7))
+}`,
+      },
+      {
+        id: 'similar-rgb-color-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有发现简写色值等价于 17 的倍数，结果去暴力枚举所有候选；或者十六进制格式化时忘了保持小写风格。',
+        bullets: [
+          '易错点 1：没把问题拆成 3 个独立通道。',
+          '易错点 2：最近值用 `floor` 而不是四舍五入。',
+          '易错点 3：结果格式化时十六进制字符处理不一致。',
+          '延伸方向：进制转换、离散最优化、字符串格式化。',
+        ],
+      },
+    ],
+  },
 ];
