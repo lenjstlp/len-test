@@ -82511,4 +82511,87 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'minimum-swaps-to-make-sequences-increasing',
+    label: '801. LeetCode 801. 使序列递增的最小交换次数',
+    difficulty: '困难',
+    description:
+      '这题要求通过交换同一位置上的两个元素，使两个数组都严格递增，并求最少交换次数。核心是动态规划：当前位置交换或不交换，会影响下一位的可行性。',
+    outcome:
+      '你能把相邻位置依赖的决策问题建模成双状态 DP，并区分“当前换”和“当前不换”的最优代价。',
+    sections: [
+      {
+        id: 'minimum-swaps-to-make-sequences-increasing-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个等长数组 `nums1` 和 `nums2`。你可以选择若干下标，在这些下标上交换 `nums1[i]` 和 `nums2[i]`。要求让两个数组最终都严格递增，并返回最少交换次数。',
+        bullets: [
+          '交换只能发生在相同下标上。',
+          '两个数组都必须严格递增。',
+          '目标是最少交换次数。',
+          '当前位置的决策会影响相邻位置可否衔接。',
+        ],
+      },
+      {
+        id: 'minimum-swaps-to-make-sequences-increasing-observe',
+        title: '每个位置只需要关心前一位是否交换过',
+        summary:
+          '判断第 `i` 位能否接到第 `i - 1` 位后面，只和前一位交换与否有关。于是可以定义两个状态：`keep[i]` 表示第 `i` 位不交换时的最小交换次数，`swap[i]` 表示第 `i` 位交换时的最小交换次数。根据当前位置和前一位在“原样衔接”与“交叉衔接”下是否合法，进行状态转移。',
+        bullets: [
+          '状态数只有两种：换或不换。',
+          '转移依赖前一位状态。',
+          '有时只能沿原样衔接，有时可以交叉衔接。',
+          '这是非常标准的双状态 DP。',
+        ],
+      },
+      {
+        id: 'minimum-swaps-to-make-sequences-increasing-solution',
+        title: '标准解法：双状态动态规划',
+        summary:
+          '初始化 `keep = 0`，`swap = 1`，表示第 0 位不换时代价为 0，换时代价为 1。然后从第 1 位开始遍历，分别计算新的 `nextKeep` 和 `nextSwap`。如果 `nums1[i] > nums1[i - 1]` 且 `nums2[i] > nums2[i - 1]`，说明当前与前一位可以保持相同交换状态；如果 `nums1[i] > nums2[i - 1]` 且 `nums2[i] > nums1[i - 1]`，说明当前也可以与前一位交换状态相反地衔接。最终答案是 `Math.min(keep, swap)`。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是两种合法衔接条件的区分。',
+          '属于状态压缩 DP 题。',
+        ],
+        code: `function minSwap(nums1: number[], nums2: number[]): number {
+  let keep = 0
+  let swap = 1
+
+  for (let index = 1; index < nums1.length; index += 1) {
+    let nextKeep = Number.POSITIVE_INFINITY
+    let nextSwap = Number.POSITIVE_INFINITY
+
+    if (nums1[index] > nums1[index - 1] && nums2[index] > nums2[index - 1]) {
+      nextKeep = Math.min(nextKeep, keep)
+      nextSwap = Math.min(nextSwap, swap + 1)
+    }
+
+    if (nums1[index] > nums2[index - 1] && nums2[index] > nums1[index - 1]) {
+      nextKeep = Math.min(nextKeep, swap)
+      nextSwap = Math.min(nextSwap, keep + 1)
+    }
+
+    keep = nextKeep
+    swap = nextSwap
+  }
+
+  return Math.min(keep, swap)
+}`,
+      },
+      {
+        id: 'minimum-swaps-to-make-sequences-increasing-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只考虑“当前位置换不换”，却没有把前一位是否交换纳入状态，导致转移条件不完整；或者两种合法衔接条件混在一起写错。',
+        bullets: [
+          '易错点 1：状态设计缺少“前一位是否交换”信息。',
+          '易错点 2：把原样衔接和交叉衔接条件混淆。',
+          '易错点 3：初始化 `swap` 忘记从 1 开始。',
+          '延伸方向：双状态 DP、状态压缩、相邻依赖决策。',
+        ],
+      },
+    ],
+  },
 ];
