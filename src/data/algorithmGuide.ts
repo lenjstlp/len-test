@@ -82594,4 +82594,96 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'find-eventual-safe-states',
+    label: '802. LeetCode 802. 找到最终的安全状态',
+    difficulty: '中等',
+    description:
+      '这题要求找出有向图中最终一定不会进入环的节点。核心是识别环和反向传播：终点安全，能够走到安全节点的节点也安全。',
+    outcome:
+      '你能用反向拓扑排序判断有向图中的安全节点，并理解“出度归零”如何驱动状态传播。',
+    sections: [
+      {
+        id: 'find-eventual-safe-states-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个有向图，节点 `i` 的邻接表由 `graph[i]` 给出。如果从某个节点出发，无论沿哪条路径最终都会到达终点而不会进入环，则称它为安全节点。要求返回所有安全节点，并按升序排列。',
+        bullets: [
+          '进入任何环的节点都不安全。',
+          '没有出边的节点天然安全。',
+          '能走到不安全节点的节点也不安全。',
+          '结果需要按节点编号升序返回。',
+        ],
+      },
+      {
+        id: 'find-eventual-safe-states-observe',
+        title: '从终点反向推导安全节点',
+        summary:
+          '如果把边反向，原图中指向某个安全节点的节点，就会在反图中拥有一条指向安全区域的边。当一个节点的原始出度被安全节点不断消耗到 0 时，说明它的所有后继都安全，因此它也安全。这个过程正好适合反向图 + 拓扑队列。',
+        bullets: [
+          '原图出度为 0 的节点先入队。',
+          '反向边用于找到依赖当前安全节点的前驱。',
+          '出度减到 0 就可以继续传播。',
+          '环中的节点最终不会被消除。',
+        ],
+      },
+      {
+        id: 'find-eventual-safe-states-solution',
+        title: '标准解法：反向图 + 拓扑排序',
+        summary:
+          '先统计每个节点的出度，并构造反向邻接表。把所有出度为 0 的节点放入队列，随后不断弹出安全节点，遍历它的反向前驱并将前驱出度减一；如果前驱出度变为 0，就加入队列。最后所有被标记为安全的节点就是答案。',
+        bullets: [
+          '时间复杂度：`O(V + E)`。',
+          '空间复杂度：`O(V + E)`。',
+          '实现重点是反向边和出度更新。',
+          '这是拓扑排序判断环的另一种写法。',
+        ],
+        code: `function eventualSafeNodes(graph: number[][]): number[] {
+  const size = graph.length
+  const reverse: number[][] = Array.from({ length: size }, () => [])
+  const outDegree = graph.map((neighbors) => neighbors.length)
+  const queue: number[] = []
+  const safe = Array<boolean>(size).fill(false)
+
+  for (let node = 0; node < size; node += 1) {
+    for (const next of graph[node]) {
+      reverse[next].push(node)
+    }
+
+    if (outDegree[node] === 0) {
+      queue.push(node)
+    }
+  }
+
+  for (let head = 0; head < queue.length; head += 1) {
+    const node = queue[head]
+    safe[node] = true
+
+    for (const previous of reverse[node]) {
+      outDegree[previous] -= 1
+      if (outDegree[previous] === 0) {
+        queue.push(previous)
+      }
+    }
+  }
+
+  return safe
+    .map((isSafe, node) => (isSafe ? node : -1))
+    .filter((node) => node !== -1)
+}`,
+      },
+      {
+        id: 'find-eventual-safe-states-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接用 DFS 但没有区分“正在访问”和“已经确认安全”的状态；或者把原图的入度当成出度使用。',
+        bullets: [
+          '易错点 1：环检测状态设计不完整。',
+          '易错点 2：反向边方向构造错误。',
+          '易错点 3：结果没有按节点编号排序。',
+          '延伸方向：拓扑排序、环检测、图状态传播。',
+        ],
+      },
+    ],
+  },
 ];
