@@ -83271,4 +83271,110 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'expressive-words',
+    label: '809. LeetCode 809. 情感丰富的文字',
+    difficulty: '中等',
+    description:
+      '这题要求判断一个单词能否通过把原字符串中的连续字符拉长得到。核心是双指针比较字符分组，并检查目标字符串的重复组长度是否满足扩展规则。',
+    outcome:
+      '你能把字符串扩展问题转成连续分组比较，并准确处理“原组长度至少为 3 才能继续扩展”的条件。',
+    sections: [
+      {
+        id: 'expressive-words-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串 `s` 和若干单词。对于 `s` 中的连续相同字符，可以将其重复次数增加。要求统计有多少个单词可以通过这种方式变成 `s`。',
+        bullets: [
+          '只能增加连续字符数量，不能改变字符顺序。',
+          '字符分组的顺序必须一致。',
+          '目标词的每组长度不能超过原字符串对应分组长度。',
+          '原组长度不足 3 时不能随意缩短或扩展。',
+        ],
+      },
+      {
+        id: 'expressive-words-observe',
+        title: '比较连续字符组，而不是逐字符硬匹配',
+        summary:
+          '把 `s` 和待判断单词都按连续相同字符分组。两边每次取出一组时，字符必须相同；若目标组长度大于原组长度则不可能；若长度不同，则只有原组长度至少为 3 时才允许把原组扩展为更长的组。这样可以用双指针线性完成判断。',
+        bullets: [
+          '字符组顺序必须完全一致。',
+          '目标组不能比原组更长。',
+          '长度差只能由原字符串的长组提供。',
+          '每个单词可以独立做一次线性校验。',
+        ],
+      },
+      {
+        id: 'expressive-words-solution',
+        title: '标准解法：双指针比较字符分组',
+        summary:
+          '定义 `isStretchy(word)`，使用指针 `i`、`j` 分别扫描 `s` 和 `word`。每轮找到两边当前字符组的结束位置，得到组长度 `lengthS` 和 `lengthWord`。若字符不同或 `lengthWord > lengthS`，返回 `false`；若长度不相等且 `lengthS < 3`，也返回 `false`。最后要求两边同时扫描完。',
+        bullets: [
+          '时间复杂度：`O(|s| + 所有单词总长度)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是同时推进两边的分组指针。',
+          '这是双指针处理连续段的典型题。',
+        ],
+        code: `function expressiveWords(text: string, words: string[]): number {
+  const isStretchy = (word: string): boolean => {
+    let first = 0
+    let second = 0
+
+    while (first < text.length && second < word.length) {
+      if (text[first] !== word[second]) {
+        return false
+      }
+
+      let endFirst = first
+      while (endFirst < text.length && text[endFirst] === text[first]) {
+        endFirst += 1
+      }
+
+      let endSecond = second
+      while (endSecond < word.length && word[endSecond] === word[second]) {
+        endSecond += 1
+      }
+
+      const lengthText = endFirst - first
+      const lengthWord = endSecond - second
+
+      if (lengthWord > lengthText) {
+        return false
+      }
+
+      if (lengthWord !== lengthText && lengthText < 3) {
+        return false
+      }
+
+      first = endFirst
+      second = endSecond
+    }
+
+    return first === text.length && second === word.length
+  }
+
+  let answer = 0
+  for (const word of words) {
+    if (isStretchy(word)) {
+      answer += 1
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'expressive-words-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只比较字符出现顺序，不比较连续组长度；或者把“原组长度至少 3”这一扩展条件遗漏。',
+        bullets: [
+          '易错点 1：目标组比原组长时没有判错。',
+          '易错点 2：短组被错误允许扩展。',
+          '易错点 3：扫描结束后没有检查两边是否同时结束。',
+          '延伸方向：双指针、连续段、字符串模式匹配。',
+        ],
+      },
+    ],
+  },
 ];
