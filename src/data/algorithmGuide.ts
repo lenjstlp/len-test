@@ -82686,4 +82686,149 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'bricks-falling-when-hit',
+    label: '803. LeetCode 803. 打砖块',
+    difficulty: '困难',
+    description:
+      '这题要求依次敲掉若干砖块，并统计每次敲击后额外掉落的砖块数量。核心是倒序恢复砖块，用并查集维护哪些砖块与屋顶连通。',
+    outcome:
+      '你能把动态删除问题反转成逐步添加问题，并用虚拟屋顶节点维护连通性。',
+    sections: [
+      {
+        id: 'bricks-falling-when-hit-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个砖块网格和若干敲击位置。敲掉某个砖块后，如果其他砖块不再和网格顶部连通，就会掉落。要求返回每次敲击后额外掉落的砖块数量。',
+        bullets: [
+          '与顶部连通的砖块不会掉落。',
+          '敲击可能落在空位置上。',
+          '掉落会连锁影响其他砖块。',
+          '需要按敲击顺序返回掉落数量。',
+        ],
+      },
+      {
+        id: 'bricks-falling-when-hit-observe',
+        title: '删除难维护，倒序添加更容易维护',
+        summary:
+          '如果正向删除砖块，连通关系会不断断裂，普通并查集无法处理删除。可以先把所有敲击位置的砖块标记为移除，再建立剩余砖块与虚拟屋顶的连通关系；之后倒序把砖块加回来，每次比较添加前后的屋顶连通分量大小，差值减一就是本次正向敲击掉落的数量。',
+        bullets: [
+          '倒序把删除转换成添加。',
+          '虚拟屋顶节点统一表示稳定区域。',
+          '并查集维护连通分量大小。',
+          '添加一个砖块前后的稳定分量差值就是答案来源。',
+        ],
+      },
+      {
+        id: 'bricks-falling-when-hit-solution',
+        title: '标准解法：倒序恢复 + 并查集',
+        summary:
+          '先复制网格并应用所有敲击，把对应砖块置为 0。建立并查集，虚拟节点 `roof = rows * cols`，把第一行砖块和它合并，再合并所有相邻砖块。倒序处理每个敲击：如果原位置本来就是空砖，则答案为 0；否则记录恢复前屋顶连通分量大小，把砖块恢复并与上下左右相邻砖块合并，新的屋顶分量大小减去旧大小再减 1，就是正向过程中额外掉落的砖块数。',
+        bullets: [
+          '时间复杂度：`O((R * C + hits) α(R * C))`。',
+          '空间复杂度：`O(R * C)`。',
+          '实现重点是保存敲击前的原始砖块状态。',
+          '这是并查集处理动态连通性的经典题。',
+        ],
+        code: `function hitBricks(grid: number[][], hits: number[][]): number[] {
+  const rows = grid.length
+  const cols = grid[0].length
+  const total = rows * cols
+  const roof = total
+  const parent = Array.from({ length: total + 1 }, (_, index) => index)
+  const size = Array<number>(total + 1).fill(1)
+  const work = grid.map((row) => [...row])
+  const key = (row: number, col: number) => row * cols + col
+
+  for (const [row, col] of hits) {
+    if (work[row][col] === 1) {
+      work[row][col] = 0
+    }
+  }
+
+  const find = (node: number): number => {
+    if (parent[node] !== node) {
+      parent[node] = find(parent[node])
+    }
+    return parent[node]
+  }
+
+  const union = (first: number, second: number) => {
+    const rootFirst = find(first)
+    const rootSecond = find(second)
+    if (rootFirst === rootSecond) {
+      return
+    }
+
+    parent[rootSecond] = rootFirst
+    size[rootFirst] += size[rootSecond]
+  }
+
+  const connectNeighbors = (row: number, col: number) => {
+    if (row === 0) {
+      union(key(row, col), roof)
+    }
+
+    const directions = [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ]
+
+    for (const [deltaRow, deltaCol] of directions) {
+      const nextRow = row + deltaRow
+      const nextCol = col + deltaCol
+      if (
+        nextRow >= 0 &&
+        nextRow < rows &&
+        nextCol >= 0 &&
+        nextCol < cols &&
+        work[nextRow][nextCol] === 1
+      ) {
+        union(key(row, col), key(nextRow, nextCol))
+      }
+    }
+  }
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      if (work[row][col] === 1) {
+        connectNeighbors(row, col)
+      }
+    }
+  }
+
+  const answer = Array<number>(hits.length).fill(0)
+
+  for (let index = hits.length - 1; index >= 0; index -= 1) {
+    const [row, col] = hits[index]
+    if (grid[row][col] === 0) {
+      continue
+    }
+
+    const before = size[find(roof)]
+    work[row][col] = 1
+    connectNeighbors(row, col)
+    const after = size[find(roof)]
+    answer[index] = Math.max(0, after - before - 1)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'bricks-falling-when-hit-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是正向用并查集删除节点，导致连通关系无法恢复；或者忘记同一位置可能被重复敲击。',
+        bullets: [
+          '易错点 1：没有倒序处理敲击。',
+          '易错点 2：虚拟屋顶分量大小差值没有减去新加砖块本身。',
+          '易错点 3：重复敲击空位置仍然错误计数。',
+          '延伸方向：并查集、逆序处理、动态连通性。',
+        ],
+      },
+    ],
+  },
 ];
