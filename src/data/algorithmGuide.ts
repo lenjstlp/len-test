@@ -83089,4 +83089,85 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'max-increase-to-keep-city-skyline',
+    label: '807. LeetCode 807. 保持城市天际线',
+    difficulty: '中等',
+    description:
+      '这题要求在不改变城市从四个方向看到的天际线前提下，尽量增加建筑高度，并返回所有建筑最多可以增加的总高度。核心是每个格子的上限由所在行和列的最大值共同决定。',
+    outcome:
+      '你能用行列极值建立二维网格的独立上界，并把局部最优增加量累加成全局答案。',
+    sections: [
+      {
+        id: 'max-increase-to-keep-city-skyline-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个正方形网格 `grid`，`grid[row][col]` 表示建筑高度。允许增加任意建筑高度，但从上、下、左、右四个方向看到的天际线不能改变。要求返回所有建筑高度最多能增加的总和。',
+        bullets: [
+          '建筑只能增加，不能降低。',
+          '四个方向的天际线必须保持不变。',
+          '每个位置的增加量彼此独立。',
+          '目标是最大化总增加高度。',
+        ],
+      },
+      {
+        id: 'max-increase-to-keep-city-skyline-observe',
+        title: '每个建筑的最大高度由行最大值和列最大值取小',
+        summary:
+          '对于位置 `(row, col)`，从左右方向看，它不能超过第 `row` 行的最大高度；从上下方向看，它不能超过第 `col` 列的最大高度。因此该位置最终最多只能达到 `min(rowMax[row], colMax[col])`。在这个上限下尽量增高不会影响任何方向天际线，所以每个格子直接取这个最大允许高度即可。',
+        bullets: [
+          '行最大值控制水平视角。',
+          '列最大值控制垂直视角。',
+          '两个上界取最小值。',
+          '每个格子独立增加不会互相冲突。',
+        ],
+      },
+      {
+        id: 'max-increase-to-keep-city-skyline-solution',
+        title: '标准解法：行列最大值 + 逐格累加',
+        summary:
+          '先遍历网格计算每一行和每一列的最大值。再次遍历每个格子，计算 `limit = Math.min(rowMax[row], colMax[col])`，把 `limit - grid[row][col]` 加入答案。因为每个格子都取到了不破坏天际线的最大高度，所以总和就是最优解。',
+        bullets: [
+          '时间复杂度：`O(n^2)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是区分行最大值和列最大值。',
+          '这是二维局部上界转全局最优的典型题。',
+        ],
+        code: `function maxIncreaseKeepingSkyline(grid: number[][]): number {
+  const size = grid.length
+  const rowMax = Array<number>(size).fill(0)
+  const colMax = Array<number>(size).fill(0)
+
+  for (let row = 0; row < size; row += 1) {
+    for (let col = 0; col < size; col += 1) {
+      rowMax[row] = Math.max(rowMax[row], grid[row][col])
+      colMax[col] = Math.max(colMax[col], grid[row][col])
+    }
+  }
+
+  let answer = 0
+
+  for (let row = 0; row < size; row += 1) {
+    for (let col = 0; col < size; col += 1) {
+      answer += Math.min(rowMax[row], colMax[col]) - grid[row][col]
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'max-increase-to-keep-city-skyline-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只使用行最大值或列最大值中的一个；或者误以为要模拟建筑逐步增加，实际上每个位置的最终上限可以直接算出。',
+        bullets: [
+          '易错点 1：遗漏行列两个方向的共同约束。',
+          '易错点 2：上限取最大值而不是最小值。',
+          '易错点 3：重复计算原建筑高度而不是增加量。',
+          '延伸方向：矩阵极值、局部上界、网格贪心。',
+        ],
+      },
+    ],
+  },
 ];
