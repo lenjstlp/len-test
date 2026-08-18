@@ -83523,4 +83523,82 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'largest-triangle-area',
+    label: '812. LeetCode 812. 最大三角形面积',
+    difficulty: '简单',
+    description:
+      '这题要求从平面上的若干点中选出三个点，求能组成的最大三角形面积。核心是枚举三点，并用叉积计算面积的两倍。',
+    outcome:
+      '你能掌握二维几何中叉积求面积的方法，并理解为什么共线点自然得到零面积。',
+    sections: [
+      {
+        id: 'largest-triangle-area-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干二维坐标点，要求从中选择三个不同的点，组成一个三角形，并返回所有可能三角形中的最大面积。',
+        bullets: [
+          '三个点不能重复。',
+          '三点共线时面积为 0。',
+          '返回值可以是浮点数。',
+          '点数规模允许直接枚举三元组。',
+        ],
+      },
+      {
+        id: 'largest-triangle-area-observe',
+        title: '叉积可以直接得到三角形面积',
+        summary:
+          '对于三个点 `A`、`B`、`C`，向量 `AB` 和 `AC` 的叉积绝对值等于平行四边形面积，因此三角形面积是其一半。公式为 `abs((Bx - Ax) * (Cy - Ay) - (By - Ay) * (Cx - Ax)) / 2`。只要枚举所有三点并维护最大值即可。',
+        bullets: [
+          '叉积为 0 说明三点共线。',
+          '面积计算可以先保留两倍面积避免中间浮点误差。',
+          '三点顺序不影响绝对值结果。',
+          '这是基础计算几何枚举题。',
+        ],
+      },
+      {
+        id: 'largest-triangle-area-solution',
+        title: '标准解法：三重循环 + 叉积',
+        summary:
+          '使用三重循环枚举下标 `first < second < third`。取三个点后计算叉积绝对值，除以 2 得到当前三角形面积，并更新最大答案。因为每个三元组都被枚举一次，所以最终结果就是全局最大面积。',
+        bullets: [
+          '时间复杂度：`O(n^3)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是向量差和叉积公式。',
+          '不需要求凸包，因为题目点数规模允许直接枚举。',
+        ],
+        code: `function largestTriangleArea(points: number[][]): number {
+  let answer = 0
+
+  for (let first = 0; first < points.length; first += 1) {
+    for (let second = first + 1; second < points.length; second += 1) {
+      for (let third = second + 1; third < points.length; third += 1) {
+        const [ax, ay] = points[first]
+        const [bx, by] = points[second]
+        const [cx, cy] = points[third]
+        const twiceArea = Math.abs(
+          (bx - ax) * (cy - ay) - (by - ay) * (cx - ax),
+        )
+        answer = Math.max(answer, twiceArea / 2)
+      }
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'largest-triangle-area-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把叉积公式中的坐标差写错，或者忘记取绝对值，导致顺逆时针选择不同点序时得到负面积。',
+        bullets: [
+          '易错点 1：叉积两个向量的坐标组合写反。',
+          '易错点 2：没有取绝对值。',
+          '易错点 3：把平行四边形面积当成三角形面积。',
+          '延伸方向：叉积、凸包、计算几何基础。',
+        ],
+      },
+    ],
+  },
 ];
