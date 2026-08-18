@@ -83377,4 +83377,72 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'chalkboard-xor-game',
+    label: '810. LeetCode 810. 黑板异或游戏',
+    difficulty: '困难',
+    description:
+      '这题是一个回合制博弈问题，每次选择一个数擦除，并要求剩余数字异或和等于被擦除的数。核心是利用奇偶性和总异或值判断先手是否必胜。',
+    outcome:
+      '你能从博弈规则中识别对称策略，并理解为什么数组长度和整体异或和足以决定结果。',
+    sections: [
+      {
+        id: 'chalkboard-xor-game-summary',
+        title: '题目在问什么',
+        summary:
+          '黑板上有一个整数数组。Alice 和 Bob 轮流选择一个数字 `x` 擦除，要求擦除后剩余数字的异或和等于 `x`；如果没有合法操作，当前玩家输。假设双方都采取最优策略，要求判断 Alice 是否能获胜。',
+        bullets: [
+          '每次操作都会删除一个元素。',
+          '合法性由剩余元素异或和决定。',
+          '没有合法操作的一方输。',
+          '需要判断先手必胜还是必败。',
+        ],
+      },
+      {
+        id: 'chalkboard-xor-game-observe',
+        title: '奇数长度和非零异或是决定性条件',
+        summary:
+          '如果当前所有数字的异或和为 `xor`，删除一个数字 `x` 后，剩余异或和是 `xor ^ x`。合法条件 `xor ^ x === x` 等价于 `xor === 0`。因此当整体异或和不为 0 时，第一步没有合法操作，Alice 直接输；当整体异或和为 0 且元素个数为奇数时，先手可以利用对称性获胜；偶数长度时则无法保证获胜。',
+        bullets: [
+          '合法操作条件可以通过异或恒等式化简。',
+          '整体异或非零时没有任何合法第一步。',
+          '异或为零时，博弈结果由长度奇偶决定。',
+          '这是数学博弈而不是搜索题。',
+        ],
+      },
+      {
+        id: 'chalkboard-xor-game-solution',
+        title: '标准解法：异或总和 + 奇偶判断',
+        summary:
+          '遍历数组计算整体异或值 `xor`。如果 `xor !== 0`，返回 `false`；如果 `xor === 0` 且数组长度为奇数，返回 `true`；否则返回 `false`。整个博弈过程不需要模拟。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是先化简合法操作条件。',
+          '属于数学规律和博弈策略题。',
+        ],
+        code: `function xorGame(nums: number[]): boolean {
+  let xor = 0
+
+  for (const value of nums) {
+    xor ^= value
+  }
+
+  return xor === 0 && nums.length % 2 === 1
+}`,
+      },
+      {
+        id: 'chalkboard-xor-game-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是试图枚举每次删除后的状态，导致状态数爆炸；或者忽略“没有合法第一步时先手直接输”的边界。',
+        bullets: [
+          '易错点 1：把数学博弈写成搜索。',
+          '易错点 2：异或和不为 0 时仍然尝试找合法元素。',
+          '易错点 3：奇偶条件写反。',
+          '延伸方向：异或、博弈论、不变量分析。',
+        ],
+      },
+    ],
+  },
 ];
