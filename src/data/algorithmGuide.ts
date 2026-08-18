@@ -83445,4 +83445,82 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'subdomain-visit-count',
+    label: '811. LeetCode 811. 子域名访问计数',
+    difficulty: '简单',
+    description:
+      '这题要求根据形如“次数 域名”的日志，统计每个域名及其所有父级子域名的访问次数。核心是按点逐层截取后缀并累加。',
+    outcome: '你能把层级字符串统计转成后缀枚举问题，并用哈希表完成域名聚合。',
+    sections: [
+      {
+        id: 'subdomain-visit-count-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干访问记录，每条记录包含访问次数和一个域名，例如 `9001 discuss.example.com`。要求统计完整域名、一级子域名以及顶级域名的访问次数。',
+        bullets: [
+          '完整域名的访问会贡献给所有父级域名。',
+          '域名按 `.` 分隔。',
+          '需要返回所有域名的统计结果。',
+          '返回顺序通常不重要。',
+        ],
+      },
+      {
+        id: 'subdomain-visit-count-observe',
+        title: '每条记录贡献给所有后缀域名',
+        summary:
+          '对于 `discuss.example.com`，它对应的统计键依次是 `discuss.example.com`、`example.com`、`com`。因此解析出次数和域名后，可以不断截掉最左侧的一段，把当前后缀加入计数表，直到没有 `.` 为止。',
+        bullets: [
+          '域名统计本质是后缀累加。',
+          '每次去掉最左侧标签即可得到父域名。',
+          '不同记录共享同一哈希表。',
+          '不需要构建树结构。',
+        ],
+      },
+      {
+        id: 'subdomain-visit-count-solution',
+        title: '标准解法：后缀枚举 + 哈希计数',
+        summary:
+          '遍历每条记录，先按空格拆出次数和域名。然后从完整域名开始循环：把当前域名的计数增加 `visits`；找到第一个 `.` 并截掉它左侧的标签，继续统计剩余后缀。最后把计数表转换成题目要求的字符串数组。',
+        bullets: [
+          '时间复杂度：`O(所有域名标签总长度)`。',
+          '空间复杂度：`O(不同域名数量)`。',
+          '实现重点是后缀截取和次数解析。',
+          '属于层级字符串聚合题。',
+        ],
+        code: `function subdomainVisits(entries: string[]): string[] {
+  const counter = new Map<string, number>()
+
+  for (const entry of entries) {
+    const separator = entry.indexOf(' ')
+    const visits = Number(entry.slice(0, separator))
+    let domain = entry.slice(separator + 1)
+
+    while (domain.length > 0) {
+      counter.set(domain, (counter.get(domain) ?? 0) + visits)
+      const dot = domain.indexOf('.')
+      if (dot === -1) {
+        break
+      }
+      domain = domain.slice(dot + 1)
+    }
+  }
+
+  return [...counter.entries()].map(([domain, visits]) => visits + ' ' + domain)
+}`,
+      },
+      {
+        id: 'subdomain-visit-count-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只统计完整域名，遗漏父级域名；或者截取后缀时没有保留顶级域名。',
+        bullets: [
+          '易错点 1：没有把一次访问贡献给所有父域名。',
+          '易错点 2：域名截取循环提前结束。',
+          '易错点 3：次数解析包含了多余空格。',
+          '延伸方向：字符串层级、哈希聚合、后缀统计。',
+        ],
+      },
+    ],
+  },
 ];
