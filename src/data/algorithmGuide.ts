@@ -83170,4 +83170,105 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'soup-servings',
+    label: '808. LeetCode 808. 分汤',
+    difficulty: '中等',
+    description:
+      '这题要求计算两种汤按照随机操作分配后，A 汤先空或同时为空的概率。核心是把容量按 25 毫升缩放，并用记忆化搜索处理有限状态概率递推。',
+    outcome:
+      '你能把概率过程转成状态 DP，并识别当容量足够大时答案快速趋近 1 的剪枝条件。',
+    sections: [
+      {
+        id: 'soup-servings-summary',
+        title: '题目在问什么',
+        summary:
+          '有两种汤 A 和 B，初始各有 `n` 毫升。每次随机选择四种分配方式之一，分别从 A 和 B 中取出固定数量。要求返回 A 先空或 A、B 同时为空的概率。',
+        bullets: [
+          '四种操作等概率发生。',
+          '汤量不足时按实际剩余量处理。',
+          'A 先空或同时为空都算成功。',
+          '需要返回浮点概率。',
+        ],
+      },
+      {
+        id: 'soup-servings-observe',
+        title: '把容量离散化，状态只由剩余份数决定',
+        summary:
+          '所有操作量都是 25 的倍数，因此可以把 `n` 向上取整到以 25 毫升为单位的份数。状态 `(a, b)` 表示两种汤还剩多少份。每次操作都转移到四个固定的下一个状态。由于容量越大时 A 先空的概率极快接近 1，可以设置一个足够大的阈值直接返回 1，避免搜索巨大状态空间。',
+        bullets: [
+          '按 25 毫升缩放不会改变概率。',
+          '状态转移数量固定为 4。',
+          '边界状态可以直接返回 0、0.5 或 1。',
+          '大容量剪枝是性能关键。',
+        ],
+      },
+      {
+        id: 'soup-servings-solution',
+        title: '标准解法：记忆化概率 DFS',
+        summary:
+          '将 `n` 转成 `units = Math.ceil(n / 25)`。定义 `dfs(a, b)`：若 `a <= 0 && b <= 0`，返回 `0.5`；若 `a <= 0`，返回 `1`；若 `b <= 0`，返回 `0`。否则递归计算四种操作结果的平均值，并用 `Map` 缓存状态。',
+        bullets: [
+          '时间复杂度取决于可达状态数量。',
+          '空间复杂度：`O(units^2)`，大容量会通过剪枝避免。',
+          '实现重点是边界概率的定义。',
+          '这是概率 DP 和记忆化搜索的结合题。',
+        ],
+        code: `function soupServings(n: number): number {
+  if (n >= 4_800) {
+    return 1
+  }
+
+  const units = Math.ceil(n / 25)
+  const memo = new Map<string, number>()
+  const operations = [
+    [100, 0],
+    [75, 25],
+    [50, 50],
+    [25, 75],
+  ]
+
+  const dfs = (a: number, b: number): number => {
+    if (a <= 0 && b <= 0) {
+      return 0.5
+    }
+    if (a <= 0) {
+      return 1
+    }
+    if (b <= 0) {
+      return 0
+    }
+
+    const key = a + ',' + b
+    const cached = memo.get(key)
+    if (cached !== undefined) {
+      return cached
+    }
+
+    let probability = 0
+    for (const [takeA, takeB] of operations) {
+      probability += dfs(a - takeA / 25, b - takeB / 25) / 4
+    }
+
+    memo.set(key, probability)
+    return probability
+  }
+
+  return dfs(units, units)
+}`,
+      },
+      {
+        id: 'soup-servings-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有把毫升容量离散化，直接用大量浮点状态递归；或者把 A、B 同时为空的边界概率错误地算成 0 或 1。',
+        bullets: [
+          '易错点 1：忽略操作量都是 25 的倍数。',
+          '易错点 2：同时为空时概率应为 `0.5`。',
+          '易错点 3：没有缓存状态导致重复计算。',
+          '延伸方向：概率 DP、状态压缩、渐近剪枝。',
+        ],
+      },
+    ],
+  },
 ];
