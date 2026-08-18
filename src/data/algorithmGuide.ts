@@ -83013,4 +83013,80 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'number-of-lines-to-write-string',
+    label: '806. LeetCode 806. 写字符串需要的行数',
+    difficulty: '简单',
+    description:
+      '这题要求按照每个字母的宽度，把字符串写入固定行宽的纸张，并返回需要的行数和最后一行宽度。核心是顺序模拟当前行剩余空间。',
+    outcome:
+      '你能处理带容量限制的字符串装箱问题，并准确维护换行时机与最后一行状态。',
+    sections: [
+      {
+        id: 'number-of-lines-to-write-string-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 26 个小写字母的宽度数组 `widths`，以及字符串 `s`。每行最大宽度为 100，要求按顺序写入字符串，并返回 `[所需行数, 最后一行使用的宽度]`。',
+        bullets: [
+          '字符不能拆开。',
+          '必须保持原字符串顺序。',
+          '一行放不下当前字符时要换行。',
+          '最终只关心行数和最后一行宽度。',
+        ],
+      },
+      {
+        id: 'number-of-lines-to-write-string-observe',
+        title: '维护当前行宽度即可完成模拟',
+        summary:
+          '从第一行开始维护 `currentWidth`。如果加入当前字符后不超过 100，就直接累加；否则行数加一，并把当前字符作为新行的第一个字符。由于字符按顺序处理，整个过程不需要回溯或额外数据结构。',
+        bullets: [
+          '当前行宽度是唯一必要状态。',
+          '换行时当前字符属于新行。',
+          '最后返回的宽度就是模拟结束时的 `currentWidth`。',
+          '属于简单的容量模拟题。',
+        ],
+      },
+      {
+        id: 'number-of-lines-to-write-string-solution',
+        title: '标准解法：顺序模拟换行',
+        summary:
+          '初始化 `lines = 1`、`currentWidth = 0`。遍历字符串中的每个字符，根据字符编码找到宽度。如果 `currentWidth + charWidth > 100`，先增加行数并将当前宽度重置为字符宽度；否则直接累加。遍历结束后返回 `[lines, currentWidth]`。',
+        bullets: [
+          '时间复杂度：`O(|s|)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是换行时不能丢掉当前字符宽度。',
+          '注意空字符串边界时要遵循题目约束。',
+        ],
+        code: `function numberOfLines(widths: number[], text: string): number[] {
+  let lines = 1
+  let currentWidth = 0
+
+  for (const char of text) {
+    const charWidth = widths[char.charCodeAt(0) - 97]
+
+    if (currentWidth + charWidth > 100) {
+      lines += 1
+      currentWidth = charWidth
+    } else {
+      currentWidth += charWidth
+    }
+  }
+
+  return [lines, currentWidth]
+}`,
+      },
+      {
+        id: 'number-of-lines-to-write-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是换行后把当前字符遗漏，或者把换行条件写成大于等于 100，导致刚好填满一行时错误换行。',
+        bullets: [
+          '易错点 1：`100` 宽度刚好放下时错误换行。',
+          '易错点 2：换行后没有把当前字符计入新行。',
+          '易错点 3：字符到宽度数组下标映射错误。',
+          '延伸方向：容量模拟、流式处理、字符串布局。',
+        ],
+      },
+    ],
+  },
 ];
