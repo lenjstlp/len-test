@@ -82831,4 +82831,104 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'unique-morse-code-words',
+    label: '804. LeetCode 804. 唯一摩尔斯密码词',
+    difficulty: '简单',
+    description:
+      '这题要求统计一组单词转换成摩尔斯密码后有多少种不同结果。核心是逐词编码，再用集合去重。',
+    outcome:
+      '你能把字符串映射和去重统计组合起来，掌握固定表映射的简单实现方式。',
+    sections: [
+      {
+        id: 'unique-morse-code-words-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干只包含小写字母的单词，以及 26 个字母对应的摩尔斯密码。把每个单词的每个字符转换成对应密码并拼接，要求返回不同密码字符串的数量。',
+        bullets: [
+          '同一个单词可能重复出现。',
+          '不同单词可能转换成相同密码。',
+          '结果只统计不同编码数量。',
+          '字符到密码是固定映射。',
+        ],
+      },
+      {
+        id: 'unique-morse-code-words-observe',
+        title: '编码结果本身就是去重键',
+        summary:
+          '每个单词转换后的摩尔斯字符串可以直接作为集合中的键。遍历单词时，逐字符查表并拼接编码，最后把完整结果加入 `Set`。因为集合会自动去重，最终集合大小就是答案。',
+        bullets: [
+          '固定映射表适合用数组保存。',
+          '完整编码字符串可以直接作为唯一标识。',
+          '不需要排序或手动比较字符串。',
+          '这是哈希集合入门题。',
+        ],
+      },
+      {
+        id: 'unique-morse-code-words-solution',
+        title: '标准解法：字符映射 + Set 去重',
+        summary:
+          '准备 26 个摩尔斯编码组成的数组。对每个单词，遍历字符，通过 `charCodeAt(0) - 97` 得到数组下标并拼接对应编码，然后把结果加入 `Set`。最后返回集合大小。',
+        bullets: [
+          '时间复杂度：`O(所有单词总长度)`。',
+          '空间复杂度：`O(不同编码结果总长度)`。',
+          '实现重点是字符下标映射。',
+          '属于固定映射加哈希去重问题。',
+        ],
+        code: `function uniqueMorseRepresentations(words: string[]): number {
+  const codes = [
+    '.-',
+    '-...',
+    '-.-.',
+    '-..',
+    '.',
+    '..-.',
+    '--.',
+    '....',
+    '..',
+    '.---',
+    '-.-',
+    '.-..',
+    '--',
+    '-.',
+    '---',
+    '.--.',
+    '--.-',
+    '.-.',
+    '...',
+    '-',
+    '..-',
+    '...-',
+    '.--',
+    '-..-',
+    '-.--',
+    '--..',
+  ]
+  const unique = new Set<string>()
+
+  for (const word of words) {
+    let encoded = ''
+    for (const char of word) {
+      encoded += codes[char.charCodeAt(0) - 97]
+    }
+    unique.add(encoded)
+  }
+
+  return unique.size
+}`,
+      },
+      {
+        id: 'unique-morse-code-words-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把每个单词的编码拆成数组后比较，代码复杂度没有必要；或者字符下标计算没有按小写字母起点处理。',
+        bullets: [
+          '易错点 1：没有用 `Set` 对完整编码去重。',
+          '易错点 2：字符映射下标偏移错误。',
+          '易错点 3：编码拼接时漏掉某个字符。',
+          '延伸方向：哈希集合、字符串编码、固定表映射。',
+        ],
+      },
+    ],
+  },
 ];
