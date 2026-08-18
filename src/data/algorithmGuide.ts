@@ -82931,4 +82931,86 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'split-array-with-same-average',
+    label: '805. LeetCode 805. 数组的均值分割',
+    difficulty: '困难',
+    description:
+      '这题要求把数组拆成两个非空子集，使两个子集的平均值相同。核心是把平均值相等转成子集和与大小的关系，再用集合动态规划寻找可行状态。',
+    outcome:
+      '你能把平均值问题转成整数和问题，并用按元素个数分组的子集和 DP 处理复杂约束。',
+    sections: [
+      {
+        id: 'split-array-with-same-average-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组，要求判断能否将它拆成两个非空子集 `A` 和 `B`，使得 `average(A) === average(B)`。两个子集共同覆盖原数组中的所有元素。',
+        bullets: [
+          '两个子集都必须非空。',
+          '每个元素只能属于一个子集。',
+          '平均值可以是分数，不能直接用浮点数比较。',
+          '需要判断是否存在任意一种拆分。',
+        ],
+      },
+      {
+        id: 'split-array-with-same-average-observe',
+        title: '先消掉分母，把平均值改写成整数条件',
+        summary:
+          '设数组总和为 `total`，长度为 `n`。如果子集 `A` 有 `size` 个元素、元素和为 `sum`，要满足平均值相同，就必须有 `sum / size = total / n`，也就是 `sum * n = total * size`。因此可以枚举子集大小 `size`，判断是否存在一个大小为 `size` 的子集，其和正好等于 `total * size / n`。',
+        bullets: [
+          '用乘法避免浮点误差。',
+          '子集大小不能取 0 或 n。',
+          '目标和必须是整数才可能成功。',
+          '问题转成带元素个数约束的子集和。',
+        ],
+      },
+      {
+        id: 'split-array-with-same-average-solution',
+        title: '标准解法：按子集大小分组的集合 DP',
+        summary:
+          '准备 `dp[size]`，其中每个集合存放选出 `size` 个元素时可能得到的和。遍历每个数字时，从大到小更新 `size`，把之前的每个和加上当前数字加入新集合。最后枚举 `size = 1 ... n / 2`，如果 `total * size` 能被 `n` 整除，且目标和出现在 `dp[size]` 中，就说明可以完成拆分。',
+        bullets: [
+          '时间复杂度取决于可达和的数量，通常为伪多项式。',
+          '空间复杂度：`O(n * total)` 的状态上界。',
+          '实现重点是 `size` 必须倒序更新。',
+          '这是子集和与平均值转换的综合题。',
+        ],
+        code: `function splitArraySameAverage(nums: number[]): boolean {
+  const length = nums.length
+  const total = nums.reduce((sum, value) => sum + value, 0)
+  const dp = Array.from({ length: length + 1 }, () => new Set<number>())
+  dp[0].add(0)
+
+  for (const value of nums) {
+    for (let size = length - 1; size >= 0; size -= 1) {
+      for (const sum of dp[size]) {
+        dp[size + 1].add(sum + value)
+      }
+    }
+  }
+
+  for (let size = 1; size <= Math.floor(length / 2); size += 1) {
+    const target = total * size
+    if (target % length === 0 && dp[size].has(target / length)) {
+      return true
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'split-array-with-same-average-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接用浮点平均值比较，造成精度错误；或者更新子集状态时从小到大遍历大小，导致同一个元素被重复使用。',
+        bullets: [
+          '易错点 1：直接比较浮点平均值。',
+          '易错点 2：子集大小没有倒序更新。',
+          '易错点 3：忘记排除空集和全集。',
+          '延伸方向：子集和、集合 DP、数学等价变形。',
+        ],
+      },
+    ],
+  },
 ];
