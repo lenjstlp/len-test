@@ -84170,4 +84170,86 @@ function numComponents(head: ListNode | null, nums: number[]): number {
       },
     ],
   },
+  {
+    id: 'most-common-word',
+    label: '819. LeetCode 819. 最常见的单词',
+    difficulty: '简单',
+    description:
+      '这题要求在一段英文段落中找出出现次数最多的非禁用词。核心是先规范化文本，再用哈希统计频次。',
+    outcome:
+      '你能把文本清洗和频次统计结合起来，准确处理标点、大小写和禁用词过滤。',
+    sections: [
+      {
+        id: 'most-common-word-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一段英文段落 `paragraph` 和一个禁用词列表 `banned`。要求找出在段落中出现次数最多、且不在禁用词列表中的单词。',
+        bullets: [
+          '单词大小写不敏感。',
+          '标点符号不算单词内容。',
+          '禁用词需要排除。',
+          '只返回出现次数最多的一个单词。',
+        ],
+      },
+      {
+        id: 'most-common-word-observe',
+        title: '先清洗文本，再统计频次',
+        summary:
+          '这题的关键不是词频本身，而是文本规范化。要先把所有字母转成小写，再把标点替换成空格或直接用正则提取单词。然后再用哈希表统计频次，并跳过禁用词。最终频次最高的就是答案。',
+        bullets: [
+          '大小写归一化是必须的。',
+          '标点处理会影响分词结果。',
+          '禁用词表适合放进集合。',
+          '本质是文本清洗 + 哈希统计。',
+        ],
+      },
+      {
+        id: 'most-common-word-solution',
+        title: '标准解法：正则分词 + 频次统计',
+        summary:
+          '先把 `banned` 放入 `Set<string>`。然后使用正则提取 `paragraph` 中的所有连续字母单词，逐个转成小写并检查是否在禁用词集合中。如果不是，就在频次表里加一，并维护当前最大值和对应单词。遍历完成后返回频次最高的单词。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(m)`。',
+          '实现重点是文本分词和大小写归一化。',
+          '是字符串清洗与统计的基础题。',
+        ],
+        code: `function mostCommonWord(paragraph: string, banned: string[]): string {
+  const bannedSet = new Set(banned.map((word) => word.toLowerCase()))
+  const counter = new Map<string, number>()
+  const words = paragraph.toLowerCase().match(/[a-z]+/g) ?? []
+  let answer = ''
+  let maxCount = 0
+
+  for (const word of words) {
+    if (bannedSet.has(word)) {
+      continue
+    }
+
+    const nextCount = (counter.get(word) ?? 0) + 1
+    counter.set(word, nextCount)
+
+    if (nextCount > maxCount) {
+      maxCount = nextCount
+      answer = word
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'most-common-word-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只做大小写转换却忽略标点，导致单词被错误拼接；或者忘记把禁用词也转成小写。',
+        bullets: [
+          '易错点 1：没有正确分词。',
+          '易错点 2：禁用词大小写处理不一致。',
+          '易错点 3：没有排除标点符号。',
+          '延伸方向：文本清洗、词频统计、哈希集合。',
+        ],
+      },
+    ],
+  },
 ];
