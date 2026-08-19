@@ -84488,4 +84488,91 @@ function numComponents(head: ListNode | null, nums: number[]): number {
       },
     ],
   },
+  {
+    id: 'binary-trees-with-factors',
+    label: '823. LeetCode 823. 带因子的二叉树',
+    difficulty: '中等',
+    description:
+      '这题要求从数组中挑选数字构建二叉树，满足非叶子节点的值等于左右子节点值的乘积，并统计不同二叉树的数量。核心是排序后用动态规划按值递推。',
+    outcome:
+      '你能把树形计数问题转成有序数组上的组合 DP，并掌握“当前值由更小值乘积构成”的递推思路。',
+    sections: [
+      {
+        id: 'binary-trees-with-factors-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个没有重复元素的正整数数组 `arr`。要求统计可以由这些数字构成的二叉树数量，其中每个非叶子节点的值都等于它左右子节点值的乘积。不同结构或不同节点分布都算不同树。',
+        bullets: [
+          '每个数组元素都可以作为一个节点值。',
+          '非叶子节点必须能分解成两个数组值的乘积。',
+          '左右子树顺序不同也算不同树。',
+          '需要统计所有可能树的总数。',
+        ],
+      },
+      {
+        id: 'binary-trees-with-factors-observe',
+        title: '当前值的方案数来自更小因子的组合',
+        summary:
+          '如果把数组排序，那么构造值 `x` 的树，只可能由比它更小的因子对 `(a, b)` 组合得到，其中 `a * b = x`。这意味着 `x` 的方案数 = 单节点方案 1 + 所有合法因子对贡献的方案数。由于子问题只依赖更小的数，适合按值从小到大动态规划。',
+        bullets: [
+          '排序后更小值先计算。',
+          '合法贡献来自因子对。',
+          '左右子树有序，因此需要区分左右顺序。',
+          '这是树计数和因子分解的结合题。',
+        ],
+      },
+      {
+        id: 'binary-trees-with-factors-solution',
+        title: '标准解法：排序 + 哈希索引 + DP',
+        summary:
+          '先对数组排序，并用哈希表记录每个值对应的下标。设 `dp[i]` 表示以 `arr[i]` 为根的二叉树数量，初始为 1。对每个 `arr[i]`，枚举它的左因子 `arr[j]`，如果 `arr[i] % arr[j] === 0`，则右因子为 `arr[i] / arr[j]`；若右因子也在数组中，就把 `dp[j] * dp[rightIndex]` 累加到 `dp[i]`。最后把所有 `dp[i]` 求和即可。',
+        bullets: [
+          '时间复杂度：`O(n^2)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是把乘积拆成左右因子对。',
+          '左右交换顺序要算作不同树。',
+        ],
+        code: `function numFactoredBinaryTrees(arr: number[]): number {
+  const mod = 1_000_000_007
+  arr.sort((a, b) => a - b)
+  const index = new Map<number, number>()
+  const dp = Array<number>(arr.length).fill(1)
+
+  for (let i = 0; i < arr.length; i += 1) {
+    index.set(arr[i], i)
+  }
+
+  for (let i = 0; i < arr.length; i += 1) {
+    for (let j = 0; j < i; j += 1) {
+      if (arr[i] % arr[j] !== 0) {
+        continue
+      }
+
+      const right = arr[i] / arr[j]
+      const rightIndex = index.get(right)
+      if (rightIndex === undefined) {
+        continue
+      }
+
+      dp[i] = (dp[i] + dp[j] * dp[rightIndex]) % mod
+    }
+  }
+
+  return dp.reduce((sum, value) => (sum + value) % mod, 0)
+}`,
+      },
+      {
+        id: 'binary-trees-with-factors-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只考虑一种子树顺序，忘记左右子树互换也算不同树；或者没有按数组从小到大处理，导致子问题引用到了未计算状态。',
+        bullets: [
+          '易错点 1：没有区分左右子树顺序。',
+          '易错点 2：没排序就直接做 DP。',
+          '易错点 3：乘积取模或累加取模时机不对。',
+          '延伸方向：树形计数、因子分解、组合 DP。',
+        ],
+      },
+    ],
+  },
 ];
