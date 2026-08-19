@@ -84076,4 +84076,98 @@ function numComponents(head: ListNode | null, nums: number[]): number {
       },
     ],
   },
+  {
+    id: 'race-car',
+    label: '818. LeetCode 818. 赛车',
+    difficulty: '困难',
+    description:
+      '这题要求用最少指令把赛车开到目标位置。核心是把加速和倒车看成状态转移，按距离递归拆分，而不是机械模拟指令序列。',
+    outcome:
+      '你能把“最少指令”问题转成递归分治，并理解赛车位置与速度的指数增长规律。',
+    sections: [
+      {
+        id: 'race-car-summary',
+        title: '题目在问什么',
+        summary:
+          '赛车初始位置为 0、速度为 1。每条指令只有两种：`A` 表示当前位置加上当前速度，速度翻倍；`R` 表示方向反转并把速度重置为 1 或 -1。给定目标位置 `target`，要求返回到达目标的最少指令数。',
+        bullets: [
+          '速度会指数增长。',
+          '倒车会重置速度方向。',
+          '目标是最少指令数，不是最少步数移动。',
+          '状态包含位置和方向/速度。',
+        ],
+      },
+      {
+        id: 'race-car-observe',
+        title: '连续 A 的效果是指数级位移',
+        summary:
+          '连续执行 `A` 会让位置移动 `1 + 2 + 4 + ...`，也就是不断累加的二进制前缀。对于目标 `target`，先找到一段连续 `A` 的最远位置 `2^n - 1`。如果正好到达，答案就是 `n`；否则要么先冲过头再倒回来，要么先在中途掉头再继续向前。',
+        bullets: [
+          '连续加速会到达一串形如 `2^n - 1` 的位置。',
+          '可能先冲过头再回头。',
+          '也可能在途中提前掉头。',
+          '这是指数位移上的最短路。',
+        ],
+      },
+      {
+        id: 'race-car-solution',
+        title: '标准解法：递归分治 + 记忆化',
+        summary:
+          '设 `dp[target]` 为到达目标位置的最少指令数。先找到最小的 `n` 使得 `2^n - 1 >= target`。如果正好相等，答案为 `n`。否则有两种策略：第一种是先执行 `n` 次 `A` 冲过头，再倒车回来，因此代价是 `n + 1 + dp[(2^n - 1) - target]`；第二种是先执行 `n - 1` 次 `A`，再 `R`，再执行若干次反向 `A` 到某个中间点，最后再次反转继续前进。枚举中间反向长度即可求最优。使用 memo 缓存子问题。',
+        bullets: [
+          '时间复杂度：约 `O(target log target)`。',
+          '空间复杂度：`O(target)`。',
+          '实现重点是两种策略的枚举。',
+          '这是典型的递归最短指令题。',
+        ],
+        code: `function racecar(target: number): number {
+  const memo = new Map<number, number>()
+
+  const dfs = (distance: number): number => {
+    if (memo.has(distance)) {
+      return memo.get(distance) as number
+    }
+
+    let steps = 1
+    let limit = 1
+    while (limit < distance) {
+      limit = (limit << 1) + 1
+      steps += 1
+    }
+
+    if (limit === distance) {
+      memo.set(distance, steps)
+      return steps
+    }
+
+    const overshoot = limit - distance
+    let answer = steps + 1 + dfs(overshoot)
+    const halfway = (limit - 1) >> 1
+
+    for (let backSteps = 0; backSteps < steps - 1; backSteps += 1) {
+      const remaining = distance - halfway + ((1 << backSteps) - 1)
+      answer = Math.min(answer, steps - 1 + 1 + backSteps + 1 + dfs(remaining))
+    }
+
+    memo.set(distance, answer)
+    return answer
+  }
+
+  return dfs(target)
+}`,
+      },
+      {
+        id: 'race-car-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接 BFS 所有位置和速度，状态很快爆炸；或者在“先冲过头”和“中途掉头”两种策略间漏掉一种。',
+        bullets: [
+          '易错点 1：暴力搜索状态空间。',
+          '易错点 2：只考虑冲过头再回头，漏掉中途掉头。',
+          '易错点 3：指数位置计算边界写错。',
+          '延伸方向：最短指令、递归分治、状态压缩。',
+        ],
+      },
+    ],
+  },
 ];
