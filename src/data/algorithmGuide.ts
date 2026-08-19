@@ -84327,4 +84327,84 @@ function numComponents(head: ListNode | null, nums: number[]): number {
       },
     ],
   },
+  {
+    id: 'shortest-distance-to-a-character',
+    label: '821. LeetCode 821. 字符的最短距离',
+    difficulty: '简单',
+    description:
+      '这题要求对字符串中每个位置，求它到目标字符 `c` 的最短距离。核心是左右各扫一遍，把最近的目标位置传播过去。',
+    outcome:
+      '你能用双向扫描计算每个位置到最近目标字符的距离，并理解前后缀信息如何合并。',
+    sections: [
+      {
+        id: 'shortest-distance-to-a-character-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s` 和字符 `c`，要求返回一个数组，其中第 `i` 个元素表示 `s[i]` 到最近的字符 `c` 的最短距离。',
+        bullets: [
+          '每个位置都要计算。',
+          '距离是绝对位置差。',
+          '字符串里至少有一个目标字符。',
+          '需要返回整型数组。',
+        ],
+      },
+      {
+        id: 'shortest-distance-to-a-character-observe',
+        title: '左右各扫一次就够了',
+        summary:
+          '对每个位置来说，最近的 `c` 可能在左边，也可能在右边。先从左往右扫描，记录最近一次出现 `c` 的位置，得到到左侧目标字符的距离；再从右往左扫描，记录右侧最近的 `c`。把两次扫描得到的距离取最小，就是最终答案。',
+        bullets: [
+          '左扫解决左侧最近目标。',
+          '右扫解决右侧最近目标。',
+          '最终取两者最小值。',
+          '不需要额外复杂数据结构。',
+        ],
+      },
+      {
+        id: 'shortest-distance-to-a-character-solution',
+        title: '标准解法：双向线性扫描',
+        summary:
+          '先从左往右遍历，维护最近的 `c` 下标 `prev`，初始化为负无穷。若当前字符就是 `c`，更新 `prev`；否则把当前位置到 `prev` 的距离写入答案。然后再从右往左遍历一次，同样维护最近的 `c` 下标，用更小的距离覆盖答案中的值。这样每个位置都能拿到最近的左右两侧距离。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`，不计输出数组。',
+          '实现重点是初始化边界和双向覆盖。',
+          '属于前后缀信息合并题。',
+        ],
+        code: `function shortestToChar(text: string, target: string): number[] {
+  const answer = Array<number>(text.length).fill(Number.POSITIVE_INFINITY)
+
+  let previous = Number.NEGATIVE_INFINITY
+  for (let index = 0; index < text.length; index += 1) {
+    if (text[index] === target) {
+      previous = index
+    }
+    answer[index] = Math.min(answer[index], index - previous)
+  }
+
+  previous = Number.POSITIVE_INFINITY
+  for (let index = text.length - 1; index >= 0; index -= 1) {
+    if (text[index] === target) {
+      previous = index
+    }
+    answer[index] = Math.min(answer[index], previous - index)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'shortest-distance-to-a-character-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只从左边或右边扫一次，导致另一侧更近的目标字符被忽略；或者初始化最近位置时没有处理边界。',
+        bullets: [
+          '易错点 1：只做单向扫描。',
+          '易错点 2：最近位置初始化错误。',
+          '易错点 3：没有用最小值覆盖两次结果。',
+          '延伸方向：双向扫描、前后缀、最近位置维护。',
+        ],
+      },
+    ],
+  },
 ];
