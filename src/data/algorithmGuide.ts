@@ -83887,4 +83887,106 @@ function pruneTree(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'ambiguous-coordinates',
+    label: '816. LeetCode 816. 模糊坐标',
+    difficulty: '中等',
+    description:
+      '这题要求把形如 `(123)` 的字符串拆成所有合法坐标表示。核心是把左右两边各自生成所有合法小数，再做笛卡尔积组合。',
+    outcome:
+      '你能熟练处理数字字符串的合法小数表示，并掌握左右两段独立生成再组合的思路。',
+    sections: [
+      {
+        id: 'ambiguous-coordinates-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个括号包裹的数字字符串，如 `(123)`。要求在适当位置插入逗号和小数点，生成所有合法坐标表示。每个坐标由左半部分和右半部分组成，二者都必须是合法数字格式。',
+        bullets: [
+          '输入括号内只有数字。',
+          '左右两部分都要合法。',
+          '不能有前导零，除非是 `0` 本身或 `0.xxx`。',
+          '结果是所有可能坐标字符串。',
+        ],
+      },
+      {
+        id: 'ambiguous-coordinates-observe',
+        title: '左右两边可以独立生成合法数字串',
+        summary:
+          '一个数字字符串的合法表示分两类：整数或小数。整数不能有前导零，除非它本身就是 `0`；小数部分只要有小数点，就不能让小数点前后出现非法前导或后缀零。对任意一段数字字符串，先生成所有合法的左值和右值，然后做笛卡尔积拼接，所有合法坐标就都在其中。',
+        bullets: [
+          '每一半都独立判断合法性。',
+          '前导零和尾随零是限制重点。',
+          '左值和右值的组合没有额外约束。',
+          '这是字符串构造题。',
+        ],
+      },
+      {
+        id: 'ambiguous-coordinates-solution',
+        title: '标准解法：枚举分割点 + 合法数字生成',
+        summary:
+          '去掉最外层括号后，枚举逗号的插入位置。对左半段和右半段分别调用 `makeNumbers`，返回所有合法数字表示。`makeNumbers` 会根据前导零和尾随零规则生成整数形式和小数形式。最后将两边结果两两拼接成坐标字符串。',
+        bullets: [
+          '时间复杂度：与输出规模相关。',
+          '空间复杂度：与合法表示数量相关。',
+          '实现重点是数字合法性判断。',
+          '左、右两边的生成逻辑完全对称。',
+        ],
+        code: `function ambiguousCoordinates(text: string): string[] {
+  const digits = text.slice(1, -1)
+
+  const makeNumbers = (part: string): string[] => {
+    const result: string[] = []
+
+    if (part.length === 1 || part[0] !== '0') {
+      result.push(part)
+    }
+
+    for (let index = 1; index < part.length; index += 1) {
+      const left = part.slice(0, index)
+      const right = part.slice(index)
+
+      if ((left.length > 1 && left[0] === '0') || right[right.length - 1] === '0') {
+        continue
+      }
+
+      result.push(left + '.' + right)
+    }
+
+    if (part.length > 1 && part[0] === '0') {
+      return result.filter((value) => value.includes('.'))
+    }
+
+    return result
+  }
+
+  const answer: string[] = []
+
+  for (let split = 1; split < digits.length; split += 1) {
+    const leftParts = makeNumbers(digits.slice(0, split))
+    const rightParts = makeNumbers(digits.slice(split))
+
+    for (const left of leftParts) {
+      for (const right of rightParts) {
+        answer.push('(' + left + ', ' + right + ')')
+      }
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'ambiguous-coordinates-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是前导零和尾随零规则写反，或者忘记小数点两侧都要合法，导致生成非法坐标。',
+        bullets: [
+          '易错点 1：整数和小数合法性规则混淆。',
+          '易错点 2：前导零与尾随零处理不完整。',
+          '易错点 3：左右组合时没有穷举所有合法形式。',
+          '延伸方向：字符串枚举、格式化、组合生成。',
+        ],
+      },
+    ],
+  },
 ];
