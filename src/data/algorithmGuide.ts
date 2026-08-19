@@ -84252,4 +84252,79 @@ function numComponents(head: ListNode | null, nums: number[]): number {
       },
     ],
   },
+  {
+    id: 'short-encoding-of-words',
+    label: '820. LeetCode 820. 单词的最小编码',
+    difficulty: '中等',
+    description:
+      '这题要求把一组单词编码成一个字符串，尽量短。核心是删掉所有作为其他单词后缀的单词，只保留必要的“叶子词”。',
+    outcome:
+      '你能用后缀去重的角度理解编码优化，并掌握反转字符串后用集合去重的技巧。',
+    sections: [
+      {
+        id: 'short-encoding-of-words-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个单词数组，把这些单词编码成一个以 `#` 分隔的字符串。若某个单词是另一个单词的后缀，则它可以被包含在更长单词的编码中，不必单独出现。要求返回最短可能编码长度。',
+        bullets: [
+          '单词可以被其他单词的后缀覆盖。',
+          '目标是最短编码长度，不是编码字符串本身。',
+          '重复单词不会增加额外长度。',
+          '后缀关系是关键。',
+        ],
+      },
+      {
+        id: 'short-encoding-of-words-observe',
+        title: '后缀问题可以翻转成前缀问题',
+        summary:
+          '如果把每个单词反转，那么“后缀包含关系”就变成了“前缀包含关系”。在反转后的集合里，任何不是其他单词前缀的词都可以看成叶子词。最终编码长度等于这些叶子词长度加 1（对应 `#`）的总和。',
+        bullets: [
+          '反转后后缀关系变成前缀关系。',
+          '只保留不可被覆盖的词。',
+          '每个叶子词贡献自身长度加一个 `#`。',
+          '这是集合去重与后缀压缩的典型题。',
+        ],
+      },
+      {
+        id: 'short-encoding-of-words-solution',
+        title: '标准解法：反转 + 集合去重',
+        summary:
+          '先把所有单词反转，然后放入集合。接着遍历集合里的每个词，把它的所有严格前缀都从集合中删除，保留真正的叶子词。最后把这些叶子词的长度加 1 累加起来，就是最短编码长度。',
+        bullets: [
+          '时间复杂度：与单词总长度相关。',
+          '空间复杂度：`O(所有单词总长度)`。',
+          '实现重点是后缀去重的等价变换。',
+          '最后一个 `#` 也要计入长度。',
+        ],
+        code: `function minimumLengthEncoding(words: string[]): number {
+  const unique = new Set(words.map((word) => word.split('').reverse().join('')))
+
+  for (const word of [...unique]) {
+    for (let index = 1; index < word.length; index += 1) {
+      unique.delete(word.slice(0, index))
+    }
+  }
+
+  let answer = 0
+  for (const word of unique) {
+    answer += word.length + 1
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'short-encoding-of-words-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有把后缀转成前缀来处理，结果很难去重；或者忘了重复单词也可以被集合消掉。',
+        bullets: [
+          '易错点 1：没有利用反转字符串。',
+          '易错点 2：重复单词没有先去重。',
+          '易错点 3：编码长度漏算 `#`。',
+          '延伸方向：后缀压缩、前缀树、字符串去重。',
+        ],
+      },
+    ],
+  },
 ];
