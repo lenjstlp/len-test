@@ -83775,4 +83775,116 @@ function pruneTree(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'bus-routes',
+    label: '815. LeetCode 815. 公交路线',
+    difficulty: '困难',
+    description:
+      '这题要求在公交线路网络中，从起点站到终点站乘坐最少的公交车数量。核心是把“站点之间的换乘”看成图上的层级搜索。',
+    outcome:
+      '你能把公交线路题转成线路层面的 BFS，并理解为什么每层代表多乘一次公交车。',
+    sections: [
+      {
+        id: 'bus-routes-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干公交线路，每条线路是一组循环停靠站点。你从 `source` 站出发，想要到达 `target` 站，要求返回最少需要乘坐几辆公交车；如果无法到达，则返回 `-1`。',
+        bullets: [
+          '同一条线路上的站点都能互相到达。',
+          '换乘会增加乘车次数。',
+          '公交车线路是循环的。',
+          '目标是最少乘车数量，不是最短站点步数。',
+        ],
+      },
+      {
+        id: 'bus-routes-observe',
+        title: '最自然的层级是“乘了几辆车”',
+        summary:
+          '从起点站能直接搭乘哪些公交线，是第一层；乘上一辆车后，能换乘到哪些新线路，是第二层。每深入一层，乘车次数就增加一次。因此可以把问题转成“线路层面的 BFS”，而不是站点层面的普通最短路。',
+        bullets: [
+          '每一层代表多乘一辆车。',
+          '站点可以连接多条线路。',
+          '线路本身也可以看成图节点。',
+          'BFS 的层数就是答案。',
+        ],
+      },
+      {
+        id: 'bus-routes-solution',
+        title: '标准解法：站点到线路的双层 BFS',
+        summary:
+          '先建立“站点 -> 经过该站的线路列表”的映射。把所有包含 `source` 的线路加入队列，初始乘车次数为 1。BFS 时弹出一条线路，遍历它的所有站点；如果站点等于 `target`，返回当前答案；否则把经过该站点的其他未访问线路加入下一层队列。为了避免重复扩展，线路和站点都要做访问标记。',
+        bullets: [
+          '时间复杂度：`O(所有线路站点总数)`。',
+          '空间复杂度：`O(所有站点和线路数量)`。',
+          '实现重点是线路和站点双重去重。',
+          '这是换乘最短路的典型 BFS。',
+        ],
+        code: `function numBusesToDestination(
+  routes: number[][],
+  source: number,
+  target: number,
+): number {
+  if (source === target) {
+    return 0
+  }
+
+  const stationToRoutes = new Map<number, number[]>()
+
+  for (let routeIndex = 0; routeIndex < routes.length; routeIndex += 1) {
+    for (const station of routes[routeIndex]) {
+      const list = stationToRoutes.get(station) ?? []
+      list.push(routeIndex)
+      stationToRoutes.set(station, list)
+    }
+  }
+
+  const visitedRoutes = Array<boolean>(routes.length).fill(false)
+  const visitedStations = new Set<number>([source])
+  const queue: Array<[number, number]> = []
+
+  for (const routeIndex of stationToRoutes.get(source) ?? []) {
+    visitedRoutes[routeIndex] = true
+    queue.push([routeIndex, 1])
+  }
+
+  for (let head = 0; head < queue.length; head += 1) {
+    const [routeIndex, buses] = queue[head]
+
+    for (const station of routes[routeIndex]) {
+      if (station === target) {
+        return buses
+      }
+
+      if (visitedStations.has(station)) {
+        continue
+      }
+      visitedStations.add(station)
+
+      for (const nextRoute of stationToRoutes.get(station) ?? []) {
+        if (visitedRoutes[nextRoute]) {
+          continue
+        }
+        visitedRoutes[nextRoute] = true
+        queue.push([nextRoute, buses + 1])
+      }
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'bus-routes-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是按站点做 BFS 却把换乘次数搞乱，或者没有对线路做访问标记，导致同一条公交线被反复入队。',
+        bullets: [
+          '易错点 1：把普通最短路和换乘最少混为一谈。',
+          '易错点 2：没有标记已经访问过的线路。',
+          '易错点 3：source 等于 target 时没有直接返回 0。',
+          '延伸方向：双层图、BFS、换乘网络建模。',
+        ],
+      },
+    ],
+  },
 ];
