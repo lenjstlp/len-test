@@ -83989,4 +83989,91 @@ function pruneTree(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'linked-list-components',
+    label: '817. LeetCode 817. 链表组件',
+    difficulty: '中等',
+    description:
+      '这题要求统计链表中有多少个连续片段完全由给定集合 `nums` 中的节点值组成。核心是把集合成员资格和链表连续性一起看。',
+    outcome:
+      '你能把链表遍历和哈希集合结合起来，快速统计满足条件的连续组件数量。',
+    sections: [
+      {
+        id: 'linked-list-components-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个链表和一个整数数组 `nums`。如果链表中的若干连续节点值都出现在 `nums` 中，并且这段连续片段的左右两侧要么到头，要么不在 `nums` 中，那么这段片段就算一个组件。要求返回组件数量。',
+        bullets: [
+          '只统计链表上的连续片段。',
+          '节点值必须属于给定集合。',
+          '组件的边界由“离开集合”决定。',
+          '不是统计节点个数，而是统计片段个数。',
+        ],
+      },
+      {
+        id: 'linked-list-components-observe',
+        title: '遇到集合外节点时，组件自然结束',
+        summary:
+          '如果当前链表节点值在集合里，那么它可能属于一个组件；只要它的前驱不在集合里，就说明一个新的组件开始了。反过来，如果当前节点不在集合里，那么任何正在进行的组件都会在这里结束。于是只需一次遍历，就能用“从集合外进入集合内”作为组件起点。',
+        bullets: [
+          '组件起点是集合内节点的第一个节点。',
+          '组件终点由集合外节点切断。',
+          '哈希集合判断成员资格是关键。',
+          '线性扫描足够完成统计。',
+        ],
+      },
+      {
+        id: 'linked-list-components-solution',
+        title: '标准解法：集合 + 链表一次遍历',
+        summary:
+          '先把 `nums` 放进 `Set<number>`。然后遍历链表，维护一个布尔值 `inComponent`。若当前节点值在集合中且 `inComponent` 为 `false`，说明新组件开始，答案加一并把 `inComponent` 置为 `true`；若当前节点值不在集合中，则把 `inComponent` 置为 `false`。最后返回组件总数。',
+        bullets: [
+          '时间复杂度：`O(n + m)`。',
+          '空间复杂度：`O(m)`。',
+          '实现重点是组件起点的判断。',
+          '这是链表与集合结合的基础题。',
+        ],
+        code: `class ListNode {
+  val: number
+  next: ListNode | null
+
+  constructor(val = 0, next: ListNode | null = null) {
+    this.val = val
+    this.next = next
+  }
+}
+
+function numComponents(head: ListNode | null, nums: number[]): number {
+  const set = new Set(nums)
+  let count = 0
+  let inComponent = false
+
+  for (let node = head; node !== null; node = node.next) {
+    if (set.has(node.val)) {
+      if (!inComponent) {
+        count += 1
+        inComponent = true
+      }
+    } else {
+      inComponent = false
+    }
+  }
+
+  return count
+}`,
+      },
+      {
+        id: 'linked-list-components-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把集合中的节点数当成组件数；或者没有在遇到集合外节点时重置状态，导致多个组件被误合并。',
+        bullets: [
+          '易错点 1：把节点数量和组件数量混淆。',
+          '易错点 2：没有在离开集合时结束当前组件。',
+          '易错点 3：只记录集合内节点而不记录边界。',
+          '延伸方向：链表扫描、集合判定、连续片段统计。',
+        ],
+      },
+    ],
+  },
 ];
