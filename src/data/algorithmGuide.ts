@@ -83690,4 +83690,89 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'binary-tree-pruning',
+    label: '814. LeetCode 814. 二叉树剪枝',
+    difficulty: '中等',
+    description:
+      '这题要求删除二叉树中所有不包含 `1` 的子树。核心是后序遍历：先看子树，再决定当前节点是否保留。',
+    outcome:
+      '你能用自底向上的递归判断子树是否需要保留，并把局部剪枝结果自然向上传递。',
+    sections: [
+      {
+        id: 'binary-tree-pruning-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵只包含 `0` 和 `1` 的二叉树，要求删除所有不包含 `1` 的子树，也就是任何节点值全为 `0` 的分支都要被剪掉。',
+        bullets: [
+          '如果一个子树里没有 `1`，整棵子树都要删除。',
+          '删除的是整棵子树，不是单个节点。',
+          '保留与否取决于子树内容。',
+          '需要返回剪枝后的根节点。',
+        ],
+      },
+      {
+        id: 'binary-tree-pruning-observe',
+        title: '先处理子树，才能决定当前节点',
+        summary:
+          '一个节点是否该保留，取决于它的左、右子树是否有 `1`，以及自己是否是 `1`。因此必须先递归剪枝左右孩子，再根据返回结果判断当前节点是否要置空。这正是后序遍历的典型场景。',
+        bullets: [
+          '子树结果先于父节点决定。',
+          '如果左右都被剪掉且当前节点是 0，就可以删除当前节点。',
+          '后序遍历天然适配剪枝问题。',
+          '可以直接原地修改树结构。',
+        ],
+      },
+      {
+        id: 'binary-tree-pruning-solution',
+        title: '标准解法：后序递归剪枝',
+        summary:
+          '定义 `pruneTree(node)`：先递归剪枝 `node.left` 和 `node.right`，再判断当前节点。如果当前节点值是 `0` 且左右孩子都为空，就返回 `null`；否则返回当前节点。整个过程从叶子向根逐步收缩。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(h)`，来自递归栈。',
+          '实现重点是后序顺序不能写成先序。',
+          '这是二叉树剪枝模板题。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(val = 0, left: TreeNode | null = null, right: TreeNode | null = null) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function pruneTree(root: TreeNode | null): TreeNode | null {
+  if (root === null) {
+    return null
+  }
+
+  root.left = pruneTree(root.left)
+  root.right = pruneTree(root.right)
+
+  if (root.val === 0 && root.left === null && root.right === null) {
+    return null
+  }
+
+  return root
+}`,
+      },
+      {
+        id: 'binary-tree-pruning-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是先判断当前节点再处理孩子，导致本应被剪掉的子树被错误保留；或者只看自己是不是 `1`，忽略整棵子树是否包含 `1`。',
+        bullets: [
+          '易错点 1：顺序写成先序而不是后序。',
+          '易错点 2：没有把左右子树剪枝结果回写给父节点。',
+          '易错点 3：忽略“子树中是否存在 1”。',
+          '延伸方向：后序遍历、树剪枝、递归返回值设计。',
+        ],
+      },
+    ],
+  },
 ];
