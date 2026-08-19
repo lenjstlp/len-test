@@ -84407,4 +84407,85 @@ function numComponents(head: ListNode | null, nums: number[]): number {
       },
     ],
   },
+  {
+    id: 'card-flipping-game',
+    label: '822. LeetCode 822. 翻卡片游戏',
+    difficulty: '中等',
+    description:
+      '这题要求在翻转卡片后找到最小的“好数字”，即某张正面朝上的牌面数字没有出现在任何一张背面上。核心是先排除所有正反两面都出现过的数字，再找最小剩余值。',
+    outcome:
+      '你能把牌面与背面约束拆成集合过滤问题，并快速找到满足条件的最小值。',
+    sections: [
+      {
+        id: 'card-flipping-game-summary',
+        title: '题目在问什么',
+        summary:
+          '有一组卡片，每张卡片正面和背面各有一个数字。你可以任意翻转卡片。要求找出翻转后正面可见的、且不出现在任何卡片背面的最小数字；如果不存在，返回 `0`。',
+        bullets: [
+          '可以任意选择翻转哪些卡片。',
+          '只要某个数字出现在某张卡的背面上，就不能选它。',
+          '目标是最小合法数字。',
+          '如果没有答案返回 0。',
+        ],
+      },
+      {
+        id: 'card-flipping-game-observe',
+        title: '背面出现过的数字都必须排除',
+        summary:
+          '因为可以自由翻转，所以任何卡片正面最终能看到的数字，要么来自正面，要么来自背面；但如果某个数字曾经出现在任意一张卡的背面，那么无论怎么翻，总能让它在某张卡背面出现，题目定义下它就不能作为答案。因此先把所有背面数字放进禁用集合，再检查所有正面数字即可。',
+        bullets: [
+          '背面集合决定禁用数字。',
+          '正面数字逐个检查即可。',
+          '合法候选只需比较最小值。',
+          '这是集合过滤 + 最小值查找题。',
+        ],
+      },
+      {
+        id: 'card-flipping-game-solution',
+        title: '标准解法：背面集合过滤 + 正面最小值',
+        summary:
+          '先遍历所有卡片，把每张卡的背面数字放进 `Set`。然后再次遍历所有卡片，检查正面数字：如果这个数字不在背面集合中，就用它更新答案。最终如果答案没有被更新过，则返回 `0`。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是先收集所有背面数字。',
+          '属于典型的集合筛选题。',
+        ],
+        code: `function flipgame(fronts: number[], backs: number[]): number {
+  const banned = new Set<number>()
+
+  for (let index = 0; index < fronts.length; index += 1) {
+    if (fronts[index] === backs[index]) {
+      banned.add(fronts[index])
+    }
+  }
+
+  let answer = Number.POSITIVE_INFINITY
+
+  for (let index = 0; index < fronts.length; index += 1) {
+    if (!banned.has(fronts[index])) {
+      answer = Math.min(answer, fronts[index])
+    }
+    if (!banned.has(backs[index])) {
+      answer = Math.min(answer, backs[index])
+    }
+  }
+
+  return answer === Number.POSITIVE_INFINITY ? 0 : answer
+}`,
+      },
+      {
+        id: 'card-flipping-game-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只排除“正面等于背面”的数字，实际上任何出现在背面的数字都要考虑；或者没有在正反两面都检查最小值。',
+        bullets: [
+          '易错点 1：只把正反相同的数字排除。',
+          '易错点 2：没有检查两面可见数字。',
+          '易错点 3：答案初始值和空解处理错误。',
+          '延伸方向：集合过滤、最小值维护、约束筛选。',
+        ],
+      },
+    ],
+  },
 ];
