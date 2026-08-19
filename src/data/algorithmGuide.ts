@@ -83601,4 +83601,93 @@ function minDiffInBST(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'largest-sum-of-averages',
+    label: '813. LeetCode 813. 最大平均值和的分组',
+    difficulty: '中等',
+    description:
+      '这题要求把数组分成 `k` 个非空连续子数组，使每段平均值之和最大。核心是区间 DP：枚举最后一段从哪里开始。',
+    outcome:
+      '你能把分段最优化问题转成前缀和 + 区间动态规划，并掌握最后一段枚举的建模方式。',
+    sections: [
+      {
+        id: 'largest-sum-of-averages-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `nums` 和整数 `k`，要求把数组切成 `k` 个连续非空子数组，使每个子数组的平均值之和最大，并返回这个最大值。',
+        bullets: [
+          '分组必须连续。',
+          '每组不能为空。',
+          '目标是平均值之和最大。',
+          '答案通常是浮点数。',
+        ],
+      },
+      {
+        id: 'largest-sum-of-averages-observe',
+        title: '最后一段决定了转移枚举范围',
+        summary:
+          '如果 `dp[group][end]` 表示前 `end` 个元素分成 `group` 组的最大平均值和，那么最后一组一定是某个区间 `[split, end)`。一旦 `split` 确定，前面的最优值就来自 `dp[group - 1][split]`，而最后一段的贡献则是这段区间的平均值。于是问题自然变成“枚举最后切点”。',
+        bullets: [
+          '区间平均值可由前缀和快速求出。',
+          '状态只需要记录分组数和前缀长度。',
+          '最后一段的位置是核心枚举维度。',
+          '这是典型的区间 DP。',
+        ],
+      },
+      {
+        id: 'largest-sum-of-averages-solution',
+        title: '标准解法：前缀和 + 区间 DP',
+        summary:
+          '先计算前缀和数组。设 `dp[group][end]` 为前 `end` 个数分成 `group` 组的最大值。初始化 `dp[1][end] = average(nums[0..end-1])`。转移时枚举最后一段起点 `split`，更新 `dp[group][end] = max(dp[group - 1][split] + average(split..end-1))`。最终答案是 `dp[k][n]`。',
+        bullets: [
+          '时间复杂度：`O(k * n^2)`。',
+          '空间复杂度：`O(k * n)`。',
+          '实现重点是前缀和快速求区间平均值。',
+          '枚举切点时要保证每组非空。',
+        ],
+        code: `function largestSumOfAverages(nums: number[], k: number): number {
+  const size = nums.length
+  const prefix = Array<number>(size + 1).fill(0)
+
+  for (let index = 0; index < size; index += 1) {
+    prefix[index + 1] = prefix[index] + nums[index]
+  }
+
+  const average = (left: number, right: number): number =>
+    (prefix[right] - prefix[left]) / (right - left)
+
+  const dp = Array.from({ length: k + 1 }, () => Array<number>(size + 1).fill(0))
+
+  for (let end = 1; end <= size; end += 1) {
+    dp[1][end] = average(0, end)
+  }
+
+  for (let group = 2; group <= k; group += 1) {
+    for (let end = group; end <= size; end += 1) {
+      for (let split = group - 1; split < end; split += 1) {
+        dp[group][end] = Math.max(
+          dp[group][end],
+          dp[group - 1][split] + average(split, end),
+        )
+      }
+    }
+  }
+
+  return dp[k][size]
+}`,
+      },
+      {
+        id: 'largest-sum-of-averages-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把组数和切点范围写错，导致某些组为空；或者忘记使用前缀和，直接每次重算平均值。',
+        bullets: [
+          '易错点 1：转移时允许空段。',
+          '易错点 2：没有用前缀和求平均值。',
+          '易错点 3：初始化一组时范围不对。',
+          '延伸方向：区间 DP、前缀和、分段最优化。',
+        ],
+      },
+    ],
+  },
 ];
