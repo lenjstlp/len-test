@@ -85183,4 +85183,76 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'masking-personal-information',
+    label: '831. LeetCode 831. 隐藏个人信息',
+    difficulty: '中等',
+    description:
+      '这题要求对邮箱或电话号码做脱敏处理。核心是识别输入类型，然后按固定格式保留首尾信息并用 `*` 替换中间内容。',
+    outcome:
+      '你能把格式化与脱敏规则拆开处理，并稳定输出符合题意的邮箱和手机号形式。',
+    sections: [
+      {
+        id: 'masking-personal-information-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个个人信息字符串，可能是邮箱地址，也可能是电话号码。要求把它转换成脱敏后的标准格式：邮箱保留首尾字母和域名；电话号码保留最后四位并按国家码长度输出。',
+        bullets: [
+          '输入可能是邮箱或电话。',
+          '邮箱和电话脱敏规则不同。',
+          '输出格式必须严格符合题目要求。',
+          '需要保留少量可识别信息。',
+        ],
+      },
+      {
+        id: 'masking-personal-information-observe',
+        title: '先识别类型，再套固定格式',
+        summary:
+          '如果字符串里有 `@`，它就是邮箱：需要转成小写，保留首字母、`@` 前最后一个字母和整个域名结构，中间用五个 `*` 连接。否则就是电话号码：先提取所有数字，只保留最后四位，其余数字用标准分隔规则中的 `*` 替代，国家码用 `+***-` 这样的格式包裹。',
+        bullets: [
+          '邮箱与电话分支处理。',
+          '邮箱需要统一转小写。',
+          '电话需要提取纯数字。',
+          '中间内容统一用星号遮盖。',
+        ],
+      },
+      {
+        id: 'masking-personal-information-solution',
+        title: '标准解法：分支格式化输出',
+        summary:
+          '先判断输入中是否包含 `@`。若是邮箱，转换成小写后，取首字母和 `@` 前最后一个字母，拼成脱敏邮箱格式。若是电话，提取全部数字，最后四位直接保留，前面的数字按国家码长度分组并全部替换成 `*`，再用 `+`、`-` 和固定星号数量拼接成答案。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是类型识别与格式拼接。',
+          '属于文本脱敏格式化题。',
+        ],
+        code: `function maskPII(text: string): string {
+  if (text.includes('@')) {
+    const lower = text.toLowerCase()
+    const [name, domain] = lower.split('@')
+    return name[0] + '*****' + name[name.length - 1] + '@' + domain
+  }
+
+  const digits = text.replace(/\\D/g, '')
+  const local = digits.slice(-4)
+  const country = digits.length - 10
+  const prefix = country > 0 ? '+' + '*'.repeat(country) + '-' : ''
+  return prefix + '***-***-' + local
+}`,
+      },
+      {
+        id: 'masking-personal-information-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是邮箱没有统一转小写，或者电话国家码和本地号码分段格式写错。',
+        bullets: [
+          '易错点 1：邮箱大小写未统一。',
+          '易错点 2：电话号码数字提取不完整。',
+          '易错点 3：国家码星号数量计算错误。',
+          '延伸方向：字符串格式化、脱敏、分支规则处理。',
+        ],
+      },
+    ],
+  },
 ];
