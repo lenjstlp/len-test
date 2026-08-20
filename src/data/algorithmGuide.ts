@@ -84807,4 +84807,131 @@ function numComponents(head: ListNode | null, nums: number[]): number {
       },
     ],
   },
+  {
+    id: 'making-a-large-island',
+    label: '827. LeetCode 827. 最大人工岛',
+    difficulty: '困难',
+    description:
+      '这题要求把一个 `0` 变成 `1` 后，求网格里能得到的最大岛屿面积。核心是先给所有原始岛屿染色编号，再尝试把每个 `0` 与周围不同岛屿合并。',
+    outcome:
+      '你能把网格连通块问题拆成“预处理岛屿面积 + 单点合并”两步，并避免重复累计相邻同一岛屿。',
+    sections: [
+      {
+        id: 'making-a-large-island-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0` 和 `1` 的网格，你可以把最多一个 `0` 改成 `1`。要求返回修改后网格中最大岛屿的面积。',
+        bullets: [
+          '岛屿由上下左右四联通定义。',
+          '最多只能修改一个位置。',
+          '如果全是 `1`，答案就是整张图面积。',
+          '关键是合并周围岛屿时不能重复计数。',
+        ],
+      },
+      {
+        id: 'making-a-large-island-observe',
+        title: '先算清每个岛有多大，再评估每个 0 的价值',
+        summary:
+          '如果直接对每个 `0` 都重新做一次 DFS，代价太高。更稳的方式是先遍历整张图，把每个已有岛屿染成不同编号，并记录编号对应的面积。这样对于任意 `0`，只需查看它四周相邻的岛屿编号，把不同编号的面积加起来再加 1，就能得到翻转这个 `0` 后的岛屿大小。',
+        bullets: [
+          '岛屿编号让重复计数变得可控。',
+          '面积表可以 O(1) 查询每个岛大小。',
+          '每个 `0` 只需要看四个方向。',
+          '这是网格预处理再局部合并的问题。',
+        ],
+      },
+      {
+        id: 'making-a-large-island-solution',
+        title: '标准解法：DFS 染色 + 四邻域合并',
+        summary:
+          '先把每个岛屿用 DFS/BFS 染成 `2, 3, 4...` 等不同编号，同时记录面积 `area[id]`。然后遍历所有 `0`，把它上下左右相邻格子的岛屿编号收进 `Set`，计算 `1 + sum(area[id])` 作为该位置翻转后的面积，并更新答案。若网格里没有 `0`，直接返回最大已有岛屿面积，也就是 `n * n`。',
+        bullets: [
+          '时间复杂度：`O(n^2)`。',
+          '空间复杂度：`O(n^2)`，主要来自递归栈或面积映射。',
+          '实现重点是相邻编号去重。',
+          'DFS 和 BFS 都可以完成染色。',
+        ],
+        code: `function largestIsland(grid: number[][]): number {
+  const size = grid.length
+  const area = new Map<number, number>()
+  let color = 2
+  let answer = 0
+
+  const dfs = (row: number, col: number, mark: number): number => {
+    if (
+      row < 0 ||
+      row >= size ||
+      col < 0 ||
+      col >= size ||
+      grid[row][col] !== 1
+    ) {
+      return 0
+    }
+
+    grid[row][col] = mark
+    return (
+      1 +
+      dfs(row + 1, col, mark) +
+      dfs(row - 1, col, mark) +
+      dfs(row, col + 1, mark) +
+      dfs(row, col - 1, mark)
+    )
+  }
+
+  for (let row = 0; row < size; row += 1) {
+    for (let col = 0; col < size; col += 1) {
+      if (grid[row][col] === 1) {
+        const currentArea = dfs(row, col, color)
+        area.set(color, currentArea)
+        answer = Math.max(answer, currentArea)
+        color += 1
+      }
+    }
+  }
+
+  for (let row = 0; row < size; row += 1) {
+    for (let col = 0; col < size; col += 1) {
+      if (grid[row][col] !== 0) {
+        continue
+      }
+
+      const neighbors = new Set<number>()
+      if (row > 0) {
+        neighbors.add(grid[row - 1][col])
+      }
+      if (row + 1 < size) {
+        neighbors.add(grid[row + 1][col])
+      }
+      if (col > 0) {
+        neighbors.add(grid[row][col - 1])
+      }
+      if (col + 1 < size) {
+        neighbors.add(grid[row][col + 1])
+      }
+
+      let merged = 1
+      for (const id of neighbors) {
+        merged += area.get(id) ?? 0
+      }
+      answer = Math.max(answer, merged)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'making-a-large-island-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是翻转一个 `0` 时把同一座岛重复累加多次；或者没有先预处理原始岛屿面积，导致时间复杂度过高。',
+        bullets: [
+          '易错点 1：相邻同一岛屿没有去重。',
+          '易错点 2：对每个 `0` 都重新整图搜索。',
+          '易错点 3：全是 `1` 的情况返回错误。',
+          '延伸方向：网格染色、连通块、局部合并。',
+        ],
+      },
+    ],
+  },
 ];
