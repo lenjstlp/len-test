@@ -85036,4 +85036,78 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'consecutive-numbers-sum',
+    label: '829. LeetCode 829. 连续整数求和',
+    difficulty: '困难',
+    description:
+      '这题要求统计一个正整数能表示成多少种连续正整数之和。核心是把等差数列求和公式化成因子分解条件，再枚举连续长度。',
+    outcome:
+      '你能把连续区间求和问题转成数论约束，并理解为什么答案等价于奇数因子的数量。',
+    sections: [
+      {
+        id: 'consecutive-numbers-sum-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个正整数 `n`，要求统计它有多少种方式可以表示成至少两个连续正整数之和。',
+        bullets: [
+          '连续整数至少两个。',
+          '要求统计表示方式的数量。',
+          '不是求具体序列，而是求个数。',
+          '可以把问题转成数论计数。',
+        ],
+      },
+      {
+        id: 'consecutive-numbers-sum-observe',
+        title: '连续和公式可以改写成整除条件',
+        summary:
+          '如果 `n = x + (x + 1) + ... + (x + k - 1)`，那么 `n = k * x + k * (k - 1) / 2`。整理后可得 `2n = k * (2x + k - 1)`。因此当连续长度 `k` 固定时，只要 `2n - k(k - 1)` 能被 `2k` 整除，就存在一个合法起点。这个条件可以直接枚举长度 `k` 来检查。',
+        bullets: [
+          '连续和可转成等差数列公式。',
+          '合法性最终取决于整除关系。',
+          '连续长度 `k` 是关键枚举维度。',
+          '这是数论与等差数列的结合题。',
+        ],
+      },
+      {
+        id: 'consecutive-numbers-sum-solution',
+        title: '标准解法：枚举连续长度并检查起点',
+        summary:
+          '从 `k = 1` 开始枚举连续长度，只要 `k * (k + 1) / 2 <= n` 就继续。对于每个 `k`，如果 `n - k * (k - 1) / 2` 能被 `k` 整除，并且得到的起点是正整数，就说明存在一种表示方式。统计所有满足条件的 `k` 即可。',
+        bullets: [
+          '时间复杂度：`O(√n)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是长度与起点的整除判定。',
+          '答案也可以从奇数因子角度理解。',
+        ],
+        code: `function consecutiveNumbersSum(n: number): number {
+  let answer = 0
+
+  for (let length = 1; length * (length + 1) / 2 <= n; length += 1) {
+    const remainder = n - (length * (length - 1)) / 2
+    if (remainder % length === 0) {
+      const start = remainder / length
+      if (start > 0) {
+        answer += 1
+      }
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'consecutive-numbers-sum-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把连续长度枚举到 `n`，没有利用平方级上界；或者公式整理错误，导致整除条件写反。',
+        bullets: [
+          '易错点 1：枚举长度过大。',
+          '易错点 2：等差数列求和公式写错。',
+          '易错点 3：没有检查起点是否为正。',
+          '延伸方向：数论、等差数列、整除判定。',
+        ],
+      },
+    ],
+  },
 ];
