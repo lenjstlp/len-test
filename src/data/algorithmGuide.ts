@@ -84575,4 +84575,154 @@ function numComponents(head: ListNode | null, nums: number[]): number {
       },
     ],
   },
+  {
+    id: 'goat-latin',
+    label: '824. LeetCode 824. 山羊拉丁文',
+    difficulty: '简单',
+    description:
+      '这题要求把英文句子转换成一种固定规则的“山羊拉丁文”。核心是按单词逐个处理，依据元音或辅音决定变换方式。',
+    outcome:
+      '你能把字符串逐词变换规则写清楚，并稳定处理单词顺序、后缀追加和标点拼接。',
+    sections: [
+      {
+        id: 'goat-latin-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个英文句子，要求按规则把每个单词转换成山羊拉丁文：如果单词以元音开头，就在后面加 `ma`；如果以辅音开头，就把首字母移到末尾再加 `ma`。此外，第 `i` 个单词末尾还要追加 `i` 个 `a`。',
+        bullets: [
+          '单词按空格分隔。',
+          '元音和辅音的处理方式不同。',
+          '每个单词后缀的 `a` 数量递增。',
+          '输出时保留单词顺序。',
+        ],
+      },
+      {
+        id: 'goat-latin-observe',
+        title: '按单词处理，规则是完全确定的',
+        summary:
+          '这题没有复杂推理，只要把句子拆成单词，逐个应用转换规则即可。元音开头的单词直接加 `ma`；辅音开头的单词把首字母挪到末尾再加 `ma`。最后再追加对应数量的 `a`，并把所有结果用空格拼回去。',
+        bullets: [
+          '每个单词独立变换。',
+          '首字母是否为元音决定变换分支。',
+          '后缀 `a` 的数量和单词位置有关。',
+          '这是简单的字符串模拟题。',
+        ],
+      },
+      {
+        id: 'goat-latin-solution',
+        title: '标准解法：逐词模拟转换',
+        summary:
+          '先把句子按空格拆分成单词。遍历每个单词，如果首字母是元音，就保留原样并在末尾添加 `ma`；否则把首字母移动到末尾后再添加 `ma`。随后追加 `index + 1` 个 `a`。把所有转换结果收集后用空格连接即可。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是元音判断和后缀递增。',
+          '属于规则转换题。',
+        ],
+        code: `function toGoatLatin(sentence: string): string {
+  const vowels = new Set(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U'])
+
+  return sentence
+    .split(' ')
+    .map((word, index) => {
+      const suffix = 'a'.repeat(index + 1)
+      if (vowels.has(word[0])) {
+        return word + 'ma' + suffix
+      }
+      return word.slice(1) + word[0] + 'ma' + suffix
+    })
+    .join(' ')
+}`,
+      },
+      {
+        id: 'goat-latin-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忘了后缀 `a` 的数量按单词位置递增；或者辅音开头单词只删除首字母，忘了把它加回末尾。',
+        bullets: [
+          '易错点 1：后缀 `a` 数量写错。',
+          '易错点 2：辅音单词首字母没有移到末尾。',
+          '易错点 3：元音判断漏掉大写形式。',
+          '延伸方向：字符串模拟、规则转换、单词处理。',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'friends-of-appropriate-ages',
+    label: '825. LeetCode 825. 适龄的朋友',
+    difficulty: '中等',
+    description:
+      '这题要求统计有多少对朋友满足年龄发送好友请求的规则。核心是先按年龄计数，再用区间条件计算每个年龄能发出的请求数。',
+    outcome: '你能把两数比较规则转成年龄区间统计，并用前缀或计数数组批量求和。',
+    sections: [
+      {
+        id: 'friends-of-appropriate-ages-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一组年龄，规则是年龄为 `A` 的人不会给年龄为 `B` 的人发送请求，若满足 `B <= 0.5 * A + 7`、`B > A`、或者 `B > 100 && A < 100`。要求统计总共能发送多少好友请求。',
+        bullets: [
+          '请求规则由年龄比较决定。',
+          '同年龄之间也可能互相请求。',
+          '不能暴力枚举所有人对。',
+          '结果要统计所有合法请求数。',
+        ],
+      },
+      {
+        id: 'friends-of-appropriate-ages-observe',
+        title: '按年龄聚合后，规则就变成区间统计',
+        summary:
+          '年龄范围很小，且请求规则只依赖年龄值。先统计每个年龄出现了多少次，那么对于某个年龄 `A`，它可以请求的年龄 `B` 必须落在一个区间内：`(0.5 * A + 7, A]`，再排除特殊条件。这个区间里的所有人数加起来，就是该年龄能发出的请求数。因为请求双方都要算，因此同年龄的组合要减去自请求。',
+        bullets: [
+          '小范围年龄适合计数数组。',
+          '请求条件可以转为年龄区间。',
+          '同年龄请求要按人数组合计算。',
+          '这是计数优化题。',
+        ],
+      },
+      {
+        id: 'friends-of-appropriate-ages-solution',
+        title: '标准解法：年龄计数 + 区间求和',
+        summary:
+          '先统计每个年龄出现次数。对于每个年龄 `A`，找到可发送请求的最小年龄下界 `minAge = Math.floor(A / 2) + 8`，然后把 `minAge` 到 `A` 范围内的人数累加，再减去给自己发送请求的情况。重复这一过程并累加总数即可。',
+        bullets: [
+          '时间复杂度：`O(U^2)`，`U` 为年龄范围上界，实际很小。',
+          '空间复杂度：`O(U)`。',
+          '实现重点是区间下界推导。',
+          '比双重循环枚举人数更稳定。',
+        ],
+        code: `function numFriendRequests(ages: number[]): number {
+  const count = Array<number>(121).fill(0)
+  for (const age of ages) {
+    count[age] += 1
+  }
+
+  let answer = 0
+
+  for (let age = 15; age <= 120; age += 1) {
+    const minAge = Math.floor(age / 2) + 8
+    for (let target = minAge; target <= age; target += 1) {
+      answer += count[age] * count[target]
+    }
+
+    answer -= count[age]
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'friends-of-appropriate-ages-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接按人对枚举，忽略年龄区间的统计性质；或者忘了排除给自己发送请求的情况。',
+        bullets: [
+          '易错点 1：没有按年龄聚合。',
+          '易错点 2：区间下界公式写错。',
+          '易错点 3：同年龄请求和自请求混淆。',
+          '延伸方向：计数数组、区间统计、条件约束优化。',
+        ],
+      },
+    ],
+  },
 ];
