@@ -85110,4 +85110,77 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'positions-of-large-groups',
+    label: '830. LeetCode 830. 较大分组的位置',
+    difficulty: '简单',
+    description:
+      '这题要求找出字符串中长度至少为 3 的连续重复字符分组，并返回每个分组的起止位置。核心是一次线性扫描，记录连续段边界。',
+    outcome: '你能用一次遍历识别连续字符分组，并把边界索引准确转成结果区间。',
+    sections: [
+      {
+        id: 'positions-of-large-groups-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s`，找出其中所有长度至少为 3 的连续相同字符分组，并返回每个分组的起止下标。',
+        bullets: [
+          '只关心连续相同字符段。',
+          '长度至少 3 才算大分组。',
+          '返回的是区间下标。',
+          '按出现顺序输出即可。',
+        ],
+      },
+      {
+        id: 'positions-of-large-groups-observe',
+        title: '连续段只要看边界就够了',
+        summary:
+          '从左到右扫描字符串时，当前字符如果和前一个不同，就说明上一段结束了。我们只需要记录当前段的起点 `start`，当段结束时计算长度，如果长度至少为 3，就把 `[start, end]` 放入答案。然后把 `start` 更新为新段起点继续扫描。',
+        bullets: [
+          '边界变化决定分组结束。',
+          '不需要额外数组保存所有字符。',
+          '段长计算只依赖起止索引。',
+          '这是典型的连续段扫描题。',
+        ],
+      },
+      {
+        id: 'positions-of-large-groups-solution',
+        title: '标准解法：单次扫描记录分组边界',
+        summary:
+          '使用两个指针 `start` 和 `end`。`end` 逐步向右移动，当发现 `s[end] !== s[start]` 时，说明上一段结束。如果段长度大于等于 3，就把 `[start, end - 1]` 记录下来。随后将 `start = end` 开始下一段。扫描结束后再检查最后一段。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`，不计输出。',
+          '实现重点是段结束时的下标处理。',
+          '属于连续分组识别题。',
+        ],
+        code: `function largeGroupPositions(text: string): number[][] {
+  const answer: number[][] = []
+  let start = 0
+
+  for (let end = 0; end <= text.length; end += 1) {
+    if (end === text.length || text[end] !== text[start]) {
+      if (end - start >= 3) {
+        answer.push([start, end - 1])
+      }
+      start = end
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'positions-of-large-groups-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只记录字符出现次数而忽略下标区间；或者最后一段没有单独检查，导致漏掉答案。',
+        bullets: [
+          '易错点 1：没有输出起止位置。',
+          '易错点 2：最后一段漏判。',
+          '易错点 3：段长条件写成大于 3。',
+          '延伸方向：双指针、连续段、边界扫描。',
+        ],
+      },
+    ],
+  },
 ];
