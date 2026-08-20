@@ -84934,4 +84934,106 @@ function numComponents(head: ListNode | null, nums: number[]): number {
       },
     ],
   },
+  {
+    id: 'insert-into-a-sorted-circular-linked-list',
+    label: '828. LeetCode 828. 环形链表插入',
+    difficulty: '中等',
+    description:
+      '这题要求把一个新值插入到环形递增链表中，并保持链表有序。核心是找到从最大值回到最小值的断点，或者找到正常区间内的插入位置。',
+    outcome:
+      '你能在环形递增链表中正确处理边界断点和普通区间插入，并保持指针关系闭合。',
+    sections: [
+      {
+        id: 'insert-into-a-sorted-circular-linked-list-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个环形递增链表的任意节点和一个整数 `insertVal`。要求把该值插入链表中，使链表仍然满足环形递增有序。',
+        bullets: [
+          '链表是环形的，起点不固定。',
+          '链表整体是递增的，但最后会回到最小值。',
+          '新值可能插入在普通区间，也可能插入在最大值和最小值之间。',
+          '返回插入后的任意节点即可。',
+        ],
+      },
+      {
+        id: 'insert-into-a-sorted-circular-linked-list-observe',
+        title: '环形有序链表只有两类插入点',
+        summary:
+          '如果当前节点 `curr` 和下一个节点 `next` 满足 `curr.val <= insertVal <= next.val`，那么新值应插在它们之间。另一种情况是到了“断点”：`curr.val > next.val`，表示从最大值回到了最小值；此时如果 `insertVal` 大于等于当前最大值或小于等于下一个最小值，也应该插在这里。若绕一圈都找不到合适位置，说明所有值都相等，直接插在任意位置即可。',
+        bullets: [
+          '普通区间负责常规插入。',
+          '断点负责处理最大值到最小值的回绕。',
+          '所有值相等时没有唯一位置。',
+          '关键是完整绕一圈不漏判。',
+        ],
+      },
+      {
+        id: 'insert-into-a-sorted-circular-linked-list-solution',
+        title: '标准解法：单圈遍历寻找插入点',
+        summary:
+          '从任意节点开始，顺着环遍历一圈。若发现普通递增区间满足插入条件，或者断点满足回绕插入条件，就把新节点插入到当前节点和下一个节点之间并返回头节点。若走完一圈都没有找到位置，说明链表中所有节点值相同，直接把新节点插在任意两点之间返回即可。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是回绕断点判定。',
+          '返回任意链表节点都可以。',
+        ],
+        code: `class Node {
+  val: number
+  next: Node | null
+
+  constructor(val?: number, next?: Node | null) {
+    this.val = val ?? 0
+    this.next = next ?? null
+  }
+}
+
+function insert(head: Node | null, insertVal: number): Node {
+  const node = new Node(insertVal)
+
+  if (head === null) {
+    node.next = node
+    return node
+  }
+
+  let current = head
+
+  while (true) {
+    const next = current.next as Node
+
+    if (
+      (current.val <= insertVal && insertVal <= next.val) ||
+      (current.val > next.val && (insertVal >= current.val || insertVal <= next.val))
+    ) {
+      current.next = node
+      node.next = next
+      return head
+    }
+
+    current = next
+    if (current === head) {
+      break
+    }
+  }
+
+  const next = head.next
+  head.next = node
+  node.next = next
+  return head
+}`,
+      },
+      {
+        id: 'insert-into-a-sorted-circular-linked-list-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它当普通单链表插入，忽略了环和断点；或者绕一圈后没有处理“所有值都相等”的特殊情况。',
+        bullets: [
+          '易错点 1：没有识别最大值到最小值的断点。',
+          '易错点 2：没考虑所有节点值相等。',
+          '易错点 3：插入后链表没有重新闭合成环。',
+          '延伸方向：环形链表、插入操作、边界断点。',
+        ],
+      },
+    ],
+  },
 ];
