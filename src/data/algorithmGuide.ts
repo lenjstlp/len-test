@@ -84725,4 +84725,86 @@ function numComponents(head: ListNode | null, nums: number[]): number {
       },
     ],
   },
+  {
+    id: 'most-profit-assigning-work',
+    label: '826. LeetCode 826. 安排工作以获得最大利益',
+    difficulty: '中等',
+    description:
+      '这题要求根据工人的能力和工作的难度收益，给每个工人分配不超过其能力的最高收益工作。核心是把工作按难度排序，再用双指针或前缀最优值批量分配。',
+    outcome:
+      '你能把匹配问题转成排序后的单调推进，并用前缀最大收益压缩查询成本。',
+    sections: [
+      {
+        id: 'most-profit-assigning-work-summary',
+        title: '题目在问什么',
+        summary:
+          '给定每个工作的难度和利润，以及每个工人的能力。一个工人可以完成难度不超过自己能力的任意工作，要求把每个工人分配到一份工作，使总利润最大。',
+        bullets: [
+          '工人可以重复做同一种工作。',
+          '每个工人只做一份工作。',
+          '工作难度和利润是一一对应的。',
+          '目标是总收益最大。',
+        ],
+      },
+      {
+        id: 'most-profit-assigning-work-observe',
+        title: '能力越强，能做的工作只会更多',
+        summary:
+          '如果把工作按难度排序，并在排序过程中维护“到当前难度为止的最大利润”，那么对于任意工人，只要找到他能力能达到的最高难度位置，就能直接拿到这个位置之前的最大利润。工人能力越大，能接触到的工作集合只会更大，因此可以用双指针线性推进。',
+        bullets: [
+          '排序后工作难度单调递增。',
+          '前缀最大利润可以直接复用。',
+          '工人能力越大，指针只前进不后退。',
+          '这是排序 + 前缀最优的经典题。',
+        ],
+      },
+      {
+        id: 'most-profit-assigning-work-solution',
+        title: '标准解法：排序后双指针分配',
+        summary:
+          '先把 `difficulty` 和 `profit` 组合并按难度排序，同时把工人能力数组也排序。维护一个工作指针 `index` 和当前前缀最大利润 `bestProfit`。遍历每个工人时，把所有难度不超过其能力的工作都推进指针并更新 `bestProfit`，然后将该工人的收益加上 `bestProfit`。因为每个工人只会取到自己能力范围内最优工作，所以总和最大。',
+        bullets: [
+          '时间复杂度：`O(n log n + m log m)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是前缀最大利润维护。',
+          '工人和工作都按升序遍历最稳妥。',
+        ],
+        code: `function maxProfitAssignment(
+  difficulty: number[],
+  profit: number[],
+  workers: number[],
+): number {
+  const jobs = difficulty.map((level, index) => [level, profit[index]] as [number, number])
+  jobs.sort((first, second) => first[0] - second[0])
+  workers.sort((first, second) => first - second)
+
+  let answer = 0
+  let index = 0
+  let bestProfit = 0
+
+  for (const ability of workers) {
+    while (index < jobs.length && jobs[index][0] <= ability) {
+      bestProfit = Math.max(bestProfit, jobs[index][1])
+      index += 1
+    }
+    answer += bestProfit
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'most-profit-assigning-work-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是每个工人都从头扫描所有工作，导致重复计算；或者只看最近的可做工作，忘记维护前缀最大利润。',
+        bullets: [
+          '易错点 1：没有对工作难度排序。',
+          '易错点 2：只取当前工作利润，不取前缀最优。',
+          '易错点 3：工人排序后指针没有单调推进。',
+          '延伸方向：双指针、前缀最值、贪心分配。',
+        ],
+      },
+    ],
+  },
 ];
