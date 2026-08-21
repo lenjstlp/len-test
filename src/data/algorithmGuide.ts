@@ -85331,4 +85331,105 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'find-and-replace-in-string',
+    label: '833. LeetCode 833. 字符串中的查找与替换',
+    difficulty: '中等',
+    description:
+      '这题要求在原字符串的多个指定位置执行替换，但只有当该位置真的匹配给定源串时才生效。核心是先按下标排序，再从左到右稳定构造结果。',
+    outcome:
+      '你能把多次局部替换转成一次顺序扫描，避免下标偏移导致的覆盖和错位问题。',
+    sections: [
+      {
+        id: 'find-and-replace-in-string-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `text`，以及若干个替换操作：每个操作包含起始下标 `index`、源串 `source` 和目标串 `target`。只有当 `text` 在 `index` 位置真的以 `source` 开头时，才执行替换。',
+        bullets: [
+          '替换是否生效要先判断源串匹配。',
+          '多个替换基于原字符串判断。',
+          '替换结果不能互相影响匹配依据。',
+          '输出最终替换后的新字符串。',
+        ],
+      },
+      {
+        id: 'find-and-replace-in-string-observe',
+        title: '按原串顺序扫描最稳妥',
+        summary:
+          '如果直接边改字符串边替换，后续下标会发生偏移，很容易出错。更稳妥的做法是把所有操作按 `index` 升序排列，然后从左到右扫描原字符串。每到一个候选位置，就检查源串是否匹配；匹配则拼接 `target` 并跳过源串长度，不匹配就原样复制当前字符。',
+        bullets: [
+          '所有判断都基于原始字符串。',
+          '按下标升序处理能避免冲突。',
+          '字符串拼接比原地修改更容易实现。',
+          '本质是一次带条件的线性构造。',
+        ],
+      },
+      {
+        id: 'find-and-replace-in-string-solution',
+        title: '标准解法：排序后顺序构造答案',
+        summary:
+          '先把 `indexes`、`sources`、`targets` 组合成操作数组，并按起始下标排序。随后用指针 `pointer` 扫描原字符串，同时遍历操作列表。如果当前操作的下标等于 `pointer` 且源串匹配，就把对应 `target` 放进答案，并让 `pointer` 跳过源串长度；否则把当前字符直接加入答案并向后移动一位。',
+        bullets: [
+          '时间复杂度：`O(n + k log k)`。',
+          '空间复杂度：`O(n + k)`。',
+          '实现重点是匹配判断必须基于原串。',
+          '属于字符串扫描与条件替换题。',
+        ],
+        code: `function findReplaceString(
+  text: string,
+  indexes: number[],
+  sources: string[],
+  targets: string[],
+): string {
+  const operations = indexes
+    .map((index, i) => ({
+      index,
+      source: sources[i],
+      target: targets[i],
+    }))
+    .sort((a, b) => a.index - b.index)
+
+  const parts: string[] = []
+  let pointer = 0
+  let opIndex = 0
+
+  while (pointer < text.length) {
+    const current = operations[opIndex]
+
+    if (
+      current &&
+      current.index === pointer &&
+      text.startsWith(current.source, pointer)
+    ) {
+      parts.push(current.target)
+      pointer += current.source.length
+      opIndex += 1
+      continue
+    }
+
+    if (current && current.index === pointer) {
+      opIndex += 1
+    }
+
+    parts.push(text[pointer])
+    pointer += 1
+  }
+
+  return parts.join('')
+}`,
+      },
+      {
+        id: 'find-and-replace-in-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是在字符串替换后继续使用旧下标，或者没有区分“候选位置到了但源串不匹配”的情况。',
+        bullets: [
+          '易错点 1：边改原串边用原下标继续替换。',
+          '易错点 2：源串不匹配时仍然执行替换。',
+          '易错点 3：没有先按下标排序。',
+          '延伸方向：字符串构造、区间处理、离线替换。',
+        ],
+      },
+    ],
+  },
 ];
