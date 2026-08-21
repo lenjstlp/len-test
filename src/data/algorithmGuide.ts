@@ -85766,4 +85766,93 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'push-dominoes',
+    label: '838. LeetCode 838. 推多米诺',
+    difficulty: '中等',
+    description:
+      '这题要求求出一排多米诺骨牌最终倒下的状态。核心是分析每一段连续 `.` 左右两端受到的力，再决定这段骨牌的最终方向。',
+    outcome: '你能把看似动态模拟的问题，转成按区间分类讨论的静态求解。',
+    sections: [
+      {
+        id: 'push-dominoes-summary',
+        title: '题目在问什么',
+        summary:
+          '给定由 `L`、`R` 和 `.` 组成的字符串，分别表示骨牌向左倒、向右倒和竖立不动。要求返回所有力传播完成后的最终状态。',
+        bullets: [
+          '`L` 会向左传播影响。',
+          '`R` 会向右传播影响。',
+          '`.` 需要根据两侧力量决定方向。',
+          '最终结果是一个新字符串。',
+        ],
+      },
+      {
+        id: 'push-dominoes-observe',
+        title: '每段点位只受左右边界控制',
+        summary:
+          '连续的 `.` 段并不需要逐秒模拟。只要看它左边最近的非点字符和右边最近的非点字符即可：如果是 `L ... L` 或 `R ... R`，整段方向一致；如果是 `L ... R`，中间不会受力，保持不变；如果是 `R ... L`，则两边向中间倒，若长度为奇数，中间那张保持竖立。',
+        bullets: [
+          '连续点段可以整体处理。',
+          '真正关键的是左右边界类型。',
+          '`R...L` 是唯一需要双向收缩的情况。',
+          '加入哨兵后实现更简单。',
+        ],
+      },
+      {
+        id: 'push-dominoes-solution',
+        title: '标准解法：哨兵加双指针分段处理',
+        summary:
+          '在字符串两端加上哨兵 `L` 和 `R`，然后用双指针找相邻两个非点字符之间的区间。若两端字符相同，就整段填成相同方向；若是 `L` 到 `R`，中间保持 `.`；若是 `R` 到 `L`，就从两端向中间分别填充 `R` 和 `L`。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是分类处理三种边界组合。',
+          '比逐秒模拟更直接。',
+        ],
+        code: `function pushDominoes(dominoes: string): string {
+  const chars = ['L', ...dominoes.split(''), 'R']
+  let left = 0
+
+  for (let right = 1; right < chars.length; right += 1) {
+    if (chars[right] === '.') {
+      continue
+    }
+
+    if (right - left > 1) {
+      if (chars[left] === chars[right]) {
+        for (let index = left + 1; index < right; index += 1) {
+          chars[index] = chars[left]
+        }
+      } else if (chars[left] === 'R' && chars[right] === 'L') {
+        let i = left + 1
+        let j = right - 1
+        while (i < j) {
+          chars[i] = 'R'
+          chars[j] = 'L'
+          i += 1
+          j -= 1
+        }
+      }
+    }
+
+    left = right
+  }
+
+  return chars.slice(1, -1).join('')
+}`,
+      },
+      {
+        id: 'push-dominoes-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是尝试按秒模拟每次传播，导致实现复杂且边界很多；或者 `R...L` 情况下把中间奇数位置也错误填掉。',
+        bullets: [
+          '易错点 1：没有加哨兵，首尾处理很乱。',
+          '易错点 2：`L...R` 被误填成某个方向。',
+          '易错点 3：`R...L` 中点处理错误。',
+          '延伸方向：双指针、区间分类、字符串模拟。',
+        ],
+      },
+    ],
+  },
 ];
