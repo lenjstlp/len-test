@@ -85680,4 +85680,90 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'new-21-game',
+    label: '837. LeetCode 837. 新 21 点',
+    difficulty: '中等',
+    description:
+      '这题要求计算 Alice 最终得分不超过 `n` 的概率。核心是动态规划加滑动窗口，把“从前面若干状态转移过来”的概率和维护成窗口和。',
+    outcome:
+      '你能把概率型 DP 从递推公式推到可实现版本，并理解为什么滑动窗口可以把复杂度降到线性。',
+    sections: [
+      {
+        id: 'new-21-game-summary',
+        title: '题目在问什么',
+        summary:
+          'Alice 初始得分为 0，只要分数小于 `k` 就继续抽牌，每次等概率抽到 `1` 到 `maxPts`。当分数达到或超过 `k` 时停止，求最终分数不超过 `n` 的概率。',
+        bullets: [
+          '每次抽牌概率相同。',
+          '分数达到 `k` 立即停止。',
+          '目标是最终分数 `<= n` 的概率。',
+          '这是概率 DP 题。',
+        ],
+      },
+      {
+        id: 'new-21-game-observe',
+        title: '每个状态都来自前面一个固定窗口',
+        summary:
+          '设 `dp[x]` 表示最终经过过程后到达分数 `x` 的概率。对于 `x > 0`，它来自前面 `maxPts` 个分数中的那些“还没停止”的状态，即 `dp[x] = (dp[x - 1] + ... + dp[x - maxPts]) / maxPts`。如果直接每次累加会很慢，但这里转移区间长度固定，因此可以用滑动窗口维护这段概率和。',
+        bullets: [
+          '转移来源是固定长度窗口。',
+          '只有分数 `< k` 的状态还会继续扩散。',
+          '窗口和可以复用前一项结果。',
+          '最终答案是 `k` 到 `n` 的概率总和。',
+        ],
+      },
+      {
+        id: 'new-21-game-solution',
+        title: '标准解法：DP 配合滑动窗口',
+        summary:
+          '边界上，如果 `k === 0` 或 `n >= k - 1 + maxPts`，答案直接是 `1`。否则定义 `dp[0] = 1`，并维护窗口和 `windowSum`。从 `1` 推到 `n`：`dp[score] = windowSum / maxPts`。若当前分数仍小于 `k`，说明还能继续抽牌，就把它加入窗口；否则它属于终止分数，不再参与后续扩散。每次还要把窗口左边过期的状态移出。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是窗口加入和移出条件。',
+          '属于概率 DP 与滑动窗口结合题。',
+        ],
+        code: `function new21Game(n: number, k: number, maxPts: number): number {
+  if (k === 0 || n >= k - 1 + maxPts) {
+    return 1
+  }
+
+  const dp = Array(n + 1).fill(0)
+  dp[0] = 1
+
+  let windowSum = 1
+  let answer = 0
+
+  for (let score = 1; score <= n; score += 1) {
+    dp[score] = windowSum / maxPts
+
+    if (score < k) {
+      windowSum += dp[score]
+    } else {
+      answer += dp[score]
+    }
+
+    if (score - maxPts >= 0 && score - maxPts < k) {
+      windowSum -= dp[score - maxPts]
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'new-21-game-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是窗口里错误地加入了已经停止的状态，或者没有先处理显然为 `1` 的边界情况。',
+        bullets: [
+          '易错点 1：`score >= k` 后还继续加入窗口。',
+          '易错点 2：忘记处理直接返回 1 的边界。',
+          '易错点 3：窗口移出条件写错。',
+          '延伸方向：概率 DP、滑动窗口、状态转移优化。',
+        ],
+      },
+    ],
+  },
 ];
