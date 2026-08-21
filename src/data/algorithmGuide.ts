@@ -85959,4 +85959,109 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'magic-squares-in-grid',
+    label: '840. LeetCode 840. 矩阵中的幻方',
+    difficulty: '中等',
+    description:
+      '这题要求统计网格中 `3 x 3` 幻方子矩阵的数量。核心是先过滤数字范围与不重复条件，再检查行、列、对角线的和是否都等于 15。',
+    outcome:
+      '你能把一个看似复杂的模式识别题拆成一组确定的校验规则，稳定枚举所有候选子矩阵。',
+    sections: [
+      {
+        id: 'magic-squares-in-grid-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数网格，要求统计其中有多少个 `3 x 3` 子矩阵是幻方。这里的幻方要求恰好包含 `1` 到 `9` 且不重复，并且每行、每列、两条对角线的和都相等。',
+        bullets: [
+          '只检查 `3 x 3` 子矩阵。',
+          '必须恰好使用 1 到 9。',
+          '所有行列对角线和相等。',
+          '返回满足条件的总个数。',
+        ],
+      },
+      {
+        id: 'magic-squares-in-grid-observe',
+        title: '合法幻方的判定条件很固定',
+        summary:
+          '在 `3 x 3` 且使用 `1` 到 `9` 的前提下，所有行列对角线和一定都是 15。所以做法很直接：遍历每个 `3 x 3` 窗口，先检查数字是否都在 1 到 9 且不重复，再验证 3 行、3 列、2 条对角线之和是否全部等于 15。',
+        bullets: [
+          '先用范围与去重快速剪枝。',
+          '通过后再算行列对角线和。',
+          '枚举窗口数量有限。',
+          '这是典型规则校验题。',
+        ],
+      },
+      {
+        id: 'magic-squares-in-grid-solution',
+        title: '标准解法：枚举每个 3x3 窗口逐项校验',
+        summary:
+          '以每个可能的左上角为起点取出 `3 x 3` 子矩阵。借助集合检查九个数字是否构成 `1` 到 `9`。若通过，再分别计算三行、三列以及两条对角线之和，只要都等于 15，就把答案加一。',
+        bullets: [
+          '时间复杂度：`O(m * n)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是先剪枝再验和。',
+          '适合训练枚举与规则判断。',
+        ],
+        code: `function numMagicSquaresInside(grid: number[][]): number {
+  const rows = grid.length
+  const cols = grid[0].length
+  let answer = 0
+
+  function isMagic(top: number, left: number): boolean {
+    const seen = new Set<number>()
+
+    for (let row = top; row < top + 3; row += 1) {
+      for (let col = left; col < left + 3; col += 1) {
+        const value = grid[row][col]
+        if (value < 1 || value > 9 || seen.has(value)) {
+          return false
+        }
+        seen.add(value)
+      }
+    }
+
+    for (let row = top; row < top + 3; row += 1) {
+      if (grid[row][left] + grid[row][left + 1] + grid[row][left + 2] !== 15) {
+        return false
+      }
+    }
+
+    for (let col = left; col < left + 3; col += 1) {
+      if (grid[top][col] + grid[top + 1][col] + grid[top + 2][col] !== 15) {
+        return false
+      }
+    }
+
+    return (
+      grid[top][left] + grid[top + 1][left + 1] + grid[top + 2][left + 2] === 15 &&
+      grid[top][left + 2] + grid[top + 1][left + 1] + grid[top + 2][left] === 15
+    )
+  }
+
+  for (let row = 0; row <= rows - 3; row += 1) {
+    for (let col = 0; col <= cols - 3; col += 1) {
+      if (isMagic(row, col)) {
+        answer += 1
+      }
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'magic-squares-in-grid-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只检查和是否相等，却忘了数字必须是 1 到 9 且不能重复。',
+        bullets: [
+          '易错点 1：没做数字范围检查。',
+          '易错点 2：忽略了去重条件。',
+          '易错点 3：对角线和漏判。',
+          '延伸方向：矩阵枚举、规则校验、剪枝。',
+        ],
+      },
+    ],
+  },
 ];
