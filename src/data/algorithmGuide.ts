@@ -85432,4 +85432,97 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'sum-of-distances-in-tree',
+    label: '834. LeetCode 834. 树中距离之和',
+    difficulty: '困难',
+    description:
+      '这题要求求出树中每个节点到其他所有节点的距离和。核心是两次树形 DP：第一次自底向上统计子树规模与根节点答案，第二次换根推导其余节点答案。',
+    outcome:
+      '你能理解换根 DP 的转移过程，并把一棵树上“一个点的答案”高效推广到所有节点。',
+    sections: [
+      {
+        id: 'sum-of-distances-in-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵有 `n` 个节点的无向树，要求返回数组 `answer`，其中 `answer[i]` 表示节点 `i` 到其他所有节点的距离之和。',
+        bullets: [
+          '输入是一棵树，没有环。',
+          '每个节点都要求一个总距离。',
+          '暴力从每个点 BFS 会超时。',
+          '需要利用树结构复用计算结果。',
+        ],
+      },
+      {
+        id: 'sum-of-distances-in-tree-observe',
+        title: '先算根节点，再把答案换给孩子',
+        summary:
+          '先任选 `0` 作为根。第一次 DFS 时，统计每个节点子树的节点数 `count`，并顺便求出根节点到所有点的距离和。第二次 DFS 做换根：如果已知父节点 `parent` 的答案，那么孩子 `child` 的答案可以由 `answer[parent] - count[child] + (n - count[child])` 得到，因为孩子子树里的点都更近 1，树外的点都更远 1。',
+        bullets: [
+          '第一次 DFS 负责“子树统计”。',
+          '第二次 DFS 负责“换根传播”。',
+          '核心是子树内外节点数量变化。',
+          '这是典型树形 DP 与 rerooting 题。',
+        ],
+      },
+      {
+        id: 'sum-of-distances-in-tree-solution',
+        title: '标准解法：两次 DFS 完成换根 DP',
+        summary:
+          '先建邻接表。第一次 DFS `postOrder`：计算每个节点子树大小 `count[node]`，并累计 `answer[0]`。第二次 DFS `preOrder`：把父节点答案推给孩子。对子节点来说，它的子树节点都离它更近，非子树节点都离它更远，因此直接用换根公式更新即可。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是换根公式的来源。',
+          '适合训练树上 DP 思维。',
+        ],
+        code: `function sumOfDistancesInTree(
+  n: number,
+  edges: number[][],
+): number[] {
+  const graph = Array.from({ length: n }, () => [] as number[])
+  for (const [a, b] of edges) {
+    graph[a].push(b)
+    graph[b].push(a)
+  }
+
+  const count = Array(n).fill(1)
+  const answer = Array(n).fill(0)
+
+  function postOrder(node: number, parent: number, depth: number): void {
+    answer[0] += depth
+    for (const next of graph[node]) {
+      if (next === parent) continue
+      postOrder(next, node, depth + 1)
+      count[node] += count[next]
+    }
+  }
+
+  function preOrder(node: number, parent: number): void {
+    for (const next of graph[node]) {
+      if (next === parent) continue
+      answer[next] = answer[node] - count[next] + (n - count[next])
+      preOrder(next, node)
+    }
+  }
+
+  postOrder(0, -1, 0)
+  preOrder(0, -1)
+  return answer
+}`,
+      },
+      {
+        id: 'sum-of-distances-in-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只会算根节点答案，不会把答案换到其他节点；或者换根公式里把子树内外节点数量写反。',
+        bullets: [
+          '易错点 1：`count` 没初始化为 1。',
+          '易错点 2：换根时子树内外数量搞反。',
+          '易错点 3：DFS 时忘记跳过父节点。',
+          '延伸方向：树形 DP、换根 DP、图论。',
+        ],
+      },
+    ],
+  },
 ];
