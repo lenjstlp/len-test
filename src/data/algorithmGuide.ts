@@ -85525,4 +85525,92 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'image-overlap',
+    label: '835. LeetCode 835. 图像重叠',
+    difficulty: '中等',
+    description:
+      '这题要求通过平移两张二值图像，让重叠的 `1` 数量最大。核心是把两个图中的 `1` 坐标取出来，统计“一个点平移到另一个点”所需位移出现了多少次。',
+    outcome:
+      '你能把二维平移问题转成位移频次统计，从而避免枚举整张矩阵的所有平移状态。',
+    sections: [
+      {
+        id: 'image-overlap-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个大小相同的二值矩阵 `img1` 和 `img2`，允许把其中一张上下左右平移，要求返回平移后两张图中重叠位置同时为 `1` 的最大数量。',
+        bullets: [
+          '只能平移，不能旋转。',
+          '只统计 `1` 和 `1` 的重叠。',
+          '目标是最大重叠数。',
+          '矩阵规模不大，但暴力仍然繁琐。',
+        ],
+      },
+      {
+        id: 'image-overlap-observe',
+        title: '最大重叠等价于某个位移最常出现',
+        summary:
+          '如果 `img1` 中某个 `1` 的坐标是 `(r1, c1)`，`img2` 中某个 `1` 的坐标是 `(r2, c2)`，那么要让这两个点重叠，需要平移位移 `(r2 - r1, c2 - c1)`。如果很多对点都需要相同位移，那说明按这个位移平移时会有很多 `1` 重叠。因此只需要统计所有位移向量出现次数的最大值。',
+        bullets: [
+          '只关注值为 `1` 的坐标。',
+          '每对坐标都对应一个平移向量。',
+          '同一位移出现越多，重叠越大。',
+          '二维问题被转成哈希计数问题。',
+        ],
+      },
+      {
+        id: 'image-overlap-solution',
+        title: '标准解法：提取坐标后统计位移频次',
+        summary:
+          '先遍历两张矩阵，把所有值为 `1` 的坐标收集出来。随后两两配对，一个来自 `img1`，一个来自 `img2`，计算它们之间的位移，并用哈希表统计出现次数。最后返回哈希表中的最大值即可。',
+        bullets: [
+          '时间复杂度：`O(k1 * k2)`。',
+          '空间复杂度：`O(k1 + k2 + m)`。',
+          '实现重点是位移向量的唯一编码。',
+          '适合用哈希统计平移模式。',
+        ],
+        code: `function largestOverlap(img1: number[][], img2: number[][]): number {
+  const points1: Array<[number, number]> = []
+  const points2: Array<[number, number]> = []
+
+  for (let row = 0; row < img1.length; row += 1) {
+    for (let col = 0; col < img1[row].length; col += 1) {
+      if (img1[row][col] === 1) {
+        points1.push([row, col])
+      }
+      if (img2[row][col] === 1) {
+        points2.push([row, col])
+      }
+    }
+  }
+
+  const counter = new Map<string, number>()
+  let best = 0
+
+  for (const [r1, c1] of points1) {
+    for (const [r2, c2] of points2) {
+      const key = \`\${r2 - r1},\${c2 - c1}\`
+      const next = (counter.get(key) ?? 0) + 1
+      counter.set(key, next)
+      best = Math.max(best, next)
+    }
+  }
+
+  return best
+}`,
+      },
+      {
+        id: 'image-overlap-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是去枚举所有平移后再逐格比较，虽然能做，但实现更重；或者位移方向写反，导致统计结果错误。',
+        bullets: [
+          '易错点 1：位移向量方向前后颠倒。',
+          '易错点 2：没有只提取值为 `1` 的点。',
+          '易错点 3：哈希键没有正确区分行列。',
+          '延伸方向：哈希统计、坐标变换、矩阵平移。',
+        ],
+      },
+    ],
+  },
 ];
