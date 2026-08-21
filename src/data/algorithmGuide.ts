@@ -86064,4 +86064,79 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'keys-and-rooms',
+    label: '841. LeetCode 841. 钥匙和房间',
+    difficulty: '中等',
+    description:
+      '这题要求判断从 0 号房间出发，是否能进入所有房间。核心是把房间和钥匙关系看成图上的可达性问题，用 DFS 或 BFS 遍历即可。',
+    outcome:
+      '你能快速识别“钥匙解锁房间”其实就是图遍历，并写出稳定的可达性判断。',
+    sections: [
+      {
+        id: 'keys-and-rooms-summary',
+        title: '题目在问什么',
+        summary:
+          '有若干个房间，每个房间里放着一些钥匙，钥匙值表示能打开哪个房间。初始只能进入 0 号房间，要求判断最终是否能访问到所有房间。',
+        bullets: [
+          '0 号房间默认可进入。',
+          '拿到钥匙后可解锁新房间。',
+          '每个房间可能有多把钥匙。',
+          '目标是判断是否全可达。',
+        ],
+      },
+      {
+        id: 'keys-and-rooms-observe',
+        title: '房间就是节点，钥匙就是边',
+        summary:
+          '把每个房间看成图中的一个节点，如果房间 `a` 里有钥匙 `b`，就视为从 `a` 到 `b` 有一条边。于是问题转化成：从节点 `0` 出发，能否访问整张图中的所有节点。这正是标准的 DFS 或 BFS 可达性判断。',
+        bullets: [
+          '访问过的房间不需要重复进入。',
+          '栈和队列都能完成遍历。',
+          '最终只看访问数量是否等于总房间数。',
+          '属于基础图遍历题。',
+        ],
+      },
+      {
+        id: 'keys-and-rooms-solution',
+        title: '标准解法：DFS 遍历所有可进入房间',
+        summary:
+          '维护一个 `visited` 数组，初始从房间 `0` 开始深度优先搜索。每到一个房间，就遍历里面的所有钥匙；如果对应房间还没访问过，就继续递归。搜索结束后，检查 `visited` 中是否所有值都为 `true`。',
+        bullets: [
+          '时间复杂度：`O(n + e)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是避免重复访问。',
+          'BFS 写法也完全等价。',
+        ],
+        code: `function canVisitAllRooms(rooms: number[][]): boolean {
+  const visited = Array(rooms.length).fill(false)
+
+  function dfs(room: number): void {
+    visited[room] = true
+
+    for (const key of rooms[room]) {
+      if (!visited[key]) {
+        dfs(key)
+      }
+    }
+  }
+
+  dfs(0)
+  return visited.every(Boolean)
+}`,
+      },
+      {
+        id: 'keys-and-rooms-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是没有在入栈或入递归前判断是否访问过，导致重复遍历甚至死循环思维混乱。',
+        bullets: [
+          '易错点 1：重复访问同一房间。',
+          '易错点 2：忘记从 0 号房间启动。',
+          '易错点 3：遍历结束后没统计全部房间。',
+          '延伸方向：图遍历、可达性、DFS/BFS。',
+        ],
+      },
+    ],
+  },
 ];
