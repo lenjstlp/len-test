@@ -85255,4 +85255,80 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'flipping-an-image',
+    label: '832. LeetCode 832. 翻转图像',
+    difficulty: '简单',
+    description:
+      '这题要求先把二进制矩阵每行水平翻转，再将 0 和 1 取反。核心是按行双指针对称交换，并在交换时顺手翻转。',
+    outcome: '你能把矩阵变换拆成对称交换和位翻转两步，并在一次遍历中完成处理。',
+    sections: [
+      {
+        id: 'flipping-an-image-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0` 和 `1` 的二维矩阵，要求先将每一行左右翻转，再把每个元素从 `0` 变成 `1`、从 `1` 变成 `0`。',
+        bullets: [
+          '每一行都要处理。',
+          '左右翻转后再取反。',
+          '矩阵元素只有 0 和 1。',
+          '输出仍然是二维矩阵。',
+        ],
+      },
+      {
+        id: 'flipping-an-image-observe',
+        title: '翻转和取反可以合并在一次交换里',
+        summary:
+          '如果一行里对称位置的两个值先交换，再各自异或 1，就能同时完成水平翻转和取反。这样不需要先完整翻转再再遍历一次取反。对于中间点，如果行长度为奇数，单独把中间元素取反即可。',
+        bullets: [
+          '对称交换天然对应水平翻转。',
+          '取反可以用 `1 - value` 或异或 `1`。',
+          '奇数长度行要处理中心元素。',
+          '一次遍历就能完成两步操作。',
+        ],
+      },
+      {
+        id: 'flipping-an-image-solution',
+        title: '标准解法：双指针原地处理每一行',
+        summary:
+          '遍历每一行，使用两个指针从两端向中间靠拢。每次把左右两个元素交换，并对交换后的值分别取反。如果左右指针相遇，说明到了行中间，直接将该位置取反即可。最后返回修改后的矩阵。',
+        bullets: [
+          '时间复杂度：`O(m * n)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是交换后顺手取反。',
+          '适合原地修改矩阵。',
+        ],
+        code: `function flipAndInvertImage(image: number[][]): number[][] {
+  for (const row of image) {
+    let left = 0
+    let right = row.length - 1
+
+    while (left < right) {
+      ;[row[left], row[right]] = [row[right] ^ 1, row[left] ^ 1]
+      left += 1
+      right -= 1
+    }
+
+    if (left === right) {
+      row[left] ^= 1
+    }
+  }
+
+  return image
+}`,
+      },
+      {
+        id: 'flipping-an-image-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是先翻转后再单独遍历取反，虽然也能做，但不够简洁；或者奇数长度行的中间元素没有处理。',
+        bullets: [
+          '易错点 1：交换时没有同时取反。',
+          '易错点 2：奇数长度行中心漏处理。',
+          '易错点 3：双指针结束条件写错。',
+          '延伸方向：矩阵操作、原地变换、双指针。',
+        ],
+      },
+    ],
+  },
 ];
