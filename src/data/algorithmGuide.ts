@@ -85855,4 +85855,108 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'similar-string-groups',
+    label: '839. LeetCode 839. 相似字符串组',
+    difficulty: '困难',
+    description:
+      '这题要求把“通过交换两个字符后可相等”的字符串归并成若干组。核心是定义相似关系，然后用并查集把彼此相似的字符串连成连通分量。',
+    outcome:
+      '你能把字符串关系问题转成图连通性问题，并用并查集高效维护分组数量。',
+    sections: [
+      {
+        id: 'similar-string-groups-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干个由相同字母重排得到的字符串。如果两个字符串相同，或者交换其中一个字符串的两个字符后能与另一个相同，就称它们相似。要求返回相似字符串组的数量。',
+        bullets: [
+          '所有字符串长度相同。',
+          '相似关系具有传递性。',
+          '目标是统计连通块数量。',
+          '本质是图上的分组问题。',
+        ],
+      },
+      {
+        id: 'similar-string-groups-observe',
+        title: '两字符串是否相似只看不同位置个数',
+        summary:
+          '因为所有字符串都是同一组字母的重排，所以两个字符串想通过一次交换变得相等，不同字符位置只能有 0 个或 2 个。于是我们可以两两比较字符串，如果不同位置数量不超过 2，就把它们视为相似并连边，最终答案就是图的连通分量个数。',
+        bullets: [
+          '不同位置为 0 或 2 才可能相似。',
+          '相似关系可传递，因此要分组。',
+          '并查集很适合做连通块合并。',
+          '题眼不在交换过程，而在关系判定。',
+        ],
+      },
+      {
+        id: 'similar-string-groups-solution',
+        title: '标准解法：并查集合并相似字符串',
+        summary:
+          '初始化每个字符串自成一组。随后枚举所有字符串对，编写 `isSimilar` 判断函数：统计两个字符串不同位置数量，只要超过 2 就立刻返回 `false`。若相似，则用并查集合并它们。最后统计根节点个数就是答案。',
+        bullets: [
+          '时间复杂度：`O(n^2 * m)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是相似判断与并查集合并。',
+          '属于图连通性建模题。',
+        ],
+        code: `function numSimilarGroups(words: string[]): number {
+  const parent = Array.from({ length: words.length }, (_, index) => index)
+
+  function find(x: number): number {
+    if (parent[x] !== x) {
+      parent[x] = find(parent[x])
+    }
+    return parent[x]
+  }
+
+  function union(a: number, b: number): void {
+    const rootA = find(a)
+    const rootB = find(b)
+    if (rootA !== rootB) {
+      parent[rootA] = rootB
+    }
+  }
+
+  function isSimilar(a: string, b: string): boolean {
+    let diff = 0
+    for (let index = 0; index < a.length; index += 1) {
+      if (a[index] !== b[index]) {
+        diff += 1
+        if (diff > 2) {
+          return false
+        }
+      }
+    }
+    return diff === 0 || diff === 2
+  }
+
+  for (let i = 0; i < words.length; i += 1) {
+    for (let j = i + 1; j < words.length; j += 1) {
+      if (isSimilar(words[i], words[j])) {
+        union(i, j)
+      }
+    }
+  }
+
+  const roots = new Set<number>()
+  for (let index = 0; index < words.length; index += 1) {
+    roots.add(find(index))
+  }
+  return roots.size
+}`,
+      },
+      {
+        id: 'similar-string-groups-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是误以为只比较相邻字符串即可；实际上相似关系需要靠并查集或图搜索做传递闭包。',
+        bullets: [
+          '易错点 1：不同位置为 1 也判成相似。',
+          '易错点 2：没有利用相似关系的传递性。',
+          '易错点 3：并查集未做路径压缩。',
+          '延伸方向：并查集、图分组、字符串判定。',
+        ],
+      },
+    ],
+  },
 ];
