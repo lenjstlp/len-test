@@ -85613,4 +85613,71 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'rectangle-overlap',
+    label: '836. LeetCode 836. 矩形重叠',
+    difficulty: '简单',
+    description:
+      '这题要求判断两个与坐标轴平行的矩形是否存在正面积的重叠区域。核心是分别判断横向区间与纵向区间是否都真正相交。',
+    outcome:
+      '你能把二维矩形问题拆成两个一维区间交集判断，并准确区分“接触边界”和“真正重叠”。',
+    sections: [
+      {
+        id: 'rectangle-overlap-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个矩形 `rec1` 与 `rec2`，每个矩形用左下角和右上角坐标表示。要求判断它们是否存在面积大于 0 的重叠部分。',
+        bullets: [
+          '矩形边与坐标轴平行。',
+          '仅边界接触不算重叠。',
+          '需要的是布尔结果。',
+          '本质是区间交集判断。',
+        ],
+      },
+      {
+        id: 'rectangle-overlap-observe',
+        title: '二维重叠拆成两个方向分别判断',
+        summary:
+          '两个矩形有正面积重叠，当且仅当它们在 `x` 方向的投影区间有正长度交集，并且在 `y` 方向也有正长度交集。只要任一方向不相交，或者只是刚好碰到边界，结果都为 `false`。',
+        bullets: [
+          '横向区间要有真正交集。',
+          '纵向区间也要有真正交集。',
+          '边界相等时交集长度为 0。',
+          '条件判断可以直接写成不等式。',
+        ],
+      },
+      {
+        id: 'rectangle-overlap-solution',
+        title: '标准解法：判断两个方向都严格相交',
+        summary:
+          '设矩形格式为 `[x1, y1, x2, y2]`。如果 `rec1` 的左边小于 `rec2` 的右边，`rec1` 的右边大于 `rec2` 的左边，同时纵向也满足类似关系，那么说明两个矩形在两个方向上都存在正长度交集，可以返回 `true`。',
+        bullets: [
+          '时间复杂度：`O(1)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是用严格不等号。',
+          '属于几何基础判断题。',
+        ],
+        code: `function isRectangleOverlap(rec1: number[], rec2: number[]): boolean {
+  return (
+    rec1[0] < rec2[2] &&
+    rec1[2] > rec2[0] &&
+    rec1[1] < rec2[3] &&
+    rec1[3] > rec2[1]
+  )
+}`,
+      },
+      {
+        id: 'rectangle-overlap-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把边界接触也算成重叠，所以把严格不等号误写成了 `<=` 或 `>=`。',
+        bullets: [
+          '易错点 1：把“接触”误判为“重叠”。',
+          '易错点 2：横纵条件用或而不是且。',
+          '易错点 3：坐标含义左右上下弄反。',
+          '延伸方向：区间交集、基础计算几何。',
+        ],
+      },
+    ],
+  },
 ];
