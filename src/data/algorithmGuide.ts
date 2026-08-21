@@ -86139,4 +86139,106 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'split-array-into-fibonacci-sequence',
+    label: '842. LeetCode 842. 将数组拆分成斐波那契序列',
+    difficulty: '中等',
+    description:
+      '这题要求把数字字符串拆成一个合法的斐波那契序列。核心是枚举前两个数，再通过回溯按“后一个数等于前两个数之和”的规则持续验证。',
+    outcome:
+      '你能把字符串切分问题和回溯搜索结合起来，并正确处理前导零与 32 位整数上限。',
+    sections: [
+      {
+        id: 'split-array-into-fibonacci-sequence-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含数字的字符串，要求把它拆成一个长度至少为 3 的整数序列，使得从第三个数开始，每个数都等于前两个数之和。若能拆分，返回该序列，否则返回空数组。',
+        bullets: [
+          '序列长度至少为 3。',
+          '每个片段都要转成整数。',
+          '不能有非法前导零。',
+          '整数范围受 32 位有符号整数限制。',
+        ],
+      },
+      {
+        id: 'split-array-into-fibonacci-sequence-observe',
+        title: '前两个数一旦确定，后面就基本被决定了',
+        summary:
+          '斐波那契序列的自由度主要在前两个数。只要前两个数定下来，后面的每一项都应该等于它们之和，因此可以边切边验证。如果当前切出的数字太大、出现前导零、或者和预期和不匹配，就可以立即剪枝。',
+        bullets: [
+          '搜索空间主要来自前缀切分。',
+          '前导零是重要剪枝点。',
+          '预期和不匹配时无需继续。',
+          '回溯特别适合这种逐步构造题。',
+        ],
+      },
+      {
+        id: 'split-array-into-fibonacci-sequence-solution',
+        title: '标准解法：回溯枚举切分并持续校验',
+        summary:
+          '定义回溯函数，从当前位置开始尝试切出下一个数字。若当前片段有前导零，除单独的 `0` 外立即停止。若数值超过 `2^31 - 1` 也停止。若当前结果长度至少为 2，则把当前数字与前两项之和比较：小了就继续扩展片段，大了直接剪枝，等于才加入序列继续递归。只要最终正好用完整个字符串且长度至少为 3，就得到答案。',
+        bullets: [
+          '时间复杂度：最坏为指数级，但剪枝很多。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是前导零与溢出判断。',
+          '属于回溯构造题。',
+        ],
+        code: `function splitIntoFibonacci(text: string): number[] {
+  const path: number[] = []
+  const limit = 2 ** 31 - 1
+
+  function dfs(start: number): boolean {
+    if (start === text.length) {
+      return path.length >= 3
+    }
+
+    let value = 0
+
+    for (let end = start; end < text.length; end += 1) {
+      if (end > start && text[start] === '0') {
+        break
+      }
+
+      value = value * 10 + Number(text[end])
+      if (value > limit) {
+        break
+      }
+
+      if (path.length >= 2) {
+        const expected = path[path.length - 1] + path[path.length - 2]
+        if (value < expected) {
+          continue
+        }
+        if (value > expected) {
+          break
+        }
+      }
+
+      path.push(value)
+      if (dfs(end + 1)) {
+        return true
+      }
+      path.pop()
+    }
+
+    return false
+  }
+
+  return dfs(0) ? path : []
+}`,
+      },
+      {
+        id: 'split-array-into-fibonacci-sequence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是忽略前导零和整数上限，导致错误地接受了非法切分结果。',
+        bullets: [
+          '易错点 1：`01` 被当作合法数字。',
+          '易错点 2：超出 32 位范围还继续搜索。',
+          '易错点 3：当前值大于预期和时没有及时剪枝。',
+          '延伸方向：回溯、剪枝、字符串切分。',
+        ],
+      },
+    ],
+  },
 ];
