@@ -86526,4 +86526,91 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'hand-of-straights',
+    label: '846. LeetCode 846. 一手顺子',
+    difficulty: '中等',
+    description:
+      '这题要求把手牌分成若干组，每组都是连续 `groupSize` 张的顺子。核心是按数值从小到大贪心消耗每张牌的次数。',
+    outcome: '你能把分组问题转成计数贪心，并按最小牌优先构造顺子。',
+    sections: [
+      {
+        id: 'hand-of-straights-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一组手牌 `hand` 和组长 `groupSize`，要求判断能否把所有牌恰好分成若干组，使每组都是长度为 `groupSize` 的连续整数序列。',
+        bullets: [
+          '每张牌必须恰好使用一次。',
+          '每组长度固定。',
+          '组内数字必须连续。',
+          '目标是判断可否完全分组。',
+        ],
+      },
+      {
+        id: 'hand-of-straights-observe',
+        title: '最小牌一定要先被用掉',
+        summary:
+          '如果某张最小的牌还没被安排，它就只能作为某个顺子的起点。于是我们可以从最小未用的牌开始，强行补齐后面 `groupSize - 1` 张连续牌；只要有任何一张缺失，就说明无解。',
+        bullets: [
+          '贪心从最小牌开始。',
+          '缺牌就直接失败。',
+          '每张牌的剩余次数都要维护。',
+          '这是标准计数贪心题。',
+        ],
+      },
+      {
+        id: 'hand-of-straights-solution',
+        title: '标准解法：排序后用计数表连续消耗',
+        summary:
+          '先统计每个数字的出现次数，并把牌排序。遍历排序后的手牌时，只要当前牌还有剩余，就尝试从它开始构造一个长度为 `groupSize` 的连续序列：检查 `x, x+1, ..., x+groupSize-1` 是否都存在且次数足够，如果可以，就逐个减一；否则返回 `false`。',
+        bullets: [
+          '时间复杂度：`O(n log n)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是按最小牌贪心。',
+          '适合处理连续分组约束。',
+        ],
+        code: `function isNStraightHand(hand: number[], groupSize: number): boolean {
+  if (hand.length % groupSize !== 0) {
+    return false
+  }
+
+  hand.sort((a, b) => a - b)
+  const count = new Map<number, number>()
+
+  for (const card of hand) {
+    count.set(card, (count.get(card) ?? 0) + 1)
+  }
+
+  for (const card of hand) {
+    const current = count.get(card) ?? 0
+    if (current === 0) {
+      continue
+    }
+
+    for (let value = card; value < card + groupSize; value += 1) {
+      const remain = count.get(value) ?? 0
+      if (remain === 0) {
+        return false
+      }
+      count.set(value, remain - 1)
+    }
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'hand-of-straights-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是不按数值顺序处理，导致后续顺子起点被错误消耗。',
+        bullets: [
+          '易错点 1：没有先判断总牌数能否整除。',
+          '易错点 2：没按从小到大处理。',
+          '易错点 3：计数减一后忘记回收。',
+          '延伸方向：贪心、计数表、排序处理。',
+        ],
+      },
+    ],
+  },
 ];
