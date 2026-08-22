@@ -86441,4 +86441,89 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'longest-mountain-in-array',
+    label: '845. LeetCode 845. 数组中的最长山脉',
+    difficulty: '中等',
+    description:
+      '这题要求找出数组中最长的“先严格递增、再严格递减”的连续子数组长度。核心是一次扫描识别山峰并向两侧扩展长度。',
+    outcome: '你能把山脉识别问题拆成上坡、山顶、下坡三段来处理。',
+    sections: [
+      {
+        id: 'longest-mountain-in-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `arr`，要求找到其中最长的山脉长度。山脉必须满足：长度至少为 3，先严格上升，再严格下降，且峰顶两侧都不能为空。',
+        bullets: [
+          '必须先升后降。',
+          '峰顶两边都要存在。',
+          '长度至少 3。',
+          '返回最长山脉长度。',
+        ],
+      },
+      {
+        id: 'longest-mountain-in-array-observe',
+        title: '山峰一定是局部最高点',
+        summary:
+          '如果一个位置既比左边大，又比右边大，那么它可能是山顶。围绕这个位置，向左数连续递增长度，再向右数连续递减长度，就能得到以它为峰的山脉长度。只要中间没有断层，就可以把这段长度统计出来。',
+        bullets: [
+          '山顶必须同时高于左右邻居。',
+          '上坡和下坡都要连续。',
+          '每个峰只需计算一次。',
+          '这是典型的峰值扫描题。',
+        ],
+      },
+      {
+        id: 'longest-mountain-in-array-solution',
+        title: '标准解法：扫描每个峰并统计两侧长度',
+        summary:
+          '从左到右遍历数组，当发现 `arr[i] > arr[i - 1] && arr[i] > arr[i + 1]` 时，说明这里可能是山峰。向左扩展找到严格递增段的起点，再向右扩展找到严格递减段的终点，长度就是两端差值加一。遍历过程中不断更新最大值即可。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是峰顶判断。',
+          '适合一次扫描解决。',
+        ],
+        code: `function longestMountain(arr: number[]): number {
+  let answer = 0
+  let index = 1
+
+  while (index < arr.length - 1) {
+    const isPeak = arr[index - 1] < arr[index] && arr[index] > arr[index + 1]
+    if (!isPeak) {
+      index += 1
+      continue
+    }
+
+    let left = index - 1
+    while (left > 0 && arr[left - 1] < arr[left]) {
+      left -= 1
+    }
+
+    let right = index + 1
+    while (right < arr.length - 1 && arr[right] > arr[right + 1]) {
+      right += 1
+    }
+
+    answer = Math.max(answer, right - left + 1)
+    index = right
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'longest-mountain-in-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把单调递增或递减段也算成山脉，或者峰顶左右扩展时边界处理不严。',
+        bullets: [
+          '易错点 1：山顶两侧不都存在。',
+          '易错点 2：相等元素被当成上升或下降。',
+          '易错点 3：峰值扩展时越界。',
+          '延伸方向：双指针、区间扫描、局部峰值。',
+        ],
+      },
+    ],
+  },
 ];
