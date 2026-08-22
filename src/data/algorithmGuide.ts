@@ -86708,4 +86708,74 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'shifting-letters',
+    label: '848. LeetCode 848. 字母移位',
+    difficulty: '中等',
+    description:
+      '这题要求按给定的移位次数，从后往前依次给字符串每个字符做循环位移。核心是把后缀和累积起来，再一次性应用到每个字符上。',
+    outcome: '你能把多次字符位移合并成一次后缀累计。',
+    sections: [
+      {
+        id: 'shifting-letters-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s` 和数组 `shifts`，其中 `shifts[i]` 表示前 `i + 1` 个字符都要执行一次向后循环移位。要求返回所有移位执行后的最终字符串。',
+        bullets: [
+          '每个位置会叠加多个移位。',
+          '字符只在 `a-z` 间循环。',
+          '最终要输出新字符串。',
+          '不能逐次模拟每一步。',
+        ],
+      },
+      {
+        id: 'shifting-letters-observe',
+        title: '当前位置真正拿到的是后面所有操作的总和',
+        summary:
+          '如果把 `shifts` 看成前缀影响，那么下标 `i` 的字符最终会受到 `shifts[i]` 以及其后所有值的影响。反过来从右往左累加，就能得到每个位置的总移位量。这样每个字符只需要处理一次。',
+        bullets: [
+          '后缀和比逐项累加更直接。',
+          '从右往左最容易统计总影响。',
+          '字符位移按 26 取模。',
+          '属于经典前缀/后缀和题。',
+        ],
+      },
+      {
+        id: 'shifting-letters-solution',
+        title: '标准解法：后缀和加循环取模',
+        summary:
+          '从数组末尾开始累计移位和 `total`。对于每个位置 `i`，把 `total` 对 26 取模后作用到 `s[i]` 上：`a` 变成 `((charCode - 97 + total) % 26) + 97`。然后继续向左处理下一个字符，直到完成全部转换。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是后缀累计和取模。',
+          '适合字符映射题。',
+        ],
+        code: `function shiftingLetters(s: string, shifts: number[]): string {
+  const chars = s.split('')
+  let total = 0
+
+  for (let index = chars.length - 1; index >= 0; index -= 1) {
+    total = (total + shifts[index]) % 26
+    const code = chars[index].charCodeAt(0) - 97
+    chars[index] = String.fromCharCode(((code + total) % 26) + 97)
+  }
+
+  return chars.join('')
+}`,
+      },
+      {
+        id: 'shifting-letters-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是从左往右做前缀累计，导致每个字符拿到的影响范围不对。',
+        bullets: [
+          '易错点 1：方向从左到右写反。',
+          '易错点 2：没对 26 取模。',
+          '易错点 3：字符编码偏移算错。',
+          '延伸方向：后缀和、字符串映射、循环位移。',
+        ],
+      },
+    ],
+  },
 ];
