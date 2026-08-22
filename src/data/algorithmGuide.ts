@@ -86854,4 +86854,131 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'rectangle-area-ii',
+    label: '850. LeetCode 850. 矩形面积 II',
+    difficulty: '困难',
+    description:
+      '这题要求计算多个轴对齐矩形的总覆盖面积，重叠部分只能算一次。核心是扫描线：按 x 轴推进，在每个区间内统计当前激活矩形在 y 轴上的覆盖长度。',
+    outcome: '你能把二维面积并问题转成一维区间并的动态维护。',
+    sections: [
+      {
+        id: 'rectangle-area-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干个矩形，每个矩形由左下角和右上角坐标表示。要求计算这些矩形覆盖的总面积，重叠区域只计算一次。',
+        bullets: [
+          '矩形数量可能很多。',
+          '重叠面积不能重复算。',
+          '答案可能很大，需要取模。',
+          '本质是面积并问题。',
+        ],
+      },
+      {
+        id: 'rectangle-area-ii-observe',
+        title: '沿 x 轴切片后，每一段都只剩一维问题',
+        summary:
+          '把每个矩形的左右边界当成事件点。随着 x 轴从左到右扫描，当前激活的矩形集合在每个相邻 x 区间内不变，因此只要算出这段区间里所有激活矩形在 y 轴上的并长，再乘以宽度即可。二维面积问题就被拆成了许多个一维区间并。',
+        bullets: [
+          'x 轴事件决定集合变化。',
+          '相邻事件之间激活集合不变。',
+          '每段面积 = 宽度 × y 覆盖长度。',
+          '关键是正确统计 y 轴并长。',
+        ],
+      },
+      {
+        id: 'rectangle-area-ii-solution',
+        title: '标准解法：扫描线 + 激活区间并长',
+        summary:
+          '先把每个矩形拆成两条事件：进入和退出。按 x 坐标排序后，遍历事件。每到一个新 x，先用当前激活区间计算上一段的 y 覆盖长度并累加面积；再把同一 x 的所有事件一起更新到激活集合中。激活集合里的 y 区间每次都重新合并求并长即可。',
+        bullets: [
+          '时间复杂度：`O(n^2 log n)` 左右。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是事件分组与 y 并长计算。',
+          '属于扫描线基础题。',
+        ],
+        code: `function rectangleArea(rectangles: number[][]): number {
+  const MOD = 1_000_000_007
+  const events: Array<[number, number, number, 1 | -1]> = []
+
+  for (const [x1, y1, x2, y2] of rectangles) {
+    events.push([x1, y1, y2, 1])
+    events.push([x2, y1, y2, -1])
+  }
+
+  events.sort((a, b) => a[0] - b[0])
+
+  const active = new Map<string, number>()
+
+  function coveredLength(): number {
+    const intervals: Array<[number, number]> = []
+    for (const [key, count] of active.entries()) {
+      if (count > 0) {
+        const [y1, y2] = key.split(',').map(Number)
+        intervals.push([y1, y2])
+      }
+    }
+
+    if (intervals.length === 0) {
+      return 0
+    }
+
+    intervals.sort((a, b) => a[0] - b[0])
+    let total = 0
+    let [start, end] = intervals[0]
+
+    for (let i = 1; i < intervals.length; i += 1) {
+      const [y1, y2] = intervals[i]
+      if (y1 > end) {
+        total += end - start
+        start = y1
+        end = y2
+      } else {
+        end = Math.max(end, y2)
+      }
+    }
+
+    return total + (end - start)
+  }
+
+  let area = 0
+  let previousX = events[0][0]
+  let index = 0
+
+  while (index < events.length) {
+    const currentX = events[index][0]
+    const width = currentX - previousX
+    if (width > 0) {
+      area = (area + coveredLength() * width) % MOD
+    }
+
+    while (index < events.length && events[index][0] === currentX) {
+      const [, y1, y2, type] = events[index]
+      const key = \`\${y1},\${y2}\`
+      active.set(key, (active.get(key) ?? 0) + type)
+      if ((active.get(key) ?? 0) === 0) {
+        active.delete(key)
+      }
+      index += 1
+    }
+
+    previousX = currentX
+  }
+
+  return area
+}`,
+      },
+      {
+        id: 'rectangle-area-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary: '这题最常见的问题，是只算矩形面积相加，完全没处理重叠区间。',
+        bullets: [
+          '易错点 1：把重叠面积重复累加。',
+          '易错点 2：事件更新顺序错误。',
+          '易错点 3：y 区间并长没合并。',
+          '延伸方向：扫描线、区间并、计算几何。',
+        ],
+      },
+    ],
+  },
 ];
