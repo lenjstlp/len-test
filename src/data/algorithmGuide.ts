@@ -86613,4 +86613,99 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'shortest-path-visiting-all-nodes',
+    label: '847. LeetCode 847. 访问所有节点的最短路径',
+    difficulty: '困难',
+    description:
+      '这题要求在图中找到一条最短路径，能够访问所有节点至少一次。核心是把“当前所在节点”和“已访问节点集合”合成状态，用 BFS 找最短步数。',
+    outcome: '你能把图上的最短路问题扩展成状态图搜索。',
+    sections: [
+      {
+        id: 'shortest-path-visiting-all-nodes-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个无向连通图，要求从任意节点出发，找到一条最短路径，使得路径上至少访问过所有节点一次。可以重复走边和节点。',
+        bullets: [
+          '起点可以任意选择。',
+          '允许重复访问节点和边。',
+          '目标是覆盖全部节点。',
+          '返回最短步数。',
+        ],
+      },
+      {
+        id: 'shortest-path-visiting-all-nodes-observe',
+        title: '原图不够，要把访问状态也算进去',
+        summary:
+          '普通图最短路只看当前节点，但这题还要关心“哪些节点已经访问过”。因此一个状态必须同时包含当前位置和访问集合。只要某个状态第一次到达全访问集合，就一定是最短答案，这正适合 BFS。',
+        bullets: [
+          '状态由节点和掩码组成。',
+          '访问集合用二进制位表示。',
+          'BFS 天然保证最短步数。',
+          '这是典型状态压缩搜索题。',
+        ],
+      },
+      {
+        id: 'shortest-path-visiting-all-nodes-solution',
+        title: '标准解法：多源 BFS + 状态压缩',
+        summary:
+          '初始化时把每个节点都作为起点入队，初始掩码只包含自己。每次弹出状态 `(node, mask)`，向所有邻居扩展出新状态 `(next, nextMask)`。如果这个状态没访问过，就入队。只要某个状态的掩码已经包含所有节点，就返回当前层数。',
+        bullets: [
+          '时间复杂度：`O(n * 2^n)`。',
+          '空间复杂度：`O(n * 2^n)`。',
+          '实现重点是去重状态。',
+          '适合状态压缩 BFS。',
+        ],
+        code: `function shortestPathLength(graph: number[][]): number {
+  const n = graph.length
+  const target = (1 << n) - 1
+  const visited = Array.from({ length: n }, () => Array(1 << n).fill(false))
+  const queue: Array<[number, number]> = []
+  let head = 0
+
+  for (let node = 0; node < n; node += 1) {
+    const mask = 1 << node
+    queue.push([node, mask])
+    visited[node][mask] = true
+  }
+
+  let steps = 0
+  while (head < queue.length) {
+    const size = queue.length - head
+    for (let i = 0; i < size; i += 1) {
+      const [node, mask] = queue[head]
+      head += 1
+
+      if (mask === target) {
+        return steps
+      }
+
+      for (const next of graph[node]) {
+        const nextMask = mask | (1 << next)
+        if (!visited[next][nextMask]) {
+          visited[next][nextMask] = true
+          queue.push([next, nextMask])
+        }
+      }
+    }
+    steps += 1
+  }
+
+  return 0
+}`,
+      },
+      {
+        id: 'shortest-path-visiting-all-nodes-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只记录节点而不记录访问集合，导致无法区分不同状态。',
+        bullets: [
+          '易错点 1：没有状态压缩。',
+          '易错点 2：只从一个起点出发。',
+          '易错点 3：重复状态未去重。',
+          '延伸方向：状态搜索、BFS、位运算。',
+        ],
+      },
+    ],
+  },
 ];
