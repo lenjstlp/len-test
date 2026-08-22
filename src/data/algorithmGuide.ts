@@ -86343,4 +86343,102 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'backspace-string-compare',
+    label: '844. LeetCode 844. 比较含退格的字符串',
+    difficulty: '简单',
+    description:
+      '这题要求比较两个字符串在执行退格操作后的结果是否相等。核心是从后往前扫描，跳过被退格删除的字符。',
+    outcome: '你能不用真的构造新字符串，就直接比较退格后的最终结果。',
+    sections: [
+      {
+        id: 'backspace-string-compare-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个字符串 `s` 和 `t`，其中 `#` 表示退格。要求判断在把所有退格都执行后，两个字符串是否相同。',
+        bullets: [
+          '`#` 会删除前一个字符。',
+          '删除效果会继续向前连锁。',
+          '目标是比较最终结果是否一致。',
+          '不需要真的生成完整结果字符串。',
+        ],
+      },
+      {
+        id: 'backspace-string-compare-observe',
+        title: '从后往前找下一个有效字符最省事',
+        summary:
+          '如果正向模拟退格，必须维护栈；但如果从后往前扫描，就可以用一个计数器记录当前有多少个字符会被退格“吃掉”。遇到 `#` 就增加计数，遇到普通字符时若计数大于 0 就跳过，否则它就是下一个有效字符。',
+        bullets: [
+          '倒序扫描可以避免显式栈。',
+          '退格数会向左累积。',
+          '每次只需找到下一个有效字符。',
+          '两个字符串同步比较即可。',
+        ],
+      },
+      {
+        id: 'backspace-string-compare-solution',
+        title: '标准解法：双指针倒序跳过退格字符',
+        summary:
+          '分别在 `s` 和 `t` 上使用两个指针从末尾向前移动。每次先用辅助函数找到当前指针对应的下一个有效字符位置，再比较字符是否相同。如果任一字符串先结束而另一边还有有效字符，说明不相等。全部比较通过则返回 `true`。',
+        bullets: [
+          '时间复杂度：`O(n + m)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是跳过被退格删除的字符。',
+          '属于经典双指针题。',
+        ],
+        code: `function backspaceCompare(s: string, t: string): boolean {
+  function nextIndex(text: string, index: number): number {
+    let backspace = 0
+
+    while (index >= 0) {
+      if (text[index] === '#') {
+        backspace += 1
+        index -= 1
+      } else if (backspace > 0) {
+        backspace -= 1
+        index -= 1
+      } else {
+        break
+      }
+    }
+
+    return index
+  }
+
+  let i = s.length - 1
+  let j = t.length - 1
+
+  while (i >= 0 || j >= 0) {
+    i = nextIndex(s, i)
+    j = nextIndex(t, j)
+
+    if (i < 0 || j < 0) {
+      return i === j
+    }
+
+    if (s[i] !== t[j]) {
+      return false
+    }
+
+    i -= 1
+    j -= 1
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'backspace-string-compare-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接用栈模拟却忘了比较栈结果，或者倒序扫描时没有正确累计退格数量。',
+        bullets: [
+          '易错点 1：退格计数没有清零逻辑。',
+          '易错点 2：字符比较位置错位。',
+          '易错点 3：遗漏空串边界。',
+          '延伸方向：双指针、字符串模拟、栈思想。',
+        ],
+      },
+    ],
+  },
 ];
