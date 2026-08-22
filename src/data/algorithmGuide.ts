@@ -86778,4 +86778,80 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'maximize-distance-to-closest-person',
+    label: '849. LeetCode 849. 到最近的人里最大距离',
+    difficulty: '中等',
+    description:
+      '这题要求在座位数组中找到一个空位，使它到最近有人坐的位置的距离最大。核心是统计左右连续空位的最大值，并区分边界空段。',
+    outcome: '你能把座位选择问题拆成中间空段和边缘空段两类。',
+    sections: [
+      {
+        id: 'maximize-distance-to-closest-person-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0` 和 `1` 的数组，`1` 表示有人坐，`0` 表示空位。要求选择一个空位入座，使得它到最近人的距离最大，并返回这个最大距离。',
+        bullets: [
+          '只能坐在空位上。',
+          '目标是离最近的人最远。',
+          '边界空位要单独处理。',
+          '返回的是最大最小距离。',
+        ],
+      },
+      {
+        id: 'maximize-distance-to-closest-person-observe',
+        title: '中间空段和两端空段不一样',
+        summary:
+          '如果一段空位夹在两个人中间，那么最优点在中间，距离是这段长度的一半向下取整；如果空位在数组左端或右端，那么最优点就是离最近有人位置最远的那个端点，距离等于整段长度。把这两类情况分别处理即可。',
+        bullets: [
+          '中间段取半。',
+          '边缘段取整段长度。',
+          '只需一次扫描。',
+          '核心是连续零段分析。',
+        ],
+      },
+      {
+        id: 'maximize-distance-to-closest-person-solution',
+        title: '标准解法：扫描连续 0 段并分类计算',
+        summary:
+          '遍历数组，记录每段连续 `0` 的起点和长度。若这段 `0` 在两侧都被 `1` 包围，答案候选值是 `(length + 1) / 2` 向下取整；若在边界，则候选值就是整段长度。遍历过程中不断更新最大值即可。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是边界空段处理。',
+          '属于连续段与贪心题。',
+        ],
+        code: `function maxDistToClosest(seats: number[]): number {
+  let answer = 0
+  let lastOccupied = -1
+
+  for (let index = 0; index < seats.length; index += 1) {
+    if (seats[index] === 1) {
+      if (lastOccupied === -1) {
+        answer = index
+      } else {
+        answer = Math.max(answer, Math.floor((index - lastOccupied) / 2))
+      }
+      lastOccupied = index
+    }
+  }
+
+  answer = Math.max(answer, seats.length - 1 - lastOccupied)
+  return answer
+}`,
+      },
+      {
+        id: 'maximize-distance-to-closest-person-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只算中间空段，忘了数组开头和结尾可能更优。',
+        bullets: [
+          '易错点 1：边缘空段没算。',
+          '易错点 2：中间段没有取半。',
+          '易错点 3：最后一段处理遗漏。',
+          '延伸方向：连续段、贪心、数组扫描。',
+        ],
+      },
+    ],
+  },
 ];
