@@ -86241,4 +86241,106 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'guess-the-word',
+    label: '843. LeetCode 843. 猜字谜',
+    difficulty: '困难',
+    description:
+      '这题要求在有限次数内猜出隐藏单词。核心是利用每次反馈的匹配数量做筛选，再用最坏情况最小化的思路挑选下一次猜测。',
+    outcome: '你能把交互式搜索问题转成候选集缩小与最优猜测选择问题。',
+    sections: [
+      {
+        id: 'guess-the-word-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个单词列表和一个 `master` 接口，每次可以猜一个单词，接口会返回和秘密单词匹配的位置数。目标是在有限次数内找到秘密单词。',
+        bullets: [
+          '每次猜测都会返回匹配位数。',
+          '候选单词会逐步缩小。',
+          '必须控制最坏情况的分支。',
+          '这是典型的交互式搜索题。',
+        ],
+      },
+      {
+        id: 'guess-the-word-observe',
+        title: '每次反馈都在过滤候选集',
+        summary:
+          '如果一个候选词与当前猜测词的匹配位数不等于 `master` 返回值，那么它就不可能是秘密单词。也就是说，每次反馈都能把候选集按“与猜测词的匹配关系”过滤一遍。为了更稳妥，我们通常不是随便猜，而是挑一个能让最坏分支尽量小的词。',
+        bullets: [
+          '反馈结果可以直接剪枝候选集。',
+          '好猜测应该尽量平均分裂候选集。',
+          '避免出现一个分支特别大的情况。',
+          '本质是 minimax 思维。',
+        ],
+      },
+      {
+        id: 'guess-the-word-solution',
+        title: '标准解法：按最坏情况最小化选择下一个词',
+        summary:
+          '每轮从候选词中枚举一个词，统计它与其他候选词的匹配分布。选择那个“最大分支最小”的词作为当前猜测。然后调用 `master.guess`，根据返回的匹配位数过滤掉不可能的单词，继续下一轮，直到猜中或候选集耗尽。',
+        bullets: [
+          '时间复杂度：每轮近似 `O(n^2 * m)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是分裂候选集而不是盲猜。',
+          '适合练习交互式题的策略设计。',
+        ],
+        code: `function findSecretWord(wordlist: string[], master: Master): void {
+  function matchCount(a: string, b: string): number {
+    let count = 0
+    for (let index = 0; index < a.length; index += 1) {
+      if (a[index] === b[index]) {
+        count += 1
+      }
+    }
+    return count
+  }
+
+  let candidates = wordlist
+
+  for (let round = 0; round < 10 && candidates.length > 0; round += 1) {
+    let bestWord = candidates[0]
+    let bestScore = Number.POSITIVE_INFINITY
+
+    for (const word of candidates) {
+      const buckets = new Map<number, number>()
+      for (const other of candidates) {
+        if (word === other) continue
+        const same = matchCount(word, other)
+        buckets.set(same, (buckets.get(same) ?? 0) + 1)
+      }
+
+      let worst = 0
+      for (const value of buckets.values()) {
+        worst = Math.max(worst, value)
+      }
+
+      if (worst < bestScore) {
+        bestScore = worst
+        bestWord = word
+      }
+    }
+
+    const same = master.guess(bestWord)
+    if (same === 6) {
+      return
+    }
+
+    candidates = candidates.filter((word) => matchCount(word, bestWord) === same)
+  }
+}`,
+      },
+      {
+        id: 'guess-the-word-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只做随机猜测，导致候选集缩小很慢，甚至在限制次数内失败。',
+        bullets: [
+          '易错点 1：没有根据反馈过滤候选集。',
+          '易错点 2：猜测策略过于随机。',
+          '易错点 3：忽略限制次数。',
+          '延伸方向：交互题、minimax、候选集剪枝。',
+        ],
+      },
+    ],
+  },
 ];
