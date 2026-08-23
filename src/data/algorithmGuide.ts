@@ -87708,4 +87708,92 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'buddy-strings',
+    label: '859. LeetCode 859. 亲密字符串',
+    difficulty: '简单',
+    description:
+      '这题要求判断一个字符串是否可以通过交换另一个字符串中的两个字符得到。核心是区分两个字符串本来相等和恰好有两个位置不同的情况。',
+    outcome: '你能用差异位置和重复字符判断一次交换是否可行。',
+    sections: [
+      {
+        id: 'buddy-strings-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个字符串 `s` 和 `goal`，判断能否通过恰好交换 `s` 中两个位置的字符，使它变成 `goal`。',
+        bullets: [
+          '交换必须发生在两个位置。',
+          '两个字符串长度必须相同。',
+          '相等时需要存在重复字符。',
+          '不相等时只能有两个错位位置。',
+        ],
+      },
+      {
+        id: 'buddy-strings-observe',
+        title: '一次交换最多制造两个差异位置',
+        summary:
+          '如果两个字符串不同，那么一次交换只能影响两个位置，因此不同位置必须恰好是两个，并且交叉比较要满足 `s[i] === goal[j]`、`s[j] === goal[i]`。如果两个字符串已经相等，那么交换后还要保持不变，所以必须存在重复字符。',
+        bullets: [
+          '不同位置数量必须是 2。',
+          '两个差异位置要互相匹配。',
+          '相等字符串需要重复字符兜底。',
+          '可以一次遍历完成判断。',
+        ],
+      },
+      {
+        id: 'buddy-strings-solution',
+        title: '标准解法：记录差异位置并检查重复字符',
+        summary:
+          '先判断长度是否相等。遍历两个字符串，记录所有不同的下标。如果差异数量为 2，检查两个位置是否交叉相等；如果差异数量为 0，检查 `s` 中是否有重复字符；其他情况都不可能通过一次交换得到。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`，字符集固定时。',
+          '实现重点是差异数量分支。',
+          '属于字符串条件判断题。',
+        ],
+        code: `function buddyStrings(s: string, goal: string): boolean {
+  if (s.length !== goal.length) {
+    return false
+  }
+
+  const differences: number[] = []
+  const seen = new Set<string>()
+  let hasDuplicate = false
+
+  for (let index = 0; index < s.length; index += 1) {
+    if (s[index] !== goal[index]) {
+      differences.push(index)
+    }
+    if (seen.has(s[index])) {
+      hasDuplicate = true
+    }
+    seen.add(s[index])
+  }
+
+  if (differences.length === 0) {
+    return hasDuplicate
+  }
+
+  if (differences.length !== 2) {
+    return false
+  }
+
+  const [first, second] = differences
+  return s[first] === goal[second] && s[second] === goal[first]
+}`,
+      },
+      {
+        id: 'buddy-strings-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是两个字符串相等时直接返回 true，忘记题目要求必须真的交换两个字符。',
+        bullets: [
+          '易错点 1：相等时没检查重复字符。',
+          '易错点 2：差异位置超过两个还继续比较。',
+          '易错点 3：交叉匹配方向写反。',
+          '延伸方向：字符串、差异分析、计数。',
+        ],
+      },
+    ],
+  },
 ];
