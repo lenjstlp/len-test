@@ -87427,4 +87427,79 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'score-of-parentheses',
+    label: '856. LeetCode 856. 括号的分数',
+    difficulty: '中等',
+    description:
+      '这题要求计算一串合法括号的得分。核心是识别最小单元 `()` 的贡献，并利用“包裹一层得分翻倍”的规律。',
+    outcome: '你能用栈或计数器快速算出括号表达式得分。',
+    sections: [
+      {
+        id: 'score-of-parentheses-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个合法括号字符串，按照题目定义计算它的分数：`()` 的分数是 1，`AB` 的分数是 `A + B`，`(A)` 的分数是 `2 * A`。',
+        bullets: [
+          '输入一定是合法括号。',
+          '`()` 是最基本单位。',
+          '相邻串相加，包裹串翻倍。',
+          '要求返回最终分数。',
+        ],
+      },
+      {
+        id: 'score-of-parentheses-observe',
+        title: '最小单位只有 `()`，其余都是组合',
+        summary:
+          '这道题的本质，是找出每一个原子结构 `()` 出现在哪里。每当发现一对紧邻括号 `()`，它的基础分数是 1；如果它外面又套了几层括号，那么分数就要乘上对应的 2 的幂次。因此，只要知道当前深度，就能把每个原子贡献累加出来。',
+        bullets: [
+          '原子结构是 `()`。',
+          '外层每包一层，贡献翻倍。',
+          '可以只看深度而不显式建树。',
+          '属于括号计分题。',
+        ],
+      },
+      {
+        id: 'score-of-parentheses-solution',
+        title: '标准解法：按深度累加原子贡献',
+        summary:
+          '遍历字符串并维护当前深度 `depth`。遇到 `(` 时深度加一，遇到 `)` 时深度减一。如果当前位置形成的是 `()`，说明这是一个原子贡献，它的分数是 `2^depth`，因为在读取右括号后，当前深度正好表示它外层包裹了多少层。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是原子 `()` 的位置判断。',
+          '也可以用栈做等价转换。',
+        ],
+        code: `function scoreOfParentheses(s: string): number {
+  let score = 0
+  let depth = 0
+
+  for (let index = 0; index < s.length; index += 1) {
+    if (s[index] === '(') {
+      depth += 1
+    } else {
+      depth -= 1
+      if (s[index - 1] === '(') {
+        score += 1 << depth
+      }
+    }
+  }
+
+  return score
+}`,
+      },
+      {
+        id: 'score-of-parentheses-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把深度更新顺序搞反，导致原子贡献的幂次算错。',
+        bullets: [
+          '易错点 1：`depth` 先减还是后减写错。',
+          '易错点 2：漏掉 `()` 的判定。',
+          '易错点 3：把栈题写成复杂递归。',
+          '延伸方向：括号处理、栈、深度计分。',
+        ],
+      },
+    ],
+  },
 ];
