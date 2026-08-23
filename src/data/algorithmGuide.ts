@@ -86981,4 +86981,88 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'loud-and-rich',
+    label: '851. LeetCode 851. 喧闹和富有',
+    difficulty: '中等',
+    description:
+      '这题要求对每个人找出“不比他更吵且更富有”的最富者。核心是把关系看成有向图，然后做 DFS 记忆化求每个点能到达的最优答案。',
+    outcome: '你能把偏序关系转成图上最优值传播。',
+    sections: [
+      {
+        id: 'loud-and-rich-summary',
+        title: '题目在问什么',
+        summary:
+          '给定更富有关系和每个人的安静值 `quiet`，要求对每个人 `i` 返回一个人 `answer[i]`，使得这个人比 `i` 更富有或同样富有，并且在所有满足条件的人里安静值最小。',
+        bullets: [
+          '关系是“比谁更富有”。',
+          '目标是找最安静的可达富人。',
+          '每个人都要独立输出答案。',
+          '本质是有向图最优路径问题。',
+        ],
+      },
+      {
+        id: 'loud-and-rich-observe',
+        title: '富有关系天然形成向上搜索',
+        summary:
+          '如果 `richer[a] = [a, b]` 表示 `a` 比 `b` 更富有，那么从一个人出发，沿着“更富有”边往上走，就能访问所有可能比他更富的人。我们要找的不是最短路，而是在这棵/这张 DAG 里安静值最小的那个点。',
+        bullets: [
+          '边方向表示“更富有”。',
+          '只需要在可达范围内找最安静的人。',
+          'DFS 会重复访问，必须记忆化。',
+          '题目本质是 DAG 最优值传递。',
+        ],
+      },
+      {
+        id: 'loud-and-rich-solution',
+        title: '标准解法：DFS + 记忆化返回最优富人',
+        summary:
+          '先把更富有关系建成邻接表。对每个人 `x` 做 DFS，默认最佳答案是他自己，然后遍历所有比他更富的节点 `y`，递归求 `y` 的最佳答案，如果 `quiet[y]` 更小，就更新当前答案。由于结果只依赖于节点本身，使用 `memo` 缓存即可避免重复计算。',
+        bullets: [
+          '时间复杂度：`O(n + e)`。',
+          '空间复杂度：`O(n + e)`。',
+          '实现重点是缓存每个点的最优答案。',
+          '属于图上 DP / DFS 题。',
+        ],
+        code: `function loudAndRich(richer: number[][], quiet: number[]): number[] {
+  const graph = Array.from({ length: quiet.length }, () => [] as number[])
+  for (const [more, less] of richer) {
+    graph[less].push(more)
+  }
+
+  const memo = Array<number>(quiet.length).fill(-1)
+
+  function dfs(person: number): number {
+    if (memo[person] !== -1) {
+      return memo[person]
+    }
+
+    let best = person
+    for (const richerPerson of graph[person]) {
+      const candidate = dfs(richerPerson)
+      if (quiet[candidate] < quiet[best]) {
+        best = candidate
+      }
+    }
+
+    memo[person] = best
+    return best
+  }
+
+  return quiet.map((_, person) => dfs(person))
+}`,
+      },
+      {
+        id: 'loud-and-rich-mistakes',
+        title: '易错点和延伸方向',
+        summary: '这题最常见的问题，是把边方向建反，导致搜索方向完全错误。',
+        bullets: [
+          '易错点 1：边方向反了。',
+          '易错点 2：没有记忆化导致重复搜索。',
+          '易错点 3：只看富有程度没比安静值。',
+          '延伸方向：DAG DP、图搜索、最优传播。',
+        ],
+      },
+    ],
+  },
 ];
