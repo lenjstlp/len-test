@@ -87628,4 +87628,84 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'mirror-reflection',
+    label: '858. LeetCode 858. 镜面反射',
+    difficulty: '中等',
+    description:
+      '这题要求判断激光在方形房间内反射后会先命中哪个接收器。核心是把水平和垂直方向的扩展次数转成最小公倍数关系。',
+    outcome: '你能把反射路径问题转成最小公倍数与奇偶性判断。',
+    sections: [
+      {
+        id: 'mirror-reflection-summary',
+        title: '题目在问什么',
+        summary:
+          '一个正方形房间的角上放着激光发射器，另外三个角上放着接收器。激光从左下角出发，每次碰到墙都会反射。要求返回最先被激光命中的接收器编号。',
+        bullets: [
+          '房间是正方形。',
+          '光线按固定角度传播并反射。',
+          '只需要判断命中哪个接收器。',
+          '核心是周期性延展。',
+        ],
+      },
+      {
+        id: 'mirror-reflection-observe',
+        title: '把反射看成平面延展后的直线运动',
+        summary:
+          '如果把镜面反射展开成平面上的重复房间，激光就变成一条直线。问题就转化成：这条直线第一次碰到哪一类角点。这个角点对应的水平和垂直方向扩展次数必须同时满足整除关系和奇偶性关系。',
+        bullets: [
+          '反射可转成展开图中的直线。',
+          '需要对齐水平和垂直周期。',
+          '奇偶性决定落点方向。',
+          '本质是数论判断。',
+        ],
+      },
+      {
+        id: 'mirror-reflection-solution',
+        title: '标准解法：最小公倍数 + 奇偶分析',
+        summary:
+          '设房间边长为 `p`，激光首次碰到的墙面扩展次数由 `lcm(p, q)` 决定，其中 `q` 是激光每次上升的高度增量。通过把水平和垂直扩展次数分别化到同一个最小同步点，再看它们是奇数还是偶数，就能判断最终命中的是右上、左上还是右下角的接收器。',
+        bullets: [
+          '时间复杂度：`O(log p)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是同步周期与奇偶性。',
+          '属于数论模拟题。',
+        ],
+        code: `function mirrorReflection(p: number, q: number): number {
+  function gcd(a: number, b: number): number {
+    while (b !== 0) {
+      const temp = a % b
+      a = b
+      b = temp
+    }
+    return a
+  }
+
+  const lcm = (p * q) / gcd(p, q)
+  const vertical = lcm / q
+  const horizontal = lcm / p
+
+  if (vertical % 2 === 1 && horizontal % 2 === 1) {
+    return 1
+  }
+  if (vertical % 2 === 1 && horizontal % 2 === 0) {
+    return 0
+  }
+  return 2
+}`,
+      },
+      {
+        id: 'mirror-reflection-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是直接模拟反射路径，反而把简单的数论题做复杂了。',
+        bullets: [
+          '易错点 1：没看周期，直接模拟。',
+          '易错点 2：奇偶性判断写错。',
+          '易错点 3：把接收器编号对应反了。',
+          '延伸方向：数论、周期、几何转化。',
+        ],
+      },
+    ],
+  },
 ];
