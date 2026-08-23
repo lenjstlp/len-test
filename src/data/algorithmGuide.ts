@@ -87312,4 +87312,119 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'exam-room',
+    label: '855. LeetCode 855. 考场就座',
+    difficulty: '中等',
+    description:
+      '这题要求设计一个考场座位系统，每次入座都要选择离最近人最远的位置，离开后还要维护空段。核心是维护有序座位并按空段长度贪心选点。',
+    outcome: '你能把动态座位分配转成空区间维护问题。',
+    sections: [
+      {
+        id: 'exam-room-summary',
+        title: '题目在问什么',
+        summary:
+          '有一个长度为 `n` 的考场，学生依次进入和离开。每次 `seat()` 需要选一个座位，使它到最近学生的距离最大；若有多个位置并列，选编号最小的那个。`leave(p)` 表示坐在 `p` 的学生离开。',
+        bullets: [
+          '入座要最大化最小距离。',
+          '并列时选编号更小的位置。',
+          '离开后座位重新变空。',
+          '这是一个数据结构设计题。',
+        ],
+      },
+      {
+        id: 'exam-room-observe',
+        title: '真正要维护的是空区间',
+        summary:
+          '座位分布变化时，决定下一个入座位置的不是单个学生，而是当前所有学生之间的空区间。最长空区间的中点通常是最佳位置；如果空区间贴着边界，最佳点就是边界端点。因此本题本质上是维护一组有序已占座位，并据此计算最优空段。',
+        bullets: [
+          '关键不是人数，而是空段。',
+          '中间空段选中点。',
+          '边界空段选端点。',
+          '座位集合必须保持有序。',
+        ],
+      },
+      {
+        id: 'exam-room-solution',
+        title: '标准解法：有序集合维护已占座位',
+        summary:
+          '使用一个有序数组或平衡结构维护当前已占座位。`seat()` 时，遍历相邻占座点之间的空区间，计算每个区间能提供的最大距离，找到最优位置后插入集合。`leave(p)` 时直接删除该座位即可。因为题目规模不大，使用有序数组配合二分插入也足够清晰。',
+        bullets: [
+          '时间复杂度：`O(n)` 或 `O(log n + n)`，视实现而定。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是空区间距离计算。',
+          '适合练习数据结构设计思维。',
+        ],
+        code: `class ExamRoom {
+  private seats: number[]
+
+  constructor(private n: number) {
+    this.seats = []
+  }
+
+  seat(): number {
+    if (this.seats.length === 0) {
+      this.seats.push(0)
+      return 0
+    }
+
+    let bestSeat = 0
+    let bestDist = this.seats[0]
+
+    for (let i = 0; i < this.seats.length - 1; i += 1) {
+      const left = this.seats[i]
+      const right = this.seats[i + 1]
+      const dist = Math.floor((right - left) / 2)
+      const seat = left + dist
+      if (dist > bestDist) {
+        bestDist = dist
+        bestSeat = seat
+      }
+    }
+
+    const tailDist = this.n - 1 - this.seats[this.seats.length - 1]
+    if (tailDist > bestDist) {
+      bestSeat = this.n - 1
+    }
+
+    const index = this.findIndex(bestSeat)
+    this.seats.splice(index, 0, bestSeat)
+    return bestSeat
+  }
+
+  leave(p: number): void {
+    const index = this.findIndex(p)
+    this.seats.splice(index, 1)
+  }
+
+  private findIndex(target: number): number {
+    let left = 0
+    let right = this.seats.length
+
+    while (left < right) {
+      const mid = Math.floor((left + right) / 2)
+      if (this.seats[mid] < target) {
+        left = mid + 1
+      } else {
+        right = mid
+      }
+    }
+
+    return left
+  }
+}`,
+      },
+      {
+        id: 'exam-room-mistakes',
+        title: '易错点和延伸方向',
+        summary: '这题最常见的问题，是只看中间空段，忘了两边边界空段可能更优。',
+        bullets: [
+          '易错点 1：边界空段漏算。',
+          '易错点 2：并列时没有选更小下标。',
+          '易错点 3：leave 后集合顺序失效。',
+          '延伸方向：有序集合、区间贪心、设计题。',
+        ],
+      },
+    ],
+  },
 ];
