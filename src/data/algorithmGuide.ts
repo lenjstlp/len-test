@@ -87214,4 +87214,102 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'k-similar-strings',
+    label: '854. LeetCode 854. K 相似字符串',
+    difficulty: '困难',
+    description:
+      '这题要求把一个字符串通过尽量少的交换次数变成另一个异位词。核心是从首个不匹配位置出发，优先交换出一个立刻修正当前位置的字符，再用 BFS 找最少步数。',
+    outcome: '你能把字符串交换问题转成状态搜索，并做有效剪枝。',
+    sections: [
+      {
+        id: 'k-similar-strings-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个长度相同、字符集合相同的字符串 `s1` 和 `s2`，每次可以交换 `s1` 中任意两个位置的字符。要求返回把 `s1` 变成 `s2` 的最少交换次数。',
+        bullets: [
+          '两个字符串一定是异位词。',
+          '允许任意两位交换。',
+          '目标是最少交换步数。',
+          '题眼在状态缩小。',
+        ],
+      },
+      {
+        id: 'k-similar-strings-observe',
+        title: '先修正第一个错误位置',
+        summary:
+          '如果从左往右看，前面一段已经和目标一致，那么接下来只需要关注第一个不同的位置 `i`。为了让搜索更快，我们优先把 `s1[i]` 换成 `s2[i]`，这样至少当前位置能立刻被修正。相比盲目交换，先修正首个错位可以大幅缩小分支。',
+        bullets: [
+          '只处理第一个错位点。',
+          '优先选能修正当前位置的交换。',
+          '搜索树会明显变小。',
+          '这是典型 BFS 剪枝题。',
+        ],
+      },
+      {
+        id: 'k-similar-strings-solution',
+        title: '标准解法：BFS 搜索最少交换层数',
+        summary:
+          '把字符串本身当作状态。每一层只尝试修正第一个不匹配位置：寻找后面与目标字符相同、且交换后更有利的字符进行交换，生成新的状态。因为 BFS 按层扩展，首次到达目标字符串时的层数就是最少交换次数。',
+        bullets: [
+          '时间复杂度：依赖剪枝，通常远小于暴力。',
+          '空间复杂度：`O(n!)` 级状态上界。',
+          '实现重点是首错位剪枝。',
+          '适合 BFS/最短步数题。',
+        ],
+        code: `function kSimilarity(s1: string, s2: string): number {
+  if (s1 === s2) {
+    return 0
+  }
+
+  const queue: string[] = [s1]
+  const visited = new Set<string>([s1])
+  let steps = 0
+
+  while (queue.length > 0) {
+    const size = queue.length
+    for (let index = 0; index < size; index += 1) {
+      const current = queue.shift() as string
+      if (current === s2) {
+        return steps
+      }
+
+      let mismatch = 0
+      while (current[mismatch] === s2[mismatch]) {
+        mismatch += 1
+      }
+
+      for (let next = mismatch + 1; next < current.length; next += 1) {
+        if (current[next] !== s2[mismatch] || current[next] === s2[next]) {
+          continue
+        }
+
+        const chars = current.split('')
+        ;[chars[mismatch], chars[next]] = [chars[next], chars[mismatch]]
+        const state = chars.join('')
+        if (!visited.has(state)) {
+          visited.add(state)
+          queue.push(state)
+        }
+      }
+    }
+    steps += 1
+  }
+
+  return steps
+}`,
+      },
+      {
+        id: 'k-similar-strings-mistakes',
+        title: '易错点和延伸方向',
+        summary: '这题最常见的问题，是没有先锁定第一个错位位置，导致状态爆炸。',
+        bullets: [
+          '易错点 1：交换没有剪枝。',
+          '易错点 2：重复状态未去重。',
+          '易错点 3：首个错位点没优先修正。',
+          '延伸方向：BFS、字符串状态、最短交换。',
+        ],
+      },
+    ],
+  },
 ];
