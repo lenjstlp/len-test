@@ -87138,4 +87138,80 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'car-fleet',
+    label: '853. LeetCode 853. 车队',
+    difficulty: '中等',
+    description:
+      '这题要求统计到达终点时会形成多少车队。核心是按起点离终点的距离排序，再比较每辆车到达终点的时间。',
+    outcome: '你能把追及合并问题转成“到终点时间”的分组统计。',
+    sections: [
+      {
+        id: 'car-fleet-summary',
+        title: '题目在问什么',
+        summary:
+          '给定终点位置、每辆车的起点位置和速度，车辆只向前开，后车追上前车后会并成一个车队，以同样速度前进。要求返回最后会形成多少车队。',
+        bullets: [
+          '车只能向前，不能超车。',
+          '追上后速度会被前车拖住。',
+          '看的是最终形成的车队数。',
+          '核心是到达时间比较。',
+        ],
+      },
+      {
+        id: 'car-fleet-observe',
+        title: '车队的本质是“到达时间不递增”',
+        summary:
+          '如果后面的车到达终点的时间不大于前面那辆车的时间，它就一定会在路上追上前车并并入同一车队；否则它会单独形成一个新车队。所以只要按起点从近到远检查，把每辆车的到达时间和当前车队的最远时间比较即可。',
+        bullets: [
+          '先看离终点最近的车。',
+          '比较到达时间即可判断是否合并。',
+          '车队数量只增不减。',
+          '这是排序 + 贪心题。',
+        ],
+      },
+      {
+        id: 'car-fleet-solution',
+        title: '标准解法：按位置排序后统计车队时间',
+        summary:
+          '先把每辆车和对应速度配对，并按起点位置从大到小排序。依次计算每辆车到达终点的时间。如果当前时间大于前面所有车队的最慢到达时间，就形成一个新的车队；否则它会并入当前车队，不增加数量。',
+        bullets: [
+          '时间复杂度：`O(n log n)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是排序方向和时间比较。',
+          '属于经典贪心题。',
+        ],
+        code: `function carFleet(target: number, position: number[], speed: number[]): number {
+  const cars = position
+    .map((pos, index) => [pos, speed[index]] as const)
+    .sort((a, b) => b[0] - a[0])
+
+  let fleets = 0
+  let slowestTime = 0
+
+  for (const [pos, currentSpeed] of cars) {
+    const time = (target - pos) / currentSpeed
+    if (time > slowestTime) {
+      fleets += 1
+      slowestTime = time
+    }
+  }
+
+  return fleets
+}`,
+      },
+      {
+        id: 'car-fleet-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把速度快慢直接当成车队合并依据，而不是看到达终点的时间。',
+        bullets: [
+          '易错点 1：排序方向反了。',
+          '易错点 2：比较的是速度而不是时间。',
+          '易错点 3：没有处理同一车队继承最慢时间。',
+          '延伸方向：排序贪心、追及问题、时间比较。',
+        ],
+      },
+    ],
+  },
 ];
