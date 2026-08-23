@@ -87881,4 +87881,82 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'score-after-flipping-matrix',
+    label: '861. LeetCode 861. 翻转矩阵后的得分',
+    difficulty: '中等',
+    description:
+      '这题要求通过翻转任意行或列，让二进制矩阵按二进制数解释后的总和最大。核心是先保证每行首位为 1，再让每一列中 1 的数量尽可能多。',
+    outcome: '你能理解矩阵翻转中的贪心顺序，并把二进制权重转成列计数。',
+    sections: [
+      {
+        id: 'score-after-flipping-matrix-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个由 0 和 1 组成的矩阵，每行表示一个二进制数。可以任意翻转整行或整列，要求让所有行对应二进制数的总和最大。',
+        bullets: [
+          '翻转操作作用于整行或整列。',
+          '每行按二进制数解释。',
+          '高位权重远大于低位。',
+          '目标是最大化总和。',
+        ],
+      },
+      {
+        id: 'score-after-flipping-matrix-observe',
+        title: '高位列必须优先保证全是 1',
+        summary:
+          '最左列是最高位，权重最大。对于任意一行，如果第一位是 0，翻转整行可以让第一位变成 1，而且不会损失更高位，因为它已经是最高位。因此第一步应先把每行首位统一成 1。之后再看每一列，若 0 比 1 多，就翻转该列，让这一列的 1 更多。',
+        bullets: [
+          '先处理行，再处理列。',
+          '最高位的收益最大。',
+          '每列只需保留较多的一方。',
+          '这是二进制权重贪心题。',
+        ],
+      },
+      {
+        id: 'score-after-flipping-matrix-solution',
+        title: '标准解法：行贪心后按列统计',
+        summary:
+          '不必真的修改矩阵。对于每个位置 `(row, col)`，如果该行第一位原本为 0，那么这一行相当于被翻转，当前位置的有效值就是原值异或 1；否则有效值就是原值。统计每列有效的 1 数量，取 `max(ones, rows - ones)` 作为该列贡献，再乘上对应二进制权重。',
+        bullets: [
+          '时间复杂度：`O(rows * cols)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是行翻转状态的隐式计算。',
+          '属于矩阵贪心与位权重题。',
+        ],
+        code: `function matrixScore(grid: number[][]): number {
+  const rows = grid.length
+  const cols = grid[0].length
+  let answer = 0
+
+  for (let col = 0; col < cols; col += 1) {
+    let ones = 0
+
+    for (let row = 0; row < rows; row += 1) {
+      const rowFlipped = grid[row][0] === 0
+      const value = rowFlipped ? grid[row][col] ^ 1 : grid[row][col]
+      ones += value
+    }
+
+    const bestOnes = Math.max(ones, rows - ones)
+    answer += bestOnes * (1 << (cols - col - 1))
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'score-after-flipping-matrix-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是先按列翻转，忽略最高位的权重，导致整体策略不再最优。',
+        bullets: [
+          '易错点 1：行列翻转顺序反了。',
+          '易错点 2：列权重计算错误。',
+          '易错点 3：行翻转后没同步调整列计数。',
+          '延伸方向：贪心、矩阵、二进制权重。',
+        ],
+      },
+    ],
+  },
 ];
