@@ -87065,4 +87065,77 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'peak-index-in-a-mountain-array',
+    label: '852. LeetCode 852. 山脉数组的峰顶索引',
+    difficulty: '简单',
+    description:
+      '这题要求在严格先升后降的数组中找到峰顶位置。核心是利用峰顶左侧递增、右侧递减的性质做二分查找。',
+    outcome: '你能把山脉数组的峰值位置用对数时间找出来。',
+    sections: [
+      {
+        id: 'peak-index-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个山脉数组 `arr`，要求返回峰顶索引。山脉数组先严格递增，再严格递减，且峰顶唯一。',
+        bullets: [
+          '数组一定存在峰顶。',
+          '峰顶左右单调性相反。',
+          '返回峰顶下标。',
+          '适合用二分。',
+        ],
+      },
+      {
+        id: 'peak-index-observe',
+        title: '比较 mid 和 mid+1 就够了',
+        summary:
+          '如果 `arr[mid] < arr[mid + 1]`，说明 mid 还在上坡，峰顶一定在右边；如果 `arr[mid] > arr[mid + 1]`，说明 mid 已经在下坡，峰顶在左边或就是 mid。这样每次都能把搜索区间缩小一半。',
+        bullets: [
+          '只看相邻两点即可判断方向。',
+          '山顶左边是上坡，右边是下坡。',
+          '二分区间不断缩小。',
+          '不会漏掉峰顶。',
+        ],
+      },
+      {
+        id: 'peak-index-solution',
+        title: '标准解法：二分查找峰顶',
+        summary:
+          '维护左右边界 `left` 和 `right`，每次取中点 `mid`。如果 `arr[mid] < arr[mid + 1]`，把 `left` 移到 `mid + 1`；否则把 `right` 移到 `mid`。循环结束时，`left === right`，它就是峰顶索引。',
+        bullets: [
+          '时间复杂度：`O(log n)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是比较 mid 和 mid+1。',
+          '属于经典二分题。',
+        ],
+        code: `function peakIndexInMountainArray(arr: number[]): number {
+  let left = 0
+  let right = arr.length - 1
+
+  while (left < right) {
+    const mid = Math.floor((left + right) / 2)
+    if (arr[mid] < arr[mid + 1]) {
+      left = mid + 1
+    } else {
+      right = mid
+    }
+  }
+
+  return left
+}`,
+      },
+      {
+        id: 'peak-index-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把峰顶当成普通最大值去线性扫描，或者二分时边界更新写错。',
+        bullets: [
+          '易错点 1：mid+1 越界。',
+          '易错点 2：左右边界更新错误。',
+          '易错点 3：把数组当成非山脉处理。',
+          '延伸方向：二分、峰值查找、单峰数组。',
+        ],
+      },
+    ],
+  },
 ];
