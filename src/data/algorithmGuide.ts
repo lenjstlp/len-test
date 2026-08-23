@@ -87502,4 +87502,130 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'minimum-cost-to-hire-k-workers',
+    label: '857. LeetCode 857. 雇佣 K 名工人的最低成本',
+    difficulty: '困难',
+    description:
+      '这题要求按工资与质量比例雇佣恰好 `k` 个工人，使总成本最低。核心是按比例排序，再用大根堆保留质量最小的一组工人。',
+    outcome: '你能把“统一支付比例”的约束转成贪心 + 堆维护。',
+    sections: [
+      {
+        id: 'minimum-cost-to-hire-k-workers-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `quality` 和 `wage`，要雇佣恰好 `k` 个工人。每个工人的工资必须至少是其期望工资，且所有工人的工资/质量比必须相同。要求返回最低总成本。',
+        bullets: [
+          '必须同时满足最低工资与比例一致。',
+          '只需要选出 `k` 个工人。',
+          '目标是总成本最小。',
+          '本质是比例约束下的组合优化。',
+        ],
+      },
+      {
+        id: 'minimum-cost-to-hire-k-workers-observe',
+        title: '比例一旦确定，成本就只看质量总和',
+        summary:
+          '如果把某个工人的 `wage / quality` 当作当前统一比例，那么所有被选工人的工资都必须按这个比例支付。此时总成本就是“当前比例 × 选中工人的质量和”。所以问题转化为：枚举可能比例时，如何让质量和最小。',
+        bullets: [
+          '比例由某个工人的期望工资决定。',
+          '固定比例后只看质量和。',
+          '质量总和越小越省钱。',
+          '需要动态维护 `k` 个最小质量。',
+        ],
+      },
+      {
+        id: 'minimum-cost-to-hire-k-workers-solution',
+        title: '标准解法：按比例排序 + 大根堆保留最小质量',
+        summary:
+          '先计算每个工人的比例 `wage / quality`，按比例从小到大排序。遍历工人时，把当前工人的质量加入大根堆，并累计质量和；如果堆大小超过 `k`，就弹出质量最大的工人。每当堆大小正好为 `k`，就用当前比例乘以质量和更新答案。',
+        bullets: [
+          '时间复杂度：`O(n log n)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是比例排序和质量堆。',
+          '属于经典贪心 + 堆题。',
+        ],
+        code: `function mincostToHireWorkers(
+  quality: number[],
+  wage: number[],
+  k: number,
+): number {
+  const workers = quality
+    .map((q, index) => ({
+      quality: q,
+      ratio: wage[index] / q,
+    }))
+    .sort((a, b) => a.ratio - b.ratio)
+
+  const heap: number[] = []
+  let qualitySum = 0
+  let answer = Number.POSITIVE_INFINITY
+
+  function push(value: number): void {
+    heap.push(value)
+    let index = heap.length - 1
+    while (index > 0) {
+      const parent = Math.floor((index - 1) / 2)
+      if (heap[parent] >= heap[index]) {
+        break
+      }
+      ;[heap[parent], heap[index]] = [heap[index], heap[parent]]
+      index = parent
+    }
+  }
+
+  function pop(): number {
+    const top = heap[0]
+    const last = heap.pop() as number
+    if (heap.length > 0) {
+      heap[0] = last
+      let index = 0
+      while (true) {
+        let largest = index
+        const left = index * 2 + 1
+        const right = index * 2 + 2
+        if (left < heap.length && heap[left] > heap[largest]) {
+          largest = left
+        }
+        if (right < heap.length && heap[right] > heap[largest]) {
+          largest = right
+        }
+        if (largest === index) break
+        ;[heap[index], heap[largest]] = [heap[largest], heap[index]]
+        index = largest
+      }
+    }
+    return top
+  }
+
+  for (const worker of workers) {
+    push(worker.quality)
+    qualitySum += worker.quality
+
+    if (heap.length > k) {
+      qualitySum -= pop()
+    }
+
+    if (heap.length === k) {
+      answer = Math.min(answer, qualitySum * worker.ratio)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'minimum-cost-to-hire-k-workers-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只按工资排序，忽略了质量和比例必须同时考虑。',
+        bullets: [
+          '易错点 1：比例排序写错。',
+          '易错点 2：堆里维护的是质量，不是工资。',
+          '易错点 3：没在堆大小为 `k` 时更新答案。',
+          '延伸方向：堆、贪心、比率优化。',
+        ],
+      },
+    ],
+  },
 ];
