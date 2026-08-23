@@ -87796,4 +87796,89 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'lemonade-change',
+    label: '860. LeetCode 860. 柠檬水找零',
+    difficulty: '简单',
+    description:
+      '这题要求按照顾客付款顺序正确找零。核心是优先使用面额更大的零钱，保留小面额零钱应对后续情况。',
+    outcome: '你能理解局部最优找零策略为什么能保证后续可行。',
+    sections: [
+      {
+        id: 'lemonade-change-summary',
+        title: '题目在问什么',
+        summary:
+          '每杯柠檬水售价 5 美元，顾客依次付款 5、10 或 20 美元。你开始没有零钱，要求判断是否能为每位顾客正确找零。',
+        bullets: [
+          '售价固定为 5。',
+          '顾客按顺序付款。',
+          '找零必须使用已有纸币。',
+          '目标是判断能否服务完所有顾客。',
+        ],
+      },
+      {
+        id: 'lemonade-change-observe',
+        title: '大额找零优先消耗大钞',
+        summary:
+          '收到 10 美元时只能找一张 5 美元；收到 20 美元时，优先用一张 10 美元和一张 5 美元找零，因为这样能保留更多 5 美元给未来的 10 美元顾客。如果没有 10 美元，再使用三张 5 美元。',
+        bullets: [
+          '5 美元是最通用的零钱。',
+          '20 找零优先使用 10+5。',
+          '无法找零时立刻失败。',
+          '这是局部贪心题。',
+        ],
+      },
+      {
+        id: 'lemonade-change-solution',
+        title: '标准解法：维护 5 美元和 10 美元数量',
+        summary:
+          '遍历每位顾客的付款金额。付款 5 时增加一张 5；付款 10 时必须消耗一张 5 并增加一张 10；付款 20 时先尝试消耗一张 10 和一张 5，否则消耗三张 5，两个方案都不可行就返回 `false`。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '实现重点是 20 美元找零顺序。',
+          '属于经典贪心模拟题。',
+        ],
+        code: `function lemonadeChange(bills: number[]): boolean {
+  let five = 0
+  let ten = 0
+
+  for (const bill of bills) {
+    if (bill === 5) {
+      five += 1
+    } else if (bill === 10) {
+      if (five === 0) {
+        return false
+      }
+      five -= 1
+      ten += 1
+    } else {
+      if (ten > 0 && five > 0) {
+        ten -= 1
+        five -= 1
+      } else if (five >= 3) {
+        five -= 3
+      } else {
+        return false
+      }
+    }
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'lemonade-change-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是收到 20 美元时先消耗三张 5 美元，导致后续 10 美元顾客无法找零。',
+        bullets: [
+          '易错点 1：找零顺序不合理。',
+          '易错点 2：没有检查零钱是否足够。',
+          '易错点 3：把 10 美元当成可拆分零钱。',
+          '延伸方向：贪心、模拟、资源保留。',
+        ],
+      },
+    ],
+  },
 ];
