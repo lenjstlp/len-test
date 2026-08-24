@@ -88375,4 +88375,96 @@ function subtreeWithAllDeepest(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'prime-palindrome',
+    label: '866. LeetCode 866. 回文质数',
+    difficulty: '中等',
+    description:
+      '这题要求找到不小于给定整数 N 的最小回文质数。直接从 N 开始逐个判断会产生大量无效候选，关键是先利用回文数和 11 的整除性质缩小搜索范围。',
+    outcome:
+      '你能把数学性质转化成搜索剪枝，只构造可能成为答案的奇数位回文数，再进行质数判断。',
+    sections: [
+      {
+        id: 'prime-palindrome-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个正整数 `n`，返回大于等于 `n` 的最小回文质数。回文数从左到右和从右到左完全相同，质数只能被 1 和自身整除。',
+        bullets: [
+          '答案必须同时满足“回文”和“质数”。',
+          '答案不能小于 `n`。',
+          '例如 `13` 之后的候选是 `101`，因为 `11` 小于 `13`。',
+          '不要把回文判断和质数判断混成一个复杂循环，分别封装更容易验证。',
+        ],
+      },
+      {
+        id: 'prime-palindrome-observe',
+        title: '先剪枝：大于 11 的偶数位回文数不可能是质数',
+        summary:
+          '任何偶数位回文数都能被 11 整除。例如 `1221` 可以按位交错求和验证这一点。因此除了特殊值 `11`，答案不会是偶数位回文数。我们可以直接构造奇数位回文数，跳过绝大多数无效数字。',
+        bullets: [
+          '小于等于 11 时直接返回对应范围内的答案。',
+          '大于 11 后只生成奇数位回文数。',
+          '用回文数左半部分镜像生成完整候选，不需要逐个整数判断。',
+          '质数判断只需要试除到平方根。',
+        ],
+      },
+      {
+        id: 'prime-palindrome-solution',
+        title: '标准解法：生成回文候选后判断质数',
+        summary:
+          '从左半部分 `prefix` 递增生成奇数位回文数。例如 `prefix = 123` 时生成 `12321`。候选天然按数值递增，找到第一个不小于 `n` 且为质数的值即可返回。',
+        bullets: [
+          '生成每个候选的时间复杂度与数字位数相关。',
+          '质数判断的复杂度是 `O(sqrt(x))`。',
+          '搜索空间从所有整数缩小为奇数位回文数。',
+          '循环上限覆盖题目约束范围，找不到时返回 `-1` 作为兜底。',
+        ],
+        code: `function primePalindrome(n: number): number {
+  function isPrime(value: number): boolean {
+    if (value < 2) return false
+    if (value % 2 === 0) return value === 2
+
+    for (let divisor = 3; divisor * divisor <= value; divisor += 2) {
+      if (value % divisor === 0) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+  if (n <= 2) return 2
+  if (n <= 3) return 3
+  if (n <= 5) return 5
+  if (n <= 7) return 7
+  if (n <= 11) return 11
+
+  for (let prefix = 10; prefix < 1_000_000; prefix += 1) {
+    const text = String(prefix)
+    const palindromeText =
+      text + text.slice(0, -1).split('').reverse().join('')
+    const candidate = Number(palindromeText)
+
+    if (candidate >= n && isPrime(candidate)) {
+      return candidate
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'prime-palindrome-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的难点不在质数判断本身，而在于能否识别并利用偶数位回文数必然被 11 整除的剪枝条件。',
+        bullets: [
+          '易错点 1：从 `n` 开始逐个整数判断，搜索量过大。',
+          '易错点 2：漏掉 `11` 这个特殊的偶数位回文质数。',
+          '易错点 3：把镜像范围写错，生成了偶数位回文数。',
+          '延伸方向：数论剪枝、候选生成、质数筛选。',
+        ],
+      },
+    ],
+  },
 ];
