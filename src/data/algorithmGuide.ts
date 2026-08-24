@@ -87959,4 +87959,93 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'shortest-subarray-with-sum-at-least-k',
+    label: '862. LeetCode 862. 和至少为 K 的最短子数组',
+    difficulty: '困难',
+    description:
+      '这题要求找出和至少为 K 的最短连续子数组。核心是前缀和、单调队列，以及在队列头部及时移除已经满足条件的候选起点。',
+    outcome: '你能把带负数的最短子数组问题转成前缀和上的单调队列。',
+    sections: [
+      {
+        id: 'shortest-subarray-with-sum-at-least-k-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums` 和整数 `k`，要求返回和至少为 `k` 的最短非空连续子数组长度。如果不存在，返回 `-1`。',
+        bullets: [
+          '数组中可能包含负数。',
+          '子数组必须连续。',
+          '目标是最短长度。',
+          '不存在时返回 `-1`。',
+        ],
+      },
+      {
+        id: 'shortest-subarray-with-sum-at-least-k-observe',
+        title: '前缀和之间的差就是子数组和',
+        summary:
+          '设 `prefix[i]` 表示前 `i` 个数的和，那么区间 `[left, right)` 的和就是 `prefix[right] - prefix[left]`。对于当前 `right`，如果队首前缀已经满足差值至少为 `k`，就可以尝试更新答案并弹出它；如果后面的前缀和不小于当前前缀和，它永远不会成为更优起点，也应该被淘汰。',
+        bullets: [
+          '区间和转成两个前缀和之差。',
+          '队首负责检查是否满足 K。',
+          '队尾维护前缀和递增。',
+          '负数使普通滑动窗口失效。',
+        ],
+      },
+      {
+        id: 'shortest-subarray-with-sum-at-least-k-solution',
+        title: '标准解法：前缀和 + 单调递增队列',
+        summary:
+          '遍历每个前缀下标 `right`。先从队首移除所有满足 `prefix[right] - prefix[left] >= k` 的候选，并更新最短长度。再从队尾移除所有前缀和大于等于当前值的下标，最后把 `right` 入队。每个下标最多进出队列一次。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是先处理队首，再处理队尾。',
+          '属于单调队列经典题。',
+        ],
+        code: `function shortestSubarray(nums: number[], k: number): number {
+  const prefix = Array(nums.length + 1).fill(0)
+  for (let index = 0; index < nums.length; index += 1) {
+    prefix[index + 1] = prefix[index] + nums[index]
+  }
+
+  const deque: number[] = []
+  let head = 0
+  let answer = nums.length + 1
+
+  for (let right = 0; right < prefix.length; right += 1) {
+    while (
+      head < deque.length &&
+      prefix[right] - prefix[deque[head]] >= k
+    ) {
+      answer = Math.min(answer, right - deque[head])
+      head += 1
+    }
+
+    while (
+      deque.length > head &&
+      prefix[deque[deque.length - 1]] >= prefix[right]
+    ) {
+      deque.pop()
+    }
+
+    deque.push(right)
+  }
+
+  return answer === nums.length + 1 ? -1 : answer
+}`,
+      },
+      {
+        id: 'shortest-subarray-with-sum-at-least-k-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是把它当成正数数组使用普通滑动窗口，遇到负数后就会失效。',
+        bullets: [
+          '易错点 1：忽略数组中的负数。',
+          '易错点 2：单调队列两端处理顺序写错。',
+          '易错点 3：前缀下标差值算错。',
+          '延伸方向：前缀和、单调队列、区间优化。',
+        ],
+      },
+    ],
+  },
 ];
