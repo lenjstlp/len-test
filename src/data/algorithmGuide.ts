@@ -88149,4 +88149,141 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'shortest-path-to-get-all-keys',
+    label: '864. LeetCode 864. 获取所有钥匙的最短路径',
+    difficulty: '困难',
+    description:
+      '这题要求在网格中拿到所有钥匙，并返回最短步数。核心是把当前位置和已拥有钥匙集合组成状态，用 BFS 进行状态去重。',
+    outcome: '你能把网格最短路扩展成带权限状态的 BFS。',
+    sections: [
+      {
+        id: 'shortest-path-to-get-all-keys-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个包含起点、墙、空地、钥匙和锁的网格。钥匙用小写字母表示，锁用对应大写字母表示。要求从起点出发拿到所有钥匙的最短步数。',
+        bullets: [
+          '墙不能通过。',
+          '拿到钥匙后才能通过对应的锁。',
+          '可以重复走过已经访问过的空地。',
+          '目标是拿到全部钥匙。',
+        ],
+      },
+      {
+        id: 'shortest-path-to-get-all-keys-observe',
+        title: '只记录坐标不够，还要记录钥匙集合',
+        summary:
+          '同一个坐标在拥有不同钥匙时，后续可走的路线完全不同。因此 BFS 状态必须包含行、列和钥匙掩码。钥匙最多 6 把，可以用一个整数的二进制位表示当前已经拿到哪些钥匙。',
+        bullets: [
+          '状态由位置和钥匙掩码组成。',
+          '钥匙用位运算表示。',
+          'BFS 首次到达目标就是最短路。',
+          '访问数组要按状态去重。',
+        ],
+      },
+      {
+        id: 'shortest-path-to-get-all-keys-solution',
+        title: '标准解法：状态压缩 BFS',
+        summary:
+          '先扫描网格找到起点和钥匙总数。将起点状态入队，每次向四个方向扩展：遇到墙跳过，遇到锁时检查对应钥匙位，遇到钥匙时更新掩码。如果新状态没有访问过，就加入下一层。掩码达到全部钥匙时返回步数。',
+        bullets: [
+          '时间复杂度：`O(rows * cols * 2^keys)`。',
+          '空间复杂度：`O(rows * cols * 2^keys)`。',
+          '实现重点是锁的权限判断。',
+          '属于状态压缩最短路题。',
+        ],
+        code: `function shortestPathAllKeys(grid: string[]): number {
+  const rows = grid.length
+  const cols = grid[0].length
+  let startRow = 0
+  let startCol = 0
+  let keyCount = 0
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      const cell = grid[row][col]
+      if (cell === '@') {
+        startRow = row
+        startCol = col
+      } else if (cell >= 'a' && cell <= 'f') {
+        keyCount = Math.max(keyCount, cell.charCodeAt(0) - 96)
+      }
+    }
+  }
+
+  const target = (1 << keyCount) - 1
+  const visited = Array.from({ length: rows }, () =>
+    Array.from({ length: cols }, () => Array(1 << keyCount).fill(false)),
+  )
+  const queue: Array<[number, number, number]> = [[startRow, startCol, 0]]
+  visited[startRow][startCol][0] = true
+  let head = 0
+  let steps = 0
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+
+  while (head < queue.length) {
+    const size = queue.length - head
+    for (let index = 0; index < size; index += 1) {
+      const [row, col, keys] = queue[head]
+      head += 1
+
+      if (keys === target) {
+        return steps
+      }
+
+      for (const [dr, dc] of directions) {
+        const nextRow = row + dr
+        const nextCol = col + dc
+        if (
+          nextRow < 0 ||
+          nextRow >= rows ||
+          nextCol < 0 ||
+          nextCol >= cols
+        ) {
+          continue
+        }
+
+        const cell = grid[nextRow][nextCol]
+        if (cell === '#') continue
+
+        let nextKeys = keys
+        if (cell >= 'A' && cell <= 'F') {
+          const required = 1 << (cell.charCodeAt(0) - 65)
+          if ((keys & required) === 0) continue
+        }
+        if (cell >= 'a' && cell <= 'f') {
+          nextKeys |= 1 << (cell.charCodeAt(0) - 97)
+        }
+
+        if (!visited[nextRow][nextCol][nextKeys]) {
+          visited[nextRow][nextCol][nextKeys] = true
+          queue.push([nextRow, nextCol, nextKeys])
+        }
+      }
+    }
+    steps += 1
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'shortest-path-to-get-all-keys-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只用二维 `visited` 记录坐标，导致拿到钥匙后的新状态被错误剪掉。',
+        bullets: [
+          '易错点 1：访问状态遗漏钥匙掩码。',
+          '易错点 2：锁的位编号和钥匙不一致。',
+          '易错点 3：BFS 层数更新错误。',
+          '延伸方向：网格 BFS、位掩码、状态搜索。',
+        ],
+      },
+    ],
+  },
 ];
