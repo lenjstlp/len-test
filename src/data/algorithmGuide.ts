@@ -88048,4 +88048,105 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'all-nodes-distance-k-in-binary-tree',
+    label: '863. LeetCode 863. 二叉树中所有距离为 K 的结点',
+    difficulty: '中等',
+    description:
+      '这题要求找出二叉树中距离目标结点恰好为 K 的所有结点。核心是把树转成无向图，再从目标结点做 BFS。',
+    outcome: '你能处理树上的双向移动，并用层序搜索精确控制距离。',
+    sections: [
+      {
+        id: 'all-nodes-distance-k-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树、一个目标结点 `target` 和距离 `k`，返回所有与目标结点距离恰好为 `k` 的结点值。',
+        bullets: [
+          '树边默认只能向子节点走。',
+          '距离目标结点时可以向父节点回退。',
+          '目标是恰好距离 K。',
+          '返回结点值列表即可。',
+        ],
+      },
+      {
+        id: 'all-nodes-distance-k-observe',
+        title: '先补父指针，再按无向图搜索',
+        summary:
+          '在原树结构中，每个结点只有左右孩子指针，没有父指针。先遍历整棵树建立 `parent` 映射，就可以把每个结点的邻居统一看成父节点、左孩子和右孩子。然后从目标结点开始 BFS，按层扩展到第 K 层。',
+        bullets: [
+          '父指针让树边变成双向。',
+          'BFS 的层数就是距离。',
+          '访问集合避免来回走同一条边。',
+          '第 K 层就是答案。',
+        ],
+      },
+      {
+        id: 'all-nodes-distance-k-solution',
+        title: '标准解法：建立父映射后 BFS',
+        summary:
+          '第一次 DFS 记录每个结点的父节点。第二次从 `target` 入队，维护当前距离。每次取出一层，如果达到 `k`，收集这一层所有结点值；否则把尚未访问的父节点和左右孩子加入队列。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`。',
+          '实现重点是父节点映射与访问去重。',
+          '属于树转图 + BFS 题。',
+        ],
+        code: `function distanceK(
+  root: TreeNode | null,
+  target: TreeNode,
+  k: number,
+): number[] {
+  const parent = new Map<TreeNode, TreeNode | null>()
+
+  function build(node: TreeNode | null, father: TreeNode | null): void {
+    if (!node) return
+    parent.set(node, father)
+    build(node.left, node)
+    build(node.right, node)
+  }
+
+  build(root, null)
+
+  const queue: TreeNode[] = [target]
+  const visited = new Set<TreeNode>([target])
+  let distance = 0
+
+  while (queue.length > 0) {
+    const size = queue.length
+    if (distance === k) {
+      return queue.map((node) => node.val)
+    }
+
+    for (let index = 0; index < size; index += 1) {
+      const node = queue.shift() as TreeNode
+      const neighbors = [node.left, node.right, parent.get(node) ?? null]
+
+      for (const next of neighbors) {
+        if (next && !visited.has(next)) {
+          visited.add(next)
+          queue.push(next)
+        }
+      }
+    }
+
+    distance += 1
+  }
+
+  return []
+}`,
+      },
+      {
+        id: 'all-nodes-distance-k-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最常见的问题，是只向下搜索，漏掉目标结点所在路径上的父节点方向。',
+        bullets: [
+          '易错点 1：没有建立父节点映射。',
+          '易错点 2：没有防止从父节点回到原节点。',
+          '易错点 3：距离层数更新位置错误。',
+          '延伸方向：树转图、BFS、层序距离。',
+        ],
+      },
+    ],
+  },
 ];
