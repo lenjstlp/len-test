@@ -88621,4 +88621,78 @@ function subtreeWithAllDeepest(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'reordered-power-of-2',
+    label: '869. LeetCode 869. 重新排序得到 2 的幂',
+    difficulty: '中等',
+    description:
+      '这题要求判断一个整数的数字能否重新排列，组成某个 2 的幂。真正需要比较的不是排列顺序，而是每个数字出现的次数，因此可以把数字转换成固定的频次签名。',
+    outcome:
+      '你能识别“重排后是否相同”这类题的计数特征，用数字频次代替全排列搜索，并理解为什么前导零不会造成误判。',
+    sections: [
+      {
+        id: 'reordered-power-of-2-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个正整数 `n`，判断能否重新排列 `n` 的十进制数字，使结果等于某个 2 的幂。重排后不能出现前导零。',
+        bullets: [
+          '只改变数字顺序，不增加或删除数字。',
+          '目标数字必须是 `2^k`。',
+          '不同排列只要有一个满足条件，就返回 `true`。',
+          '不能把数字直接排序后当作真实数值比较，应该比较每个数字的出现次数。',
+        ],
+      },
+      {
+        id: 'reordered-power-of-2-observe',
+        title: '把排列问题转成频次签名问题',
+        summary:
+          '如果两个数字包含完全相同的数字集合和数量，那么它们一定可以通过重排互相得到。将数字转成排序后的字符串，例如 `128` 和 `281` 都会得到 `128`，这样就能在常数级候选范围内比较。',
+        bullets: [
+          '排序后的数字字符串就是一种简单的签名。',
+          '先计算 `n` 的签名，再枚举范围内所有 2 的幂。',
+          '2 的幂与 `n` 位数不同，必然不可能通过重排得到。',
+          '候选数量只有几十个，远小于所有排列数量。',
+        ],
+      },
+      {
+        id: 'reordered-power-of-2-solution',
+        title: '标准解法：比较数字签名',
+        summary:
+          '将 `n` 的各位数字排序，得到目标签名。再从 `1` 开始不断乘以 `2`，对每个 2 的幂生成同样的签名；一旦签名相同，就说明存在合法重排。',
+        bullets: [
+          '时间复杂度：`O(log n * log log n)`，候选数量和每次排序规模都很小。',
+          '空间复杂度：`O(log n)`，用于保存数字字符串。',
+          '不需要生成排列，因此不会出现阶乘级爆炸。',
+          '同样的思路可以用于字母异位词、重排等价判断。',
+        ],
+        code: `function reorderedPowerOf2(n: number): boolean {
+  function signature(value: number): string {
+    return String(value).split('').sort().join('')
+  }
+
+  const target = signature(n)
+
+  for (let power = 1; power <= 1_000_000_000; power *= 2) {
+    if (signature(power) === target) {
+      return true
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'reordered-power-of-2-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易写成暴力枚举所有排列，但数字位数增加后排列数量会迅速增长。先找出“顺序不重要”的特征，才能把问题降维。',
+        bullets: [
+          '易错点 1：枚举所有排列，复杂度达到阶乘级。',
+          '易错点 2：忽略数字数量必须完全一致。',
+          '易错点 3：枚举 2 的幂时没有覆盖输入的位数范围。',
+          '延伸方向：计数签名、哈希特征、组合搜索剪枝。',
+        ],
+      },
+    ],
+  },
 ];
