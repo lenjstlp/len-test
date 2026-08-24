@@ -88467,4 +88467,80 @@ function subtreeWithAllDeepest(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'transpose-matrix',
+    label: '867. LeetCode 867. 转置矩阵',
+    difficulty: '简单',
+    description:
+      '这题要求把矩阵的行和列交换，得到它的转置矩阵。核心是先确认输出矩阵的尺寸，再用坐标关系把原矩阵的 `matrix[row][col]` 放到结果的 `result[col][row]`。',
+    outcome:
+      '你能准确处理二维数组的行列映射，理解矩阵转置的坐标变换，并写出适用于非方阵的通用实现。',
+    sections: [
+      {
+        id: 'transpose-matrix-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 `rows × cols` 的矩阵，返回它的转置矩阵。转置后原来的第 `row` 行会变成结果的第 `row` 列。',
+        bullets: [
+          '原矩阵有 `rows` 行、`cols` 列。',
+          '结果矩阵有 `cols` 行、`rows` 列。',
+          '原坐标 `(row, col)` 会变成结果坐标 `(col, row)`。',
+          '矩阵不一定是方阵，不能默认行数等于列数。',
+        ],
+      },
+      {
+        id: 'transpose-matrix-observe',
+        title: '先确定结果尺寸，再做坐标映射',
+        summary:
+          '很多二维数组题出错，不是因为循环不会写，而是没有先确定输出的形状。转置的本质是交换坐标，因此结果的外层长度应该是原矩阵的列数，内层长度应该是原矩阵的行数。',
+        bullets: [
+          '结果的第 `col` 行来自原矩阵的第 `col` 列。',
+          '遍历原矩阵时，把每个值写入 `result[col][row]`。',
+          '使用新矩阵可以避免修改输入，函数副作用更小。',
+          '方阵只是特殊情况，非方阵更能验证实现是否正确。',
+        ],
+      },
+      {
+        id: 'transpose-matrix-solution',
+        title: '标准解法：交换行列下标',
+        summary:
+          '先创建 `cols × rows` 的结果矩阵，再遍历原矩阵的每一个元素。每个元素只写入一次，因此时间复杂度与矩阵元素总数相同。',
+        bullets: [
+          '时间复杂度：`O(rows * cols)`。',
+          '空间复杂度：`O(rows * cols)`，用于保存结果。',
+          '核心公式：`result[col][row] = matrix[row][col]`。',
+          '空矩阵直接返回空数组，避免读取 `matrix[0]` 报错。',
+        ],
+        code: `function transpose(matrix: number[][]): number[][] {
+  if (matrix.length === 0) {
+    return []
+  }
+
+  const rows = matrix.length
+  const cols = matrix[0].length
+  const result = Array.from({ length: cols }, () => Array(rows).fill(0))
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      result[col][row] = matrix[row][col]
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'transpose-matrix-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '转置矩阵看似简单，但行列维度一旦写反，方阵测试可能仍然“看起来正确”，直到遇到长方形矩阵才暴露问题。',
+        bullets: [
+          '易错点 1：结果行数和列数没有交换。',
+          '易错点 2：写成 `result[row][col]`，实际上没有完成转置。',
+          '易错点 3：空矩阵时直接访问 `matrix[0].length`。',
+          '延伸方向：二维坐标变换、旋转矩阵、原地矩阵操作。',
+        ],
+      },
+    ],
+  },
 ];
