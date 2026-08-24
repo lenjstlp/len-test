@@ -88286,4 +88286,93 @@ function insert(head: Node | null, insertVal: number): Node {
       },
     ],
   },
+  {
+    id: 'smallest-subtree-with-all-the-deepest-nodes',
+    label: '865. LeetCode 865. 具有所有最深结点的最小子树',
+    difficulty: '中等',
+    description:
+      '这题要求找到一棵二叉树中包含所有最深结点的最小子树。关键不是单独找最深结点，而是让递归在回溯时比较左右子树深度，判断当前节点是否是它们的最近公共祖先。',
+    outcome:
+      '你能用一次后序遍历同时计算深度和答案节点，理解“信息向上汇总、答案在回溯阶段确定”的树形递归模式。',
+    sections: [
+      {
+        id: 'smallest-subtree-with-all-the-deepest-nodes-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，返回包含所有最深结点的最小子树的根节点。最小子树的意思是：它的子树范围刚好覆盖所有最深结点，不再向上多包含无关节点。',
+        bullets: [
+          '最深结点可能只有一个，也可能分布在左右两侧。',
+          '返回的是子树根节点，不是所有最深结点列表。',
+          '如果左右子树的最大深度相同，当前节点就是答案候选。',
+          '如果一侧更深，答案一定在更深的一侧。',
+        ],
+      },
+      {
+        id: 'smallest-subtree-with-all-the-deepest-nodes-observe',
+        title: '把“最深”信息从叶子向上汇总',
+        summary:
+          '对每个节点，递归返回两个结果：从该节点向下的最大深度，以及覆盖该子树全部最深结点的答案节点。如果左右深度相同，说明最深结点分别出现在两侧，当前节点是它们的汇合点；如果深度不同，答案跟随更深的一侧继续向上。',
+        bullets: [
+          '空节点的深度设为 0，答案节点设为 null。',
+          '叶子节点左右深度都为 0，因此自身成为答案。',
+          '左右深度相等时，当前节点覆盖两侧全部最深结点。',
+          '左右深度不等时，较深子树已经确定答案，直接向上返回它。',
+        ],
+      },
+      {
+        id: 'smallest-subtree-with-all-the-deepest-nodes-solution',
+        title: '标准解法：后序遍历返回二元组',
+        summary:
+          '后序遍历先拿到左右子树的信息，再决定当前节点向上返回什么。每个节点只访问一次，因此既不需要先统计最深层再回溯，也不需要额外构造父指针。',
+        bullets: [
+          '时间复杂度：`O(n)`，每个节点只处理一次。',
+          '空间复杂度：`O(h)`，主要来自递归栈，`h` 是树高。',
+          '返回值可以抽象为 `[最大深度, 答案节点]`。',
+          '这是一类典型的“树形 DP + 后序遍历”问题。',
+        ],
+        code: `type TreeNode = {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+}
+
+function subtreeWithAllDeepest(root: TreeNode | null): TreeNode | null {
+  function traverse(
+    node: TreeNode | null,
+  ): [depth: number, answer: TreeNode | null] {
+    if (!node) {
+      return [0, null]
+    }
+
+    const [leftDepth, leftAnswer] = traverse(node.left)
+    const [rightDepth, rightAnswer] = traverse(node.right)
+
+    if (leftDepth === rightDepth) {
+      return [leftDepth + 1, node]
+    }
+
+    if (leftDepth > rightDepth) {
+      return [leftDepth + 1, leftAnswer]
+    }
+
+    return [rightDepth + 1, rightAnswer]
+  }
+
+  return traverse(root)[1]
+}`,
+      },
+      {
+        id: 'smallest-subtree-with-all-the-deepest-nodes-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题容易被写成“先找到所有最深节点，再额外求公共祖先”，步骤多且容易丢失树的层级信息。更稳的方式是让递归结果直接携带答案。',
+        bullets: [
+          '易错点 1：把节点数量当成深度比较，忽略最深层位置。',
+          '易错点 2：左右深度不同时错误返回当前节点。',
+          '易错点 3：空节点深度定义不一致，导致叶子判断出错。',
+          '延伸方向：树形 DP、最近公共祖先、递归返回多个状态。',
+        ],
+      },
+    ],
+  },
 ];
