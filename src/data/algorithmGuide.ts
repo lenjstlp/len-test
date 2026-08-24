@@ -88543,4 +88543,82 @@ function subtreeWithAllDeepest(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'binary-gap',
+    label: '868. LeetCode 868. 二进制间距',
+    difficulty: '简单',
+    description:
+      '这题要求找出一个正整数二进制表示中，任意两个相邻的 `1` 之间的最大距离。重点是明确“距离”指的是两个 `1` 的下标差，而不是中间 `0` 的数量。',
+    outcome:
+      '你能把数字按位拆解成二进制序列，用一次线性扫描维护前一个 `1` 的位置和当前最大间距。',
+    sections: [
+      {
+        id: 'binary-gap-summary',
+        title: '题目在问什么',
+        summary:
+          '给定正整数 `n`，将它写成不含前导零的二进制字符串，返回相邻 `1` 之间的最大距离。如果只有一个 `1`，则返回 `0`。',
+        bullets: [
+          '只比较相邻的 `1`，不是任意两个 `1`。',
+          '距离是两个 `1` 的位置差。',
+          '例如二进制 `1001` 中两个 `1` 的距离是 `3`。',
+          '如果没有两个 `1`，答案就是 `0`。',
+        ],
+      },
+      {
+        id: 'binary-gap-observe',
+        title: '扫描时只需要记住上一个 1',
+        summary:
+          '从最低位到最高位逐位检查即可。遇到第一个 `1` 时记录它的位置；后面再次遇到 `1` 时，用当前位置减去上一个位置更新答案，然后把当前位置设为新的上一个位置。',
+        bullets: [
+          '用 `n & 1` 读取当前最低位。',
+          '用 `n >>> 1` 将数字右移一位。',
+          '位置变量每轮加一，代表当前处理的二进制位下标。',
+          '读到 `1` 后再更新前一个位置，保证只比较相邻的 `1`。',
+        ],
+      },
+      {
+        id: 'binary-gap-solution',
+        title: '标准解法：按位遍历并维护最大值',
+        summary:
+          '循环直到数字变为 0。通过位运算读取每一位，空间复杂度为 `O(1)`，不需要把数字先转成字符串或数组。',
+        bullets: [
+          '时间复杂度：`O(log n)`，循环次数等于二进制位数。',
+          '空间复杂度：`O(1)`。',
+          '第一次遇到 `1` 时不计算距离。',
+          '之后每个 `1` 都与前一个 `1` 比较。',
+        ],
+        code: `function binaryGap(n: number): number {
+  let position = 0
+  let previousOne = -1
+  let answer = 0
+
+  while (n > 0) {
+    if ((n & 1) === 1) {
+      if (previousOne !== -1) {
+        answer = Math.max(answer, position - previousOne)
+      }
+      previousOne = position
+    }
+
+    n >>>= 1
+    position += 1
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'binary-gap-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题代码短，但很容易把“间距”理解成中间零的数量，或者在第一次遇到 `1` 时错误地参与计算。',
+        bullets: [
+          '易错点 1：返回中间零的个数，应返回两个位置的差。',
+          '易错点 2：没有处理第一个 `1` 没有前驱的位置。',
+          '易错点 3：移位后忘记同步更新位置。',
+          '延伸方向：位运算、二进制遍历、状态压缩。',
+        ],
+      },
+    ],
+  },
 ];
