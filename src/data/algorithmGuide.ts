@@ -88695,4 +88695,87 @@ function subtreeWithAllDeepest(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'advantage-shuffle',
+    label: '870. LeetCode 870. 优势洗牌',
+    difficulty: '中等',
+    description:
+      '这题要求重新排列数组 `nums1`，让它尽可能在与 `nums2` 的逐位比较中获胜次数最多。核心不是硬拼每一位，而是先排序，再用贪心把大数用在最值得赢的位置上。',
+    outcome:
+      '你能把“尽量多赢”这类问题转成排序后的双指针贪心，理解为什么小数该被拿去“送掉”，大数该留给更强的对手。',
+    sections: [
+      {
+        id: 'advantage-shuffle-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个长度相同的数组 `nums1` 和 `nums2`，重新排列 `nums1`，使得尽可能多的位置满足 `nums1[i] > nums2[i]`。返回任意一种满足最大胜场数的排列。',
+        bullets: [
+          '只能重排 `nums1`，不能修改 `nums2`。',
+          '目标是最大化“赢”的位置数量，而不是总和最大。',
+          '如果某个位置赢不了，就把当前最小的数尽量放到这个位置。',
+          '能赢的数要优先分配给较小但仍能战胜的 `nums2` 值。',
+        ],
+      },
+      {
+        id: 'advantage-shuffle-observe',
+        title: '先排序，再决定谁去赢谁',
+        summary:
+          '把 `nums1` 排序后，最小值和最大值都可控；把 `nums2` 按值排序并记录原下标后，就能从最小的对手开始分配。若当前最小的 `nums1` 就能赢当前最小的 `nums2`，就让它去赢；否则把它留到最后当“牺牲品”。',
+        bullets: [
+          '排序后可把全局问题变成局部决策。',
+          '小数如果赢不了，不要浪费大数。',
+          '能赢时就赢最弱的可赢对手，避免大数被提前消耗。',
+          '不能赢时把最小值放到当前位，减少损失。',
+        ],
+      },
+      {
+        id: 'advantage-shuffle-solution',
+        title: '标准解法：排序 + 双指针 + 结果回填',
+        summary:
+          '将 `nums1` 升序排序，将 `nums2` 按值升序排序并保留原下标。用两个指针分别指向 `nums1` 的最小值和最大值，以及 `nums2` 的最小值和最大值。若当前最大 `nums1` 能战胜当前最大 `nums2`，就把它放到该位置；否则就把当前最小 `nums1` 送去和当前最大 `nums2` 交锋。',
+        bullets: [
+          '时间复杂度：`O(n log n)`，主要来自排序。',
+          '空间复杂度：`O(n)`，用于保存排序后的配对和结果。',
+          '贪心关键是“能赢才出大牌，不能赢就出最小牌”。',
+          '这是典型的排序贪心题。',
+        ],
+        code: `function advantageCount(nums1: number[], nums2: number[]): number[] {
+  const sortedNums1 = [...nums1].sort((a, b) => a - b)
+  const indexedNums2 = nums2
+    .map((value, index) => [value, index] as const)
+    .sort((a, b) => a[0] - b[0])
+
+  const result = new Array(nums1.length)
+  let left = 0
+  let right = sortedNums1.length - 1
+
+  for (let index = indexedNums2.length - 1; index >= 0; index -= 1) {
+    const [target, originalIndex] = indexedNums2[index]
+
+    if (sortedNums1[right] > target) {
+      result[originalIndex] = sortedNums1[right]
+      right -= 1
+    } else {
+      result[originalIndex] = sortedNums1[left]
+      left += 1
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'advantage-shuffle-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题容易误以为要做“全局最优匹配”，实际上排序后按对手强弱逐步决策即可。只要贪心规则正确，就不需要回溯。',
+        bullets: [
+          '易错点 1：按原顺序直接比较，无法做出全局最优分配。',
+          '易错点 2：没有保存 `nums2` 的原下标，结果回填会错位。',
+          '易错点 3：把能赢的牌浪费在本就很弱的对手上。',
+          '延伸方向：区间贪心、排序匹配、双指针分配。',
+        ],
+      },
+    ],
+  },
 ];
