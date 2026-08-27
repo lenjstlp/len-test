@@ -89656,4 +89656,79 @@ function middleNode(head: ListNode | null): ListNode | null {
       },
     ],
   },
+  {
+    id: 'boats-to-save-people',
+    label: '881. LeetCode 881. 救生艇',
+    difficulty: '中等',
+    description:
+      '每艘救生艇最多乘两人且总重量不能超过限制，求救出所有人的最少船数。核心是排序后优先处理最重的人，并尝试让他和当前最轻的人同船。',
+    outcome:
+      '你能用双指针解决“容量限制下的最少分组”问题，理解为什么最重的人如果不能和最轻的人配对，就不可能和任何其他人配对。',
+    sections: [
+      {
+        id: 'boats-to-save-people-summary',
+        title: '题目在问什么',
+        summary:
+          '给定每个人的体重 `people` 和救生艇承重上限 `limit`。每艘船最多搭载两人，要求所有人都上船，返回所需的最少船数。',
+        bullets: [
+          '每艘船最多两个人。',
+          '同一艘船上所有人的重量之和不能超过 `limit`。',
+          '每个人必须且只能乘坐一艘船。',
+          '目标是最少使用船，而不是让每艘船都坐满。',
+        ],
+      },
+      {
+        id: 'boats-to-save-people-observe',
+        title: '最重的人只能和最轻的人尝试配对',
+        summary:
+          '排序后查看当前最重的人。如果他能和当前最轻的人同船，那么和最轻的人配对最划算；如果连最轻的人都无法同船，那么他和其他任何人都不可能同船，只能单独占一艘。每次处理后船数加一。',
+        bullets: [
+          '左指针指向当前最轻的人，右指针指向当前最重的人。',
+          '若两人重量之和不超过限制，左右指针同时收缩。',
+          '否则只让最重的人乘船，右指针收缩。',
+          '排序后每一步都是对当前最难安排的人做不可避免的决策。',
+        ],
+      },
+      {
+        id: 'boats-to-save-people-solution',
+        title: '标准解法：排序 + 双指针贪心',
+        summary:
+          '将体重升序排序，两个指针分别从数组两端向中间移动。只要最轻和最重可以同船就同时移动，否则只移动最重指针，直到所有人都被安排。',
+        bullets: [
+          '时间复杂度：`O(n log n)`，主要来自排序。',
+          '空间复杂度：`O(1)`，如果允许原地排序。',
+          '每艘船至少处理一个人，因此船数最多为 `n`。',
+          '贪心证明核心是最重的人无法与更轻以外的人获得更优机会。',
+        ],
+        code: `function numRescueBoats(people: number[], limit: number): number {
+  people.sort((first, second) => first - second)
+  let lightest = 0
+  let heaviest = people.length - 1
+  let boats = 0
+
+  while (lightest <= heaviest) {
+    if (people[lightest] + people[heaviest] <= limit) {
+      lightest += 1
+    }
+    heaviest -= 1
+    boats += 1
+  }
+
+  return boats
+}`,
+      },
+      {
+        id: 'boats-to-save-people-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题看起来像普通配对，但如果先把两个轻的人配在一起，可能会让最重的人被迫单独乘船。排序后应始终优先解决最重的人。',
+        bullets: [
+          '易错点 1：没有排序就使用双指针。',
+          '易错点 2：配对成功后只移动一个指针。',
+          '易错点 3：循环条件写成 `<`，漏掉最后一个单独乘船的人。',
+          '延伸方向：双指针、装箱贪心、容量匹配。',
+        ],
+      },
+    ],
+  },
 ];
