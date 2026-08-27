@@ -88778,4 +88778,123 @@ function subtreeWithAllDeepest(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'minimum-number-of-refueling-stops',
+    label: '871. LeetCode 871. 最低加油次数',
+    difficulty: '困难',
+    description:
+      '汽车要驶向目标位置，途中可以在加油站补充燃料，求到达终点所需的最少加油次数。核心是把已经经过的加油站按油量放入最大堆，在确实无法继续前进时再选择最大的油量。',
+    outcome:
+      '你能识别“延迟做选择”的贪心模型，使用最大堆维护可选资源，并理解为什么每次取最大的油量能保证加油次数最少。',
+    sections: [
+      {
+        id: 'minimum-number-of-refueling-stops-summary',
+        title: '题目在问什么',
+        summary:
+          '汽车初始位于位置 `0`，拥有 `startFuel` 单位燃料，每消耗 1 单位燃料前进 1 英里。给定按位置递增排列的加油站，每个加油站有固定油量，返回到达 `target` 的最少加油次数；无法到达时返回 `-1`。',
+        bullets: [
+          '汽车只能使用已经经过的加油站。',
+          '到达加油站时不一定要立刻加油。',
+          '一次停靠并取走该站燃料算一次加油。',
+          '目标是最少次数，不是最少消耗燃料。',
+        ],
+      },
+      {
+        id: 'minimum-number-of-refueling-stops-observe',
+        title: '为什么要先不加油，走不动再取最大油量',
+        summary:
+          '把沿途已经经过的加油站看作可选资源。每到一个站就把油量加入最大堆，只有当前燃料不足以到达下一个站或终点时，才从堆中取出最大的油量。这样每次加油都尽量换来最长续航，同时不会过早消耗加油次数。',
+        bullets: [
+          '按路线顺序处理每个加油站和终点。',
+          '经过一个站后，才有资格把它加入候选堆。',
+          '燃料不够前进到下一个位置时，反复取最大油量。',
+          '最大堆为空仍无法到达时，说明答案不存在。',
+        ],
+      },
+      {
+        id: 'minimum-number-of-refueling-stops-solution',
+        title: '标准解法：最大堆贪心',
+        summary:
+          '用最大堆保存已经过加油站的油量。每处理一个目标位置，先计算需要行驶的距离并扣除燃料；如果燃料不足，就不断从堆中取最大油量，直到可以到达或没有可用油量。',
+        bullets: [
+          '时间复杂度：`O(n log n)`。',
+          '空间复杂度：`O(n)`。',
+          '最大堆保证每次选择当前最有价值的加油站。',
+          '终点也作为一个没有油量的虚拟站处理，统一边界逻辑。',
+        ],
+        code: `function minRefuelStops(
+  target: number,
+  startFuel: number,
+  stations: number[][],
+): number {
+  const maxHeap: number[] = []
+
+  function push(value: number): void {
+    maxHeap.push(value)
+    let index = maxHeap.length - 1
+    while (index > 0) {
+      const parent = Math.floor((index - 1) / 2)
+      if (maxHeap[parent] >= maxHeap[index]) break
+      ;[maxHeap[parent], maxHeap[index]] = [maxHeap[index], maxHeap[parent]]
+      index = parent
+    }
+  }
+
+  function pop(): number {
+    const top = maxHeap[0]
+    const last = maxHeap.pop()!
+    if (maxHeap.length > 0) {
+      maxHeap[0] = last
+      let index = 0
+      while (true) {
+        const left = index * 2 + 1
+        const right = left + 1
+        let largest = index
+        if (left < maxHeap.length && maxHeap[left] > maxHeap[largest]) {
+          largest = left
+        }
+        if (right < maxHeap.length && maxHeap[right] > maxHeap[largest]) {
+          largest = right
+        }
+        if (largest === index) break
+        ;[maxHeap[index], maxHeap[largest]] = [maxHeap[largest], maxHeap[index]]
+        index = largest
+      }
+    }
+    return top
+  }
+
+  let fuel = startFuel
+  let previousPosition = 0
+  let refuels = 0
+  const checkpoints = [...stations, [target, 0]]
+
+  for (const [position, amount] of checkpoints) {
+    fuel -= position - previousPosition
+    while (fuel < 0 && maxHeap.length > 0) {
+      fuel += pop()
+      refuels += 1
+    }
+    if (fuel < 0) return -1
+    push(amount)
+    previousPosition = position
+  }
+
+  return refuels
+}`,
+      },
+      {
+        id: 'minimum-number-of-refueling-stops-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不能按“遇到站就加油”处理，否则可能使用过多次数。正确的判断时机是燃料不足时，再从已经过的站点中挑最大的油量。',
+        bullets: [
+          '易错点 1：忘记只能使用已经经过的加油站。',
+          '易错点 2：每个站都加油，无法保证次数最少。',
+          '易错点 3：没有处理一次需要连续取多个油量的情况。',
+          '延伸方向：堆、区间资源选择、延迟贪心。',
+        ],
+      },
+    ],
+  },
 ];
