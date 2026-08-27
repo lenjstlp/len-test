@@ -88897,4 +88897,97 @@ function subtreeWithAllDeepest(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'leaf-similar-trees',
+    label: '872. LeetCode 872. 叶子相似的树',
+    difficulty: '简单',
+    description:
+      '两棵二叉树被称为叶子相似，当且仅当从左到右读取它们的叶子节点后，得到完全相同的序列。核心是忽略内部节点，只保留叶子访问顺序。',
+    outcome:
+      '你能用 DFS 提取树的结构化序列，理解“比较特征序列而不是比较完整结构”的树题建模方法。',
+    sections: [
+      {
+        id: 'leaf-similar-trees-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两棵二叉树，判断它们从左到右得到的叶子值序列是否相同。叶子节点指没有左孩子和右孩子的节点。',
+        bullets: [
+          '叶子节点的左右顺序按照中序之外的自然 DFS 左到右顺序确定。',
+          '内部节点的值不参与比较。',
+          '树的形状可以不同，只要叶子序列一致即可。',
+          '空树没有叶子，两个空序列可以认为相同。',
+        ],
+      },
+      {
+        id: 'leaf-similar-trees-observe',
+        title: '先提取叶子序列，再比较序列',
+        summary:
+          '题目并不要求判断两棵树是否同构。遍历每棵树时，只有发现左右孩子都为空才记录节点值；先递归左子树再递归右子树，就能保证叶子顺序符合题意。',
+        bullets: [
+          '判断叶子的条件是 `!node.left && !node.right`。',
+          '空节点直接返回，不向序列写入任何值。',
+          '左右子树的遍历顺序决定序列顺序。',
+          '提取后可以逐项比较，也可以直接比较序列的字符串表示。',
+        ],
+      },
+      {
+        id: 'leaf-similar-trees-solution',
+        title: '标准解法：DFS 收集叶子节点',
+        summary:
+          '分别对两棵树进行深度优先遍历，把叶子值追加到数组，最后比较数组长度和每个位置的值。',
+        bullets: [
+          '时间复杂度：`O(n + m)`，其中 `n`、`m` 是两棵树的节点数。',
+          '空间复杂度：`O(n + m)`，用于存储两棵树的叶子序列。',
+          '深度优先遍历天然保持从左到右的叶子顺序。',
+          '如果只需要判断，也可以用迭代器做流式比较以减少额外数组。',
+        ],
+        code: `type TreeNode = {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+}
+
+function leafSimilar(
+  root1: TreeNode | null,
+  root2: TreeNode | null,
+): boolean {
+  function collectLeaves(root: TreeNode | null): number[] {
+    const leaves: number[] = []
+
+    function visit(node: TreeNode | null): void {
+      if (!node) return
+      if (!node.left && !node.right) {
+        leaves.push(node.val)
+        return
+      }
+      visit(node.left)
+      visit(node.right)
+    }
+
+    visit(root)
+    return leaves
+  }
+
+  const first = collectLeaves(root1)
+  const second = collectLeaves(root2)
+  return (
+    first.length === second.length &&
+    first.every((value, index) => value === second[index])
+  )
+}`,
+      },
+      {
+        id: 'leaf-similar-trees-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题常见错误是把所有节点都加入序列，或者遍历顺序不固定导致同样的叶子集合被判定为不同。',
+        bullets: [
+          '易错点 1：把内部节点值也加入叶子序列。',
+          '易错点 2：只比较叶子集合，忽略叶子的先后顺序。',
+          '易错点 3：叶子节点记录后仍继续递归，造成重复记录。',
+          '延伸方向：树遍历、序列化、迭代 DFS。',
+        ],
+      },
+    ],
+  },
 ];
