@@ -89481,4 +89481,91 @@ function middleNode(head: ListNode | null): ListNode | null {
       },
     ],
   },
+  {
+    id: 'profitable-schemes',
+    label: '879. LeetCode 879. 盈利计划',
+    difficulty: '困难',
+    description:
+      '有若干项工作，每项工作需要一定人数并产生一定利润，要求选择工作，使参与人数不超过上限且利润至少达到目标，求方案数量。核心是二维动态规划同时记录人数和利润，并把利润截断到目标值。',
+    outcome:
+      '你能处理“资源上限 + 收益下限 + 方案计数”的背包模型，掌握状态压缩、倒序更新和目标值截断。',
+    sections: [
+      {
+        id: 'profitable-schemes-summary',
+        title: '题目在问什么',
+        summary:
+          '给定最多可用人数 `n`、最低利润 `minProfit`、每项工作的人员需求 `group` 和利润 `profit`。每项工作最多选择一次，返回总人数不超过 `n` 且总利润至少为 `minProfit` 的选择方案数。',
+        bullets: [
+          '每项工作只有选择和不选择两种状态。',
+          '同一组工作选择不同组合，算不同方案。',
+          '利润达到目标后继续增加不影响是否合格。',
+          '答案可能很大，需要对 `10^9 + 7` 取模。',
+        ],
+      },
+      {
+        id: 'profitable-schemes-observe',
+        title: '把利润状态截断在目标值',
+        summary:
+          '定义 `dp[people][profit]` 表示使用若干工作、恰好使用指定人数并获得“至少 profit”收益的方案数。利润超过 `minProfit` 的状态统一压到 `minProfit`，因为更大的利润在最终判断中没有区别。',
+        bullets: [
+          '人数是 0 到 `n` 的容量维度。',
+          '利润是 0 到 `minProfit` 的状态维度。',
+          '加入一项工作后，人数增加，利润增加并截断。',
+          '人数维度必须倒序更新，避免同一工作被重复选择。',
+        ],
+      },
+      {
+        id: 'profitable-schemes-solution',
+        title: '标准解法：二维 0/1 背包计数',
+        summary:
+          '初始化 `dp[0][0] = 1`，表示不选任何工作是一种方案。遍历每项工作时，从大到小枚举人数，从小到大枚举利润，把选择当前工作的方案转移到新状态。最后累加所有人数下利润达到目标的方案数。',
+        bullets: [
+          '时间复杂度：`O(m * n * minProfit)`，`m` 是工作数量。',
+          '空间复杂度：`O(n * minProfit)`。',
+          '倒序枚举人数保证每项工作最多加入一次。',
+          '利润使用 `Math.min(minProfit, current + gain)` 进行截断。',
+        ],
+        code: `function profitableSchemes(
+  n: number,
+  minProfit: number,
+  group: number[],
+  profit: number[],
+): number {
+  const mod = 1_000_000_007
+  const dp = Array.from({ length: n + 1 }, () =>
+    Array(minProfit + 1).fill(0),
+  )
+  dp[0][0] = 1
+
+  for (let work = 0; work < group.length; work += 1) {
+    const peopleNeeded = group[work]
+    const gain = profit[work]
+
+    for (let people = n; people >= peopleNeeded; people -= 1) {
+      for (let currentProfit = 0; currentProfit <= minProfit; currentProfit += 1) {
+        const nextProfit = Math.min(minProfit, currentProfit + gain)
+        dp[people][nextProfit] =
+          (dp[people][nextProfit] + dp[people - peopleNeeded][currentProfit]) %
+          mod
+      }
+    }
+  }
+
+  return dp.reduce((total, row) => (total + row[minProfit]) % mod, 0)
+}`,
+      },
+      {
+        id: 'profitable-schemes-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的状态不是单纯的“用了多少人”，还必须保留利润信息；否则无法区分已经达到目标和仍需继续积累的方案。',
+        bullets: [
+          '易错点 1：利润维度不截断，造成状态数量和转移复杂度膨胀。',
+          '易错点 2：人数正序更新，让同一工作在一轮中被重复使用。',
+          '易错点 3：忘记把不选任何工作作为初始方案。',
+          '延伸方向：多维背包、方案计数、状态压缩。',
+        ],
+      },
+    ],
+  },
 ];
