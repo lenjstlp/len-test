@@ -89074,4 +89074,101 @@ function leafSimilar(
       },
     ],
   },
+  {
+    id: 'walking-robot-simulation',
+    label: '874. LeetCode 874. 模拟行走机器人',
+    difficulty: '简单',
+    description:
+      '机器人根据指令在无限网格中移动，部分位置存在障碍物，要求返回它距离原点最远的欧式距离平方。核心是把方向变化和障碍物查询拆开，逐步模拟每一步。',
+    outcome:
+      '你能设计稳定的状态模拟逻辑，用方向数组处理转向，用集合实现障碍物的常数级查询，并正确维护过程中的最大值。',
+    sections: [
+      {
+        id: 'walking-robot-simulation-summary',
+        title: '题目在问什么',
+        summary:
+          '机器人从坐标 `(0, 0)` 出发，初始朝北。指令 `-2` 表示左转，`-1` 表示右转，正数表示向当前方向前进对应步数。遇到障碍物时不能进入该位置，返回过程中距离原点最远的距离平方。',
+        bullets: [
+          '机器人只在四个方向上移动。',
+          '转向指令不改变坐标，只改变当前朝向。',
+          '障碍物位置不会移动。',
+          '比较 `x² + y²` 即可，不需要开平方。',
+        ],
+      },
+      {
+        id: 'walking-robot-simulation-observe',
+        title: '把方向和坐标变化统一成数组',
+        summary:
+          '用 `directions = [[0, 1], [1, 0], [0, -1], [-1, 0]]` 表示北、东、南、西。右转让方向下标加一，左转让方向下标减一并通过取模回到 0 到 3，前进时按方向向量逐步尝试下一格。',
+        bullets: [
+          '方向下标始终保持在 `0-3` 范围内。',
+          '每一步移动前先检查目标坐标是否为障碍物。',
+          '遇到障碍物时停止当前指令，继续处理下一条指令。',
+          '每次成功移动后都更新最大距离平方。',
+        ],
+      },
+      {
+        id: 'walking-robot-simulation-solution',
+        title: '标准解法：集合判障 + 逐步模拟',
+        summary:
+          '将障碍物坐标编码为字符串放入集合。遍历指令时处理转向或前进，前进指令内部逐步移动，确保机器人不会跨过障碍物。',
+        bullets: [
+          '时间复杂度：`O(C + S)`，`C` 是指令总步数，`S` 是障碍物数量。',
+          '空间复杂度：`O(S)`。',
+          '编码坐标时使用分隔符，避免 `(1, 23)` 和 `(12, 3)` 产生冲突。',
+          '返回距离平方避免浮点数和开平方运算。',
+        ],
+        code: `function robotSim(commands: number[], obstacles: number[][]): number {
+  const blocked = new Set(
+    obstacles.map(([x, y]) => String(x) + ',' + String(y)),
+  )
+  const directions = [
+    [0, 1],
+    [1, 0],
+    [0, -1],
+    [-1, 0],
+  ]
+  let direction = 0
+  let x = 0
+  let y = 0
+  let answer = 0
+
+  for (const command of commands) {
+    if (command === -1) {
+      direction = (direction + 1) % 4
+      continue
+    }
+    if (command === -2) {
+      direction = (direction + 3) % 4
+      continue
+    }
+
+    const [dx, dy] = directions[direction]
+    for (let step = 0; step < command; step += 1) {
+      const nextX = x + dx
+      const nextY = y + dy
+      if (blocked.has(String(nextX) + ',' + String(nextY))) break
+      x = nextX
+      y = nextY
+      answer = Math.max(answer, x * x + y * y)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'walking-robot-simulation-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '模拟题最怕状态更新分散在多个分支里，尤其是左转取模和障碍物处理。把每个动作拆清楚，才能避免方向错一格或穿过障碍物。',
+        bullets: [
+          '易错点 1：左转后方向下标变成负数。',
+          '易错点 2：一次性计算终点，忽略中间障碍物。',
+          '易错点 3：转向指令被误当成移动。',
+          '延伸方向：状态机模拟、网格移动、坐标编码。',
+        ],
+      },
+    ],
+  },
 ];
