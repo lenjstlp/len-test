@@ -89171,4 +89171,87 @@ function leafSimilar(
       },
     ],
   },
+  {
+    id: 'koko-eating-bananas',
+    label: '875. LeetCode 875. 爱吃香蕉的珂珂',
+    difficulty: '中等',
+    description:
+      '珂珂需要在规定小时内吃完若干堆香蕉，每小时选择一堆并以固定速度进食，求能按时吃完的最小速度。核心是利用速度越大耗时越少的单调性，对答案进行二分。',
+    outcome:
+      '你能识别答案具有单调可行性，建立“判定函数 + 二分答案”的完整解题模型，并处理向上取整的耗时计算。',
+    sections: [
+      {
+        id: 'koko-eating-bananas-summary',
+        title: '题目在问什么',
+        summary:
+          '给定香蕉堆数组 `piles` 和总小时数 `h`，珂珂每小时最多选择一堆，以速度 `k` 吃香蕉。吃不完当前堆就要继续用下一小时，返回能在 `h` 小时内吃完的最小 `k`。',
+        bullets: [
+          '每小时只能吃一堆香蕉。',
+          '当前堆剩余香蕉不足速度 `k` 时，这一小时不会转去别的堆。',
+          '速度必须是正整数。',
+          '速度越大，所需小时数不会增加。',
+        ],
+      },
+      {
+        id: 'koko-eating-bananas-observe',
+        title: '把“最小速度”变成可二分的答案',
+        summary:
+          '固定一个速度 `k` 后，每堆香蕉需要 `ceil(pile / k)` 小时，总耗时就是所有堆耗时之和。如果某个速度能在 `h` 小时内吃完，那么更大的速度一定也能吃完；反过来，不可行速度之后的更小速度也都不可行。',
+        bullets: [
+          '最小速度下界是 `1`。',
+          '最大速度上界是最大香蕉堆大小。',
+          '判定函数只负责回答“当前速度是否可行”。',
+          '二分过程中遇到可行速度要继续向左找更小答案。',
+        ],
+      },
+      {
+        id: 'koko-eating-bananas-solution',
+        title: '标准解法：二分答案 + 向上取整',
+        summary:
+          '在速度区间 `[1, max(piles)]` 上二分。计算每堆耗时时使用 `Math.ceil(pile / speed)`，如果总耗时不超过 `h`，记录当前速度并收缩右边界；否则提高速度。',
+        bullets: [
+          '时间复杂度：`O(n log M)`，`M` 是最大香蕉堆大小。',
+          '空间复杂度：`O(1)`。',
+          '可用 `(pile + speed - 1) / speed` 的整数形式表达向上取整。',
+          '累加耗时超过 `h` 后可以提前返回，减少无效计算。',
+        ],
+        code: `function minEatingSpeed(piles: number[], h: number): number {
+  let left = 1
+  let right = Math.max(...piles)
+
+  function canFinish(speed: number): boolean {
+    let hours = 0
+    for (const pile of piles) {
+      hours += Math.ceil(pile / speed)
+      if (hours > h) return false
+    }
+    return true
+  }
+
+  while (left < right) {
+    const middle = Math.floor((left + right) / 2)
+    if (canFinish(middle)) {
+      right = middle
+    } else {
+      left = middle + 1
+    }
+  }
+
+  return left
+}`,
+      },
+      {
+        id: 'koko-eating-bananas-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不是在数组中找一个值，而是在一段整数答案空间里找最小可行值。只要可行性没有单调性，普通二分就不能直接使用。',
+        bullets: [
+          '易错点 1：用整除代替向上取整，少算吃香蕉所需的小时。',
+          '易错点 2：可行时错误地让左边界右移，错过更小速度。',
+          '易错点 3：右边界没有覆盖最大堆大小。',
+          '延伸方向：二分答案、单调判定、容量规划。',
+        ],
+      },
+    ],
+  },
 ];
