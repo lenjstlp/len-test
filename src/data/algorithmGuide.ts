@@ -88990,4 +88990,88 @@ function leafSimilar(
       },
     ],
   },
+  {
+    id: 'length-of-longest-fibonacci-subsequence',
+    label: '873. LeetCode 873. 最长的斐波那契子序列的长度',
+    difficulty: '中等',
+    description:
+      '给定严格递增的正整数数组，找出其中最长的斐波那契式子序列长度。斐波那契式序列要求每一项都等于前两项之和，关键是用前两项唯一确定下一项。',
+    outcome:
+      '你能将子序列问题转化为“枚举起点并不断查找下一项”，理解哈希集合在严格递增序列搜索中的剪枝价值。',
+    sections: [
+      {
+        id: 'length-of-longest-fibonacci-subsequence-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个严格递增的正整数数组 `arr`，返回其中最长斐波那契式子序列的长度。子序列需要保持原数组顺序，但不要求连续。',
+        bullets: [
+          '序列至少包含三个数字才有意义。',
+          '从第三项开始，每一项都等于前两项之和。',
+          '严格递增保证同一个值最多出现一次，便于使用集合定位。',
+          '找不到长度至少为 3 的序列时返回 `0`。',
+        ],
+      },
+      {
+        id: 'length-of-longest-fibonacci-subsequence-observe',
+        title: '前两项确定整条后续路径',
+        summary:
+          '一旦选定序列中的前两项 `a` 和 `b`，后续只能依次寻找 `a + b`、`b + (a + b)`。因此可以枚举每一对起点，用集合 `Set` 判断下一项是否存在，找到后继续延伸。',
+        bullets: [
+          '外层枚举前两项下标 `i`、`j`。',
+          '当前下一项是 `previous + current`。',
+          '在集合中找到下一项后，序列长度加一并更新前两项。',
+          '严格递增数组意味着找到的值天然位于后面，不会破坏子序列顺序。',
+        ],
+      },
+      {
+        id: 'length-of-longest-fibonacci-subsequence-solution',
+        title: '标准解法：枚举起点 + 集合延伸',
+        summary:
+          '先把数组元素放入集合，然后枚举所有可能的前两项。对每组起点不断用两数之和寻找下一项，记录最长长度。由于每组序列都由起点唯一决定，实现直观且容易验证。',
+        bullets: [
+          '时间复杂度：`O(n² * L)`，`L` 是单条序列的延伸长度。',
+          '空间复杂度：`O(n)`。',
+          '集合查询平均为 `O(1)`，避免每次二分搜索。',
+          '工程中还可以用动态规划把重复的 `(i, j)` 状态缓存起来。',
+        ],
+        code: `function lenLongestFibSubseq(arr: number[]): number {
+  const values = new Set(arr)
+  let answer = 0
+
+  for (let first = 0; first < arr.length; first += 1) {
+    for (let second = first + 1; second < arr.length; second += 1) {
+      let previous = arr[first]
+      let current = arr[second]
+      let length = 2
+
+      while (values.has(previous + current)) {
+        const next = previous + current
+        previous = current
+        current = next
+        length += 1
+      }
+
+      if (length >= 3) {
+        answer = Math.max(answer, length)
+      }
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'length-of-longest-fibonacci-subsequence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题容易把“子序列”误写成连续子数组，或者找到两个起点后只检查一次下一项，没有继续延伸到完整序列。',
+        bullets: [
+          '易错点 1：误以为元素必须连续。',
+          '易错点 2：序列只有两个元素时错误更新答案。',
+          '易错点 3：更新前两项的顺序不正确。',
+          '延伸方向：动态规划、哈希集合、子序列状态设计。',
+        ],
+      },
+    ],
+  },
 ];
