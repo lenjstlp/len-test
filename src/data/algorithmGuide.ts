@@ -89392,4 +89392,93 @@ function middleNode(head: ListNode | null): ListNode | null {
       },
     ],
   },
+  {
+    id: 'nth-magical-number',
+    label: '878. LeetCode 878. 第 N 个神奇数字',
+    difficulty: '困难',
+    description:
+      '如果一个正整数能被 `a` 或 `b` 整除，就称它是神奇数字。题目要求找出第 N 个神奇数字。核心是用最小公倍数消除重复计数，再对答案范围进行二分。',
+    outcome:
+      '你能掌握“二分答案 + 容斥计数”的组合模型，理解如何在不生成全部序列的情况下定位第 N 个满足条件的数。',
+    sections: [
+      {
+        id: 'nth-magical-number-summary',
+        title: '题目在问什么',
+        summary:
+          '给定正整数 `n`、`a`、`b`，返回从小到大排列的第 `n` 个能被 `a` 或 `b` 整除的正整数，结果对 `10^9 + 7` 取模。',
+        bullets: [
+          '能被 `a` 整除或能被 `b` 整除都算神奇数字。',
+          '同时被 `a` 和 `b` 整除的数字只能计数一次。',
+          '答案值可能很大，返回时需要取模。',
+          '真正搜索的是答案大小，不是第几个数字的下标。',
+        ],
+      },
+      {
+        id: 'nth-magical-number-observe',
+        title: '用容斥原理计算某个范围内有多少个神奇数字',
+        summary:
+          '对于任意上界 `x`，不超过 `x` 的神奇数字数量为 `floor(x / a) + floor(x / b) - floor(x / lcm(a, b))`。这个计数函数随 `x` 增大而单调不减，因此可以二分最小的计数达到 N 的 `x`。',
+        bullets: [
+          '先求 `a` 和 `b` 的最大公约数，再得到最小公倍数。',
+          '减去同时被两者整除的数字，避免重复统计。',
+          '二分条件是“前 `middle` 个数中至少有 N 个神奇数字”。',
+          '最终答案只需要对模数取模，搜索过程使用安全整数范围。',
+        ],
+      },
+      {
+        id: 'nth-magical-number-solution',
+        title: '标准解法：容斥计数 + 二分答案',
+        summary:
+          '答案下界为 `1`，上界可以取 `n * min(a, b)`。每轮统计 `middle` 以内的神奇数字数量，数量足够就收缩右边界，否则移动左边界。',
+        bullets: [
+          '时间复杂度：`O(log(n * min(a, b)))`。',
+          '空间复杂度：`O(1)`。',
+          '最大公约数使用欧几里得算法求解。',
+          '计数时使用 `Math.floor`，因为只统计不超过上界的倍数。',
+        ],
+        code: `function nthMagicalNumber(n: number, a: number, b: number): number {
+  const mod = 1_000_000_007
+
+  function gcd(first: number, second: number): number {
+    while (second !== 0) {
+      ;[first, second] = [second, first % second]
+    }
+    return first
+  }
+
+  const leastCommonMultiple = (a / gcd(a, b)) * b
+  let left = 1
+  let right = n * Math.min(a, b)
+
+  while (left < right) {
+    const middle = Math.floor((left + right) / 2)
+    const count =
+      Math.floor(middle / a) +
+      Math.floor(middle / b) -
+      Math.floor(middle / leastCommonMultiple)
+
+    if (count >= n) {
+      right = middle
+    } else {
+      left = middle + 1
+    }
+  }
+
+  return left % mod
+}`,
+      },
+      {
+        id: 'nth-magical-number-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易漏掉重复计数，或者把“第 N 个”误写成直接合并两个倍数序列。遇到多个条件的计数问题，应先检查交集是否需要通过容斥扣除。',
+        bullets: [
+          '易错点 1：没有减去最小公倍数的倍数，导致重复统计。',
+          '易错点 2：二分找到的是任意可行值，而不是最小可行值。',
+          '易错点 3：最大公约数和最小公倍数的公式写反。',
+          '延伸方向：二分答案、容斥原理、周期性计数。',
+        ],
+      },
+    ],
+  },
 ];
