@@ -89254,4 +89254,79 @@ function leafSimilar(
       },
     ],
   },
+  {
+    id: 'middle-of-the-linked-list',
+    label: '876. LeetCode 876. 链表的中间结点',
+    difficulty: '简单',
+    description:
+      '给定一个单链表，返回它的中间节点；如果节点数为偶数，返回两个中间节点中的第二个。核心是使用快慢指针，让快指针每次走两步，慢指针每次走一步。',
+    outcome:
+      '你能在不预先计算链表长度的情况下定位中间节点，掌握快慢指针在链表遍历中的节奏关系。',
+    sections: [
+      {
+        id: 'middle-of-the-linked-list-summary',
+        title: '题目在问什么',
+        summary:
+          '给定单链表的头节点，返回链表的中间节点。如果链表有偶数个节点，则返回靠后的那个中间节点，并且返回结果包含该节点之后的全部节点。',
+        bullets: [
+          '奇数长度链表只有一个中间节点。',
+          '偶数长度链表要返回两个中间节点中的后一个。',
+          '返回节点本身，不是节点值。',
+          '不需要修改链表结构。',
+        ],
+      },
+      {
+        id: 'middle-of-the-linked-list-observe',
+        title: '让两个指针保持二倍速度差',
+        summary:
+          '慢指针每次走一步，快指针每次走两步。当快指针走到末尾时，慢指针刚好走到中间。循环条件使用 `fast && fast.next`，在偶数长度场景会让慢指针落在后一个中间节点。',
+        bullets: [
+          '快指针走两步，慢指针走一步。',
+          '奇数长度时，快指针最终指向最后一个节点。',
+          '偶数长度时，快指针最终越过最后一个节点。',
+          '每轮先移动慢指针和快指针，最后直接返回慢指针。',
+        ],
+      },
+      {
+        id: 'middle-of-the-linked-list-solution',
+        title: '标准解法：快慢指针',
+        summary:
+          '初始化两个指针都指向头节点。只要快指针还能继续向前，就让慢指针前进一步、快指针前进两步。循环结束时，慢指针就是题目要求的中间节点。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '不需要先遍历计算长度，因此只需一次遍历。',
+          '通过循环条件自然处理奇数和偶数两种长度。',
+        ],
+        code: `type ListNode = {
+  val: number
+  next: ListNode | null
+}
+
+function middleNode(head: ListNode | null): ListNode | null {
+  let slow = head
+  let fast = head
+
+  while (fast && fast.next) {
+    slow = slow!.next
+    fast = fast.next.next
+  }
+
+  return slow
+}`,
+      },
+      {
+        id: 'middle-of-the-linked-list-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '快慢指针的关键不只是速度不同，还包括循环条件和移动顺序。稍微改变其中一处，就可能在偶数长度链表中返回前一个中间节点。',
+        bullets: [
+          '易错点 1：循环条件只判断 `fast`，访问 `fast.next.next` 时可能报错。',
+          '易错点 2：让快指针从头节点的下一个位置开始，结果可能偏向前一个中点。',
+          '易错点 3：题目要求返回节点，却只返回了节点值。',
+          '延伸方向：链表找环、链表分割、删除倒数第 N 个节点。',
+        ],
+      },
+    ],
+  },
 ];
