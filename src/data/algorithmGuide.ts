@@ -89568,4 +89568,92 @@ function middleNode(head: ListNode | null): ListNode | null {
       },
     ],
   },
+  {
+    id: 'decoded-string-at-index',
+    label: '880. LeetCode 880. 索引处的解码字符串',
+    difficulty: '中等',
+    description:
+      '编码字符串由字母和数字组成，数字表示把当前字符串重复若干次。要求返回解码后字符串的第 K 个字符。由于完整字符串可能极长，核心是先计算长度，再逆向缩小 K。',
+    outcome:
+      '你能处理隐式生成的超长字符串，掌握“只记录长度、不真正展开”的逆向推导技巧。',
+    sections: [
+      {
+        id: 'decoded-string-at-index-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个编码字符串 `s` 和正整数 `k`。从左到右读取：字母直接追加，数字 `d` 表示把当前已形成的字符串重复 `d` 次。返回解码字符串中第 `k` 个字符。',
+        bullets: [
+          '题目保证 `k` 不超过最终解码字符串长度。',
+          '数字只表示重复前面已经形成的整体字符串。',
+          '解码结果可能远超内存容量，不能直接构造。',
+          '下标从 1 开始，代码中需要注意转成取模逻辑。',
+        ],
+      },
+      {
+        id: 'decoded-string-at-index-observe',
+        title: '先求总长度，再从末尾逆推目标位置',
+        summary:
+          '正向扫描只维护当前解码长度：遇到字母长度加一，遇到数字长度乘以该数字。随后从右到左撤销操作：如果当前位置是数字，说明目标位落在重复块中，可以对重复前长度取模；如果当前位置是字母，只有当 `k` 恰好指向它时才返回。',
+        bullets: [
+          '长度只需要知道是否覆盖 `k`，不必保存真实字符串。',
+          '逆向遇到数字时，`k = k % previousLength`。',
+          '取模结果为 0 时，目标对应重复块的末尾位置。',
+          '逆向遇到字母时，`k === length` 就命中该字母。',
+        ],
+      },
+      {
+        id: 'decoded-string-at-index-solution',
+        title: '标准解法：长度计算 + 逆向还原',
+        summary:
+          '先用数组保存每个字符处理后的字符串长度，方便逆向撤销。倒序遍历编码串，遇到数字先恢复重复前的长度并折叠 `k`，遇到字母则判断它是否对应目标位置。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`，用于保存长度快照；也可进一步优化为 `O(1)`。',
+          '必须使用 `BigInt` 或安全的截断策略防止长度溢出。',
+          '示例代码用 `BigInt` 让长度和取模过程更稳妥。',
+        ],
+        code: `function decodeAtIndex(s: string, k: number): string {
+  const lengths: bigint[] = []
+  let length = 0n
+
+  for (const character of s) {
+    if (character >= '0' && character <= '9') {
+      length *= BigInt(character)
+    } else {
+      length += 1n
+    }
+    lengths.push(length)
+  }
+
+  let target = BigInt(k)
+  for (let index = s.length - 1; index >= 0; index -= 1) {
+    const character = s[index]
+    const previousLength = index === 0 ? 0n : lengths[index - 1]
+
+    if (character >= '0' && character <= '9') {
+      target = target % previousLength
+    } else {
+      if (target === 0n || target === lengths[index]) {
+        return character
+      }
+    }
+  }
+
+  return ''
+}`,
+      },
+      {
+        id: 'decoded-string-at-index-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不能按普通字符串题处理，核心是避免展开结果。逆向时需要特别处理取模为 0 的情况，否则会漏掉重复块的最后一个字符。',
+        bullets: [
+          '易错点 1：直接构造解码字符串，造成内存或时间溢出。',
+          '易错点 2：数字重复的是完整前缀，不是前一个字符。',
+          '易错点 3：对重复块取模后没有处理结果为 0。',
+          '延伸方向：逆向推导、隐式字符串、长度压缩。',
+        ],
+      },
+    ],
+  },
 ];
