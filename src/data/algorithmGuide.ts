@@ -89979,4 +89979,98 @@ function middleNode(head: ListNode | null): ListNode | null {
       },
     ],
   },
+  {
+    id: 'spiral-matrix-iii',
+    label: '885. LeetCode 885. 螺旋矩阵 III',
+    difficulty: '中等',
+    description:
+      '从网格中的指定位置出发，按照不断扩大的螺旋路线访问所有坐标，返回访问顺序。核心是先按右、下、左、上的方向移动，再逐步增加每段路线长度，并过滤越界坐标。',
+    outcome:
+      '你能将复杂的螺旋遍历拆成方向状态和步长增长规则，掌握“路径可以越界，但结果只收集合法坐标”的模拟技巧。',
+    sections: [
+      {
+        id: 'spiral-matrix-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `rows × cols` 的网格和起点 `(rStart, cStart)`，机器人按照顺时针螺旋路径移动，返回它访问到的所有网格坐标，顺序必须与首次访问顺序一致。',
+        bullets: [
+          '起点一定属于网格。',
+          '移动路径可能暂时走到网格外。',
+          '只有位于网格内的坐标才加入答案。',
+          '同一个网格坐标只需要返回一次。',
+        ],
+      },
+      {
+        id: 'spiral-matrix-iii-observe',
+        title: '螺旋的关键是每两段增加一次步长',
+        summary:
+          '方向按右、下、左、上循环。第一段向右走 1 步，第二段向下走 1 步；完成两段后步长增加为 2，再完成左、上两段；之后步长变为 3，如此重复直到收集到全部坐标。',
+        bullets: [
+          '方向数组固定表示顺时针移动。',
+          '每执行两次方向移动后，路线长度加一。',
+          '先移动再判断坐标是否在网格内。',
+          '用答案长度作为终止条件，不依赖机器人是否回到网格内。',
+        ],
+      },
+      {
+        id: 'spiral-matrix-iii-solution',
+        title: '标准解法：方向模拟 + 边界过滤',
+        summary:
+          '维护当前坐标、方向下标和当前段步数。每走一步就判断是否越界，合法时追加坐标；每完成两个方向段后增加步长，直到答案数量达到网格总格数。',
+        bullets: [
+          '时间复杂度：`O(rows * cols + perimeter)`，实际模拟会多走一些网格外路径。',
+          '空间复杂度：`O(rows * cols)`，用于保存答案。',
+          '不能在越界时停止，因为后续螺旋可能重新进入网格。',
+          '终止条件应是收集完所有合法坐标。',
+        ],
+        code: `function spiralMatrixIII(
+  rows: number,
+  cols: number,
+  rStart: number,
+  cStart: number,
+): number[][] {
+  const directions = [
+    [0, 1],
+    [1, 0],
+    [0, -1],
+    [-1, 0],
+  ]
+  const result: number[][] = [[rStart, cStart]]
+  let row = rStart
+  let col = cStart
+  let direction = 0
+  let stepLength = 1
+
+  while (result.length < rows * cols) {
+    for (let segment = 0; segment < 2; segment += 1) {
+      const [dr, dc] = directions[direction]
+      for (let step = 0; step < stepLength; step += 1) {
+        row += dr
+        col += dc
+        if (row >= 0 && row < rows && col >= 0 && col < cols) {
+          result.push([row, col])
+        }
+      }
+      direction = (direction + 1) % 4
+    }
+    stepLength += 1
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'spiral-matrix-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '螺旋路径和矩阵边界不是一回事，机器人越界后仍然要继续走。把“移动逻辑”和“是否收集”分开，代码会更稳定。',
+        bullets: [
+          '易错点 1：走出边界就停止，漏掉后续重新进入网格的坐标。',
+          '易错点 2：步长每走一个方向就增加，导致螺旋形状错误。',
+          '易错点 3：没有按顺时针方向更新下标。',
+          '延伸方向：矩阵螺旋遍历、路径模拟、方向状态机。',
+        ],
+      },
+    ],
+  },
 ];
