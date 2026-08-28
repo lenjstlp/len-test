@@ -90168,4 +90168,76 @@ function middleNode(head: ListNode | null): ListNode | null {
       },
     ],
   },
+  {
+    id: 'super-egg-drop',
+    label: '887. LeetCode 887. 鸡蛋掉落',
+    difficulty: '困难',
+    description:
+      '有若干鸡蛋和一栋楼，需要确定最高安全楼层，求最少需要多少次尝试才能保证找到答案。核心是反过来定义状态：固定尝试次数和鸡蛋数，最多能确定多少层楼。',
+    outcome:
+      '你能把“最少尝试次数”转换成“固定次数下的最大覆盖楼层”，掌握反向动态规划在最坏情况优化问题中的应用。',
+    sections: [
+      {
+        id: 'super-egg-drop-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `k` 个鸡蛋和 `n` 层楼。鸡蛋从某层扔下后可能碎，也可能不碎；要求在最坏情况下确定临界楼层，返回保证完成任务所需的最少扔鸡蛋次数。',
+        bullets: [
+          '鸡蛋碎了之后不能再次使用。',
+          '鸡蛋没碎可以继续使用。',
+          '临界楼层可能不存在，或者在最高层。',
+          '答案要求覆盖所有可能情况，因此必须按最坏情况设计。',
+        ],
+      },
+      {
+        id: 'super-egg-drop-observe',
+        title: '不要枚举楼层，改问一次尝试能覆盖多少层',
+        summary:
+          '定义 `dp[eggs]` 为当前尝试次数下，使用 `eggs` 个鸡蛋最多能确定的楼层数。增加一次尝试时，如果鸡蛋碎了，可以处理 `dp[eggs - 1]` 层；如果没碎，可以处理 `dp[eggs]` 层；再加上当前测试楼层本身，所以新值是两部分之和加一。',
+        bullets: [
+          '碎裂分支会少一个鸡蛋，使用更新前的 `dp[eggs - 1]`。',
+          '未碎分支仍有相同数量的鸡蛋，使用更新前的 `dp[eggs]`。',
+          '每增加一次尝试，覆盖范围按状态转移增长。',
+          '当 `dp[k] >= n` 时，当前尝试次数就是最小答案。',
+        ],
+      },
+      {
+        id: 'super-egg-drop-solution',
+        title: '标准解法：按尝试次数推进的一维 DP',
+        summary:
+          '从 0 次尝试开始，每轮代表增加一次扔鸡蛋机会。为了让当前轮读取的 `dp[eggs - 1]` 仍是上一轮数据，鸡蛋数量必须从大到小更新。',
+        bullets: [
+          '时间复杂度：`O(answer * k)`。',
+          '空间复杂度：`O(k)`。',
+          '状态含义从“某层楼的答案”转成“当前次数的覆盖能力”。',
+          '倒序更新是 0/1 状态压缩动态规划中的常见技巧。',
+        ],
+        code: `function superEggDrop(k: number, n: number): number {
+  const floors = Array(k + 1).fill(0)
+  let moves = 0
+
+  while (floors[k] < n) {
+    moves += 1
+    for (let eggs = k; eggs >= 1; eggs -= 1) {
+      floors[eggs] = floors[eggs] + floors[eggs - 1] + 1
+    }
+  }
+
+  return moves
+}`,
+      },
+      {
+        id: 'super-egg-drop-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '传统按楼层枚举的动态规划状态很多，容易超时。更重要的是理解状态转化：当目标是最少次数时，反向计算固定次数能解决多大规模通常更高效。',
+        bullets: [
+          '易错点 1：把碎和不碎两个分支取最小，忽略最坏情况应取最大。',
+          '易错点 2：一维压缩时从小到大更新，污染当前轮状态。',
+          '易错点 3：把 `dp[eggs]` 误解成具体楼层，而不是覆盖层数。',
+          '延伸方向：区间 DP、最坏情况优化、状态反转。',
+        ],
+      },
+    ],
+  },
 ];
