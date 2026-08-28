@@ -89828,4 +89828,83 @@ function middleNode(head: ListNode | null): ListNode | null {
       },
     ],
   },
+  {
+    id: 'projection-area-of-3d-shapes',
+    label: '883. LeetCode 883. 三维形体投影面积',
+    difficulty: '简单',
+    description:
+      '给定一个网格，每个格子的数字表示该位置堆叠的立方体数量，求整个三维形体在三个坐标平面上的投影面积总和。核心是将三种投影分别转化为非零格子数、每行最大值和每列最大值。',
+    outcome:
+      '你能把空间几何问题降维成二维数组统计，理解“投影面积只保留从观察方向看到的最高轮廓”。',
+    sections: [
+      {
+        id: 'projection-area-of-3d-shapes-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个二维网格 `grid`，`grid[row][col]` 表示该位置竖直堆叠的立方体数量。返回该形体从三个互相垂直的方向投影后覆盖的总面积。',
+        bullets: [
+          '俯视投影中，只要格子非零，就贡献一个单位面积。',
+          '从一个侧面看，每一行只看到最高的那一列。',
+          '从另一个侧面看，每一列只看到最高的那一行。',
+          '空网格或空位置不会产生投影面积。',
+        ],
+      },
+      {
+        id: 'projection-area-of-3d-shapes-observe',
+        title: '三种投影分别对应三种统计',
+        summary:
+          '从上面看，关心每个 `(row, col)` 是否有立方体；从正面看，关心每一行的最大高度；从侧面看，关心每一列的最大高度。三部分互不重复，因为它们属于不同投影平面。',
+        bullets: [
+          '俯视面积：统计 `grid[row][col] > 0` 的格子数量。',
+          '行投影面积：累加每一行最大值。',
+          '列投影面积：累加每一列最大值。',
+          '遍历网格时可以同时维护三类统计。',
+        ],
+      },
+      {
+        id: 'projection-area-of-3d-shapes-solution',
+        title: '标准解法：一次遍历统计三种投影',
+        summary:
+          '遍历每个格子，非零时给俯视面积加一，同时更新当前行最大高度和当前列最大高度。遍历结束后把所有行最大值、列最大值和俯视面积相加。',
+        bullets: [
+          '时间复杂度：`O(rows * cols)`。',
+          '空间复杂度：`O(rows + cols)`。',
+          '行最大值和列最大值数组分别保存两个观察方向的轮廓。',
+          '不能把所有立方体数量相加，投影只取每个方向能看到的轮廓。',
+        ],
+        code: `function projectionArea(grid: number[][]): number {
+  const rows = grid.length
+  const cols = grid[0]?.length ?? 0
+  const columnMax = Array(cols).fill(0)
+  let topArea = 0
+  let sideArea = 0
+
+  for (let row = 0; row < rows; row += 1) {
+    let rowMax = 0
+    for (let col = 0; col < cols; col += 1) {
+      const height = grid[row][col]
+      if (height > 0) topArea += 1
+      rowMax = Math.max(rowMax, height)
+      columnMax[col] = Math.max(columnMax[col], height)
+    }
+    sideArea += rowMax
+  }
+
+  return topArea + sideArea + columnMax.reduce((sum, value) => sum + value, 0)
+}`,
+      },
+      {
+        id: 'projection-area-of-3d-shapes-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '投影面积不是体积，也不是所有高度的总和。每个观察方向只保留对应行或列上的最大高度。',
+        bullets: [
+          '易错点 1：把每个格子的高度直接累加成面积。',
+          '易错点 2：忘记非零格子才贡献俯视面积。',
+          '易错点 3：行最大值和列最大值方向混淆。',
+          '延伸方向：矩阵统计、视图投影、网格几何。',
+        ],
+      },
+    ],
+  },
 ];
