@@ -90073,4 +90073,99 @@ function middleNode(head: ListNode | null): ListNode | null {
       },
     ],
   },
+  {
+    id: 'possible-bipartition',
+    label: '886. LeetCode 886. 可能的二分法',
+    difficulty: '中等',
+    description:
+      '有若干人互相不喜欢，要求把所有人分成两个集合，使每一对互相不喜欢的人都不在同一组。核心是把“不喜欢”看成图上的边，再判断图是否可以二染色。',
+    outcome:
+      '你能把分组约束建模为无向图二分问题，掌握 BFS/DFS 染色和发现奇环时判定不可行的方法。',
+    sections: [
+      {
+        id: 'possible-bipartition-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `n` 个人和若干不喜欢关系 `dislikes`，判断能否把所有人分成两组，使每条关系的两个端点分别属于不同组。',
+        bullets: [
+          '每条不喜欢关系都是无向关系。',
+          '同一个人可以没有关系，也可以属于任意一组。',
+          '题目要求所有关系都满足跨组条件。',
+          '图中可能存在多个互不连通的连通分量。',
+        ],
+      },
+      {
+        id: 'possible-bipartition-observe',
+        title: '把两组标记成两种颜色',
+        summary:
+          '如果一个人被染成颜色 0，那么和他有关系的所有人都必须染成颜色 1；再从这些人继续扩展。若遇到一条边连接了两个相同颜色的节点，说明出现奇环，无法完成二分。',
+        bullets: [
+          '颜色代表两组，不需要真的保存分组数组。',
+          '未访问节点从任意颜色开始染色。',
+          '每个连通分量都需要独立启动一次 BFS。',
+          '发现相邻节点颜色相同即可立即返回 `false`。',
+        ],
+      },
+      {
+        id: 'possible-bipartition-solution',
+        title: '标准解法：邻接表 + BFS 二染色',
+        summary:
+          '先把关系转换为邻接表，再遍历每个节点。遇到未染色节点就启动 BFS，将它染为 0；访问邻居时染成相反颜色，若已有颜色且相同则判定失败。',
+        bullets: [
+          '时间复杂度：`O(n + m)`，`m` 是不喜欢关系数量。',
+          '空间复杂度：`O(n + m)`。',
+          '二分图不存在奇数长度环。',
+          'BFS 和 DFS 都可以实现，选择取决于团队编码习惯。',
+        ],
+        code: `function possibleBipartition(
+  n: number,
+  dislikes: number[][],
+): boolean {
+  const graph = Array.from({ length: n + 1 }, () => [])
+  for (const [first, second] of dislikes) {
+    graph[first].push(second)
+    graph[second].push(first)
+  }
+
+  const color = Array(n + 1).fill(-1)
+
+  for (let person = 1; person <= n; person += 1) {
+    if (color[person] !== -1) continue
+
+    color[person] = 0
+    const queue = [person]
+    let head = 0
+
+    while (head < queue.length) {
+      const current = queue[head]
+      head += 1
+
+      for (const neighbor of graph[current]) {
+        if (color[neighbor] === -1) {
+          color[neighbor] = 1 - color[current]
+          queue.push(neighbor)
+        } else if (color[neighbor] === color[current]) {
+          return false
+        }
+      }
+    }
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'possible-bipartition-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不是简单地把每条关系两端交替放置，因为一个节点可能同时连接多个节点。必须沿着整个连通分量传播颜色并检查冲突。',
+        bullets: [
+          '易错点 1：只处理从 1 开始的连通分量。',
+          '易错点 2：把有向图处理成单向关系，漏掉反向约束。',
+          '易错点 3：没有检查已染色邻居的颜色冲突。',
+          '延伸方向：二分图、奇环检测、图着色。',
+        ],
+      },
+    ],
+  },
 ];
