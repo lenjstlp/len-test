@@ -90317,4 +90317,114 @@ function middleNode(head: ListNode | null): ListNode | null {
       },
     ],
   },
+  {
+    id: 'construct-binary-tree-from-preorder-and-postorder-traversal',
+    label: '889. LeetCode 889. 根据前序和后序遍历构造二叉树',
+    difficulty: '中等',
+    description:
+      '给定互不相同的节点值的前序遍历和后序遍历，构造任意一棵符合这两个遍历结果的二叉树。核心是前序首元素确定根，后序中左子树根的位置确定左子树的节点数量。',
+    outcome:
+      '你能从两种遍历序列中推导子树边界，掌握递归构造二叉树时如何用下标范围避免重复切分数组。',
+    sections: [
+      {
+        id: 'construct-binary-tree-from-preorder-and-postorder-traversal-summary',
+        title: '题目在问什么',
+        summary:
+          '给定二叉树的前序遍历 `preorder` 和后序遍历 `postorder`，节点值互不相同。返回任意一棵能产生这两种遍历结果的二叉树。',
+        bullets: [
+          '前序遍历顺序是根、左、右。',
+          '后序遍历顺序是左、右、根。',
+          '只有前序和后序时，单孩子节点可能导致树形不唯一。',
+          '题目允许返回任意一种合法构造。',
+        ],
+      },
+      {
+        id: 'construct-binary-tree-from-preorder-and-postorder-traversal-observe',
+        title: '根和左子树边界都能被定位',
+        summary:
+          '当前子树的根一定是前序区间第一个元素，也一定是后序区间最后一个元素。如果当前子树不止一个节点，前序中根后面的值是左子树根；在后序中找到这个值，就能得知左子树的大小，进而切出左右子树的区间。',
+        bullets: [
+          '前序首元素确定当前根节点。',
+          '前序第二个元素可视为左子树根。',
+          '后序中左子树根的位置决定左子树长度。',
+          '使用值到后序下标的映射，避免每次线性查找。',
+        ],
+      },
+      {
+        id: 'construct-binary-tree-from-preorder-and-postorder-traversal-solution',
+        title: '标准解法：索引映射 + 区间递归',
+        summary:
+          '先建立后序值到下标的映射。递归函数接收前序和后序的左右边界，创建根后根据左子树根在后序中的位置计算左子树大小，再递归构造左右孩子。',
+        bullets: [
+          '时间复杂度：`O(n)`，每个节点构造一次。',
+          '空间复杂度：`O(n)`，包括下标映射和递归栈。',
+          '叶子区间只有一个元素，直接返回节点。',
+          '当只有一个子树时，题目允许把它当作左子树构造。',
+        ],
+        code: `type TreeNode = {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+}
+
+function constructFromPrePost(
+  preorder: number[],
+  postorder: number[],
+): TreeNode | null {
+  const postorderIndex = new Map<number, number>()
+  postorder.forEach((value, index) => postorderIndex.set(value, index))
+
+  function build(
+    preLeft: number,
+    preRight: number,
+    postLeft: number,
+    postRight: number,
+  ): TreeNode | null {
+    if (preLeft > preRight) return null
+
+    const root = {
+      val: preorder[preLeft],
+      left: null,
+      right: null,
+    } satisfies TreeNode
+
+    if (preLeft === preRight) return root
+
+    const leftRootValue = preorder[preLeft + 1]
+    const leftRootIndex = postorderIndex.get(leftRootValue)!
+    const leftSize = leftRootIndex - postLeft + 1
+
+    root.left = build(
+      preLeft + 1,
+      preLeft + leftSize,
+      postLeft,
+      leftRootIndex,
+    )
+    root.right = build(
+      preLeft + leftSize + 1,
+      preRight,
+      leftRootIndex + 1,
+      postRight - 1,
+    )
+
+    return root
+  }
+
+  return build(0, preorder.length - 1, 0, postorder.length - 1)
+}`,
+      },
+      {
+        id: 'construct-binary-tree-from-preorder-and-postorder-traversal-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的难点在子树区间切分。不要把后序最后一个根节点算进右子树，也不要假设构造结果唯一。',
+        bullets: [
+          '易错点 1：用前序第二个值定位左子树根时，没有处理叶子节点。',
+          '易错点 2：左子树大小少加或多加 1，导致后续区间错位。',
+          '易错点 3：把后序区间最后一个根节点错误分给右子树。',
+          '延伸方向：树的重建、递归区间、遍历序列推导。',
+        ],
+      },
+    ],
+  },
 ];
