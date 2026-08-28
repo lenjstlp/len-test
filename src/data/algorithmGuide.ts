@@ -89907,4 +89907,76 @@ function middleNode(head: ListNode | null): ListNode | null {
       },
     ],
   },
+  {
+    id: 'uncommon-words-from-two-sentences',
+    label: '884. LeetCode 884. 两句话中的不常见单词',
+    difficulty: '简单',
+    description:
+      '给定两句话，找出只在其中一句话中出现且总共只出现一次的单词。核心是把两句话拆成单词后统一计数，最后筛选频次为 1 的词。',
+    outcome:
+      '你能用哈希表处理多个来源的频次统计，理解“只出现一次”和“只出现在一边”可以统一为总频次为 1。',
+    sections: [
+      {
+        id: 'uncommon-words-from-two-sentences-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s1` 和 `s2`，每个字符串由空格分隔成单词。返回所有只在其中一个句子中出现，并且在两个句子总共只出现一次的单词。',
+        bullets: [
+          '同一个单词在同一句话中出现两次，也不属于答案。',
+          '单词只要在两句话合计出现超过一次，就不能返回。',
+          '答案顺序不作要求。',
+          '输入单词只包含字母和空格，可以直接按空格拆分。',
+        ],
+      },
+      {
+        id: 'uncommon-words-from-two-sentences-observe',
+        title: '把两句话合并成一次频次统计',
+        summary:
+          '题目中的“只在一句话中出现一次”可以等价成：把两句话的所有单词放在一起统计，最后频次等于 1 的单词就是答案。因为总频次为 1 的词不可能同时出现在两句话中。',
+        bullets: [
+          '先用空格拆出两句话的单词数组。',
+          '把两个数组连接后统一更新计数。',
+          '最后遍历计数表，筛选值为 1 的单词。',
+          '使用 `split(/\\s+/)` 可以兼容连续空格。',
+        ],
+      },
+      {
+        id: 'uncommon-words-from-two-sentences-solution',
+        title: '标准解法：哈希表统计总频次',
+        summary:
+          '将两句话拆分后的单词合并，使用 `Map<string, number>` 统计每个单词出现次数。第二次遍历或直接遍历 `Map`，把频次为 1 的单词加入结果。',
+        bullets: [
+          '时间复杂度：`O(n + m)`，`n`、`m` 是两句话的字符或单词规模。',
+          '空间复杂度：`O(u)`，`u` 是不同单词数量。',
+          '统一计数比先分别统计再比较更简洁。',
+          '频次统计是处理“唯一项”“重复项”问题的通用模板。',
+        ],
+        code: `function uncommonFromSentences(s1: string, s2: string): string[] {
+  const words = [...s1.trim().split(/\\s+/), ...s2.trim().split(/\\s+/)]
+  const counts = new Map<string, number>()
+
+  for (const word of words) {
+    if (!word) continue
+    counts.set(word, (counts.get(word) ?? 0) + 1)
+  }
+
+  return [...counts.entries()]
+    .filter(([, count]) => count === 1)
+    .map(([word]) => word)
+}`,
+      },
+      {
+        id: 'uncommon-words-from-two-sentences-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题容易只判断单词是否出现在另一句话中，却忘记同一句话内部的重复；统一统计总频次可以一次覆盖这两类情况。',
+        bullets: [
+          '易错点 1：只比较两个集合，丢失同句重复次数。',
+          '易错点 2：拆分空字符串时把空项当成单词。',
+          '易错点 3：为了顺序做额外假设，忽略题目不要求排序。',
+          '延伸方向：词频统计、集合差异、文本预处理。',
+        ],
+      },
+    ],
+  },
 ];
