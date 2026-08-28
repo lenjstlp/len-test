@@ -89731,4 +89731,101 @@ function middleNode(head: ListNode | null): ListNode | null {
       },
     ],
   },
+  {
+    id: 'reachable-nodes-in-subdivided-graph',
+    label: '882. LeetCode 882. 细分图中的可到达节点',
+    difficulty: '困难',
+    description:
+      '图的每条边可以被细分成若干新节点，从 0 出发最多走指定步数，求能够访问到的原节点和细分节点总数。核心是用 Dijkstra 求原节点最短距离，再计算每条边两端还能覆盖多少细分节点。',
+    outcome:
+      '你能把“经过边上的部分节点”拆成最短路和边贡献两部分，掌握带边上资源统计的 Dijkstra 建模。',
+    sections: [
+      {
+        id: 'reachable-nodes-in-subdivided-graph-summary',
+        title: '题目在问什么',
+        summary:
+          '给定无向图的边、每条边要插入的细分节点数 `cnt` 和最大移动步数 `maxMoves`。从节点 0 出发，返回最多能访问到的原节点与细分节点数量。',
+        bullets: [
+          '经过一条边需要按顺序走过其中的细分节点。',
+          '原节点只有在最短距离不超过 `maxMoves` 时可达。',
+          '一条边上的细分节点可能从两端分别被访问。',
+          '同一个细分节点不能被重复计数。',
+        ],
+      },
+      {
+        id: 'reachable-nodes-in-subdivided-graph-observe',
+        title: '先求原节点最短距离，再分配边上的剩余步数',
+        summary:
+          '对于原节点，使用 Dijkstra 得到从 0 出发的最短距离。对边 `(u, v)`，从 u 端最多能覆盖 `maxMoves - dist[u]` 个细分节点，从 v 端最多能覆盖 `maxMoves - dist[v]` 个；两者之和最多只能覆盖这条边实际拥有的 `cnt` 个节点。',
+        bullets: [
+          'Dijkstra 只在原图节点上运行。',
+          '边的权重应设为 `cnt + 1`，代表穿过整条细分边的步数。',
+          '可达原节点先按最短距离统计。',
+          '边贡献使用两端覆盖数之和与 `cnt` 的最小值。',
+        ],
+      },
+      {
+        id: 'reachable-nodes-in-subdivided-graph-solution',
+        title: '标准解法：Dijkstra + 边贡献统计',
+        summary:
+          '先计算原节点最短距离，再累加距离可达的原节点。随后遍历每条原始边，根据两端剩余步数计算最多能覆盖的细分节点数。示例使用最小堆实现 Dijkstra。',
+        bullets: [
+          '时间复杂度：`O((V + E) log V)`。',
+          '空间复杂度：`O(V + E)`。',
+          '边上的细分节点不需要显式建图，避免图规模膨胀。',
+          '最终统计时要保证每条无向边只处理一次。',
+        ],
+        code: `function reachableNodes(
+  edges: number[][],
+  maxMoves: number,
+  n: number,
+): number {
+  const graph = Array.from({ length: n }, () => [])
+  for (const [from, to, count] of edges) {
+    graph[from].push([to, count])
+    graph[to].push([from, count])
+  }
+
+  const distance = Array(n).fill(Infinity)
+  distance[0] = 0
+  const queue: Array<[number, number]> = [[0, 0]]
+
+  while (queue.length > 0) {
+    queue.sort((first, second) => first[0] - second[0])
+    const [currentDistance, node] = queue.shift()!
+    if (currentDistance !== distance[node]) continue
+
+    for (const [next, count] of graph[node]) {
+      const candidate = currentDistance + count + 1
+      if (candidate < distance[next]) {
+        distance[next] = candidate
+        queue.push([candidate, next])
+      }
+    }
+  }
+
+  let answer = distance.filter((value) => value <= maxMoves).length
+  for (const [from, to, count] of edges) {
+    const fromReach = Math.max(0, maxMoves - distance[from])
+    const toReach = Math.max(0, maxMoves - distance[to])
+    answer += Math.min(count, fromReach + toReach)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'reachable-nodes-in-subdivided-graph-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不能真的把每条边拆成大量节点，否则可能超出规模限制。正确做法是保留原图，用距离和边剩余容量间接统计。',
+        bullets: [
+          '易错点 1：把边权写成 `cnt`，漏掉进入下一个原节点的步数。',
+          '易错点 2：两端覆盖的细分节点直接相加，没有截断到 `cnt`。',
+          '易错点 3：把无向边重复建模后又重复统计答案。',
+          '延伸方向：Dijkstra、隐式图、边贡献分解。',
+        ],
+      },
+    ],
+  },
 ];
