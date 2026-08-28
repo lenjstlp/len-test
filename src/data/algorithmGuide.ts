@@ -90240,4 +90240,81 @@ function middleNode(head: ListNode | null): ListNode | null {
       },
     ],
   },
+  {
+    id: 'fair-candy-swap',
+    label: '888. LeetCode 888. 公平的糖果交换',
+    difficulty: '简单',
+    description:
+      '爱丽丝和鲍勃分别有若干糖果，交换一颗糖果后要求两人的糖果总量相等，返回任意可行的交换方案。核心是先由总和差值推出交换量，再用集合快速查找对应糖果。',
+    outcome:
+      '你能把交换后的等式整理成固定差值关系，使用哈希集合将双重枚举优化为线性查找。',
+    sections: [
+      {
+        id: 'fair-candy-swap-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `aliceSizes` 和 `bobSizes`，分别表示两人的糖果盒大小。爱丽丝拿走一盒糖果给鲍勃，鲍勃也拿一盒给爱丽丝，要求交换后两人的糖果总量相同。',
+        bullets: [
+          '交换的是数组中的一个元素，而不是任意数量的糖果。',
+          '返回 `[x, y]`，表示爱丽丝交出 `x`、鲍勃交出 `y`。',
+          '题目保证至少存在一个答案。',
+          '交换后总和相同意味着两人的差值必须被交换量抵消。',
+        ],
+      },
+      {
+        id: 'fair-candy-swap-observe',
+        title: '由总和差值直接推出交换关系',
+        summary:
+          '设爱丽丝总和为 `sumA`，鲍勃总和为 `sumB`。交换 `x` 和 `y` 后相等，需要满足 `sumA - x + y = sumB - y + x`，整理得 `y = x + (sumB - sumA) / 2`。因此只要枚举爱丽丝的糖果，再到鲍勃集合中查目标值即可。',
+        bullets: [
+          '先计算两人的总和差。',
+          '如果差值不是偶数，就不可能通过一次交换平衡。',
+          '把鲍勃数组放入集合，查询目标值平均为 `O(1)`。',
+          '找到一组满足关系的 `x`、`y` 后即可返回。',
+        ],
+      },
+      {
+        id: 'fair-candy-swap-solution',
+        title: '标准解法：差值推导 + 集合查询',
+        summary:
+          '计算 `difference = (sumB - sumA) / 2`。对爱丽丝的每个糖果盒 `x`，目标交换值为 `x + difference`；如果该值存在于鲍勃的集合中，就得到合法答案。',
+        bullets: [
+          '时间复杂度：`O(n + m)`。',
+          '空间复杂度：`O(m)`。',
+          '等式推导比枚举所有 `(x, y)` 配对更直接。',
+          '集合只用于判断存在性，不需要保存重复值次数。',
+        ],
+        code: `function fairCandySwap(
+  aliceSizes: number[],
+  bobSizes: number[],
+): number[] {
+  const aliceTotal = aliceSizes.reduce((sum, value) => sum + value, 0)
+  const bobTotal = bobSizes.reduce((sum, value) => sum + value, 0)
+  const difference = (bobTotal - aliceTotal) / 2
+  const bobValues = new Set(bobSizes)
+
+  for (const aliceCandy of aliceSizes) {
+    const bobCandy = aliceCandy + difference
+    if (bobValues.has(bobCandy)) {
+      return [aliceCandy, bobCandy]
+    }
+  }
+
+  return []
+}`,
+      },
+      {
+        id: 'fair-candy-swap-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不需要比较交换后的所有总和，关键是把等式先化简。只要差值关系正确，剩下就是一次集合查找。',
+        bullets: [
+          '易错点 1：把差值除以 2 的方向写反。',
+          '易错点 2：枚举双方所有组合，产生不必要的 `O(nm)` 复杂度。',
+          '易错点 3：忘记交换关系要求两个数组中的值真实存在。',
+          '延伸方向：代数化简、哈希集合、双数组匹配。',
+        ],
+      },
+    ],
+  },
 ];
