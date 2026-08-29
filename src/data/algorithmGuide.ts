@@ -91180,4 +91180,78 @@ function increasingBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'orderly-queue',
+    label: '899. LeetCode 899. 整齐队列',
+    difficulty: '困难',
+    description:
+      '给定字符串和整数 `k`，每次可以取出前 `k` 个字符中的任意一个并放到末尾，求能得到的字典序最小字符串。核心是区分 `k = 1` 和 `k > 1` 时操作能力的本质差异。',
+    outcome:
+      '你能通过分析操作可达性判断问题究竟是循环移位还是任意重排，避免不必要的搜索和模拟。',
+    sections: [
+      {
+        id: 'orderly-queue-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s` 和正整数 `k`。每次从字符串前 `k` 个字符中选一个移动到末尾，重复任意次后，返回字典序最小的结果。',
+        bullets: [
+          '移动操作保持字符总数和相对规则约束。',
+          '目标是字典序最小，不是数值最小。',
+          '`k` 的取值直接决定能够达到哪些排列。',
+          '需要先分析操作空间，而不是直接枚举操作序列。',
+        ],
+      },
+      {
+        id: 'orderly-queue-observe',
+        title: 'k 的大小决定可达状态空间',
+        summary:
+          '当 `k = 1` 时，每次只能把首字符移到末尾，因此所有结果只是原字符串的循环移位，枚举 `n` 个起点即可。当 `k > 1` 时，通过多次操作可以实现任意重排，字典序最小结果就是排序后的字符串。',
+        bullets: [
+          '`k = 1` 时只能比较所有循环移位。',
+          '`k > 1` 时可以逐步把任意字符移动到需要的位置。',
+          '循环移位可以用 `s.slice(start) + s.slice(0, start)` 生成。',
+          '任意重排场景直接排序，不需要模拟操作过程。',
+        ],
+      },
+      {
+        id: 'orderly-queue-solution',
+        title: '标准解法：特殊值分类处理',
+        summary:
+          '先判断 `k`。如果大于 1，对字符数组排序后拼接；如果等于 1，从每个位置开始生成循环移位并保留字典序最小值。',
+        bullets: [
+          '时间复杂度：`k > 1` 时为 `O(n log n)`，`k = 1` 时为 `O(n²)`。',
+          '空间复杂度：`O(n)`。',
+          '循环移位的比较必须完整比较字符串，而不能只比较首字符。',
+          '分类前先理解可达性，比盲目 BFS 搜索状态更重要。',
+        ],
+        code: `function orderlyQueue(s: string, k: number): string {
+  if (k > 1) {
+    return [...s].sort().join('')
+  }
+
+  let answer = s
+  for (let start = 1; start < s.length; start += 1) {
+    const rotation = s.slice(start) + s.slice(0, start)
+    if (rotation < answer) {
+      answer = rotation
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'orderly-queue-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易把所有 `k` 都当成循环移位，或者在 `k = 1` 时直接排序。操作规则的细微变化会导致完全不同的可达集合。',
+        bullets: [
+          '易错点 1：`k = 1` 时错误地直接排序。',
+          '易错点 2：只生成一半循环移位，漏掉原字符串起点。',
+          '易错点 3：把字典序比较误写成长度或字符和比较。',
+          '延伸方向：字符串旋转、可达状态、操作等价性。',
+        ],
+      },
+    ],
+  },
 ];
