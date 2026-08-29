@@ -90761,4 +90761,98 @@ function constructFromPrePost(
       },
     ],
   },
+  {
+    id: 'all-possible-full-binary-trees',
+    label: '894. LeetCode 894. 所有可能的真二叉树',
+    difficulty: '中等',
+    description:
+      '给定奇数节点数 `n`，构造所有可能的真二叉树。真二叉树的每个节点要么没有孩子，要么同时拥有左右孩子。核心是枚举左右子树的节点数分配，并用记忆化避免重复计算。',
+    outcome:
+      '你能用递归拆分树的规模，理解“根节点占 1 个节点，左右子树规模之和固定”的组合构造模型。',
+    sections: [
+      {
+        id: 'all-possible-full-binary-trees-summary',
+        title: '题目在问什么',
+        summary:
+          '给定正整数 `n`，返回所有包含恰好 `n` 个节点的真二叉树。每个节点的值固定为 `0`，树的结构不同就算不同答案。',
+        bullets: [
+          '真二叉树节点的孩子数量只能是 0 或 2。',
+          '节点总数必须是奇数，偶数节点不可能构成真二叉树。',
+          '根节点先占用 1 个节点。',
+          '左右子树节点数必须分别是奇数，且总和为 `n - 1`。',
+        ],
+      },
+      {
+        id: 'all-possible-full-binary-trees-observe',
+        title: '把大树拆成左右两棵更小的真二叉树',
+        summary:
+          '对于 `n` 个节点的真二叉树，根节点固定占 1 个，剩下 `n - 1` 个节点要分给左右子树。枚举左子树节点数 `leftSize`，右子树就是 `n - 1 - leftSize`；将两边所有可能的树两两组合，就得到当前规模的全部答案。',
+        bullets: [
+          '左子树和右子树都必须是合法真二叉树。',
+          '只枚举奇数的 `leftSize`，自然保证右侧也是奇数。',
+          '左右子树结果做笛卡尔积，覆盖所有结构组合。',
+          '缓存每个节点数对应的结果，避免相同规模重复递归。',
+        ],
+      },
+      {
+        id: 'all-possible-full-binary-trees-solution',
+        title: '标准解法：递归枚举 + 记忆化',
+        summary:
+          '使用 `build(size)` 返回指定节点数的所有真二叉树。`size` 为偶数时返回空数组；`size` 为 1 时返回只有根节点的树；其他情况枚举左右规模并组合结果。',
+        bullets: [
+          '时间复杂度与答案数量相关，真二叉树数量按 Catalan 数增长。',
+          '空间复杂度包含记忆化结果和递归栈。',
+          '记忆化保存的是结构集合，不能把复杂度误认为普通线性 DP。',
+          '若树对象后续会被修改，应为每个组合深拷贝子树，避免共享引用。',
+        ],
+        code: `type TreeNode = {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+}
+
+function allPossibleFBT(n: number): Array<TreeNode | null> {
+  const memo = new Map<number, Array<TreeNode | null>>()
+
+  function build(size: number): Array<TreeNode | null> {
+    if (memo.has(size)) return memo.get(size)!
+    if (size % 2 === 0) return []
+
+    if (size === 1) {
+      const leaf = [{ val: 0, left: null, right: null } satisfies TreeNode]
+      memo.set(size, leaf)
+      return leaf
+    }
+
+    const trees: Array<TreeNode | null> = []
+    for (let leftSize = 1; leftSize < size; leftSize += 2) {
+      const rightSize = size - 1 - leftSize
+      for (const left of build(leftSize)) {
+        for (const right of build(rightSize)) {
+          trees.push({ val: 0, left, right })
+        }
+      }
+    }
+
+    memo.set(size, trees)
+    return trees
+  }
+
+  return build(n)
+}`,
+      },
+      {
+        id: 'all-possible-full-binary-trees-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不是求一棵树，而是返回全部结构，因此答案规模本身可能很大。递归边界和左右子树规模的奇偶性必须先处理清楚。',
+        bullets: [
+          '易错点 1：允许偶数节点数进入递归，产生非法结构。',
+          '易错点 2：左子树节点数从 0 开始，破坏真二叉树定义。',
+          '易错点 3：忘记对左右子树结果做全部组合。',
+          '延伸方向：树形组合、记忆化递归、Catalan 结构。',
+        ],
+      },
+    ],
+  },
 ];
