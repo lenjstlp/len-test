@@ -90427,4 +90427,95 @@ function constructFromPrePost(
       },
     ],
   },
+  {
+    id: 'find-and-replace-pattern',
+    label: '890. LeetCode 890. 查找和替换模式',
+    difficulty: '中等',
+    description:
+      '给定一个模式和若干单词，找出与模式具有相同字母映射关系的单词。核心不是比较字符是否相同，而是验证模式和单词之间是否存在双向一一映射。',
+    outcome:
+      '你能处理“结构相同但具体字符不同”的匹配问题，掌握双向哈希映射和模式标准化两种通用方法。',
+    sections: [
+      {
+        id: 'find-and-replace-pattern-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `pattern` 和单词数组 `words`，如果某个单词可以通过对模式中的每个字母进行一致替换得到，就把它加入答案。替换必须保持一一对应。',
+        bullets: [
+          '同一个模式字符必须始终映射到同一个单词字符。',
+          '两个不同的模式字符不能映射到同一个单词字符。',
+          '单词长度必须和模式长度相同。',
+          '例如模式 `abb` 可以匹配 `mee`，但不能匹配 `abc`。',
+        ],
+      },
+      {
+        id: 'find-and-replace-pattern-observe',
+        title: '单向映射不够，必须保证双向唯一',
+        summary:
+          '只记录 `pattern -> word` 的映射，会把模式 `ab` 和单词 `cc` 错误判定为匹配。还需要记录 `word -> pattern`，确保两个方向都没有冲突，才能满足一一对应。',
+        bullets: [
+          '遍历相同位置的两个字符。',
+          '已有映射时检查映射结果是否一致。',
+          '没有映射时，同时写入两个方向的映射。',
+          '任意一个方向冲突都说明当前单词不匹配。',
+        ],
+      },
+      {
+        id: 'find-and-replace-pattern-solution',
+        title: '标准解法：双向 Map 校验映射',
+        summary:
+          '对每个单词独立创建两个映射表，逐位检查模式字符和单词字符的对应关系。当前单词全部通过后加入结果。',
+        bullets: [
+          '时间复杂度：`O(w * l)`，`w` 是单词数，`l` 是单词长度。',
+          '空间复杂度：`O(l)`，用于当前单词的映射。',
+          '双向映射可以直接表达双射约束。',
+          '也可以把字符串转换成“首次出现位置序列”后比较结构。',
+        ],
+        code: `function findAndReplacePattern(
+  words: string[],
+  pattern: string,
+): string[] {
+  function matches(word: string): boolean {
+    if (word.length !== pattern.length) return false
+
+    const patternToWord = new Map<string, string>()
+    const wordToPattern = new Map<string, string>()
+
+    for (let index = 0; index < pattern.length; index += 1) {
+      const patternChar = pattern[index]
+      const wordChar = word[index]
+      const mappedWordChar = patternToWord.get(patternChar)
+      const mappedPatternChar = wordToPattern.get(wordChar)
+
+      if (
+        (mappedWordChar && mappedWordChar !== wordChar) ||
+        (mappedPatternChar && mappedPatternChar !== patternChar)
+      ) {
+        return false
+      }
+
+      patternToWord.set(patternChar, wordChar)
+      wordToPattern.set(wordChar, patternChar)
+    }
+
+    return true
+  }
+
+  return words.filter(matches)
+}`,
+      },
+      {
+        id: 'find-and-replace-pattern-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这类题判断的是字符出现结构，而不是字符本身。最常见错误是只维护一个方向的映射，导致多个模式字符复用同一个目标字符。',
+        bullets: [
+          '易错点 1：漏掉长度不同的单词。',
+          '易错点 2：只检查模式到单词的映射。',
+          '易错点 3：不同单词之间复用映射表，造成状态污染。',
+          '延伸方向：双射、模式匹配、结构标准化。',
+        ],
+      },
+    ],
+  },
 ];
