@@ -90598,4 +90598,86 @@ function constructFromPrePost(
       },
     ],
   },
+  {
+    id: 'surface-area-of-3d-shapes',
+    label: '892. LeetCode 892. 三维形体的表面积',
+    difficulty: '简单',
+    description:
+      '给定网格中每个位置堆叠的立方体数量，求整个三维形体的表面积。核心是先累加每个柱体独立的表面积，再扣除相邻柱体接触面被遮挡的面积。',
+    outcome:
+      '你能把三维几何统计拆成局部贡献和相邻关系，掌握网格中“重复计算后统一扣除”的建模方式。',
+    sections: [
+      {
+        id: 'surface-area-of-3d-shapes-summary',
+        title: '题目在问什么',
+        summary:
+          '给定二维网格 `grid`，每个格子的值表示该位置竖直堆叠的立方体数量。返回这些立方体组成的整体外表面积，贴在一起的面不计入外表面积。',
+        bullets: [
+          '空格子不包含立方体，也不会贡献面积。',
+          '单个高度为 `h` 的柱体独立表面积为 `4h + 2`。',
+          '相邻柱体的接触面积取两者高度的较小值。',
+          '每个接触面属于两个柱体，需要扣除两次。',
+        ],
+      },
+      {
+        id: 'surface-area-of-3d-shapes-observe',
+        title: '先算独立表面积，再扣除相邻接触面',
+        summary:
+          '每个高度为 `h` 的柱体有 `h` 个顶面、`h` 个底面和四侧各 `h` 个单位面，所以独立贡献是 `4h + 2`。如果右侧或下方存在相邻柱体，较矮部分的侧面会被遮住，接触面积为 `min(current, neighbor)`，需要扣除两倍。',
+        bullets: [
+          '上下表面只要柱体高度大于 0 就各贡献 1。',
+          '四个方向的侧面积可以只检查右方和下方，避免重复。',
+          '边界外视为空柱体，高度为 0。',
+          '相邻扣除使用 `2 * Math.min(height, neighborHeight)`。',
+        ],
+      },
+      {
+        id: 'surface-area-of-3d-shapes-solution',
+        title: '标准解法：局部贡献 + 右下邻居扣除',
+        summary:
+          '遍历每个格子，对非零高度加入上下表面和四个侧面的独立贡献；只与右邻居、下邻居比较并扣除接触面积的两倍，就能保证每对相邻柱体恰好处理一次。',
+        bullets: [
+          '时间复杂度：`O(rows * cols)`。',
+          '空间复杂度：`O(1)`。',
+          '每对相邻柱体只在一个方向上处理，避免重复扣除。',
+          '直接计算表面积比显式构造每个立方体更高效。',
+        ],
+        code: `function surfaceArea(grid: number[][]): number {
+  const rows = grid.length
+  const cols = grid[0]?.length ?? 0
+  let area = 0
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      const height = grid[row][col]
+      if (height === 0) continue
+
+      area += height * 4 + 2
+
+      if (row + 1 < rows) {
+        area -= 2 * Math.min(height, grid[row + 1][col])
+      }
+      if (col + 1 < cols) {
+        area -= 2 * Math.min(height, grid[row][col + 1])
+      }
+    }
+  }
+
+  return area
+}`,
+      },
+      {
+        id: 'surface-area-of-3d-shapes-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易把相邻柱体的接触面只扣一次，或者四个方向都扣导致重复计算。选择固定方向处理邻居，可以让计数边界清晰。',
+        bullets: [
+          '易错点 1：高度为 0 的格子错误增加上下表面。',
+          '易错点 2：相邻接触面积只扣一次。',
+          '易错点 3：同时处理四个方向，重复扣除相同接触面。',
+          '延伸方向：网格几何、邻接关系、局部贡献统计。',
+        ],
+      },
+    ],
+  },
 ];
