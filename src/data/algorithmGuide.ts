@@ -90942,4 +90942,81 @@ function allPossibleFBT(n: number): Array<TreeNode | null> {
       },
     ],
   },
+  {
+    id: 'monotonic-array',
+    label: '896. LeetCode 896. 单调数列',
+    difficulty: '简单',
+    description:
+      '判断一个数组是否单调：要么从左到右始终不减，要么始终不增。核心是只需记录数组中是否出现过上升和下降，一旦两者同时出现就不是单调数组。',
+    outcome:
+      '你能用一次线性扫描识别序列趋势，理解“不减”和“不增”允许相邻元素相等，并避免为两种方向分别重复遍历。',
+    sections: [
+      {
+        id: 'monotonic-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums`，如果数组从左到右始终不减，或始终不增，则称它是单调数组，返回是否满足条件。',
+        bullets: [
+          '不减表示后一个元素大于等于前一个元素。',
+          '不增表示后一个元素小于等于前一个元素。',
+          '全相等数组同时满足两种定义。',
+          '只要同时出现上升和下降趋势，就一定不是单调数组。',
+        ],
+      },
+      {
+        id: 'monotonic-array-observe',
+        title: '只需要记录出现过的两种趋势',
+        summary:
+          '遍历相邻元素，如果当前值大于前一个值，说明出现过上升；如果小于前一个值，说明出现过下降。最后只要不是“既上升又下降”，数组就是单调的。相等值不改变趋势。',
+        bullets: [
+          '使用两个布尔变量记录 `increasing` 和 `decreasing`。',
+          '相邻元素相等时不更新任何标记。',
+          '发现两个标记都为真时可以提前返回 `false`。',
+          '数组长度小于 2 时天然满足单调性。',
+        ],
+      },
+      {
+        id: 'monotonic-array-solution',
+        title: '标准解法：一次扫描判断趋势冲突',
+        summary:
+          '从第二个元素开始比较相邻值，分别记录是否出现严格上升和严格下降。最终返回两个趋势标记不能同时成立。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '严格上升和严格下降只用于记录趋势，题目判定仍是不减和不增。',
+          '提前退出可以减少已经确定不合法后的遍历。',
+        ],
+        code: `function isMonotonic(nums: number[]): boolean {
+  let increasing = false
+  let decreasing = false
+
+  for (let index = 1; index < nums.length; index += 1) {
+    if (nums[index] > nums[index - 1]) {
+      increasing = true
+    }
+    if (nums[index] < nums[index - 1]) {
+      decreasing = true
+    }
+    if (increasing && decreasing) {
+      return false
+    }
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'monotonic-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '单调数组允许相等元素，不能把“严格递增”误当成“不减”。用趋势标记比维护方向值更不容易漏掉全相等情况。',
+        bullets: [
+          '易错点 1：相等元素被错误判为破坏单调性。',
+          '易错点 2：只判断递增，漏掉完全递减数组。',
+          '易错点 3：数组长度为 0 或 1 时访问越界。',
+          '延伸方向：序列趋势、一次扫描、状态标记。',
+        ],
+      },
+    ],
+  },
 ];
