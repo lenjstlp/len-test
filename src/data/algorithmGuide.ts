@@ -91254,4 +91254,86 @@ function increasingBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'rle-iterator',
+    label: '900. LeetCode 900. RLE 迭代器',
+    difficulty: '中等',
+    description:
+      '给定游程编码数组，每两个数字表示某个值及其连续出现次数，实现按顺序消耗指定数量元素并返回最后一个被消耗的值。核心是维护当前段剩余数量，并在一次 next 中跨过多个耗尽的编码段。',
+    outcome:
+      '你能掌握压缩数据结构上的迭代器设计，理解如何在不展开原始序列的情况下完成按位置读取。',
+    sections: [
+      {
+        id: 'rle-iterator-summary',
+        title: '题目在问什么',
+        summary:
+          '游程编码数组 `encoding` 按 `[count, value]` 成对出现，表示 `value` 连续重复 `count` 次。实现 `next(n)`，消耗接下来的 `n` 个元素并返回最后一个消耗元素；如果剩余元素不足，返回 `-1`。',
+        bullets: [
+          '编码数组只保存连续相同值的数量和数值。',
+          '每次 `next` 都会改变迭代器当前位置。',
+          '一次请求可能正好跨过多个游程段。',
+          '不能把编码数组展开成完整数组，否则会浪费空间。',
+        ],
+      },
+      {
+        id: 'rle-iterator-observe',
+        title: '把当前位置压缩成段下标和剩余数量',
+        summary:
+          '维护当前游程段的下标 `index` 和该段剩余数量 `remaining`。请求消耗 `n` 个元素时，如果当前段不够，就先消耗完它并进入下一段；如果当前段足够，直接减少剩余数量并返回当前值。',
+        bullets: [
+          '当前段的值位于 `encoding[index + 1]`。',
+          '当前段的数量位于 `encoding[index]`。',
+          '跨段时将 `n` 减去当前段剩余数量。',
+          '跳到下一段后重新读取数量和值。',
+        ],
+      },
+      {
+        id: 'rle-iterator-solution',
+        title: '标准解法：游程段按需消费',
+        summary:
+          '初始化指针指向第一个游程段。`next(n)` 循环消费当前段：若 `remaining >= n`，只更新剩余数量并返回当前值；否则消耗整段、移动指针并继续。',
+        bullets: [
+          '构造函数时间复杂度：`O(1)`。',
+          '每次 `next` 的复杂度与跨过的游程段数量有关，均摊复杂度接近 `O(1)`。',
+          '空间复杂度：`O(1)`，只维护游标状态。',
+          '请求总量不足时，消耗完所有段后返回 `-1`。',
+        ],
+        code: `class RLEIterator {
+  private readonly encoding: number[]
+  private index = 0
+
+  constructor(encoding: number[]) {
+    this.encoding = encoding
+  }
+
+  next(n: number): number {
+    while (this.index < this.encoding.length) {
+      const count = this.encoding[this.index]
+      if (count >= n) {
+        this.encoding[this.index] -= n
+        return this.encoding[this.index + 1]
+      }
+
+      n -= count
+      this.index += 2
+    }
+
+    return -1
+  }
+}`,
+      },
+      {
+        id: 'rle-iterator-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题容易在跨段消费时忘记移动两个位置，或者把当前段剩余数量和原始数量混用。迭代器的核心是维护一个始终一致的游标状态。',
+        bullets: [
+          '易错点 1：每次只移动一个编码位置，导致值和数量错位。',
+          '易错点 2：当前段数量不足时没有继续消费后续游程。',
+          '易错点 3：剩余数量更新后没有返回当前游程对应的值。',
+          '延伸方向：游程编码、压缩数据访问、流式迭代器。',
+        ],
+      },
+    ],
+  },
 ];
