@@ -91019,4 +91019,88 @@ function allPossibleFBT(n: number): Array<TreeNode | null> {
       },
     ],
   },
+  {
+    id: 'increasing-order-search-tree',
+    label: '897. LeetCode 897. 递增顺序搜索树',
+    difficulty: '简单',
+    description:
+      '将二叉搜索树重新排列成一个只有右孩子的树，并保证节点值按递增顺序排列。核心是利用二叉搜索树的中序遍历天然有序，再按顺序重新连接节点。',
+    outcome:
+      '你能把搜索树性质和遍历顺序结合起来，掌握“提取有序序列后重建结构”的树转换方法。',
+    sections: [
+      {
+        id: 'increasing-order-search-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉搜索树，返回一棵新的树：最小节点作为根，所有节点都只有右孩子，且节点值从上到下严格递增。',
+        bullets: [
+          '二叉搜索树中序遍历结果是升序序列。',
+          '结果树的所有左孩子都必须为 `null`。',
+          '结果树的右孩子链按升序连接。',
+          '可以新建节点，也可以复用原节点并重置指针。',
+        ],
+      },
+      {
+        id: 'increasing-order-search-tree-observe',
+        title: '先利用中序遍历拿到有序节点',
+        summary:
+          '搜索树最重要的性质是中序遍历有序。因此先进行中序遍历收集节点，再从第一个节点开始逐个设置 `left = null`、`right = next`，即可完成结构重排。',
+        bullets: [
+          '中序顺序是左子树、当前节点、右子树。',
+          '收集节点引用比只收集值更方便重连原树。',
+          '重连前清空当前节点的左孩子，避免保留旧结构。',
+          '最后一个节点的右孩子必须设为 `null`。',
+        ],
+      },
+      {
+        id: 'increasing-order-search-tree-solution',
+        title: '标准解法：中序收集 + 右链重建',
+        summary:
+          '中序遍历将所有节点按值放入数组，然后按数组顺序重置每个节点的左右指针。这样不需要重新比较节点值，也不会破坏升序关系。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`，用于节点数组和递归栈。',
+          '复用节点时要清理旧的左右指针。',
+          '如果不希望修改原树，可以按节点值创建新节点。',
+        ],
+        code: `type TreeNode = {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+}
+
+function increasingBST(root: TreeNode | null): TreeNode | null {
+  const nodes: TreeNode[] = []
+
+  function inorder(node: TreeNode | null): void {
+    if (!node) return
+    inorder(node.left)
+    nodes.push(node)
+    inorder(node.right)
+  }
+
+  inorder(root)
+
+  for (let index = 0; index < nodes.length; index += 1) {
+    nodes[index].left = null
+    nodes[index].right = nodes[index + 1] ?? null
+  }
+
+  return nodes[0] ?? null
+}`,
+      },
+      {
+        id: 'increasing-order-search-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的关键不是重新排序节点值，而是保留搜索树的中序顺序并安全重连指针。重连时若忘记清空左指针，结果就不是右链。',
+        bullets: [
+          '易错点 1：使用前序或后序遍历，破坏升序顺序。',
+          '易错点 2：最后一个节点仍保留旧的右子树。',
+          '易错点 3：只修改 `right`，没有清理 `left`。',
+          '延伸方向：BST、中序遍历、树结构变换。',
+        ],
+      },
+    ],
+  },
 ];
