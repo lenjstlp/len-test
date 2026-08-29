@@ -90518,4 +90518,84 @@ function constructFromPrePost(
       },
     ],
   },
+  {
+    id: 'sum-of-subsequence-widths',
+    label: '891. LeetCode 891. 子序列宽度之和',
+    difficulty: '中等',
+    description:
+      '给定一个整数数组，求所有非空子序列的宽度之和，其中宽度等于最大值减最小值。核心是排序后统计每个元素分别作为最大值和最小值时出现的次数。',
+    outcome:
+      '你能把指数级子序列枚举转化为元素贡献统计，理解排序、组合计数和幂次预计算如何共同优化子序列问题。',
+    sections: [
+      {
+        id: 'sum-of-subsequence-widths-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `nums`，一个子序列的宽度是该子序列最大元素与最小元素的差。返回所有非空子序列宽度之和，并对 `10^9 + 7` 取模。',
+        bullets: [
+          '子序列可以删除任意元素，但要保留剩余元素的相对顺序。',
+          '单元素子序列的宽度为 0。',
+          '数组中重复值仍然按不同下标区分。',
+          '所有子序列数量是指数级，不能逐个生成。',
+        ],
+      },
+      {
+        id: 'sum-of-subsequence-widths-observe',
+        title: '把每个元素拆成最大值贡献和最小值贡献',
+        summary:
+          '排序后，固定下标 `i` 的元素作为某个子序列最大值时，左边可以任意选或不选，共有 `2^i` 种选择；作为最小值时，右边可以任意选或不选，共有 `2^(n-i-1)` 种选择。因此它的净贡献是 `nums[i] * (2^i - 2^(n-i-1))`。',
+        bullets: [
+          '排序让左边元素不大于当前值，右边元素不小于当前值。',
+          '最大值贡献需要选择当前元素并任意选择左侧元素。',
+          '最小值贡献需要选择当前元素并任意选择右侧元素。',
+          '每个子序列的最大值和最小值恰好被分别统计一次。',
+        ],
+      },
+      {
+        id: 'sum-of-subsequence-widths-solution',
+        title: '标准解法：排序 + 幂次贡献',
+        summary:
+          '先排序数组并预计算 `2^i`。遍历每个位置，把它作为最大值的贡献减去作为最小值的贡献，累加后取模。',
+        bullets: [
+          '时间复杂度：`O(n log n)`，主要来自排序。',
+          '空间复杂度：`O(n)`，用于保存幂次。',
+          '幂次每次乘 2 并取模即可预计算。',
+          '负贡献要及时加上模数，避免取模结果为负。',
+        ],
+        code: `function sumSubseqWidths(nums: number[]): number {
+  const mod = 1_000_000_007
+  nums.sort((first, second) => first - second)
+  const powersOfTwo = Array(nums.length).fill(1)
+
+  for (let index = 1; index < nums.length; index += 1) {
+    powersOfTwo[index] = (powersOfTwo[index - 1] * 2) % mod
+  }
+
+  let answer = 0
+  const lastIndex = nums.length - 1
+
+  for (let index = 0; index < nums.length; index += 1) {
+    const maximumCount = powersOfTwo[index]
+    const minimumCount = powersOfTwo[lastIndex - index]
+    answer =
+      (answer + nums[index] * (maximumCount - minimumCount)) % mod
+  }
+
+  return (answer + mod) % mod
+}`,
+      },
+      {
+        id: 'sum-of-subsequence-widths-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题容易在“子序列”概念上走向枚举。真正的突破口是宽度只依赖最大值和最小值，中间元素只影响组合数量。',
+        bullets: [
+          '易错点 1：生成全部子序列，复杂度达到 `O(2^n)`。',
+          '易错点 2：最大值和最小值的组合次数方向写反。',
+          '易错点 3：忘记对幂次和最终答案取模。',
+          '延伸方向：贡献法、组合计数、排序后统计。',
+        ],
+      },
+    ],
+  },
 ];
