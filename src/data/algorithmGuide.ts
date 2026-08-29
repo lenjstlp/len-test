@@ -91103,4 +91103,81 @@ function increasingBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'bitwise-ors-of-subarrays',
+    label: '898. LeetCode 898. 子数组按位或操作',
+    difficulty: '中等',
+    description:
+      '给定整数数组，求所有连续子数组按位或运算结果的不同值数量。核心是按右端点推进，只保存以当前位置结尾的不同 OR 结果，因为相同结果可以合并。',
+    outcome:
+      '你能将连续子数组枚举压缩成滚动状态集合，理解位运算的单调性如何限制每一步产生的不同结果数量。',
+    sections: [
+      {
+        id: 'bitwise-ors-of-subarrays-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `arr`，对每个非空连续子数组执行按位或运算，返回所有结果中不同整数的数量。',
+        bullets: [
+          '子数组必须连续，不能跳过元素。',
+          '不同子数组得到相同 OR 值时只计一次。',
+          '单元素子数组也属于候选。',
+          '直接枚举全部子数组数量是 `O(n²)`，还要计算 OR。',
+        ],
+      },
+      {
+        id: 'bitwise-ors-of-subarrays-observe',
+        title: '只维护以当前位置结尾的不同结果',
+        summary:
+          '处理新元素 `value` 时，所有以它结尾的子数组只有两类：只包含当前元素，或者由之前以 `index - 1` 结尾的子数组继续拼接。前一类结果是 `value`，后一类结果是 `previous | value`。把重复结果合并后即可继续向后推进。',
+        bullets: [
+          '`current = { value }` 是只取当前元素的结果。',
+          '遍历上一轮结果，计算每个结果与当前值的 OR。',
+          '使用集合去重，得到新的滚动状态。',
+          '将每轮结果加入全局集合，统计所有不同值。',
+        ],
+      },
+      {
+        id: 'bitwise-ors-of-subarrays-solution',
+        title: '标准解法：滚动 Set 压缩子数组状态',
+        summary:
+          '每次只保留以当前位置结尾的不同 OR 结果，而不是保存全部子数组。由于按位或只会让二进制位从 0 变成 1，单轮不同结果数量受到整数位数限制，实践中远小于子数组总数。',
+        bullets: [
+          '时间复杂度：`O(n * B)`，`B` 是整数的位数上限。',
+          '空间复杂度：`O(n * B)`，用于滚动集合和全局集合。',
+          'OR 运算具有幂等性，重复状态可以安全合并。',
+          '这是典型的“按终点压缩区间状态”技巧。',
+        ],
+        code: `function subarrayBitwiseORs(arr: number[]): number {
+  let previous = new Set<number>()
+  const allResults = new Set<number>()
+
+  for (const value of arr) {
+    const current = new Set<number>([value])
+    for (const result of previous) {
+      current.add(result | value)
+    }
+
+    for (const result of current) {
+      allResults.add(result)
+    }
+    previous = current
+  }
+
+  return allResults.size
+}`,
+      },
+      {
+        id: 'bitwise-ors-of-subarrays-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的关键是区分“所有子数组”和“所有不同结果”。如果保留相同 OR 值对应的每个区间，状态仍会迅速膨胀。',
+        bullets: [
+          '易错点 1：只统计以当前元素开头的子数组，漏掉连续扩展状态。',
+          '易错点 2：忘记把单元素 `value` 加入当前集合。',
+          '易错点 3：每轮没有清空当前状态，导致跨终点错误合并。',
+          '延伸方向：位运算 DP、区间状态压缩、不同结果计数。',
+        ],
+      },
+    ],
+  },
 ];
