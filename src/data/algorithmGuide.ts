@@ -90855,4 +90855,91 @@ function allPossibleFBT(n: number): Array<TreeNode | null> {
       },
     ],
   },
+  {
+    id: 'maximum-frequency-stack',
+    label: '895. LeetCode 895. 最大频率栈',
+    difficulty: '困难',
+    description:
+      '设计一个栈，弹出时优先返回出现频率最高的元素；如果多个元素频率相同，返回最近压入的元素。核心是同时维护元素频率和每个频率对应的入栈序列。',
+    outcome:
+      '你能把多重优先级规则拆成分层索引，掌握如何用哈希表和栈在均摊常数时间内实现复杂的出栈策略。',
+    sections: [
+      {
+        id: 'maximum-frequency-stack-summary',
+        title: '题目在问什么',
+        summary:
+          '实现 `push(value)` 和 `pop()`。`push` 将元素压入栈；`pop` 返回当前出现频率最高的元素，如果频率相同，则返回最近压入的那个元素。',
+        bullets: [
+          '频率是当前栈中元素的出现次数。',
+          '每次弹出后，元素频率会减少。',
+          '最高频率可能随着弹出操作降低。',
+          '频率相同的元素要遵守后进先出顺序。',
+        ],
+      },
+      {
+        id: 'maximum-frequency-stack-observe',
+        title: '把两个优先级拆成两张表',
+        summary:
+          '用 `frequency[value]` 记录每个值当前频率，用 `groups[freq]` 保存所有达到该频率的值，并按照进入该频率的时间压栈。`maxFrequency` 记录当前最高频率，弹出时只需取对应栈顶。',
+        bullets: [
+          '每次压入值时，频率先加一，再把值压入新频率对应的栈。',
+          '每次弹出时，从最高频率栈顶取值。',
+          '弹出后将该值频率减一。',
+          '如果最高频率栈变空，最高频率减一。',
+        ],
+      },
+      {
+        id: 'maximum-frequency-stack-solution',
+        title: '标准解法：频率分组栈',
+        summary:
+          '频率表解决“谁的出现次数最多”，分组栈解决“同频率时谁最后进入”。由于每次操作只涉及一个频率桶和一个元素，所以 `push`、`pop` 都可以做到 `O(1)`。',
+        bullets: [
+          '时间复杂度：`push` 和 `pop` 均为 `O(1)`。',
+          '空间复杂度：`O(n)`，保存所有压入元素。',
+          '不需要每次操作重新扫描所有元素统计频率。',
+          '频率桶本身就是对第二排序条件的显式编码。',
+        ],
+        code: `class FreqStack {
+  private readonly frequency = new Map<number, number>()
+  private readonly groups = new Map<number, number[]>()
+  private maxFrequency = 0
+
+  push(value: number): void {
+    const nextFrequency = (this.frequency.get(value) ?? 0) + 1
+    this.frequency.set(value, nextFrequency)
+    if (!this.groups.has(nextFrequency)) {
+      this.groups.set(nextFrequency, [])
+    }
+    this.groups.get(nextFrequency)!.push(value)
+    this.maxFrequency = Math.max(this.maxFrequency, nextFrequency)
+  }
+
+  pop(): number {
+    const group = this.groups.get(this.maxFrequency)!
+    const value = group.pop()!
+    const nextFrequency = this.frequency.get(value)! - 1
+    this.frequency.set(value, nextFrequency)
+
+    if (group.length === 0) {
+      this.maxFrequency -= 1
+    }
+
+    return value
+  }
+}`,
+      },
+      {
+        id: 'maximum-frequency-stack-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '单独维护频率无法解决同频率时的时间顺序，单独维护普通栈又无法快速找到最高频率。两层索引缺一不可。',
+        bullets: [
+          '易错点 1：弹出后忘记更新元素频率。',
+          '易错点 2：最高频率桶为空后没有降低最高频率。',
+          '易错点 3：同频率元素使用队列，破坏后进先出。',
+          '延伸方向：多级优先队列、频率桶、均摊复杂度。',
+        ],
+      },
+    ],
+  },
 ];
