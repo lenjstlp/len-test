@@ -90680,4 +90680,85 @@ function constructFromPrePost(
       },
     ],
   },
+  {
+    id: 'groups-of-special-equivalent-strings',
+    label: '893. LeetCode 893. 特殊等价字符串组',
+    difficulty: '简单',
+    description:
+      '如果可以通过任意次交换偶数下标字符，或任意次交换奇数下标字符，使两个字符串相同，则它们特殊等价。核心是分别统计偶数位置和奇数位置的字符组成，生成唯一签名。',
+    outcome:
+      '你能把一系列允许的交换操作抽象成不变量，用规范化签名判断字符串是否属于同一等价类。',
+    sections: [
+      {
+        id: 'groups-of-special-equivalent-strings-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串数组 `words`，如果两个字符串长度相同，并且可以通过交换相同奇偶性的下标字符互相转换，则它们属于同一组。返回不同特殊等价组的数量。',
+        bullets: [
+          '只能交换两个偶数下标字符，或两个奇数下标字符。',
+          '奇数位置和偶数位置不能互相交换。',
+          '同一奇偶位置集合中的字符可以任意重排。',
+          '不同字符串只要规范签名相同，就属于同一组。',
+        ],
+      },
+      {
+        id: 'groups-of-special-equivalent-strings-observe',
+        title: '交换操作真正保留下来的是什么',
+        summary:
+          '在允许的交换规则下，偶数下标位置上的字符集合不会离开偶数位置，奇数下标位置上的字符集合也不会离开奇数位置。由于每一组位置内部可以任意交换，所以只需比较两组字符的频次或排序结果。',
+        bullets: [
+          '遍历字符串时按下标奇偶分别收集字符。',
+          '对两组字符排序后拼接成签名。',
+          '相同签名代表可以通过合法交换互相得到。',
+          '使用集合保存签名即可统计等价类数量。',
+        ],
+      },
+      {
+        id: 'groups-of-special-equivalent-strings-solution',
+        title: '标准解法：奇偶分组排序 + Set 去重',
+        summary:
+          '对每个单词建立两个字符数组，分别保存偶数下标和奇数下标字符，排序后拼接为规范签名。将所有签名放入 `Set`，集合大小就是特殊等价组数量。',
+        bullets: [
+          '时间复杂度：`O(w * l log l)`，`w` 是单词数，`l` 是单词长度。',
+          '空间复杂度：`O(w * l)`，用于签名集合。',
+          '也可以使用 26 个字母的频次数组，进一步降低排序开销。',
+          '规范化的关键是完整保留奇偶位置两组的不变量。',
+        ],
+        code: `function numSpecialEquivGroups(words: string[]): number {
+  const signatures = new Set<string>()
+
+  for (const word of words) {
+    const even: string[] = []
+    const odd: string[] = []
+
+    for (let index = 0; index < word.length; index += 1) {
+      if (index % 2 === 0) {
+        even.push(word[index])
+      } else {
+        odd.push(word[index])
+      }
+    }
+
+    even.sort()
+    odd.sort()
+    signatures.add(even.join('') + '|' + odd.join(''))
+  }
+
+  return signatures.size
+}`,
+      },
+      {
+        id: 'groups-of-special-equivalent-strings-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不能把整个字符串排序后比较，因为奇数位置和偶数位置是两个互相独立的交换域。签名必须保留这两个域的边界。',
+        bullets: [
+          '易错点 1：把所有字符混在一起排序，丢失奇偶位置约束。',
+          '易错点 2：使用相同分隔方式时没有区分两组字符边界。',
+          '易错点 3：误以为只能交换一次，忽略任意次交换带来的任意重排。',
+          '延伸方向：等价类、规范化、操作不变量。',
+        ],
+      },
+    ],
+  },
 ];
