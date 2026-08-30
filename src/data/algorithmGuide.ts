@@ -92153,4 +92153,102 @@ function increasingBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'online-election',
+    label: '911. LeetCode 911. 在线选举',
+    difficulty: '中等',
+    description:
+      '实现一个在线选举系统，给定一系列投票后，可以快速查询某个时间点的领先者。核心是把投票结果按时间顺序预处理成前缀领先者序列，再用二分查询。',
+    outcome:
+      '你能将“按时间查询状态”的问题转成前缀预处理 + 二分查找，理解时间索引和状态缓存如何配合。',
+    sections: [
+      {
+        id: 'online-election-summary',
+        title: '题目在问什么',
+        summary:
+          '给定候选人投票序列 `persons` 和对应时间序列 `times`。构造一个系统，使得可以查询任意时间点 `t` 当时的领先者是谁。',
+        bullets: [
+          '投票记录按时间递增。',
+          '查询给出一个时间点，不一定是投票时间。',
+          '如果发生平票，最近投票者所在的候选人获胜。',
+          '查询需要比线性扫描更快。',
+        ],
+      },
+      {
+        id: 'online-election-observe',
+        title: '预处理每个时间点的领先者',
+        summary:
+          '按时间顺序模拟投票，用哈希表维护每个候选人的票数。每次投票后，记录当前领先者是谁。这样查询时只需找到不晚于目标时间的最后一个位置，直接返回对应领先者。',
+        bullets: [
+          '票数变化只影响当前及之后的领先者记录。',
+          '若票数相同，最近得票者成为领先者。',
+          '前缀领先者数组可以直接服务后续查询。',
+          '查询本质上是在时间数组里找右侧边界。',
+        ],
+      },
+      {
+        id: 'online-election-solution',
+        title: '标准解法：前缀记录 + 二分定位',
+        summary:
+          '构造时维护每个时间点的领先者。查询时在 `times` 数组中二分查找最后一个小于等于 `t` 的时间下标，再返回该位置记录的领先者。',
+        bullets: [
+          '构造复杂度：`O(n)`。',
+          '每次查询复杂度：`O(log n)`。',
+          '票数相同的处理依赖“最近投票者优先”的更新规则。',
+          '这是典型的“离线预处理 + 在线查询”模式。',
+        ],
+        code: `class TopVotedCandidate {
+  private readonly times: number[]
+  private readonly leaders: number[]
+
+  constructor(persons: number[], times: number[]) {
+    this.times = times
+    this.leaders = []
+
+    const counts = new Map<number, number>()
+    let leader = -1
+
+    for (const person of persons) {
+      const nextCount = (counts.get(person) ?? 0) + 1
+      counts.set(person, nextCount)
+
+      if (leader === -1 || nextCount >= counts.get(leader)!) {
+        leader = person
+      }
+
+      this.leaders.push(leader)
+    }
+  }
+
+  q(t: number): number {
+    let left = 0
+    let right = this.times.length - 1
+
+    while (left < right) {
+      const middle = Math.floor((left + right + 1) / 2)
+      if (this.times[middle] <= t) {
+        left = middle
+      } else {
+        right = middle - 1
+      }
+    }
+
+    return this.times[left] <= t ? this.leaders[left] : this.leaders[0]
+  }
+}`,
+      },
+      {
+        id: 'online-election-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易把查询写成线性扫描，或者平票时没有正确更新最近投票者。把时间作为索引看待后，问题就会清晰很多。',
+        bullets: [
+          '易错点 1：平票时没按最近投票者更新领先者。',
+          '易错点 2：查询时没有二分，直接遍历时间数组。',
+          '易错点 3：找时间边界时把左闭右闭关系写错。',
+          '延伸方向：前缀缓存、二分边界、在线查询。',
+        ],
+      },
+    ],
+  },
 ];
