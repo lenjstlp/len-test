@@ -92081,4 +92081,76 @@ function increasingBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'smallest-range-ii',
+    label: '910. LeetCode 910. 最小差值 II',
+    difficulty: '中等',
+    description:
+      '给定数组和整数 `k`，每个元素可以加或减 `k` 一次，求调整后数组最大值与最小值的最小差值。核心是排序后枚举分界点，左右两侧分别朝相反方向调整。',
+    outcome:
+      '你能把“每个数都可加减同一数值”的问题转成排序后的分段决策，理解如何通过枚举分界点压缩搜索空间。',
+    sections: [
+      {
+        id: 'smallest-range-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `nums` 和整数 `k`，每个元素都可以加上或减去 `k` 一次。选择每个元素的变化方式后，求整个数组最大值与最小值之间的最小可能差值。',
+        bullets: [
+          '每个元素必须选择 `+k` 或 `-k`。',
+          '目标是最小化调整后的极差。',
+          '单纯把所有元素都往一个方向调整通常不是最优。',
+          '排序后可以用分界点描述最终选择。',
+        ],
+      },
+      {
+        id: 'smallest-range-ii-observe',
+        title: '排序后只有“前半减、后半加”这一类结构需要考虑',
+        summary:
+          '数组排序后，最优策略等价于选一个分界点：左边元素统一加 `k`，右边元素统一减 `k`。这样可以让小值尽量抬高，大值尽量压低，从而缩小整体范围。',
+        bullets: [
+          '排序后数组保持单调。',
+          '枚举分界点时，左侧最大值是 `nums[i] + k`。',
+          '右侧最小值是 `nums[i + 1] - k`。',
+          '其余极值只需和首尾元素比较即可。',
+        ],
+      },
+      {
+        id: 'smallest-range-ii-solution',
+        title: '标准解法：排序 + 枚举分界点',
+        summary:
+          '先排序，再枚举每个可能的分界点。对于分界点左侧，取加 `k`；右侧，取减 `k`。每个分界点对应一个候选极差，取其中最小值即可。',
+        bullets: [
+          '时间复杂度：`O(n log n)`。',
+          '空间复杂度：`O(1)` 或 `O(n)`，取决于排序实现。',
+          '需要同时比较首尾端点和分界点附近的候选值。',
+          '这是排序后枚举切分位置的经典题。',
+        ],
+        code: `function smallestRangeII(nums: number[], k: number): number {
+  nums.sort((first, second) => first - second)
+  const last = nums.length - 1
+  let answer = nums[last] - nums[0]
+
+  for (let index = 0; index < last; index += 1) {
+    const high = Math.max(nums[last] - k, nums[index] + k)
+    const low = Math.min(nums[0] + k, nums[index + 1] - k)
+    answer = Math.min(answer, high - low)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'smallest-range-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的关键是把所有元素的 +/- 选择压缩成一个分界点，而不是逐个元素单独决策。排序后做分段分析可以显著降低复杂度。',
+        bullets: [
+          '易错点 1：把每个元素独立枚举 `+k/-k`，复杂度爆炸。',
+          '易错点 2：忽略分界点左右两侧的极值并非只看局部。',
+          '易错点 3：没有先排序，导致分段结构不成立。',
+          '延伸方向：排序分界、极差优化、贪心分组。',
+        ],
+      },
+    ],
+  },
 ];
