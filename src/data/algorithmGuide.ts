@@ -91908,4 +91908,74 @@ function increasingBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'smallest-range-i',
+    label: '908. LeetCode 908. 最小差值 I',
+    difficulty: '简单',
+    description:
+      '给定一个数组和可增加或减少的幅度 `k`，每个元素最多调整 `k`，求调整后数组最大值与最小值的最小可能差值。核心是观察全局只需要关注原数组的最大值和最小值。',
+    outcome:
+      '你能把“每个元素都可调整一个固定范围”类问题压缩成端点分析，快速得到最优结果。',
+    sections: [
+      {
+        id: 'smallest-range-i-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `nums` 和整数 `k`，每个元素都可以加上或减去不超过 `k` 的值。求经过任意调整后，整个数组的最大值与最小值之间的最小差值。',
+        bullets: [
+          '每个元素都能独立调整，范围固定为 `[-k, k]`。',
+          '目标是最小化调整后的全局极差。',
+          '如果所有区间可以重叠，最终差值可以变成 0。',
+          '题目只需要结果，不需要具体调整方案。',
+        ],
+      },
+      {
+        id: 'smallest-range-i-observe',
+        title: '只有最大值和最小值会影响最终答案',
+        summary:
+          '每个数都可以向中间靠近 `k`。因此原数组中最小值最多增加 `k`，最大值最多减少 `k`。如果两者交叉或重叠，说明可以把所有数压到同一区间里，差值变成 0；否则差值就是原始极差减去 `2k`。',
+        bullets: [
+          '最小值向上移动 `k`。',
+          '最大值向下移动 `k`。',
+          '若二者交叉，答案为 0。',
+          '中间元素不会比端点更影响结果。',
+        ],
+      },
+      {
+        id: 'smallest-range-i-solution',
+        title: '标准解法：端点差值直接计算',
+        summary:
+          '扫描数组得到最大值和最小值，返回 `max(0, max - min - 2k)`。无需排序，也不需要模拟调整过程。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '极差是唯一需要保留的全局信息。',
+          '这类题典型地从局部调整转成端点压缩。',
+        ],
+        code: `function smallestRangeI(nums: number[], k: number): number {
+  let minimum = Infinity
+  let maximum = -Infinity
+
+  for (const value of nums) {
+    minimum = Math.min(minimum, value)
+    maximum = Math.max(maximum, value)
+  }
+
+  return Math.max(0, maximum - minimum - 2 * k)
+}`,
+      },
+      {
+        id: 'smallest-range-i-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易误以为要逐个元素模拟调整，但真正决定答案的是极值差。只要端点范围重叠，答案就已经确定为 0。',
+        bullets: [
+          '易错点 1：对每个元素逐个尝试调整，复杂度不必要地升高。',
+          '易错点 2：忘记差值不能为负，结果需要截断为 0。',
+          '易错点 3：只看最大值或只看最小值。',
+          '延伸方向：极值分析、区间压缩、贪心界限。',
+        ],
+      },
+    ],
+  },
 ];
