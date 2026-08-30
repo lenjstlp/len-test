@@ -91584,4 +91584,87 @@ function increasingBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'fruit-into-baskets',
+    label: '904. LeetCode 904. 水果成篮',
+    difficulty: '中等',
+    description:
+      '给定水果序列，找出只包含两种水果的最长连续子数组长度。核心是经典的滑动窗口：窗口内维护水果种类计数，超过两种时收缩左边界。',
+    outcome:
+      '你能熟练使用滑动窗口处理“最多包含 K 种元素”的区间问题，理解窗口收缩时计数表与边界同步更新的重要性。',
+    sections: [
+      {
+        id: 'fruit-into-baskets-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `fruits`，每个元素表示一棵树上的水果类型。你最多可以拿两种水果，求能采摘到的最长连续子数组长度。',
+        bullets: [
+          '子数组必须连续。',
+          '窗口里最多只能有两种不同的水果。',
+          '答案是最长长度，不是具体区间。',
+          '数组可以很长，暴力枚举区间会超时。',
+        ],
+      },
+      {
+        id: 'fruit-into-baskets-observe',
+        title: '窗口里只要超过两种，就移动左边界',
+        summary:
+          '维护一个哈希表记录当前窗口内每种水果的数量。右边界持续扩展，只要窗口中不同水果种类超过 2，就不断移动左边界并减少计数，直到窗口恢复合法。',
+        bullets: [
+          '右边界负责扩张窗口。',
+          '左边界负责在超限时缩小窗口。',
+          '计数表为空时要删除对应种类，避免种类数统计失真。',
+          '每次窗口合法时更新最大长度。',
+        ],
+      },
+      {
+        id: 'fruit-into-baskets-solution',
+        title: '标准解法：滑动窗口 + 计数表',
+        summary:
+          '用两个指针维护窗口边界，右指针逐步扩张，计数表统计窗口内水果类型和数量；当类型数超过 2 时，左指针收缩直到重新合法。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`，因为水果种类上限固定为 2。',
+          '窗口合法时就可以直接计算长度。',
+          '这是“最多 K 种不同字符”的标准模板。',
+        ],
+        code: `function totalFruit(fruits: number[]): number {
+  const counts = new Map<number, number>()
+  let left = 0
+  let answer = 0
+
+  for (let right = 0; right < fruits.length; right += 1) {
+    counts.set(fruits[right], (counts.get(fruits[right]) ?? 0) + 1)
+
+    while (counts.size > 2) {
+      const value = fruits[left]
+      const nextCount = counts.get(value)! - 1
+      if (nextCount === 0) {
+        counts.delete(value)
+      } else {
+        counts.set(value, nextCount)
+      }
+      left += 1
+    }
+
+    answer = Math.max(answer, right - left + 1)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'fruit-into-baskets-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '滑动窗口的核心不是“右移左移”本身，而是窗口状态和边界始终一致。只要计数表与窗口内容错位，就会出现种类数判断错误。',
+        bullets: [
+          '易错点 1：收缩窗口时忘记删除计数变为 0 的水果类型。',
+          '易错点 2：在窗口非法时仍然更新答案。',
+          '易错点 3：把数组长度小于 2 的边界情况漏掉。',
+          '延伸方向：双指针、滑动窗口、频次约束。',
+        ],
+      },
+    ],
+  },
 ];
