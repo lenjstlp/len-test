@@ -91827,4 +91827,85 @@ function increasingBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'sort-array-by-parity-ii',
+    label: '907. LeetCode 907. 按奇偶排序数组 II',
+    difficulty: '简单',
+    description:
+      '重新排列数组，使偶数下标位置放偶数，奇数下标位置放奇数。核心是两个指针分别寻找错位的偶数和奇数，然后交换它们。',
+    outcome:
+      '你能将“按位置约束”的数组题拆成错位元素定位，掌握双指针原地修复下标奇偶关系的写法。',
+    sections: [
+      {
+        id: 'sort-array-by-parity-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定长度为偶数的数组 `nums`，保证其中偶数和奇数数量相等。重新排列数组，使得偶数下标上的元素都是偶数，奇数下标上的元素都是奇数。',
+        bullets: [
+          '偶数下标必须放偶数。',
+          '奇数下标必须放奇数。',
+          '数组长度一定是偶数。',
+          '题目保证有解。',
+        ],
+      },
+      {
+        id: 'sort-array-by-parity-ii-observe',
+        title: '找出两个方向上都放错的位置',
+        summary:
+          '用一个偶数下标指针和一个奇数下标指针分别扫描。只要偶数指针遇到奇数，且奇数指针遇到偶数，就交换这两个元素。这样每次交换都修复两个错位位置。',
+        bullets: [
+          '偶数指针每次跳 2。',
+          '奇数指针每次跳 2。',
+          '两个指针都只负责寻找自己的错位元素。',
+          '交换后继续向后扫描即可。',
+        ],
+      },
+      {
+        id: 'sort-array-by-parity-ii-solution',
+        title: '标准解法：双指针错位修复',
+        summary:
+          '维护两个下标 `even` 和 `odd`，分别扫描偶数位和奇数位。发现偶数位上放了奇数、奇数位上放了偶数时，就直接交换，直到扫描结束。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '由于题目保证有解，只需修复错位即可。',
+          '与“按奇偶分区”不同，这里还要保持下标位置约束。',
+        ],
+        code: `function sortArrayByParityII(nums: number[]): number[] {
+  let even = 0
+  let odd = 1
+
+  while (even < nums.length && odd < nums.length) {
+    if (nums[even] % 2 === 0) {
+      even += 2
+      continue
+    }
+
+    if (nums[odd] % 2 === 1) {
+      odd += 2
+      continue
+    }
+
+    ;[nums[even], nums[odd]] = [nums[odd], nums[even]]
+    even += 2
+    odd += 2
+  }
+
+  return nums
+}`,
+      },
+      {
+        id: 'sort-array-by-parity-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不能只按奇偶性分区，因为下标本身也有约束。偶数位和奇数位必须分别修正，不能混在一起处理。',
+        bullets: [
+          '易错点 1：只保证偶奇分离，忽略位置奇偶要求。',
+          '易错点 2：交换后忘记两个指针都向前推进。',
+          '易错点 3：把两个指针都从 0 开始。',
+          '延伸方向：数组修复、双指针、位置约束。',
+        ],
+      },
+    ],
+  },
 ];
