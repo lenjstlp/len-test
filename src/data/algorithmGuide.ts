@@ -91412,4 +91412,91 @@ function increasingBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'numbers-at-most-n-given-digit-set',
+    label: '902. LeetCode 902. 最大为 N 的数字组合',
+    difficulty: '困难',
+    description:
+      '给定一组可用数字字符，统计能组成多少个不超过 `n` 的正整数。核心是按位枚举时区分“位数更短”的自由组合和“与 N 同位数”的受限组合。',
+    outcome:
+      '你能把数位限制题拆成前缀比较与组合计数，掌握按位累加而不是暴力枚举全部数字的思路。',
+    sections: [
+      {
+        id: 'numbers-at-most-n-given-digit-set-summary',
+        title: '题目在问什么',
+        summary:
+          '给定可用数字集合 `digits` 和整数 `n`，统计用这些数字能组成多少个正整数，且这些整数都不超过 `n`。数字可以重复使用。',
+        bullets: [
+          '可以使用任意多个允许的数字。',
+          '数字不能以 0 开头，除非题目明确允许单独的 0。',
+          '位数更短的数字天然一定小于 `n`。',
+          '与 `n` 同位数的数字需要逐位比较前缀。',
+        ],
+      },
+      {
+        id: 'numbers-at-most-n-given-digit-set-observe',
+        title: '先统计短位数，再处理同位数前缀',
+        summary:
+          '位数比 `n` 短的数字数量可以直接用排列组合计算：每一位都可从 `digits` 中任意选择。位数与 `n` 相同的部分，则从最高位开始逐位比较；一旦某一位选择比 `n` 小的数字，后面的位就可以自由组合。',
+        bullets: [
+          '短位数部分只依赖数字个数和位数长度。',
+          '同位数部分本质上是前缀受限计数。',
+          '如果某一位无法匹配 `n` 的当前位，就可以提前结束。',
+          '如果每一位都刚好匹配，还要把 `n` 本身计入答案。',
+        ],
+      },
+      {
+        id: 'numbers-at-most-n-given-digit-set-solution',
+        title: '标准解法：按位计数 + 前缀比较',
+        summary:
+          '先统计位数更短的全部组合数，再逐位扫描 `n` 的十进制字符串。每一位统计比当前位小的可选数字个数，乘以后续自由选择数量；若当前位可选，则继续比较下一位。',
+        bullets: [
+          '时间复杂度：`O(len(n) * |digits|)`。',
+          '空间复杂度：`O(len(n))`，也可以做到 `O(1)`。',
+          '需要提前把 `digits` 排序，方便统计小于当前位的数字数目。',
+          '这是典型的数位 DP 思想的简化版本。',
+        ],
+        code: `function atMostNGivenDigitSet(digits: string[], n: number): number {
+  const target = String(n)
+  const base = digits.length
+  let answer = 0
+
+  for (let length = 1; length < target.length; length += 1) {
+    answer += base ** length
+  }
+
+  for (let index = 0; index < target.length; index += 1) {
+    const currentDigit = target[index]
+    let smaller = 0
+
+    for (const digit of digits) {
+      if (digit < currentDigit) {
+        smaller += 1
+      }
+    }
+
+    answer += smaller * base ** (target.length - index - 1)
+
+    if (!digits.includes(currentDigit)) {
+      return answer
+    }
+  }
+
+  return answer + 1
+}`,
+      },
+      {
+        id: 'numbers-at-most-n-given-digit-set-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的本质是“按位限制计数”，不是枚举所有组合。只要某一位比目标位小，后面就完全自由，这个转折点最容易写错。',
+        bullets: [
+          '易错点 1：把所有位都当作独立自由选择。',
+          '易错点 2：漏掉与 `n` 同位数但前缀更小的组合。',
+          '易错点 3：当前位不存在时没有提前返回。',
+          '延伸方向：数位 DP、组合计数、前缀受限问题。',
+        ],
+      },
+    ],
+  },
 ];
