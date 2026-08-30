@@ -91738,4 +91738,93 @@ function increasingBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'sort-numbers-ascending-by-frequency',
+    label: '906. LeetCode 906. 超级回文数',
+    difficulty: '困难',
+    description:
+      '找出区间内所有既是回文数又是平方数的整数。核心是先生成回文根，再平方验证，并剪枝掉不可能落在区间内的候选。',
+    outcome:
+      '你能把“回文平方数”问题拆成候选生成和有效性验证，避免在巨大区间内无意义地逐个枚举。',
+    sections: [
+      {
+        id: 'super-palindromes-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串表示的区间边界 `left` 和 `right`，统计区间内所有超级回文数的个数。超级回文数是指一个正整数本身是回文数，且它的平方根也是回文数。',
+        bullets: [
+          '候选数和平方根都要是回文数。',
+          '区间边界可能非常大，不能逐个整数检查。',
+          '因为平方后数字位数变长，回文根的长度范围有限。',
+          '必须先从回文根入手，而不是直接检查所有整数。',
+        ],
+      },
+      {
+        id: 'super-palindromes-observe',
+        title: '只生成可能的回文根',
+        summary:
+          '如果一个数的平方在区间内，那么它的平方根的位数不会太大。可以按前半部分生成奇数位和偶数位回文根，再平方验证是否仍在区间内且结果本身是回文数。这样候选数量极少。',
+        bullets: [
+          '先限制回文根的位数范围。',
+          '分别生成奇数长度和偶数长度的回文根。',
+          '平方后先判断是否在区间内，再判断是否回文。',
+          '候选生成比区间暴力扫描更高效。',
+        ],
+      },
+      {
+        id: 'super-palindromes-solution',
+        title: '标准解法：回文根生成 + 平方验证',
+        summary:
+          '枚举前半部分并构造回文根，平方后转成字符串检查是否回文，同时确保平方值落在区间中。题目对候选范围有严格上界，因此可枚举的前半部分数量有限。',
+        bullets: [
+          '时间复杂度远低于区间长度暴力扫描。',
+          '回文构造本身是固定模式生成，不需要搜索。',
+          '字符串比较比数值逆转更直观。',
+          '使用 `BigInt` 可以更稳妥地处理超大区间。',
+        ],
+        code: `function superpalindromesInRange(left: string, right: string): number {
+  const lower = BigInt(left)
+  const upper = BigInt(right)
+  let answer = 0
+
+  function isPalindrome(value: string): boolean {
+    return value === value.split('').reverse().join('')
+  }
+
+  function buildPalindrome(prefix: number, odd: boolean): bigint {
+    const text = String(prefix)
+    const suffix = odd ? text.slice(0, -1) : text
+    return BigInt(text + suffix.split('').reverse().join(''))
+  }
+
+  for (let prefix = 1; prefix < 100000; prefix += 1) {
+    for (const odd of [true, false]) {
+      const root = buildPalindrome(prefix, odd)
+      const square = root * root
+      if (square > upper) {
+        continue
+      }
+      if (square >= lower && isPalindrome(String(square))) {
+        answer += 1
+      }
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'super-palindromes-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易把所有整数都平方再检查，那样会完全失去题目的剪枝价值。真正的突破口是只生成回文根，再做平方验证。',
+        bullets: [
+          '易错点 1：对区间内所有整数逐个平方检查。',
+          '易错点 2：回文根和平方结果的判断顺序写反。',
+          '易错点 3：奇偶长度回文根构造错误。',
+          '延伸方向：回文生成、数论剪枝、大整数处理。',
+        ],
+      },
+    ],
+  },
 ];
