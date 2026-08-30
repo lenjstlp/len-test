@@ -91499,4 +91499,89 @@ function increasingBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'valid-permutations-for-di-sequence',
+    label: '903. LeetCode 903. DI 序列的有效排列',
+    difficulty: '困难',
+    description:
+      '给定只包含 `D` 和 `I` 的字符串，统计满足相邻大小关系的排列数量。核心是用动态规划记录前缀可用数字的分配状态，并利用前缀和优化转移。',
+    outcome:
+      '你能把排列计数题转化成前缀状态 DP，理解如何用“前缀可选数量”来表达每一位的取值范围。',
+    sections: [
+      {
+        id: 'valid-permutations-for-di-sequence-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s`，长度为 `n`，其中 `D` 表示当前位置数字要大于后一个数字，`I` 表示当前位置数字要小于后一个数字。要求统计由 `0..n` 组成的所有满足条件的排列数量。',
+        bullets: [
+          '排列使用的是 `0..n` 这 `n+1` 个数字。',
+          '每个位置的相邻关系由 `D` 或 `I` 约束。',
+          '结果需要对 `10^9 + 7` 取模。',
+          '属于典型的排列计数问题。',
+        ],
+      },
+      {
+        id: 'valid-permutations-for-di-sequence-observe',
+        title: '用“还剩哪些数字可以选”来定义状态',
+        summary:
+          '处理到前 `i` 个字符时，真正重要的是当前已经放好了多少个数字，以及下一位可以从剩余数字中选择哪个名次。`D` 表示下一位要更小，所以当前可选名次在左侧区间；`I` 表示下一位要更大，所以当前可选名次在右侧区间。',
+        bullets: [
+          '状态可以表示为“当前前缀长度下的方案数”。',
+          '`D` 约束需要向左累加，`I` 约束需要向右累加。',
+          '前缀和能把暴力枚举前一个位置的所有状态压缩掉。',
+          '每一轮都只依赖上一轮结果。',
+        ],
+      },
+      {
+        id: 'valid-permutations-for-di-sequence-solution',
+        title: '标准解法：一维 DP + 前缀和优化',
+        summary:
+          '使用 `dp[j]` 表示当前长度下，选择到某个相对位置的方案数。遇到 `D` 时从左到右累加前缀和；遇到 `I` 时从右到左累加前缀和。这样每轮都是线性时间。',
+        bullets: [
+          '时间复杂度：`O(n²)`。',
+          '空间复杂度：`O(n)`。',
+          '如果没有前缀和，转移会退化到三重循环。',
+          '前缀和本质上是在压缩“选择更小/更大剩余数字”的枚举。',
+        ],
+        code: `function numPermsDISequence(s: string): number {
+  const mod = 1_000_000_007
+  const n = s.length
+  let dp = Array.from({ length: n + 1 }, () => 1)
+
+  for (let index = 0; index < n; index += 1) {
+    const next = Array(n + 1).fill(0)
+    let prefix = 0
+
+    if (s[index] === 'I') {
+      for (let position = 0; position < n - index; position += 1) {
+        prefix = (prefix + dp[position]) % mod
+        next[position] = prefix
+      }
+    } else {
+      for (let position = n - index - 1; position >= 0; position -= 1) {
+        prefix = (prefix + dp[position + 1]) % mod
+        next[position] = prefix
+      }
+    }
+
+    dp = next
+  }
+
+  return dp[0]
+}`,
+      },
+      {
+        id: 'valid-permutations-for-di-sequence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题很容易写成纯排列回溯，但状态空间会爆炸。真正关键的是认识到每个位置只需要知道“剩余数字的相对排名”，而不需要具体数字。',
+        bullets: [
+          '易错点 1：暴力生成所有排列，复杂度阶乘级。',
+          '易错点 2：`D` 和 `I` 的前缀累加方向写反。',
+          '易错点 3：每轮没有重置新数组，污染状态。',
+          '延伸方向：排列 DP、前缀和优化、计数约束。',
+        ],
+      },
+    ],
+  },
 ];
