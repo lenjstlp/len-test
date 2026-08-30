@@ -91667,4 +91667,75 @@ function increasingBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'sort-array-by-parity',
+    label: '905. LeetCode 905. 按奇偶排序数组',
+    difficulty: '简单',
+    description:
+      '将数组重新排列，使所有偶数都排在奇数前面。核心是按奇偶性做一次线性分组，不需要保持原始相对顺序时可以使用双指针原地交换。',
+    outcome:
+      '你能快速识别“按条件分组”的基础数组题，掌握双指针原地调整和稳定分组两种处理方式。',
+    sections: [
+      {
+        id: 'sort-array-by-parity-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums`，重新排列它，使所有偶数元素都出现在奇数元素之前。偶数和奇数内部的相对顺序不作要求。',
+        bullets: [
+          '偶数元素应排在前面。',
+          '奇数元素排在后面即可。',
+          '题目不要求稳定排序。',
+          '返回任意满足条件的排列即可。',
+        ],
+      },
+      {
+        id: 'sort-array-by-parity-observe',
+        title: '双指针可以直接把错误位置交换出去',
+        summary:
+          '维护左指针指向前半部分待确认位置，右指针扫描整个数组。遇到偶数就把它换到左侧区域并扩大左边界；遇到奇数则继续向后扫描。',
+        bullets: [
+          '左指针表示下一个偶数应该放的位置。',
+          '右指针负责遍历数组。',
+          '只要当前元素是偶数，就与左边界交换。',
+          '稳定顺序不重要时，这种做法最直接。',
+        ],
+      },
+      {
+        id: 'sort-array-by-parity-solution',
+        title: '标准解法：原地双指针分区',
+        summary:
+          '用一个指针维护偶数区间边界，另一个指针从左到右遍历。遇到偶数时交换到偶数区间末尾，最终数组自然被分成偶数段和奇数段。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '如果需要稳定顺序，可以用额外数组按条件收集。',
+          '本题重点是分区，不是完整排序。',
+        ],
+        code: `function sortArrayByParity(nums: number[]): number[] {
+  let evenIndex = 0
+
+  for (let index = 0; index < nums.length; index += 1) {
+    if (nums[index] % 2 === 0) {
+      ;[nums[evenIndex], nums[index]] = [nums[index], nums[evenIndex]]
+      evenIndex += 1
+    }
+  }
+
+  return nums
+}`,
+      },
+      {
+        id: 'sort-array-by-parity-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题容易把“排序”理解成比较大小的排序，但这里实际需要的是按条件分区。若题目换成稳定要求，就不能直接原地交换。',
+        bullets: [
+          '易错点 1：试图按数值大小排序，做了不必要的工作。',
+          '易错点 2：交换后忘记移动偶数边界。',
+          '易错点 3：把奇偶判定写反。',
+          '延伸方向：数组分区、双指针、原地交换。',
+        ],
+      },
+    ],
+  },
 ];
