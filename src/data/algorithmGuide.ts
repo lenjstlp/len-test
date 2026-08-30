@@ -91336,4 +91336,80 @@ function increasingBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'online-stock-span',
+    label: '901. LeetCode 901. 在线股票跨度',
+    difficulty: '中等',
+    description:
+      '设计一个股票跨度计算器，连续输入每天股价后，返回今天价格往前连续多少天都不高于当前价格。核心是维护一个单调递减栈，并把跨度直接累积到栈节点中。',
+    outcome:
+      '你能用单调栈把“向左连续比较”压缩成跳跃式统计，理解栈中存的是价格和累计跨度的组合信息。',
+    sections: [
+      {
+        id: 'online-stock-span-summary',
+        title: '题目在问什么',
+        summary:
+          '实现 `next(price)`，返回当前价格往前连续多少天的股价都小于或等于今天价格。输入会逐天到来，需要在线处理。',
+        bullets: [
+          '跨度包含今天自己。',
+          '只要前一天价格不高于今天，就继续向前扩展。',
+          '是一个在线查询问题，不是一次性离线计算。',
+          '要求每次调用都尽量高效。',
+        ],
+      },
+      {
+        id: 'online-stock-span-observe',
+        title: '栈里保存的不只是价格，还要保存跨度',
+        summary:
+          '如果栈顶价格不高于当前价格，它对应的那一段连续天数都可以被当前价格覆盖，因此可以直接把它的跨度加到当前跨度上，再继续向左看更早的节点。这样每个历史价格只会被弹出一次。',
+        bullets: [
+          '栈保持严格递减的价格序列。',
+          '每个元素记录 `[price, span]`。',
+          '弹出更小或相等的价格时，把它的跨度并入当前天。',
+          '最终当前价格和累计跨度一起入栈。',
+        ],
+      },
+      {
+        id: 'online-stock-span-solution',
+        title: '标准解法：单调递减栈 + 跨度合并',
+        summary:
+          '对于每个新价格，持续弹出栈顶中不高于当前价格的节点，并把这些节点的跨度累加到当前答案。最后把当前价格和跨度压回栈中。',
+        bullets: [
+          '时间复杂度：每次 `next` 均摊 `O(1)`。',
+          '空间复杂度：`O(n)`。',
+          '每个历史价格最多入栈一次、出栈一次。',
+          '把跨度合并进栈节点后，查询就不需要回头重复扫描。',
+        ],
+        code: `class StockSpanner {
+  private readonly stack: Array<[number, number]> = []
+
+  next(price: number): number {
+    let span = 1
+
+    while (
+      this.stack.length > 0 &&
+      this.stack[this.stack.length - 1][0] <= price
+    ) {
+      span += this.stack.pop()![1]
+    }
+
+    this.stack.push([price, span])
+    return span
+  }
+}`,
+      },
+      {
+        id: 'online-stock-span-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的关键不是找“最近一个更大值”，而是把被跳过的连续区间长度一起带走。只保存价格会丢掉跨度信息。',
+        bullets: [
+          '易错点 1：栈里只存价格，导致每次要重复回退多个元素。',
+          '易错点 2：比较条件写成 `<`，漏掉相等价格。',
+          '易错点 3：没有把弹出节点的跨度累加到当前跨度。',
+          '延伸方向：单调栈、在线查询、区间跳跃统计。',
+        ],
+      },
+    ],
+  },
 ];
