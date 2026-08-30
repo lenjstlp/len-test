@@ -91978,4 +91978,107 @@ function increasingBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'snakes-and-ladders',
+    label: '909. LeetCode 909. 蛇梯棋',
+    difficulty: '中等',
+    description:
+      '在蛇梯棋棋盘上从起点出发，每次掷骰子可前进 1 到 6 格，遇到蛇或梯子会被传送到指定位置，求到达终点的最少步数。核心是把棋盘编号规则转化为图上的最短路搜索。',
+    outcome:
+      '你能把有特殊传送规则的棋盘问题转成最短路，掌握棋盘编号和 BFS 状态的映射。',
+    sections: [
+      {
+        id: 'snakes-and-ladders-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个蛇梯棋棋盘，玩家从 1 号格开始，每次可前进 1 到 6 格。若落到有蛇或梯子的格子，会立刻传送到目标格。返回到达最后一格的最少掷骰次数。',
+        bullets: [
+          '棋盘编号是按蛇形方式从左下到右上排列。',
+          '蛇和梯子只在落到对应格子时触发一次传送。',
+          '每次掷骰可以选择 1 到 6 中的任意结果。',
+          '目标是最少步数，因此适合 BFS。',
+        ],
+      },
+      {
+        id: 'snakes-and-ladders-observe',
+        title: '先把棋盘坐标映射到线性编号',
+        summary:
+          '棋盘的行列坐标不是普通直线编号，而是蛇形编号。需要把线性编号和 `(row, col)` 互相转换，才能正确读取每个格子上的蛇或梯子。只要把每个可达格子看成图节点，掷骰子就是边。',
+        bullets: [
+          '每个格子都是一个节点。',
+          '从当前节点可以跳到后面 1 到 6 个节点。',
+          '如果节点上有蛇或梯子，就转移到目标节点。',
+          'BFS 的层数就是掷骰次数。',
+        ],
+      },
+      {
+        id: 'snakes-and-ladders-solution',
+        title: '标准解法：编号转换 + BFS',
+        summary:
+          '先写一个函数把线性编号转换成棋盘坐标，再对所有状态做 BFS。每次扩展当前格子的后续 6 种掷骰结果，落到蛇梯格子时直接跳转对应目标。',
+        bullets: [
+          '时间复杂度：`O(n²)`。',
+          '空间复杂度：`O(n²)`。',
+          '访问数组要按线性编号去重，避免重复进队。',
+          '一旦到达终点可以立即返回。',
+        ],
+        code: `function snakesAndLadders(board: number[][]): number {
+  const size = board.length
+  const target = size * size
+
+  function getCell(number: number): number {
+    const quotient = Math.floor((number - 1) / size)
+    const remainder = (number - 1) % size
+    const row = size - 1 - quotient
+    const isLeftToRight = quotient % 2 === 0
+    const col = isLeftToRight ? remainder : size - 1 - remainder
+    return board[row][col]
+  }
+
+  const visited = Array(target + 1).fill(false)
+  const queue: Array<[number, number]> = [[1, 0]]
+  visited[1] = true
+  let head = 0
+
+  while (head < queue.length) {
+    const [current, steps] = queue[head]
+    head += 1
+
+    if (current === target) {
+      return steps
+    }
+
+    for (let dice = 1; dice <= 6; dice += 1) {
+      let next = current + dice
+      if (next > target) continue
+
+      const cell = getCell(next)
+      if (cell !== -1) {
+        next = cell
+      }
+
+      if (!visited[next]) {
+        visited[next] = true
+        queue.push([next, steps + 1])
+      }
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'snakes-and-ladders-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易出错的不是 BFS，而是棋盘编号映射。编号一旦错，后面的所有跳转都会错。',
+        bullets: [
+          '易错点 1：忽略蛇形编号的左右交替。',
+          '易错点 2：落到蛇梯后没有立即更新目标位置。',
+          '易错点 3：访问标记用棋盘坐标而不是线性编号。',
+          '延伸方向：网格编号映射、最短路、状态转移。',
+        ],
+      },
+    ],
+  },
 ];
