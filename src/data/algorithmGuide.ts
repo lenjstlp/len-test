@@ -92986,4 +92986,79 @@ class CBTInserter {
       },
     ],
   },
+  {
+    id: 'minimum-add-to-make-parentheses-valid',
+    label: '921. LeetCode 921. 使括号有效的最少添加',
+    difficulty: '中等',
+    description:
+      '给定只包含括号的字符串，求最少需要添加多少个括号才能让字符串有效。核心是用计数器跟踪当前未匹配的左括号数量，并统计需要补上的右括号数量。',
+    outcome:
+      '你能把括号匹配问题压缩成两个计数器，快速判断字符串中缺失的是左括号还是右括号。',
+    sections: [
+      {
+        id: 'minimum-add-to-make-parentheses-valid-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s`，只包含 `(` 和 `)`。可以在任意位置添加括号，求使字符串变成有效括号串所需的最少添加次数。',
+        bullets: [
+          '有效括号串要求左右括号严格匹配。',
+          '添加操作可以发生在任意位置。',
+          '目标是最少添加数量，不是修改次数。',
+          '空字符串已经是有效括号串。',
+        ],
+      },
+      {
+        id: 'minimum-add-to-make-parentheses-valid-observe',
+        title: '只需要统计缺少的右括号和未匹配左括号',
+        summary:
+          '遍历字符串时，如果遇到左括号，就增加一个待匹配计数；如果遇到右括号且当前没有待匹配左括号，就必须补一个左括号；否则消耗一个待匹配左括号。最终需要补的数量就是缺失的右括号数量加上剩余未匹配左括号数量。',
+        bullets: [
+          '未匹配左括号表示当前还欠几个右括号。',
+          '遇到多余右括号时，需要额外补左括号。',
+          '遍历结束后的剩余左括号也要补右括号。',
+          '两个计数器分别负责不同方向的缺口。',
+        ],
+      },
+      {
+        id: 'minimum-add-to-make-parentheses-valid-solution',
+        title: '标准解法：一次扫描两个计数器',
+        summary:
+          '维护 `balance` 表示当前未匹配的左括号数量，`additions` 表示需要补的左括号数量。遍历结束后，答案就是 `additions + balance`。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '多余右括号先补左括号，再尝试匹配。',
+          '这个思路与有效括号判定高度一致。',
+        ],
+        code: `function minAddToMakeValid(s: string): number {
+  let balance = 0
+  let additions = 0
+
+  for (const character of s) {
+    if (character === '(') {
+      balance += 1
+    } else if (balance > 0) {
+      balance -= 1
+    } else {
+      additions += 1
+    }
+  }
+
+  return additions + balance
+}`,
+      },
+      {
+        id: 'minimum-add-to-make-parentheses-valid-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '括号题的关键在于分清“当前还欠什么”。多余右括号不是简单忽略，而是意味着必须补一个左括号才能继续匹配。',
+        bullets: [
+          '易错点 1：只统计左括号数量，不处理多余右括号。',
+          '易错点 2：把剩余左括号忘记补成右括号。',
+          '易错点 3：使用栈但没有必要，增加实现复杂度。',
+          '延伸方向：括号匹配、计数器、字符串校验。',
+        ],
+      },
+    ],
+  },
 ];
