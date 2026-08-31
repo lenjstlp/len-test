@@ -92486,4 +92486,78 @@ function catMouseGame(graph: number[][]): number {
       },
     ],
   },
+  {
+    id: 'partition-array-into-disjoint-intervals',
+    label: '915. LeetCode 915. 分割数组',
+    difficulty: '中等',
+    description:
+      '将数组分成左右两部分，要求左边所有元素都不大于右边所有元素，并且左边尽可能短。核心是同时维护左侧最大值和整体扫描到当前位置的最小合法切分点。',
+    outcome:
+      '你能把区间划分问题转成前缀最大值和全局边界的关系，理解为什么只要左侧最大值不超过右侧最小值就可以切分。',
+    sections: [
+      {
+        id: 'partition-array-into-disjoint-intervals-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `nums`，将其分成两个非空连续部分 `left` 和 `right`，满足 `left` 中任意元素都不大于 `right` 中任意元素，同时让 `left` 尽可能短。',
+        bullets: [
+          '左右两部分都必须是连续子数组。',
+          '左边的最大值不能大于右边的最小值。',
+          '需要返回左侧分割点长度。',
+          '目标是最短左区间，而不是任意可行切分。',
+        ],
+      },
+      {
+        id: 'partition-array-into-disjoint-intervals-observe',
+        title: '左边最大值决定当前切分是否可行',
+        summary:
+          '如果当前切分点左侧的最大值小于等于右侧所有元素，那么就可以切分。为了尽快找到最短左区间，可以遍历数组并维护两个值：当前左区间的最大值，以及扫描到当前位置的全局最大值。',
+        bullets: [
+          '左区间最大值记录已纳入左侧的元素上界。',
+          '当前扫描最大值会在左区间扩大时同步更新。',
+          '一旦出现右侧元素小于左侧最大值，就必须把切分点右移。',
+          '最后的切分点是所有局部约束下的最小可行位置。',
+        ],
+      },
+      {
+        id: 'partition-array-into-disjoint-intervals-solution',
+        title: '标准解法：前缀最大值与当前边界',
+        summary:
+          '遍历数组时维护左区间最大值 `leftMax` 和全局扫描最大值 `maxSoFar`。当发现当前元素小于 `leftMax` 时，说明当前切分无效，需要把左区间扩展到当前位置，并把 `leftMax` 更新为 `maxSoFar`。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '只需一次遍历就能得到最短切分点。',
+          '这个思路本质上是在处理前缀与后缀的最大最小关系。',
+        ],
+        code: `function partitionDisjoint(nums: number[]): number {
+  let leftMax = nums[0]
+  let maxSoFar = nums[0]
+  let partitionIndex = 0
+
+  for (let index = 1; index < nums.length; index += 1) {
+    maxSoFar = Math.max(maxSoFar, nums[index])
+    if (nums[index] < leftMax) {
+      leftMax = maxSoFar
+      partitionIndex = index
+    }
+  }
+
+  return partitionIndex + 1
+}`,
+      },
+      {
+        id: 'partition-array-into-disjoint-intervals-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题经常被误写成双指针拼接题，但真正需要的是一个会扩张的左区间边界。只要右边出现比左侧最大值更小的元素，左区间就必须整体右移。',
+        bullets: [
+          '易错点 1：只比较相邻元素，没有看左区间整体最大值。',
+          '易错点 2：发现冲突后没有把左区间最大值重置为全局最大值。',
+          '易错点 3：返回的是下标还是长度搞混。',
+          '延伸方向：前后缀边界、数组切分、区间最优化。',
+        ],
+      },
+    ],
+  },
 ];
