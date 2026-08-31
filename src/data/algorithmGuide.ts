@@ -92724,4 +92724,85 @@ function catMouseGame(graph: number[][]): number {
       },
     ],
   },
+  {
+    id: 'maximum-sum-circular-subarray',
+    label: '918. LeetCode 918. 环形子数组的最大和',
+    difficulty: '中等',
+    description:
+      '数组首尾相连形成环，求连续子数组最大和。核心是分成两种情况：子数组不跨越边界时用普通最大子数组和，跨越边界时用总和减去最小子数组和。',
+    outcome:
+      '你能将环形区间问题拆成“正常区间”和“跨边界区间”两部分，理解最大和与最小和之间的互补关系。',
+    sections: [
+      {
+        id: 'maximum-sum-circular-subarray-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums`，数组首尾相连形成环。求可以选择的连续子数组的最大和，连续子数组可以不跨越边界，也可以跨越边界。',
+        bullets: [
+          '普通子数组是线性连续区间。',
+          '跨边界子数组等价于“去掉中间一段最小子数组”。',
+          '数组全为负数时，跨边界方案会失效。',
+          '需要同时考虑两种情况。',
+        ],
+      },
+      {
+        id: 'maximum-sum-circular-subarray-observe',
+        title: '环形最大和等于总和减去最小子数组和',
+        summary:
+          '如果一个最大和子数组跨越了边界，它实际上可以看成“选中前缀 + 选中后缀”，等价于从整个数组中删去中间那段最小和子数组。因此答案可以由 `总和 - 最小子数组和` 得到。',
+        bullets: [
+          '先用 Kadane 算法求普通最大子数组和。',
+          '再求普通最小子数组和。',
+          '跨边界最大和 = 总和 - 最小子数组和。',
+          '如果最小子数组就是整个数组，说明不能取空子数组，应直接返回普通最大和。',
+        ],
+      },
+      {
+        id: 'maximum-sum-circular-subarray-solution',
+        title: '标准解法：最大和与最小和双向 Kadane',
+        summary:
+          '一遍扫描同时维护普通最大子数组和、普通最小子数组和和总和。最终答案为二者中较大者，但如果所有数都为负，跨边界结果无效，只能取普通最大子数组和。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '普通最大子数组和使用经典 Kadane 算法。',
+          '最小子数组和可以用对称形式的 Kadane 求出。',
+        ],
+        code: `function maxSubarraySumCircular(nums: number[]): number {
+  let total = 0
+  let maxEnding = 0
+  let minEnding = 0
+  let maxSum = -Infinity
+  let minSum = Infinity
+
+  for (const value of nums) {
+    total += value
+    maxEnding = Math.max(value, maxEnding + value)
+    maxSum = Math.max(maxSum, maxEnding)
+
+    minEnding = Math.min(value, minEnding + value)
+    minSum = Math.min(minSum, minEnding)
+  }
+
+  if (maxSum < 0) {
+    return maxSum
+  }
+
+  return Math.max(maxSum, total - minSum)
+}`,
+      },
+      {
+        id: 'maximum-sum-circular-subarray-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的关键是认识到环形子数组不是新问题，而是线性子数组的补集。只要把最小子数组和和总和对应起来，跨边界情况就会自然出现。',
+        bullets: [
+          '易错点 1：直接把数组复制一遍做暴力环形枚举。',
+          '易错点 2：全负数组时仍然使用 `total - minSum`。',
+          '易错点 3：普通最大和与最小和的状态更新混淆。',
+          '延伸方向：环形数组、子数组 DP、补集转化。',
+        ],
+      },
+    ],
+  },
 ];
