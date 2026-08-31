@@ -92805,4 +92805,110 @@ function catMouseGame(graph: number[][]): number {
       },
     ],
   },
+  {
+    id: 'complete-binary-tree-inserter',
+    label: '919. LeetCode 919. 完全二叉树插入器',
+    difficulty: '中等',
+    description:
+      '设计一个完全二叉树插入器，每次插入一个新节点后仍保持树的完全性。核心是用队列维护下一个可插入位置，让插入和查询父节点都保持高效。',
+    outcome:
+      '你能把完全二叉树的层序结构转成可维护的数据结构，理解“下一个空位”如何通过队列提前定位。',
+    sections: [
+      {
+        id: 'complete-binary-tree-inserter-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵完全二叉树的根节点，设计一个类支持 `insert(v)` 和 `get_root()`。每次插入都必须保持树仍然是完全二叉树。',
+        bullets: [
+          '完全二叉树除最后一层外都要填满。',
+          '最后一层从左到右连续填充。',
+          '插入时要返回新节点父节点的值。',
+          '根节点要能被随时取回。',
+        ],
+      },
+      {
+        id: 'complete-binary-tree-inserter-observe',
+        title: '下一个可插入位置可以提前维护',
+        summary:
+          '完全二叉树的插入位置一定是层序遍历中的第一个缺失孩子。维护一个队列，队列中保存还没填满两个孩子的节点。每次插入时，队首就是新节点的父节点。',
+        bullets: [
+          '队首节点就是当前可插入位置的父节点。',
+          '新插入节点进入队列，等待未来成为父节点。',
+          '当一个节点左右孩子都满时，把它从队列中移出。',
+          '这样每次插入都不需要重新遍历整棵树。',
+        ],
+      },
+      {
+        id: 'complete-binary-tree-inserter-solution',
+        title: '标准解法：候选父节点队列',
+        summary:
+          '初始化时做一次层序遍历，把所有还有空位的节点加入队列。插入时始终从队首取父节点，优先填左孩子，若左孩子已满则填右孩子，插入完成后把新节点加入队列。',
+        bullets: [
+          '初始化复杂度：`O(n)`。',
+          '每次插入复杂度：`O(1)`。',
+          '队列只保存可能接收孩子的节点。',
+          '返回根节点可以直接提供当前树状态。',
+        ],
+        code: `type TreeNode = {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+}
+
+class CBTInserter {
+  private readonly root: TreeNode
+  private readonly queue: TreeNode[] = []
+
+  constructor(root: TreeNode | null) {
+    this.root = root!
+    const bfs: TreeNode[] = [this.root]
+    let head = 0
+
+    while (head < bfs.length) {
+      const node = bfs[head]
+      head += 1
+
+      if (!node.left || !node.right) {
+        this.queue.push(node)
+      }
+
+      if (node.left) bfs.push(node.left)
+      if (node.right) bfs.push(node.right)
+    }
+  }
+
+  insert(val: number): number {
+    const parent = this.queue[0]
+    const node = { val, left: null, right: null }
+
+    if (!parent.left) {
+      parent.left = node
+    } else {
+      parent.right = node
+      this.queue.shift()
+    }
+
+    this.queue.push(node)
+    return parent.val
+  }
+
+  get_root(): TreeNode {
+    return this.root
+  }
+}`,
+      },
+      {
+        id: 'complete-binary-tree-inserter-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '完全二叉树插入器的关键是维护候选父节点队列，而不是每次插入时重新找空位。只要队列状态正确，插入逻辑会非常稳定。',
+        bullets: [
+          '易错点 1：初始化时没有把所有缺孩子的节点入队。',
+          '易错点 2：插入右孩子后没有把父节点出队。',
+          '易错点 3：忘记把新节点也加入候选队列。',
+          '延伸方向：层序维护、完全二叉树、增量构造。',
+        ],
+      },
+    ],
+  },
 ];
