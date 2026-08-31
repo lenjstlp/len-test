@@ -92644,4 +92644,84 @@ function catMouseGame(graph: number[][]): number {
       },
     ],
   },
+  {
+    id: 'reverse-only-letters',
+    label: '917. LeetCode 917. 仅仅反转字母',
+    difficulty: '简单',
+    description:
+      '只反转字符串中的字母，非字母字符保持原位。核心是双指针分别从两端寻找字母，交换后跳过非字母字符。',
+    outcome:
+      '你能处理带过滤条件的字符串双指针，理解只交换目标字符而保留其他字符位置的实现方式。',
+    sections: [
+      {
+        id: 'reverse-only-letters-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `s`，只反转其中的英文字母，数字、标点和其他字符保持原位置不变。',
+        bullets: [
+          '只有字母参与反转。',
+          '非字母字符固定在原位。',
+          '反转的是所有字母的整体顺序。',
+          '字符串长度可以较长，适合一次遍历完成。',
+        ],
+      },
+      {
+        id: 'reverse-only-letters-observe',
+        title: '两端同时找字母，再交换',
+        summary:
+          '左指针从前向后找第一个字母，右指针从后向前找第一个字母。找到后交换两者，再继续向中间推进。非字母字符会被跳过，不参与交换。',
+        bullets: [
+          '左指针负责寻找前半部分的可交换字符。',
+          '右指针负责寻找后半部分的可交换字符。',
+          '遇到非字母时直接跳过。',
+          '交换结束后两个指针继续收缩。',
+        ],
+      },
+      {
+        id: 'reverse-only-letters-solution',
+        title: '标准解法：双指针原地交换',
+        summary:
+          '使用两个指针分别从左右两端向中间移动，只在两侧都指向字母时才交换。这样可以在 `O(n)` 时间内完成反转，并且只需要常数额外空间。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`，如果允许修改原字符数组。',
+          '字母判断可使用字符范围或语言内置判断。',
+          '字符串通常先转成数组再原地修改更方便。',
+        ],
+        code: `function reverseOnlyLetters(s: string): string {
+  const chars = [...s]
+  let left = 0
+  let right = chars.length - 1
+
+  const isLetter = (character: string) =>
+    /[a-zA-Z]/.test(character)
+
+  while (left < right) {
+    while (left < right && !isLetter(chars[left])) left += 1
+    while (left < right && !isLetter(chars[right])) right -= 1
+
+    if (left < right) {
+      ;[chars[left], chars[right]] = [chars[right], chars[left]]
+      left += 1
+      right -= 1
+    }
+  }
+
+  return chars.join('')
+}`,
+      },
+      {
+        id: 'reverse-only-letters-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题容易把所有字符都反转，或者把非字母也纳入交换。双指针本身很简单，难点在于过滤条件必须稳定。',
+        bullets: [
+          '易错点 1：把数字和标点也一起反转。',
+          '易错点 2：跳过非字母后指针没有继续推进。',
+          '易错点 3：忘记在交换前确认左右指针仍未交叉。',
+          '延伸方向：双指针、字符过滤、原地字符串变换。',
+        ],
+      },
+    ],
+  },
 ];
