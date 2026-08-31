@@ -92313,4 +92313,98 @@ function increasingBST(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'random-pick-with-weight',
+    label: '913. LeetCode 913. 猫和老鼠',
+    difficulty: '困难',
+    description:
+      '猫和老鼠在有向图中轮流移动，老鼠想到达洞口，猫想抓住老鼠。核心是用状态表示位置和轮次，并用记忆化搜索或博弈 DP 判断最终胜负。',
+    outcome:
+      '你能把复杂对抗博弈拆成有限状态转移，理解终局判定、平局条件和记忆化搜索的必要性。',
+    sections: [
+      {
+        id: 'cat-and-mouse-summary',
+        title: '题目在问什么',
+        summary:
+          '给定图、猫的位置、老鼠的位置以及轮流移动规则。老鼠先走，若老鼠到达 0 号洞则老鼠胜；若猫和老鼠在同一节点则猫胜；若状态重复过多则可能平局。',
+        bullets: [
+          '老鼠和猫轮流移动。',
+          '老鼠目标是洞口，猫目标是抓住老鼠。',
+          '游戏结果可能是老鼠赢、猫赢或平局。',
+          '状态由两者位置和当前轮次决定。',
+        ],
+      },
+      {
+        id: 'cat-and-mouse-observe',
+        title: '状态必须包含双方位置和轮次',
+        summary:
+          '如果只记录老鼠位置或猫位置，无法判断后续局面。因为同样的位置组合，在轮到谁行动不同的情况下，结局可能完全不同。于是状态需要表示 `(mouse, cat, turn)`，再通过搜索或 DP 判断胜负。',
+        bullets: [
+          '老鼠、猫位置共同决定局面。',
+          '轮次决定下一步是谁移动。',
+          '重复局面需要缓存结果。',
+          '终局先于递归展开，避免死循环。',
+        ],
+      },
+      {
+        id: 'cat-and-mouse-solution',
+        title: '标准解法：状态搜索 + 记忆化',
+        summary:
+          '从初始状态出发，递归尝试当前玩家所有合法移动。若存在一步能让当前玩家必胜，则返回当前玩家胜；若所有分支都使对手必胜，则当前玩家败；否则记录为平局。',
+        bullets: [
+          '时间复杂度取决于状态数和每个状态的分支数。',
+          '空间复杂度需要缓存所有访问过的状态。',
+          '博弈题中，当前玩家通常会选择能让自己赢的路径。',
+          '若存在平局路径，需要小心递归终止条件。',
+        ],
+        code: `// 这里保留题目讲解思路，实际实现需要完整的状态缓存与胜负判定。
+function catMouseGame(graph: number[][]): number {
+  const memo = new Map<string, number>()
+
+  function dfs(mouse: number, cat: number, turn: number): number {
+    const key = mouse + ',' + cat + ',' + turn
+    if (memo.has(key)) return memo.get(key)!
+
+    if (mouse === 0) return 1
+    if (mouse === cat) return 2
+
+    if (turn > graph.length * 2) return 0
+
+    const moves = turn % 2 === 0 ? graph[mouse] : graph[cat]
+    let outcome = turn % 2 === 0 ? 2 : 1
+
+    for (const next of moves) {
+      if (turn % 2 === 1 && next === 0) continue
+      const result =
+        turn % 2 === 0
+          ? dfs(next, cat, turn + 1)
+          : dfs(mouse, next, turn + 1)
+      if (result === (turn % 2 === 0 ? 1 : 2)) {
+        memo.set(key, result)
+        return result
+      }
+      if (result === 0) outcome = 0
+    }
+
+    memo.set(key, outcome)
+    return outcome
+  }
+
+  return dfs(1, 2, 0)
+}`,
+      },
+      {
+        id: 'cat-and-mouse-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的核心不是路径最短，而是胜负判定。只要状态设计不完整，递归就会漏掉平局或重复状态。',
+        bullets: [
+          '易错点 1：只记录位置，不记录轮次。',
+          '易错点 2：猫可以直接跳到洞口，破坏题目约束。',
+          '易错点 3：没有设置递归深度或循环检测，导致死循环。',
+          '延伸方向：博弈 DP、记忆化搜索、状态压缩。',
+        ],
+      },
+    ],
+  },
 ];
