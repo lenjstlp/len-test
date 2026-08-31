@@ -92911,4 +92911,79 @@ class CBTInserter {
       },
     ],
   },
+  {
+    id: 'number-of-music-playlists',
+    label: '920. LeetCode 920. 播放列表的数量',
+    difficulty: '困难',
+    description:
+      '给定歌曲数量 `n`、播放列表长度 `goal` 以及重复间隔 `k`，求满足限制的播放列表总数。核心是动态规划：当前位置可以加入新歌，也可以在满足间隔要求时重复播放旧歌。',
+    outcome:
+      '你能处理“新元素加入 + 旧元素复用”的排列计数题，理解如何在状态中同时记录已使用歌曲数和当前播放长度。',
+    sections: [
+      {
+        id: 'music-playlists-summary',
+        title: '题目在问什么',
+        summary:
+          '有 `n` 首不同歌曲，要构造长度为 `goal` 的播放列表。每首歌至少播放一次，且任意一首歌再次播放前必须至少间隔 `k` 首歌。返回满足条件的播放列表数量。',
+        bullets: [
+          '歌曲可以重复播放，但需要间隔限制。',
+          '每首歌至少要出现一次。',
+          '顺序不同视为不同列表。',
+          '答案需要取模。',
+        ],
+      },
+      {
+        id: 'music-playlists-observe',
+        title: '状态要同时记录“已用歌曲数”和“当前长度”',
+        summary:
+          '如果当前位置使用新歌，已使用歌曲数增加；如果复用旧歌，则只能从“离上次出现至少 k 首”的歌曲中选。于是状态需要知道目前用了多少首不同歌曲，以及已经放了多少首歌。',
+        bullets: [
+          '新歌会扩展使用歌曲数量。',
+          '旧歌只能从可重用集合里选。',
+          '重用集合大小与已使用歌曲数和 `k` 有关。',
+          '每一步都在统计满足条件的排列数。',
+        ],
+      },
+      {
+        id: 'music-playlists-solution',
+        title: '标准解法：二维动态规划',
+        summary:
+          '定义 `dp[i][j]` 表示构造长度为 `i`、使用了 `j` 首不同歌曲的方案数。转移时可加入新歌或重复旧歌，分别计算对应的可选数量。',
+        bullets: [
+          '时间复杂度：`O(goal * n)`。',
+          '空间复杂度：`O(goal * n)`。',
+          '新歌的选择数是 `n - j + 1`。',
+          '旧歌的可选数是 `max(j - k, 0)`。',
+        ],
+        code: `function numMusicPlaylists(n: number, goal: number, k: number): number {
+  const mod = 1_000_000_007
+  const dp = Array.from({ length: goal + 1 }, () => Array(n + 1).fill(0))
+  dp[0][0] = 1
+
+  for (let length = 1; length <= goal; length += 1) {
+    for (let used = 1; used <= Math.min(length, n); used += 1) {
+      const addNew = dp[length - 1][used - 1] * (n - used + 1)
+      const replayOld =
+        used > k ? dp[length - 1][used] * (used - k) : 0
+      dp[length][used] = (addNew + replayOld) % mod
+    }
+  }
+
+  return dp[goal][n]
+}`,
+      },
+      {
+        id: 'music-playlists-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易漏掉旧歌复用的间隔限制，或者把“已使用歌曲数”和“当前播放长度”混成一个状态。只有同时记录两者，转移才完整。',
+        bullets: [
+          '易错点 1：旧歌可选数直接写成已使用歌曲数。',
+          '易错点 2：忘记每首歌至少出现一次的约束。',
+          '易错点 3：状态数组维度和遍历顺序写错。',
+          '延伸方向：排列计数、约束 DP、组合优化。',
+        ],
+      },
+    ],
+  },
 ];
