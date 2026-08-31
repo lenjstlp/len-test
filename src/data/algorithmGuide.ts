@@ -93061,4 +93061,84 @@ class CBTInserter {
       },
     ],
   },
+  {
+    id: 'sort-array-by-parity-three',
+    label: '922. LeetCode 922. 按奇偶排序数组 II',
+    difficulty: '简单',
+    description:
+      '将数组重新排列，使偶数下标元素为偶数，奇数下标元素为奇数。核心是双指针扫描偶数位和奇数位上的错位元素，再交换它们。',
+    outcome:
+      '你能处理“位置与值同时受约束”的基础数组题，掌握错位修复和位置跳步扫描。',
+    sections: [
+      {
+        id: 'sort-array-by-parity-three-summary',
+        title: '题目在问什么',
+        summary:
+          '给定长度为偶数的数组 `nums`，保证其中偶数和奇数数量相等。重新排列数组，使偶数下标上的元素为偶数，奇数下标上的元素为奇数。',
+        bullets: [
+          '下标和数值都要满足奇偶匹配。',
+          '题目保证有解。',
+          '偶数位只允许放偶数。',
+          '奇数位只允许放奇数。',
+        ],
+      },
+      {
+        id: 'sort-array-by-parity-three-observe',
+        title: '两个指针分别定位偶数位和奇数位的错位元素',
+        summary:
+          '偶数指针只检查偶数位，如果该位置是奇数就等待修复；奇数指针只检查奇数位，如果该位置是偶数就等待修复。两个指针分别找到错位元素后直接交换即可。',
+        bullets: [
+          '偶数位与奇数位分别独立扫描。',
+          '交换后两个位置都被修复。',
+          '指针每次都跳过固定间隔。',
+          '不用重新扫描已修复位置。',
+        ],
+      },
+      {
+        id: 'sort-array-by-parity-three-solution',
+        title: '标准解法：偶奇位双指针交换',
+        summary:
+          '维护两个下标 `even` 和 `odd`，分别扫描偶数位和奇数位。只要两边都找到错位元素，就交换它们并继续向后推进。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '与“按奇偶分区”不同，这题要保持下标位置约束。',
+          '题目保证有解，所以只要修复错位即可。',
+        ],
+        code: `function sortArrayByParityII(nums: number[]): number[] {
+  let even = 0
+  let odd = 1
+
+  while (even < nums.length && odd < nums.length) {
+    while (even < nums.length && nums[even] % 2 === 0) {
+      even += 2
+    }
+    while (odd < nums.length && nums[odd] % 2 === 1) {
+      odd += 2
+    }
+
+    if (even < nums.length && odd < nums.length) {
+      ;[nums[even], nums[odd]] = [nums[odd], nums[even]]
+      even += 2
+      odd += 2
+    }
+  }
+
+  return nums
+}`,
+      },
+      {
+        id: 'sort-array-by-parity-three-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题容易把位置约束忽略掉，只做奇偶分区。实际上需要的是“偶数位放偶数、奇数位放奇数”，所以扫描和交换都必须按下标奇偶分开。',
+        bullets: [
+          '易错点 1：把这题做成普通奇偶分区。',
+          '易错点 2：交换后没有两个指针同时前进。',
+          '易错点 3：把奇数位或偶数位起始下标写错。',
+          '延伸方向：位置约束、双指针、数组修复。',
+        ],
+      },
+    ],
+  },
 ];
