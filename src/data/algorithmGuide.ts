@@ -92560,4 +92560,88 @@ function catMouseGame(graph: number[][]): number {
       },
     ],
   },
+  {
+    id: 'word-subsets',
+    label: '916. LeetCode 916. 单词子集',
+    difficulty: '中等',
+    description:
+      '给定两个单词数组，找出在第二个数组每个单词的要求下都满足条件的第一个数组中的单词。核心是先合并出 B 数组的最大字符需求，再逐个检查 A 数组单词是否覆盖这些需求。',
+    outcome:
+      '你能把多条件字符串匹配压缩成“全局最大需求”，学会用频次数组合并约束。',
+    sections: [
+      {
+        id: 'word-subsets-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串数组 `words1` 和 `words2`。如果 `words1` 中的某个单词包含 `words2` 中每个单词所需的全部字符次数，则称它是通用单词，返回所有通用单词。',
+        bullets: [
+          '需要同时满足 `words2` 中所有单词的字符需求。',
+          '字符需求是按字母频次计算的。',
+          '只要某个字母频次不足，就不满足条件。',
+          '结果中保留 `words1` 中原始单词。',
+        ],
+      },
+      {
+        id: 'word-subsets-observe',
+        title: '把多个单词需求合并成一个最大频次需求',
+        summary:
+          '对于 `words2` 的每个单词，统计 26 个字母的频次。将所有单词对应位置的最大值保留下来，就得到一个全局需求数组 `need`。之后只需检查 `words1` 中的每个单词是否对每个字母都满足 `need`。',
+        bullets: [
+          '全局需求数组是每个字母需要的最大频次。',
+          '某个字母在 `words2` 中出现多次时，需求取最大值。',
+          '判断一个单词时只需一次频次数组比较。',
+          '这比逐个和 `words2` 中的每个单词比较更高效。',
+        ],
+      },
+      {
+        id: 'word-subsets-solution',
+        title: '标准解法：预聚合需求 + 频次检查',
+        summary:
+          '先统计 `words2` 的全局需求频次，再逐个检查 `words1` 的单词频次是否覆盖需求。只要在任一字母上频次不足，就排除当前单词。',
+        bullets: [
+          '时间复杂度：`O((n + m) * 26)`。',
+          '空间复杂度：`O(26)`。',
+          '固定字母表大小让频次检查非常稳定。',
+          '合并需求是这类题的关键优化。',
+        ],
+        code: `function wordSubsets(words1: string[], words2: string[]): string[] {
+  function count(word: string): number[] {
+    const frequencies = Array(26).fill(0)
+    for (const character of word) {
+      frequencies[character.charCodeAt(0) - 97] += 1
+    }
+    return frequencies
+  }
+
+  const need = Array(26).fill(0)
+  for (const word of words2) {
+    const frequencies = count(word)
+    for (let index = 0; index < 26; index += 1) {
+      need[index] = Math.max(need[index], frequencies[index])
+    }
+  }
+
+  return words1.filter((word) => {
+    const frequencies = count(word)
+    for (let index = 0; index < 26; index += 1) {
+      if (frequencies[index] < need[index]) return false
+    }
+    return true
+  })
+}`,
+      },
+      {
+        id: 'word-subsets-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易把每个 `words2` 单词单独检查，导致重复比较。先聚合出最大需求后再检查，才是正确的压缩方式。',
+        bullets: [
+          '易错点 1：只比较总字符数，忽略具体字母分布。',
+          '易错点 2：没有先把 `words2` 聚合成统一需求。',
+          '易错点 3：频次数组下标和字母映射错位。',
+          '延伸方向：多条件匹配、频次合并、字符需求分析。',
+        ],
+      },
+    ],
+  },
 ];
