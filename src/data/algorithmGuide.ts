@@ -57377,7 +57377,7 @@ function largestValues(root: TreeNode | null): number[] {
     ],
   },
   {
-    id: 'random-pick-with-weight',
+    id: 'cat-and-mouse',
     label: '528. LeetCode 528. 按权重随机选择',
     difficulty: '中等',
     description:
@@ -92403,6 +92403,85 @@ function catMouseGame(graph: number[][]): number {
           '易错点 2：猫可以直接跳到洞口，破坏题目约束。',
           '易错点 3：没有设置递归深度或循环检测，导致死循环。',
           '延伸方向：博弈 DP、记忆化搜索、状态压缩。',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'sort-an-array-two',
+    label: '914. LeetCode 914. 卡牌分组',
+    difficulty: '简单',
+    description:
+      '判断一副牌是否可以被分成若干组，每组牌面数相同且组内牌面相同。核心是求所有牌出现次数的最大公约数，只要公约数大于 1 就可以分组。',
+    outcome:
+      '你能从分组条件中抽象出最大公约数约束，学会用计数 + 数学公因数判断可分性。',
+    sections: [
+      {
+        id: 'card-groups-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `deck`，每张牌代表一个点数。判断是否存在一个大于 1 的分组大小 `X`，使得牌可以分成若干组，每组恰好 `X` 张且组内点数相同。',
+        bullets: [
+          '每组大小必须相同且大于 1。',
+          '组内牌面必须相同。',
+          '所有牌都要被分完。',
+          '题目本质是检查所有点数计数的公约数。',
+        ],
+      },
+      {
+        id: 'card-groups-observe',
+        title: '分组大小就是所有计数的公因数',
+        summary:
+          '如果每种点数的数量都能被同一个 `X` 整除，那么就可以按 `X` 张一组分完。因此只要求出所有计数的最大公约数，若结果大于 1，说明存在合法分组。',
+        bullets: [
+          '先统计每个点数出现次数。',
+          '再对所有计数求最大公约数。',
+          '公约数大于 1 即可分组。',
+          '如果最大公约数等于 1，则不存在满足条件的分组。',
+        ],
+      },
+      {
+        id: 'card-groups-solution',
+        title: '标准解法：计数 + 最大公约数',
+        summary:
+          '统计所有牌面数量后，依次计算这些数量的最大公约数，最终判断是否大于 1。这个结论直接来源于“每种牌都必须按同样的组大小整除”的条件。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(u)`，`u` 是不同牌面数量。',
+          '最大公约数使用欧几里得算法即可。',
+          '不需要真正构造分组方案。',
+        ],
+        code: `function hasGroupsSizeX(deck: number[]): boolean {
+  const counts = new Map<number, number>()
+  for (const card of deck) {
+    counts.set(card, (counts.get(card) ?? 0) + 1)
+  }
+
+  function gcd(first: number, second: number): number {
+    while (second !== 0) {
+      ;[first, second] = [second, first % second]
+    }
+    return first
+  }
+
+  let result = 0
+  for (const count of counts.values()) {
+    result = result === 0 ? count : gcd(result, count)
+  }
+
+  return result >= 2
+}`,
+      },
+      {
+        id: 'card-groups-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易直接去猜分组大小，但真正稳定的做法是先看所有计数的公约数。只要有一个计数不能整除，分组就不可能成立。',
+        bullets: [
+          '易错点 1：只看最大计数，不看所有计数。',
+          '易错点 2：把“最大公约数大于 1”误写成“存在一个偶数计数”。',
+          '易错点 3：忽略 `1` 这种无法分组的结果。',
+          '延伸方向：计数分组、欧几里得算法、可整除性判断。',
         ],
       },
     ],
