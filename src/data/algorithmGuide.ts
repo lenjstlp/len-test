@@ -93141,4 +93141,106 @@ class CBTInserter {
       },
     ],
   },
+  {
+    id: '3sum-with-multiplicity',
+    label: '923. LeetCode 923. 三数之和的多重集合',
+    difficulty: '中等',
+    description:
+      '给定数组和目标值，统计满足 `nums[i] + nums[j] + nums[k] = target` 的三元组数量，要求考虑重复元素的组合数。核心是先排序，再按值分情况统计组合数。',
+    outcome:
+      '你能把三数之和从“找具体三元组”转成“统计组合数”，理解重复元素场景下的分类计数方法。',
+    sections: [
+      {
+        id: '3sum-with-multiplicity-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `arr` 和目标值 `target`，统计索引三元组 `(i, j, k)` 的数量，使得 `i < j < k` 且三数之和等于 `target`。数组中可能有重复值。',
+        bullets: [
+          '题目要求统计数量，不是返回具体三元组。',
+          '重复值会显著增加组合数。',
+          '索引必须严格递增。',
+          '答案需要取模。',
+        ],
+      },
+      {
+        id: '3sum-with-multiplicity-observe',
+        title: '重复元素场景要按值分类型讨论',
+        summary:
+          '三元组中三个值的关系只有几种：三值全相等、两个相等一个不同、三个都不同。每种情况对应的组合数公式不同，因此先对数组计数，再按数值分类统计更容易正确处理。',
+        bullets: [
+          '全相等时用组合数 `C(count, 3)`。',
+          '两个相等时用 `C(countA, 2) * countB`。',
+          '三个都不同时按双指针统计左右组合数。',
+          '分类越清晰，越不容易漏算或重复计数。',
+        ],
+      },
+      {
+        id: '3sum-with-multiplicity-solution',
+        title: '标准解法：排序 + 双指针 + 组合数',
+        summary:
+          '先排序并统计频次。枚举第一个值和第二个值，第三个值用双指针寻找。根据三者是否相等，分别使用组合数公式累加答案。',
+        bullets: [
+          '时间复杂度：`O(n²)`。',
+          '空间复杂度：`O(1)` 或 `O(n)`，取决于频次统计方式。',
+          '相等场景优先使用组合数学，避免重复扫描。',
+          '不需要暴力枚举每个索引三元组。',
+        ],
+        code: `function threeSumMulti(arr: number[], target: number): number {
+  const mod = 1_000_000_007
+  arr.sort((first, second) => first - second)
+  let answer = 0
+
+  for (let i = 0; i < arr.length; i += 1) {
+    let left = i + 1
+    let right = arr.length - 1
+
+    while (left < right) {
+      const sum = arr[i] + arr[left] + arr[right]
+      if (sum < target) {
+        left += 1
+      } else if (sum > target) {
+        right -= 1
+      } else if (arr[left] !== arr[right]) {
+        let leftCount = 1
+        let rightCount = 1
+
+        while (left + 1 < right && arr[left] === arr[left + 1]) {
+          left += 1
+          leftCount += 1
+        }
+        while (right - 1 > left && arr[right] === arr[right - 1]) {
+          right -= 1
+          rightCount += 1
+        }
+
+        answer += leftCount * rightCount
+        answer %= mod
+        left += 1
+        right -= 1
+      } else {
+        const count = right - left + 1
+        answer += (count * (count - 1)) / 2
+        answer %= mod
+        break
+      }
+    }
+  }
+
+  return answer % mod
+}`,
+      },
+      {
+        id: '3sum-with-multiplicity-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的难点不在于找到三数之和，而在于准确统计重复值带来的组合数。只要分类讨论不完整，就会少算或多算。',
+        bullets: [
+          '易错点 1：把题目当作普通三数之和，忽略重复计数。',
+          '易错点 2：全相等和两个相等的情况混为一谈。',
+          '易错点 3：组合数公式和指针移动条件写错。',
+          '延伸方向：组合计数、双指针分类、重复元素处理。',
+        ],
+      },
+    ],
+  },
 ];
