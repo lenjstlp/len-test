@@ -93243,4 +93243,113 @@ class CBTInserter {
       },
     ],
   },
+  {
+    id: 'minimize-malware-spread',
+    label: '924. LeetCode 924. 尽量减少恶意软件的传播',
+    difficulty: '困难',
+    description:
+      '给定网络邻接矩阵和初始感染节点，移除其中一个初始感染节点后，求能让最终感染节点数最少的选择。核心是把网络拆成连通分量，再判断每个感染源是否是分量中唯一的感染源。',
+    outcome:
+      '你能用并查集识别网络连通分量，并把“删除一个节点的影响”转换成按分量统计感染源数量和分量规模的问题。',
+    sections: [
+      {
+        id: 'minimize-malware-spread-summary',
+        title: '题目在问什么',
+        summary:
+          '给定无向网络的邻接矩阵 `graph`，以及一组初始感染节点 `initial`。可以删除其中一个初始感染节点，要求让最终被感染的节点数量尽可能少；若有多个答案，返回编号最小的节点。',
+        bullets: [
+          '只能从初始感染节点中删除一个节点。',
+          '同一连通分量中的感染会彼此扩散。',
+          '删除后仍保留的感染源会继续传播。',
+          '挽救节点数相同时，选择编号更小的节点。',
+        ],
+      },
+      {
+        id: 'minimize-malware-spread-observe',
+        title: '只有唯一感染源所在的分量才能被整体挽救',
+        summary:
+          '先忽略感染状态，把网络划分为连通分量。如果一个分量中有两个或更多初始感染节点，删除其中任意一个后仍有其他感染源，因此该分量最终依旧全被感染。只有某个分量恰好有一个感染源时，删除它才能挽救整个分量。',
+        bullets: [
+          '连通分量内的节点最终会具有相同的感染命运。',
+          '分量中感染源数量大于 1 时，删除一个节点没有收益。',
+          '唯一感染源被删除时，能挽救该分量的全部节点。',
+          '收益就是该连通分量的节点数量。',
+        ],
+      },
+      {
+        id: 'minimize-malware-spread-solution',
+        title: '标准解法：并查集统计每个连通分量',
+        summary:
+          '用并查集连接 `graph` 中相邻的节点，再统计每个根节点对应的分量大小和初始感染节点数。遍历 `initial`，若某节点所在分量只有一个感染源，就用该分量大小更新最佳答案；遍历前排序即可自然处理编号最小的并列答案。',
+        bullets: [
+          '时间复杂度：`O(n² α(n))`，构建邻接矩阵的连通关系占主导。',
+          '空间复杂度：`O(n)`。',
+          '只需遍历邻接矩阵上三角，避免重复合并。',
+          '先排序初始感染节点，保证并列时保留更小编号。',
+        ],
+        code: `function minMalwareSpread(graph: number[][], initial: number[]): number {
+  const parent = Array.from({ length: graph.length }, (_, index) => index)
+  const size = Array(graph.length).fill(1)
+
+  const find = (node: number): number => {
+    if (parent[node] !== node) {
+      parent[node] = find(parent[node])
+    }
+    return parent[node]
+  }
+
+  const union = (first: number, second: number): void => {
+    const firstRoot = find(first)
+    const secondRoot = find(second)
+
+    if (firstRoot === secondRoot) {
+      return
+    }
+
+    parent[secondRoot] = firstRoot
+    size[firstRoot] += size[secondRoot]
+  }
+
+  for (let row = 0; row < graph.length; row += 1) {
+    for (let column = row + 1; column < graph.length; column += 1) {
+      if (graph[row][column] === 1) {
+        union(row, column)
+      }
+    }
+  }
+
+  const infectedCount = Array(graph.length).fill(0)
+  for (const node of initial) {
+    infectedCount[find(node)] += 1
+  }
+
+  const sortedInitial = [...initial].sort((first, second) => first - second)
+  let answer = sortedInitial[0]
+  let savedNodes = -1
+
+  for (const node of sortedInitial) {
+    const root = find(node)
+    if (infectedCount[root] === 1 && size[root] > savedNodes) {
+      answer = node
+      savedNodes = size[root]
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'minimize-malware-spread-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不能逐个模拟删除后再做病毒扩散，因为网络规模增大时会重复计算。先按连通分量压缩问题，才能准确看出一个感染源是否不可替代。',
+        bullets: [
+          '易错点 1：忽略同一分量可能存在多个初始感染源。',
+          '易错点 2：未按节点编号处理收益相同的并列答案。',
+          '易错点 3：统计分量大小时直接使用未压缩的节点编号。',
+          '延伸方向：并查集、连通分量、图传播、分类决策。',
+        ],
+      },
+    ],
+  },
 ];
