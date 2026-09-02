@@ -93352,4 +93352,80 @@ class CBTInserter {
       },
     ],
   },
+  {
+    id: 'long-pressed-name',
+    label: '925. LeetCode 925. 长按键入',
+    difficulty: '简单',
+    description:
+      '给定姓名字符串和实际输入字符串，判断输入是否可能由长按某些字符得到。核心是用双指针同步扫描，并允许输入串在当前字符上连续重复。',
+    outcome:
+      '你能把字符串匹配问题拆成“正常前进”和“长按重复”两类情况，用双指针稳定处理连续字符。',
+    sections: [
+      {
+        id: 'long-pressed-name-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `name` 和 `typed`，判断 `typed` 是否可能是在输入 `name` 时，由于某些字符被长按而产生的结果。',
+        bullets: [
+          '字符顺序不能改变。',
+          '长按只会让某个字符重复更多次。',
+          '不能凭空插入 `name` 中不存在的新字符。',
+          '每个 `name` 字符都必须按顺序匹配到。',
+        ],
+      },
+      {
+        id: 'long-pressed-name-observe',
+        title: '当前字符要么正常匹配，要么属于前一个字符的长按',
+        summary:
+          '遍历 `typed` 时，如果当前字符和 `name` 当前字符相同，就说明匹配成功并双指针同时前进；如果不同，但和 `typed` 的前一个字符相同，说明这是长按产生的额外字符，可以只移动 `typed` 指针；否则直接失败。',
+        bullets: [
+          '匹配成功时两个字符串同步前进。',
+          '长按字符只出现在 `typed` 中。',
+          '无法匹配且也不是重复字符时，一定非法。',
+          '最后必须确保 `name` 全部匹配完毕。',
+        ],
+      },
+      {
+        id: 'long-pressed-name-solution',
+        title: '标准解法：双指针顺序扫描',
+        summary:
+          '用两个指针分别指向 `name` 和 `typed`。扫描 `typed` 时按“正常匹配”或“长按重复”两种规则前进，结束后判断 `name` 是否已经全部消费完成。',
+        bullets: [
+          '时间复杂度：`O(n + m)`。',
+          '空间复杂度：`O(1)`。',
+          '长按的本质是 `typed` 中出现额外重复字符。',
+          '顺序始终不能被打乱。',
+        ],
+        code: `function isLongPressedName(name: string, typed: string): boolean {
+  let nameIndex = 0
+  let typedIndex = 0
+
+  while (typedIndex < typed.length) {
+    if (nameIndex < name.length && name[nameIndex] === typed[typedIndex]) {
+      nameIndex += 1
+      typedIndex += 1
+    } else if (typedIndex > 0 && typed[typedIndex] === typed[typedIndex - 1]) {
+      typedIndex += 1
+    } else {
+      return false
+    }
+  }
+
+  return nameIndex === name.length
+}`,
+      },
+      {
+        id: 'long-pressed-name-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题容易把“重复字符”理解成任意位置都能多出字符。实际上只有当前字符与前一个已匹配字符相同，才算合法长按。',
+        bullets: [
+          '易错点 1：没有校验多出的字符是否等于前一个输入字符。',
+          '易错点 2：扫描结束后忘记确认 `name` 是否全部匹配。',
+          '易错点 3：把字符计数相等误当作顺序匹配。',
+          '延伸方向：双指针、字符串匹配、连续字符处理。',
+        ],
+      },
+    ],
+  },
 ];
