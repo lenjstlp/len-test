@@ -93818,4 +93818,78 @@ class CBTInserter {
       },
     ],
   },
+  {
+    id: 'binary-subarrays-with-sum',
+    label: '930. LeetCode 930. 和相同的二元子数组',
+    difficulty: '中等',
+    description:
+      '统计二进制数组中和等于目标值的连续子数组数量。核心是用前缀和记录历史出现次数，把“区间和”等式改写成两个前缀和之差。',
+    outcome:
+      '你能把计数型子数组问题熟练转成前缀和 + 哈希表模型，不再依赖双重循环枚举区间。',
+    sections: [
+      {
+        id: 'binary-subarrays-with-sum-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0` 和 `1` 的数组 `nums`，以及整数 `goal`，统计和恰好等于 `goal` 的非空连续子数组数量。',
+        bullets: [
+          '要求的是子数组数量。',
+          '子数组必须连续。',
+          '数组虽然是二进制，但本质仍是区间和问题。',
+          '可能存在大量重复前缀和。',
+        ],
+      },
+      {
+        id: 'binary-subarrays-with-sum-observe',
+        title: '区间和等于目标值，可转成前缀和差值',
+        summary:
+          '若当前前缀和为 `prefix`，想找到和为 `goal` 的子数组，就要看之前有没有出现过 `prefix - goal`。因为如果某个旧前缀和等于 `prefix - goal`，两者之间的区间和正好是 `goal`。',
+        bullets: [
+          '每到一个位置，都可以立刻统计以它结尾的合法区间数。',
+          '哈希表存的是某个前缀和值出现了多少次。',
+          '同一个前缀和值可能出现多次，都要累计。',
+          '初始化时前缀和 0 需要出现一次。',
+        ],
+      },
+      {
+        id: 'binary-subarrays-with-sum-solution',
+        title: '标准解法：前缀和 + 频次哈希表',
+        summary:
+          '从左到右维护当前前缀和 `prefix`，并用 `Map` 记录每种前缀和值出现的次数。处理每个元素时，先把 `prefix - goal` 对应的历史次数累加到答案，再更新当前前缀和的频次。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`。',
+          '这是区间和计数题的通用模板。',
+          '不需要显式枚举子数组左右端点。',
+        ],
+        code: `function numSubarraysWithSum(nums: number[], goal: number): number {
+  const prefixCount = new Map<number, number>()
+  prefixCount.set(0, 1)
+
+  let prefix = 0
+  let answer = 0
+
+  for (const value of nums) {
+    prefix += value
+    answer += prefixCount.get(prefix - goal) ?? 0
+    prefixCount.set(prefix, (prefixCount.get(prefix) ?? 0) + 1)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'binary-subarrays-with-sum-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '二进制数组并不意味着题目只能用滑动窗口。只要目标是“统计和等于某值的子数组数量”，前缀和哈希往往更直接、更稳。',
+        bullets: [
+          '易错点 1：忘记初始化前缀和 `0` 的出现次数。',
+          '易错点 2：只记录前缀和是否出现，而没有记录出现次数。',
+          '易错点 3：把这题误写成求最长或最短区间。',
+          '延伸方向：前缀和、哈希计数、区间和统计。',
+        ],
+      },
+    ],
+  },
 ];
