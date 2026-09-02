@@ -93501,4 +93501,111 @@ class CBTInserter {
       },
     ],
   },
+  {
+    id: 'three-equal-parts',
+    label: '927. LeetCode 927. 三等分',
+    difficulty: '困难',
+    description:
+      '把二进制数组切成三个部分，要求三个部分表示的二进制值相同。核心是先看 1 的总数能否三等分，再用三个起点同步比较尾部模式。',
+    outcome:
+      '你能抓住二进制值相等的本质是“有效尾部模式相同”，并用 1 的分布快速排除无解情况。',
+    sections: [
+      {
+        id: 'three-equal-parts-summary',
+        title: '题目在问什么',
+        summary:
+          '给定二进制数组 `arr`，要求找到下标 `i` 和 `j`，把数组切成 `[0..i]`、`[i+1..j-1]`、`[j..n-1]` 三段，并且三段表示的二进制数相同。若不存在，返回 `[-1, -1]`。',
+        bullets: [
+          '每一段都允许有前导零。',
+          '三段都必须非空。',
+          '要返回满足条件的切分下标。',
+          '无解时返回固定结果。',
+        ],
+      },
+      {
+        id: 'three-equal-parts-observe',
+        title: '三个部分的有效 1 模式必须完全一致',
+        summary:
+          '如果一个二进制数去掉前导零后相等，那么它们的有效位序列必须一样。因此先统计数组中 `1` 的总数：如果不是 3 的倍数，一定无解；如果总数为 0，任意分法都表示 0。否则每一段都必须包含同样数量的 `1`，并且从各自第一个 `1` 开始的后缀模式要完全相同。',
+        bullets: [
+          '总 `1` 数不是 3 的倍数时，直接无解。',
+          '总 `1` 数为 0 时，三个部分都表示 0。',
+          '关键是定位每一段第一个 `1` 的位置。',
+          '比较的是从首个 `1` 开始的完整尾部模式。',
+        ],
+      },
+      {
+        id: 'three-equal-parts-solution',
+        title: '标准解法：定位三个起点并同步向后比较',
+        summary:
+          '统计总 `1` 数后，找到第一段、第二段、第三段各自第一个 `1` 的下标。然后让这三个指针同步向后走，只要位值完全相同且第三段正好走到数组末尾，就说明可以切分成功。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '前导零无需单独处理，只需对齐有效尾部。',
+          '最终切分点由同步比较结束时的指针位置决定。',
+        ],
+        code: `function threeEqualParts(arr: number[]): number[] {
+  let ones = 0
+
+  for (const digit of arr) {
+    ones += digit
+  }
+
+  if (ones === 0) {
+    return [0, 2]
+  }
+
+  if (ones % 3 !== 0) {
+    return [-1, -1]
+  }
+
+  const target = ones / 3
+  let first = -1
+  let second = -1
+  let third = -1
+  let seen = 0
+
+  for (let index = 0; index < arr.length; index += 1) {
+    if (arr[index] === 0) {
+      continue
+    }
+
+    seen += 1
+    if (seen === 1) {
+      first = index
+    } else if (seen === target + 1) {
+      second = index
+    } else if (seen === target * 2 + 1) {
+      third = index
+    }
+  }
+
+  while (third < arr.length) {
+    if (arr[first] !== arr[second] || arr[second] !== arr[third]) {
+      return [-1, -1]
+    }
+
+    first += 1
+    second += 1
+    third += 1
+  }
+
+  return [first - 1, second]
+}`,
+      },
+      {
+        id: 'three-equal-parts-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易被前导零干扰，误以为要做复杂字符串比较。实际上真正决定数值的是从首个 `1` 开始的尾部模式，先把总 `1` 数这个硬约束用起来，问题会简单很多。',
+        bullets: [
+          '易错点 1：总 `1` 数不是 3 的倍数时还继续尝试切分。',
+          '易错点 2：忽略总 `1` 数为 0 的特判。',
+          '易错点 3：返回切分点时把第二段起点和终点弄混。',
+          '延伸方向：构造题、双指针、二进制模式比较。',
+        ],
+      },
+    ],
+  },
 ];
