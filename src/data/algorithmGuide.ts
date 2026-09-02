@@ -93428,4 +93428,77 @@ class CBTInserter {
       },
     ],
   },
+  {
+    id: 'flip-string-to-monotone-increasing',
+    label: '926. LeetCode 926. 将字符串翻转到单调递增',
+    difficulty: '中等',
+    description:
+      '给定一个只包含 0 和 1 的字符串，求最少翻转多少次能让它变成单调递增。核心是扫描时维护左侧出现过多少个 1，以及当前最优翻转次数。',
+    outcome:
+      '你能把二进制字符串的全局有序约束压缩成线性扫描决策，理解“翻当前字符”与“翻前面所有 1”之间的最优取舍。',
+    sections: [
+      {
+        id: 'flip-string-to-monotone-increasing-summary',
+        title: '题目在问什么',
+        summary:
+          '给定二进制字符串 `s`，你可以把任意字符从 `0` 翻成 `1`，或从 `1` 翻成 `0`。求最少翻转次数，使最终字符串满足所有 `0` 都出现在所有 `1` 之前。',
+        bullets: [
+          '目标串形态只能是若干个 `0` 后接若干个 `1`。',
+          '可以全部是 `0`，也可以全部是 `1`。',
+          '要的是最少翻转次数。',
+          '字符串长度可能较大，需要线性解法。',
+        ],
+      },
+      {
+        id: 'flip-string-to-monotone-increasing-observe',
+        title: '遇到 0 时要决定翻自己还是翻掉前面的 1',
+        summary:
+          '从左到右扫描时，遇到 `1` 只需记录数量，因为它将来可能需要被翻掉。遇到 `0` 时，如果它出现在某些 `1` 之后，就会破坏单调性。这时有两种选择：把当前 `0` 翻成 `1`，或者把前面出现过的所有 `1` 翻成 `0`，取较小值即可。',
+        bullets: [
+          '`ones` 记录当前前缀中 `1` 的数量。',
+          '`flips` 记录让当前前缀合法的最少翻转次数。',
+          '遇到 `0` 时状态才需要更新。',
+          '每一步都只在两个代价之间取最小值。',
+        ],
+      },
+      {
+        id: 'flip-string-to-monotone-increasing-solution',
+        title: '标准解法：前缀 1 数量 + 最优翻转计数',
+        summary:
+          '维护 `ones` 表示扫描过的 `1` 数量，`flips` 表示当前前缀变成单调递增所需的最少翻转次数。遇到 `1` 时只增加 `ones`；遇到 `0` 时，把 `flips + 1` 和 `ones` 取最小值。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '`flips + 1` 表示翻当前这个 `0`。',
+          '`ones` 表示把前面所有 `1` 翻成 `0`。',
+        ],
+        code: `function minFlipsMonoIncr(s: string): number {
+  let ones = 0
+  let flips = 0
+
+  for (const character of s) {
+    if (character === '1') {
+      ones += 1
+    } else {
+      flips = Math.min(flips + 1, ones)
+    }
+  }
+
+  return flips
+}`,
+      },
+      {
+        id: 'flip-string-to-monotone-increasing-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不是简单统计 0 和 1 的总数，而是要考虑每个 `0` 出现的位置是否打破了前缀结构。只要把前缀最优答案维护住，就不需要回头重算。',
+        bullets: [
+          '易错点 1：看到 `0` 就固定翻当前字符，没有比较两种代价。',
+          '易错点 2：误以为必须枚举分界点，导致实现复杂。',
+          '易错点 3：把 `ones` 和 `flips` 的含义混淆。',
+          '延伸方向：前缀 DP、贪心决策、字符串状态压缩。',
+        ],
+      },
+    ],
+  },
 ];
