@@ -93892,4 +93892,82 @@ class CBTInserter {
       },
     ],
   },
+  {
+    id: 'minimum-falling-path-sum',
+    label: '931. LeetCode 931. 下降路径最小和',
+    difficulty: '中等',
+    description:
+      '从矩阵第一行出发，每次向下一行的左下、正下、右下移动，求最小路径和。核心是用动态规划把每个位置的最优结果建立在上一行的三个候选之上。',
+    outcome:
+      '你能把二维路径问题识别成逐行转移的 DP，理解局部最优如何累积成整条路径的最小代价。',
+    sections: [
+      {
+        id: 'minimum-falling-path-sum-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 `n x n` 的整数矩阵 `matrix`，从第一行任意位置出发，每一步可以移动到下一行的左下、正下或右下位置。求一条下降路径的最小元素和。',
+        bullets: [
+          '起点可以选第一行任意列。',
+          '每次只能向下一行移动。',
+          '可选方向最多三个。',
+          '目标是整条路径的最小和。',
+        ],
+      },
+      {
+        id: 'minimum-falling-path-sum-observe',
+        title: '当前位置的最优值只依赖上一行的相邻三个位置',
+        summary:
+          '如果定义 `dp[row][column]` 为到达当前位置的最小路径和，那么它只能由上一行的 `column - 1`、`column`、`column + 1` 三个位置转移而来。也就是说，这题天然适合按行推进的动态规划。',
+        bullets: [
+          '第一行本身就是初始状态。',
+          '越界位置直接忽略即可。',
+          '每个格子的最优值只需关注上方相邻三个来源。',
+          '最后答案是最后一行所有 `dp` 值中的最小值。',
+        ],
+      },
+      {
+        id: 'minimum-falling-path-sum-solution',
+        title: '标准解法：逐行更新最小路径和',
+        summary:
+          '可以直接在原矩阵上原地更新：从第二行开始，把当前格子加上上一行三个可达位置中的最小值。处理完所有行后，最后一行的最小值就是答案。',
+        bullets: [
+          '时间复杂度：`O(n²)`。',
+          '空间复杂度：`O(1)` 额外空间，若允许原地修改。',
+          '原地 DP 能减少额外数组开销。',
+          '矩阵类路径题常见这种“从上一层转移”的结构。',
+        ],
+        code: `function minFallingPathSum(matrix: number[][]): number {
+  for (let row = 1; row < matrix.length; row += 1) {
+    for (let column = 0; column < matrix[row].length; column += 1) {
+      let best = matrix[row - 1][column]
+
+      if (column > 0) {
+        best = Math.min(best, matrix[row - 1][column - 1])
+      }
+
+      if (column + 1 < matrix[row].length) {
+        best = Math.min(best, matrix[row - 1][column + 1])
+      }
+
+      matrix[row][column] += best
+    }
+  }
+
+  return Math.min(...matrix[matrix.length - 1])
+}`,
+      },
+      {
+        id: 'minimum-falling-path-sum-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '很多人一看到路径题就想 DFS 暴力枚举，但这题的重叠子问题非常明显。只要把“到当前位置的最小代价”定义出来，递推关系就很自然。',
+        bullets: [
+          '易错点 1：转移时漏掉左下或右下方向。',
+          '易错点 2：边界列越界处理不严谨。',
+          '易错点 3：最后返回某个固定列，而不是最后一行最小值。',
+          '延伸方向：二维 DP、路径最优、原地状态更新。',
+        ],
+      },
+    ],
+  },
 ];
