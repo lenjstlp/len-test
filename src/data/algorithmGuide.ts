@@ -93608,4 +93608,140 @@ class CBTInserter {
       },
     ],
   },
+  {
+    id: 'minimize-malware-spread-two',
+    label: '928. LeetCode 928. 尽量减少恶意软件的传播 II',
+    difficulty: '困难',
+    description:
+      '相比上一题，这次删除的初始感染点会彻底从图中移除，传播路径也会变化。核心是只在未感染节点上建连通分量，再统计每个感染源独占了哪些干净分量。',
+    outcome:
+      '你能把“删除节点导致图结构变化”的复杂传播问题，转成干净节点分量与感染源覆盖关系的统计问题。',
+    sections: [
+      {
+        id: 'minimize-malware-spread-two-summary',
+        title: '题目在问什么',
+        summary:
+          '给定无向图邻接矩阵 `graph` 和初始感染数组 `initial`。移除其中一个初始感染节点后，其余感染节点继续传播，求最终能让感染总数最少的删除方案；若结果相同，返回编号最小的节点。',
+        bullets: [
+          '被删除的节点会从图中彻底移除。',
+          '传播只发生在保留下来的节点之间。',
+          '删除不同感染点，传播路径可能不同。',
+          '并列时仍然取编号最小的节点。',
+        ],
+      },
+      {
+        id: 'minimize-malware-spread-two-observe',
+        title: '先把未感染节点连成分量，再看每个感染源能污染哪些分量',
+        summary:
+          '把所有初始感染节点先视为“边界”，只在其余干净节点之间做连通分量。对于每个感染源，找出它相邻的干净分量集合。如果某个干净分量只会被一个感染源接触到，那么删掉这个感染源就能把整个分量保住；如果一个分量会被多个感染源接触，删谁都救不下来。',
+        bullets: [
+          '干净节点内部的联通结构与删除哪个感染源无关。',
+          '感染源只通过边界邻接去污染干净分量。',
+          '一个分量被多个感染源覆盖时，不具备独占可救性。',
+          '收益等于被独占分量的大小之和。',
+        ],
+      },
+      {
+        id: 'minimize-malware-spread-two-solution',
+        title: '标准解法：干净节点并查集 + 感染源覆盖统计',
+        summary:
+          '先把 `initial` 做成集合，只对非感染节点运行并查集，得到所有干净分量及其大小。随后遍历每个感染源，收集它能接触到的干净分量根节点，并统计每个分量被多少个感染源接触。最后对每个感染源累加其独占分量大小，选择收益最大者。',
+        bullets: [
+          '时间复杂度：`O(n² α(n))`。',
+          '空间复杂度：`O(n)`。',
+          '同一感染源重复连接到同一分量时要去重。',
+          '先排序 `initial`，可自然处理并列时取最小编号。',
+        ],
+        code: `function minMalwareSpread(graph: number[][], initial: number[]): number {
+  const infected = new Set(initial)
+  const parent = Array.from({ length: graph.length }, (_, index) => index)
+  const size = Array(graph.length).fill(1)
+
+  const find = (node: number): number => {
+    if (parent[node] !== node) {
+      parent[node] = find(parent[node])
+    }
+    return parent[node]
+  }
+
+  const union = (first: number, second: number): void => {
+    const firstRoot = find(first)
+    const secondRoot = find(second)
+
+    if (firstRoot === secondRoot) {
+      return
+    }
+
+    parent[secondRoot] = firstRoot
+    size[firstRoot] += size[secondRoot]
+  }
+
+  for (let row = 0; row < graph.length; row += 1) {
+    if (infected.has(row)) {
+      continue
+    }
+
+    for (let column = row + 1; column < graph.length; column += 1) {
+      if (!infected.has(column) && graph[row][column] === 1) {
+        union(row, column)
+      }
+    }
+  }
+
+  const componentTouches = new Map<number, number>()
+  const sourceToComponents = new Map<number, number[]>()
+
+  for (const source of initial) {
+    const seenComponents = new Set<number>()
+
+    for (let node = 0; node < graph.length; node += 1) {
+      if (infected.has(node) || graph[source][node] === 0) {
+        continue
+      }
+
+      seenComponents.add(find(node))
+    }
+
+    sourceToComponents.set(source, [...seenComponents])
+    for (const component of seenComponents) {
+      componentTouches.set(component, (componentTouches.get(component) ?? 0) + 1)
+    }
+  }
+
+  const sortedInitial = [...initial].sort((first, second) => first - second)
+  let answer = sortedInitial[0]
+  let bestSaved = -1
+
+  for (const source of sortedInitial) {
+    let saved = 0
+
+    for (const component of sourceToComponents.get(source) ?? []) {
+      if (componentTouches.get(component) === 1) {
+        saved += size[find(component)]
+      }
+    }
+
+    if (saved > bestSaved) {
+      bestSaved = saved
+      answer = source
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'minimize-malware-spread-two-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题和上一题最大区别是删除节点会改变图结构，所以不能直接沿用“整张图先分量化”的做法。只在干净节点上建模，才不会把被删除感染源带来的连边影响算错。',
+        bullets: [
+          '易错点 1：直接套用第 924 题的分量统计逻辑。',
+          '易错点 2：同一感染源连接同一分量多次时没有去重。',
+          '易错点 3：把感染节点也合并进干净分量中，导致收益统计错误。',
+          '延伸方向：并查集、图传播、分量覆盖、去重统计。',
+        ],
+      },
+    ],
+  },
 ];
