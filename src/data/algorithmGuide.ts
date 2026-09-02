@@ -93744,4 +93744,78 @@ class CBTInserter {
       },
     ],
   },
+  {
+    id: 'unique-email-addresses',
+    label: '929. LeetCode 929. 独特的电子邮件地址',
+    difficulty: '简单',
+    description:
+      '统计邮件规范化后的不同地址数量。核心是按规则处理本地名中的 `.` 和 `+`，再与域名拼接后去重。',
+    outcome:
+      '你能把字符串规则题拆成明确的预处理步骤，先规范化再去重，而不是直接在原始数据上比较。',
+    sections: [
+      {
+        id: 'unique-email-addresses-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干邮件地址，规则是本地名中 `.` 会被忽略，`+` 之后的内容也会被忽略，域名保持不变。求实际会送达多少个不同地址。',
+        bullets: [
+          '规则只作用于 `@` 前面的本地名。',
+          '`+` 之后直到 `@` 之前的内容全部忽略。',
+          '域名部分完全保留。',
+          '最终比较的是规范化之后的地址。',
+        ],
+      },
+      {
+        id: 'unique-email-addresses-observe',
+        title: '先把每个地址转换成标准形式，再放进集合',
+        summary:
+          '不同原始字符串可能代表同一个真实邮箱，因此不能直接比较原始值。最稳妥的方式是先把本地名按规则截断和去点，再与域名重新拼接成统一形式，最后借助集合去重。',
+        bullets: [
+          '本地名和域名要先拆开。',
+          '本地名先处理 `+`，再去掉所有 `.`。',
+          '规范化后再去重，逻辑最清晰。',
+          '集合天然适合做唯一性统计。',
+        ],
+      },
+      {
+        id: 'unique-email-addresses-solution',
+        title: '标准解法：字符串规范化 + Set 去重',
+        summary:
+          '遍历每个邮箱，按 `@` 切分出本地名和域名。本地名若存在 `+`，只保留其前面的部分，再去掉所有 `.`，与原域名组合后放入 `Set`。最终集合大小就是答案。',
+        bullets: [
+          '时间复杂度：`O(n * m)`，`m` 为单个地址长度。',
+          '空间复杂度：`O(n * m)`。',
+          '规则只影响本地名，不影响域名。',
+          '处理顺序明确后，代码会非常直接。',
+        ],
+        code: `function numUniqueEmails(emails: string[]): number {
+  const uniqueEmails = new Set<string>()
+
+  for (const email of emails) {
+    const [localName, domainName] = email.split('@')
+    const plusIndex = localName.indexOf('+')
+    const usefulLocal =
+      plusIndex === -1 ? localName : localName.slice(0, plusIndex)
+    const normalized = usefulLocal.replaceAll('.', '')
+
+    uniqueEmails.add(\`\${normalized}@\${domainName}\`)
+  }
+
+  return uniqueEmails.size
+}`,
+      },
+      {
+        id: 'unique-email-addresses-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不是邮箱格式校验题，而是规则转换题。只要把规范化逻辑写稳定，剩下就是普通去重。',
+        bullets: [
+          '易错点 1：把域名中的 `.` 也错误去掉。',
+          '易错点 2：忽略 `+` 只对本地名生效。',
+          '易错点 3：没有先规范化就直接比较原始字符串。',
+          '延伸方向：字符串处理、哈希去重、规则归一化。',
+        ],
+      },
+    ],
+  },
 ];
