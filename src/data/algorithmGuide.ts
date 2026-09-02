@@ -94126,4 +94126,144 @@ class CBTInserter {
       },
     ],
   },
+  {
+    id: 'shortest-bridge',
+    label: '934. LeetCode 934. 最短的桥',
+    difficulty: '中等',
+    description:
+      '二维网格中有两座岛，要求把最少数量的 0 翻成 1 让两岛连通。核心是先用 DFS 找到其中一座岛，再用 BFS 分层向外扩张直到碰到另一座岛。',
+    outcome:
+      '你能把“连接两个目标”的网格题拆成“先定一端，再做最短扩张”，掌握 DFS 标记加 BFS 求最短步数的组合用法。',
+    sections: [
+      {
+        id: 'shortest-bridge-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含 `0` 和 `1` 的网格，恰好有两座岛。每次可以把一个 `0` 改成 `1`，求最少需要修改多少个 `0`，才能让两座岛连成一体。',
+        bullets: [
+          '两座岛由上下左右相连的 `1` 组成。',
+          '只能通过翻转海水 `0` 来搭桥。',
+          '要的是最少翻转次数。',
+          '本质是求两座岛之间的最短扩张距离。',
+        ],
+      },
+      {
+        id: 'shortest-bridge-observe',
+        title: '先完整拿下第一座岛，再向外一层层扩张',
+        summary:
+          '如果直接从所有陆地开始扩张，会混淆两座岛的边界。更好的方式是先找到第一座岛，把它全部标记出来并加入队列。之后从这整座岛同时向外做 BFS，第一次碰到未标记的 `1`，就是到第二座岛的最短桥长。',
+        bullets: [
+          'DFS 负责把第一座岛整块找出来。',
+          'BFS 负责按层保证最短扩张步数。',
+          '从整座岛一起出发，比从单个点出发更稳。',
+          '第一次碰到第二座岛时，不需要继续搜索。',
+        ],
+      },
+      {
+        id: 'shortest-bridge-solution',
+        title: '标准解法：DFS 标记首岛 + BFS 分层扩张',
+        summary:
+          '先扫描网格找到第一座岛的一个起点，用 DFS 把这座岛所有格子标记为已访问，并全部加入 BFS 队列。然后按层扩张四个方向，遇到海水就继续推进，遇到另一座岛的陆地就返回当前层数。',
+        bullets: [
+          '时间复杂度：`O(n²)`。',
+          '空间复杂度：`O(n²)`。',
+          'DFS 和 BFS 各自职责明确。',
+          '分层 BFS 的层数就是桥的长度。',
+        ],
+        code: `function shortestBridge(grid: number[][]): number {
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+  const queue: Array<[number, number]> = []
+  const visited = Array.from({ length: grid.length }, () =>
+    Array(grid[0].length).fill(false),
+  )
+
+  const markIsland = (row: number, column: number): void => {
+    if (
+      row < 0 ||
+      row >= grid.length ||
+      column < 0 ||
+      column >= grid[0].length ||
+      visited[row][column] ||
+      grid[row][column] === 0
+    ) {
+      return
+    }
+
+    visited[row][column] = true
+    queue.push([row, column])
+
+    for (const [deltaRow, deltaColumn] of directions) {
+      markIsland(row + deltaRow, column + deltaColumn)
+    }
+  }
+
+  let found = false
+  for (let row = 0; row < grid.length && !found; row += 1) {
+    for (let column = 0; column < grid[0].length; column += 1) {
+      if (grid[row][column] === 1) {
+        markIsland(row, column)
+        found = true
+        break
+      }
+    }
+  }
+
+  let steps = 0
+  let head = 0
+
+  while (head < queue.length) {
+    const levelSize = queue.length - head
+
+    for (let count = 0; count < levelSize; count += 1) {
+      const [row, column] = queue[head]
+      head += 1
+
+      for (const [deltaRow, deltaColumn] of directions) {
+        const nextRow = row + deltaRow
+        const nextColumn = column + deltaColumn
+
+        if (
+          nextRow < 0 ||
+          nextRow >= grid.length ||
+          nextColumn < 0 ||
+          nextColumn >= grid[0].length ||
+          visited[nextRow][nextColumn]
+        ) {
+          continue
+        }
+
+        if (grid[nextRow][nextColumn] === 1) {
+          return steps
+        }
+
+        visited[nextRow][nextColumn] = true
+        queue.push([nextRow, nextColumn])
+      }
+    }
+
+    steps += 1
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'shortest-bridge-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题如果从单个陆地点 BFS，容易错过“整座岛同时扩张”的最短性。先整块标记，再分层推进，逻辑才闭合。',
+        bullets: [
+          '易错点 1：没有把第一座岛全部加入初始队列。',
+          '易错点 2：DFS 标记和 BFS 访问状态混用不清。',
+          '易错点 3：BFS 扩张到第二座岛时返回层数偏一。',
+          '延伸方向：网格搜索、最短路径、DFS+BFS 组合。',
+        ],
+      },
+    ],
+  },
 ];
