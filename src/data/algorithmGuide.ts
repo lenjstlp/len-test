@@ -93970,4 +93970,88 @@ class CBTInserter {
       },
     ],
   },
+  {
+    id: 'beautiful-array',
+    label: '932. LeetCode 932. 漂亮数组',
+    difficulty: '中等',
+    description:
+      '构造一个 1 到 n 的排列，使任意 `i < k < j` 都不满足 `nums[k] * 2 = nums[i] + nums[j]`。核心是利用奇偶拆分的分治构造，让平均值关系天然失效。',
+    outcome:
+      '你能理解漂亮数组的分治构造本质，掌握用“结构性不变量”而不是暴力验证来生成满足条件的排列。',
+    sections: [
+      {
+        id: 'beautiful-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数 `n`，要求返回一个包含 `1` 到 `n` 的排列，使得对任意 `i < k < j`，都不存在 `nums[k] * 2 = nums[i] + nums[j]` 的情况。',
+        bullets: [
+          '必须是 `1` 到 `n` 的一个排列。',
+          '中间元素不能成为两端元素的平均值。',
+          '题目保证一定存在答案。',
+          '重点是构造合法序列，不是判断一个给定序列。',
+        ],
+      },
+      {
+        id: 'beautiful-array-observe',
+        title: '奇数部分和偶数部分分别漂亮，合并后仍然漂亮',
+        summary:
+          '如果一个数组是漂亮数组，把其中每个元素映射成 `2x - 1`，得到的全是奇数且仍保持漂亮；映射成 `2x`，得到的全是偶数也仍保持漂亮。把奇数漂亮数组放前面、偶数漂亮数组放后面，奇偶之间不可能互为平均值，因此整体仍是漂亮数组。',
+        bullets: [
+          '奇数与偶数的平均值不可能同时保持整数且落在中间结构中。',
+          '漂亮性质在这两种线性映射下会保留。',
+          '问题可以递归缩小到更小的规模。',
+          '构造题常常依赖这种“性质可继承”的分解方式。',
+        ],
+      },
+      {
+        id: 'beautiful-array-solution',
+        title: '标准解法：分治构造奇数组和偶数组',
+        summary:
+          '从 `[1]` 开始迭代构造。每一轮把当前数组映射成所有不超过 `n` 的奇数项，再映射成所有不超过 `n` 的偶数项，拼接成新数组。由于漂亮性质会在映射和拼接过程中保持，最终得到合法答案。',
+        bullets: [
+          '时间复杂度：`O(n log n)` 量级。',
+          '空间复杂度：`O(n)`。',
+          '不需要回溯或暴力验证所有三元组。',
+          '这是典型的构造性分治思路。',
+        ],
+        code: `function beautifulArray(n: number): number[] {
+  let answer = [1]
+
+  while (answer.length < n) {
+    const next: number[] = []
+
+    for (const value of answer) {
+      const odd = value * 2 - 1
+      if (odd <= n) {
+        next.push(odd)
+      }
+    }
+
+    for (const value of answer) {
+      const even = value * 2
+      if (even <= n) {
+        next.push(even)
+      }
+    }
+
+    answer = next
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'beautiful-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不是搜索所有排列的题，而是用数学结构直接构造。只要抓住“奇偶拆分后平均值关系会断掉”这个不变量，代码就会非常短。',
+        bullets: [
+          '易错点 1：尝试暴力回溯排列，复杂度不可接受。',
+          '易错点 2：构造时没有过滤掉超过 `n` 的值。',
+          '易错点 3：不理解奇数组和偶数组为何拼接后仍合法。',
+          '延伸方向：构造题、分治、不变量设计。',
+        ],
+      },
+    ],
+  },
 ];
