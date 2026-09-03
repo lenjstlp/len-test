@@ -94359,4 +94359,112 @@ class CBTInserter {
       },
     ],
   },
+  {
+    id: 'stamp-sequence',
+    label: '936. LeetCode 936. 戳印序列',
+    difficulty: '困难',
+    description:
+      '给定印章字符串和目标字符串，求出一组戳印起点，使目标串最终变成全问号。核心是反向思考：每次消除一个与印章匹配的窗口，直到所有字符都被消除。',
+    outcome:
+      '你能把正向覆盖构造题转成反向消除问题，掌握窗口匹配、状态标记和贪心推进。',
+    sections: [
+      {
+        id: 'stamp-sequence-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串 `stamp` 和 `target`。每次可以把印章覆盖到目标串的连续窗口上，要求找出不超过 `10 * target.length` 次操作，使目标串变成全问号；如果无法完成则返回空数组。',
+        bullets: [
+          '每次覆盖的窗口长度等于印章长度。',
+          '覆盖会把窗口中的字符改成问号。',
+          '窗口中已经变成问号的位置可以重复覆盖。',
+          '返回的起点顺序要能正向完成目标。',
+        ],
+      },
+      {
+        id: 'stamp-sequence-observe',
+        title: '反向消除比正向构造更容易判断',
+        summary:
+          '正向操作要决定每一步把印章放在哪里，选择很多。反过来，从 `target` 出发寻找某个窗口：窗口中所有尚未消除的字符都必须和印章对应，并且至少有一个新字符可以被消除。把这部分变成问号后，继续寻找下一处可消除窗口。',
+        bullets: [
+          '窗口中的问号可以视为已经被覆盖的位置。',
+          '每次操作必须至少消除一个新字符，避免死循环。',
+          '如果一轮没有任何窗口变化，说明无法完成。',
+          '反向得到的起点序列最后需要翻转。',
+        ],
+      },
+      {
+        id: 'stamp-sequence-solution',
+        title: '标准解法：窗口扫描 + 反向贪心消除',
+        summary:
+          '从目标串左到右反复扫描所有窗口。窗口满足匹配条件时，将其中尚未消除的字符改为问号，并记录窗口起点。直到所有字符都被消除，或者一整轮没有进展。记录顺序是反向操作顺序，因此成功后要逆序返回。',
+        bullets: [
+          '时间复杂度：`O(n²m)`，`n` 为目标串长度，`m` 为印章长度。',
+          '空间复杂度：`O(n)`。',
+          '必须区分“窗口匹配”和“窗口有新字符可消除”。',
+          '无进展时立即返回空数组。',
+        ],
+        code: `function movesToStamp(stamp: string, target: string): number[] {
+  const characters = target.split('')
+  const answer: number[] = []
+  let erased = 0
+
+  while (erased < characters.length) {
+    let changed = false
+
+    for (let start = 0; start <= target.length - stamp.length; start += 1) {
+      let matches = true
+      let canErase = false
+
+      for (let offset = 0; offset < stamp.length; offset += 1) {
+        const index = start + offset
+        if (characters[index] === '?') {
+          continue
+        }
+
+        if (characters[index] !== stamp[offset]) {
+          matches = false
+          break
+        }
+
+        canErase = true
+      }
+
+      if (!matches || !canErase) {
+        continue
+      }
+
+      for (let offset = 0; offset < stamp.length; offset += 1) {
+        const index = start + offset
+        if (characters[index] !== '?') {
+          characters[index] = '?'
+          erased += 1
+        }
+      }
+
+      answer.push(start)
+      changed = true
+    }
+
+    if (!changed) {
+      return []
+    }
+  }
+
+  return answer.reverse()
+}`,
+      },
+      {
+        id: 'stamp-sequence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易在方向上走反。反向消除时，问号是“已经处理过”的位置，窗口仍必须有至少一个真实字符被消除，否则重复处理同一窗口不会带来任何进展。',
+        bullets: [
+          '易错点 1：把反向消除得到的顺序直接返回，没有逆序。',
+          '易错点 2：允许全是问号的窗口重复处理，导致死循环。',
+          '易错点 3：窗口中只要有一个字符不匹配就不能消除。',
+          '延伸方向：贪心、字符串窗口、逆向构造。',
+        ],
+      },
+    ],
+  },
 ];
