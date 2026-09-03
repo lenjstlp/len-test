@@ -94646,4 +94646,162 @@ function rangeSumBST(
       },
     ],
   },
+  {
+    id: 'minimum-area-rectangle',
+    label: '939. LeetCode 939. 最小面积矩形',
+    difficulty: '中等',
+    description:
+      '给定平面上的若干个轴对齐点，求由这些点组成的最小矩形面积。核心是枚举两个点作为对角线，并用集合快速判断另外两个顶点是否存在。',
+    outcome:
+      '你能把几何枚举题转成哈希集合查询，理解如何用对角线唯一确定轴对齐矩形。',
+    sections: [
+      {
+        id: 'minimum-area-rectangle-summary',
+        title: '题目在问什么',
+        summary:
+          '给定互不相同的点 `points`，每个点表示为 `[x, y]`。要求找出四个点组成的轴对齐矩形，并返回所有矩形中的最小面积；不存在时返回 `0`。',
+        bullets: [
+          '矩形的边必须平行于坐标轴。',
+          '四个顶点都必须在给定点集中。',
+          '矩形不能退化成线段。',
+          '目标是最小面积，不是最小周长。',
+        ],
+      },
+      {
+        id: 'minimum-area-rectangle-observe',
+        title: '两个对角点可以唯一确定另外两个顶点',
+        summary:
+          '如果两个点的横纵坐标都不同，它们可以作为矩形的一条对角线。另两个顶点就是 `(x1, y2)` 和 `(x2, y1)`。只要这两个点也存在，就形成面积为 `|x1 - x2| * |y1 - y2|` 的矩形。',
+        bullets: [
+          '同一行或同一列的两个点不能作为对角点。',
+          '点集合查询适合使用 `Set`。',
+          '枚举点对会自动覆盖所有可能矩形。',
+          '面积越小越优，初始化答案为无穷大。',
+        ],
+      },
+      {
+        id: 'minimum-area-rectangle-solution',
+        title: '标准解法：枚举对角线 + 集合查点',
+        summary:
+          '先把所有点编码成字符串放入集合。双重循环枚举两个点，若它们横纵坐标都不同，再检查另外两个顶点是否存在；存在就更新最小面积。',
+        bullets: [
+          '时间复杂度：`O(n²)`。',
+          '空间复杂度：`O(n)`。',
+          '编码格式必须能区分不同坐标。',
+          '最后没有找到矩形时返回 `0`。',
+        ],
+        code: `function minAreaRect(points: number[][]): number {
+  const pointSet = new Set(points.map(([x, y]) => \`\${x},\${y}\`))
+  let answer = Number.POSITIVE_INFINITY
+
+  for (let first = 0; first < points.length; first += 1) {
+    const [x1, y1] = points[first]
+
+    for (let second = first + 1; second < points.length; second += 1) {
+      const [x2, y2] = points[second]
+
+      if (x1 === x2 || y1 === y2) {
+        continue
+      }
+
+      if (
+        pointSet.has(\`\${x1},\${y2}\`) &&
+        pointSet.has(\`\${x2},\${y1}\`)
+      ) {
+        answer = Math.min(answer, Math.abs(x1 - x2) * Math.abs(y1 - y2))
+      }
+    }
+  }
+
+  return answer === Number.POSITIVE_INFINITY ? 0 : answer
+}`,
+      },
+      {
+        id: 'minimum-area-rectangle-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不需要排序边界或构造完整图形。只要认识到轴对齐矩形的两个对角点能确定剩余顶点，就能用集合把几何关系变成常数时间查询。',
+        bullets: [
+          '易错点 1：允许横坐标或纵坐标相同的点作为对角点。',
+          '易错点 2：只检查一个缺失顶点。',
+          '易错点 3：没有处理不存在矩形时的返回值。',
+          '延伸方向：几何枚举、哈希集合、坐标编码。',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'distinct-subsequences-ii',
+    label: '940. LeetCode 940. 不同的子序列 II',
+    difficulty: '困难',
+    description:
+      '统计字符串所有不同非空子序列的数量。核心是动态规划记录每个字符作为结尾时新增的子序列，遇到重复字符时覆盖它上一次的贡献。',
+    outcome:
+      '你能理解重复字符为什么会造成重复计数，并掌握“按结尾字符记录最后贡献”的去重 DP。',
+    sections: [
+      {
+        id: 'distinct-subsequences-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含小写字母的字符串 `s`，返回它所有不同非空子序列的数量，结果对 `1_000_000_007` 取模。',
+        bullets: [
+          '子序列不要求连续，但必须保持原相对顺序。',
+          '相同内容的子序列只计算一次。',
+          '空子序列不计入答案。',
+          '字符串长度较大，需要线性动态规划。',
+        ],
+      },
+      {
+        id: 'distinct-subsequences-ii-observe',
+        title: '每个新字符都能扩展旧子序列，但重复字符会重复贡献',
+        summary:
+          '假设当前处理字符为 `c`。它可以接到此前所有不同子序列后面，产生一批以 `c` 结尾的新结果，同时单独形成子序列 `c`。但如果 `c` 以前出现过，当前新增结果中有一部分与上次以 `c` 结尾的结果重复，因此要减去旧贡献，或者直接覆盖字符 `c` 的最后贡献。',
+        bullets: [
+          '按结尾字符分组可以精确定位重复来源。',
+          '每个字符只保留最近一次新增贡献即可。',
+          '所有字符贡献之和就是当前前缀的非空不同子序列数。',
+          '状态数量固定为 26，适合滚动维护。',
+        ],
+      },
+      {
+        id: 'distinct-subsequences-ii-solution',
+        title: '标准解法：记录每个字符的最后新增贡献',
+        summary:
+          '维护 `last[c]` 表示字符 `c` 上一次出现时新增的不同子序列数量。处理当前字符时，新的贡献等于“当前已有所有子序列 + 空序列”，再减去 `last[c]` 带来的重复部分；更新总数并覆盖 `last[c]`。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`，只维护 26 个字符状态。',
+          '每次计算都要规范处理负数取模。',
+          '最后总数就是所有非空不同子序列数量。',
+        ],
+        code: `function distinctSubseqII(s: string): number {
+  const mod = 1_000_000_007
+  const last = Array(26).fill(0)
+  let total = 0
+
+  for (const character of s) {
+    const index = character.charCodeAt(0) - 97
+    const added = (total + 1 - last[index] + mod) % mod
+
+    total = (total + added) % mod
+    last[index] = (last[index] + added) % mod
+  }
+
+  return total
+}`,
+      },
+      {
+        id: 'distinct-subsequences-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不能简单用 `2^n - 1`，因为重复字符会让不同位置生成相同子序列。按字符保存“上次贡献”，就能只消除真正重复的那一部分。',
+        bullets: [
+          '易错点 1：把不同子序列数量直接当成所有子序列数量。',
+          '易错点 2：重复字符出现时没有扣除历史贡献。',
+          '易错点 3：忘记空序列只参与转移，不计入最终答案。',
+          '延伸方向：子序列 DP、重复去重、模运算。',
+        ],
+      },
+    ],
+  },
 ];
