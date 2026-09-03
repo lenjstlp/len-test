@@ -94880,4 +94880,81 @@ function rangeSumBST(
       },
     ],
   },
+  {
+    id: 'di-string-match',
+    label: '942. LeetCode 942. 增减字符串匹配',
+    difficulty: '简单',
+    description:
+      '根据只包含 `I` 和 `D` 的模式串，构造一个 0 到 n 的排列，使每个相邻位置满足递增或递减。核心是维护当前可用数字的最小值和最大值。',
+    outcome:
+      '你能用双端贪心处理相邻关系构造题，理解为什么 `I` 取最小值、`D` 取最大值可以始终保留后续选择空间。',
+    sections: [
+      {
+        id: 'di-string-match-summary',
+        title: '题目在问什么',
+        summary:
+          '给定长度为 `n` 的模式串 `s`，其中 `I` 表示下一项比当前项大，`D` 表示下一项比当前项小。要求返回一个包含 `0` 到 `n` 的排列，满足所有相邻关系。',
+        bullets: [
+          '排列中每个数字只能使用一次。',
+          '`I` 对应严格递增。',
+          '`D` 对应严格递减。',
+          '任意合法答案都可以返回。',
+        ],
+      },
+      {
+        id: 'di-string-match-observe',
+        title: '每一步只需消耗当前可用数字的一端',
+        summary:
+          '当前位置如果要求递增，就取当前最小值；这样可以保证它小于后面仍可使用的数字。如果要求递减，就取当前最大值；这样可以保证它大于后面的数字。处理完模式串后，最小值和最大值会汇合为同一个剩余数字。',
+        bullets: [
+          '`I` 取 `low`，为后续保留更大的数字。',
+          '`D` 取 `high`，为后续保留更小的数字。',
+          '最后一个数字不需要再比较，直接取剩余值。',
+          '贪心过程中始终保持未使用数字形成连续区间。',
+        ],
+      },
+      {
+        id: 'di-string-match-solution',
+        title: '标准解法：最小值和最大值双指针',
+        summary:
+          '初始化 `low = 0`、`high = n`。依次处理模式字符：遇到 `I` 放入 `low` 并递增，遇到 `D` 放入 `high` 并递减。遍历结束后把剩余的 `low` 放入结果。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`，用于返回排列。',
+          '不用排序，也不用回溯。',
+          '正确性来自每次都消耗当前可行区间的极值。',
+        ],
+        code: `function diStringMatch(s: string): number[] {
+  let low = 0
+  let high = s.length
+  const answer: number[] = []
+
+  for (const character of s) {
+    if (character === 'I') {
+      answer.push(low)
+      low += 1
+    } else {
+      answer.push(high)
+      high -= 1
+    }
+  }
+
+  answer.push(low)
+  return answer
+}`,
+      },
+      {
+        id: 'di-string-match-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不需要提前知道每段连续 `D` 的长度。每次根据当前字符取极值，就能自动满足局部关系，并为剩余位置留下足够的数字。',
+        bullets: [
+          '易错点 1：结果只放入模式串长度个数字，漏掉最后一个。',
+          '易错点 2：遇到 `D` 取最小值，导致无法形成下降。',
+          '易错点 3：使用固定数字而没有同步移动边界。',
+          '延伸方向：贪心构造、双指针、排列生成。',
+        ],
+      },
+    ],
+  },
 ];
