@@ -94467,4 +94467,95 @@ class CBTInserter {
       },
     ],
   },
+  {
+    id: 'reorder-data-in-log-files',
+    label: '937. LeetCode 937. 重新排列日志文件',
+    difficulty: '简单',
+    description:
+      '重新排列日志文件：字母日志按内容和标识符排序，数字日志保持原有相对顺序并放在后面。核心是分类后只对字母日志排序。',
+    outcome:
+      '你能处理多级排序规则和稳定分区问题，掌握“自定义比较器 + 保持原顺序”的常见字符串排序模式。',
+    sections: [
+      {
+        id: 'reorder-data-in-log-files-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一组日志字符串，每条日志由标识符和内容组成。字母日志的内容只包含小写字母，需要按内容字典序排序；内容相同时按标识符排序。数字日志需要保持原相对顺序，并全部放在字母日志之后。',
+        bullets: [
+          '每条日志的第一个空格前是标识符。',
+          '字母日志按内容优先、标识符次优先排序。',
+          '数字日志不参与排序。',
+          '数字日志必须保持输入中的相对顺序。',
+        ],
+      },
+      {
+        id: 'reorder-data-in-log-files-observe',
+        title: '先分类，再只排序需要排序的部分',
+        summary:
+          '数字日志的要求是稳定保序，因此最简单的办法是遍历时分成两个数组：字母日志和数字日志。字母日志按题目规则排序，最后把排序后的字母日志与原顺序数字日志拼接。',
+        bullets: [
+          '分类条件可以检查内容首字符是否为数字。',
+          '数字日志直接追加，不做交换。',
+          '比较器先比较内容，再比较标识符。',
+          '最终结果是两个数组的顺序拼接。',
+        ],
+      },
+      {
+        id: 'reorder-data-in-log-files-solution',
+        title: '标准解法：分类 + 自定义排序',
+        summary:
+          '遍历日志并拆出标识符和内容。若内容首字符是数字，就放进数字日志数组；否则放进字母日志数组。对字母日志使用内容和标识符的二级排序，最后拼接两个数组。',
+        bullets: [
+          '时间复杂度：`O(n log n * m)`，`m` 为比较时的字符串长度。',
+          '空间复杂度：`O(n)`。',
+          '数字日志不需要自定义排序。',
+          '比较器返回 0 时应让排序保持等价元素的相对顺序。',
+        ],
+        code: `function reorderLogFiles(logs: string[]): string[] {
+  const letterLogs: string[] = []
+  const digitLogs: string[] = []
+
+  for (const log of logs) {
+    const firstSpace = log.indexOf(' ')
+    const content = log.slice(firstSpace + 1)
+
+    if (/^\\d/.test(content)) {
+      digitLogs.push(log)
+    } else {
+      letterLogs.push(log)
+    }
+  }
+
+  letterLogs.sort((first, second) => {
+    const firstSpace = first.indexOf(' ')
+    const secondSpace = second.indexOf(' ')
+    const firstContent = first.slice(firstSpace + 1)
+    const secondContent = second.slice(secondSpace + 1)
+
+    if (firstContent === secondContent) {
+      return first.slice(0, firstSpace).localeCompare(
+        second.slice(0, secondSpace),
+      )
+    }
+
+    return firstContent.localeCompare(secondContent)
+  })
+
+  return [...letterLogs, ...digitLogs]
+}`,
+      },
+      {
+        id: 'reorder-data-in-log-files-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的关键不是把所有日志混在一起排序，而是识别不同类别的排序策略。尤其要注意数字日志的相对顺序不能被破坏。',
+        bullets: [
+          '易错点 1：把数字日志也参与字典序排序。',
+          '易错点 2：字母日志内容相同却没有比较标识符。',
+          '易错点 3：用完整日志比较，导致标识符优先级错误。',
+          '延伸方向：稳定排序、分类处理、多级比较器。',
+        ],
+      },
+    ],
+  },
 ];
