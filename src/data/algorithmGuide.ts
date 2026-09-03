@@ -94558,4 +94558,92 @@ class CBTInserter {
       },
     ],
   },
+  {
+    id: 'range-sum-of-bst',
+    label: '938. LeetCode 938. 二叉搜索树的范围和',
+    difficulty: '简单',
+    description:
+      '计算二叉搜索树中所有值位于区间 `[low, high]` 内的节点和。核心是利用 BST 的有序性质剪掉不可能贡献答案的子树。',
+    outcome:
+      '你能把普通二叉树遍历优化成带剪枝的 BST 搜索，理解节点值与左右子树范围之间的关系。',
+    sections: [
+      {
+        id: 'range-sum-of-bst-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉搜索树和两个整数 `low`、`high`，返回所有节点值在闭区间 `[low, high]` 内的节点值之和。',
+        bullets: [
+          '区间包含左右边界。',
+          'BST 满足左子树值更小、右子树值更大。',
+          '只需要返回符合条件节点的值之和。',
+          '可以利用树的有序性减少遍历范围。',
+        ],
+      },
+      {
+        id: 'range-sum-of-bst-observe',
+        title: '节点值决定哪一侧可能继续产生答案',
+        summary:
+          '如果当前节点值小于 `low`，当前节点和左子树都不可能进入区间，只需搜索右子树；如果当前节点值大于 `high`，只需搜索左子树；只有当前值在区间内时，才把它加入答案并搜索两侧。',
+        bullets: [
+          '节点小于下界时可以剪掉左子树。',
+          '节点大于上界时可以剪掉右子树。',
+          '节点在区间内时两侧都可能有合法值。',
+          '剪枝依赖的是 BST 的排序性质。',
+        ],
+      },
+      {
+        id: 'range-sum-of-bst-solution',
+        title: '标准解法：递归遍历 + BST 剪枝',
+        summary:
+          '定义递归函数返回当前子树在区间内的节点和。空节点返回 0；当前节点小于 `low` 时只递归右子树；大于 `high` 时只递归左子树；否则累加当前值及左右子树结果。',
+        bullets: [
+          '时间复杂度：平均情况下优于 `O(n)`，最坏为 `O(n)`。',
+          '空间复杂度：`O(h)`，`h` 为树高。',
+          '递归返回值正好对应子树答案。',
+          '边界判断要使用闭区间语义。',
+        ],
+        code: `interface TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+}
+
+function rangeSumBST(
+  root: TreeNode | null,
+  low: number,
+  high: number,
+): number {
+  if (root === null) {
+    return 0
+  }
+
+  if (root.val < low) {
+    return rangeSumBST(root.right, low, high)
+  }
+
+  if (root.val > high) {
+    return rangeSumBST(root.left, low, high)
+  }
+
+  return (
+    root.val +
+    rangeSumBST(root.left, low, high) +
+    rangeSumBST(root.right, low, high)
+  )
+}`,
+      },
+      {
+        id: 'range-sum-of-bst-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '如果把它当作普通二叉树遍历，虽然也能得到答案，但浪费了 BST 的结构信息。真正值得掌握的是根据当前值判断哪一侧可以安全跳过。',
+        bullets: [
+          '易错点 1：把区间判断写成开区间，漏掉边界节点。',
+          '易错点 2：节点小于 `low` 时仍遍历左子树。',
+          '易错点 3：节点大于 `high` 时仍遍历右子树。',
+          '延伸方向：BST、递归剪枝、树上区间查询。',
+        ],
+      },
+    ],
+  },
 ];
