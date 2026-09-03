@@ -94804,4 +94804,80 @@ function rangeSumBST(
       },
     ],
   },
+  {
+    id: 'valid-mountain-array',
+    label: '941. LeetCode 941. 有效的山脉数组',
+    difficulty: '简单',
+    description:
+      '判断数组是否严格先递增后递减，并且峰值不能位于两端。核心是用两个方向指针分别爬到峰顶，再检查它们是否汇合。',
+    outcome: '你能把“先上升后下降”的形状约束转成两个单调阶段的边界检查。',
+    sections: [
+      {
+        id: 'valid-mountain-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `arr`，判断它是否满足严格山脉形状：存在某个下标 `i`，左侧严格递增，右侧严格递减，且 `i` 不能是首尾位置。',
+        bullets: [
+          '数组长度至少为 3。',
+          '上升和下降都必须严格。',
+          '峰值不能在最左或最右。',
+          '相邻相等会破坏山脉形状。',
+        ],
+      },
+      {
+        id: 'valid-mountain-array-observe',
+        title: '从两端向峰顶移动，两个阶段必须在同一点结束',
+        summary:
+          '一个指针从左侧持续向右走，只要保持严格上升；另一个指针从右侧持续向左走，只要保持严格下降。如果两个指针最终在同一个内部下标汇合，说明数组确实存在唯一峰顶，并且两侧都非空。',
+        bullets: [
+          '左指针负责验证上升段。',
+          '右指针负责验证下降段。',
+          '汇合位置必须不是首尾。',
+          '任意一次无法继续移动都意味着对应阶段结束。',
+        ],
+      },
+      {
+        id: 'valid-mountain-array-solution',
+        title: '标准解法：双指针分别寻找峰顶',
+        summary:
+          '初始化 `left` 和 `right` 分别位于数组两端。左指针在严格递增时右移，右指针在严格递减时左移。最后判断两个指针是否停在同一个位置，且该位置不是边界。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '严格比较必须使用 `<`，不能允许相等。',
+          '两个指针不同步移动也没关系，它们各自验证一个阶段。',
+        ],
+        code: `function validMountainArray(arr: number[]): boolean {
+  if (arr.length < 3) {
+    return false
+  }
+
+  let left = 0
+  let right = arr.length - 1
+
+  while (left + 1 < arr.length && arr[left] < arr[left + 1]) {
+    left += 1
+  }
+
+  while (right > 0 && arr[right - 1] > arr[right]) {
+    right -= 1
+  }
+
+  return left === right && left > 0 && right < arr.length - 1
+}`,
+      },
+      {
+        id: 'valid-mountain-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '只检查“存在上升”和“存在下降”还不够，必须确认两段在同一个峰顶衔接。平坡、单调数组和峰值在边界的情况都要排除。',
+        bullets: [
+          '易错点 1：允许相邻元素相等。',
+          '易错点 2：只验证一侧，忘记另一侧必须严格下降。',
+          '易错点 3：没有排除峰值在数组边界的情况。',
+          '延伸方向：双指针、单调性、形状判断。',
+        ],
+      },
+    ],
+  },
 ];
