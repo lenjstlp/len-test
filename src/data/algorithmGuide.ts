@@ -94957,4 +94957,148 @@ function rangeSumBST(
       },
     ],
   },
+  {
+    id: 'find-the-shortest-superstring',
+    label: '943. LeetCode 943. 找到最短超级字符串',
+    difficulty: '困难',
+    description:
+      '给定若干字符串，求一个包含每个字符串作为子串的最短字符串。核心是预处理字符串之间的重叠长度，再用状态压缩 DP 决定拼接顺序。',
+    outcome:
+      '你能把字符串拼接问题抽象成带权有向图上的旅行路径，掌握重叠预处理、位掩码和路径还原。',
+    sections: [
+      {
+        id: 'find-the-shortest-superstring-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串数组 `words`，要求返回一个最短字符串，使每个 `words[i]` 都是它的子串。若有多个答案，返回任意一个即可。',
+        bullets: [
+          '字符串可以通过重叠部分拼接。',
+          '每个单词都必须完整出现在结果中。',
+          '目标是最小化结果字符串长度。',
+          '单词数量较少，适合状态压缩。',
+        ],
+      },
+      {
+        id: 'find-the-shortest-superstring-observe',
+        title: '相邻单词的重叠越长，最终拼接越短',
+        summary:
+          '如果先放单词 `a`，再放单词 `b`，那么可以让 `a` 的后缀和 `b` 的前缀尽可能重叠，新增长度就是 `b.length - overlap(a, b)`。因此问题可以转成：选择一个单词排列，使相邻单词之间的重叠总长度最大。',
+        bullets: [
+          '先预处理任意两个单词的最大重叠长度。',
+          '最后一个放入的单词决定当前状态的结尾。',
+          '状态集合表示哪些单词已经使用。',
+          '重叠越大，拼接代价越小。',
+        ],
+      },
+      {
+        id: 'find-the-shortest-superstring-solution',
+        title: '标准解法：重叠矩阵 + 状态压缩 DP',
+        summary:
+          '定义 `dp[mask][last]` 为使用 `mask` 中的单词且以 `last` 结尾时的最大总重叠长度。枚举还未使用的单词进行转移，并记录前驱用于还原顺序。得到最佳顺序后，从第一个单词开始按重叠长度依次拼接。',
+        bullets: [
+          '时间复杂度：`O(n² 2^n + n²L)`，`L` 为单词长度。',
+          '空间复杂度：`O(n2^n)`。',
+          '重叠矩阵能避免 DP 中重复比较字符串。',
+          '前驱数组负责把最优值还原成具体排列。',
+        ],
+        code: `function shortestSuperstring(words: string[]): string {
+  const count = words.length
+  const overlap = Array.from({ length: count }, () =>
+    Array(count).fill(0),
+  )
+
+  for (let from = 0; from < count; from += 1) {
+    for (let to = 0; to < count; to += 1) {
+      if (from === to) {
+        continue
+      }
+
+      const maxOverlap = Math.min(words[from].length, words[to].length)
+      for (let length = maxOverlap; length >= 0; length -= 1) {
+        if (
+          words[from].endsWith(words[to].slice(0, length))
+        ) {
+          overlap[from][to] = length
+          break
+        }
+      }
+    }
+  }
+
+  const totalStates = 1 << count
+  const dp = Array.from({ length: totalStates }, () =>
+    Array(count).fill(-1),
+  )
+  const previous = Array.from({ length: totalStates }, () =>
+    Array(count).fill(-1),
+  )
+
+  for (let word = 0; word < count; word += 1) {
+    dp[1 << word][word] = 0
+  }
+
+  for (let mask = 1; mask < totalStates; mask += 1) {
+    for (let last = 0; last < count; last += 1) {
+      if (dp[mask][last] < 0) {
+        continue
+      }
+
+      for (let next = 0; next < count; next += 1) {
+        if ((mask & (1 << next)) !== 0) {
+          continue
+        }
+
+        const nextMask = mask | (1 << next)
+        const candidate = dp[mask][last] + overlap[last][next]
+
+        if (candidate > dp[nextMask][next]) {
+          dp[nextMask][next] = candidate
+          previous[nextMask][next] = last
+        }
+      }
+    }
+  }
+
+  const fullMask = totalStates - 1
+  let last = 0
+  for (let word = 1; word < count; word += 1) {
+    if (dp[fullMask][word] > dp[fullMask][last]) {
+      last = word
+    }
+  }
+
+  const order: number[] = []
+  let mask = fullMask
+  while (last !== -1) {
+    order.push(last)
+    const previousWord = previous[mask][last]
+    mask ^= 1 << last
+    last = previousWord
+  }
+  order.reverse()
+
+  let answer = words[order[0]]
+  for (let index = 1; index < order.length; index += 1) {
+    const from = order[index - 1]
+    const to = order[index]
+    answer += words[to].slice(overlap[from][to])
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'find-the-shortest-superstring-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的难点有两个：重叠长度必须预处理正确，DP 最优值还必须能还原出单词顺序。只求出最大重叠但没有记录前驱，最终无法构造答案。',
+        bullets: [
+          '易错点 1：只检查固定长度重叠，漏掉真正最大重叠。',
+          '易错点 2：状态没有记录最后一个单词，无法正确转移。',
+          '易错点 3：只计算最优长度，没有保存路径。',
+          '延伸方向：状态压缩、路径还原、字符串拼接优化。',
+        ],
+      },
+    ],
+  },
 ];
