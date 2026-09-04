@@ -95695,4 +95695,90 @@ function rangeSumBST(
       },
     ],
   },
+  {
+    id: 'flip-equivalent-binary-trees',
+    label: '951. LeetCode 951. 翻转等价二叉树',
+    difficulty: '中等',
+    description:
+      '判断两棵二叉树是否可以通过任意次交换某个节点的左右子树变得相同。核心是对每对节点分别尝试“不交换”和“交换”两种对应关系。',
+    outcome:
+      '你能把允许局部交换的树结构比较转成递归状态判断，掌握带选择分支的树形递归。',
+    sections: [
+      {
+        id: 'flip-equivalent-binary-trees-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两棵二叉树，如果可以通过多次交换任意节点的左右子树，使两棵树结构和值都完全相同，则称它们翻转等价。',
+        bullets: [
+          '节点值必须匹配。',
+          '每个节点都可以独立决定是否交换左右子树。',
+          '空节点和非空节点不能对应。',
+          '只需要判断是否存在一种交换方案。',
+        ],
+      },
+      {
+        id: 'flip-equivalent-binary-trees-observe',
+        title: '每对节点只有两种对应方式',
+        summary:
+          '比较两个当前节点时，如果值不同，答案一定为假；如果值相同，则下一层只有两种可能：第一个节点的左子树对应第二个节点的左子树，或者对应第二个节点的右子树。只要其中一种方案成立即可。',
+        bullets: [
+          '不交换方案比较左左和右右。',
+          '交换方案比较左右和右左。',
+          '两个子树都为空时自然匹配。',
+          '递归结果直接表达当前节点是否等价。',
+        ],
+      },
+      {
+        id: 'flip-equivalent-binary-trees-solution',
+        title: '标准解法：递归尝试两种子树对应关系',
+        summary:
+          '定义递归函数判断两棵子树是否翻转等价。先处理空节点和节点值不同的情况，再分别计算不翻转和翻转两种组合，只要任意一种为真即可。',
+        bullets: [
+          '时间复杂度：最坏为 `O(n²)`，具体取决于重复子树比较。',
+          '空间复杂度：`O(h)`，`h` 为树高。',
+          '空节点必须成对出现才算匹配。',
+          '交换只影响子树对应关系，不改变节点值。',
+        ],
+        code: `interface FlipTreeNode {
+  val: number
+  left: FlipTreeNode | null
+  right: FlipTreeNode | null
+}
+
+function flipEquiv(
+  root1: FlipTreeNode | null,
+  root2: FlipTreeNode | null,
+): boolean {
+  if (root1 === null || root2 === null) {
+    return root1 === root2
+  }
+
+  if (root1.val !== root2.val) {
+    return false
+  }
+
+  const withoutFlip =
+    flipEquiv(root1.left, root2.left) &&
+    flipEquiv(root1.right, root2.right)
+  const withFlip =
+    flipEquiv(root1.left, root2.right) &&
+    flipEquiv(root1.right, root2.left)
+
+  return withoutFlip || withFlip
+}`,
+      },
+      {
+        id: 'flip-equivalent-binary-trees-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不能只比较左右子树是否完全同向对应，因为任意节点都可能发生翻转。正确做法是保留两种对应关系，并在值匹配后再递归判断。',
+        bullets: [
+          '易错点 1：只比较左左和右右，漏掉翻转情况。',
+          '易错点 2：空节点判断不完整。',
+          '易错点 3：节点值不同仍继续递归。',
+          '延伸方向：树递归、结构等价、分支搜索。',
+        ],
+      },
+    ],
+  },
 ];
