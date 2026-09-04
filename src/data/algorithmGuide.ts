@@ -95174,4 +95174,77 @@ function rangeSumBST(
       },
     ],
   },
+  {
+    id: 'minimum-increment-to-make-array-unique',
+    label: '945. LeetCode 945. 使数组唯一的最小增量',
+    difficulty: '中等',
+    description:
+      '给定整数数组，每次可以把任意元素加一，求让所有元素互不相同所需的最少增量总和。核心是排序后让每个元素至少递增到前一个元素加一。',
+    outcome:
+      '你能把重复冲突转成排序后的局部修复，理解“当前值不能低于前一个可用值”的贪心最优性。',
+    sections: [
+      {
+        id: 'minimum-increment-to-make-array-unique-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums`，一次操作可以选择一个元素并将它加一。求最少操作次数，使数组中的所有元素都不同。',
+        bullets: [
+          '每次加一只改变一个元素。',
+          '目标是所有元素互不相同。',
+          '需要最小化所有加一操作的总次数。',
+          '元素可以被多次增加。',
+        ],
+      },
+      {
+        id: 'minimum-increment-to-make-array-unique-observe',
+        title: '排序后让每个元素尽量贴近前一个元素',
+        summary:
+          '排序后，如果当前元素小于或等于前一个已经修复的值，就必须把它增加到 `previous + 1`；如果当前元素本来更大，则无需修改。让当前元素只增加到刚好可用的位置，不会影响后续元素获得更小的可行下界。',
+        bullets: [
+          '排序把全局冲突变成相邻冲突。',
+          '前一个修复后的值决定当前元素的最低合法值。',
+          '只做必要增量才能保证总成本最小。',
+          '修复后的当前值要继续作为下一轮边界。',
+        ],
+      },
+      {
+        id: 'minimum-increment-to-make-array-unique-solution',
+        title: '标准解法：排序 + 贪心抬升',
+        summary:
+          '先升序排序。遍历数组时维护前一个已确定的最小可用值 `previous`。当前值若不大于 `previous`，就增加到 `previous + 1`，并把差值累加到答案；否则直接使用当前值。',
+        bullets: [
+          '时间复杂度：`O(n log n)`。',
+          '空间复杂度：取决于排序实现，额外逻辑空间为 `O(1)`。',
+          '每次只增加到刚好不重复的位置。',
+          '排序后贪心不会错过更优方案。',
+        ],
+        code: `function minIncrementForUnique(nums: number[]): number {
+  nums.sort((first, second) => first - second)
+
+  let previous = Number.NEGATIVE_INFINITY
+  let moves = 0
+
+  for (const value of nums) {
+    const next = Math.max(value, previous + 1)
+    moves += next - value
+    previous = next
+  }
+
+  return moves
+}`,
+      },
+      {
+        id: 'minimum-increment-to-make-array-unique-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不能只统计重复次数，因为一个元素被抬高后可能继续撞上后面的元素。必须维护修复后的真实值，并把每次抬升的距离累加。',
+        bullets: [
+          '易错点 1：忘记先按数值排序。',
+          '易错点 2：重复值只加一次，没有考虑连续冲突。',
+          '易错点 3：用原始当前值而不是修复后的值更新边界。',
+          '延伸方向：排序贪心、冲突消解、最小代价调整。',
+        ],
+      },
+    ],
+  },
 ];
