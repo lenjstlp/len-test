@@ -95663,14 +95663,17 @@ function rangeSumBST(
   )
   const answer = Array(deck.length)
   let head = 0
+  let tail = positions.length
 
-  for (const value of sorted) {
+  for (let index = 0; index < sorted.length; index += 1) {
+    const value = sorted[index]
     const position = positions[head]
     head += 1
     answer[position] = value
 
-    if (head < positions.length) {
-      positions.push(positions[head])
+    if (index < sorted.length - 1) {
+      positions[tail] = positions[head]
+      tail += 1
       head += 1
     }
   }
