@@ -95781,4 +95781,120 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'largest-component-size-by-common-factor',
+    label: '952. LeetCode 952. 按公因数计算最大组件大小',
+    difficulty: '困难',
+    description:
+      '给定正整数数组，如果两个数存在大于 1 的公因数，就把它们连接起来，求最大连通组件大小。核心是把每个数字与它的质因数合并到并查集。',
+    outcome:
+      '你能把“存在公共因子”的隐式关系转成质因数节点连接，掌握因数分解和并查集结合的图建模方式。',
+    sections: [
+      {
+        id: 'largest-component-size-by-common-factor-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `nums`。如果 `nums[i]` 和 `nums[j]` 存在大于 1 的公因数，就认为它们相连；连接关系可以传递。返回最大连通组件中包含的数字数量。',
+        bullets: [
+          '公因数必须大于 1。',
+          '连通关系具有传递性。',
+          '统计的是数组元素数量，不是因数节点数量。',
+          '数组中每个元素只出现一次。',
+        ],
+      },
+      {
+        id: 'largest-component-size-by-common-factor-observe',
+        title: '数字之间的连接可以通过共享质因数表达',
+        summary:
+          '两个数字有大于 1 的公因数，当且仅当它们共享至少一个质因数。因此不需要两两计算最大公因数，可以把每个数字与它的所有不同质因数连接起来。共享同一因数的数字会自然进入同一个并查集分量。',
+        bullets: [
+          '合并质因数而不是枚举所有数字对。',
+          '质因数重复出现时只需合并一次。',
+          '同一个数字的不同质因数都会与它建立连接。',
+          '最终只统计原数组数字对应的根节点大小。',
+        ],
+      },
+      {
+        id: 'largest-component-size-by-common-factor-solution',
+        title: '标准解法：质因数分解 + 并查集',
+        summary:
+          '用并查集管理数字节点和质因数节点。对每个数字做试除分解，得到所有不同质因数，并将当前数字与这些质因数合并。最后统计每个数字根节点下的元素数量，取最大值。',
+        bullets: [
+          '时间复杂度：约为 `O(n√M α(n))`，`M` 为数组最大值。',
+          '空间复杂度：`O(n + M)`，取决于因数节点的表示方式。',
+          '质因数分解时要去除同一因子的重复幂次。',
+          '质因数节点和数字节点必须使用不冲突的编号。',
+        ],
+        code: `function largestComponentSize(nums: number[]): number {
+  const offset = Math.max(...nums) + 1
+  const parent = Array.from(
+    { length: offset + Math.max(...nums) + 1 },
+    (_, index) => index,
+  )
+  const size = Array(parent.length).fill(1)
+
+  const find = (node: number): number => {
+    if (parent[node] !== node) {
+      parent[node] = find(parent[node])
+    }
+    return parent[node]
+  }
+
+  const union = (first: number, second: number): void => {
+    const firstRoot = find(first)
+    const secondRoot = find(second)
+
+    if (firstRoot === secondRoot) {
+      return
+    }
+
+    if (size[firstRoot] < size[secondRoot]) {
+      parent[firstRoot] = secondRoot
+      size[secondRoot] += size[firstRoot]
+    } else {
+      parent[secondRoot] = firstRoot
+      size[firstRoot] += size[secondRoot]
+    }
+  }
+
+  for (const number of nums) {
+    let value = number
+    for (let factor = 2; factor * factor <= value; factor += 1) {
+      if (value % factor !== 0) {
+        continue
+      }
+
+      union(number, offset + factor)
+      while (value % factor === 0) {
+        value /= factor
+      }
+    }
+
+    if (value > 1) {
+      union(number, offset + value)
+    }
+  }
+
+  let answer = 0
+  for (const number of nums) {
+    answer = Math.max(answer, size[find(number)])
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'largest-component-size-by-common-factor-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的核心不是暴力计算每一对数字的公因数，而是找到“共享质因数”这个中间节点。因数分解完成后，连通关系就可以交给并查集维护。',
+        bullets: [
+          '易错点 1：把公因数 1 也当作连接条件。',
+          '易错点 2：同一个数字的重复质因数重复合并，造成无意义计算。',
+          '易错点 3：把质因数节点数量当成组件大小。',
+          '延伸方向：质因数分解、并查集、隐式图建模。',
+        ],
+      },
+    ],
+  },
 ];
