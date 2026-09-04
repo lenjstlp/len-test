@@ -94881,7 +94881,7 @@ function rangeSumBST(
     ],
   },
   {
-    id: 'di-string-match',
+    id: 'remove-stones-same-row-column',
     label: '942. LeetCode 942. 增减字符串匹配',
     difficulty: '简单',
     description:
@@ -95323,6 +95323,105 @@ function rangeSumBST(
           '易错点 2：允许非栈顶元素直接出栈。',
           '易错点 3：结束时没有确认所有目标元素都已弹出。',
           '延伸方向：栈模拟、操作序列验证、单调过程。',
+        ],
+      },
+    ],
+  },
+  {
+    id: 'di-string-match',
+    label: '947. LeetCode 947. 移除最多的同行或同列石头',
+    difficulty: '中等',
+    description:
+      '给定平面上的若干石头，每次可以移除与另一块石头同行或同列的石头，求最多能移除多少块。核心是把行和列看成二分图节点，用并查集合并每块石头连接的行列。',
+    outcome:
+      '你能把“同行或同列可连接”的几何关系抽象成并查集连通分量，理解可删除数量与连通分量数量的关系。',
+    sections: [
+      {
+        id: 'remove-stones-to-minimize-the-total-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干坐标互不相同的石头。只要一块石头与另一块石头处于同一行或同一列，就可以移除其中一块。求最多能移除多少块石头。',
+        bullets: [
+          '每次移除前必须仍存在同行或同列的另一块石头。',
+          '石头坐标不重复。',
+          '目标是最大化移除数量。',
+          '行和列关系可以把不同位置的石头连起来。',
+        ],
+      },
+      {
+        id: 'remove-stones-to-minimize-the-total-observe',
+        title: '每个连通分量最终至少要保留一块石头',
+        summary:
+          '把每块石头看作连接一条“行节点”和一条“列节点”的边。同行或同列意味着两块石头属于同一个连通分量。一个连通分量中只要保留最后一块石头，就能按顺序移除其余石头，因此答案等于石头总数减去连通分量数量。',
+        bullets: [
+          '行和列是图中的两类节点。',
+          '一块石头对应一条行列连接边。',
+          '同一连通分量中的石头可以逐步消除到只剩一块。',
+          '不同连通分量之间无法互相提供删除条件。',
+        ],
+      },
+      {
+        id: 'remove-stones-to-minimize-the-total-solution',
+        title: '标准解法：行列建图 + 并查集计数分量',
+        summary:
+          '为每个行坐标和列坐标建立并查集节点。处理石头 `[row, column]` 时，将行节点与列节点合并。最后统计所有出现过的行列节点根数量，也就是连通分量数；用石头数量减去它即可。',
+        bullets: [
+          '时间复杂度：`O(n α(n))`。',
+          '空间复杂度：`O(n)`。',
+          '行与列使用不同编号空间，避免编号冲突。',
+          '只统计实际出现过的行列节点。',
+        ],
+        code: `function removeStones(stones: number[][]): number {
+  const parent = new Map<number, number>()
+  const active = new Set<number>()
+
+  const find = (node: number): number => {
+    if (!parent.has(node)) {
+      parent.set(node, node)
+    }
+
+    if (parent.get(node) !== node) {
+      parent.set(node, find(parent.get(node)!))
+    }
+
+    return parent.get(node)!
+  }
+
+  const union = (first: number, second: number): void => {
+    const firstRoot = find(first)
+    const secondRoot = find(second)
+
+    if (firstRoot !== secondRoot) {
+      parent.set(secondRoot, firstRoot)
+    }
+  }
+
+  for (const [row, column] of stones) {
+    const rowNode = row
+    const columnNode = ~column
+    active.add(rowNode)
+    active.add(columnNode)
+    union(rowNode, columnNode)
+  }
+
+  const components = new Set<number>()
+  for (const node of active) {
+    components.add(find(node))
+  }
+
+  return stones.length - components.size
+}`,
+      },
+      {
+        id: 'remove-stones-to-minimize-the-total-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不能只按行或只按列统计，因为一块石头同时连接两个维度，可能通过中间石头间接连通。把行列都建成图节点才能覆盖完整关系。',
+        bullets: [
+          '易错点 1：把每行或每列独立计数，忽略间接连通。',
+          '易错点 2：行编号和列编号冲突，导致错误合并。',
+          '易错点 3：把答案写成连通分量数量，而不是石头数减分量数。',
+          '延伸方向：并查集、二分图、连通分量。',
         ],
       },
     ],
