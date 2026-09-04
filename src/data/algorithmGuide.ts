@@ -95426,4 +95426,91 @@ function rangeSumBST(
       },
     ],
   },
+  {
+    id: 'bag-of-tokens',
+    label: '948. LeetCode 948. 令牌放置',
+    difficulty: '中等',
+    description:
+      '给定带有分值的令牌和初始能量，可以消耗能量换取分数，也可以消耗分数换取能量，求最多能获得的分数。核心是排序后用双指针，优先用最小令牌得分、必要时用最大令牌补能量。',
+    outcome:
+      '你能掌握双向资源交换题的贪心策略，理解什么时候应该扩大分数，什么时候应该牺牲分数换取继续操作的能量。',
+    sections: [
+      {
+        id: 'bag-of-tokens-summary',
+        title: '题目在问什么',
+        summary:
+          '给定令牌数组 `tokens` 和初始能量 `power`。每个令牌只能使用一次：正面使用时消耗对应能量并获得 1 分，反面使用时消耗 1 分并恢复对应能量。求最多能得到多少分。',
+        bullets: [
+          '每个令牌最多使用一次。',
+          '正面操作增加分数但消耗能量。',
+          '反面操作减少分数但增加能量。',
+          '目标是任意时刻达到的最高分数。',
+        ],
+      },
+      {
+        id: 'bag-of-tokens-observe',
+        title: '最小令牌最适合换分，最大令牌最适合换能量',
+        summary:
+          '排序后，想增加分数时应该优先使用当前最小的令牌，这样能量消耗最低；当能量不足但还有分数时，若要继续换分，应反面使用最大的令牌，换回最多能量。两个方向分别从数组两端取值，不会让更优选择被提前消耗。',
+        bullets: [
+          '正面操作使用左指针令牌。',
+          '反面操作使用右指针令牌。',
+          '能量足够时优先增加分数。',
+          '能量不足时只有牺牲分数换能量才可能继续。',
+        ],
+      },
+      {
+        id: 'bag-of-tokens-solution',
+        title: '标准解法：排序 + 双指针贪心',
+        summary:
+          '先排序令牌。只要能量足够，就使用最小令牌并增加当前分数；否则如果当前有分数且左右指针未相遇，就用最大令牌换能量。每次增加分数时更新最大答案。',
+        bullets: [
+          '时间复杂度：`O(n log n)`。',
+          '空间复杂度：`O(1)`，忽略排序实现的栈空间。',
+          '最大分数要单独记录，不能只返回结束时分数。',
+          '反面操作的目的不是得分，而是释放未来的能量。',
+        ],
+        code: `function bagOfTokensScore(
+  tokens: number[],
+  power: number,
+): number {
+  tokens.sort((first, second) => first - second)
+
+  let left = 0
+  let right = tokens.length - 1
+  let score = 0
+  let best = 0
+
+  while (left <= right) {
+    if (power >= tokens[left]) {
+      power -= tokens[left]
+      left += 1
+      score += 1
+      best = Math.max(best, score)
+    } else if (score > 0 && left < right) {
+      power += tokens[right]
+      right -= 1
+      score -= 1
+    } else {
+      break
+    }
+  }
+
+  return best
+}`,
+      },
+      {
+        id: 'bag-of-tokens-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不能一直正面消耗，也不能为了换能量无条件牺牲分数。正确策略是优先把当前资源转成分数，只有在仍有机会继续扩大分数时才做反面操作。',
+        bullets: [
+          '易错点 1：正面操作没有按令牌值从小到大使用。',
+          '易错点 2：反面操作没有取最大令牌。',
+          '易错点 3：返回结束分数，忽略中途达到的最高分。',
+          '延伸方向：双指针、资源交换、贪心证明。',
+        ],
+      },
+    ],
+  },
 ];
