@@ -95101,4 +95101,77 @@ function rangeSumBST(
       },
     ],
   },
+  {
+    id: 'delete-columns-to-make-sorted',
+    label: '944. LeetCode 944. 删列造序',
+    difficulty: '简单',
+    description:
+      '给定等长字符串数组，删除尽可能少的列，使剩余字符串按字典序排列。核心是逐列检查同一列是否自上而下有序。',
+    outcome:
+      '你能把字符串数组的字典序约束转成独立列检查，掌握“局部列有序即可决定删除”的直接贪心。',
+    sections: [
+      {
+        id: 'delete-columns-to-make-sorted-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `strs`，每个字符串长度相同。删除若干列后，要求从上到下的字符串保持字典序不减，返回最少删除列数。',
+        bullets: [
+          '一次删除会删除所有字符串的同一列。',
+          '只需要统计删除列的数量。',
+          '每列的字符顺序独立影响上下字符串关系。',
+          '不需要真的构造删除后的字符串。',
+        ],
+      },
+      {
+        id: 'delete-columns-to-make-sorted-observe',
+        title: '某一列出现逆序就必须删除',
+        summary:
+          '如果同一列中存在 `strs[row][column] > strs[row + 1][column]`，那么这一列本身已经破坏了从上到下的有序要求，无论其他列如何处理都无法修复，因此必须删除。没有逆序的列可以保留。',
+        bullets: [
+          '只需比较相邻字符串即可发现逆序。',
+          '字符相等不会破坏非递减顺序。',
+          '每列是否删除可以独立决定。',
+          '这是一次扫描即可完成的贪心判断。',
+        ],
+      },
+      {
+        id: 'delete-columns-to-make-sorted-solution',
+        title: '标准解法：按列检查相邻字符',
+        summary:
+          '遍历每一列，再遍历相邻两行。如果发现上方字符大于下方字符，就把答案加一并停止检查当前列，继续下一列。',
+        bullets: [
+          '时间复杂度：`O(nm)`，`n` 为字符串数量，`m` 为字符串长度。',
+          '空间复杂度：`O(1)`。',
+          '发现逆序后当前列无需继续检查。',
+          '判断的是字符顺序，不是完整字符串比较。',
+        ],
+        code: `function minDeletionSize(strs: string[]): number {
+  let deletions = 0
+
+  for (let column = 0; column < strs[0].length; column += 1) {
+    for (let row = 1; row < strs.length; row += 1) {
+      if (strs[row - 1][column] > strs[row][column]) {
+        deletions += 1
+        break
+      }
+    }
+  }
+
+  return deletions
+}`,
+      },
+      {
+        id: 'delete-columns-to-make-sorted-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不是先排序字符串再判断，而是判断每一列是否已经满足从上到下的顺序。列之间互不影响，所以不需要回溯。',
+        bullets: [
+          '易错点 1：比较整行字符串，忽略题目要求的列删除。',
+          '易错点 2：把字符相等误判为逆序。',
+          '易错点 3：发现逆序后仍重复扫描当前列。',
+          '延伸方向：贪心、矩阵遍历、字典序。',
+        ],
+      },
+    ],
+  },
 ];
