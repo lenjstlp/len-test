@@ -95897,4 +95897,99 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'verifying-an-alien-dictionary',
+    label: '953. LeetCode 953. 验证外星语词典',
+    difficulty: '简单',
+    description:
+      '给定外星语字母顺序和一组单词，判断单词是否已经按该字母顺序排列。核心是逐对比较相邻单词，找到第一个不同字符后立即决定顺序。',
+    outcome:
+      '你能把自定义字典序判断拆成相邻单词比较，掌握“第一个不同位置决定整体顺序”的字符串比较规则。',
+    sections: [
+      {
+        id: 'verifying-an-alien-dictionary-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串数组 `words` 和一个表示外星字母顺序的字符串 `order`，判断 `words` 是否按照 `order` 定义的字典序排列。',
+        bullets: [
+          '所有单词只包含 `order` 中的字符。',
+          '字典序由外星字母顺序决定。',
+          '前缀相同的单词，较短者应该排在前面。',
+          '返回是否满足整体有序。',
+        ],
+      },
+      {
+        id: 'verifying-an-alien-dictionary-observe',
+        title: '只需检查相邻单词，第一个不同字符决定顺序',
+        summary:
+          '如果整个单词数组有序，那么任意相邻单词也必须有序。比较两个相邻单词时，沿着相同前缀向后扫描；一旦遇到不同字符，就根据它们在 `order` 中的位置判断。如果一个单词只是另一个单词的前缀，则短单词必须在前。',
+        bullets: [
+          '相同前缀应继续比较后面的字符。',
+          '第一个不同字符决定这一对单词的顺序。',
+          '完全相同的单词视为有序。',
+          '前缀关系是字典序题的特殊边界。',
+        ],
+      },
+      {
+        id: 'verifying-an-alien-dictionary-solution',
+        title: '标准解法：建立字符排名并比较相邻单词',
+        summary:
+          '先把 `order` 中每个字符映射成排名。遍历相邻单词，逐位比较字符排名；如果发现前一个排名更大，直接返回 `false`；如果前缀相同但前一个单词更长，同样返回 `false`。',
+        bullets: [
+          '时间复杂度：`O(totalLength)`。',
+          '空间复杂度：`O(1)`，字符集大小固定。',
+          '比较到第一个不同字符后即可停止当前单词对。',
+          '不能只比较每个单词的首字符。',
+        ],
+        code: `function isAlienSorted(
+  words: string[],
+  order: string,
+): boolean {
+  const rank = new Map<string, number>()
+  for (let index = 0; index < order.length; index += 1) {
+    rank.set(order[index], index)
+  }
+
+  for (let index = 1; index < words.length; index += 1) {
+    const previous = words[index - 1]
+    const current = words[index]
+    const length = Math.min(previous.length, current.length)
+    let compared = false
+
+    for (let position = 0; position < length; position += 1) {
+      const previousRank = rank.get(previous[position])!
+      const currentRank = rank.get(current[position])!
+
+      if (previousRank < currentRank) {
+        compared = true
+        break
+      }
+
+      if (previousRank > currentRank) {
+        return false
+      }
+    }
+
+    if (!compared && previous.length > current.length) {
+      return false
+    }
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'verifying-an-alien-dictionary-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '自定义字典序的关键是先处理第一个不同字符，再处理“一个单词是另一个单词前缀”的情况。顺序判断不能只依赖 JavaScript 默认字典序。',
+        bullets: [
+          '易错点 1：直接使用默认字典序，没有使用外星字母排名。',
+          '易错点 2：忽略前缀较长的单词不能排在前面。',
+          '易错点 3：发现第一个不同字符后仍继续比较，增加错误分支。',
+          '延伸方向：字典序、自定义比较、字符串前缀。',
+        ],
+      },
+    ],
+  },
 ];
