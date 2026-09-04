@@ -95995,4 +95995,91 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'array-of-doubled-pairs',
+    label: '954. LeetCode 954. 二倍数对数组',
+    difficulty: '中等',
+    description:
+      '判断数组能否重新排列成若干对 `(x, 2x)`。核心是按绝对值从小到大处理，并用频次表优先为较小值寻找对应的两倍值。',
+    outcome:
+      '你能处理包含负数、零和正数的配对贪心，理解为什么绝对值顺序能够保证先处理更紧迫的较小元素。',
+    sections: [
+      {
+        id: 'array-of-doubled-pairs-summary',
+        title: '题目在问什么',
+        summary:
+          '给定长度为偶数的整数数组 `arr`，判断是否可以重新排列，使数组中的元素两两配对，并且每一对满足 `y = 2x`。',
+        bullets: [
+          '每个元素必须恰好使用一次。',
+          '配对顺序可以任意调整。',
+          '数组可能包含负数、零和正数。',
+          '目标是判断是否存在完整配对。',
+        ],
+      },
+      {
+        id: 'array-of-doubled-pairs-observe',
+        title: '必须优先处理绝对值更小的元素',
+        summary:
+          '对于正数，较小的数应该先寻找它的两倍；对于负数，绝对值更小的负数同样应该先处理，例如 `-2` 需要匹配 `-4`，而 `-4` 不能反过来作为更小元素匹配 `-8`。零只能和零配对。因此按绝对值升序处理后，每个数的目标值不会再抢走更紧迫的匹配。',
+        bullets: [
+          '负数不能按普通数值升序处理，要按绝对值排序。',
+          '零的数量必须是偶数。',
+          '每次先消耗当前值，再检查两倍值是否足够。',
+          '频次表能处理重复数字。',
+        ],
+      },
+      {
+        id: 'array-of-doubled-pairs-solution',
+        title: '标准解法：绝对值排序 + 频次配对',
+        summary:
+          '统计每个数字出现次数，并按绝对值升序遍历数组。若当前数字仍有剩余，就检查 `2 * value` 的数量是否足够；足够则同时扣减两者频次，否则直接返回 `false`。全部处理成功则说明可以完成配对。',
+        bullets: [
+          '时间复杂度：`O(n log n)`。',
+          '空间复杂度：`O(n)`。',
+          '绝对值排序同时覆盖负数和正数场景。',
+          '当前值频次为零时跳过，避免重复处理。',
+        ],
+        code: `function canReorderDoubled(arr: number[]): boolean {
+  const count = new Map<number, number>()
+  for (const value of arr) {
+    count.set(value, (count.get(value) ?? 0) + 1)
+  }
+
+  const sorted = [...arr].sort(
+    (first, second) => Math.abs(first) - Math.abs(second),
+  )
+
+  for (const value of sorted) {
+    const currentCount = count.get(value) ?? 0
+    if (currentCount === 0) {
+      continue
+    }
+
+    const doubled = value * 2
+    const doubledCount = count.get(doubled) ?? 0
+    if (doubledCount === 0) {
+      return false
+    }
+
+    count.set(value, currentCount - 1)
+    count.set(doubled, doubledCount - 1)
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'array-of-doubled-pairs-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最大的陷阱是负数。直接按数值从小到大排序会先处理绝对值更大的负数，可能提前消耗本应作为其他数字目标的元素；按绝对值排序才能保证贪心顺序正确。',
+        bullets: [
+          '易错点 1：按普通数值排序，负数场景会出错。',
+          '易错点 2：零的数量为奇数时仍尝试配对。',
+          '易错点 3：只检查目标值存在，没有按频次扣减。',
+          '延伸方向：频次统计、贪心排序、负数配对。',
+        ],
+      },
+    ],
+  },
 ];
