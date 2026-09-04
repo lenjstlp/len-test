@@ -95513,4 +95513,102 @@ function rangeSumBST(
       },
     ],
   },
+  {
+    id: 'largest-time-for-given-digits',
+    label: '949. LeetCode 949. 给定数字能组成的最大时间',
+    difficulty: '简单',
+    description:
+      '给定四个数字，重新排列组成合法的 24 小时时间，并返回能够得到的最大时间。核心是枚举四位数字的排列，保留满足小时和分钟范围的最大值。',
+    outcome:
+      '你能处理小规模排列枚举题，掌握先验证约束、再比较最优结果的直接实现方式。',
+    sections: [
+      {
+        id: 'largest-time-for-given-digits-summary',
+        title: '题目在问什么',
+        summary:
+          '给定四个数字 `arr`，每个数字必须使用一次，组成格式为 `HH:MM` 的 24 小时时间。若无法组成合法时间，返回空字符串；否则返回最大时间。',
+        bullets: [
+          '小时范围是 `00` 到 `23`。',
+          '分钟范围是 `00` 到 `59`。',
+          '四个数字必须全部使用且不能重复使用。',
+          '最大时间按小时优先、分钟次优先比较。',
+        ],
+      },
+      {
+        id: 'largest-time-for-given-digits-observe',
+        title: '数据规模很小，完整枚举比复杂贪心更稳',
+        summary:
+          '四个数字只有 `4! = 24` 种排列，直接枚举所有排列不会有性能问题。每生成一种排列，就把前两位组成小时、后两位组成分钟，检查是否落在合法范围内，并更新最大时间。',
+        bullets: [
+          '小规模排列题优先考虑穷举所有可能。',
+          '合法性判断可以直接拆成小时和分钟。',
+          '用数值形式比较时间比比较字符串更直观。',
+          '没有合法排列时保留空结果即可。',
+        ],
+      },
+      {
+        id: 'largest-time-for-given-digits-solution',
+        title: '标准解法：回溯枚举四位排列',
+        summary:
+          '使用回溯依次选择四个位置的数字。选满四位后计算时间，若小时小于 24 且分钟小于 60，就用总分钟数更新最大值。最终将最大值格式化成两位小时和两位分钟。',
+        bullets: [
+          '时间复杂度：`O(4!)`，也就是常数级。',
+          '空间复杂度：`O(4)`，用于递归路径和访问状态。',
+          '回溯结束时要撤销选择状态。',
+          '格式化时小时和分钟都必须补零。',
+        ],
+        code: `function largestTimeFromDigits(arr: number[]): string {
+  let best = -1
+  const used = Array(arr.length).fill(false)
+  const path: number[] = []
+
+  const search = (): void => {
+    if (path.length === 4) {
+      const hour = path[0] * 10 + path[1]
+      const minute = path[2] * 10 + path[3]
+
+      if (hour < 24 && minute < 60) {
+        best = Math.max(best, hour * 60 + minute)
+      }
+      return
+    }
+
+    for (let index = 0; index < arr.length; index += 1) {
+      if (used[index]) {
+        continue
+      }
+
+      used[index] = true
+      path.push(arr[index])
+      search()
+      path.pop()
+      used[index] = false
+    }
+  }
+
+  search()
+
+  if (best === -1) {
+    return ''
+  }
+
+  const hour = Math.floor(best / 60)
+  const minute = best % 60
+  return \`\${String(hour).padStart(2, '0')}:\${String(minute).padStart(2, '0')}\`
+}`,
+      },
+      {
+        id: 'largest-time-for-given-digits-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不适合为了追求“看起来高级”而设计复杂贪心。候选数量只有 24 个，完整枚举更容易保证重复数字、边界时间和格式化都正确。',
+        bullets: [
+          '易错点 1：小时允许到 `24`，正确上界是 `23`。',
+          '易错点 2：分钟允许到 `60`，正确上界是 `59`。',
+          '易错点 3：输出没有补齐两位数字。',
+          '延伸方向：回溯、排列枚举、约束校验。',
+        ],
+      },
+    ],
+  },
 ];
