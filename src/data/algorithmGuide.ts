@@ -95831,7 +95831,10 @@ function flipEquiv(
     { length: offset + Math.max(...nums) + 1 },
     (_, index) => index,
   )
-  const size = Array(parent.length).fill(1)
+  const size = Array(parent.length).fill(0)
+  for (const number of nums) {
+    size[number] = 1
+  }
 
   const find = (node: number): number => {
     if (parent[node] !== node) {
