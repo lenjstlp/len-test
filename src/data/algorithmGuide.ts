@@ -95247,4 +95247,84 @@ function rangeSumBST(
       },
     ],
   },
+  {
+    id: 'validate-stack-sequences',
+    label: '946. LeetCode 946. 验证栈序列',
+    difficulty: '中等',
+    description:
+      '给定入栈序列和出栈序列，判断后者是否可能由前者经过栈操作得到。核心是按入栈顺序模拟，并在栈顶匹配出栈目标时持续弹出。',
+    outcome:
+      '你能用一个辅助栈验证操作序列，掌握“能弹就弹、不能弹就继续入栈”的模拟范式。',
+    sections: [
+      {
+        id: 'validate-stack-sequences-summary',
+        title: '题目在问什么',
+        summary:
+          '给定长度相同且不重复的 `pushed`、`popped` 数组，判断是否存在一种入栈和出栈顺序，使得入栈顺序为 `pushed`，出栈顺序为 `popped`。',
+        bullets: [
+          '每个元素只能入栈和出栈一次。',
+          '入栈顺序必须严格遵守 `pushed`。',
+          '出栈顺序必须严格遵守 `popped`。',
+          '需要判断是否存在合法操作过程。',
+        ],
+      },
+      {
+        id: 'validate-stack-sequences-observe',
+        title: '只要栈顶能匹配当前出栈目标，就应该立即弹出',
+        summary:
+          '按照 `pushed` 依次入栈。每次入栈后，如果栈顶等于 `popped` 当前指针，就弹出并推进出栈指针；只要仍然匹配就继续弹。这样不会错过任何合法出栈机会，因为栈顶不弹出就无法访问下面的元素。',
+        bullets: [
+          '入栈是唯一受 `pushed` 顺序约束的动作。',
+          '出栈只能发生在栈顶。',
+          '栈顶匹配时连续弹出不会损失合法性。',
+          '最后栈为空即可说明序列合法。',
+        ],
+      },
+      {
+        id: 'validate-stack-sequences-solution',
+        title: '标准解法：辅助栈模拟入栈和出栈',
+        summary:
+          '遍历 `pushed`，把元素压入辅助栈。每次压入后，循环检查栈顶是否等于 `popped` 当前元素，若相等就弹出并移动指针。遍历结束后检查是否所有出栈元素都已匹配。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`。',
+          '每个元素最多入栈一次、出栈一次。',
+          '不能为了匹配而改变入栈顺序。',
+        ],
+        code: `function validateStackSequences(
+  pushed: number[],
+  popped: number[],
+): boolean {
+  const stack: number[] = []
+  let popIndex = 0
+
+  for (const value of pushed) {
+    stack.push(value)
+
+    while (
+      stack.length > 0 &&
+      stack[stack.length - 1] === popped[popIndex]
+    ) {
+      stack.pop()
+      popIndex += 1
+    }
+  }
+
+  return popIndex === popped.length
+}`,
+      },
+      {
+        id: 'validate-stack-sequences-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不是比较两个数组是否相等，而是判断一个栈能否产生目标出栈顺序。关键在于出栈指针和栈顶必须同步推进。',
+        bullets: [
+          '易错点 1：入栈前后只检查一次，漏掉连续弹出。',
+          '易错点 2：允许非栈顶元素直接出栈。',
+          '易错点 3：结束时没有确认所有目标元素都已弹出。',
+          '延伸方向：栈模拟、操作序列验证、单调过程。',
+        ],
+      },
+    ],
+  },
 ];
