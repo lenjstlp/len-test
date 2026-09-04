@@ -95611,4 +95611,85 @@ function rangeSumBST(
       },
     ],
   },
+  {
+    id: 'reveal-cards-in-increasing-order',
+    label: '950. LeetCode 950. 按递增顺序显示卡牌',
+    difficulty: '中等',
+    description:
+      '给定一组卡牌，按照“揭示顶牌、把下一张移到牌堆底部”的规则，重新排列卡牌，使揭示结果按递增顺序出现。核心是先模拟索引顺序，再把排序后的卡牌按顺序填回。',
+    outcome:
+      '你能区分“模拟位置顺序”和“填充值顺序”，掌握队列索引在排列构造题中的使用方式。',
+    sections: [
+      {
+        id: 'reveal-cards-in-increasing-order-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `deck` 表示卡牌上的数字。可以反复执行：揭示牌堆顶卡牌，然后把新的牌堆顶移到牌堆底部。要求重新排列卡牌，使揭示出来的数字严格按递增顺序排列。',
+        bullets: [
+          '每张卡牌只能使用一次。',
+          '揭示操作顺序是固定的。',
+          '需要构造一个初始排列。',
+          '最终揭示顺序必须从小到大。',
+        ],
+      },
+      {
+        id: 'reveal-cards-in-increasing-order-observe',
+        title: '先确定位置被揭示的顺序，再安排数字',
+        summary:
+          '如果直接尝试排列数字，很难判断每一步会揭示哪张牌。可以先用一个索引队列模拟操作，得到“第 1 次揭示哪个位置、第 2 次揭示哪个位置”的顺序。然后把排序后的数字依次放入这些位置。',
+        bullets: [
+          '索引队列只模拟位置，不存储卡牌值。',
+          '每次先取出队头索引作为揭示位置。',
+          '如果还有索引，再把下一个索引移到队尾。',
+          '数字排序后按揭示顺序逐个填入。',
+        ],
+      },
+      {
+        id: 'reveal-cards-in-increasing-order-solution',
+        title: '标准解法：索引队列模拟 + 排序回填',
+        summary:
+          '先对卡牌数字排序，建立 `0` 到 `n - 1` 的索引队列。模拟揭示流程得到每个数字应该占据的原数组位置，然后把排好序的数字依次写入这些位置，返回构造结果。',
+        bullets: [
+          '时间复杂度：`O(n log n)`。',
+          '空间复杂度：`O(n)`。',
+          '队列保存的是位置，不是数字。',
+          '模拟顺序和填充值顺序要严格对应。',
+        ],
+        code: `function deckRevealedIncreasing(deck: number[]): number[] {
+  const sorted = [...deck].sort((first, second) => first - second)
+  const positions = Array.from(
+    { length: deck.length },
+    (_, index) => index,
+  )
+  const answer = Array(deck.length)
+  let head = 0
+
+  for (const value of sorted) {
+    const position = positions[head]
+    head += 1
+    answer[position] = value
+
+    if (head < positions.length) {
+      positions.push(positions[head])
+      head += 1
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'reveal-cards-in-increasing-order-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题容易把真实卡牌值直接放进队列，导致模拟过程和最终填充混在一起。先只模拟位置，再按排序后的值回填，结构更清晰。',
+        bullets: [
+          '易错点 1：没有先排序卡牌值。',
+          '易错点 2：把移动到牌堆底部的操作模拟错。',
+          '易错点 3：队列中保存值而不是保存位置。',
+          '延伸方向：队列模拟、排列构造、逆向思维。',
+        ],
+      },
+    ],
+  },
 ];
