@@ -96082,4 +96082,93 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'delete-columns-to-make-sorted-two',
+    label: '955. LeetCode 955. 删列造序 II',
+    difficulty: '中等',
+    description:
+      '给定等长字符串数组，删除尽可能少的列，使剩余列组成的字符串数组按字典序非递减。核心是逐列判断未确定顺序的相邻字符串是否会逆序，并在安全列上锁定已经分出大小的相邻关系。',
+    outcome:
+      '你能理解多列字典序不是每列独立判断，而是要维护哪些相邻字符串的顺序已经被前面的保留列确定。',
+    sections: [
+      {
+        id: 'delete-columns-to-make-sorted-two-summary',
+        title: '题目在问什么',
+        summary:
+          '给定字符串数组 `strs`，所有字符串长度相同。可以删除任意列，删除后每个字符串由剩余列拼接而成。求最少删除多少列，能让整个数组按字典序非递减排列。',
+        bullets: [
+          '一次删除会移除所有字符串的同一列。',
+          '剩余列保持原来的相对顺序。',
+          '目标是让相邻字符串整体满足字典序。',
+          '返回最少删除列数。',
+        ],
+      },
+      {
+        id: 'delete-columns-to-make-sorted-two-observe',
+        title: '已经分出大小的相邻对，后续列不再影响它们',
+        summary:
+          '字典序比较由第一个不同字符决定。如果某一对相邻字符串已经在前面某个保留列中满足上小于下，那么后面的列无论如何都不会改变这对字符串的顺序。只有那些前缀仍完全相等的相邻对，才需要继续用当前列判断是否会产生逆序。',
+        bullets: [
+          '`sorted[i]` 表示第 `i` 对相邻字符串的顺序已经确定。',
+          '当前列若让某个未确定相邻对逆序，就必须删除当前列。',
+          '当前列安全保留时，可以把出现严格小于关系的相邻对标记为已确定。',
+          '贪心保留安全列不会增加后续删除压力。',
+        ],
+      },
+      {
+        id: 'delete-columns-to-make-sorted-two-solution',
+        title: '标准解法：逐列贪心维护相邻关系',
+        summary:
+          '从左到右扫描列。对当前列，先检查所有尚未确定顺序的相邻字符串，如果存在上方字符大于下方字符，当前列必须删除。否则保留当前列，并把所有上方字符小于下方字符的相邻对标记为已确定。',
+        bullets: [
+          '时间复杂度：`O(nm)`，`n` 为字符串数量，`m` 为字符串长度。',
+          '空间复杂度：`O(n)`。',
+          '先检查是否删除，再更新已确定关系。',
+          '已经确定顺序的相邻对后续可以跳过。',
+        ],
+        code: `function minDeletionSize(strs: string[]): number {
+  const rowCount = strs.length
+  const columnCount = strs[0].length
+  const fixed = Array(rowCount - 1).fill(false)
+  let deletions = 0
+
+  for (let column = 0; column < columnCount; column += 1) {
+    let shouldDelete = false
+
+    for (let row = 0; row < rowCount - 1; row += 1) {
+      if (!fixed[row] && strs[row][column] > strs[row + 1][column]) {
+        shouldDelete = true
+        break
+      }
+    }
+
+    if (shouldDelete) {
+      deletions += 1
+      continue
+    }
+
+    for (let row = 0; row < rowCount - 1; row += 1) {
+      if (!fixed[row] && strs[row][column] < strs[row + 1][column]) {
+        fixed[row] = true
+      }
+    }
+  }
+
+  return deletions
+}`,
+      },
+      {
+        id: 'delete-columns-to-make-sorted-two-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题比第 944 题更复杂，因为不能只看单列是否自上而下有序。前面保留列已经确定的相邻关系，后续列即使局部逆序也不会影响整体字典序。',
+        bullets: [
+          '易错点 1：照搬第 944 题逐列独立判断，导致多删列。',
+          '易错点 2：在决定保留当前列前就更新 `fixed`，污染判断结果。',
+          '易错点 3：忽略相邻字符串是判断整个数组字典序的最小单元。',
+          '延伸方向：字典序、贪心、状态标记、矩阵列删除。',
+        ],
+      },
+    ],
+  },
 ];
