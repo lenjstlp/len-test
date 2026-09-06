@@ -96411,4 +96411,97 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'regions-cut-by-slashes',
+    label: '959. LeetCode 959. 由斜杠划分区域',
+    difficulty: '中等',
+    description:
+      '统计由 `/`、`\\` 和空格组成的网格被划分出的区域数量。核心是把每个格子拆成四个小三角形，用并查集连接格内和相邻格的区域。',
+    outcome:
+      '你能把二维图形分割问题转化为连通块统计，掌握“单元格拆分 + 并查集”的建模方法。',
+    sections: [
+      {
+        id: 'regions-cut-by-slashes-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `n x n` 网格，每格包含斜杠、反斜杠或空格。斜线会把格子分成若干区域，要求统计整个平面中互不连通的区域数量。',
+        bullets: [
+          '`/` 连接右上角和左下角。',
+          '`\\` 连接左上角和右下角。',
+          '空格表示格内没有分割线。',
+          '相邻格中接壤的部分属于同一个区域。',
+        ],
+      },
+      {
+        id: 'regions-cut-by-slashes-observe',
+        title: '把一个格子拆成四块，斜线关系就变简单了',
+        summary:
+          '把每个格子按上、右、下、左拆成四个三角形。格内的 `/` 会连接上和左、右和下；`\\` 会连接上和右、下和左；空格则把四块全部连通。这样每一块都是一个并查集节点。',
+        bullets: [
+          '每个原始格子映射为 4 个小区域。',
+          '只需连接右邻居和下邻居，避免重复处理。',
+          '右侧三角形与右格左侧三角形相连。',
+          '下侧三角形与下格上侧三角形相连。',
+        ],
+      },
+      {
+        id: 'regions-cut-by-slashes-solution',
+        title: '标准解法：四分格并查集',
+        summary:
+          '创建 `4 * n * n` 个并查集节点。先按字符合并每个格子内部的小三角形，再把边界相接的小三角形合并。最后统计根节点数量，就是区域数量。',
+        bullets: [
+          '时间复杂度：`O(n² α(n²))`，近似为 `O(n²)`。',
+          '空间复杂度：`O(n²)`。',
+          '四个索引可定义为上、右、下、左。',
+          '区域数量等于最终不相交集合的个数。',
+        ],
+        code: `function regionsBySlashes(grid: string[]): number {
+  const size = grid.length
+  const parent = Array.from(
+    { length: size * size * 4 },
+    (_, index) => index,
+  )
+
+  const find = (node: number): number => {
+    if (parent[node] !== node) parent[node] = find(parent[node])
+    return parent[node]
+  }
+  const union = (a: number, b: number) => {
+    const rootA = find(a)
+    const rootB = find(b)
+    if (rootA !== rootB) parent[rootA] = rootB
+  }
+
+  for (let row = 0; row < size; row += 1) {
+    for (let col = 0; col < size; col += 1) {
+      const base = (row * size + col) * 4
+      const cell = grid[row][col]
+
+      if (cell !== '/') union(base, base + 1)
+      if (cell !== '/') union(base + 2, base + 3)
+      if (cell !== '\\\\') union(base, base + 3)
+      if (cell !== '\\\\') union(base + 1, base + 2)
+
+      if (row + 1 < size) union(base + 2, base + size * 4)
+      if (col + 1 < size) union(base + 1, base + 7)
+    }
+  }
+
+  return parent.filter((_, index) => find(index) === index).length
+}`,
+      },
+      {
+        id: 'regions-cut-by-slashes-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是斜杠字符的转义和四个三角形的连接方向。先固定“上右下左”的索引约定，再按图推导连接关系，能避免凭感觉写错。',
+        bullets: [
+          '易错点 1：在字符串和代码中漏写反斜杠转义。',
+          '易错点 2：`/` 与 `\\` 的格内连通关系写反。',
+          '易错点 3：右邻接索引偏移应为 `+7`。',
+          '延伸方向：并查集、平面分割、连通块计数。',
+        ],
+      },
+    ],
+  },
 ];
