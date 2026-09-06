@@ -96504,4 +96504,84 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'delete-columns-to-make-sorted-three',
+    label: '960. LeetCode 960. 删列造序 III',
+    difficulty: '困难',
+    description:
+      '删除尽可能少的列，使每一行字符串在保留列组成的新字符串中都非递减。核心是把“可同时保留的列”建模为偏序关系，再求最长递增子序列。',
+    outcome:
+      '你能识别二维条件下的 LIS 模型，理解为什么列 `i` 能接在列 `j` 后面必须对每一行都成立。',
+    sections: [
+      {
+        id: 'delete-columns-to-make-sorted-three-summary',
+        title: '题目在问什么',
+        summary:
+          '给定等长字符串数组 `strs`，可以删除任意列。删除后要求每个字符串从左到右都按字典序非递减，求最少需要删除多少列。',
+        bullets: [
+          '每次删除会移除所有字符串的同一列。',
+          '每一行都要满足保留字符非递减。',
+          '不要求字符串数组彼此有序。',
+          '等价目标是尽可能保留更多列。',
+        ],
+      },
+      {
+        id: 'delete-columns-to-make-sorted-three-observe',
+        title: '一组保留列就是所有行共同满足的递增序列',
+        summary:
+          '若保留列 `j` 后还能保留列 `i`（`j < i`），必须对每个字符串都有 `strs[row][j] <= strs[row][i]`。这是一种“列之间能否连接”的关系，因此可把每列视为 LIS 中的一个位置。',
+        bullets: [
+          '`dp[i]` 表示以第 `i` 列结尾最多保留多少列。',
+          '检查所有前列 `j < i` 是否能连接到 `i`。',
+          '连接条件必须遍历全部字符串。',
+          '答案为列数减去最长保留长度。',
+        ],
+      },
+      {
+        id: 'delete-columns-to-make-sorted-three-solution',
+        title: '标准解法：按列做最长递增子序列',
+        summary:
+          '初始化每列都能单独保留，因此 `dp[i] = 1`。枚举前列 `j`，若任意一行在 `j` 处字符大于 `i` 处字符，就不能连接；否则用 `dp[j] + 1` 更新 `dp[i]`。',
+        bullets: [
+          '时间复杂度：`O(m²n)`，`m` 为列数、`n` 为字符串数量。',
+          '空间复杂度：`O(m)`。',
+          '这是最长递增子序列在多行约束下的变形。',
+          '删除最少等价于保留最长。',
+        ],
+        code: `function minDeletionSize(strs: string[]): number {
+  const columnCount = strs[0].length
+  const dp = Array(columnCount).fill(1)
+  let longest = 1
+
+  for (let current = 0; current < columnCount; current += 1) {
+    for (let previous = 0; previous < current; previous += 1) {
+      const canFollow = strs.every(
+        (word) => word[previous] <= word[current],
+      )
+
+      if (canFollow) {
+        dp[current] = Math.max(dp[current], dp[previous] + 1)
+      }
+    }
+
+    longest = Math.max(longest, dp[current])
+  }
+
+  return columnCount - longest
+}`,
+      },
+      {
+        id: 'delete-columns-to-make-sorted-three-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '本题和第 944、955 题的排序对象不同：这里要保证每个单独字符串的字符序列有序，而不是保证字符串数组之间的字典序，因此贪心逐列删除并不适用。',
+        bullets: [
+          '易错点 1：误用第 955 题的相邻行贪心。',
+          '易错点 2：只检查一行就判断两列可以连接。',
+          '易错点 3：直接求最少删除，遗漏“最长保留”转换。',
+          '延伸方向：LIS、偏序关系、动态规划建模。',
+        ],
+      },
+    ],
+  },
 ];
