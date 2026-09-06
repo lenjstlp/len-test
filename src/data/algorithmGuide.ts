@@ -96171,4 +96171,90 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'tallest-billboard',
+    label: '956. LeetCode 956. 最高的广告牌',
+    difficulty: '困难',
+    description:
+      '给定若干根钢筋，分成两组并允许不使用部分钢筋，要求两组总长度相等且尽可能高。核心是用动态规划记录两组高度差，以及较矮一组的最大高度。',
+    outcome:
+      '你能把“两组平衡”的组合问题压缩成差值状态，掌握同一根材料放入不同分组时的状态转移。',
+    sections: [
+      {
+        id: 'tallest-billboard-summary',
+        title: '题目在问什么',
+        summary:
+          '给定钢筋数组 `rods`，把钢筋分成两组，使两组总长度相等，并让这个相等的长度最大。每根钢筋可以放入任意一组，也可以不使用。',
+        bullets: [
+          '两组最终高度必须完全相等。',
+          '不是所有钢筋都必须使用。',
+          '目标是最大化相等高度。',
+          '钢筋长度可以重复。',
+        ],
+      },
+      {
+        id: 'tallest-billboard-observe',
+        title: '记录高度差，比记录两组具体高度更省状态',
+        summary:
+          '处理每根钢筋时，如果当前两组高度差为 `diff`，把钢筋放到较高组会让差值增加；放到较矮组会缩小差值，同时可能提高较矮组的高度。对于同一个差值，只保留较矮组高度最大的方案即可，因为它对后续选择更有利。',
+        bullets: [
+          '状态键是两组高度差。',
+          '状态值是该差值下较矮组的最大高度。',
+          '钢筋可以不使用，因此要保留上一轮状态。',
+          '差值为 0 时，状态值就是当前可达到的广告牌高度。',
+        ],
+      },
+      {
+        id: 'tallest-billboard-solution',
+        title: '标准解法：差值 DP',
+        summary:
+          '用 `Map` 维护 `差值 -> 较矮组高度`。对每根钢筋复制一份上一轮状态，分别尝试把它放入较高组或较矮组，并用 `Math.max` 更新相同差值下的最优较矮高度。最终返回差值 0 的状态值。',
+        bullets: [
+          '时间复杂度：`O(nS)`，`S` 为可能的高度差数量。',
+          '空间复杂度：`O(S)`。',
+          '放入较高组不会增加较矮组高度。',
+          '放入较矮组时，较矮组增加 `min(diff, rod)`。',
+        ],
+        code: `function tallestBillboard(rods: number[]): number {
+  let states = new Map<number, number>([[0, 0]])
+
+  for (const rod of rods) {
+    const next = new Map(states)
+
+    for (const [difference, shorter] of states) {
+      const tallerDifference = difference + rod
+      next.set(
+        tallerDifference,
+        Math.max(next.get(tallerDifference) ?? 0, shorter),
+      )
+
+      const shorterDifference = Math.abs(difference - rod)
+      const newShorter =
+        shorter + Math.min(difference, rod)
+      next.set(
+        shorterDifference,
+        Math.max(next.get(shorterDifference) ?? 0, newShorter),
+      )
+    }
+
+    states = next
+  }
+
+  return states.get(0) ?? 0
+}`,
+      },
+      {
+        id: 'tallest-billboard-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不能只记录两组高度差而丢掉较矮组高度，否则最终无法知道差值归零时广告牌到底有多高。状态值必须保留同一差值下的最优高度。',
+        bullets: [
+          '易错点 1：只记录差值，不记录可达到的高度。',
+          '易错点 2：放入较矮组时没有增加 `min(diff, rod)`。',
+          '易错点 3：没有保留“不使用当前钢筋”的上一轮状态。',
+          '延伸方向：差值 DP、分组背包、状态压缩。',
+        ],
+      },
+    ],
+  },
 ];
