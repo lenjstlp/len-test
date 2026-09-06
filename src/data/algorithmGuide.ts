@@ -96656,4 +96656,88 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'maximum-width-ramp',
+    label: '962. LeetCode 962. 最大宽度坡',
+    difficulty: '中等',
+    description:
+      '寻找满足 `i < j` 且 `nums[i] <= nums[j]` 的最大 `j - i`。核心是用单调递减栈保存最有潜力作为左端点的位置，再从右向左贪心匹配。',
+    outcome:
+      '你能掌握单调栈的候选淘汰思想，理解为什么右端点倒序扫描可以保证首次匹配就是最宽结果。',
+    sections: [
+      {
+        id: 'maximum-width-ramp-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums`，一对下标 `(i, j)` 称为坡，当且仅当 `i < j` 且 `nums[i] <= nums[j]`。要求所有坡中的最大宽度 `j - i`。',
+        bullets: [
+          '左端点必须在右端点左边。',
+          '数值关系是左值不大于右值。',
+          '目标是最大化两个下标距离。',
+          '数组中允许相同数字。',
+        ],
+      },
+      {
+        id: 'maximum-width-ramp-observe',
+        title: '只有不断变小的前缀值值得作为左端点',
+        summary:
+          '若左侧已有下标 `a < b` 且 `nums[a] <= nums[b]`，那么 `b` 永远不如 `a` 适合作为左端点：`a` 更靠左且数值不更大。因此只需保留从左到右出现的新低值下标，形成单调递减栈。',
+        bullets: [
+          '栈内值严格递减，下标递增。',
+          '被更早且更小值支配的下标可以淘汰。',
+          '从最右向左扫描以优先得到更大宽度。',
+          '匹配成功的栈顶之后无需再次使用。',
+        ],
+      },
+      {
+        id: 'maximum-width-ramp-solution',
+        title: '标准解法：递减栈加逆序贪心',
+        summary:
+          '先从左到右构造值严格递减的下标栈。再从右到左扫描右端点，只要栈顶对应的值不大于当前右值，就计算宽度并弹栈。当前右端点已经是该左端点能够匹配到的最右位置。',
+        bullets: [
+          '时间复杂度：`O(n)`，每个下标至多入栈和出栈一次。',
+          '空间复杂度：`O(n)`。',
+          '栈内保留的是下标而非数值。',
+          '逆序扫描是贪心正确性的关键。',
+        ],
+        code: `function maxWidthRamp(nums: number[]): number {
+  const candidates: number[] = []
+
+  for (let index = 0; index < nums.length; index += 1) {
+    if (
+      candidates.length === 0 ||
+      nums[index] < nums[candidates[candidates.length - 1]]
+    ) {
+      candidates.push(index)
+    }
+  }
+
+  let width = 0
+
+  for (let right = nums.length - 1; right >= 0; right -= 1) {
+    while (
+      candidates.length > 0 &&
+      nums[candidates[candidates.length - 1]] <= nums[right]
+    ) {
+      width = Math.max(width, right - candidates.pop()!)
+    }
+  }
+
+  return width
+}`,
+      },
+      {
+        id: 'maximum-width-ramp-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题看似可以枚举两端点，但会达到平方复杂度。单调栈并不是维护窗口，而是在预处理一组不会被支配的左端点，再用逆序扫描一次性完成最优匹配。',
+        bullets: [
+          '易错点 1：栈中使用非严格递减，保留了冗余候选。',
+          '易错点 2：从左到右找右端点，无法保证先获得最大宽度。',
+          '易错点 3：匹配后不弹出已确定最优宽度的左端点。',
+          '延伸方向：单调栈、贪心、支配关系与候选集。',
+        ],
+      },
+    ],
+  },
 ];
