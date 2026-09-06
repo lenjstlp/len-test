@@ -96257,4 +96257,78 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'convert-to-base-negative-two',
+    label: '957. LeetCode 957. 负二进制转换',
+    difficulty: '中等',
+    description:
+      '把非负十进制整数转换为以 -2 为底的二进制表示。核心是理解负进制的余数仍要规范到非负范围，并在每次除法后修正商。',
+    outcome:
+      '你能掌握负进制的除法过程，知道为什么余数只能取 0 或 1，以及如何用位运算写出简洁转换。',
+    sections: [
+      {
+        id: 'convert-to-base-negative-two-summary',
+        title: '题目在问什么',
+        summary:
+          '给定非负整数 `n`，返回它的 -2 进制字符串。结果只包含 `0` 和 `1`，且除 `n = 0` 外不能有前导零。',
+        bullets: [
+          '进制的底数是负数 `-2`。',
+          '每一位的权重依次为 1、-2、4、-8。',
+          '输出仍然使用二进制数字 0 和 1。',
+          '需要返回唯一的规范表示。',
+        ],
+      },
+      {
+        id: 'convert-to-base-negative-two-observe',
+        title: '负进制也遵循除基取余',
+        summary:
+          '普通二进制中每轮取 `n % 2` 并除以 2。负二进制也要保证 `n = quotient * -2 + remainder`，但 JavaScript 的负数取余可能得到负值，因此需要把余数调整为 0 或 1，再同步修正商。',
+        bullets: [
+          '合法余数范围是 `[0, 1]`。',
+          '`n & 1` 对整数可直接得到 0 或 1。',
+          '新商可以写成 `(n - remainder) / -2`。',
+          '每轮都消去最低位并生成一位答案。',
+        ],
+      },
+      {
+        id: 'convert-to-base-negative-two-solution',
+        title: '标准解法：取最低位并除以 -2',
+        summary:
+          '当 `n` 不为 0 时，最低位就是 `n & 1`。将该余数从 `n` 中减去后必然能被 -2 整除，得到下一轮的商。不断把余数拼到前面即可。',
+        bullets: [
+          '时间复杂度：`O(log n)`。',
+          '空间复杂度：`O(log n)`，用于保存结果字符串。',
+          '使用位运算可避免负余数的额外分支。',
+          '`n = 0` 需要单独返回字符串 `0`。',
+        ],
+        code: `function baseNeg2(n: number): string {
+  if (n === 0) {
+    return '0'
+  }
+
+  let result = ''
+
+  while (n !== 0) {
+    const remainder = n & 1
+    result = remainder + result
+    n = (n - remainder) / -2
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'convert-to-base-negative-two-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '负进制并不是把普通二进制结果的符号改掉。每轮必须满足被除数、商、余数之间的等式，不能直接对负数商继续使用未经处理的 `% 2` 结果。',
+        bullets: [
+          '易错点 1：直接拼接 `n % -2`，得到不合法的负余数。',
+          '易错点 2：忘记 `n = 0` 的特殊返回值。',
+          '易错点 3：从高位构造却没有处理进位。',
+          '延伸方向：进制转换、带符号除法、补码与位运算。',
+        ],
+      },
+    ],
+  },
 ];
