@@ -96740,4 +96740,94 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'minimum-area-rectangle-two',
+    label: '963. LeetCode 963. 最小面积矩形 II',
+    difficulty: '中等',
+    description:
+      '在平面点集中寻找边不必平行于坐标轴的最小面积矩形。核心是利用矩形两条对角线具有相同中点和相同长度的性质，对候选对角线分组。',
+    outcome:
+      '你能把旋转矩形的几何条件转化为哈希分组，并使用二维向量叉积稳定计算矩形面积。',
+    sections: [
+      {
+        id: 'minimum-area-rectangle-two-summary',
+        title: '题目在问什么',
+        summary:
+          '给定平面上的若干点，任选四个点可以组成边与坐标轴不平行的矩形。要求找出面积最小的矩形；不存在矩形时返回 0。',
+        bullets: [
+          '矩形允许旋转。',
+          '四个顶点都必须来自输入点集。',
+          '不能使用轴对齐矩形的行列哈希套路。',
+          '返回最小面积的数值。',
+        ],
+      },
+      {
+        id: 'minimum-area-rectangle-two-observe',
+        title: '矩形对角线拥有共同的几何签名',
+        summary:
+          '一个四边形是矩形，当且仅当它的两条对角线长度相等且中点相同。枚举任意两点作为一条对角线，把“中点坐标和 + 对角线长度平方”作为键；同一键下任意两条点对都能组成一个矩形。',
+        bullets: [
+          '用中点坐标和避免除以 2 的浮点误差。',
+          '用距离平方避免不必要的开方。',
+          '同组的两条线段互为矩形对角线。',
+          '枚举点对的数量为 `O(n²)`。',
+        ],
+      },
+      {
+        id: 'minimum-area-rectangle-two-solution',
+        title: '标准解法：对角线哈希分组加叉积面积',
+        summary:
+          '枚举每一对点，生成对角线签名。若签名已经存在，就把当前点对与组内所有旧点对组合。取当前对角线一个端点到旧对角线两个端点的向量，叉积绝对值就是对应矩形面积。',
+        bullets: [
+          '时间复杂度：最坏为 `O(n⁴)`，通常受分组规模影响。',
+          '空间复杂度：`O(n²)`，保存所有点对。',
+          '面积使用叉积，不依赖边是否水平或垂直。',
+          '初始答案用 `Infinity`，最后转换为 0。',
+        ],
+        code: `function minAreaFreeRect(points: number[][]): number {
+  const groups = new Map<string, Array<[number, number]>>()
+  let minimum = Infinity
+
+  for (let first = 0; first < points.length; first += 1) {
+    for (let second = first + 1; second < points.length; second += 1) {
+      const [x1, y1] = points[first]
+      const [x2, y2] = points[second]
+      const middleX = x1 + x2
+      const middleY = y1 + y2
+      const distance = (x1 - x2) ** 2 + (y1 - y2) ** 2
+      const key = \`\${middleX},\${middleY},\${distance}\`
+      const diagonals = groups.get(key) ?? []
+
+      for (const [otherFirst, otherSecond] of diagonals) {
+        const [ax, ay] = points[first]
+        const [bx, by] = points[otherFirst]
+        const [cx, cy] = points[otherSecond]
+        const area = Math.abs(
+          (bx - ax) * (cy - ay) - (by - ay) * (cx - ax),
+        )
+        minimum = Math.min(minimum, area)
+      }
+
+      diagonals.push([first, second])
+      groups.set(key, diagonals)
+    }
+  }
+
+  return minimum === Infinity ? 0 : minimum
+}`,
+      },
+      {
+        id: 'minimum-area-rectangle-two-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '不要通过枚举三点再猜第四点来判断矩形，那会带来复杂的浮点与索引处理。对角线的中点和长度是旋转不变的特征，既能准确判断矩形，也天然适合哈希。',
+        bullets: [
+          '易错点 1：用浮点中点作为键，可能出现精度分组错误。',
+          '易错点 2：只比较对角线长度，遗漏中点必须相同的条件。',
+          '易错点 3：把两条对角线的长度误当作矩形面积。',
+          '延伸方向：几何哈希、向量叉积、旋转图形判定。',
+        ],
+      },
+    ],
+  },
 ];
