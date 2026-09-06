@@ -96584,4 +96584,76 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'n-repeated-element-in-size-two-n-array',
+    label: '961. LeetCode 961. 在长度 2N 的数组中找出重复 N 次的元素',
+    difficulty: '简单',
+    description:
+      '在长度为 2N 的数组中，只有一个元素恰好出现 N 次，其他元素都只出现一次。核心是利用题目约束，以集合记录已见元素并在首次重复时返回。',
+    outcome:
+      '你能根据数据分布约束选择足够简单的哈希解法，并理解为什么不需要完整统计所有频次。',
+    sections: [
+      {
+        id: 'n-repeated-element-in-size-two-n-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `nums`，数组长度为 `2N`。其中一个整数重复出现 `N` 次，其余 `N` 个整数各出现一次，找出这个重复 N 次的整数。',
+        bullets: [
+          '只有一个值会重复。',
+          '其他值都只出现一次。',
+          '数组顺序没有规律。',
+          '返回重复元素本身。',
+        ],
+      },
+      {
+        id: 'n-repeated-element-in-size-two-n-array-observe',
+        title: '首次遇到重复元素时，答案已经唯一',
+        summary:
+          '因为除目标元素外的所有元素只出现一次，扫描过程中只要某个数第二次出现，它一定就是答案。无需遍历结束后再比较完整频次。',
+        bullets: [
+          '`Set` 保存已经出现过的数。',
+          '当前数字已存在于集合时立即返回。',
+          '题目保证一定能找到答案。',
+          '空间换时间，逻辑直观且稳定。',
+        ],
+      },
+      {
+        id: 'n-repeated-element-in-size-two-n-array-solution',
+        title: '标准解法：集合去重检测',
+        summary:
+          '从左到右扫描数组。若当前元素已在 `Set` 中，立刻返回；否则加入集合。该方案不依赖值域大小，适合一般数组输入。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`。',
+          '可以在扫描到第二个目标元素时提前结束。',
+          '使用 `Set` 比手写对象字典更安全直接。',
+        ],
+        code: `function repeatedNTimes(nums: number[]): number {
+  const seen = new Set<number>()
+
+  for (const value of nums) {
+    if (seen.has(value)) {
+      return value
+    }
+
+    seen.add(value)
+  }
+
+  throw new Error('输入不满足题目约束')
+}`,
+      },
+      {
+        id: 'n-repeated-element-in-size-two-n-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '虽然可以用排序或计数数组，但它们分别会增加时间或受值域限制。本题的唯一重复约束让 Set 方案足够直接，优先选择可读性更高的实现。',
+        bullets: [
+          '易错点 1：扫描结束后才统计，错过提前返回机会。',
+          '易错点 2：把重复次数误认为 N + 1 次。',
+          '易错点 3：不考虑输入保证而返回任意默认值。',
+          '延伸方向：哈希集合、重复检测、频次统计。',
+        ],
+      },
+    ],
+  },
 ];
