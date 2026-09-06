@@ -96331,4 +96331,84 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'check-completeness-of-a-binary-tree',
+    label: '958. LeetCode 958. 二叉树的完全性检验',
+    difficulty: '中等',
+    description:
+      '判断二叉树是否为完全二叉树。核心是按层遍历时，一旦出现空位，后面不允许再出现任何非空节点。',
+    outcome:
+      '你能通过 BFS 把完全二叉树的层级定义转换成线性扫描规则，并区分完全二叉树与满二叉树。',
+    sections: [
+      {
+        id: 'check-completeness-of-a-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定二叉树根节点 `root`，判断它是否为完全二叉树。完全二叉树要求除最后一层外每层节点数都满，最后一层节点必须从左到右连续排列。',
+        bullets: [
+          '最后一层可以不满。',
+          '最后一层缺失的位置只能出现在右侧。',
+          '节点不能跳过左侧空位再出现在右侧。',
+          '返回布尔值。',
+        ],
+      },
+      {
+        id: 'check-completeness-of-a-binary-tree-observe',
+        title: '层序序列中不能出现空节点后的实节点',
+        summary:
+          '把树按层序遍历，并把空孩子也放入队列。对于完全二叉树，层序序列一定是若干非空节点之后连续跟随若干空节点；一旦已经看到空节点，再看到真实节点就说明中间存在缺口。',
+        bullets: [
+          '队列中需要保留空节点占位。',
+          '`seenNull` 标记是否已进入空位区域。',
+          '空位后遇到节点立即返回 `false`。',
+          '遍历结束未违规则为完全二叉树。',
+        ],
+      },
+      {
+        id: 'check-completeness-of-a-binary-tree-solution',
+        title: '标准解法：层序遍历加空位标记',
+        summary:
+          '从根节点开始 BFS。弹出空节点时打开 `seenNull`；弹出非空节点时，若 `seenNull` 已经为真说明它出现在空位之后，直接判定失败。否则把它的左右孩子都入队。',
+        bullets: [
+          '时间复杂度：`O(n)`，每个节点至多处理一次。',
+          '空间复杂度：`O(n)`，最宽层可能进入队列。',
+          '不需要计算每层节点数量。',
+          '空树通常可视为完全二叉树。',
+        ],
+        code: `function isCompleteTree(root: TreeNode | null): boolean {
+  const queue: Array<TreeNode | null> = [root]
+  let seenNull = false
+
+  while (queue.length > 0) {
+    const node = queue.shift() ?? null
+
+    if (node === null) {
+      seenNull = true
+      continue
+    }
+
+    if (seenNull) {
+      return false
+    }
+
+    queue.push(node.left, node.right)
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'check-completeness-of-a-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '判断完全性不是要求每个节点都有两个孩子。关键是层序位置连续，因此左孩子为空而右孩子非空，或者某一层后方还出现节点，都会破坏完全性。',
+        bullets: [
+          '易错点 1：把完全二叉树误判成满二叉树。',
+          '易错点 2：遇到空节点后不继续检查后续队列。',
+          '易错点 3：只检查“有右无左”，遗漏更深层的缺口。',
+          '延伸方向：BFS、堆的数组表示、二叉树层序性质。',
+        ],
+      },
+    ],
+  },
 ];
