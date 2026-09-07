@@ -96830,4 +96830,102 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'least-operators-to-express-number',
+    label: '964. LeetCode 964. 表示数字的最少运算符',
+    difficulty: '困难',
+    description:
+      '只使用给定正整数 x 和加减乘除运算符表示 target，求最少运算符数量。核心是围绕最接近 target 的 x 的幂进行记忆化搜索，在“向下取幂”和“向上补齐”之间取最优。',
+    outcome:
+      '你能把表达式构造问题转化为幂级别的递归决策，理解为什么每次只需要比较相邻幂次的两种构造方向。',
+    sections: [
+      {
+        id: 'least-operators-to-express-number-summary',
+        title: '题目在问什么',
+        summary:
+          '给定正整数 `x` 和目标值 `target`，表达式中只能重复使用 `x`，运算符只能使用 `+`、`-`、`*`、`/`，并遵循通常的乘除优先级。要求表达出 `target` 时使用最少运算符。',
+        bullets: [
+          '不能直接写出除 x 之外的数字常量。',
+          '不允许使用一元负号。',
+          '表达式中可以重复使用 x。',
+          '只统计运算符数量，不统计 x 的出现次数。',
+        ],
+      },
+      {
+        id: 'least-operators-to-express-number-observe',
+        title: '先靠近最近的幂，再决定向下还是向上',
+        summary:
+          '若 `x^k` 是第一个不小于当前值 `value` 的幂，可以先构造 `x^(k-1)`，再递归表达剩余部分；也可以构造 `x^k` 后减去多出来的部分。因为幂的构造成本是固定的，所以只需比较这两条路径。',
+        bullets: [
+          '构造 `x^k` 需要 `k - 1` 个乘法运算符。',
+          '当 `value < x` 时，可以用若干个 `x / x` 相加，或用 x 减去若干个 1。',
+          '向下方案处理 `value - x^(k-1)`。',
+          '向上方案处理 `x^k - value`，并额外付出一次减法。',
+        ],
+      },
+      {
+        id: 'least-operators-to-express-number-solution',
+        title: '标准解法：记忆化搜索',
+        summary:
+          '定义 `dfs(value)` 表示构造 `value` 的最少运算符数。先处理 `value <= x` 的基准情况；否则找到最小的 `x^k >= value`，比较向下取幂和向上补齐两种方案，并缓存每个 value 的结果。',
+        bullets: [
+          '时间复杂度约为 `O(log_x(target)^2)`，搜索状态数量受幂级别控制。',
+          '空间复杂度为 `O(log_x(target))`，用于缓存递归状态。',
+          '小于 x 的数可以用 `value` 个 `x / x`，或 x 减去若干个 `x / x`。',
+          '向上补齐只有在补齐部分不比目标更大时才有价值。',
+        ],
+        code: `function leastOpsExpressTarget(
+  x: number,
+  target: number,
+): number {
+  const memo = new Map<number, number>()
+
+  const dfs = (value: number): number => {
+    if (value <= x) {
+      return Math.min(value * 2 - 1, 2 * (x - value))
+    }
+
+    const cached = memo.get(value)
+    if (cached !== undefined) {
+      return cached
+    }
+
+    let power = x * x
+    let level = 2
+
+    while (power < value) {
+      power *= x
+      level += 1
+    }
+
+    const lowerCost =
+      level - 1 + dfs(value - Math.floor(power / x))
+    let answer = lowerCost
+
+    if (power - value < value) {
+      const upperCost = level + dfs(power - value)
+      answer = Math.min(answer, upperCost)
+    }
+
+    memo.set(value, answer)
+    return answer
+  }
+
+  return dfs(target)
+}`,
+      },
+      {
+        id: 'least-operators-to-express-number-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不是简单地把 target 转成 x 进制后逐位相加，因为相邻位之间可以通过借位改写，向上补齐往往比直接使用当前位更省运算符。递归时还必须处理 value 等于 x 和 value 小于 x 的情况。',
+        bullets: [
+          '易错点 1：把普通进制展开当成唯一最优表达式。',
+          '易错点 2：漏掉向上取幂后再减法的方案。',
+          '易错点 3：`value === x` 时错误返回 1 或继续递归。',
+          '延伸方向：记忆化搜索、最短表达式、进制借位与动态规划。',
+        ],
+      },
+    ],
+  },
 ];
