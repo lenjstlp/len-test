@@ -96898,6 +96898,12 @@ function flipEquiv(
       level += 1
     }
 
+    if (power === value) {
+      const exactCost = level - 1
+      memo.set(value, exactCost)
+      return exactCost
+    }
+
     const lowerCost =
       level - 1 + dfs(value - Math.floor(power / x))
     let answer = lowerCost
