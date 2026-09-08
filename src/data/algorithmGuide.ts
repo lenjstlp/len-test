@@ -97190,4 +97190,93 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'binary-tree-cameras',
+    label: '968. LeetCode 968. 二叉树摄像头',
+    difficulty: '困难',
+    description:
+      '在二叉树节点上安装尽可能少的摄像头，使每个节点都被监控。摄像头可以监控自身、父节点以及直接子节点。核心是后序遍历，根据子树状态贪心决定当前位置。',
+    outcome:
+      '你能把覆盖问题压缩成有限状态，并理解为什么优先覆盖子节点、延迟覆盖当前节点可以得到最少摄像头数量。',
+    sections: [
+      {
+        id: 'binary-tree-cameras-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，在部分节点安装摄像头。每个摄像头覆盖自己、父节点、左孩子和右孩子，要求所有节点都被覆盖，并使摄像头数量最少。',
+        bullets: [
+          '摄像头只能安装在树节点上。',
+          '叶子节点不能直接覆盖自己的父节点以外的更远节点。',
+          '所有节点最终都必须被监控。',
+          '目标是最少摄像头数量。',
+        ],
+      },
+      {
+        id: 'binary-tree-cameras-observe',
+        title: '子节点无摄像头时，父节点必须负责',
+        summary:
+          '从叶子向上处理。如果某个子节点没有被覆盖，当前位置必须安装摄像头；如果子节点有摄像头，当前位置已经被覆盖；只有当子树自身已覆盖但当前位置暂时未覆盖时，才把责任交给父节点。',
+        bullets: [
+          '状态 0：当前节点需要父节点放摄像头。',
+          '状态 1：当前节点安装了摄像头。',
+          '状态 2：当前节点已被子节点摄像头覆盖。',
+          '空节点视为已覆盖，避免在叶子下方安装摄像头。',
+        ],
+      },
+      {
+        id: 'binary-tree-cameras-solution',
+        title: '标准解法：后序遍历三状态贪心',
+        summary:
+          '先递归处理左右子树。只要任一子节点处于“需要覆盖”状态，就在当前节点安装摄像头；否则只要任一子节点有摄像头，当前节点就是已覆盖；其他情况返回需要父节点覆盖。根节点如果仍需要覆盖，最后补一个摄像头。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(h)`，来自递归栈。',
+          '摄像头数量在后序遍历中按局部最优累加。',
+          '根节点需要单独检查，因为它没有父节点。',
+        ],
+        code: `function minCameraCover(root: TreeNode | null): number {
+  let cameras = 0
+
+  // 0: needs coverage, 1: has camera, 2: covered.
+  const dfs = (node: TreeNode | null): 0 | 1 | 2 => {
+    if (node === null) {
+      return 2
+    }
+
+    const left = dfs(node.left)
+    const right = dfs(node.right)
+
+    if (left === 0 || right === 0) {
+      cameras += 1
+      return 1
+    }
+
+    if (left === 1 || right === 1) {
+      return 2
+    }
+
+    return 0
+  }
+
+  if (dfs(root) === 0) {
+    cameras += 1
+  }
+
+  return cameras
+}`,
+      },
+      {
+        id: 'binary-tree-cameras-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '不能从根节点向下决定摄像头位置，因为父节点是否需要摄像头取决于子树的覆盖情况。后序遍历能在做决定前拿到左右子树的完整状态。',
+        bullets: [
+          '易错点 1：把空节点当成需要覆盖，导致叶子上方重复安装。',
+          '易错点 2：忘记根节点可能需要最后补摄像头。',
+          '易错点 3：只记录是否有摄像头，丢失“需要父节点覆盖”状态。',
+          '延伸方向：树形贪心、状态机、最小覆盖问题。',
+        ],
+      },
+    ],
+  },
 ];
