@@ -97550,4 +97550,117 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'equal-rational-numbers',
+    label: '972. LeetCode 972. 相等的有理数',
+    difficulty: '困难',
+    description:
+      '判断两个可能包含循环小数的字符串是否表示同一个有理数。核心是把有限小数和循环小数都精确转换成最简分数，再比较分子和分母。',
+    outcome:
+      '你能理解循环小数的分数表示，掌握如何用 BigInt 避免浮点误差，并把字符串解析问题转成精确的有理数比较。',
+    sections: [
+      {
+        id: 'equal-rational-numbers-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个十进制字符串，字符串可能包含有限小数或括号表示的循环小数，例如 `0.5`、`0.(5)`、`0.1(6)`。判断它们是否表示相同的有理数。',
+        bullets: [
+          '括号中的数字会无限循环。',
+          '有限小数也属于有理数。',
+          '不能依赖 JavaScript 的浮点数直接比较。',
+          '结果只需要返回是否相等。',
+        ],
+      },
+      {
+        id: 'equal-rational-numbers-observe',
+        title: '循环小数可以直接写成分数',
+        summary:
+          '设非循环部分为 `A`，循环部分为 `B`。没有循环部分时，分母是 `10^len(A)`；有循环部分时，分母是 `10^len(A) * (10^len(B) - 1)`，再按位权拼出分子。',
+        bullets: [
+          '`0.5` 可以表示为 `5 / 10`。',
+          '`0.(5)` 可以表示为 `5 / 9`。',
+          '`0.1(6)` 可以表示为 `15 / 90`。',
+          '统一约分后比较分子和分母即可。',
+        ],
+      },
+      {
+        id: 'equal-rational-numbers-solution',
+        title: '标准解法：字符串解析为最简分数',
+        summary:
+          '先拆出整数部分、非循环小数部分和循环部分。根据是否存在循环部分构造分子和分母，再用最大公约数约分。两个分数约分后分子分母都相同，说明它们表示同一个数。',
+        bullets: [
+          '时间复杂度：`O(L)`，`L` 为两个字符串的总长度，忽略大整数运算成本。',
+          '空间复杂度：`O(1)`，只保存分子和分母。',
+          '使用 `BigInt` 保证长数字计算不丢精度。',
+          '比较前约分可以避免不同倍数的分数无法直接相等。',
+        ],
+        code: `type Fraction = {
+  numerator: bigint
+  denominator: bigint
+}
+
+function equalRationalNumbers(
+  left: string,
+  right: string,
+): boolean {
+  const gcd = (a: bigint, b: bigint): bigint => {
+    while (b !== 0n) {
+      ;[a, b] = [b, a % b]
+    }
+    return a
+  }
+
+  const parse = (value: string): Fraction => {
+    const [integerPart = '0', decimal = ''] = value.split('.')
+    const [nonRepeating = '', repeatingPart] = decimal.split('(')
+    const repeating = repeatingPart?.replace(')', '') ?? ''
+    const integer = BigInt(integerPart || '0')
+    const nonRepeatingValue = BigInt(nonRepeating || '0')
+
+    let numerator: bigint
+    let denominator: bigint
+
+    if (repeating.length === 0) {
+      denominator = 10n ** BigInt(nonRepeating.length)
+      numerator = integer * denominator + nonRepeatingValue
+    } else {
+      const scale = 10n ** BigInt(nonRepeating.length)
+      const cycle = 10n ** BigInt(repeating.length) - 1n
+      denominator = scale * cycle
+      numerator =
+        integer * denominator +
+        nonRepeatingValue * cycle +
+        BigInt(repeating)
+    }
+
+    const divisor = gcd(numerator, denominator)
+    return {
+      numerator: numerator / divisor,
+      denominator: denominator / divisor,
+    }
+  }
+
+  const leftFraction = parse(left)
+  const rightFraction = parse(right)
+
+  return (
+    leftFraction.numerator === rightFraction.numerator &&
+    leftFraction.denominator === rightFraction.denominator
+  )
+}`,
+      },
+      {
+        id: 'equal-rational-numbers-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '直接使用 `Number` 会把 `0.1(6)`、`0.1666...` 等值带入浮点误差；字符串比较也无法识别不同写法的同一个数。先建立精确的分数模型，问题就变成普通的有理数比较。',
+        bullets: [
+          '易错点 1：用 `parseFloat` 比较循环小数。',
+          '易错点 2：循环部分的分母忘记乘非循环部分的十次幂。',
+          '易错点 3：分数没有约分，导致等值分数比较失败。',
+          '延伸方向：循环小数、最大公约数、大整数与精确计算。',
+        ],
+      },
+    ],
+  },
 ];
