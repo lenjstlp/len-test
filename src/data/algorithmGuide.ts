@@ -97013,4 +97013,94 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'vowel-spellchecker',
+    label: '966. LeetCode 966. 元音拼写检查器',
+    difficulty: '中等',
+    description:
+      '根据查询单词和词典进行大小写不敏感、元音等价的模糊匹配。核心是按优先级建立精确匹配表、忽略大小写匹配表和元音归一化匹配表。',
+    outcome:
+      '你能把多规则匹配拆成分层索引，并理解为什么查询时必须严格按照题目规定的优先级返回结果。',
+    sections: [
+      {
+        id: 'vowel-spellchecker-summary',
+        title: '题目在问什么',
+        summary:
+          '给定词典 `wordlist` 和查询数组 `queries`。每个查询优先精确匹配，其次忽略大小写匹配，最后把所有元音替换为同一个占位符后匹配；都找不到时返回空字符串。',
+        bullets: [
+          '精确匹配区分大小写。',
+          '大小写匹配只保留词典中首次出现的单词。',
+          '元音匹配把 a、e、i、o、u 视为等价。',
+          '匹配优先级不能颠倒。',
+        ],
+      },
+      {
+        id: 'vowel-spellchecker-observe',
+        title: '不同规则要使用不同的索引',
+        summary:
+          '把词典预处理成三张表：原词到原词的精确表、小写词到首次原词的大小写表、元音归一化词到首次原词的元音表。查询时依次查表即可避免反复遍历词典。',
+        bullets: [
+          '精确表可以使用 `Set`。',
+          '后两张表使用 `Map<string, string>`。',
+          '只在表中不存在时写入，保留首次词典顺序。',
+          '元音归一化必须同时转小写。',
+        ],
+      },
+      {
+        id: 'vowel-spellchecker-solution',
+        title: '标准解法：三层哈希索引',
+        summary:
+          '先遍历词典建立三种匹配索引，再逐个查询。精确命中直接返回原查询；否则依次尝试小写键、元音归一化键，最后返回空字符串。',
+        bullets: [
+          '时间复杂度：`O(W + Q)`，忽略字符串长度时计；完整计算为线性字符复杂度。',
+          '空间复杂度：`O(W)`，保存词典索引。',
+          '使用 `Map` 保证返回词典中的原始拼写。',
+          '查询阶段不需要扫描词典。',
+        ],
+        code: `function spellchecker(
+  wordlist: string[],
+  queries: string[],
+): string[] {
+  const exact = new Set(wordlist)
+  const caseInsensitive = new Map<string, string>()
+  const vowelInsensitive = new Map<string, string>()
+  const normalizeVowels = (word: string) =>
+    word.toLowerCase().replace(/[aeiou]/g, '#')
+
+  for (const word of wordlist) {
+    const lower = word.toLowerCase()
+    if (!caseInsensitive.has(lower)) {
+      caseInsensitive.set(lower, word)
+    }
+
+    const vowelKey = normalizeVowels(word)
+    if (!vowelInsensitive.has(vowelKey)) {
+      vowelInsensitive.set(vowelKey, word)
+    }
+  }
+
+  return queries.map((query) => {
+    if (exact.has(query)) return query
+    return (
+      caseInsensitive.get(query.toLowerCase()) ??
+      vowelInsensitive.get(normalizeVowels(query)) ??
+      ''
+    )
+  })
+}`,
+      },
+      {
+        id: 'vowel-spellchecker-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '本题不是普通的模糊搜索。词典重复项和匹配优先级都会影响答案，因此索引写入时不能覆盖首次结果，查询时也不能把多种规则混成一次比较。',
+        bullets: [
+          '易错点 1：大小写匹配时返回了查询本身而不是词典单词。',
+          '易错点 2：元音替换前没有统一转小写。',
+          '易错点 3：重复键被后出现的词覆盖。',
+          '延伸方向：字符串归一化、多级索引、搜索优先级。',
+        ],
+      },
+    ],
+  },
 ];
