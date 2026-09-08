@@ -97279,4 +97279,94 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'pancake-sorting',
+    label: '969. LeetCode 969. 煎饼排序',
+    difficulty: '中等',
+    description:
+      '通过翻转数组前缀，把数组排序为升序。核心是从后往前确定当前位置的最大值，最多用两次前缀翻转把它放到当前未排序区间的末端。',
+    outcome:
+      '你能理解受限操作下的构造式贪心，并掌握如何用一次翻转把目标元素移到区间首部，再用第二次翻转固定到末尾。',
+    sections: [
+      {
+        id: 'pancake-sorting-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个由 `1` 到 `n` 组成的排列，每次可以选择一个前缀并将其整体翻转。返回一组翻转长度，使数组最终按升序排列。',
+        bullets: [
+          '一次操作只能翻转从下标 0 开始的前缀。',
+          '返回任意一组合法操作即可。',
+          '排列中每个数字只出现一次。',
+          '不要求操作次数最少。',
+        ],
+      },
+      {
+        id: 'pancake-sorting-observe',
+        title: '从后往前固定最大值',
+        summary:
+          '当处理长度为 `size` 的未排序前缀时，最大值应该放在下标 `size - 1`。如果它不在那里，先把它翻到前缀首部，再把整个未排序前缀翻转，就能把最大值固定到目标位置。',
+        bullets: [
+          '每轮处理一个更短的前缀。',
+          '目标值是当前前缀长度 `size`。',
+          '最大值已经在末尾时无需操作。',
+          '最多需要两次翻转。',
+        ],
+      },
+      {
+        id: 'pancake-sorting-solution',
+        title: '标准解法：两次翻转固定一位',
+        summary:
+          '从 `n` 递减到 2，找到当前前缀中的最大值。如果它不在前缀末尾，先翻转到它所在下标加一的位置，再翻转整个前缀。由于后续只操作更短前缀，已固定的末尾元素不会再被影响。',
+        bullets: [
+          '时间复杂度：`O(n²)`，每轮查找最大值并执行翻转。',
+          '空间复杂度：`O(1)`，不计返回操作数组。',
+          '翻转长度从 1 开始计数，不是下标。',
+          '已排序的后缀始终保持不变。',
+        ],
+        code: `function pancakeSort(arr: number[]): number[] {
+  const operations: number[] = []
+
+  const flip = (length: number) => {
+    for (let left = 0, right = length - 1; left < right; left += 1, right -= 1) {
+      ;[arr[left], arr[right]] = [arr[right], arr[left]]
+    }
+    operations.push(length)
+  }
+
+  for (let size = arr.length; size > 1; size -= 1) {
+    let maxIndex = 0
+
+    for (let index = 1; index < size; index += 1) {
+      if (arr[index] > arr[maxIndex]) {
+        maxIndex = index
+      }
+    }
+
+    if (maxIndex === size - 1) {
+      continue
+    }
+
+    if (maxIndex > 0) {
+      flip(maxIndex + 1)
+    }
+    flip(size)
+  }
+
+  return operations
+}`,
+      },
+      {
+        id: 'pancake-sorting-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '煎饼排序返回的是翻转长度序列，而不是排序后的数组。实现翻转时要确认右边界是 `length - 1`，并且不能在固定后缀中继续查找或操作。',
+        bullets: [
+          '易错点 1：把翻转下标当成翻转长度返回。',
+          '易错点 2：第二次翻转只翻到最大值位置，而不是整个未排序前缀。',
+          '易错点 3：最大值已在末尾时仍添加无效操作。',
+          '延伸方向：贪心构造、前缀操作、排序下界。',
+        ],
+      },
+    ],
+  },
 ];
