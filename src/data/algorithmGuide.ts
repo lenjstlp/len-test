@@ -97369,4 +97369,91 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'powerful-integers',
+    label: '970. LeetCode 970. 强整数',
+    difficulty: '中等',
+    description:
+      '给定 x、y 和 bound，找出所有形如 x^i + y^j 且不超过 bound 的不同结果。核心是枚举两个幂次并用集合去重，同时正确处理底数为 1 的情况。',
+    outcome:
+      '你能掌握有界幂次枚举、重复结果去重和边界终止条件，避免因底数为 1 导致的无限循环。',
+    sections: [
+      {
+        id: 'powerful-integers-summary',
+        title: '题目在问什么',
+        summary:
+          '给定非负整数 `x`、`y` 和上界 `bound`，返回所有满足 `x^i + y^j <= bound` 的不同整数，其中 `i`、`j` 都是非负整数。',
+        bullets: [
+          '幂次从 0 开始，因此 `x^0` 和 `y^0` 都是 1。',
+          '结果不能超过 `bound`。',
+          '不同幂次可能得到相同的结果。',
+          '返回顺序不限。',
+        ],
+      },
+      {
+        id: 'powerful-integers-observe',
+        title: '幂次只需要枚举到上界附近',
+        summary:
+          '因为幂次均为非负整数，随着幂次增加，底数大于 1 时会快速增长。一旦某个幂已经不小于 bound，继续增加幂次不会产生合法和；底数等于 1 时则只需保留一个幂值。',
+        bullets: [
+          '外层枚举 x 的幂，内层枚举 y 的幂。',
+          '每次组合前检查和是否超过 bound。',
+          '使用 `Set` 去除重复结果。',
+          '底数为 1 时必须主动终止幂次循环。',
+        ],
+      },
+      {
+        id: 'powerful-integers-solution',
+        title: '标准解法：双重幂次枚举',
+        summary:
+          '从幂值 1 开始，枚举 `x^i`。对每个 x 的幂，再从 1 开始枚举 `y^j`，将不超过上界的和加入集合。每轮乘以底数推进；若底数为 1，则只执行一次。',
+        bullets: [
+          '时间复杂度：`O(log bound * log bound)`，底数为 1 时对应循环退化为常数。',
+          '空间复杂度：`O(k)`，`k` 为不同结果数量。',
+          '用集合返回不同结果，不需要排序。',
+          '对 `x = 0` 或 `y = 0` 也可以自然处理。',
+        ],
+        code: `function powerfulIntegers(
+  x: number,
+  y: number,
+  bound: number,
+): number[] {
+  const result = new Set<number>()
+  let xPower = 1
+
+  while (xPower <= bound) {
+    let yPower = 1
+
+    while (xPower + yPower <= bound) {
+      result.add(xPower + yPower)
+
+      if (y === 1) {
+        break
+      }
+      yPower *= y
+    }
+
+    if (x === 1) {
+      break
+    }
+    xPower *= x
+  }
+
+  return [...result]
+}`,
+      },
+      {
+        id: 'powerful-integers-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最常见的问题是把幂次从 1 开始，漏掉指数为 0 的情况；另一个问题是底数为 1 时循环变量永远不变，必须显式跳出。',
+        bullets: [
+          '易错点 1：遗漏 `x^0 = 1` 或 `y^0 = 1`。',
+          '易错点 2：x 或 y 为 1 时出现死循环。',
+          '易错点 3：没有用集合去除重复结果。',
+          '延伸方向：幂次枚举、边界终止、哈希去重。',
+        ],
+      },
+    ],
+  },
 ];
