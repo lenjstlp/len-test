@@ -97456,4 +97456,98 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'reverse-nodes-in-k-group',
+    label: '971. LeetCode 971. 翻转二叉树以匹配先序遍历',
+    difficulty: '中等',
+    description:
+      '判断是否可以通过翻转子树使二叉树成为给定的先序遍历结果。核心是模拟先序遍历中“左子树先序 + 根节点 + 右子树先序”的结构，递归检查是否可能通过翻转左右子树匹配。',
+    outcome:
+      '你能把先序遍历匹配问题转化为递归状态转移，并理解为什么只有左右子树的翻转组合才能匹配全局先序。',
+    sections: [
+      {
+        id: 'reverse-nodes-in-k-group-summary',
+        title: '题目在问什么',
+        summary:
+          '给定二叉树和一组目标先序遍历，判断是否可以通过在节点上翻转子树使当前二叉树变成目标先序遍历。',
+        bullets: [
+          '翻转操作只在子树根节点执行。',
+          '目标先序是唯一的。',
+          '返回布尔值。',
+          '不要求最少翻转次数。',
+        ],
+      },
+      {
+        id: 'reverse-nodes-in-k-group-observe',
+        title: '先序结构是左子树先序 + 根 + 右子树先序',
+        summary:
+          '如果目标先序以当前根节点开头，那么目标左子树的先序必须是当前左子树的先序；否则必须是当前右子树的先序。递归检查左右子树是否能通过翻转匹配各自的子目标。',
+        bullets: [
+          '先序序列第一个元素是根。',
+          '左右子树先序是连续的。',
+          '翻转左右子树可以改变左右子树顺序。',
+          '目标先序必须严格匹配子树结构。',
+        ],
+      },
+      {
+        id: 'reverse-nodes-in-k-group-solution',
+        title: '标准解法：递归匹配先序',
+        summary:
+          '定义 `match(node, target)` 检查以当前节点为根的子树能否通过翻转匹配 `target` 数组的前缀。递归检查左子树能否匹配目标前半段，右子树能否匹配后半段；翻转左子树后尝试匹配右子树，翻转右子树后尝试匹配左子树。',
+        bullets: [
+          '时间复杂度：`O(n)`，每个节点最多尝试一次。',
+          '空间复杂度：`O(h)`，来自递归栈。',
+          '翻转操作在递归返回前执行。',
+          '空子树可以视为匹配空目标。',
+        ],
+        code: `function flipMatchVoyage(
+  root: TreeNode | null,
+  voyage: number[],
+): number[] {
+  const flips: number[] = []
+  let index = 0
+
+  const dfs = (node: TreeNode | null): boolean => {
+    if (node === null) {
+      return true
+    }
+
+    if (index >= voyage.length || node.val !== voyage[index]) {
+      return false
+    }
+    index += 1
+
+    if (
+      node.left !== null &&
+      index < voyage.length &&
+      node.left.val !== voyage[index]
+    ) {
+      if (node.right === null || node.right.val !== voyage[index]) {
+        return false
+      }
+
+      flips.push(node.val)
+      ;[node.left, node.right] = [node.right, node.left]
+    }
+
+    return dfs(node.left) && dfs(node.right)
+  }
+
+  return dfs(root) && index === voyage.length ? flips : [-1]
+}`,
+      },
+      {
+        id: 'reverse-nodes-in-k-group-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的关键是先序遍历的结构性质：左子树先序必须连续在根节点前，右子树先序必须连续在根节点后。递归时需要尝试翻转左右子树两种组合，以匹配可能的子目标。',
+        bullets: [
+          '易错点 1：只检查左子树先序是否匹配当前左子树。',
+          '易错点 2：没有尝试翻转左右子树的组合。',
+          '易错点 3：返回 false 后仍继续递归其他子树。',
+          '延伸方向：先序遍历、树翻转、递归匹配。',
+        ],
+      },
+    ],
+  },
 ];
