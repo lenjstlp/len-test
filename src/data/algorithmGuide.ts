@@ -97103,4 +97103,91 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'numbers-with-same-consecutive-differences',
+    label: '967. LeetCode 967. 连续差相同的数字',
+    difficulty: '中等',
+    description:
+      '找出所有长度为 n 且相邻数字差的绝对值为 k 的正整数。核心是从首位数字开始 DFS，每次尝试合法的下一位，并避免首位为 0。',
+    outcome:
+      '你能将数字构造问题建模为有限状态搜索，掌握位数、首位限制和重复结果处理。',
+    sections: [
+      {
+        id: 'numbers-with-same-consecutive-differences-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `n` 和 `k`，返回所有长度为 `n` 的整数，使得相邻两位数字的绝对差都等于 `k`。结果顺序不限。',
+        bullets: [
+          '数字必须恰好有 n 位。',
+          '最高位不能为 0。',
+          '每两个相邻数字的绝对差为 k。',
+          '当 `k = 0` 时，每一步只有一个不同的选择。',
+        ],
+      },
+      {
+        id: 'numbers-with-same-consecutive-differences-observe',
+        title: '每次只需根据上一位生成下一位',
+        summary:
+          '构造到某一位时，下一位只能是 `last + k` 或 `last - k`，并且必须落在 0 到 9 之间。状态只由当前已经构造的数字和最后一位决定，不需要回溯修改之前的位。',
+        bullets: [
+          '首位从 1 到 9 枚举。',
+          '后续位尝试加 k 和减 k。',
+          '相同的两个分支只保留一次。',
+          '达到长度 n 后收集结果。',
+        ],
+      },
+      {
+        id: 'numbers-with-same-consecutive-differences-solution',
+        title: '标准解法：DFS 构造每一位',
+        summary:
+          '先枚举所有非零首位，然后递归生成后续位。递归深度达到 n 时把当前数字加入结果；每一步用集合去重，处理 `k = 0` 的重复分支。',
+        bullets: [
+          '时间复杂度：`O(9 * 2^n)` 的上界，实际受数字位范围限制。',
+          '空间复杂度：`O(n)` 递归栈，另加结果空间。',
+          '数字可以使用字符串或整数拼接。',
+          '去重重点是同一层的候选下一位，而不是全局搜索状态。',
+        ],
+        code: `function numsSameConsecDiff(
+  n: number,
+  k: number,
+): number[] {
+  const result: number[] = []
+
+  const build = (value: number, length: number) => {
+    if (length === n) {
+      result.push(value)
+      return
+    }
+
+    const last = value % 10
+    const nextDigits = new Set([last + k, last - k])
+
+    for (const digit of nextDigits) {
+      if (digit >= 0 && digit <= 9) {
+        build(value * 10 + digit, length + 1)
+      }
+    }
+  }
+
+  for (let first = 1; first <= 9; first += 1) {
+    build(first, 1)
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'numbers-with-same-consecutive-differences-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的“正整数”约束只限制最高位，后续位可以是 0。若把所有位置都限制为非零，会漏掉大量合法答案；另外 k 为 0 时必须去重。',
+        bullets: [
+          '易错点 1：首位允许为 0，导致结果不是 n 位数。',
+          '易错点 2：后续位禁止为 0，遗漏合法数字。',
+          '易错点 3：k 为 0 时重复递归同一个分支。',
+          '延伸方向：DFS、状态空间搜索、数字构造。',
+        ],
+      },
+    ],
+  },
 ];
