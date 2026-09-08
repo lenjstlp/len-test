@@ -96934,4 +96934,83 @@ function flipEquiv(
       },
     ],
   },
+  {
+    id: 'univalued-binary-tree',
+    label: '965. LeetCode 965. 单值二叉树',
+    difficulty: '简单',
+    description:
+      '判断一棵二叉树中的所有节点是否都具有相同的值。核心是确定一个基准值，再遍历整棵树检查每个节点。',
+    outcome:
+      '你能把“整棵树满足同一条件”的问题转化为遍历中的不变量，并正确处理空树、叶子节点和提前结束。',
+    sections: [
+      {
+        id: 'univalued-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定二叉树根节点 `root`，如果树中每个节点的值都和根节点相同，则返回 `true`，否则返回 `false`。',
+        bullets: [
+          '树中所有节点必须值相等。',
+          '空树可以视为满足条件。',
+          '节点值只需要和根节点比较。',
+          '发现不一致后可以立即结束遍历。',
+        ],
+      },
+      {
+        id: 'univalued-binary-tree-observe',
+        title: '根节点就是整棵树的比较基准',
+        summary:
+          '如果所有节点都相等，那么它们一定都等于根节点。因此不需要统计频次，也不需要比较任意两节点，只要在遍历时检查当前值是否等于根值。',
+        bullets: [
+          '先保存 `root.val` 作为目标值。',
+          '每个非空节点只检查一次。',
+          '左右子树可以使用同一条判断规则。',
+          '条件一旦失败就不必继续访问其他节点。',
+        ],
+      },
+      {
+        id: 'univalued-binary-tree-solution',
+        title: '标准解法：深度优先遍历',
+        summary:
+          '从根节点开始 DFS。遇到空节点返回 `true`，遇到值不同的节点返回 `false`，否则继续检查左右子树。左右子树都通过时，整棵树才是单值树。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：递归写法为 `O(h)`，`h` 为树高。',
+          '空树和叶子节点都能自然处理。',
+          '短路逻辑可以减少无效遍历。',
+        ],
+        code: `function isUnivalTree(root: TreeNode | null): boolean {
+  if (root === null) {
+    return true
+  }
+
+  const value = root.val
+  const check = (node: TreeNode | null): boolean => {
+    if (node === null) {
+      return true
+    }
+
+    if (node.val !== value) {
+      return false
+    }
+
+    return check(node.left) && check(node.right)
+  }
+
+  return check(root)
+}`,
+      },
+      {
+        id: 'univalued-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的关键不是遍历方式，而是比较基准和空节点的处理。使用第一个节点作为基准也可以，但根节点更直接，且不需要额外寻找初始值。',
+        bullets: [
+          '易错点 1：只比较每个节点和父节点，代码复杂且容易漏判。',
+          '易错点 2：把空节点当成不满足条件。',
+          '易错点 3：发现失败后仍继续无意义遍历。',
+          '延伸方向：树遍历、递归不变量、短路求值。',
+        ],
+      },
+    ],
+  },
 ];
