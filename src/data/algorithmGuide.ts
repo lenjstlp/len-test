@@ -97953,4 +97953,84 @@ function equalRationalNumbers(
       },
     ],
   },
+  {
+    id: 'largest-perimeter-triangle',
+    label: '976. LeetCode 976. 三角形的最大周长',
+    difficulty: '简单',
+    description:
+      '从给定的线段长度中选出三条，组成周长最大的三角形。关键是排序后利用相邻边的性质，把所有组合的尝试压缩成一次线性扫描。',
+    outcome:
+      '你能掌握三角形成立的必要充分条件，理解排序如何把组合搜索转成贪心选择，并能识别“最大目标加局部可验证条件”的题型。',
+    sections: [
+      {
+        id: 'largest-perimeter-triangle-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个非负整数数组 `nums`，每个元素代表一条线段的长度。选择其中三条线段，判断它们能否组成三角形，并返回所有可行选择中的最大周长；如果无法组成三角形，返回 `0`。',
+        bullets: [
+          '每条线段最多使用一次。',
+          '三角形需要满足任意两边之和大于第三边。',
+          '周长越大，答案越优。',
+          '不需要返回具体选中的三条边。',
+        ],
+      },
+      {
+        id: 'largest-perimeter-triangle-greedy',
+        title: '为什么只检查排序后的相邻三条',
+        summary:
+          '将数组升序排序后，设连续三条边为 `a <= b <= c`。此时只需要检查 `a + b > c`，因为 `a + c > b` 和 `b + c > a` 自动成立。若当前最大的三条不能成三角形，替换其中更小的边只会让条件更难满足。',
+        bullets: [
+          '排序后最大周长候选一定优先由较大的边组成。',
+          '对有序边只需检查最小两边之和是否大于最大边。',
+          '从后向前扫描，第一次满足条件的组合就是最大周长。',
+          '失败后向前移动，得到的周长一定不超过当前候选。',
+        ],
+      },
+      {
+        id: 'largest-perimeter-triangle-solution',
+        title: '标准解法：排序后贪心扫描',
+        summary:
+          '先复制并升序排序数组，从最大下标开始检查连续的三条边。找到第一组满足三角形不等式的边后，直接返回三边之和。',
+        bullets: [
+          '时间复杂度：`O(n log n)`，主要成本来自排序。',
+          '空间复杂度：`O(n)`，用于避免修改输入数组。',
+          '严格使用 `>`，不能把退化三角形 `a + b === c` 算进去。',
+          '如果扫描结束仍未找到可行组合，返回 `0`。',
+        ],
+        code: `function largestPerimeter(nums: number[]): number {
+  const sorted = [...nums].sort(
+    (left, right) => left - right,
+  )
+
+  for (
+    let index = sorted.length - 1;
+    index >= 2;
+    index -= 1
+  ) {
+    const first = sorted[index - 2]
+    const second = sorted[index - 1]
+    const third = sorted[index]
+
+    if (first + second > third) {
+      return first + second + third
+    }
+  }
+
+  return 0
+}`,
+      },
+      {
+        id: 'largest-perimeter-triangle-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这道题不需要三重循环枚举所有三条边。排序后从大到小检查相邻元素，既能保证周长候选尽可能大，也能用一个条件判断三角形是否合法。',
+        bullets: [
+          '易错点 1：使用 `>=`，把三条共线的线段误判为三角形。',
+          '易错点 2：排序比较器写成默认排序，导致数字按字符串顺序排列。',
+          '易错点 3：直接修改输入数组，给调用方造成隐式副作用。',
+          '延伸方向：排序贪心、区间可行性和组合搜索剪枝。',
+        ],
+      },
+    ],
+  },
 ];
