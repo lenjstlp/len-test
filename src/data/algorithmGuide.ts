@@ -98277,4 +98277,123 @@ function distributeCoins(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'unique-paths-iii',
+    label: '980. LeetCode 980. 不同路径 III',
+    difficulty: '困难',
+    description:
+      '在网格中从起点走到终点，要求恰好访问所有非障碍格子一次。通过回溯搜索枚举路径，并用访问标记保证每个格子只使用一次。',
+    outcome:
+      '你能掌握带有“必须覆盖全部节点”约束的网格回溯，理解状态包含当前位置和剩余步数，并能正确处理起点、终点和障碍物。',
+    sections: [
+      {
+        id: 'unique-paths-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个二维网格，其中 `1` 是起点，`2` 是终点，`0` 是可以经过的空格，`-1` 是障碍物。要求从起点走到终点，并且每个非障碍格子恰好访问一次，返回这样的路径数量。',
+        bullets: [
+          '每次只能向上、下、左、右移动。',
+          '不能走出网格，也不能进入障碍物。',
+          '起点和终点都属于必须访问的非障碍格子。',
+          '提前到达终点但仍有未访问格子时，不算有效路径。',
+        ],
+      },
+      {
+        id: 'unique-paths-iii-backtracking',
+        title: '回溯状态必须包含剩余格子数',
+        summary:
+          '从起点开始搜索，每进入一个可访问格子，就把剩余待访问格子数量减一。到达终点时，只有剩余数量为 `0` 才能计为一条完整路径，否则说明还有格子没有覆盖。',
+        bullets: [
+          '进入格子时标记为已访问，返回时恢复为空闲状态。',
+          '终点只能作为搜索的最后一步使用。',
+          '四个方向都尝试后，将当前格子的访问状态撤销。',
+          '路径数量是所有合法分支的总和，不是找到一条就停止。',
+        ],
+      },
+      {
+        id: 'unique-paths-iii-solution',
+        title: '标准解法：网格回溯',
+        summary:
+          '先统计非障碍格子的数量并找到起点，然后从起点开始 DFS。每次尝试四个方向，使用 `-1` 临时标记已访问格子，递归返回后恢复原值。',
+        bullets: [
+          '时间复杂度：最坏约为 `O(4^m)`，`m` 为非障碍格子数量。',
+          '空间复杂度：`O(m)`，来自递归栈和原地访问标记。',
+          '终点判断必须同时检查剩余格子数量。',
+          '使用边界判断统一过滤越界、障碍和已访问格子。',
+        ],
+        code: `function uniquePathsIII(grid: number[][]): number {
+  const rows = grid.length
+  const columns = grid[0].length
+  let startRow = 0
+  let startColumn = 0
+  let remaining = 0
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      if (grid[row][column] !== -1) {
+        remaining += 1
+      }
+      if (grid[row][column] === 1) {
+        startRow = row
+        startColumn = column
+      }
+    }
+  }
+
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+
+  const search = (
+    row: number,
+    column: number,
+    left: number,
+  ): number => {
+    if (grid[row][column] === 2) {
+      return left === 1 ? 1 : 0
+    }
+
+    const original = grid[row][column]
+    grid[row][column] = -1
+    let paths = 0
+
+    for (const [rowOffset, columnOffset] of directions) {
+      const nextRow = row + rowOffset
+      const nextColumn = column + columnOffset
+
+      if (
+        nextRow >= 0 &&
+        nextRow < rows &&
+        nextColumn >= 0 &&
+        nextColumn < columns &&
+        grid[nextRow][nextColumn] !== -1
+      ) {
+        paths += search(nextRow, nextColumn, left - 1)
+      }
+    }
+
+    grid[row][column] = original
+    return paths
+  }
+
+  return search(startRow, startColumn, remaining)
+}`,
+      },
+      {
+        id: 'unique-paths-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不是普通的从起点到终点寻路，而是要求覆盖全部可用格子。因此只记录当前位置是不够的，必须把访问状态或剩余格子数量纳入搜索状态。',
+        bullets: [
+          '易错点 1：到达终点就计数，忽略还有未访问格子。',
+          '易错点 2：标记访问后不撤销，导致其他路径无法复用格子。',
+          '易错点 3：把障碍物也计入必须访问的格子数量。',
+          '延伸方向：回溯、状态压缩、哈密顿路径和网格搜索。',
+        ],
+      },
+    ],
+  },
 ];
