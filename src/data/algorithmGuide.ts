@@ -98033,4 +98033,84 @@ function equalRationalNumbers(
       },
     ],
   },
+  {
+    id: 'squares-of-a-sorted-array',
+    label: '977. LeetCode 977. 有序数组的平方',
+    difficulty: '简单',
+    description:
+      '给定一个非递减排列的整数数组，将每个元素平方后仍按非递减顺序返回。利用原数组有序这一条件，可以用双指针在线性时间内完成。',
+    outcome:
+      '你能理解负数平方后会改变相对顺序，掌握从两端比较绝对值的双指针技巧，并学会用结果数组的末尾位置接收当前最大值。',
+    sections: [
+      {
+        id: 'squares-of-a-sorted-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个已经按非递减顺序排列的整数数组 `nums`，返回每个元素平方后的新数组，结果也必须按非递减顺序排列。',
+        bullets: [
+          '原数组可能同时包含负数、零和正数。',
+          '平方会让负数变成正数，原顺序不再直接适用。',
+          '返回结果需要保留所有元素，不能去重。',
+          '结果数组应尽量避免不必要的重复排序。',
+        ],
+      },
+      {
+        id: 'squares-of-a-sorted-array-two-pointers',
+        title: '最大平方值只会出现在两端',
+        summary:
+          '因为原数组已经有序，绝对值最大的元素只可能位于左端或右端。比较两端的绝对值，把更大的平方放到结果数组的最后，再向中间收缩指针。',
+        bullets: [
+          '左指针指向最小值，右指针指向最大值。',
+          '每轮确定当前未填位置中的最大平方值。',
+          '从结果数组末尾向前填充，避免再次反转。',
+          '两个指针相遇时，所有位置都已经处理完成。',
+        ],
+      },
+      {
+        id: 'squares-of-a-sorted-array-solution',
+        title: '标准解法：双指针从后向前填充',
+        summary:
+          '创建与输入等长的结果数组。每次比较 `Math.abs(nums[left])` 和 `Math.abs(nums[right])`，把更大者的平方写入结果末尾。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`，用于返回新数组。',
+          '比较绝对值即可，不需要先分别处理负数和正数。',
+          '使用 `while (left <= right)` 确保中间元素不会漏掉。',
+        ],
+        code: `function sortedSquares(nums: number[]): number[] {
+  const result = Array(nums.length)
+  let left = 0
+  let right = nums.length - 1
+
+  for (
+    let position = nums.length - 1;
+    position >= 0;
+    position -= 1
+  ) {
+    if (Math.abs(nums[left]) > Math.abs(nums[right])) {
+      result[position] = nums[left] ** 2
+      left += 1
+    } else {
+      result[position] = nums[right] ** 2
+      right -= 1
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'squares-of-a-sorted-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '如果直接对平方结果排序，虽然能得到正确答案，但没有利用输入有序条件。双指针的关键是反向构造：先确定最大的结果，再逐步填到前面。',
+        bullets: [
+          '易错点 1：只从左到右平方，误以为结果仍然有序。',
+          '易错点 2：结果从前往后填，无法直接确定较小值。',
+          '易错点 3：左右指针移动方向错误，造成重复或遗漏。',
+          '延伸方向：双指针、归并思想和有序数组变换。',
+        ],
+      },
+    ],
+  },
 ];
