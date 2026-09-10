@@ -98396,4 +98396,113 @@ function distributeCoins(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'time-based-key-value-store',
+    label: '981. LeetCode 981. 基于时间的键值存储',
+    difficulty: '中等',
+    description:
+      '设计一个支持按时间写入和查询的键值存储：同一个键可以在不同时间保存多个值，查询时返回不晚于指定时间戳的最新值。核心是为每个键维护按时间排序的记录，并使用二分查找定位答案。',
+    outcome:
+      '你能掌握“一个键对应多个有序版本”的数据结构设计，理解上界二分查找，并能将时间版本查询迁移到缓存、配置和事件流场景。',
+    sections: [
+      {
+        id: 'time-based-key-value-store-summary',
+        title: '题目在问什么',
+        summary:
+          '实现一个时间键值存储，提供 `set(key, value, timestamp)` 和 `get(key, timestamp)` 两个操作。`set` 保存键在某个时间的值；`get` 返回该键在指定时间之前或恰好该时间保存的最新值，如果不存在则返回空字符串。',
+        bullets: [
+          '同一个键可以对应多个时间戳和值。',
+          '查询必须满足 `record.timestamp <= timestamp`。',
+          '如果有多个符合条件的记录，选择时间戳最大的记录。',
+          '题目保证同一个键的写入时间戳严格递增，因此记录天然有序。',
+        ],
+      },
+      {
+        id: 'time-based-key-value-store-model',
+        title: '数据结构：每个键维护一条时间线',
+        summary:
+          '使用 `Map<string, Record[]>` 保存数据。每个键对应一个按时间戳递增排列的数组，写入时追加记录，查询时只需在这条时间线上找到最后一个不超过目标时间的记录。',
+        bullets: [
+          'Map 负责根据键快速找到对应的时间线。',
+          '数组负责保存同一个键的多个历史版本。',
+          '写入操作是追加，时间复杂度为 `O(1)`。',
+          '查询不能只取最后一条记录，因为目标时间可能早于最新写入时间。',
+        ],
+      },
+      {
+        id: 'time-based-key-value-store-binary-search',
+        title: '查询本质是找“最后一个不超过目标值”',
+        summary:
+          '在时间戳数组中寻找最大的下标 `index`，使得 `timestamps[index] <= target`。这就是上界二分查找的变体：当当前时间戳满足条件时记录答案并继续向右，否则收缩右边界。',
+        bullets: [
+          '记录 `answer = -1` 表示目前没有符合条件的版本。',
+          '条件满足时不能立即返回，因为右侧可能还有更新的合法版本。',
+          '循环结束后，`answer` 就是最后一个合法记录的位置。',
+          '由于每个键的记录已经有序，不需要在查询时重新排序。',
+        ],
+      },
+      {
+        id: 'time-based-key-value-store-solution',
+        title: '标准解法：Map 加二分查找',
+        summary:
+          '将同一个键的所有版本保存在数组中。设置值时直接追加；获取值时对该数组按时间戳做二分查找，找到最后一个不超过目标时间的记录。',
+        bullets: [
+          '设置操作时间复杂度：`O(1)`。',
+          '获取操作时间复杂度：`O(log m)`，`m` 为该键的版本数量。',
+          '空间复杂度：`O(n)`，`n` 为全部写入记录数量。',
+          '查询不存在的键或没有更早版本时返回空字符串。',
+        ],
+        code: `type Version = {
+  value: string
+  timestamp: number
+}
+
+class TimeMap {
+  private readonly records = new Map<string, Version[]>()
+
+  set(key: string, value: string, timestamp: number): void {
+    const versions = this.records.get(key) ?? []
+    versions.push({ value, timestamp })
+    this.records.set(key, versions)
+  }
+
+  get(key: string, timestamp: number): string {
+    const versions = this.records.get(key)
+    if (versions === undefined) {
+      return ''
+    }
+
+    let left = 0
+    let right = versions.length - 1
+    let answer = -1
+
+    while (left <= right) {
+      const middle = left + Math.floor((right - left) / 2)
+
+      if (versions[middle].timestamp <= timestamp) {
+        answer = middle
+        left = middle + 1
+      } else {
+        right = middle - 1
+      }
+    }
+
+    return answer === -1 ? '' : versions[answer].value
+  }
+}`,
+      },
+      {
+        id: 'time-based-key-value-store-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的重点是查询边界：不是找第一个大于目标时间的版本，而是找它前面的最后一个合法版本。把这个边界定义清楚，二分查找就不容易写错。',
+        bullets: [
+          '易错点 1：直接返回最后一次写入的值，忽略时间条件。',
+          '易错点 2：使用严格小于，漏掉时间戳刚好相等的版本。',
+          '易错点 3：找到合法版本后立即返回，错过右侧更晚的合法版本。',
+          '延伸方向：版本化缓存、事件溯源、快照查询和上界二分。',
+        ],
+      },
+    ],
+  },
 ];
