@@ -98194,4 +98194,87 @@ function equalRationalNumbers(
       },
     ],
   },
+  {
+    id: 'distribute-coins-in-binary-tree',
+    label: '979. LeetCode 979. 在二叉树中分配硬币',
+    difficulty: '中等',
+    description:
+      '二叉树的每个节点上放有若干硬币，整棵树硬币总数等于节点总数。每次可以把一枚硬币沿一条边移动，求让每个节点最终恰好有一枚硬币所需的最少移动次数。',
+    outcome:
+      '你能理解树形问题中的后序遍历和子树净需求，掌握如何把局部供需汇总成全局最优移动次数。',
+    sections: [
+      {
+        id: 'distribute-coins-in-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，节点值表示该节点拥有的硬币数量。一次移动可以把一枚硬币从节点移动到相邻节点，目标是让每个节点恰好拥有一枚硬币，并返回最少移动次数。',
+        bullets: [
+          '每次移动只跨越一条树边。',
+          '整棵树的硬币总数等于节点总数，因此一定存在可行分配。',
+          '节点可能有多余硬币，也可能缺少硬币。',
+          '移动次数按经过的边数累计。',
+        ],
+      },
+      {
+        id: 'distribute-coins-in-binary-tree-balance',
+        title: '子树只需要向父节点报告净余额',
+        summary:
+          '对任意子树，定义净余额为“子树硬币数减去节点数”。净余额为正表示需要向父节点送出硬币，为负表示需要从父节点接收硬币。无论余额方向如何，跨过当前节点边界的移动次数至少是其绝对值。',
+        bullets: [
+          '子树内部先完成分配，再处理与父节点之间的流动。',
+          '左子树和右子树的净余额都必须经过当前节点汇总。',
+          '当前节点的净余额等于自身余额加左右子树余额。',
+          '树的总净余额最终应为 `0`。',
+        ],
+      },
+      {
+        id: 'distribute-coins-in-binary-tree-solution',
+        title: '标准解法：后序遍历统计流量',
+        summary:
+          '后序遍历先处理左右子树。每条子树边产生的移动量分别是左右净余额的绝对值，把它们累加到答案；然后向父节点返回当前子树的净余额。',
+        bullets: [
+          '时间复杂度：`O(n)`，每个节点只访问一次。',
+          '空间复杂度：`O(h)`，来自递归栈，`h` 为树高。',
+          '答案使用闭包变量累加，不需要反复合并路径。',
+          '返回值是净余额，不是移动次数。',
+        ],
+        code: `type TreeNode = {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+}
+
+function distributeCoins(root: TreeNode | null): number {
+  let moves = 0
+
+  const balance = (node: TreeNode | null): number => {
+    if (node === null) {
+      return 0
+    }
+
+    const leftBalance = balance(node.left)
+    const rightBalance = balance(node.right)
+    moves += Math.abs(leftBalance) + Math.abs(rightBalance)
+
+    return node.val + leftBalance + rightBalance - 1
+  }
+
+  balance(root)
+  return moves
+}`,
+      },
+      {
+        id: 'distribute-coins-in-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易混淆的是“返回给父节点的净余额”和“当前已经产生的移动次数”。前者描述供需，后者描述边上的流量，两者是不同的状态。',
+        bullets: [
+          '易错点 1：只统计缺硬币的节点，忽略多余硬币向外移动也需要计步。',
+          '易错点 2：先序遍历时过早决定父节点，无法拿到完整子树余额。',
+          '易错点 3：返回 `moves` 而不是返回子树净余额。',
+          '延伸方向：树形 DP、后序遍历、流量守恒和贪心最优性。',
+        ],
+      },
+    ],
+  },
 ];
