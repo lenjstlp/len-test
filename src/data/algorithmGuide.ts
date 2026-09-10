@@ -97751,4 +97751,81 @@ function equalRationalNumbers(
       },
     ],
   },
+  {
+    id: 'subarray-sums-divisible-by-k',
+    label: '974. LeetCode 974. 和可被 K 整除的子数组',
+    difficulty: '中等',
+    description:
+      '统计整数数组中和能被 K 整除的连续子数组数量。核心是利用前缀和同余关系，把区间和问题转成相同余数前缀的配对问题。',
+    outcome:
+      '你能掌握前缀和与哈希计数的组合用法，理解负数取模的规范化处理，并能识别“区间和满足整除条件”的通用模型。',
+    sections: [
+      {
+        id: 'subarray-sums-divisible-by-k-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums` 和正整数 `k`，统计和能被 `k` 整除的连续非空子数组数量。子数组必须连续，但不同起点或终点形成的区间要分别计数。',
+        bullets: [
+          '区间必须连续，不能把任意元素拼在一起。',
+          '长度为 1 的子数组也需要统计。',
+          '数组中可能包含负数。',
+          '答案可能很大，JavaScript 中应使用 `number` 保存计数即可应对题目范围。',
+        ],
+      },
+      {
+        id: 'subarray-sums-divisible-by-k-prefix',
+        title: '把区间整除转成前缀余数',
+        summary:
+          '设前缀和为 `prefix[i]`，区间 `[j + 1, i]` 的和等于 `prefix[i] - prefix[j]`。当两个前缀和除以 `k` 的余数相同时，它们的差就能被 `k` 整除。',
+        bullets: [
+          '每遇到一个余数，就能和之前相同余数的前缀形成有效区间。',
+          '余数 `0` 的前缀需要预先计数一次，代表从数组开头开始的区间。',
+          '负数取模可能得到负数，需要规范化为 `((sum % k) + k) % k`。',
+          '哈希表保存的是每种余数出现过多少次，而不是最后一个下标。',
+        ],
+      },
+      {
+        id: 'subarray-sums-divisible-by-k-solution',
+        title: '标准解法：前缀余数计数',
+        summary:
+          '从左到右维护前缀和的余数。当前余数之前出现过 `count` 次，就新增 `count` 个满足条件的子数组，然后把当前余数的出现次数加一。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(k)`，哈希表最多记录 `k` 种余数。',
+          '先查询再累加，避免当前前缀和与自己配对。',
+          '余数规范化是处理负数的关键。',
+        ],
+        code: `function subarraysDivByK(
+  nums: number[],
+  k: number,
+): number {
+  const remainderCount = new Map<number, number>([[0, 1]])
+  let prefixRemainder = 0
+  let answer = 0
+
+  for (const value of nums) {
+    prefixRemainder =
+      ((prefixRemainder + value) % k + k) % k
+    const count = remainderCount.get(prefixRemainder) ?? 0
+    answer += count
+    remainderCount.set(prefixRemainder, count + 1)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'subarray-sums-divisible-by-k-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这道题表面上要求枚举连续区间，实际上只需要关注前缀和的余数类别。掌握这种“相同状态可以配对”的思路后，还能迁移到和为 K、二进制数组计数等问题。',
+        bullets: [
+          '易错点 1：只用正数思路处理取模，忽略负数余数。',
+          '易错点 2：把余数最后一次出现的位置保存成单个下标，漏掉组合数量。',
+          '易错点 3：忘记初始化余数 `0` 的计数，漏算从数组开头开始的区间。',
+          '延伸方向：前缀和、同余、哈希计数和连续区间统计。',
+        ],
+      },
+    ],
+  },
 ];
