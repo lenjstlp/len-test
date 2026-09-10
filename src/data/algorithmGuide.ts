@@ -98113,4 +98113,85 @@ function equalRationalNumbers(
       },
     ],
   },
+  {
+    id: 'longest-turbulent-subarray',
+    label: '978. LeetCode 978. 最长湍流子数组',
+    difficulty: '中等',
+    description:
+      '寻找一个子数组，使相邻元素的大小关系严格交替变化。通过维护“当前结尾的上升长度”和“当前结尾的下降长度”，可以在线性时间内完成扫描。',
+    outcome:
+      '你能掌握用两个状态表示交替序列，理解连续子数组问题中的状态重置，并能将“关系交替”转化为简单的动态规划。',
+    sections: [
+      {
+        id: 'longest-turbulent-subarray-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `arr`，找出最长的湍流子数组。对于子数组中的任意相邻三项，比较符号必须交替：一次上升后下一次下降，或者一次下降后下一次上升。',
+        bullets: [
+          '子数组必须连续。',
+          '相邻元素不能相等，否则无法形成严格交替。',
+          '长度为 `1` 的子数组始终是合法答案。',
+          '只要求返回最大长度，不需要返回具体区间。',
+        ],
+      },
+      {
+        id: 'longest-turbulent-subarray-state',
+        title: '用上升和下降两个状态记录后缀',
+        summary:
+          '遍历到 `arr[i]` 时，`up` 表示以当前位置结尾且最后一步上升的最长长度，`down` 表示最后一步下降的最长长度。如果当前值比前一个大，则 `up = down + 1`；如果变小，则 `down = up + 1`；相等时两个状态都重置为 `1`。',
+        bullets: [
+          '上升之后只能接下降，下降之后只能接上升。',
+          '状态保存的是以当前位置结尾的最长合法后缀。',
+          '遇到相等元素，交替关系被打断。',
+          '只需保留前一个位置的状态，不需要完整 DP 数组。',
+        ],
+      },
+      {
+        id: 'longest-turbulent-subarray-solution',
+        title: '标准解法：滚动状态动态规划',
+        summary:
+          '将 `up` 和 `down` 初始化为 `1`，从第二个元素开始更新，并在每轮用两者的最大值刷新答案。状态转移只依赖前一轮，因此可以压缩空间。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '出现相等元素时必须同时把两个状态重置为 `1`。',
+          '更新答案时取 `up`、`down` 和当前答案的最大值。',
+        ],
+        code: `function maxTurbulenceSize(arr: number[]): number {
+  let up = 1
+  let down = 1
+  let answer = 1
+
+  for (let index = 1; index < arr.length; index += 1) {
+    if (arr[index] > arr[index - 1]) {
+      up = down + 1
+      down = 1
+    } else if (arr[index] < arr[index - 1]) {
+      down = up + 1
+      up = 1
+    } else {
+      up = 1
+      down = 1
+    }
+
+    answer = Math.max(answer, up, down)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'longest-turbulent-subarray-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这道题容易把“连续交替”误写成全局序列判断。正确状态只关心当前结尾的合法后缀；一旦关系不符合要求，就从当前位置重新开始计算。',
+        bullets: [
+          '易错点 1：遇到相等元素后只重置一个状态。',
+          '易错点 2：上升时把 `up` 更新为 `up + 1`，没有接在下降状态后面。',
+          '易错点 3：只统计最长上升或下降区间，漏掉交替关系。',
+          '延伸方向：滚动 DP、连续子数组和有限状态机。',
+        ],
+      },
+    ],
+  },
 ];
