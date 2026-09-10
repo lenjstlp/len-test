@@ -97828,4 +97828,129 @@ function equalRationalNumbers(
       },
     ],
   },
+  {
+    id: 'odd-even-jump',
+    label: '975. LeetCode 975. 奇偶跳',
+    difficulty: '困难',
+    description:
+      '从数组某个位置出发，按照奇跳和偶跳交替移动，统计能够到达数组最后一个位置的起点数量。核心是先为每个位置找到下一次应该跳到的位置，再用动态规划判断可达性。',
+    outcome:
+      '你能理解有序映射在“找大于等于或小于等于的最近值”问题中的作用，掌握单调栈预处理和状态转移的结合。',
+    sections: [
+      {
+        id: 'odd-even-jump-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `arr`。从下标 `i` 出发，第一次跳是奇跳：跳到右侧下标 `j`，满足 `arr[j]` 是所有可选值中大于等于 `arr[i]` 的最小值；第二次是偶跳：选择小于等于当前值的最大值。问有多少个起点能到达最后一个下标。',
+        bullets: [
+          '每次只能向右跳，不能回到左侧。',
+          '奇跳和偶跳交替进行。',
+          '如果有多个目标值相同，选择下标最小的那个。',
+          '最后一个位置本身可以视为可到达。',
+        ],
+      },
+      {
+        id: 'odd-even-jump-next',
+        title: '先求每个位置的下一跳',
+        summary:
+          '把下标按数组值排序后，使用单调栈求出每个位置在奇跳时要去哪里。将排序顺序反过来可以求出偶跳目标。排序时下标作为第二关键字，天然保证相同值取最小下标。',
+        bullets: [
+          '奇跳需要右侧第一个满足值不小于当前值的下标。',
+          '偶跳需要右侧第一个满足值不大于当前值的下标。',
+          '单调栈把每个下标压入和弹出各一次，整体是线性复杂度。',
+          '值排序和下标排序合计成本为 `O(n log n)`。',
+        ],
+      },
+      {
+        id: 'odd-even-jump-dp',
+        title: '动态规划记录两种跳跃状态',
+        summary:
+          '定义 `odd[i]` 表示从 `i` 开始下一次是奇跳时能否到达终点，`even[i]` 表示下一次是偶跳。若奇跳存在目标 `nextOdd[i]`，就转移到 `even[nextOdd[i]]`；偶跳同理。',
+        bullets: [
+          '终点的奇跳状态和偶跳状态都为 `true`。',
+          '因为所有跳跃都向右，所以可以从后向前计算。',
+          '答案统计所有 `odd[i]` 为真的起点。',
+          '状态只依赖后方位置，不需要递归回溯。',
+        ],
+      },
+      {
+        id: 'odd-even-jump-solution',
+        title: '标准解法：排序加单调栈',
+        summary:
+          '分别对下标按数组值升序和降序排序，通过单调栈填充奇跳、偶跳的目标下标，再从后向前进行状态转移。',
+        bullets: [
+          '时间复杂度：`O(n log n)`。',
+          '空间复杂度：`O(n)`。',
+          '排序比较器必须在值相同的情况下比较下标。',
+          '单调栈中保存的是等待找到下一跳目标的下标。',
+        ],
+        code: `function oddEvenJumps(arr: number[]): number {
+  const n = arr.length
+  const indices = Array.from({ length: n }, (_, index) => index)
+  const nextOdd = Array(n).fill(-1)
+  const nextEven = Array(n).fill(-1)
+
+  const buildNext = (
+    order: number[],
+    next: number[],
+  ): void => {
+    const stack: number[] = []
+
+    for (const index of order) {
+      while (
+        stack.length > 0 &&
+        index > stack[stack.length - 1]
+      ) {
+        next[stack.pop()!] = index
+      }
+      stack.push(index)
+    }
+  }
+
+  buildNext(
+    [...indices].sort(
+      (left, right) =>
+        arr[left] - arr[right] || left - right,
+    ),
+    nextOdd,
+  )
+  buildNext(
+    [...indices].sort(
+      (left, right) =>
+        arr[right] - arr[left] || left - right,
+    ),
+    nextEven,
+  )
+
+  const odd = Array(n).fill(false)
+  const even = Array(n).fill(false)
+  odd[n - 1] = true
+  even[n - 1] = true
+
+  for (let index = n - 2; index >= 0; index -= 1) {
+    if (nextOdd[index] !== -1) {
+      odd[index] = even[nextOdd[index]]
+    }
+    if (nextEven[index] !== -1) {
+      even[index] = odd[nextEven[index]]
+    }
+  }
+
+  return odd.filter(Boolean).length
+}`,
+      },
+      {
+        id: 'odd-even-jump-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这道题不能只靠局部贪心判断最终是否可达，因为一次跳跃的选择会影响下一次跳跃类型。正确做法是把每种跳跃规则预处理成确定的后继，再进行状态转移。',
+        bullets: [
+          '易错点 1：奇跳只找第一个更大的值，忽略“最小的合法值”。',
+          '易错点 2：相同值出现时没有选择最小下标。',
+          '易错点 3：只记录一种跳跃状态，无法表达奇偶交替。',
+          '延伸方向：单调栈、有序集合、动态规划和后继图。',
+        ],
+      },
+    ],
+  },
 ];
