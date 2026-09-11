@@ -99267,4 +99267,104 @@ function smallestFromLeaf(root: TreeNode | null): string {
       },
     ],
   },
+  {
+    id: 'satisfiability-of-equality-equations',
+    label: '990. LeetCode 990. 等式方程的可满足性',
+    difficulty: '中等',
+    description:
+      '给定形如 `a==b` 或 `a!=b` 的变量关系，判断是否存在一种赋值方式同时满足所有方程。先用并查集合并所有相等关系，再检查不等关系两端是否已经属于同一集合。',
+    outcome:
+      '你能掌握并查集处理等价关系的标准模式，理解为什么必须先处理等式再检查不等式，并能把它迁移到连通性和约束判断场景。',
+    sections: [
+      {
+        id: 'satisfiability-of-equality-equations-summary',
+        title: '题目在问什么',
+        summary:
+          '每个方程包含两个小写变量，关系只有相等 `==` 或不等 `!=`。需要判断这些关系是否互相矛盾，例如 `a==b` 与 `b!=a` 同时出现时就无法满足。',
+        bullets: [
+          '相等关系具有传递性：`a==b` 且 `b==c` 可以推出 `a==c`。',
+          '不等关系只需要检查最终的等价类归属。',
+          '变量数量固定为 26 个小写字母，适合使用并查集。',
+          '不能看到不等式就立即下结论，因为后续等式可能改变连通关系。',
+        ],
+      },
+      {
+        id: 'satisfiability-of-equality-equations-union-find',
+        title: '并查集：维护“哪些变量必须相等”',
+        summary:
+          '并查集用根节点代表一个等价类。处理 `==` 时合并两个变量；处理 `!=` 时判断两个变量的根是否相同，如果相同就说明约束冲突。',
+        bullets: [
+          '初始化时每个变量都是自己的父节点。',
+          '合并时让一个集合的根指向另一个集合的根。',
+          '路径压缩可以让后续查找更快。',
+          '按秩或按大小合并可以控制树高，但本题规模很小时不是必须。',
+        ],
+        callout:
+          '并查集适合回答“两个对象是否已经通过若干相等或连通关系归为一组”。遇到等价类、连通块和延迟合并，优先考虑这个结构。',
+      },
+      {
+        id: 'satisfiability-of-equality-equations-solution',
+        title: '标准解法：先合并等式，再验证不等式',
+        summary:
+          '第一遍只处理 `==`，把所有必须相等的变量合并；第二遍处理 `!=`，若两端根节点相同则返回 `false`，否则所有方程都可以同时满足。',
+        bullets: [
+          '时间复杂度：`O(n × α(26))`，实际接近 `O(n)`。',
+          '空间复杂度：`O(26)`。',
+          '两遍处理的顺序不可反，否则可能在等价关系尚未完整时误判。',
+          '变量字符可以通过 `charCodeAt(0) - 97` 映射到 `0` 到 `25`。',
+        ],
+        code: `function equationsPossible(equations: string[]): boolean {
+  const parent = Array.from({ length: 26 }, (_, index) => index)
+
+  const find = (value: number): number => {
+    if (parent[value] !== value) {
+      parent[value] = find(parent[value])
+    }
+    return parent[value]
+  }
+
+  const union = (first: number, second: number): void => {
+    const firstRoot = find(first)
+    const secondRoot = find(second)
+
+    if (firstRoot !== secondRoot) {
+      parent[firstRoot] = secondRoot
+    }
+  }
+
+  const indexOf = (character: string): number =>
+    character.charCodeAt(0) - 97
+
+  for (const equation of equations) {
+    if (equation[1] === '=') {
+      union(indexOf(equation[0]), indexOf(equation[3]))
+    }
+  }
+
+  for (const equation of equations) {
+    if (
+      equation[1] === '!' &&
+      find(indexOf(equation[0])) === find(indexOf(equation[3]))
+    ) {
+      return false
+    }
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'satisfiability-of-equality-equations-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易犯的错误是把方程按出现顺序处理，或者只比较变量本身而没有考虑传递关系。并查集的价值就在于维护这些间接关系。',
+        bullets: [
+          '易错点 1：只检查直接出现的冲突，忽略 `a==b==c` 的传递关系。',
+          '易错点 2：先验证不等式，再处理所有等式。',
+          '易错点 3：查找根节点时没有路径压缩，导致结构维护混乱。',
+          '延伸方向：连通分量、好友分组、网络合并和约束满足。',
+        ],
+      },
+    ],
+  },
 ];
