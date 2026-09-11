@@ -98697,4 +98697,107 @@ class TimeMap {
       },
     ],
   },
+  {
+    id: 'string-without-aaa-or-bbb',
+    label: '984. LeetCode 984. 不含 AAA 或 BBB 的字符串',
+    difficulty: '中等',
+    description:
+      '给定字符 A 和 B 的数量，构造一个只包含这两种字符的字符串，同时不能出现连续三个相同字符。核心是每次优先放置剩余数量更多的一类字符，并在必要时切换字符。',
+    outcome:
+      '你能掌握带局部约束的贪心构造，理解为什么只需要关注字符串末尾的连续字符，并能判断什么时候优先使用某一类字符不会破坏可行性。',
+    sections: [
+      {
+        id: 'string-without-aaa-or-bbb-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 `a` 个字符 `a` 和 `b` 个字符 `b`，返回任意一个满足条件的字符串：恰好使用所有字符，并且字符串中不能出现 `aaa` 或 `bbb` 作为连续子串。',
+        bullets: [
+          '必须把两种字符全部使用完，不能为了避免连续而丢弃字符。',
+          '只禁止长度为 3 的连续相同字符，两个相同字符连续是允许的。',
+          '题目通常允许返回任意一个合法答案，因此不需要追求字典序。',
+          '构造过程中真正危险的状态只有字符串末尾的连续字符数量。',
+        ],
+      },
+      {
+        id: 'string-without-aaa-or-bbb-greedy',
+        title: '贪心判断：什么时候放两个，什么时候放一个',
+        summary:
+          '如果某一类字符剩余更多，通常优先放它可以尽快消耗过多库存；但如果字符串末尾已经连续出现两个同类字符，就必须先放另一类字符打断连续段。',
+        bullets: [
+          '末尾已有两个 `a` 时，下一步只能放 `b`。',
+          '末尾已有两个 `b` 时，下一步只能放 `a`。',
+          '没有强制切换时，优先放剩余数量更多的字符。',
+          '连续放两个字符可以更快消耗数量较多的一类，但不能放出三个。',
+        ],
+        callout:
+          '这类构造题的贪心依据不是“看起来更均匀”，而是每一步都优先处理最紧张的库存，同时保留另一类字符作为打断连续段的安全资源。',
+      },
+      {
+        id: 'string-without-aaa-or-bbb-solution',
+        title: '标准解法：根据后缀状态贪心拼接',
+        summary:
+          '每轮检查当前末尾是否已经连续两个字符。如果必须切换就放另一类，否则选择剩余数量更多的字符，并在安全时一次放置最多两个。',
+        bullets: [
+          '时间复杂度：`O(a + b)`，每个字符只会被加入结果一次。',
+          '空间复杂度：`O(a + b)`，用于保存结果字符串。',
+          '把“选择字符”和“连续数量限制”分开处理，代码更容易验证。',
+          '当两类字符数量差距不大时，单个单个添加也能得到合法答案；批量添加只是减少判断次数。',
+        ],
+        code: `function strWithout3a3b(a: number, b: number): string {
+  let leftA = a
+  let leftB = b
+  const result: string[] = []
+
+  const append = (character: string, count: number): void => {
+    for (let index = 0; index < count; index += 1) {
+      result.push(character)
+    }
+  }
+
+  while (leftA > 0 || leftB > 0) {
+    const last = result[result.length - 1]
+    const secondLast = result[result.length - 2]
+    const canAppendA = !(last === 'a' && secondLast === 'a')
+    const canAppendB = !(last === 'b' && secondLast === 'b')
+
+    if (
+      leftA >= leftB &&
+      leftA > 0 &&
+      (canAppendA || !canAppendB)
+    ) {
+      const count = last === 'a' ? 1 : Math.min(2, leftA)
+      append('a', count)
+      leftA -= count
+      continue
+    }
+
+    if (leftB > 0 && canAppendB) {
+      const count = last === 'b' ? 1 : Math.min(2, leftB)
+      append('b', count)
+      leftB -= count
+      continue
+    }
+
+    const count = Math.min(2, leftA)
+    append('a', count)
+    leftA -= count
+  }
+
+  return result.join('')
+}`,
+      },
+      {
+        id: 'string-without-aaa-or-bbb-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题容易把“剩余更多”当成永远优先级最高的规则，忽略末尾连续状态。任何贪心选择都必须先满足当前约束，再比较剩余数量。',
+        bullets: [
+          '易错点 1：只比较剩余数量，导致拼出 `aaa` 或 `bbb`。',
+          '易错点 2：把“不能出现三个连续”误写成“不能出现两个连续”。',
+          '易错点 3：某一类字符耗尽后仍强行交替，造成死循环或漏字符。',
+          '延伸方向：受约束字符串构造、任务交错、限长连续序列和贪心证明。',
+        ],
+      },
+    ],
+  },
 ];
