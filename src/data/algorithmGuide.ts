@@ -99186,4 +99186,85 @@ function smallestFromLeaf(root: TreeNode | null): string {
       },
     ],
   },
+  {
+    id: 'add-to-array-form-of-integer',
+    label: '989. LeetCode 989. 数组形式的整数加法',
+    difficulty: '简单',
+    description:
+      '将一个用数组表示的大整数与普通整数相加，返回仍然使用数组表示的结果。通过从数组末尾开始逐位相加，配合进位处理，可以避免把超大数字转换成 JavaScript 的普通数值。',
+    outcome:
+      '你能掌握大整数的逐位模拟，理解为什么要从低位向高位处理，并能正确处理 `K` 还有剩余以及最后进位的边界。',
+    sections: [
+      {
+        id: 'add-to-array-form-of-integer-summary',
+        title: '题目在问什么',
+        summary:
+          '数组 `num` 的每个元素表示一个十进制数字，整体表示一个非负整数。给定另一个整数 `k`，返回 `num + k` 的数组形式。',
+        bullets: [
+          '数组最高位在前，最低位在后。',
+          '数字可能很大，不能依赖普通 JavaScript 数值的精确表示范围。',
+          '需要从最低位开始处理，因为进位会向左传递。',
+          '结果可能比原数组多一位，需要在最后补上进位。',
+        ],
+      },
+      {
+        id: 'add-to-array-form-of-integer-carry',
+        title: '逐位模拟：把 K 也拆成十进制位',
+        summary:
+          '数组末尾对应个位，`k % 10` 取出 `k` 当前最低位，`Math.floor(k / 10)` 删除这一位。每轮把数组当前位、K 当前位和进位相加，再把结果的个位写入答案。',
+        bullets: [
+          '当前数字：`sum = num[index] + (k % 10) + carry`。',
+          '结果位：`sum % 10`。',
+          '下一轮进位：`Math.floor(sum / 10)`。',
+          '数组用完后，只要 `k > 0` 或 `carry > 0`，就继续处理。',
+        ],
+        callout:
+          '大整数题的核心是不要把数据转回普通数字。只要把运算拆成“逐位处理 + 进位”，就可以用固定范围内的小整数安全完成计算。',
+      },
+      {
+        id: 'add-to-array-form-of-integer-solution',
+        title: '标准解法：从末尾向前相加',
+        summary:
+          '使用一个结果数组，从 `num` 的最后一位开始向前遍历。因为结果是逆序产生的，最后反转一次即可得到正常的高位到低位顺序。',
+        bullets: [
+          '时间复杂度：`O(n + log k)`。',
+          '空间复杂度：`O(n + log k)`，用于保存结果。',
+          '不要将整个数组拼成字符串后转数字，否则会有精度和范围问题。',
+          '使用 `while` 同时覆盖数组位、K 的位和最终进位。',
+        ],
+        code: `function addToArrayForm(
+  num: number[],
+  k: number,
+): number[] {
+  const result: number[] = []
+  let index = num.length - 1
+  let carry = 0
+
+  while (index >= 0 || k > 0 || carry > 0) {
+    const digit = index >= 0 ? num[index] : 0
+    const sum = digit + (k % 10) + carry
+
+    result.push(sum % 10)
+    carry = Math.floor(sum / 10)
+    k = Math.floor(k / 10)
+    index -= 1
+  }
+
+  return result.reverse()
+}`,
+      },
+      {
+        id: 'add-to-array-form-of-integer-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的边界集中在“数组处理完以后”。如果 K 或进位仍有内容，不能提前结束；如果直接做数值转换，也会失去大整数题的意义。',
+        bullets: [
+          '易错点 1：从数组开头开始加，导致进位方向错误。',
+          '易错点 2：数组遍历结束后忘记继续处理 K。',
+          '易错点 3：最后一个进位没有写入结果。',
+          '延伸方向：大整数加减法、字符串乘法、链表形式的数字运算。',
+        ],
+      },
+    ],
+  },
 ];
