@@ -98505,4 +98505,114 @@ class TimeMap {
       },
     ],
   },
+  {
+    id: 'triples-with-bitwise-and-equal-to-zero',
+    label: '982. LeetCode 982. 按位与为零的三元组',
+    difficulty: '困难',
+    description:
+      '统计三个数组元素组成的有序三元组数量，使它们的按位与结果等于零。核心是先统计所有有序二元组的按位与频次，再用子集和预处理快速统计第三个数。',
+    outcome:
+      '你能理解位运算条件如何转化为掩码关系，掌握频次统计与 SOS DP 的组合，并知道如何把三重枚举从 `O(n³)` 优化到接近 `O(n² + U log U)`。',
+    sections: [
+      {
+        id: 'triples-with-bitwise-and-equal-to-zero-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 `nums`，统计有序三元组 `(i, j, k)` 的数量，使 `nums[i] & nums[j] & nums[k] === 0`。下标可以相同，三元组的排列顺序不同也要分别计数。',
+        bullets: [
+          '按位与要求三个数的每一位不能同时为 `1`。',
+          '三元组是有序的，因此 `(i, j, k)` 与 `(j, i, k)` 分开计数。',
+          '同一个数组元素可以在三元组中重复使用。',
+          '数组元素的取值范围较小，适合用位掩码数组做预处理。',
+        ],
+      },
+      {
+        id: 'triples-with-bitwise-and-equal-to-zero-bitwise',
+        title: '先固定两个数，再看第三个数',
+        summary:
+          '先计算 `pair = nums[i] & nums[j]`。要让 `pair & nums[k] === 0`，第三个数在 `pair` 为 `1` 的位上必须全部为 `0`，也就是 `nums[k]` 必须是 `pair` 的补集掩码的子集。',
+        bullets: [
+          '固定前两个数后，第三个数的合法性只由 `pair` 决定。',
+          '如果直接枚举第三个数，总复杂度会是 `O(n³)`。',
+          '可以统计每个掩码出现的次数，减少重复判断。',
+          '子集和数组能够回答“某个掩码的所有子集一共出现多少次”。',
+        ],
+      },
+      {
+        id: 'triples-with-bitwise-and-equal-to-zero-sos',
+        title: '用子集和快速统计合法第三个数',
+        summary:
+          '令 `count[mask]` 表示数组中恰好等于 `mask` 的元素数量。经过 SOS DP 后，`count[mask]` 表示数组元素中属于 `mask` 子集的总数量。对于二元组结果 `pair`，合法第三个数数量就是 `count[fullMask ^ pair]`。',
+        bullets: [
+          'SOS DP 每次把包含当前位的集合数量累加到不包含该位的集合。',
+          '处理完所有位后，`count[mask]` 就包含所有子掩码的频次。',
+          '题目数据范围不超过 `2^16`，因此掩码空间固定为 `65536`。',
+          '二元组频次也要按有序下标统计，不能只统计无序组合。',
+        ],
+      },
+      {
+        id: 'triples-with-bitwise-and-equal-to-zero-solution',
+        title: '标准解法：二元组频次加 SOS DP',
+        summary:
+          '先统计每个数组值的出现次数，再通过 SOS DP 得到每个掩码的子集频次。随后枚举所有有序值对，累计该值对按位与结果对应补集中的元素数量。',
+        bullets: [
+          '统计二元组频次的时间复杂度：`O(n²)`。',
+          'SOS DP 的时间复杂度：`O(16 × 2^16)`。',
+          '总空间复杂度：`O(2^16)`。',
+          '答案可能超过 32 位整数，使用 `number` 可以覆盖题目约束下的结果范围。',
+        ],
+        code: `function countTriplets(nums: number[]): number {
+  const bitCount = 16
+  const maskSize = 1 << bitCount
+  const pairFrequency = new Map<number, number>()
+  const subsetFrequency = Array(maskSize).fill(0)
+
+  for (const value of nums) {
+    subsetFrequency[value] += 1
+  }
+
+  for (let bit = 0; bit < bitCount; bit += 1) {
+    for (let mask = 0; mask < maskSize; mask += 1) {
+      if ((mask & (1 << bit)) !== 0) {
+        subsetFrequency[mask] +=
+          subsetFrequency[mask ^ (1 << bit)]
+      }
+    }
+  }
+
+  for (const left of nums) {
+    for (const right of nums) {
+      const pair = left & right
+      pairFrequency.set(
+        pair,
+        (pairFrequency.get(pair) ?? 0) + 1,
+      )
+    }
+  }
+
+  const fullMask = maskSize - 1
+  let answer = 0
+
+  for (const [pair, frequency] of pairFrequency) {
+    answer += frequency * subsetFrequency[fullMask ^ pair]
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'triples-with-bitwise-and-equal-to-zero-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这道题最容易写出正确但超时的三重循环。优化关键不是改变按位与规则，而是把前两个数的结果聚合，并预处理所有掩码的子集频次。',
+        bullets: [
+          '易错点 1：把三元组当成无序组合，漏掉排列数量。',
+          '易错点 2：错误地禁止重复下标，题目允许同一个元素重复使用。',
+          '易错点 3：只统计恰好等于某个掩码的频次，没有做子集累加。',
+          '易错点 4：掩码位数写死过小，导致高位信息被截断。',
+          '延伸方向：位运算、频次压缩、SOS DP 和子集枚举。',
+        ],
+      },
+    ],
+  },
 ];
