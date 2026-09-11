@@ -98980,4 +98980,115 @@ class TimeMap {
       },
     ],
   },
+  {
+    id: 'vertical-order-traversal-of-a-binary-tree',
+    label: '987. LeetCode 987. 二叉树的垂序遍历',
+    difficulty: '困难',
+    description:
+      '将二叉树中的节点按照列、行和节点值排序后输出。通过 DFS 记录每个节点的坐标，再统一排序，可以把空间位置关系转化为普通的多关键字排序问题。',
+    outcome:
+      '你能掌握树节点坐标化的思路，理解列号和行号如何描述垂直顺序，并能处理同一位置多个节点时的值排序规则。',
+    sections: [
+      {
+        id: 'vertical-order-traversal-of-a-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树，从上到下、从左到右进行垂直遍历。节点先按列号排序，再按行号排序；如果两个节点处在同一行同一列，则按节点值从小到大排序。',
+        bullets: [
+          '根节点坐标可以设为 `(row = 0, column = 0)`。',
+          '向左走一层：行号加一，列号减一。',
+          '向右走一层：行号加一，列号加一。',
+          '输出时先按列分组，再按行和值排序。',
+        ],
+      },
+      {
+        id: 'vertical-order-traversal-of-a-binary-tree-coordinate',
+        title: '把树转换成带坐标的节点列表',
+        summary:
+          '遍历整棵树时，不急着直接拼接答案，而是为每个节点保存 `(row, column, value)`。这样复杂的遍历规则就变成了稳定的排序规则。',
+        bullets: [
+          '列号决定节点属于哪一组结果。',
+          '行号决定同一列中的上下顺序。',
+          '值决定同一行同一列节点之间的顺序。',
+          '先收集、后排序比边遍历边输出更容易保证全局顺序。',
+        ],
+        callout:
+          '遇到“树上的节点按空间位置排序”时，可以先给节点建立坐标系。坐标化后，很多看似特殊的树遍历题都能转成排序和分组。',
+      },
+      {
+        id: 'vertical-order-traversal-of-a-binary-tree-solution',
+        title: '标准解法：DFS 收集后多关键字排序',
+        summary:
+          '用 DFS 遍历所有节点并记录坐标，然后按照列、行、值依次升序排序。最后按列号把节点值分组输出。',
+        bullets: [
+          '时间复杂度：`O(n log n)`，主要来自节点排序。',
+          '空间复杂度：`O(n)`，用于保存所有节点和递归栈。',
+          '排序比较器必须严格按照列、行、值的优先级编写。',
+          '负列号可以直接参与排序，不需要额外偏移。',
+        ],
+        code: `type TreeNode = {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+}
+
+type LocatedNode = {
+  row: number
+  column: number
+  value: number
+}
+
+function verticalTraversal(root: TreeNode | null): number[][] {
+  const nodes: LocatedNode[] = []
+
+  const visit = (
+    node: TreeNode | null,
+    row: number,
+    column: number,
+  ): void => {
+    if (node === null) {
+      return
+    }
+
+    nodes.push({ row, column, value: node.val })
+    visit(node.left, row + 1, column - 1)
+    visit(node.right, row + 1, column + 1)
+  }
+
+  visit(root, 0, 0)
+  nodes.sort(
+    (first, second) =>
+      first.column - second.column ||
+      first.row - second.row ||
+      first.value - second.value,
+  )
+
+  const result: number[][] = []
+  let currentColumn: number | null = null
+
+  for (const node of nodes) {
+    if (node.column !== currentColumn) {
+      result.push([])
+      currentColumn = node.column
+    }
+    result[result.length - 1].push(node.value)
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'vertical-order-traversal-of-a-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题和普通的按列遍历不同，同一坐标的节点还要按值排序。只使用 BFS 或只按照访问顺序输出，不能覆盖所有排序条件。',
+        bullets: [
+          '易错点 1：只按列号排序，忽略行号和节点值。',
+          '易错点 2：误以为 BFS 的访问顺序天然满足同坐标值排序。',
+          '易错点 3：分组时没有处理列号从负数变化到正数的情况。',
+          '延伸方向：坐标压缩、树的投影、BFS 分层和多关键字排序。',
+        ],
+      },
+    ],
+  },
 ];
