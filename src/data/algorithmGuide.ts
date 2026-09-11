@@ -99559,4 +99559,121 @@ function smallestFromLeaf(root: TreeNode | null): string {
       },
     ],
   },
+  {
+    id: 'cousins-in-binary-tree',
+    label: '993. LeetCode 993. 二叉树的堂兄弟节点',
+    difficulty: '简单',
+    description:
+      '判断二叉树中的两个节点是否为堂兄弟节点：它们必须处在同一深度，但不能拥有相同的父节点。通过 BFS 按层遍历，同时记录目标节点的深度和父节点即可。',
+    outcome:
+      '你能掌握 BFS 的分层遍历，理解“同层”和“不同父节点”两个条件如何分别验证，并能把这种写法迁移到树上的距离和层级问题。',
+    sections: [
+      {
+        id: 'cousins-in-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树和两个不同的节点值 `x`、`y`，如果两个节点深度相同且父节点不同，则它们是堂兄弟节点，返回 `true`，否则返回 `false`。',
+        bullets: [
+          '深度相同表示两个节点处在同一层。',
+          '父节点不同表示它们不是兄弟节点。',
+          '节点值互不相同，因此可以用值直接定位节点。',
+          '只要在同一层找到目标节点，就可以一次完成这一层的判断。',
+        ],
+      },
+      {
+        id: 'cousins-in-binary-tree-bfs',
+        title: 'BFS：先保证同层，再比较父节点',
+        summary:
+          'BFS 天然按层访问节点。处理每一层时，记录当前节点的左右孩子是否为目标值，以及它们的父节点；如果两个目标都在本层且不属于同一个父节点，就满足堂兄弟条件。',
+        bullets: [
+          '队列中每轮只处理当前层的节点。',
+          '遇到目标值时记录它的父节点。',
+          '如果同一个节点的左右孩子同时是 `x` 和 `y`，它们是兄弟而不是堂兄弟。',
+          '一层处理结束后再判断两个目标是否都出现，避免把不同深度节点误判为堂兄弟。',
+        ],
+        callout:
+          '遇到“同一层”这样的条件，优先考虑 BFS 分层。把父节点一起放进队列或在扩展子节点时记录，可以同时完成层级和亲缘关系判断。',
+      },
+      {
+        id: 'cousins-in-binary-tree-solution',
+        title: '标准解法：带父节点信息的层序遍历',
+        summary:
+          '队列中的每一项包含当前节点及其父节点。每轮记录当前层大小，遍历结束后检查两个目标是否同时出现在本层且父节点不同。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(w)`，`w` 为树的最大宽度。',
+          '使用 `null` 表示根节点没有父节点。',
+          '发现同层两个目标后仍需比较父节点引用，而不是只比较父节点值。',
+        ],
+        code: `type TreeNode = {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+}
+
+function isCousins(
+  root: TreeNode | null,
+  x: number,
+  y: number,
+): boolean {
+  if (root === null) {
+    return false
+  }
+
+  const queue: Array<{
+    node: TreeNode
+    parent: TreeNode | null
+  }> = [{ node: root, parent: null }]
+
+  while (queue.length > 0) {
+    const levelSize = queue.length
+    let xParent: TreeNode | null = null
+    let yParent: TreeNode | null = null
+
+    for (let index = 0; index < levelSize; index += 1) {
+      const current = queue.shift()!
+
+      if (current.node.val === x) {
+        xParent = current.parent
+      }
+      if (current.node.val === y) {
+        yParent = current.parent
+      }
+
+      if (current.node.left !== null) {
+        queue.push({
+          node: current.node.left,
+          parent: current.node,
+        })
+      }
+      if (current.node.right !== null) {
+        queue.push({
+          node: current.node.right,
+          parent: current.node,
+        })
+      }
+    }
+
+    if (xParent !== null || yParent !== null) {
+      return xParent !== null && yParent !== null && xParent !== yParent
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'cousins-in-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不能只比较深度，也不能只比较父节点。两个条件必须同时成立，并且父节点比较应基于节点关系而不是碰巧相同的数值。',
+        bullets: [
+          '易错点 1：没有按层处理，导致不同深度的节点被一起比较。',
+          '易错点 2：发现同层就返回 true，忘记排除兄弟节点。',
+          '易错点 3：只记录父节点值，在节点值可能重复时会产生歧义。',
+          '延伸方向：层序遍历、最近公共祖先、节点深度和树上的最短距离。',
+        ],
+      },
+    ],
+  },
 ];
