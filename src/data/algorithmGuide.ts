@@ -99442,4 +99442,121 @@ function smallestFromLeaf(root: TreeNode | null): string {
       },
     ],
   },
+  {
+    id: 'subarrays-with-k-different-integers',
+    label: '992. LeetCode 992. K 个不同整数的子数组',
+    difficulty: '困难',
+    description:
+      '统计数组中恰好包含 K 个不同整数的连续子数组数量。将“恰好 K 个”拆成“最多 K 个”减去“最多 K-1 个”，再用滑动窗口在线性时间内计算。',
+    outcome:
+      '你能掌握“恰好数量 = 至多数量之差”的通用转换，理解滑动窗口如何维护不同元素数量，并能处理窗口左边界的累计贡献。',
+    sections: [
+      {
+        id: 'subarrays-with-k-different-integers-summary',
+        title: '题目在问什么',
+        summary:
+          '给定正整数数组 `nums` 和整数 `k`，统计连续子数组中恰好包含 `k` 个不同整数的数量。子数组必须连续，且相同数字重复出现只算一个不同整数。',
+        bullets: [
+          '例如 `[1, 2, 1]` 中不同整数的数量是 2，而不是 3。',
+          '要求统计所有满足条件的连续区间数量。',
+          '直接维护“恰好 K 个”时，窗口扩张和收缩边界不够单调。',
+          '“最多 K 个”具有单调性，适合用滑动窗口统计。',
+        ],
+      },
+      {
+        id: 'subarrays-with-k-different-integers-at-most',
+        title: '关键转换：恰好 K 个等于最多 K 个减最多 K-1 个',
+        summary:
+          '设 `atMost(k)` 表示不同整数不超过 `k` 的子数组数量，那么恰好包含 `k` 个不同整数的数量就是 `atMost(k) - atMost(k - 1)`。',
+        bullets: [
+          '最多 K 个的集合包含了最多 K-1 个的所有子数组。',
+          '两者相减后，刚好留下不同整数数量等于 K 的子数组。',
+          '当 `k <= 0` 时，`atMost(k)` 直接返回 0。',
+          '这个转换可以把难维护的精确条件变成容易维护的上限条件。',
+        ],
+        callout:
+          '“恰好等于 K”经常不具备直接滑动的单调性，但“最多 K”通常具备。先统计一个容易维护的上界，再做差，是数组计数题中的高频技巧。',
+      },
+      {
+        id: 'subarrays-with-k-different-integers-window',
+        title: '滑动窗口如何累计答案',
+        summary:
+          '右指针加入新元素后，如果窗口内不同整数超过 K，就移动左指针并减少频次。窗口恢复合法后，以当前右端点结尾的合法子数组数量就是 `left + 1`。',
+        bullets: [
+          '频次从 0 变成 1 时，不同整数数量加一。',
+          '左侧元素频次减到 0 时，不同整数数量减一。',
+          '窗口 `[left, right]` 合法时，起点从 `0` 到 `left` 的区间都合法。',
+          '因此每个右端点贡献 `left + 1` 个子数组。',
+        ],
+      },
+      {
+        id: 'subarrays-with-k-different-integers-solution',
+        title: '标准解法：两个至多窗口相减',
+        summary:
+          '实现一个 `countAtMost` 函数统计不同整数不超过指定数量的子数组，再计算 `countAtMost(k) - countAtMost(k - 1)`。',
+        bullets: [
+          '时间复杂度：`O(n)`，两个滑动窗口都只让左右指针向右移动。',
+          '空间复杂度：`O(n)`，用于保存窗口内元素频次。',
+          '频次表可以使用 `Map<number, number>`，适用于元素范围未知的情况。',
+          '窗口收缩必须使用 `while`，因为一次删除可能仍然超过不同数上限。',
+        ],
+        code: `function subarraysWithKDistinct(
+  nums: number[],
+  k: number,
+): number {
+  const countAtMost = (limit: number): number => {
+    if (limit <= 0) {
+      return 0
+    }
+
+    const frequency = new Map<number, number>()
+    let left = 0
+    let different = 0
+    let count = 0
+
+    for (let right = 0; right < nums.length; right += 1) {
+      const value = nums[right]
+      const previous = frequency.get(value) ?? 0
+
+      if (previous === 0) {
+        different += 1
+      }
+      frequency.set(value, previous + 1)
+
+      while (different > limit) {
+        const leftValue = nums[left]
+        const next = (frequency.get(leftValue) ?? 0) - 1
+
+        if (next === 0) {
+          frequency.delete(leftValue)
+          different -= 1
+        } else {
+          frequency.set(leftValue, next)
+        }
+        left += 1
+      }
+
+      count += left + 1
+    }
+
+    return count
+  }
+
+  return countAtMost(k) - countAtMost(k - 1)
+}`,
+      },
+      {
+        id: 'subarrays-with-k-different-integers-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题的难点通常不是写窗口，而是理解为什么要做两次“最多 K”统计，以及为什么合法窗口对当前右端点贡献 `left + 1` 个答案。',
+        bullets: [
+          '易错点 1：直接统计不同数恰好等于 K，窗口边界容易失去单调性。',
+          '易错点 2：删除元素后没有在频次归零时减少不同数数量。',
+          '易错点 3：每个右端点只加 1，漏掉所有可行起点。',
+          '延伸方向：至多型滑动窗口、和至少 K 的转换、子数组计数和频次约束。',
+        ],
+      },
+    ],
+  },
 ];
