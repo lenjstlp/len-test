@@ -99367,4 +99367,79 @@ function smallestFromLeaf(root: TreeNode | null): string {
       },
     ],
   },
+  {
+    id: 'broken-calculator',
+    label: '991. LeetCode 991. 坏了的计算器',
+    difficulty: '中等',
+    description:
+      '从整数 X 出发，只能执行乘以 2 或减 1，求得到 Y 所需的最少操作次数。逆向思考从 Y 回到 X：优先处理奇偶性，奇数只能先加 1，偶数可以除以 2。',
+    outcome:
+      '你能理解为什么某些操作题应该反向求解，掌握“奇数先修正、偶数再折半”的贪心策略，并能证明反向过程不会错过最优答案。',
+    sections: [
+      {
+        id: 'broken-calculator-summary',
+        title: '题目在问什么',
+        summary:
+          '初始值为 `X`，每次可以把当前值乘以 2，或者减去 1。要求经过最少操作得到 `Y`。例如从 2 到 3，先乘 2 得到 4，再减 1 得到 3。',
+        bullets: [
+          '正向操作只有 `×2` 和 `-1`。',
+          '当 X 已经不小于 Y 时，继续乘法没有意义，直接连续减法即可。',
+          '正向分支数量会快速增长，不适合直接搜索所有操作序列。',
+          '从 Y 反推 X 时，正向操作可以对应为除以 2 或加 1。',
+        ],
+      },
+      {
+        id: 'broken-calculator-reverse',
+        title: '逆向贪心：让 Y 尽快靠近 X',
+        summary:
+          '如果当前 `Y` 是偶数，说明它很可能是正向乘 2 得到的，反向除以 2 可以一次减少大量距离。如果当前 `Y` 是奇数，无法直接反向除 2，只能先加 1 使其变偶数。',
+        bullets: [
+          'Y 为偶数：执行 `Y /= 2`，操作数加一。',
+          'Y 为奇数：执行 `Y += 1`，操作数加一。',
+          '当 `Y <= X` 时，剩余答案就是 `X - Y` 次加一。',
+          '奇数加一看似让数变大，但它为后续除二创造了条件，整体更快。',
+        ],
+        callout:
+          '逆向思考的关键是把“乘二”这种正向难以撤销的操作变成“除二”。对于奇数，先加一再除二，相当于尽快消除二进制低位噪声。',
+      },
+      {
+        id: 'broken-calculator-solution',
+        title: '标准解法：从 Y 反向模拟',
+        summary:
+          '不断把目标值向 X 靠近：偶数除二，奇数加一。当目标值不再大于 X 时，直接补上剩余差值。',
+        bullets: [
+          '时间复杂度：`O(log Y)`，因为偶数步骤会快速缩小目标值。',
+          '空间复杂度：`O(1)`。',
+          '使用 `while (target > start)` 可以避免多余的正向搜索。',
+          '最后的差值对应正向过程中的若干次减一。',
+        ],
+        code: `function brokenCalc(startValue: number, target: number): number {
+  let operations = 0
+
+  while (target > startValue) {
+    if (target % 2 === 0) {
+      target /= 2
+    } else {
+      target += 1
+    }
+    operations += 1
+  }
+
+  return operations + startValue - target
+}`,
+      },
+      {
+        id: 'broken-calculator-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易从 X 正向贪心，遇到“当前值小于目标”时无法判断该不该乘二。反向以后，奇偶性给出了非常明确的选择。',
+        bullets: [
+          '易错点 1：只在目标为偶数时除二，奇数没有先加一。',
+          '易错点 2：目标值已经小于起点后还继续反向处理。',
+          '易错点 3：忘记最后 `start - target` 部分对应减法操作。',
+          '延伸方向：逆向贪心、二进制分析、最短操作序列和状态压缩。',
+        ],
+      },
+    ],
+  },
 ];
