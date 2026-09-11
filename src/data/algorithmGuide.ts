@@ -98800,4 +98800,93 @@ class TimeMap {
       },
     ],
   },
+  {
+    id: 'sum-of-even-numbers-after-queries',
+    label: '985. LeetCode 985. 查询后的偶数和',
+    difficulty: '简单',
+    description:
+      '给定一个整数数组和一组更新操作，每次把某个位置加上指定值，并返回更新后数组中所有偶数的和。核心是只维护偶数元素对答案的贡献，避免每次重新扫描整个数组。',
+    outcome:
+      '你能理解增量维护的基本思想，掌握“先删除旧贡献、再加入新贡献”的更新模式，并把它迁移到统计缓存和实时聚合场景。',
+    sections: [
+      {
+        id: 'sum-of-even-numbers-after-queries-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 `nums` 和查询 `queries`，每个查询包含 `[value, index]`，表示把 `nums[index]` 加上 `value`。每次更新后，计算整个数组中所有偶数元素的和。',
+        bullets: [
+          '查询会直接修改数组中的元素。',
+          '每次都重新遍历数组可以得到正确答案，但会重复计算大量不变元素。',
+          '一个元素是否参与偶数和，只取决于它更新前后的奇偶性。',
+          '更新位置的旧值和新值是本题唯一需要重新处理的局部信息。',
+        ],
+      },
+      {
+        id: 'sum-of-even-numbers-after-queries-incremental',
+        title: '增量维护：先撤销旧贡献，再加入新贡献',
+        summary:
+          '先把被更新位置的旧值从答案中移除（如果旧值是偶数），再完成加法；如果新值变成偶数，就把新值加入答案。这样每个查询只需处理一个元素。',
+        bullets: [
+          '旧值为偶数时，先执行 `sum -= oldValue`。',
+          '更新数组：`nums[index] += value`。',
+          '新值为偶数时，执行 `sum += nums[index]`。',
+          '维护答案时一定要先处理旧状态，否则旧值会被重复计入。',
+        ],
+        callout:
+          '增量计算的通用套路是：状态变化前先移除旧贡献，状态变化后再加入新贡献。这个模式同样适用于计数器、排行榜、缓存和实时指标。',
+      },
+      {
+        id: 'sum-of-even-numbers-after-queries-solution',
+        title: '标准解法：维护偶数元素总和',
+        summary:
+          '先计算初始偶数和，然后逐个处理查询。每次只更新被修改位置对总和的影响，查询结果直接追加到答案数组。',
+        bullets: [
+          '初始遍历时间复杂度：`O(n)`。',
+          '每个查询时间复杂度：`O(1)`。',
+          '总时间复杂度：`O(n + q)`，`q` 为查询数量。',
+          '空间复杂度：`O(q)`，用于保存每次查询后的结果。',
+        ],
+        code: `function sumEvenAfterQueries(
+  nums: number[],
+  queries: number[][],
+): number[] {
+  let evenSum = nums.reduce(
+    (sum, value) => sum + (value % 2 === 0 ? value : 0),
+    0,
+  )
+  const result: number[] = []
+
+  for (const [value, index] of queries) {
+    const oldValue = nums[index]
+
+    if (oldValue % 2 === 0) {
+      evenSum -= oldValue
+    }
+
+    nums[index] += value
+
+    if (nums[index] % 2 === 0) {
+      evenSum += nums[index]
+    }
+
+    result.push(evenSum)
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'sum-of-even-numbers-after-queries-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题代码短，但非常适合训练“维护状态而不是重复计算”的意识。判断奇偶时要同时关注更新前和更新后的状态。',
+        bullets: [
+          '易错点 1：更新后才尝试从答案中删除旧值。',
+          '易错点 2：只处理奇偶性变化，没有处理偶数变偶数时数值变化。',
+          '易错点 3：忘记更新原数组，导致下一次查询使用旧值。',
+          '延伸方向：增量聚合、差分思想、局部更新和缓存失效。',
+        ],
+      },
+    ],
+  },
 ];
