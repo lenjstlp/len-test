@@ -98615,4 +98615,86 @@ class TimeMap {
       },
     ],
   },
+  {
+    id: 'minimum-cost-for-tickets',
+    label: '983. LeetCode 983. 最低票价',
+    difficulty: '中等',
+    description:
+      '给定全年需要出行的日期，以及一天票、七天票和三十天票的价格，求覆盖所有出行日期的最低花费。通过动态规划维护“截至某个日期已经覆盖出行需求的最小成本”。',
+    outcome:
+      '你能掌握带有不同有效期选择的动态规划，理解为什么只在出行日转移，并能把状态从“买了什么票”抽象成“覆盖到哪一天的最小成本”。',
+    sections: [
+      {
+        id: 'minimum-cost-for-tickets-summary',
+        title: '题目在问什么',
+        summary:
+          '数组 `days` 表示一年中需要旅行的日期，`costs` 分别表示一日、七日和三十日通行证的价格。每张通行证从购买当天开始覆盖对应天数，要求覆盖所有旅行日且总花费最低。',
+        bullets: [
+          '只需要覆盖 `days` 中的旅行日，中间不旅行的日期是否覆盖不影响答案。',
+          '票的有效期是连续日期，不是连续旅行次数。',
+          '同一天可以购买多张票，但最优解通常不需要这样做。',
+          '状态需要描述“已经处理到哪一天”，而不是枚举所有购票方案。',
+        ],
+      },
+      {
+        id: 'minimum-cost-for-tickets-dp',
+        title: '状态设计：处理到今天的最低花费',
+        summary:
+          '令 `dp[day]` 表示覆盖从第 1 天到第 `day` 天所有旅行需求的最低花费。如果今天不出行，答案沿用昨天；如果今天出行，就分别考虑购买三种票后从更早日期转移过来。',
+        bullets: [
+          '不出行：`dp[day] = dp[day - 1]`。',
+          '买一天票：`dp[day - 1] + costs[0]`。',
+          '买七天票：`dp[Math.max(0, day - 7)] + costs[1]`。',
+          '买三十天票：`dp[Math.max(0, day - 30)] + costs[2]`。',
+          '只在旅行日做三种购票决策，可以避免对无关日期重复计算。',
+        ],
+        callout:
+          '动态规划的关键不是把所有方案列出来，而是让每个状态只保留“到达这里的最优结果”。票的有效期决定了状态之间的跳转距离。',
+      },
+      {
+        id: 'minimum-cost-for-tickets-solution',
+        title: '标准解法：按日动态规划',
+        summary:
+          '用一个布尔数组快速判断某天是否出行，再从第 1 天遍历到最后一天。旅行日尝试三种票价，不出行日直接继承前一天的成本。',
+        bullets: [
+          '时间复杂度：`O(lastDay)`，`lastDay` 是最后一个旅行日。',
+          '空间复杂度：`O(lastDay)`。',
+          '数组下标从 1 开始更贴近题目日期，边界更直观。',
+          '也可以改成只围绕 `days` 数组做记忆化搜索，适合日期跨度很大时使用。',
+        ],
+        code: `function mincostTickets(days: number[], costs: number[]): number {
+  const lastDay = days[days.length - 1]
+  const travel = new Set(days)
+  const dp = Array(lastDay + 1).fill(0)
+
+  for (let day = 1; day <= lastDay; day += 1) {
+    if (!travel.has(day)) {
+      dp[day] = dp[day - 1]
+      continue
+    }
+
+    const oneDay = dp[day - 1] + costs[0]
+    const sevenDays = dp[Math.max(0, day - 7)] + costs[1]
+    const thirtyDays = dp[Math.max(0, day - 30)] + costs[2]
+
+    dp[day] = Math.min(oneDay, sevenDays, thirtyDays)
+  }
+
+  return dp[lastDay]
+}`,
+      },
+      {
+        id: 'minimum-cost-for-tickets-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易把七天票理解成覆盖接下来七个旅行日，实际上它覆盖的是连续七个自然日。状态边界必须按日期计算。',
+        bullets: [
+          '易错点 1：用旅行次数而不是自然日计算票的有效期。',
+          '易错点 2：只遍历 `days` 却没有正确找到票覆盖的起始状态。',
+          '易错点 3：忘记不出行日应该继承前一天的答案。',
+          '延伸方向：购物优惠、订阅套餐、区间覆盖和记忆化搜索。',
+        ],
+      },
+    ],
+  },
 ];
