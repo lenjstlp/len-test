@@ -98889,4 +98889,95 @@ class TimeMap {
       },
     ],
   },
+  {
+    id: 'interval-list-intersections',
+    label: '986. LeetCode 986. 区间列表的交集',
+    difficulty: '中等',
+    description:
+      '给定两个按起点排序且互不重叠的闭区间列表，返回两个列表中所有区间的交集。通过双指针同步推进两个列表，在线性时间内完成区间扫描。',
+    outcome:
+      '你能掌握有序区间的双指针处理方式，理解交集的边界公式，并知道应该根据哪个区间先结束来移动指针。',
+    sections: [
+      {
+        id: 'interval-list-intersections-summary',
+        title: '题目在问什么',
+        summary:
+          '两个数组分别表示一组闭区间，并且每组区间内部已经按起点排序、互不重叠。需要找出所有同时属于两组区间的重叠部分。',
+        bullets: [
+          '闭区间 `[left, right]` 包含左右端点。',
+          '两个列表内部已经有序，不需要额外排序。',
+          '一个区间可能与另一个列表中的多个区间相交。',
+          '相交区间的左边界取两个起点的较大值，右边界取两个终点的较小值。',
+        ],
+      },
+      {
+        id: 'interval-list-intersections-two-pointers',
+        title: '双指针：一次只比较当前两个区间',
+        summary:
+          '指针 `i` 和 `j` 分别指向两个列表当前区间。当前两个区间可能产生一个交集；处理完后，右端点更小的区间不可能再和后面的区间产生新的交集，因此可以安全地移动它。',
+        bullets: [
+          '交集左端点：`max(firstStart, secondStart)`。',
+          '交集右端点：`min(firstEnd, secondEnd)`。',
+          '当左端点不大于右端点时，说明存在交集。',
+          '谁的右端点更小，谁先结束，移动对应指针。',
+        ],
+        callout:
+          '区间双指针的核心不是“两个指针一起走”，而是利用有序性证明：已经结束的区间不可能再参与后续匹配。',
+      },
+      {
+        id: 'interval-list-intersections-solution',
+        title: '标准解法：有序区间双指针',
+        summary:
+          '从两个列表的第一个区间开始，计算当前交集并加入结果，然后移动结束更早的区间指针，直到任意一个列表扫描完。',
+        bullets: [
+          '时间复杂度：`O(m + n)`。',
+          '空间复杂度：`O(k)`，`k` 为输出交集数量，不计输出则为 `O(1)`。',
+          '相邻区间的端点相等时仍然是合法的长度为 0 的交集。',
+          '不需要合并结果，因为每个列表内部本身没有重叠区间。',
+        ],
+        code: `function intervalIntersection(
+  firstList: number[][],
+  secondList: number[][],
+): number[][] {
+  const result: number[][] = []
+  let firstIndex = 0
+  let secondIndex = 0
+
+  while (
+    firstIndex < firstList.length &&
+    secondIndex < secondList.length
+  ) {
+    const [firstStart, firstEnd] = firstList[firstIndex]
+    const [secondStart, secondEnd] = secondList[secondIndex]
+    const start = Math.max(firstStart, secondStart)
+    const end = Math.min(firstEnd, secondEnd)
+
+    if (start <= end) {
+      result.push([start, end])
+    }
+
+    if (firstEnd < secondEnd) {
+      firstIndex += 1
+    } else {
+      secondIndex += 1
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'interval-list-intersections-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题容易因为指针移动错误而漏掉交集。判断移动谁时，应比较右端点，而不是比较起点或区间长度。',
+        bullets: [
+          '易错点 1：使用严格小于判断相交，漏掉端点相接的区间。',
+          '易错点 2：两个指针每轮都移动，导致跳过候选区间。',
+          '易错点 3：移动右端点更大的区间，破坏线性扫描逻辑。',
+          '延伸方向：区间合并、区间交集、会议室调度和扫描线算法。',
+        ],
+      },
+    ],
+  },
 ];
