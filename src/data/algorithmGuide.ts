@@ -99091,4 +99091,99 @@ function verticalTraversal(root: TreeNode | null): number[][] {
       },
     ],
   },
+  {
+    id: 'smallest-string-starting-from-leaf',
+    label: '988. LeetCode 988. 从叶结点开始的最小字符串',
+    difficulty: '中等',
+    description:
+      '二叉树节点值对应小写字母，要求在所有“叶结点到根结点”的字符串中找出字典序最小者。通过 DFS 构造从当前节点到叶子的路径，并在叶子处比较完整字符串。',
+    outcome:
+      '你能掌握树形 DFS 中的路径状态维护，理解为什么题目要求反转路径，并能正确处理字典序比较和回溯恢复。',
+    sections: [
+      {
+        id: 'smallest-string-starting-from-leaf-summary',
+        title: '题目在问什么',
+        summary:
+          '每个节点的值是 `0` 到 `25`，分别对应字母 `a` 到 `z`。对于每条从叶结点到根结点的路径，把节点值拼成字符串，返回字典序最小的那一个。',
+        bullets: [
+          '路径必须从叶结点开始，到根结点结束。',
+          '同一条路径如果从根到叶构造，最后需要反转。',
+          '叶结点是左右子节点都为空的节点。',
+          '字典序比较不是按字符串长度优先，而是从第一个不同字符开始比较。',
+        ],
+      },
+      {
+        id: 'smallest-string-starting-from-leaf-path',
+        title: '路径状态：先按根到叶收集，再在叶子处反转',
+        summary:
+          '递归向下时，把当前节点对应的字符追加到路径末尾。到达叶结点时，当前路径是“根到叶”，反转后才是题目要求的“叶到根”。',
+        bullets: [
+          '进入节点时追加字符。',
+          '离开节点时移除最后一个字符，保证兄弟分支互不影响。',
+          '到叶结点时复制路径，避免后续回溯修改已保存的答案。',
+          '可以维护当前最小字符串，也可以先收集所有路径后统一排序。',
+        ],
+        callout:
+          '树的路径题经常需要“进入时加入状态，离开时恢复状态”。这就是回溯的基本结构，关键是不要让一条分支的字符残留到另一条分支。',
+      },
+      {
+        id: 'smallest-string-starting-from-leaf-solution',
+        title: '标准解法：DFS 加字典序比较',
+        summary:
+          '使用一个可变数组保存当前根到叶路径。到达叶结点时，将路径反转成叶到根字符串，并与当前答案比较，最终保留字典序更小者。',
+        bullets: [
+          '时间复杂度：`O(nh)`，每个叶结点最多复制并反转一条长度为 `h` 的路径。',
+          '空间复杂度：`O(h)`，不计保存结果的临时字符串。',
+          '字符转换使用 `String.fromCharCode(97 + node.val)`。',
+          '答案初始设为 `null`，避免用一个可能不合法的哨兵字符串。',
+        ],
+        code: `type TreeNode = {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+}
+
+function smallestFromLeaf(root: TreeNode | null): string {
+  const path: string[] = []
+  let answer: string | null = null
+
+  const visit = (node: TreeNode | null): void => {
+    if (node === null) {
+      return
+    }
+
+    path.push(String.fromCharCode(97 + node.val))
+
+    if (node.left === null && node.right === null) {
+      const candidate = [...path].reverse().join('')
+
+      if (answer === null || candidate < answer) {
+        answer = candidate
+      }
+    } else {
+      visit(node.left)
+      visit(node.right)
+    }
+
+    path.pop()
+  }
+
+  visit(root)
+  return answer ?? ''
+}`,
+      },
+      {
+        id: 'smallest-string-starting-from-leaf-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易把根到叶字符串直接拿来比较，或者忘记复制路径就保存，导致回溯后答案被修改。',
+        bullets: [
+          '易错点 1：比较根到叶字符串，而不是叶到根字符串。',
+          '易错点 2：叶结点判断只检查一个子节点为空。',
+          '易错点 3：保存路径引用而不是保存路径副本。',
+          '延伸方向：树路径回溯、字典序最小路径、Trie 和字符串搜索。',
+        ],
+      },
+    ],
+  },
 ];
