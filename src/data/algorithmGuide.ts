@@ -99676,4 +99676,123 @@ function isCousins(
       },
     ],
   },
+  {
+    id: 'rotting-oranges',
+    label: '994. LeetCode 994. 腐烂的橘子',
+    difficulty: '中等',
+    description:
+      '在网格中，腐烂的橘子每分钟会让上下左右相邻的新鲜橘子腐烂。计算让所有橘子腐烂所需的最少分钟数；如果有橘子永远无法腐烂，返回 -1。',
+    outcome:
+      '你能掌握“多源 BFS”处理同步扩散问题的方法，理解为什么所有初始腐烂橘子必须同时入队，以及如何统计扩散时间和剩余新鲜橘子。',
+    sections: [
+      {
+        id: 'rotting-oranges-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个二维网格：`0` 表示空格子，`1` 表示新鲜橘子，`2` 表示腐烂橘子。每经过一分钟，腐烂橘子会让四个方向相邻的新鲜橘子腐烂。返回所有橘子腐烂所需的最少分钟数；如果仍有新鲜橘子无法到达，返回 `-1`。',
+        bullets: [
+          '腐烂会同时从多个起点向外扩散，而不是从某一个起点依次开始。',
+          '只能沿上、下、左、右四个方向传播，不能斜向传播。',
+          '没有新鲜橘子时，答案是 `0`，因为不需要等待。',
+          '最终仍存在新鲜橘子，说明它与所有腐烂橘子都不连通，必须返回 `-1`。',
+        ],
+      },
+      {
+        id: 'rotting-oranges-bfs',
+        title: '多源 BFS：同时模拟每一分钟的扩散',
+        summary:
+          '把所有初始腐烂橘子同时放入队列，它们处在同一个时间起点。每轮处理当前队列中的全部节点，并把这一轮能感染的新鲜橘子加入下一轮；每处理一轮，经过时间加一。',
+        bullets: [
+          '初始化队列时收集所有值为 `2` 的坐标，而不是只记录第一个。',
+          '用 `freshCount` 记录新鲜橘子数量，每感染一个就减一。',
+          '使用当前队列长度划分层级，保证一次循环恰好代表一分钟。',
+          '将新鲜橘子改成 `2` 后立即入队，避免同一个位置被重复加入。',
+        ],
+        callout:
+          '凡是“多个起点同时向外扩散，并求最短时间或最少轮数”的问题，都可以先考虑多源 BFS。把所有起点放进同一个队列，就能让它们从同一时刻开始扩散。',
+      },
+      {
+        id: 'rotting-oranges-solution',
+        title: '标准解法：按层遍历网格',
+        summary:
+          '先统计新鲜橘子数量并收集所有腐烂橘子。之后按 BFS 层级扩散，每轮让当前层的腐烂橘子感染相邻新鲜橘子。遍历结束后，根据 `freshCount` 是否归零决定返回时间还是 `-1`。',
+        bullets: [
+          '时间复杂度：`O(rows * columns)`，每个格子最多入队一次。',
+          '空间复杂度：`O(rows * columns)`，队列最坏情况下会保存大量格子。',
+          '边界判断要同时检查行列范围和目标格子是否为新鲜橘子。',
+          '如果初始就没有新鲜橘子，循环不会执行，直接返回 `0`。',
+        ],
+        code: `function orangesRotting(grid: number[][]): number {
+  const rows = grid.length
+  const columns = grid[0]?.length ?? 0
+  const queue: Array<[number, number]> = []
+  let freshCount = 0
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      if (grid[row][column] === 2) {
+        queue.push([row, column])
+      } else if (grid[row][column] === 1) {
+        freshCount += 1
+      }
+    }
+  }
+
+  const directions = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+  ]
+  let minutes = 0
+  let head = 0
+
+  while (head < queue.length && freshCount > 0) {
+    const levelEnd = queue.length
+
+    while (head < levelEnd) {
+      const [row, column] = queue[head]
+      head += 1
+
+      for (const [rowOffset, columnOffset] of directions) {
+        const nextRow = row + rowOffset
+        const nextColumn = column + columnOffset
+
+        if (
+          nextRow < 0 ||
+          nextRow >= rows ||
+          nextColumn < 0 ||
+          nextColumn >= columns ||
+          grid[nextRow][nextColumn] !== 1
+        ) {
+          continue
+        }
+
+        grid[nextRow][nextColumn] = 2
+        freshCount -= 1
+        queue.push([nextRow, nextColumn])
+      }
+    }
+
+    minutes += 1
+  }
+
+  return freshCount === 0 ? minutes : -1
+}`,
+      },
+      {
+        id: 'rotting-oranges-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易写错的地方是时间统计和起点初始化。只从一个腐烂橘子开始会漏掉并行扩散，边扩散边直接累加时间也容易把同一分钟重复计算。',
+        bullets: [
+          '易错点 1：只把一个腐烂橘子放入队列，导致模拟结果不符合同时扩散。',
+          '易错点 2：没有按层处理，把同一分钟感染的节点误算成多分钟。',
+          '易错点 3：感染后没有立即标记，导致同一个新鲜橘子重复入队。',
+          '易错点 4：只看 BFS 是否结束，没有检查是否还剩新鲜橘子。',
+          '延伸方向：最短路径、多源最短路、矩阵距离、地图上的扩散与 contagion 模拟。',
+        ],
+      },
+    ],
+  },
 ];
