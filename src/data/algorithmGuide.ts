@@ -100442,4 +100442,84 @@ function insertIntoMaxTree(
       },
     ],
   },
+  {
+    id: 'find-common-characters',
+    label: '1002. LeetCode 1002. 查找共用字符',
+    difficulty: '简单',
+    description:
+      '给定字符串数组，找出所有字符串中都出现的字符，重复字符按最少出现次数重复输出。',
+    outcome:
+      '你能掌握频次统计中的“逐个取最小值”，理解多个集合的交集如何扩展到带重复次数的字符多重集合。',
+    sections: [
+      {
+        id: 'common-characters-summary',
+        title: '题目在问什么',
+        summary:
+          '一个字符只有在每个单词中都出现时才是答案；如果某个字符在不同单词中的出现次数分别为 2、3、1，那么最终只能输出 1 次。',
+        bullets: [
+          '字符出现次数比“是否出现”更重要。',
+          '答案顺序不影响结果。',
+          '可以使用 26 位数组统计小写英文字母。',
+        ],
+      },
+      {
+        id: 'common-characters-frequency',
+        title: '频次交集：每个字符保留全局最小值',
+        summary:
+          '先用第一个单词初始化频次，再遍历其余单词。对每个字母更新为当前全局次数与该单词次数的较小值。',
+        bullets: [
+          '频次取最小值就是多重集合的交集。',
+          '处理单词时先统计局部频次，避免重复扫描单词。',
+          '最终按次数把字符加入答案。',
+        ],
+        callout:
+          '当题目要求“所有集合共有的元素，并保留重复次数”时，可以把每个元素的数量看成维度，对每一维取最小值。',
+      },
+      {
+        id: 'common-characters-solution',
+        title: '标准解法：26 位数组取最小频次',
+        summary: '维护一个全局最小频次数组，每个单词只需要更新一次。',
+        bullets: [
+          '时间复杂度：`O(totalCharacters + 26 * words.length)`。',
+          '空间复杂度：`O(26)`。',
+          '初始化全局频次时要使用足够大的数，而不是 0。',
+        ],
+        code: `function commonChars(words: string[]): string[] {
+  const minimum = new Array(26).fill(Number.MAX_SAFE_INTEGER)
+
+  for (const word of words) {
+    const frequency = new Array(26).fill(0)
+    for (const character of word) {
+      frequency[character.charCodeAt(0) - 97] += 1
+    }
+
+    for (let index = 0; index < 26; index += 1) {
+      minimum[index] = Math.min(minimum[index], frequency[index])
+    }
+  }
+
+  const answer: string[] = []
+  for (let index = 0; index < 26; index += 1) {
+    for (let count = 0; count < minimum[index]; count += 1) {
+      answer.push(String.fromCharCode(index + 97))
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'common-characters-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '只记录每个字符是否出现会丢失重复字符信息；只和前一个单词比较也会丢失更早单词形成的约束。',
+        bullets: [
+          '易错点 1：使用 Set 而不是频次数组。',
+          '易错点 2：更新时使用最大值，误把交集写成并集。',
+          '易错点 3：没有处理同一字符出现多次的情况。',
+          '延伸方向：频次哈希、集合交集、字符串规范化。',
+        ],
+      },
+    ],
+  },
 ];
