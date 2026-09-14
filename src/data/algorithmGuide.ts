@@ -100522,4 +100522,81 @@ function insertIntoMaxTree(
       },
     ],
   },
+  {
+    id: 'check-if-word-is-valid-after-substitutions',
+    label: '1003. LeetCode 1003. 检查替换后的词是否有效',
+    difficulty: '中等',
+    description:
+      '从空字符串开始，只能通过不断插入字符串 abc 生成目标字符串，判断目标字符串是否有效。',
+    outcome:
+      '你能掌握栈对局部模式消除的模拟方法，理解为什么每当出现字符 c 就应该检查栈顶是否为 a、b，并识别这种“归约”问题。',
+    sections: [
+      {
+        id: 'valid-after-substitutions-summary',
+        title: '题目在问什么',
+        summary:
+          '有效字符串可以由空串反复插入 `abc` 产生。例如 `aabcbc` 有效，而 `abccba` 无效。判断给定字符串是否属于这类字符串。',
+        bullets: [
+          '生成操作的基本模式固定为连续的 `abc`。',
+          '插入可以发生在任意位置，因此整体结构可能嵌套。',
+          '如果最终栈为空，说明所有模式都能被完整消除。',
+        ],
+      },
+      {
+        id: 'valid-after-substitutions-stack',
+        title: '栈模拟：遇到 c 就消除最近的 abc',
+        summary:
+          '逐字符入栈。当当前字符是 `c` 时，栈顶两个字符必须是 `a`、`b`，此时弹出它们；否则字符串不可能有效。',
+        bullets: [
+          '栈保存尚未被配对消除的前缀。',
+          '只在读到 `c` 时尝试完成一个模式。',
+          '任何非 `a`、`b`、`c` 的字符都可以直接判定无效。',
+        ],
+        callout:
+          '当题目允许不断删除或归约一个固定局部模式时，栈可以保留“当前尚未归约的边界”，每次只检查最近的几个字符。',
+      },
+      {
+        id: 'valid-after-substitutions-solution',
+        title: '标准解法：字符栈归约',
+        summary:
+          '扫描字符串并维护栈。读到 `c` 时验证并删除 `ab`，扫描结束后检查栈是否为空。',
+        bullets: [
+          '时间复杂度：`O(n)`，每个字符最多入栈和出栈一次。',
+          '空间复杂度：`O(n)`。',
+          '检查栈长度不足 2 时要先返回 false，不能直接取不存在的元素。',
+        ],
+        code: `function isValid(word: string): boolean {
+  const stack: string[] = []
+
+  for (const character of word) {
+    if (character !== 'a' && character !== 'b' && character !== 'c') {
+      return false
+    }
+
+    if (character === 'c') {
+      if (stack.pop() !== 'b' || stack.pop() !== 'a') {
+        return false
+      }
+    } else {
+      stack.push(character)
+    }
+  }
+
+  return stack.length === 0
+}`,
+      },
+      {
+        id: 'valid-after-substitutions-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '看到 c 后不能只删除一个字符，也不能扫描完成后只检查字符种类；必须保证每个 c 都能和最近的 ab 配对。',
+        bullets: [
+          '易错点 1：把模式匹配写成全局字符串替换，容易反复扫描。',
+          '易错点 2：c 前面不是完整 ab 时仍继续处理。',
+          '易错点 3：忽略末尾残留的 a 或 b。',
+          '延伸方向：括号匹配、栈归约、字符串语法分析。',
+        ],
+      },
+    ],
+  },
 ];
