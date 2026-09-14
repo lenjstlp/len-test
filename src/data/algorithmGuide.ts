@@ -100678,4 +100678,82 @@ function insertIntoMaxTree(
       },
     ],
   },
+  {
+    id: 'maximize-sum-of-array-after-k-negations',
+    label: '1005. LeetCode 1005. K 次取反后最大化的数组和',
+    difficulty: '简单',
+    description:
+      '最多执行 K 次操作，每次选择一个元素取反，求最终数组元素和的最大值。',
+    outcome:
+      '你能掌握先处理负数、再利用最小绝对值元素吸收剩余操作的贪心策略，并理解奇偶性为什么决定最后一次操作是否影响答案。',
+    sections: [
+      {
+        id: 'maximize-sum-summary',
+        title: '题目在问什么',
+        summary:
+          '每次可以把任意一个元素乘以 -1，操作次数最多为 `K`。为了让总和最大，应尽量消除负数；如果操作有剩余，需要选择绝对值最小的元素反复取反。',
+        bullets: [
+          '把负数变成正数会增加总和。',
+          '如果 K 大于负数数量，剩余操作会在同一个元素上来回抵消。',
+          '剩余操作为奇数时，最终必须有一个元素保持相反符号。',
+          '这个元素应选择绝对值最小的元素。',
+        ],
+      },
+      {
+        id: 'maximize-sum-greedy',
+        title: '贪心：先翻负数，再看最小绝对值',
+        summary:
+          '将数组从小到大排序，优先翻转负数。处理完负数后，如果还剩奇数次操作，就把绝对值最小的元素翻转一次。',
+        bullets: [
+          '排序后负数会集中在前面，绝对值最小的元素也容易定位。',
+          '每翻转一个负数，操作次数减一。',
+          '剩余操作只关注奇偶，不必真的执行多次。',
+        ],
+        callout:
+          '当操作可以在同一个元素上重复进行时，超过必要次数的影响通常只由奇偶决定。先做能确定增加收益的操作，再处理剩余奇偶，是常见的贪心结构。',
+      },
+      {
+        id: 'maximize-sum-solution',
+        title: '标准解法：排序后计算总和',
+        summary:
+          '排序数组，尽可能把前面的负数变为正数；最后依据剩余 K 的奇偶性决定是否翻转最小元素。',
+        bullets: [
+          '时间复杂度：`O(n log n)`。',
+          '空间复杂度：取决于排序实现，额外空间通常为 `O(log n)`。',
+          '翻转负数后需要重新计算或增量维护总和。',
+        ],
+        code: `function largestSumAfterKNegations(nums: number[], k: number): number {
+  nums.sort((left, right) => left - right)
+
+  for (let index = 0; index < nums.length && k > 0; index += 1) {
+    if (nums[index] >= 0) {
+      break
+    }
+    nums[index] = -nums[index]
+    k -= 1
+  }
+
+  let sum = nums.reduce((total, value) => total + value, 0)
+  if (k % 2 === 1) {
+    const minimumAbsolute = Math.min(...nums.map((value) => Math.abs(value)))
+    sum -= minimumAbsolute * 2
+  }
+
+  return sum
+}`,
+      },
+      {
+        id: 'maximize-sum-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '只翻转负数但不处理剩余奇数次操作，会在数组全为非负数或负数不足 K 时得到错误答案。',
+        bullets: [
+          '易错点 1：按数值大小而不是负数优先级做选择。',
+          '易错点 2：剩余操作无论奇偶都翻转一次。',
+          '易错点 3：剩余操作选择了数值最小而不是绝对值最小的元素。',
+          '延伸方向：排序贪心、符号翻转、操作次数奇偶性。',
+        ],
+      },
+    ],
+  },
 ];
