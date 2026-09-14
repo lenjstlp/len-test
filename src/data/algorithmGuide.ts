@@ -100133,4 +100133,102 @@ function insertIntoMaxTree(
       },
     ],
   },
+  {
+    id: 'available-captures-for-rook',
+    label: '999. LeetCode 999. 车的可用捕获量',
+    difficulty: '简单',
+    description:
+      '在 8 x 8 的国际象棋棋盘上，给定白色车、白色象和黑色兵的位置，计算白色车能直接捕获的黑色兵数量。',
+    outcome:
+      '你能掌握网格模拟中的方向扫描，理解遇到第一个棋子后为什么必须停止，以及如何用固定方向数组减少重复代码。',
+    sections: [
+      {
+        id: 'rook-captures-summary',
+        title: '题目在问什么',
+        summary:
+          '车可以沿四个正交方向移动，但不能穿过任何棋子。每个方向上只能捕获遇到的第一个黑色兵。',
+        bullets: [
+          '棋盘固定为 8 行 8 列。',
+          '白色车的位置唯一。',
+          '白色象会阻挡车的路线，黑色兵也会阻挡继续扫描。',
+          '只需要从车的位置向四个方向直线扫描。',
+        ],
+      },
+      {
+        id: 'rook-captures-scan',
+        title: '方向扫描：每个方向遇到首个棋子就停',
+        summary:
+          '找到车之后，沿上、下、左、右逐格前进。遇到黑色兵就计数并停止该方向；遇到白色象或其他棋子也停止，但不计数。',
+        bullets: [
+          '越界表示这个方向没有可捕获目标。',
+          '空格 `.` 可以继续前进。',
+          '一个方向最多贡献一个捕获量。',
+        ],
+        callout:
+          '网格射线题通常可以抽象成“起点 + 方向 + 步进 + 阻挡规则”。把方向统一放在数组里，能让边界与停止条件集中处理。',
+      },
+      {
+        id: 'rook-captures-solution',
+        title: '标准解法：四方向线性模拟',
+        summary: '定位车后，依次扫描四个方向并累加黑色兵。',
+        bullets: [
+          '时间复杂度：`O(1)`，棋盘尺寸固定；按一般 R x C 棋盘为 `O(R + C)`。',
+          '空间复杂度：`O(1)`。',
+          '扫描过程中遇到任意棋子都必须停止。',
+        ],
+        code: `function numRookCaptures(board: string[][]): number {
+  let rookRow = -1
+  let rookColumn = -1
+
+  for (let row = 0; row < 8; row += 1) {
+    for (let column = 0; column < 8; column += 1) {
+      if (board[row][column] === 'R') {
+        rookRow = row
+        rookColumn = column
+      }
+    }
+  }
+
+  const directions = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+  ]
+  let answer = 0
+
+  for (const [rowOffset, columnOffset] of directions) {
+    let row = rookRow + rowOffset
+    let column = rookColumn + columnOffset
+
+    while (row >= 0 && row < 8 && column >= 0 && column < 8) {
+      if (board[row][column] === 'p') {
+        answer += 1
+        break
+      }
+      if (board[row][column] !== '.') {
+        break
+      }
+      row += rowOffset
+      column += columnOffset
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'rook-captures-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '如果找到黑色兵后仍继续扫描，会把被它挡住的目标错误计入；如果只判断边界而不判断棋子，也会穿过白色象。',
+        bullets: [
+          '易错点 1：把斜线方向加入扫描。',
+          '易错点 2：遇到白色象仍继续走。',
+          '易错点 3：一条直线上存在多个兵时全部计数。',
+          '延伸方向：矩阵射线、棋盘模拟、方向数组。',
+        ],
+      },
+    ],
+  },
 ];
