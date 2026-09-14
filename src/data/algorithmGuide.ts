@@ -99878,4 +99878,106 @@ function isCousins(
       },
     ],
   },
+  {
+    id: 'number-of-squareful-arrays',
+    label: '996. LeetCode 996. 正方形数组的数目',
+    difficulty: '困难',
+    description:
+      '重新排列数组中的元素，使相邻两个元素之和都是完全平方数，求满足条件的不同排列数量。数组中可能存在重复数字。',
+    outcome:
+      '你能掌握带重复元素去重的回溯，知道如何预先构建可连接关系，并理解“同一层跳过相同选择”和“不同层允许使用相同数值”之间的区别。',
+    sections: [
+      {
+        id: 'squareful-arrays-summary',
+        title: '题目在问什么',
+        summary:
+          '把数组中的所有元素排列成长度为 `n` 的序列，要求每一对相邻元素之和是完全平方数。值相同但下标不同的排列不能重复计数。',
+        bullets: [
+          '完全平方数可以通过判断平方根取整后的平方得到。',
+          '排列使用的是元素下标，因此重复值需要专门去重。',
+          '只有相邻关系满足条件，非相邻元素不需要比较。',
+        ],
+      },
+      {
+        id: 'squareful-arrays-backtracking',
+        title: '回溯：先选起点，再扩展可连接节点',
+        summary:
+          '将数组排序后回溯构造排列。每次只选择与上一个数字之和为完全平方数的未使用元素；同一层遇到相同值时跳过，避免生成重复排列。',
+        bullets: [
+          '排序是同层去重的前提。',
+          '`used[index]` 表示当前路径是否使用过这个下标。',
+          '第一位没有前驱，因此可以尝试每个未使用的数字。',
+          '提前计算邻接矩阵可以让递归判断更清晰。',
+        ],
+        callout:
+          '回溯去重的关键是区分“同一层”和“同一条路径”：同一层相同值只选一次；回退后进入下一层时，相同值仍可能合法，因为它们代表不同位置的选择。',
+      },
+      {
+        id: 'squareful-arrays-solution',
+        title: '标准解法：排序加邻接矩阵',
+        summary:
+          '先排序并构造任意两个位置是否可以相邻的关系，然后从每个可能起点开始深度优先搜索。路径长度达到数组长度时计数。',
+        bullets: [
+          '时间复杂度：最坏为 `O(n!)`。',
+          '空间复杂度：`O(n^2)`，包含邻接矩阵和递归状态。',
+          '完全平方数判断要使用 `Math.floor(Math.sqrt(sum))` 并再次平方校验。',
+        ],
+        code: `function numSquarefulPerms(nums: number[]): number {
+  nums.sort((left, right) => left - right)
+  const length = nums.length
+  const connected = Array.from({ length }, () => Array(length).fill(false))
+
+  const isSquare = (value: number): boolean => {
+    const root = Math.floor(Math.sqrt(value))
+    return root * root === value
+  }
+
+  for (let left = 0; left < length; left += 1) {
+    for (let right = left + 1; right < length; right += 1) {
+      connected[left][right] = isSquare(nums[left] + nums[right])
+      connected[right][left] = connected[left][right]
+    }
+  }
+
+  const used = new Array(length).fill(false)
+  let answer = 0
+
+  const search = (previous: number, depth: number): void => {
+    if (depth === length) {
+      answer += 1
+      return
+    }
+
+    for (let index = 0; index < length; index += 1) {
+      if (used[index] || (previous !== -1 && !connected[previous][index])) {
+        continue
+      }
+      if (index > 0 && nums[index] === nums[index - 1] && !used[index - 1]) {
+        continue
+      }
+
+      used[index] = true
+      search(index, depth + 1)
+      used[index] = false
+    }
+  }
+
+  search(-1, 0)
+  return answer
+}`,
+      },
+      {
+        id: 'squareful-arrays-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '重复数字去重条件中的 `!used[index - 1]` 很关键，它表示前一个相同数字在当前层还没有被选择。',
+        bullets: [
+          '易错点 1：不排序就直接用相邻元素去重。',
+          '易错点 2：在所有层都跳过相同数字，错误地丢失合法排列。',
+          '易错点 3：完全平方数只判断开方结果，没有做平方回验。',
+          '延伸方向：排列型回溯、状态压缩、图上的哈密顿路径计数。',
+        ],
+      },
+    ],
+  },
 ];
