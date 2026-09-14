@@ -99980,4 +99980,78 @@ function isCousins(
       },
     ],
   },
+  {
+    id: 'find-the-town-judge',
+    label: '997. LeetCode 997. 找到小镇的法官',
+    difficulty: '简单',
+    description:
+      '小镇中有一个人可能是法官：所有其他人都信任他，但他不信任任何人。根据信任关系找出法官编号，不存在则返回 -1。',
+    outcome:
+      '你能掌握有向图中入度与出度的建模，理解如何用一次遍历统计候选人的净可信度，并识别“所有人信任但本人不信任任何人”的结构。',
+    sections: [
+      {
+        id: 'town-judge-summary',
+        title: '题目在问什么',
+        summary:
+          '`trust[a][b]` 表示 `a` 信任 `b`。法官必须满足：被其他 `n - 1` 个人信任，并且没有信任任何人。',
+        bullets: [
+          '法官不需要出现在信任关系的左侧。',
+          '信任关系是有方向的，`a` 信任 `b` 不代表 `b` 信任 `a`。',
+          '当 `n === 1` 时，唯一居民天然是法官。',
+        ],
+      },
+      {
+        id: 'town-judge-degree',
+        title: '图建模：入度加一，出度减一',
+        summary:
+          '把每个人的净分数定义为被信任次数减去信任别人次数。法官的净分数恰好是 `n - 1`，其他人不可能达到这个值。',
+        bullets: [
+          '被信任一次，候选人的分数加一。',
+          '主动信任别人一次，自己的分数减一。',
+          '不需要构造邻接表，只需维护长度为 `n + 1` 的数组。',
+        ],
+        callout:
+          '很多“所有节点指向同一个特殊节点，同时特殊节点没有出边”的题，都可以转换为入度和出度的差值判断。这样比分别统计两个集合更简洁。',
+      },
+      {
+        id: 'town-judge-solution',
+        title: '标准解法：一次统计净出入度',
+        summary:
+          '遍历每条信任关系更新两端分数，最后寻找净分数等于 `n - 1` 的居民。',
+        bullets: [
+          '时间复杂度：`O(n + trust.length)`。',
+          '空间复杂度：`O(n)`。',
+          '题目通常保证一条信任关系不会重复，但重复关系也可以按题意逐条处理。',
+        ],
+        code: `function findJudge(n: number, trust: number[][]): number {
+  const score = new Array(n + 1).fill(0)
+
+  for (const [person, candidate] of trust) {
+    score[person] -= 1
+    score[candidate] += 1
+  }
+
+  for (let person = 1; person <= n; person += 1) {
+    if (score[person] === n - 1) {
+      return person
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'town-judge-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '只统计入度会把“也信任别人的人”误判为法官，因此必须同时考虑出度。',
+        bullets: [
+          '易错点 1：把信任关系当成无向边。',
+          '易错点 2：只判断被信任次数，忽略候选人主动信任别人。',
+          '易错点 3：居民编号从 1 开始，却遍历了不存在的 0。',
+          '延伸方向：入度出度、拓扑排序、图中的特殊节点识别。',
+        ],
+      },
+    ],
+  },
 ];
