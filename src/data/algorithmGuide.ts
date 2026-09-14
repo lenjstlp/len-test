@@ -100231,4 +100231,98 @@ function insertIntoMaxTree(
       },
     ],
   },
+  {
+    id: 'minimum-cost-to-merge-stones',
+    label: '1000. LeetCode 1000. 合并石头的最低成本',
+    difficulty: '困难',
+    description:
+      '每次把恰好 K 堆相邻石头合并成一堆，成本等于这些石头总数，求合并成一堆的最低总成本；无法完成则返回 -1。',
+    outcome:
+      '你能掌握区间动态规划，理解合并堆数的可行性条件，以及为什么状态需要同时记录区间长度和最终堆数。',
+    sections: [
+      {
+        id: 'merge-stones-summary',
+        title: '题目在问什么',
+        summary:
+          '每次只能选择连续的 `K` 堆合并。合并成本是被合并石头的总数，最终要求整个数组只剩一堆。',
+        bullets: [
+          '相邻是硬条件，不能任意挑选 K 堆。',
+          '合并顺序不同会产生不同成本。',
+          '总堆数需要满足 `(n - 1) % (K - 1) === 0` 才可能最终合成一堆。',
+          '前缀和可以在 O(1) 时间得到任意区间石头总数。',
+        ],
+      },
+      {
+        id: 'merge-stones-dp',
+        title: '区间 DP：先求拆分成本，再合并当前区间',
+        summary:
+          '定义 `dp[left][right]` 为把区间合并成尽可能少的合法堆数的最低成本。按区间长度枚举，并以 `K - 1` 为步长切分，最后当区间可以合成一堆时加上区间总和。',
+        bullets: [
+          '一次 K 合并会让堆数减少 `K - 1`。',
+          '拆分点按 `K - 1` 跳跃可以避免大量不可能状态。',
+          '区间长度为 `K` 时才能直接支付一次区间总和。',
+          '使用大数作为不可达状态，转移时先过滤不可达项。',
+        ],
+        callout:
+          '区间合并题的核心不是“怎么选下一次合并”，而是记录一个区间在不同剩余堆数下的最优值。先用堆数变化规律缩小状态，再做区间切分。',
+      },
+      {
+        id: 'merge-stones-solution',
+        title: '标准解法：按 K - 1 切分的区间 DP',
+        summary:
+          '先判断可行性，再枚举区间长度。`dp[left][right]` 表示区间最终压缩到最少合法堆数时的成本；当区间长度满足可合成一堆时额外加区间和。',
+        bullets: [
+          '时间复杂度：`O(n^3 / K)`，常写作 `O(n^3)`。',
+          '空间复杂度：`O(n^2)`。',
+          '区间下标使用左闭右闭，前缀和使用半开区间更容易计算。',
+        ],
+        code: `function mergeStones(stones: number[], k: number): number {
+  const length = stones.length
+  if ((length - 1) % (k - 1) !== 0) {
+    return -1
+  }
+
+  const prefix = new Array(length + 1).fill(0)
+  for (let index = 0; index < length; index += 1) {
+    prefix[index + 1] = prefix[index] + stones[index]
+  }
+
+  const infinity = Number.MAX_SAFE_INTEGER
+  const dp = Array.from({ length }, () => Array(length).fill(0))
+
+  for (let size = k; size <= length; size += 1) {
+    for (let left = 0; left + size <= length; left += 1) {
+      const right = left + size - 1
+      dp[left][right] = infinity
+
+      for (let middle = left; middle < right; middle += k - 1) {
+        dp[left][right] = Math.min(
+          dp[left][right],
+          dp[left][middle] + dp[middle + 1][right],
+        )
+      }
+
+      if ((size - 1) % (k - 1) === 0) {
+        dp[left][right] += prefix[right + 1] - prefix[left]
+      }
+    }
+  }
+
+  return dp[0][length - 1]
+}`,
+      },
+      {
+        id: 'merge-stones-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最常见的错误是忽略可行性条件，或每个切分点都尝试而产生大量无效状态。',
+        bullets: [
+          '易错点 1：把一次合并减少的堆数写成 K，而不是 K - 1。',
+          '易错点 2：没有在区间能合成一堆时才加区间总和。',
+          '易错点 3：使用普通数值无穷大相加产生溢出或错误转移。',
+          '延伸方向：石子合并、矩阵链乘法、环形区间 DP。',
+        ],
+      },
+    ],
+  },
 ];
