@@ -100325,4 +100325,121 @@ function insertIntoMaxTree(
       },
     ],
   },
+  {
+    id: 'grid-illumination',
+    label: '1001. LeetCode 1001. 网格照明',
+    difficulty: '困难',
+    description:
+      '在巨大的网格中放置灯，灯会照亮同一行、列和对角线。回答查询点是否被照亮，并在每次查询后关闭该点及其八邻域的灯。',
+    outcome:
+      '你能掌握大规模稀疏网格的哈希建模，知道如何用行、列、两条对角线的计数判断照明，并正确处理查询后的局部关灯。',
+    sections: [
+      {
+        id: 'grid-illumination-summary',
+        title: '题目在问什么',
+        summary:
+          '网格边长可能非常大，不能按二维数组存储。灯 `(row, column)` 会照亮所在行、列、主对角线 `row - column` 和副对角线 `row + column`。',
+        bullets: [
+          '查询点被任意一盏灯照亮即可返回 1。',
+          '查询完成后要关闭查询点周围九宫格内的灯。',
+          '同一位置重复放灯时只能算一盏，不能重复计数。',
+          '用字符串拼接坐标作为哈希键，避免二维数组的空间开销。',
+        ],
+      },
+      {
+        id: 'grid-illumination-hash',
+        title: '哈希计数：四类线分别维护灯数',
+        summary:
+          '分别维护每行、每列、`row - column` 和 `row + column` 上的灯数量。查询时只需检查四个计数是否存在；关灯时从四类计数中各减一。',
+        bullets: [
+          '灯的唯一键使用 `${row},${column}`。',
+          '对角线差值可能为负数，Map 可以直接支持。',
+          '删除灯时必须先判断集合中确实存在，防止重复扣减。',
+          '关闭九宫格时只需要检查最多 9 个坐标。',
+        ],
+        callout:
+          '这是典型的“用多个一维投影替代二维状态”：照明关系只依赖四个特征值，因此不必保存整张网格。',
+      },
+      {
+        id: 'grid-illumination-solution',
+        title: '标准解法：集合加四个计数 Map',
+        summary:
+          '初始化灯时去重并更新四类计数。处理每个查询后，枚举九宫格并删除仍然亮着的灯。',
+        bullets: [
+          '时间复杂度：`O(L + Q)`，`L` 为灯数量，`Q` 为查询数量。',
+          '空间复杂度：`O(L)`。',
+          '查询结果必须在关灯之前计算。',
+        ],
+        code: `function gridIllumination(
+  n: number,
+  lamps: number[][],
+  queries: number[][],
+): number[] {
+  const active = new Set<string>()
+  const rows = new Map<number, number>()
+  const columns = new Map<number, number>()
+  const diagonals = new Map<number, number>()
+  const antiDiagonals = new Map<number, number>()
+  const result: number[] = []
+
+  const add = (map: Map<number, number>, key: number, delta: number) => {
+    map.set(key, (map.get(key) ?? 0) + delta)
+  }
+
+  for (const [row, column] of lamps) {
+    const key = row + ',' + column
+    if (active.has(key)) {
+      continue
+    }
+    active.add(key)
+    add(rows, row, 1)
+    add(columns, column, 1)
+    add(diagonals, row - column, 1)
+    add(antiDiagonals, row + column, 1)
+  }
+
+  for (const [row, column] of queries) {
+    result.push(
+      (rows.get(row) ?? 0) > 0 ||
+        (columns.get(column) ?? 0) > 0 ||
+        (diagonals.get(row - column) ?? 0) > 0 ||
+        (antiDiagonals.get(row + column) ?? 0) > 0
+        ? 1
+        : 0,
+    )
+
+    for (let rowOffset = -1; rowOffset <= 1; rowOffset += 1) {
+      for (let columnOffset = -1; columnOffset <= 1; columnOffset += 1) {
+        const nextRow = row + rowOffset
+        const nextColumn = column + columnOffset
+        const key = nextRow + ',' + nextColumn
+
+        if (!active.delete(key)) {
+          continue
+        }
+        add(rows, nextRow, -1)
+        add(columns, nextColumn, -1)
+        add(diagonals, nextRow - nextColumn, -1)
+        add(antiDiagonals, nextRow + nextColumn, -1)
+      }
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'grid-illumination-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不能只保存灯的位置而不维护四类计数，否则每次查询都要遍历所有灯，复杂度会超限。',
+        bullets: [
+          '易错点 1：重复灯重复累加，导致关灯后计数错误。',
+          '易错点 2：只关闭查询点，不关闭周围八个位置。',
+          '易错点 3：把两条对角线的标识写成同一种表达式。',
+          '延伸方向：稀疏矩阵、哈希投影、空间索引。',
+        ],
+      },
+    ],
+  },
 ];
