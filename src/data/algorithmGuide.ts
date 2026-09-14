@@ -100054,4 +100054,83 @@ function isCousins(
       },
     ],
   },
+  {
+    id: 'maximum-binary-tree',
+    label: '998. LeetCode 998. 最大二叉树 II',
+    difficulty: '中等',
+    description:
+      '给定一棵由数组构造的最大二叉树，再插入一个新值，返回插入后的最大二叉树。新值会追加到原数组末尾。',
+    outcome:
+      '你能理解最大二叉树的构造规则，掌握沿右链寻找插入位置的递归写法，并知道为什么新值只可能影响右侧路径。',
+    sections: [
+      {
+        id: 'maximum-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '最大二叉树的根是数组最大值，根左侧元素递归构成左子树，根右侧元素递归构成右子树。现在把 `val` 追加到数组末尾后重建这棵树。',
+        bullets: [
+          '数组追加元素意味着原数组的相对顺序不变。',
+          '新值如果小于当前节点，只会继续进入右子树。',
+          '新值如果大于当前节点，它会成为当前子树的新根，原树成为它的左子树。',
+        ],
+      },
+      {
+        id: 'maximum-binary-tree-insert',
+        title: '递归：沿右链寻找第一个更小节点',
+        summary:
+          '从根开始比较。若新值更大，直接创建新根并把当前树接到左侧；否则递归处理右子树。由于新值追加在末尾，左子树不需要改变。',
+        bullets: [
+          '新节点只会出现在原树的右链上。',
+          '遇到空右子树时，新值直接成为右孩子。',
+          '比较关系满足最大堆式的父子约束。',
+        ],
+        callout:
+          '当一个元素追加到序列末尾时，基于“区间最大值”的递归树结构通常只会沿着右侧路径变化；识别这条不变量可以避免整棵树重建。',
+      },
+      {
+        id: 'maximum-binary-tree-solution',
+        title: '标准解法：只更新右子树',
+        summary:
+          '比较当前节点与新值。如果新值更大，创建新节点；否则继续向右递归。',
+        bullets: [
+          '时间复杂度：`O(h)`，`h` 为树高，最坏为 `O(n)`。',
+          '空间复杂度：递归栈为 `O(h)`。',
+          '需要先处理 `root === null` 的情况。',
+        ],
+        code: `type MaximumTreeNode = {
+  val: number
+  left: MaximumTreeNode | null
+  right: MaximumTreeNode | null
+}
+
+function insertIntoMaxTree(
+  root: MaximumTreeNode | null,
+  val: number,
+): MaximumTreeNode {
+  if (root === null || val > root.val) {
+    return {
+      val,
+      left: root,
+      right: null,
+    }
+  }
+
+  root.right = insertIntoMaxTree(root.right, val)
+  return root
+}`,
+      },
+      {
+        id: 'maximum-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '不要因为新值变大就重建整棵树。关键是理解它只追加到数组末尾，因此不会改变任何左侧区间。',
+        bullets: [
+          '易错点 1：新值大于根时忘记把原根作为新根的左子树。',
+          '易错点 2：新值较小时修改了左子树。',
+          '易错点 3：递归更新右子树后没有把结果重新挂回。',
+          '延伸方向：笛卡尔树、单调栈构造最大树、二叉树递归不变量。',
+        ],
+      },
+    ],
+  },
 ];
