@@ -100599,4 +100599,83 @@ function insertIntoMaxTree(
       },
     ],
   },
+  {
+    id: 'max-consecutive-ones-iii',
+    label: '1004. LeetCode 1004. 最大连续 1 的个数 III',
+    difficulty: '中等',
+    description:
+      '给定只包含 0 和 1 的数组，最多把 K 个 0 翻成 1，求最长连续 1 子数组长度。',
+    outcome:
+      '你能掌握“窗口内坏元素数量受限”的滑动窗口模板，理解为什么窗口只需在 0 的数量超过 K 时收缩。',
+    sections: [
+      {
+        id: 'max-ones-summary',
+        title: '题目在问什么',
+        summary:
+          '选择一个连续子数组，使其中 0 的数量不超过 `K`；把这些 0 翻转后，整个子数组就会变成连续 1。目标是最大化子数组长度。',
+        bullets: [
+          '翻转次数按窗口中的 0 的数量计算。',
+          '不需要真的修改数组，只要统计窗口内的 0。',
+          '窗口合法条件是 `zeroCount <= K`。',
+        ],
+      },
+      {
+        id: 'max-ones-window',
+        title: '滑动窗口：维护最多 K 个零',
+        summary:
+          '右指针不断扩展窗口，遇到 0 就增加计数。当 0 的数量超过 K 时移动左指针，直到窗口重新合法。',
+        bullets: [
+          '右指针只向右移动，每个元素最多进入一次。',
+          '左指针离开 0 时要同步减少计数。',
+          '每次窗口合法后用长度更新答案。',
+        ],
+        callout:
+          '“最多允许 K 个坏元素”的连续区间问题，通常可以直接套用右扩、超限左缩、记录最大长度的模板。',
+      },
+      {
+        id: 'max-ones-solution',
+        title: '标准解法：最长合法窗口',
+        summary: '只维护当前窗口中 0 的数量，不需要额外数组。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '收缩必须使用 `while`，因为窗口可能一次删除后仍然超限。',
+        ],
+        code: `function longestOnes(nums: number[], k: number): number {
+  let left = 0
+  let zeroCount = 0
+  let answer = 0
+
+  for (let right = 0; right < nums.length; right += 1) {
+    if (nums[right] === 0) {
+      zeroCount += 1
+    }
+
+    while (zeroCount > k) {
+      if (nums[left] === 0) {
+        zeroCount -= 1
+      }
+      left += 1
+    }
+
+    answer = Math.max(answer, right - left + 1)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'max-ones-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不是求数组中原本最长的 1，而是求允许修改后的最长窗口，因此不能只统计连续 1。',
+        bullets: [
+          '易错点 1：把 K 当成窗口长度。',
+          '易错点 2：窗口超限时只移动一次左指针。',
+          '易错点 3：忘记把左侧移出的 0 从计数中扣除。',
+          '延伸方向：至多 K 个坏点、替换字符、连续子数组最优化。',
+        ],
+      },
+    ],
+  },
 ];
