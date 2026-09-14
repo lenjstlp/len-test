@@ -99795,4 +99795,87 @@ function isCousins(
       },
     ],
   },
+  {
+    id: 'minimum-number-of-k-consecutive-bit-flips',
+    label: '995. LeetCode 995. K 连续位的最小翻转次数',
+    difficulty: '困难',
+    description:
+      '给定只包含 0 和 1 的数组，每次可以翻转连续 K 个位，求把所有位变成 1 所需的最少翻转次数；如果无法完成则返回 -1。',
+    outcome:
+      '你能掌握滑动窗口记录翻转影响的贪心方法，理解为什么扫描到当前位置时必须立刻决定是否翻转，以及如何用差分数组把复杂度降到线性。',
+    sections: [
+      {
+        id: 'bit-flips-summary',
+        title: '题目在问什么',
+        summary:
+          '每次操作会把一个长度为 `K` 的连续区间中的 0 变成 1、1 变成 0。要求用最少操作让整个数组变成全 1。',
+        bullets: [
+          '翻转区间必须连续，长度必须恰好为 `K`。',
+          '处理到位置 `index` 时，之后的操作无法再影响它。',
+          '如果当前位置在当前有效翻转后仍为 0，就只能从这里开始一次翻转。',
+          '数组尾部不足 `K` 个位置时不能再开始翻转。',
+        ],
+      },
+      {
+        id: 'bit-flips-greedy',
+        title: '贪心：当前位置为 0 就翻转',
+        summary:
+          '从左到右扫描。利用差分数组记录某个位置当前受到的翻转次数奇偶性；如果有效翻转后的值为 0，必须在当前位置开始翻转，否则永远无法修正它。',
+        bullets: [
+          '翻转次数为偶数等价于没有翻转，奇数等价于被翻转一次。',
+          '用 `activeFlips` 维护当前仍覆盖扫描位置的翻转数量。',
+          '差分数组在 `index + K` 处撤销这次翻转的影响。',
+          '这是局部唯一选择，因此贪心结果也是最优结果。',
+        ],
+        callout:
+          '当一个位置一旦离开扫描范围就无法被未来操作影响时，先满足这个位置通常是强制决策。关键是把区间操作对未来的影响延迟记录，而不是每次真的修改 K 个元素。',
+      },
+      {
+        id: 'bit-flips-solution',
+        title: '标准解法：差分数组模拟窗口影响',
+        summary:
+          '差分数组只记录翻转影响的开始和结束位置，不实际翻转区间中的每一位。遇到无法完成的尾部位置时直接返回 `-1`。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`；也可以进一步使用原数组标记差分。',
+          '在 `index + K` 处撤销影响前要先判断该位置是否越界。',
+        ],
+        code: `function minKBitFlips(nums: number[], k: number): number {
+  const difference = new Array(nums.length + 1).fill(0)
+  let activeFlips = 0
+  let answer = 0
+
+  for (let index = 0; index < nums.length; index += 1) {
+    activeFlips += difference[index]
+    const current = nums[index] ^ (activeFlips % 2)
+
+    if (current === 1) {
+      continue
+    }
+    if (index + k > nums.length) {
+      return -1
+    }
+
+    answer += 1
+    activeFlips += 1
+    difference[index + k] -= 1
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'bit-flips-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题容易把区间翻转写成每次修改 K 个元素，导致最坏复杂度变成 `O(nK)`；还容易忘记翻转影响只看奇偶。',
+        bullets: [
+          '易错点 1：把翻转次数直接当成数值，而不是只关注奇偶性。',
+          '易错点 2：撤销窗口影响时使用了错误的下标。',
+          '易错点 3：末尾不足 K 个位置时仍然尝试翻转。',
+          '延伸方向：差分数组、区间更新、滑动窗口和强制贪心。',
+        ],
+      },
+    ],
+  },
 ];
