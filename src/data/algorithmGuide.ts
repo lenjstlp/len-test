@@ -100756,4 +100756,87 @@ function insertIntoMaxTree(
       },
     ],
   },
+  {
+    id: 'clumsy-factorial',
+    label: '1006. LeetCode 1006. 笨阶乘',
+    difficulty: '中等',
+    description:
+      '给定正整数 n，按照乘、除、加、减的顺序替换阶乘中的运算符，并遵守从左到右的计算顺序，返回表达式的结果。',
+    outcome:
+      '你能掌握固定运算符循环的栈模拟，理解为什么乘除可以先归并、加减需要保留为独立项，以及 JavaScript 中除法取整与题目规则的差异。',
+    sections: [
+      {
+        id: 'clumsy-factorial-summary',
+        title: '题目在问什么',
+        summary:
+          '笨阶乘把 `n!` 改写为 `n * (n - 1) / (n - 2) + (n - 3) - (n - 4) * ...`，运算符循环为 `*`、`/`、`+`、`-`，并且按照从左到右的顺序计算，而不是遵循普通数学中的乘除优先级。',
+        bullets: [
+          '第一个数字是 `n`，第一个运算符连接 `n` 和 `n - 1`。',
+          '之后的运算符按照乘、除、加、减循环。',
+          '除法结果需要向零取整。',
+          '当下一个数字不存在时，表达式立即结束。',
+        ],
+      },
+      {
+        id: 'clumsy-factorial-stack',
+        title: '栈模拟：先处理乘除，保留加减项',
+        summary:
+          '乘法和除法只影响当前栈顶项，可以立即计算；加法直接把数字压栈，减法把相反数压栈。最后栈中所有数字相加，就是从左到右执行后的结果。',
+        bullets: [
+          '初始化时把 `n` 放入栈。',
+          '第一个循环位置使用乘法，之后按四种运算符循环。',
+          '遇到除法使用 `Math.trunc`，模拟题目要求的向零取整。',
+          '加法和减法不需要立刻与前项合并，保存成正数或负数即可。',
+        ],
+        callout:
+          '遇到运算符优先级和结合顺序被题目重新定义时，不要直接套用常规表达式规则。可以把高优先级操作先折叠，把低优先级操作拆成带符号的栈元素。',
+      },
+      {
+        id: 'clumsy-factorial-solution',
+        title: '标准解法：按四步循环处理',
+        summary:
+          '从 `n - 1` 倒序遍历到 1，根据已经处理的数字数量决定当前运算符。乘除修改栈顶，加减压入新项，最后求栈和。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`；如果使用常数状态也可以进一步优化。',
+          '不能使用 `Math.floor` 代替 `Math.trunc`，因为负数除法也要向零取整。',
+          '例如 `5 / 2` 取 `2`，`-5 / 2` 取 `-2`。',
+        ],
+        code: `function clumsy(n: number): number {
+  const stack: number[] = [n]
+
+  for (let value = n - 1; value >= 1; value -= 1) {
+    const operation = (n - value) % 4
+
+    if (operation === 1) {
+      stack[stack.length - 1] *= value
+    } else if (operation === 2) {
+      stack[stack.length - 1] = Math.trunc(
+        stack[stack.length - 1] / value,
+      )
+    } else if (operation === 3) {
+      stack.push(value)
+    } else {
+      stack.push(-value)
+    }
+  }
+
+  return stack.reduce((sum, value) => sum + value, 0)
+}`,
+      },
+      {
+        id: 'clumsy-factorial-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易错在运算符下标和除法取整。若直接写成一条普通表达式，JavaScript 会使用正常的乘除优先级，结果与题目不同。',
+        bullets: [
+          '易错点 1：忘记题目要求从左到右计算。',
+          '易错点 2：把第一个运算符错位，导致乘除加减循环整体偏移。',
+          '易错点 3：使用 `Math.floor`，负数项出现时会向负无穷取整。',
+          '易错点 4：加减直接修改总和，忽略后续乘除仍可能作用于当前项。',
+          '延伸方向：表达式求值、栈模拟、运算符优先级和自定义语法解释器。',
+        ],
+      },
+    ],
+  },
 ];
