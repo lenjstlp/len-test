@@ -101436,4 +101436,73 @@ function bstFromPreorder(preorder: number[]): BstNode | null {
       },
     ],
   },
+  {
+    id: 'best-sightseeing-pair',
+    label: '1014. LeetCode 1014. 最佳观光组合',
+    difficulty: '中等',
+    description:
+      '给定景点评分数组，两个景点 i 和 j 的观光组合得分为 values[i] + values[j] + i - j，求所有 i < j 的最大得分。',
+    outcome:
+      '你能把双重循环中的表达式拆成“左侧最佳值 + 当前值”，掌握前缀最优值的一次扫描优化，并理解动态规划中维护历史最优状态的方式。',
+    sections: [
+      {
+        id: 'sightseeing-pair-summary',
+        title: '题目在问什么',
+        summary:
+          '选择两个下标 `i < j`，组合得分为 `values[i] + i + values[j] - j`。直接枚举两个景点需要 `O(n^2)`，需要找出可复用的历史信息。',
+        bullets: [
+          '右侧景点 j 必须出现在左侧景点 i 的后面。',
+          '得分可以拆成左景点贡献 `values[i] + i` 和右景点贡献 `values[j] - j`。',
+          '扫描到 j 时，只需要知道此前最大的 `values[i] + i`。',
+        ],
+      },
+      {
+        id: 'sightseeing-pair-dp',
+        title: '动态规划：维护左侧历史最优贡献',
+        summary:
+          '从左到右扫描，把当前位置当作右景点。先用历史最大值计算当前组合得分，再用当前位置更新历史最大值，保证下次选择的 i 一定小于 j。',
+        bullets: [
+          '历史最优值初始为第一个景点的 `values[0] + 0`。',
+          '计算当前答案时必须先查询历史最优，再更新它。',
+          '移动到下一个位置时，右侧景点的 `-j` 会自然被加入当前贡献。',
+        ],
+        callout:
+          '看到形如 `A[i] + i + A[j] - j` 的双下标表达式时，可以尝试把 i 和 j 的部分分离。只要一侧的最优值能被持续维护，双重循环就可能降成一次扫描。',
+      },
+      {
+        id: 'sightseeing-pair-solution',
+        title: '标准解法：前缀最大值加当前贡献',
+        summary:
+          '维护左侧 `values[i] + i` 的最大值，遍历每个 j 计算组合得分并更新答案。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '先计算答案再更新历史值，避免把同一个景点同时当成 i 和 j。',
+        ],
+        code: `function maxScoreSightseeingPair(values: number[]): number {
+  let bestLeft = values[0]
+  let answer = Number.NEGATIVE_INFINITY
+
+  for (let right = 1; right < values.length; right += 1) {
+    answer = Math.max(answer, bestLeft + values[right] - right)
+    bestLeft = Math.max(bestLeft, values[right] + right)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'sightseeing-pair-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题最容易错在下标符号和更新顺序。左侧贡献是 `values[i] + i`，右侧贡献是 `values[j] - j`，两者不能写反。',
+        bullets: [
+          '易错点 1：把两个景点的下标都加到得分中。',
+          '易错点 2：更新 bestLeft 后才计算当前答案，导致 i 和 j 可能相同。',
+          '易错点 3：从下标 0 开始计算答案，没有确保选择两个不同景点。',
+          '延伸方向：前缀最值、线性 DP、表达式拆分和状态压缩。',
+        ],
+      },
+    ],
+  },
 ];
