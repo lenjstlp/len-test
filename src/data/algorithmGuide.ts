@@ -101167,4 +101167,94 @@ function bstFromPreorder(preorder: number[]): BstNode | null {
       },
     ],
   },
+  {
+    id: 'capacity-to-ship-packages-within-d-days',
+    label: '1011. LeetCode 1011. 在 D 天内送达包裹的能力',
+    difficulty: '中等',
+    description:
+      '包裹必须按照给定顺序装船，每天装载能力固定，求在 D 天内运完所有包裹所需的最小船容量。',
+    outcome:
+      '你能掌握“答案具有单调性”的二分搜索，理解如何用线性贪心判断一个容量是否可行，并能识别最小值与总和构成的搜索边界。',
+    sections: [
+      {
+        id: 'ship-packages-summary',
+        title: '题目在问什么',
+        summary:
+          '包裹按数组顺序运输，每天可以连续装载若干包裹，但不能超过船容量。求最小的容量，使所有包裹在 `days` 天内完成运输。',
+        bullets: [
+          '包裹顺序不能调整。',
+          '单个包裹重量不能超过船容量。',
+          '容量越大，需要的天数不会增加。',
+          '船容量的下界是最大包裹重量，上界是所有包裹重量之和。',
+        ],
+      },
+      {
+        id: 'ship-packages-binary-search',
+        title: '二分答案：容量越大越容易完成',
+        summary:
+          '把“容量”作为答案空间。给定一个候选容量，从左到右贪心装载，计算需要多少天；如果天数不超过 D，说明容量可行，并尝试更小容量。',
+        bullets: [
+          '验证函数只需按顺序累加包裹重量。',
+          '当前包裹放不进当天时，开启新的一天。',
+          '可行容量构成从某个值开始的连续区间，因此可以二分。',
+          '二分收敛时保留最小可行值。',
+        ],
+        callout:
+          '当问题要求“满足约束的最小数值”，并且数值越大越容易满足时，可以把构造答案转成“二分一个候选值 + 线性验证”。',
+      },
+      {
+        id: 'ship-packages-solution',
+        title: '标准解法：二分最小可行容量',
+        summary:
+          '在最大包裹重量与总重量之间二分容量，用一次贪心扫描统计所需天数。',
+        bullets: [
+          '时间复杂度：`O(n log S)`，`S` 为总重量与最大重量之间的搜索范围。',
+          '空间复杂度：`O(1)`。',
+          '候选容量可行时要移动右边界，避免错过更小答案。',
+        ],
+        code: `function shipWithinDays(weights: number[], days: number): number {
+  let left = Math.max(...weights)
+  let right = weights.reduce((sum, weight) => sum + weight, 0)
+
+  const canShip = (capacity: number): boolean => {
+    let usedDays = 1
+    let currentLoad = 0
+
+    for (const weight of weights) {
+      if (currentLoad + weight > capacity) {
+        usedDays += 1
+        currentLoad = 0
+      }
+      currentLoad += weight
+    }
+
+    return usedDays <= days
+  }
+
+  while (left < right) {
+    const middle = Math.floor((left + right) / 2)
+    if (canShip(middle)) {
+      right = middle
+    } else {
+      left = middle + 1
+    }
+  }
+
+  return left
+}`,
+      },
+      {
+        id: 'ship-packages-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '验证时不能重新排序或跳过包裹，且每天至少算作一天；边界设错会让二分得到小于最大包裹重量的非法答案。',
+        bullets: [
+          '易错点 1：把包裹排序后再装载，违反题目顺序约束。',
+          '易错点 2：下界从 0 开始，没有使用最大包裹重量。',
+          '易错点 3：容量可行时错误地令左边界右移。',
+          '延伸方向：答案二分、分配问题、最小最大值优化。',
+        ],
+      },
+    ],
+  },
 ];
