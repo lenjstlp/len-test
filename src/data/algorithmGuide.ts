@@ -101027,4 +101027,71 @@ function bstFromPreorder(preorder: number[]): BstNode | null {
       },
     ],
   },
+  {
+    id: 'complement-of-base-10-integer',
+    label: '1009. LeetCode 1009. 十进制整数的补数',
+    difficulty: '简单',
+    description:
+      '给定一个正整数，返回其二进制表示中所有位翻转后的十进制结果，且只翻转最高位为 1 及其右侧的有效位。',
+    outcome:
+      '你能理解“有效位掩码”的构造方式，掌握异或翻转指定二进制位，并避免 JavaScript 按位运算只保留 32 位带来的边界问题。',
+    sections: [
+      {
+        id: 'integer-complement-summary',
+        title: '题目在问什么',
+        summary:
+          '例如 `5` 的二进制是 `101`，只翻转这三位得到 `010`，结果为 `2`。前导零不属于需要翻转的有效位。',
+        bullets: [
+          '有效位从最高位的第一个 `1` 开始。',
+          '不能直接对 JavaScript 的 32 位按位取反结果使用 `~`。',
+          '构造与数字位数相同的全 1 掩码后，使用异或即可翻转有效位。',
+        ],
+      },
+      {
+        id: 'integer-complement-mask',
+        title: '掩码：用全 1 覆盖有效二进制位',
+        summary:
+          '先找到不小于 `n` 的最小全 1 二进制数，例如 `n = 5` 时掩码为 `111`。`n ^ mask` 会只翻转 n 的有效位。',
+        bullets: [
+          '循环左移并加 1，可以构造与 n 位数相同的全 1 掩码。',
+          '也可以通过不断右移 n 来统计位数，再构造掩码。',
+          '异或相同为 0、不同为 1，正好对应位翻转。',
+        ],
+        callout:
+          '位运算题中，先明确“哪些位属于题目范围”非常重要。全局取反往往会引入无关的高位，先构造有效位掩码可以把操作限制在正确范围内。',
+      },
+      {
+        id: 'integer-complement-solution',
+        title: '标准解法：构造掩码后异或',
+        summary:
+          '不断把掩码左移一位并补上最低位 1，直到掩码覆盖 n 的最高有效位，然后返回异或结果。',
+        bullets: [
+          '时间复杂度：`O(log n)`。',
+          '空间复杂度：`O(1)`。',
+          '题目数据范围适合使用 JavaScript 的按位运算；更大整数应改用 BigInt。',
+        ],
+        code: `function bitwiseComplement(n: number): number {
+  let mask = 1
+
+  while (mask < n) {
+    mask = (mask << 1) | 1
+  }
+
+  return n ^ mask
+}`,
+      },
+      {
+        id: 'integer-complement-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '直接写 `~n` 得到的是 JavaScript 有符号 32 位整数的补码结果，包含了有效位左侧的大量 1，通常不是题目答案。',
+        bullets: [
+          '易错点 1：翻转了前导零或 32 位中的无关高位。',
+          '易错点 2：n 为 1 时没有正确构造掩码。',
+          '易错点 3：不了解 JavaScript 按位运算会转换为 32 位整数。',
+          '延伸方向：位掩码、异或、二进制位统计和补码表示。',
+        ],
+      },
+    ],
+  },
 ];
