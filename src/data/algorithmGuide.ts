@@ -100839,4 +100839,94 @@ function insertIntoMaxTree(
       },
     ],
   },
+  {
+    id: 'minimum-domino-rotations-for-equal-row',
+    label: '1007. LeetCode 1007. 行相等的最少多米诺旋转',
+    difficulty: '中等',
+    description:
+      '给定上下两排多米诺骨牌，每次可以旋转一张，求让某一排全部显示同一个数字所需的最少旋转次数；无法做到则返回 -1。',
+    outcome:
+      '你能掌握候选值枚举与贪心计数，理解为什么只需尝试首张骨牌的四个数字，并学会用两排数据同时判断可行性。',
+    sections: [
+      {
+        id: 'domino-rotations-summary',
+        title: '题目在问什么',
+        summary:
+          '第 `index` 张骨牌的上面数字为 `tops[index]`，下面数字为 `bottoms[index]`。旋转骨牌会交换这两个数字，目标是让上排或下排全部相同。',
+        bullets: [
+          '每张骨牌最多旋转一次，旋转不会改变这张骨牌包含的两个数字。',
+          '最终统一的数字必须出现在第一张骨牌的上面或下面。',
+          '如果某张骨牌的两面都不是候选数字，就不可能完成统一。',
+        ],
+      },
+      {
+        id: 'domino-rotations-greedy',
+        title: '贪心：枚举统一目标并统计旋转数',
+        summary:
+          '只尝试 `tops[0]` 和 `bottoms[0]` 作为目标数字。对每个候选值扫描所有骨牌，分别统计让上排或下排统一所需的旋转次数。',
+        bullets: [
+          '第一张骨牌决定了最终数字的候选集合。',
+          '如果某张骨牌两面都不等于目标值，候选方案立即失败。',
+          '同一张骨牌只有在目标值位于另一面时才需要旋转。',
+        ],
+        callout:
+          '当最终状态必须包含某个固定位置的元素时，可以先从这个位置提取候选答案，再用一次线性扫描验证每个候选。候选数量很小时，这种贪心比复杂搜索更直接。',
+      },
+      {
+        id: 'domino-rotations-solution',
+        title: '标准解法：两种方向取最小值',
+        summary:
+          '定义一个函数计算目标数字出现在上排或下排时的旋转次数，分别尝试第一张骨牌的两面，取所有可行方案中的最小值。',
+        bullets: [
+          '时间复杂度：`O(n)`，候选数字最多两个。',
+          '空间复杂度：`O(1)`。',
+          '统一上排的旋转数等于目标值位于 bottom 的次数；统一下排则相反。',
+        ],
+        code: `function minDominoRotations(
+  tops: number[],
+  bottoms: number[],
+): number {
+  const rotationsFor = (target: number, makeTop: boolean): number => {
+    let rotations = 0
+
+    for (let index = 0; index < tops.length; index += 1) {
+      if (tops[index] !== target && bottoms[index] !== target) {
+        return Infinity
+      }
+      if ((makeTop ? tops[index] : bottoms[index]) !== target) {
+        rotations += 1
+      }
+    }
+
+    return rotations
+  }
+
+  const candidates = [tops[0], bottoms[0]]
+  let answer = Infinity
+
+  for (const target of candidates) {
+    answer = Math.min(
+      answer,
+      rotationsFor(target, true),
+      rotationsFor(target, false),
+    )
+  }
+
+  return answer === Infinity ? -1 : answer
+}`,
+      },
+      {
+        id: 'domino-rotations-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不需要枚举每张骨牌的旋转组合，因为最终数字由第一张骨牌限制；重点是同时计算上下两排的旋转次数。',
+        bullets: [
+          '易错点 1：只尝试第一张骨牌上面的数字，漏掉下面的候选。',
+          '易错点 2：发现目标值存在就计数，没有检查另一面是否也能提供目标值。',
+          '易错点 3：返回旋转次数时忘记处理不可行方案。',
+          '延伸方向：有限候选贪心、计数验证、状态压缩搜索。',
+        ],
+      },
+    ],
+  },
 ];
