@@ -101353,4 +101353,87 @@ function bstFromPreorder(preorder: number[]): BstNode | null {
       },
     ],
   },
+  {
+    id: 'partition-array-into-three-parts-with-equal-sum',
+    label: '1013. LeetCode 1013. 将数组分成和相等的三个部分',
+    difficulty: '简单',
+    description:
+      '给定一个整数数组，判断能否找到两个切分点，把数组分成连续的三段，并且三段的元素和相等。',
+    outcome:
+      '你能掌握前缀和在数组分段问题中的应用，理解总和整除条件与从左到右寻找前两段的贪心过程，并处理负数和零的情况。',
+    sections: [
+      {
+        id: 'three-equal-parts-summary',
+        title: '题目在问什么',
+        summary:
+          '把数组分成三个非空连续部分，使三个部分的和相等。切分点只能出现在元素之间，顺序不能改变。',
+        bullets: [
+          '三段必须都非空，因此不能把切分点放在数组首尾。',
+          '如果总和不能被 3 整除，答案一定是 false。',
+          '目标段和等于总和除以 3。',
+          '找到前两段后，剩余部分的和会自动满足要求。',
+        ],
+      },
+      {
+        id: 'three-equal-parts-prefix',
+        title: '前缀和：依次寻找两个目标段',
+        summary:
+          '计算总和并得到目标值后，从左到右累加。第一次达到目标值时切出第一段，第二次达到两倍目标值时切出第二段；同时保证最后一段仍然非空。',
+        bullets: [
+          '前缀和等于目标值代表第一段完成。',
+          '前缀和等于两倍目标值代表前两段完成。',
+          '第二个切分点不能位于最后一个元素之后。',
+          '负数会让前缀和不单调，但不影响从左到右的计数。',
+        ],
+        callout:
+          '数组分段问题不一定需要双指针。只要分段目标由总和确定，就可以用前缀和记录“已经完成了几段”，一次扫描找到切分位置。',
+      },
+      {
+        id: 'three-equal-parts-solution',
+        title: '标准解法：单次扫描两个切分点',
+        summary:
+          '先判断总和是否可被 3 整除，再扫描到倒数第二个元素，找到两个目标前缀和即可返回 true。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(1)`。',
+          '循环只扫描到 `length - 2`，为最后一段预留至少一个元素。',
+        ],
+        code: `function canThreePartsEqualSum(arr: number[]): boolean {
+  const total = arr.reduce((sum, value) => sum + value, 0)
+  if (total % 3 !== 0) {
+    return false
+  }
+
+  const target = total / 3
+  let prefix = 0
+  let parts = 0
+
+  for (let index = 0; index < arr.length - 1; index += 1) {
+    prefix += arr[index]
+    if (prefix === target || (parts === 1 && prefix === target * 2)) {
+      parts += 1
+      prefix = 0
+      if (parts === 2) {
+        return true
+      }
+    }
+  }
+
+  return false
+}`,
+      },
+      {
+        id: 'three-equal-parts-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这题不能简单依赖前缀和单调性，因为数组可能包含负数；同时必须保证第三段存在，不能在最后一个元素处提前切完。',
+        bullets: [
+          '易错点 1：总和不能被 3 整除时仍继续寻找切分点。',
+          '易错点 2：允许第一段或第二段为空。',
+          '易错点 3：扫描到最后一个元素才判断第二段完成。',
+          '延伸方向：前缀和、连续分段、区间和与分组计数。',
+        ],
+      },
+    ],
+  },
 ];
