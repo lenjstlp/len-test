@@ -101257,4 +101257,100 @@ function bstFromPreorder(preorder: number[]): BstNode | null {
       },
     ],
   },
+  {
+    id: 'numbers-with-repeated-digits',
+    label: '1012. LeetCode 1012. 至少有 1 位重复的数字',
+    difficulty: '困难',
+    description:
+      '给定正整数 n，统计区间 [1, n] 中至少有一位数字重复的正整数个数。',
+    outcome:
+      '你能掌握按位构造不重复数字的排列计数，理解如何使用补集统计“各位都不同”的数字，并处理数字长度、前导零和边界前缀。',
+    sections: [
+      {
+        id: 'repeated-digits-summary',
+        title: '题目在问什么',
+        summary:
+          '目标数量等于 `1` 到 `n` 的总数减去其中每一位都不同的数字数量。直接枚举每个数字会超时，因此要按位统计合法排列。',
+        bullets: [
+          '使用补集更容易计数：先数没有重复数字的数。',
+          '最高位不能为 0，后续位置可以选择未使用的数字。',
+          '位数小于 n 的数字一定小于 n，可以整体计数。',
+          '与 n 位数相同的数字需要从高位到低位比较。',
+        ],
+      },
+      {
+        id: 'repeated-digits-counting',
+        title: '排列计数：先统计短数字，再处理同长度边界',
+        summary:
+          '先计算 1 到 `length - 1` 位的无重复数字数量。对于与 n 等长的数字，从最高位开始尝试更小的数字；一旦某一位重复，后续都不可能形成无重复数字。',
+        bullets: [
+          '长度为 `digits` 的无重复正整数首位有 9 种选择。',
+          '后续每一位的选择数依次减少。',
+          '处理 n 的前缀时，用集合记录已经使用过的数字。',
+          '遇到重复数字时停止边界扫描，因为更长前缀已经不合法。',
+        ],
+        callout:
+          '数位计数的常见拆法是“位数更短的全部计数 + 同位数的前缀计数”。前者是排列，后者是带上界的逐位选择。',
+      },
+      {
+        id: 'repeated-digits-solution',
+        title: '标准解法：补集加排列计数',
+        summary:
+          '统计不含重复数字的数量 `uniqueCount`，最后用 `n - uniqueCount` 得到至少有一位重复数字的数量。',
+        bullets: [
+          '时间复杂度：`O(log n * 10)`。',
+          '空间复杂度：`O(10)`。',
+          '排列函数需要正确处理首位不能为 0 的限制。',
+        ],
+        code: `function numDupDigitsAtMostN(n: number): number {
+  const digits = String(n).split('').map(Number)
+  const countPermutation = (available: number, length: number): number => {
+    let result = 1
+    for (let index = 0; index < length; index += 1) {
+      result *= available - index
+    }
+    return result
+  }
+
+  let uniqueCount = 0
+  for (let length = 1; length < digits.length; length += 1) {
+    uniqueCount += 9 * countPermutation(9, length - 1)
+  }
+
+  const used = new Set<number>()
+  for (let index = 0; index < digits.length; index += 1) {
+    const start = index === 0 ? 1 : 0
+    for (let value = start; value < digits[index]; value += 1) {
+      if (!used.has(value)) {
+        uniqueCount += countPermutation(10 - index - 1, digits.length - index - 1)
+      }
+    }
+
+    if (used.has(digits[index])) {
+      break
+    }
+    used.add(digits[index])
+
+    if (index === digits.length - 1) {
+      uniqueCount += 1
+    }
+  }
+
+  return n - uniqueCount
+}`,
+      },
+      {
+        id: 'repeated-digits-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '边界计数最容易错在首位 0、已使用数字数量和重复后是否继续扫描这三个地方。',
+        bullets: [
+          '易错点 1：把 0 当作正整数的最高位。',
+          '易错点 2：排列可用数字数量没有随着前缀长度减少。',
+          '易错点 3：n 本身各位不重复时忘记把它计入补集。',
+          '延伸方向：数位 DP、排列组合、带上界的状态搜索。',
+        ],
+      },
+    ],
+  },
 ];
