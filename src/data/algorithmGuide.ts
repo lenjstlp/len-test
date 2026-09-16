@@ -101094,4 +101094,77 @@ function bstFromPreorder(preorder: number[]): BstNode | null {
       },
     ],
   },
+  {
+    id: 'pairs-of-songs-with-total-durations-divisible-by-60',
+    label: '1010. LeetCode 1010. 总持续时间可被 60 整除的歌曲',
+    difficulty: '中等',
+    description:
+      '给定歌曲时长数组，统计任意两首歌曲的总时长能被 60 整除的歌曲对数量。',
+    outcome:
+      '你能掌握余数分类与在线配对计数，理解为什么只需保存 60 种余数的出现次数，并正确处理余数为 0 和 30 的自配对情况。',
+    sections: [
+      {
+        id: 'song-pairs-summary',
+        title: '题目在问什么',
+        summary:
+          '两首歌曲的时长之和如果能被 60 整除，那么它们的余数之和必须为 0 或 60。需要统计满足条件的下标对 `(i, j)`，其中 `i < j`。',
+        bullets: [
+          '歌曲时长可以很大，但只关心除以 60 的余数。',
+          '余数 `0` 只能和余数 `0` 配对。',
+          '余数 `30` 只能和余数 `30` 配对。',
+          '余数 r 需要和 `60 - r` 配对。',
+        ],
+      },
+      {
+        id: 'song-pairs-remainder',
+        title: '余数配对：边遍历边查找互补余数',
+        summary:
+          '遍历当前歌曲时，先统计此前出现过的互补余数，再把当前余数计入频次。这样每一对只会在后到达的歌曲处计数一次。',
+        bullets: [
+          '当前余数为 0 时，互补余数仍为 0。',
+          '当前余数为 30 时，互补余数仍为 30。',
+          '其他余数的互补值是 `60 - remainder`。',
+          '先查询再累加，天然保证只统计不同下标的歌曲对。',
+        ],
+        callout:
+          '“两数之和满足某个模运算条件”通常可以把元素压缩成余数，再用频次表在线配对。它是两数之和哈希思路在模运算场景中的直接应用。',
+      },
+      {
+        id: 'song-pairs-solution',
+        title: '标准解法：60 位余数频次表',
+        summary:
+          '使用长度为 60 的数组保存已处理歌曲的余数频次，每首歌只做一次查询和一次累加。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(60)`，即 `O(1)`。',
+          '答案可能超过 32 位整数，TypeScript 中应使用 `number` 并注意题目数据范围。',
+        ],
+        code: `function numPairsDivisibleBy60(time: number[]): number {
+  const counts = new Array(60).fill(0)
+  let answer = 0
+
+  for (const duration of time) {
+    const remainder = duration % 60
+    const complement = (60 - remainder) % 60
+    answer += counts[complement]
+    counts[remainder] += 1
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'song-pairs-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最常见的错误是把余数为 0 的互补值写成 60，导致访问数组越界；另一个错误是先加入当前频次而把同一首歌配给自己。',
+        bullets: [
+          '易错点 1：忘记使用 `(60 - remainder) % 60` 处理余数 0。',
+          '易错点 2：先增加当前余数频次，错误地允许歌曲与自己配对。',
+          '易错点 3：对每个歌曲对做双重循环，复杂度达到 `O(n^2)`。',
+          '延伸方向：模运算、频次哈希、组合计数和在线统计。',
+        ],
+      },
+    ],
+  },
 ];
