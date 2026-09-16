@@ -100929,4 +100929,102 @@ function insertIntoMaxTree(
       },
     ],
   },
+  {
+    id: 'construct-binary-search-tree-from-preorder-traversal',
+    label: '1008. LeetCode 1008. 前序遍历构造二叉搜索树',
+    difficulty: '中等',
+    description: '给定一棵二叉搜索树的前序遍历结果，构造并返回这棵二叉搜索树。',
+    outcome:
+      '你能理解前序遍历的访问顺序与二叉搜索树大小关系，掌握递归边界和单调栈两种构造思路，并知道如何在线性时间内完成重建。',
+    sections: [
+      {
+        id: 'preorder-bst-summary',
+        title: '题目在问什么',
+        summary:
+          '二叉搜索树满足左子树所有节点小于根，右子树所有节点大于根。前序遍历顺序是“根、左子树、右子树”，要求根据这个顺序恢复树结构。',
+        bullets: [
+          '前序数组的第一个元素一定是当前子树的根。',
+          '连续的小值会进入左子树，遇到更大的值后开始构造右子树。',
+          '题目中的节点值互不相同，因此不需要处理重复值策略。',
+        ],
+      },
+      {
+        id: 'preorder-bst-stack',
+        title: '单调栈：找到右子树的父节点',
+        summary:
+          '扫描前序序列时，栈保存当前路径上还没有找到右子树的节点，并保持从根到叶的递增关系。当前值小于栈顶时，它是栈顶的左孩子；当前值大于栈顶时，不断弹栈，最后一个弹出的节点就是它的父节点。',
+        bullets: [
+          '第一个值创建根节点并入栈。',
+          '当前值小于栈顶值时，直接挂到栈顶的左侧。',
+          '当前值大于栈顶值时，弹出所有小于它的祖先。',
+          '最后弹出的节点是新值所属右子树的直接父节点。',
+        ],
+        callout:
+          '前序遍历中，一旦从左子树切换到右子树，沿途节点的右边界会连续弹出。单调栈正好保存这条路径上的边界信息，常用于从遍历序列恢复树结构。',
+      },
+      {
+        id: 'preorder-bst-solution',
+        title: '标准解法：单调栈线性构造',
+        summary:
+          '遍历每个值创建节点。若当前值小于栈顶，挂为左孩子；否则弹出路径节点，并把当前值挂到最后弹出的节点右侧。',
+        bullets: [
+          '时间复杂度：`O(n)`，每个节点最多入栈和出栈一次。',
+          '空间复杂度：`O(n)`。',
+          '使用栈顶节点作为当前路径末端，弹栈后保留最后一个弹出的节点作为右父节点。',
+        ],
+        code: `type BstNode = {
+  val: number
+  left: BstNode | null
+  right: BstNode | null
+}
+
+function bstFromPreorder(preorder: number[]): BstNode | null {
+  if (preorder.length === 0) {
+    return null
+  }
+
+  const root: BstNode = {
+    val: preorder[0],
+    left: null,
+    right: null,
+  }
+  const stack: BstNode[] = [root]
+
+  for (let index = 1; index < preorder.length; index += 1) {
+    const node: BstNode = {
+      val: preorder[index],
+      left: null,
+      right: null,
+    }
+    let parent: BstNode | undefined
+
+    while (stack.length > 0 && node.val > stack[stack.length - 1].val) {
+      parent = stack.pop()
+    }
+
+    if (parent !== undefined) {
+      parent.right = node
+    } else {
+      stack[stack.length - 1].left = node
+    }
+    stack.push(node)
+  }
+
+  return root
+}`,
+      },
+      {
+        id: 'preorder-bst-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '递归写法容易在边界上反复查找，单调栈写法则容易把“最后弹出的节点”和“当前栈顶”混淆。',
+        bullets: [
+          '易错点 1：当前值变大时只弹出一个节点，漏掉连续右转路径。',
+          '易错点 2：没有判断栈为空就访问栈顶。',
+          '易错点 3：值变小时错误地挂到最后弹出的节点，而不是当前栈顶左侧。',
+          '延伸方向：二叉树遍历重建、单调栈、笛卡尔树和边界维护。',
+        ],
+      },
+    ],
+  },
 ];
