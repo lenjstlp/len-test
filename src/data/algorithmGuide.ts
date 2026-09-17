@@ -101505,4 +101505,81 @@ function bstFromPreorder(preorder: number[]): BstNode | null {
       },
     ],
   },
+  {
+    id: 'smallest-integer-divisible-by-k',
+    label: '1015. LeetCode 1015. 可被 K 整除的最小整数',
+    difficulty: '中等',
+    description:
+      '给定正整数 K，找出最小的、全部由数字 1 组成的正整数 N（也就是 1、11、111……），使得 N 能被 K 整除，返回 N 的位数；如果不存在这样的 N 则返回 -1。',
+    outcome:
+      '你能识别出“只关心余数、不必真的构造大数”的取模技巧，理解为什么全 1 数不可能被 2 或 5 整除，并掌握用鸽巢原理给循环定上界的做法。',
+    sections: [
+      {
+        id: 'smallest-integer-divisible-by-k-summary',
+        title: '题目在问什么',
+        summary:
+          '要找的 N 是一串连续的 1，位数记为 length。题目并不要求返回 N 本身，只要求返回它有多少位，这个细节暗示我们不需要真的把 N 算出来。',
+        bullets: [
+          'N 的形状是固定的：位数为 `length` 的候选数就是 `length` 位全 1 的数。',
+          'K 最大可以到十万，而 N 的位数可能远超 JavaScript 安全整数能表达的范围。',
+          '如果不存在这样的 N，要返回 `-1`。',
+          '关键线索是“只求位数”，说明可以只跟踪 N 除以 K 的余数，而不是 N 本身。',
+        ],
+      },
+      {
+        id: 'smallest-integer-divisible-by-k-remainder',
+        title: '余数迭代：不构造大数也能递推',
+        summary:
+          '设位数为 `length` 的全 1 数记为 `R(length)`。它和上一个数的关系是 `R(length) = R(length - 1) * 10 + 1`。取模运算可以沿着乘法和加法传递，所以余数也能用同样的方式递推。',
+        bullets: [
+          '记余数 `remainder = R(length) % K`，那么下一个余数是 `(remainder * 10 + 1) % K`。',
+          '每次递推只做一次乘法和一次加法，`remainder` 始终小于 K，不会溢出。',
+          '当某个余数等于 0 时，说明当前位数的全 1 数正好能被 K 整除。',
+        ],
+        callout:
+          '遇到“判断一个极大的数能否被整除”或“求极大数的某一位”这类题，先问自己：我真正需要的是整个数，还是它除以某个数的余数？绝大多数情况下，保留余数就够了。',
+      },
+      {
+        id: 'smallest-integer-divisible-by-k-solution',
+        title: '标准解法：边扩展位数边取模',
+        summary:
+          '先排除算术上不可能的情形。全 1 数的末位是 1，因此它一定是奇数，也不可能被 5 整除。所以只要 K 是 2 或 5 的倍数，答案就是 -1。其余情况逐位递推余数，最多尝试 K 次。',
+        bullets: [
+          'K 是偶数或 5 的倍数时直接返回 `-1`。',
+          '余数只有 `0` 到 `K - 1` 共 K 种取值，根据鸽巢原理，循环最多执行 K 次就会出现重复或命中 0。',
+          '时间复杂度：`O(K)`。',
+          '空间复杂度：`O(1)`。',
+        ],
+        code: `function smallestRepunitDivByK(k: number): number {
+  if (k % 2 === 0 || k % 5 === 0) {
+    return -1
+  }
+
+  let remainder = 0
+
+  for (let length = 1; length <= k; length += 1) {
+    remainder = (remainder * 10 + 1) % k
+
+    if (remainder === 0) {
+      return length
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'smallest-integer-divisible-by-k-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易犯的错是上手就去构造全 1 大数，位数一多就超出整数精度。第二个高频错误是忘记处理 K 是 2 或 5 倍数的无解情况，让函数走到了不该走的返回分支。',
+        bullets: [
+          '易错点 1：用 BigInt 或字符串真的拼出全 1 数，再判断能否整除。',
+          '易错点 2：忘记返回 -1 的分支，循环跑满 K 次后返回了错误结果。',
+          '易错点 3：循环上界写成固定常数而不是 K，无法覆盖全部余数状态。',
+          '延伸方向：同余性质、鸽巢原理定上界、大数取模和循环节长度。',
+        ],
+      },
+    ],
+  },
 ];
