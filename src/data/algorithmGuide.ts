@@ -101738,4 +101738,75 @@ function bstFromPreorder(preorder: number[]): BstNode | null {
       },
     ],
   },
+  {
+    id: 'binary-prefix-divisible-by-5',
+    label: '1018. LeetCode 1018. 可被 5 整除的二进制前缀',
+    difficulty: '简单',
+    description:
+      '给定一个二进制数组 nums（下标从 0 开始），返回布尔数组 answer。如果由 nums[0] 到 nums[i] 组成的二进制数能被 5 整除，则 answer[i] 为 true，否则为 false。',
+    outcome:
+      '你能掌握“前缀值大到无法直接表示时只保留余数”的递推技巧，理解为什么每次左移一位再取模就能得到正确答案，并把它迁移到其他大数整除判定问题。',
+    sections: [
+      {
+        id: 'binary-prefix-divisible-by-5-summary',
+        title: '题目在问什么',
+        summary:
+          '每个前缀对应的二进制数都要判断能否被 5 整除。麻烦在于数组最长可以有一万位，对应的数值远远超出安全整数范围，直接用 `parseInt` 会丢精度。',
+        bullets: [
+          '前缀是从下标 0 开始的一段连续子数组，长度依次为 1、2、3……',
+          '数组元素只有 `0` 和 `1` 两种取值。',
+          '要返回的是布尔数组，每个位置对应一个前缀的判定结果。',
+          '关键线索：判断整除只需要知道余数，不需要知道原数有多大。',
+        ],
+      },
+      {
+        id: 'binary-prefix-divisible-by-5-remainder',
+        title: '余数递推：只保留模 5 的余数',
+        summary:
+          '二进制前缀的扩展方式是“左移一位再补上当前位”，也就是 `value = value * 2 + bit`。取模运算对乘法和加法都满足传递性，所以余数可以用完全相同的方式递推。',
+        bullets: [
+          '记 `remainder` 为当前前缀对 5 取模的结果，则新余数是 `(remainder * 2 + bit) % 5`。',
+          '由于 `remainder` 恒小于 5，中间结果最大只有 11，永远不会溢出。',
+          '当 `remainder` 为 0 时，说明当前前缀能被 5 整除，对应位置记为 `true`。',
+        ],
+        callout:
+          '只要题目问的是“能否被某个数整除”“除以某个数的余数”，都可以把整个数替换成它的余数来参与后续运算。这样既避免了精度问题，又不会改变判定结果。',
+      },
+      {
+        id: 'binary-prefix-divisible-by-5-solution',
+        title: '标准解法：单次遍历边算边取模',
+        summary:
+          '从左到右扫描数组，维护当前前缀的余数。每读入一位就更新余数，并立刻把 `remainder === 0` 压入答案数组。整个过程只需要一次遍历。',
+        bullets: [
+          '初始余数为 `0`，对应空前缀。',
+          '每一位都先更新余数，再判断，顺序不能颠倒。',
+          '时间复杂度：`O(n)`，只遍历数组一次。',
+          '空间复杂度：`O(n)`，用于存放答案数组（不计返回值则是 `O(1)`）。',
+        ],
+        code: `function prefixesDivBy5(nums: number[]): boolean[] {
+  const answer: boolean[] = []
+  let remainder = 0
+
+  for (const bit of nums) {
+    remainder = (remainder * 2 + bit) % 5
+    answer.push(remainder === 0)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'binary-prefix-divisible-by-5-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最常见的错误是先把每个前缀算成完整数值再取模。数组一长，数值就超出安全整数范围，后面所有判定都会失准。另外要留意的是一开始就出现的 `0`，它本身就能被 5 整除。',
+        bullets: [
+          '易错点 1：用 `parseInt(bits.join(""), 2)` 或累加求值，长数组下精度丢失。',
+          '易错点 2：先判断再更新余数，导致答案整体后移一位。',
+          '易错点 3：以为单个 `0` 构成的前缀需要特判，其实递推式自然会算出余数 `0`。',
+          '延伸方向：大数取模、前缀状态递推、同余性质和滚动哈希。',
+        ],
+      },
+    ],
+  },
 ];
