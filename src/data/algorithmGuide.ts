@@ -101656,4 +101656,86 @@ function bstFromPreorder(preorder: number[]): BstNode | null {
       },
     ],
   },
+  {
+    id: 'convert-to-base-2',
+    label: '1017. LeetCode 1017. 负二进制转换',
+    difficulty: '中等',
+    description:
+      '给定一个整数 n，返回它的负二进制（基数为 -2）表示形式的字符串，且返回结果不能包含前导零。',
+    outcome:
+      '你能掌握负进制短除法的完整流程，理解 JavaScript 中负数取余会得到负值这一行为，并学会用“余数为负就向高位借一位”的方式同时修正商和余数。',
+    sections: [
+      {
+        id: 'convert-to-base-2-summary',
+        title: '题目在问什么',
+        summary:
+          '进制转换的标准做法是短除法：反复用 n 除以基数，把余数收集起来倒序输出。这里只是把基数从常见的 2 换成了 -2，所以整体框架不变，麻烦出在负数取余上。',
+        bullets: [
+          '基数是 `-2`，所以数位仍然是 `0` 和 `1`，但相邻位的权重正负交替。',
+          '结果不能有前导零，因此 `0` 要单独作为特例返回字符串 `"0"`。',
+          'n 可以是负数，负数除法和取余的符号行为是本题的核心坑点。',
+        ],
+      },
+      {
+        id: 'convert-to-base-2-negative-remainder',
+        title: '负数取余：先算余数再修正商',
+        summary:
+          '在 JavaScript 中，`%` 的结果符号跟随被除数，所以 `-3 % -2` 得到的是 `-1` 而不是 `1`。但负二进制里的数位只能是 `0` 或 `1`，因此一旦余数为负，就需要向高位借一位来修正。',
+        bullets: [
+          '修正做法：余数加 2 变成合法数位，同时把商加 1 来补偿这次“借位”。',
+          '商必须用 `Math.trunc` 截断取整，不能用会向负无穷取整的 `Math.floor`。',
+          '修正之后余数一定落在 `0` 到 `1` 之间，满足数位要求。',
+        ],
+        callout:
+          '处理任意负进制（`-2`、`-3`……）时，都可以沿用这套模板：先按普通短除法算余数，只要余数为负，就让它加上 `|基数|`，同时把商加 1。这条规则对任何负基数都成立。',
+      },
+      {
+        id: 'convert-to-base-2-solution',
+        title: '标准解法：短除法逐位取余',
+        summary:
+          'n 为 0 时直接返回 `"0"`。否则循环执行“取余、修正、更新商”，每次把得到的数位拼到结果字符串的最前面，直到商变成 0。',
+        bullets: [
+          '用 `Math.trunc(value / -2)` 得到截断后的商，避免 `Math.floor` 对负数向下取整。',
+          '余数为负时执行 `remainder += 2` 与 `value += 1`，这一步顺序不能颠倒。',
+          '时间复杂度：`O(log n)`，循环次数就是结果的位数。',
+          '空间复杂度：`O(log n)`，用于存放结果字符串。',
+        ],
+        code: `function baseNeg2(n: number): string {
+  if (n === 0) {
+    return '0'
+  }
+
+  let result = ''
+  let value = n
+
+  while (value !== 0) {
+    let remainder = value % -2
+    value = Math.trunc(value / -2)
+
+    if (remainder < 0) {
+      remainder += 2
+      value += 1
+    }
+
+    result = String(remainder) + result
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'convert-to-base-2-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最常见的错误是用 `Math.floor` 代替 `Math.trunc`。对负数来说，`Math.floor(-0.5)` 是 `-1` 而 `Math.trunc(-0.5)` 是 `-0`，两者会让商差一位，结果整体错位。',
+        bullets: [
+          '易错点 1：用 `Math.floor` 取商，导致负数情况下商偏小。',
+          '易错点 2：忘记 `n === 0` 的特判，返回了空字符串。',
+          '易错点 3：把修正写成先加商再加余数，破坏了借位补偿的对应关系。',
+          '易错点 4：修正条件写成 `remainder <= 0`，会连合法的 `-0` 也一起借位，结果多出一位。',
+          '延伸方向：任意负进制转换、进制互转、短除法模板和负数取整语义。',
+        ],
+      },
+    ],
+  },
 ];
