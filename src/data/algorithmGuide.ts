@@ -101582,4 +101582,78 @@ function bstFromPreorder(preorder: number[]): BstNode | null {
       },
     ],
   },
+  {
+    id: 'binary-string-with-substrings-representing-1-to-n',
+    label: '1016. LeetCode 1016. 子串能表示从 1 到 N 数字的二进制串',
+    difficulty: '中等',
+    description:
+      '给定一个二进制字符串 s 和一个整数 n，如果 [1, n] 范围内的每个整数的二进制表示（不含前导零）都是 s 的子串，返回 true，否则返回 false。',
+    outcome:
+      '你能掌握“需要验证的数字太多时，先用位数上界剪枝、再用倍数关系折半枚举”的优化套路，并理解为什么只检查 (n/2, n] 这一段就足以推出全部结论。',
+    sections: [
+      {
+        id: 'binary-string-with-substrings-representing-1-to-n-summary',
+        title: '题目在问什么',
+        summary:
+          '要对 `[1, n]` 中的每一个整数都做一次“二进制串是否是 s 的子串”的判断，全部命中才算通过。n 可以大到十亿，所以不能无脑逐个枚举。',
+        bullets: [
+          '比较的是二进制表示，且不带前导零，例如 2 对应 `10` 而不是 `010`。',
+          '子串必须连续，`s.includes` 的语义正好匹配。',
+          '只要有一个数字的二进制串没出现，整体就返回 `false`。',
+          '真正的难点是剪枝：找出哪些数字其实不必检查。',
+        ],
+      },
+      {
+        id: 'binary-string-with-substrings-representing-1-to-n-half-range',
+        title: '折半剪枝：只需要检查 (n/2, n] 这一段',
+        summary:
+          '这是本题最关键的一步。如果整数 `x` 满足 `2x <= n`，那么 `x` 的二进制串一定是 `2x` 的二进制串的前缀，因为 `2x` 只是在 `x` 的二进制末尾补了一个 0。前缀本身就是子串，所以只要 `2x` 被覆盖，`x` 就自动被覆盖。',
+        bullets: [
+          '二进制下“乘以 2”等价于“末尾补一个 0”，即 `bin(2x) = bin(x) + "0"`。',
+          '于是 `bin(x)` 是 `bin(2x)` 的子串，只要 `bin(2x)` 出现在 s 中，`bin(x)` 也一定出现。',
+          '不断向下套用这条推理，最终所有 `x <= n / 2` 的数字都可以由 `(n/2, n]` 中的某个数字推出来。',
+          '检查区间从 `n` 个数字缩小到约 `n / 2` 个，并且失败通常会在很前面就被发现。',
+        ],
+        callout:
+          '二进制里的“左移一位”和十进制里的“乘十”一样，都只是在末尾补零。凡是看到“判断一批数的二进制/十进制串是否为子串”，都值得先想想能不能用这种补位关系把检查范围折半。',
+      },
+      {
+        id: 'binary-string-with-substrings-representing-1-to-n-solution',
+        title: '标准解法：位数上界加区间折半',
+        summary:
+          '先做一层上界剪枝：n 自己的二进制串必须出现在 s 中，如果它比 s 还长就直接返回 false。然后只枚举 `(n / 2, n]` 区间，逐个用 `s.includes` 判断。',
+        bullets: [
+          '上界剪枝：`n.toString(2).length > s.length` 时无解。',
+          '枚举起点是 `Math.floor(n / 2) + 1`，终点是 `n`。',
+          '时间复杂度：`O(n * s.length)`，但剪枝后实际检查量大幅下降，且遇到缺失会立即返回。',
+          '空间复杂度：`O(1)`，只用了常数个临时字符串。',
+        ],
+        code: `function queryString(s: string, n: number): boolean {
+  if (n.toString(2).length > s.length) {
+    return false
+  }
+
+  for (let value = Math.floor(n / 2) + 1; value <= n; value += 1) {
+    if (!s.includes(value.toString(2))) {
+      return false
+    }
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'binary-string-with-substrings-representing-1-to-n-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错在两点：一是忘记做上界剪枝，白白遍历大量不可能命中的数字；二是把折半区间的起点写成了 `n / 2` 而不是 `n / 2 + 1`，导致同一个数字被重复检查或者漏掉边界。',
+        bullets: [
+          '易错点 1：不做任何剪枝，直接从 1 枚举到 n。',
+          '易错点 2：区间起点写成 `Math.floor(n / 2)`，把已经能被覆盖的边界值又检查了一遍。',
+          '易错点 3：用 `toString(2)` 之外的方式拼接二进制，引入了前导零。',
+          '延伸方向：子串判定、字符串匹配优化、前缀与后缀关系以及搜索空间剪枝。',
+        ],
+      },
+    ],
+  },
 ];
