@@ -101809,4 +101809,102 @@ function bstFromPreorder(preorder: number[]): BstNode | null {
       },
     ],
   },
+  {
+    id: 'next-greater-node-in-linked-list',
+    label: '1019. LeetCode 1019. 链表中的下一个更大节点',
+    difficulty: '中等',
+    description:
+      '给定一个链表 head，返回一个数组，其中第 i 个元素是链表中第 i 个节点之后第一个严格大于它的节点的值；如果不存在这样的节点，则返回 0。',
+    outcome:
+      '你能掌握单调栈求“下一个更大元素”的标准写法，理解为什么栈里保存的是下标而不是值，并学会把链表先摊平成数组、再套用成熟的数组技巧。',
+    sections: [
+      {
+        id: 'next-greater-node-in-linked-list-summary',
+        title: '题目在问什么',
+        summary:
+          '对链表中的每一个节点，都要向后再找出第一个值严格比它大的节点，把那个更大节点的值记入答案。找不到就记 `0`。关键约束是“之后”和“第一个”，不能随便挑一个更大的。',
+        bullets: [
+          '比较方向是向右找，只关心右侧第一个更大的值。',
+          '必须是严格大于，相等的节点不算。',
+          '链表不能随机访问，想按下标回填答案必须先转成数组。',
+          '朴素的二重循环是 `O(n^2)`，需要借助单调栈做到 `O(n)`。',
+        ],
+      },
+      {
+        id: 'next-greater-node-in-linked-list-monotonic-stack',
+        title: '单调栈：一次扫描找到右侧第一个更大值',
+        summary:
+          '维护一个值单调递减的栈，栈里存放的是下标而不是值。当遍历到一个更大的新值时，说明栈顶那些下标一直在等的“下一个更大值”就是当前值，于是可以连续弹出并回填答案。',
+        bullets: [
+          '栈中存储下标，取值时通过 `values[stack[...]]` 访问。',
+          '新元素入栈前，反复弹出所有值比它小的下标，并把这些位置的答案写成当前值。',
+          '被弹出的下标说明已经找到答案，之后不会再被用到，可以安全移除。',
+          '遍历结束后仍留在栈里的下标，答案保持初始值 `0`。',
+        ],
+        callout:
+          '单调栈的本质是“让还没找到答案的元素排队等待”。只要一个问题满足“每个元素只需要被它右侧第一个满足条件的元素解决”，就可以考虑用一个单调的栈把等待队列压成一维。',
+      },
+      {
+        id: 'next-greater-node-in-linked-list-solution',
+        title: '标准解法：链表转数组后单调栈求解',
+        summary:
+          '第一遍遍历链表，把节点值依次收集到数组里。第二遍在数组上跑单调栈，用答案数组按下标回填结果。',
+        bullets: [
+          '答案数组初始全部为 `0`，正好对应“找不到更大值”的情况。',
+          '每个下标最多入栈一次、出栈一次，所以第二遍是线性的。',
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`，用于存放值数组、答案数组和栈。',
+        ],
+        code: `class ListNode {
+  val: number
+  next: ListNode | null
+
+  constructor(val = 0, next: ListNode | null = null) {
+    this.val = val
+    this.next = next
+  }
+}
+
+function nextLargerNodes(head: ListNode | null): number[] {
+  const values: number[] = []
+  let current = head
+
+  while (current) {
+    values.push(current.val)
+    current = current.next
+  }
+
+  const answer = new Array<number>(values.length).fill(0)
+  const stack: number[] = []
+
+  for (let index = 0; index < values.length; index += 1) {
+    while (
+      stack.length > 0 &&
+      values[stack[stack.length - 1]] < values[index]
+    ) {
+      const target = stack.pop()!
+      answer[target] = values[index]
+    }
+
+    stack.push(index)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'next-greater-node-in-linked-list-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是把值而不是下标压进栈。一旦栈里只有值，就无法知道该给答案数组的哪一位回填结果。另一个常见问题是把比较写成小于等于，导致相等元素之间互相顶掉了等待机会。',
+        bullets: [
+          '易错点 1：栈里存节点值而不是下标，弹出后无法定位答案位置。',
+          '易错点 2：比较条件写成 `<=`，相等元素被错误处理。',
+          '易错点 3：忘记把答案数组初始化为 0，末尾残留 undefined。',
+          '易错点 4：试图在链表上直接做单调栈，却无法反向或按下标回填。',
+          '延伸方向：下一个更大元素系列、接雨水、柱状图最大矩形和单调队列。',
+        ],
+      },
+    ],
+  },
 ];
