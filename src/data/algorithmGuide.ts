@@ -102114,4 +102114,99 @@ function nextLargerNodes(head: ListNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'sum-of-root-to-leaf-binary-numbers',
+    label: '1022. LeetCode 1022. 从根到叶的二进制数之和',
+    difficulty: '简单',
+    description:
+      '给定一棵每个节点值都是 0 或 1 的二叉树，每条从根到叶的路径都表示一个二进制数（最高位在根节点）。返回所有这样的二进制数之和。',
+    outcome:
+      '你能掌握用递归参数向下传递“已构造前缀”的二叉树遍历写法，理解为什么让状态跟着递归下沉比自底向上拼接更自然，并分清从根到叶与从叶到根两种遍历方向的差别。',
+    sections: [
+      {
+        id: 'sum-of-root-to-leaf-binary-numbers-summary',
+        title: '题目在问什么',
+        summary:
+          '从根出发走到任意一个叶子，把沿途的节点值按顺序拼成一个二进制串，这个串对应的十进制数就是这条路径的贡献。把树中所有根到叶路径的贡献加起来就是答案。',
+        bullets: [
+          '只有叶子节点才算一条完整路径的终点，中途停下不算。',
+          '根节点是最高位，越往下位权越低。',
+          '节点值只有 `0` 和 `1`，不需要考虑非法数位。',
+          '题目保证结果在 32 位整数范围内，不需要额外取模。',
+        ],
+      },
+      {
+        id: 'sum-of-root-to-leaf-binary-numbers-dfs',
+        title: '深度优先：把父节点的值左移一位',
+        summary:
+          '二进制里“接上一位”等价于把已有值左移一位再或上新位，也就是 `value * 2 + bit`。所以递归时只要把这个前缀值当作参数往下传，走到叶子时它正好就是整条路径对应的数。',
+        bullets: [
+          '递归参数中额外携带 `current`，表示从根到当前节点的前缀值。',
+          '进入节点时先算 `value = current * 2 + node.val`，这就是根到当前节点映射出的数。',
+          '到达叶子时直接把 `value` 作为这条路径的贡献返回。',
+          '非叶子节点则把左右子树的结果相加，把子问题的答案汇总上来。',
+        ],
+        callout:
+          '二叉树递归有两种常见的传参方向：一种是“向下传”（把父节点的结论交给子节点继续加工），另一种是“向上收”（子节点返回结果由父节点汇总）。本题两者都要用——`current` 向下传，叶子贡献向上收。',
+      },
+      {
+        id: 'sum-of-root-to-leaf-binary-numbers-solution',
+        title: '标准解法：递归携带前缀值',
+        summary:
+          '定义一个接收节点和当前前缀值的递归函数。空节点返回 0；叶子节点返回当前算出的值；其余节点返回左右子树结果之和。',
+        bullets: [
+          '空节点返回 `0`，充当递归的兜底出口。',
+          '叶子判断是 `!node.left && !node.right`，两个子节点都为空才成立。',
+          '时间复杂度：`O(n)`，每个节点访问一次。',
+          '空间复杂度：`O(h)`，`h` 为树高，即递归栈的最大深度。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(
+    val = 0,
+    left: TreeNode | null = null,
+    right: TreeNode | null = null,
+  ) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function sumRootToLeaf(root: TreeNode | null): number {
+  const traverse = (node: TreeNode | null, current: number): number => {
+    if (!node) {
+      return 0
+    }
+
+    const value = current * 2 + node.val
+
+    if (!node.left && !node.right) {
+      return value
+    }
+
+    return traverse(node.left, value) + traverse(node.right, value)
+  }
+
+  return traverse(root, 0)
+}`,
+      },
+      {
+        id: 'sum-of-root-to-leaf-binary-numbers-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是先收集所有路径再逐个解析成数字，多写了一层中间结构。另一个高频问题是在非叶子节点上直接返回 `value`，把半截路径也计入了总和。',
+        bullets: [
+          '易错点 1：非叶子节点就返回结果，导致不完整的路径被计入答案。',
+          '易错点 2：先把节点值存进数组再拼接求值，多用了不必要的空间。',
+          '易错点 3：把叶子判断写成只检查左子树或只检查右子树。',
+          '易错点 4：误以为需要额外取模，题目已保证结果落在 32 位范围内。',
+          '延伸方向：路径总和系列、回溯携带状态、前缀传递与树的深度优先遍历。',
+        ],
+      },
+    ],
+  },
 ];
