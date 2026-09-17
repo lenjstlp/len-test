@@ -101907,4 +101907,128 @@ function nextLargerNodes(head: ListNode | null): number[] {
       },
     ],
   },
+  {
+    id: 'number-of-enclaves',
+    label: '1020. LeetCode 1020. 飞地的数量',
+    difficulty: '中等',
+    description:
+      '给定一个 m × n 的二进制矩阵 grid，其中 0 表示海洋、1 表示陆地。返回无法在任意次数的移动中走到网格边界的陆地单元格数量，每次移动可以走向上下左右四个相邻格子。',
+    outcome:
+      '你能掌握网格题常用的“从边界反向洪泛”技巧，理解为什么逐个内部格子做搜索会超时，并熟练写出多源 BFS 的队列实现。',
+    sections: [
+      {
+        id: 'number-of-enclaves-summary',
+        title: '题目在问什么',
+        summary:
+          '一片陆地只要能通过上下左右连通到矩阵边界，它就不是飞地。反过来，只有被海洋完全包围、走不出去的陆地才计入答案。',
+        bullets: [
+          '连通性只看上下左右四个方向，不包含斜对角。',
+          '只要路径上有一个格子落在矩阵边界，整片连通的陆地都能走出去。',
+          '海洋格子不能通行，不能作为路径的一部分。',
+          '直接的做法是对每块内部陆地做搜索，但同一片区域会被反复遍历。',
+        ],
+      },
+      {
+        id: 'number-of-enclaves-border-flood',
+        title: '边界洪泛：从外向内反向标记',
+        summary:
+          '与其从内部一块块地找出路，不如反过来想：所有能走到边界的陆地，一定和边界上的某块陆地连通。所以只要把所有边界上的陆地当作起点一起出发，能标记到的格子就是要被排除的。',
+        bullets: [
+          '把所有边界上的陆地一次性全部入队，这就是“多源 BFS”，只需要一轮。',
+          '从这些起点向四个方向扩散，凡是能走到的陆地都标记为“可逃逸”。',
+          '洪泛结束后，没有被标记的陆地就是飞地。',
+          '这样每个格子最多被访问一次，把整体复杂度压到线性。',
+        ],
+        callout:
+          '网格题里遇到“被边界包围”“能否逃出边界”“被包围的区域”这类说法，优先考虑从边界反向出发做一次洪泛，而不是对每个内部格子单独搜索。这能把平方级的时间降到与格子总数成正比。',
+      },
+      {
+        id: 'number-of-enclaves-solution',
+        title: '标准解法：多源 BFS 后统计剩余陆地',
+        summary:
+          '用一个 `visited` 数组记录已经确定能走到边界的格子。先把四条边界上的陆地全部入队，然后逐层扩散。最后重新扫描整个矩阵，统计既是陆地又没被访问过的格子数量。',
+        bullets: [
+          '入队时同步打上访问标记，避免同一个格子被重复加入队列。',
+          '用下标指针 `head` 推进队列而不是 `shift()`，避免数组搬移带来的额外开销。',
+          '使用 `visited` 数组而不是原地修改 `grid`，不破坏调用方传入的数据。',
+          '时间复杂度：`O(m * n)`，每个格子最多入队一次。',
+          '空间复杂度：`O(m * n)`，用于 `visited` 数组和队列。',
+        ],
+        code: `function numEnclaves(grid: number[][]): number {
+  const rows = grid.length
+  const cols = grid[0].length
+  const visited = Array.from({ length: rows }, () =>
+    new Array<boolean>(cols).fill(false),
+  )
+  const queue: Array<[number, number]> = []
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+
+  const enqueue = (row: number, col: number) => {
+    if (grid[row][col] === 1 && !visited[row][col]) {
+      visited[row][col] = true
+      queue.push([row, col])
+    }
+  }
+
+  for (let row = 0; row < rows; row += 1) {
+    enqueue(row, 0)
+    enqueue(row, cols - 1)
+  }
+
+  for (let col = 0; col < cols; col += 1) {
+    enqueue(0, col)
+    enqueue(rows - 1, col)
+  }
+
+  let head = 0
+
+  while (head < queue.length) {
+    const [row, col] = queue[head]
+    head += 1
+
+    for (const [rowStep, colStep] of directions) {
+      const nextRow = row + rowStep
+      const nextCol = col + colStep
+      const inside =
+        nextRow >= 0 && nextRow < rows && nextCol >= 0 && nextCol < cols
+
+      if (inside) {
+        enqueue(nextRow, nextCol)
+      }
+    }
+  }
+
+  let count = 0
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      if (grid[row][col] === 1 && !visited[row][col]) {
+        count += 1
+      }
+    }
+  }
+
+  return count
+}`,
+      },
+      {
+        id: 'number-of-enclaves-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最典型的错误是对每个内部陆地格子单独做一次搜索，重复遍历同一片区域导致超时。另一个高频问题是边界初始化只处理了上下两行，漏掉了左右两列。',
+        bullets: [
+          '易错点 1：对每个内部格子独立做 DFS 或 BFS，复杂度退化。',
+          '易错点 2：边界起点只取了第一行和最后一行，忘了第一列和最后一列。',
+          '易错点 3：入队后才标记访问，同一个格子被重复压入队列。',
+          '易错点 4：用原地修改 `grid` 的方式标记，污染了调用方的输入数据。',
+          '延伸方向：岛屿数量、被围绕的区域、最大人工岛和并查集维护连通块。',
+        ],
+      },
+    ],
+  },
 ];
