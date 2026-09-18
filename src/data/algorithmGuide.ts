@@ -102209,4 +102209,84 @@ function sumRootToLeaf(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'camelcase-matching',
+    label: '1023. LeetCode 1023. 驼峰式匹配',
+    difficulty: '中等',
+    description:
+      '给定一个字符串数组 queries 和一个模式串 pattern。如果可以在 pattern 中插入任意个小写字母得到 queries[i]，则认为 queries[i] 匹配 pattern。返回一个布尔数组，表示每个查询串是否匹配。',
+    outcome:
+      '你能把“允许插入小写字母”这条规则翻译成两条可直接判定的条件，理解为什么多余的大写字母会让匹配立即失败，并写出双指针一次扫描的贪心匹配实现。',
+    sections: [
+      {
+        id: 'camelcase-matching-summary',
+        title: '题目在问什么',
+        summary:
+          '注意看“插入”这个词：我们只能往 pattern 里加字符，不能删除，也不能改动原有字符的顺序。所以 pattern 的每个字符都必须在 query 里按原顺序出现，而多出来的那些位置只能填小写字母。',
+        bullets: [
+          'pattern 必须是 query 的子序列，顺序不能变，也不能跳字符。',
+          'query 中不属于匹配部分的额外字符，必须全部是小写字母。',
+          'query 里只要出现一个“多余的大写字母”，匹配就立刻失败。',
+          '要想清楚的一点是：pattern 自身也可能含小写字母，它们同样要按序匹配。',
+        ],
+      },
+      {
+        id: 'camelcase-matching-greedy',
+        title: '贪心匹配：模式串必须是子序列',
+        summary:
+          '判断子序列的标准做法是贪心：双指针从左往右扫，只要当前字符等于模式串待匹配的字符，就消费掉它。因为越早匹配越不会让后面的选择变少，所以贪心不会错过正确答案。',
+        bullets: [
+          '用 `index` 指向 pattern 中下一个待匹配的位置，初始为 `0`。',
+          '扫描 query 的每个字符：能匹配上就推进 `index`，匹配不上就进入“多余字符”分支。',
+          '进入多余字符分支时，只要它是大写字母，就可以直接判定失败。',
+          '全部扫完后，还要检查 `index` 是否正好走到 pattern 的末尾。',
+        ],
+        callout:
+          '“允许插入字符”这类题几乎都是同一个套路：把规则拆成“原串必须是子序列”加“额外的字符必须满足某个约束”。先想清楚额外的字符长什么样，代码基本就出来了。',
+      },
+      {
+        id: 'camelcase-matching-solution',
+        title: '标准解法：双指针一次扫描',
+        summary:
+          '把单个查询串的判定抽成一个闭包，然后对 queries 做一次映射。闭包里用 `index` 记录匹配进度，遇到不匹配的大写字母直接返回 false，最后校验模式串是否被完整消费。',
+        bullets: [
+          '映射写法 `queries.map(isMatch)` 比手写 for 循环更贴合“逐个判定”的语义。',
+          '大写判断用 `char >= "A" && char <= "Z"`，不需要引入正则。',
+          '关键细节：`index === pattern.length` 这个收尾判断不能省。',
+          '时间复杂度：`O(q * n)`，`q` 为查询串数量、`n` 为单个查询串长度。',
+          '空间复杂度：`O(1)`，不计返回数组本身。',
+        ],
+        code: `function camelMatch(queries: string[], pattern: string): boolean[] {
+  const isMatch = (query: string) => {
+    let index = 0
+
+    for (const char of query) {
+      if (index < pattern.length && char === pattern[index]) {
+        index += 1
+      } else if (char >= 'A' && char <= 'Z') {
+        return false
+      }
+    }
+
+    return index === pattern.length
+  }
+
+  return queries.map(isMatch)
+}`,
+      },
+      {
+        id: 'camelcase-matching-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易漏掉的是收尾检查。如果只判断“扫描过程中没有多余大写字母”，那么像 `"Foo"` 匹配模式 `"FooBar"` 这种情况会被误判成成功——模式串根本没匹配完。',
+        bullets: [
+          '易错点 1：忘记判断 `index === pattern.length`，模式串没匹配完也返回 true。',
+          '易错点 2：多加一个 `index < pattern.length` 之外的前置校验，把子序列判断写成了连续子串判断。',
+          '易错点 3：只检查多余字符是不是大写，却忘了小写字母的多余字符本来就是允许的。',
+          '易错点 4：用正则拼模式串去匹配，转义和贪婪语义都容易出错。',
+          '延伸方向：子序列匹配、双指针贪心、通配符匹配和正则表达式引擎。',
+        ],
+      },
+    ],
+  },
 ];
