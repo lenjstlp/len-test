@@ -102858,4 +102858,100 @@ function recoverFromPreorder(traversal: string): RecoveredTreeNode | null {
       },
     ],
   },
+  {
+    id: 'maximum-sum-of-two-non-overlapping-subarrays',
+    label: '1031. LeetCode 1031. 两个非重叠子数组的最大和',
+    difficulty: '中等',
+    description:
+      '给定非负整数数组和两个固定长度，选择两个互不重叠的连续子数组，使它们的元素和最大。',
+    outcome:
+      '你能掌握前缀和与前缀最优值组合的技巧，理解为什么需要分别考虑两种左右顺序，并把三重枚举优化为线性扫描。',
+    sections: [
+      {
+        id: 'non-overlapping-subarrays-summary',
+        title: '题目在问什么',
+        summary:
+          '要选择长度分别为 firstLen 和 secondLen 的两个连续区间，两个区间不能有任何重叠，目标是最大化两段区间和之和。',
+        bullets: [
+          '两个子数组的长度固定。',
+          'firstLen 对应的区间可能在左，也可能在右。',
+          '前缀和可以在常数时间计算任意固定长度区间和。',
+          '只考虑一种左右顺序会漏掉答案。',
+        ],
+      },
+      {
+        id: 'non-overlapping-subarrays-prefix',
+        title: '前缀最优：固定右侧区间，维护左侧最大和',
+        summary:
+          '先假设 firstLen 区间位于左侧、secondLen 区间位于右侧。扫描右侧区间终点时，持续维护它左边所有 firstLen 区间中的最大和。',
+        bullets: [
+          '前缀和负责快速取得每个固定长度窗口的和。',
+          '左侧最佳区间只需保存最大和，不需要保存具体位置。',
+          '交换两个长度再计算一次，即可覆盖另一种左右顺序。',
+          '每个顺序都只需要一次线性扫描。',
+        ],
+        callout:
+          '两个不重叠区间的组合问题，可以固定其中一个区间，再维护它左侧或右侧的历史最优值。通过分别计算两种排列顺序，避免复杂的区间交叉判断。',
+      },
+      {
+        id: 'non-overlapping-subarrays-solution',
+        title: '标准解法：两次线性扫描',
+        summary:
+          '构造前缀和，分别计算 firstLen 在左和 secondLen 在左时的最大结果，取二者较大值。',
+        bullets: [
+          '时间复杂度：`O(n)`。',
+          '空间复杂度：`O(n)`，用于前缀和。',
+          '扫描终点从两个区间长度之和开始，确保左右区间都完整存在。',
+        ],
+        code: `function maxSumTwoNoOverlap(
+  nums: number[],
+  firstLen: number,
+  secondLen: number,
+): number {
+  const prefix = new Array(nums.length + 1).fill(0)
+  for (let index = 0; index < nums.length; index += 1) {
+    prefix[index + 1] = prefix[index] + nums[index]
+  }
+
+  const bestWithOrder = (leftLength: number, rightLength: number): number => {
+    let bestLeft = prefix[leftLength]
+    let answer = 0
+
+    for (
+      let rightEnd = leftLength + rightLength;
+      rightEnd <= nums.length;
+      rightEnd += 1
+    ) {
+      const rightStart = rightEnd - rightLength
+      bestLeft = Math.max(
+        bestLeft,
+        prefix[rightStart] - prefix[rightStart - leftLength],
+      )
+      const rightSum = prefix[rightEnd] - prefix[rightStart]
+      answer = Math.max(answer, bestLeft + rightSum)
+    }
+
+    return answer
+  }
+
+  return Math.max(
+    bestWithOrder(firstLen, secondLen),
+    bestWithOrder(secondLen, firstLen),
+  )
+}`,
+      },
+      {
+        id: 'non-overlapping-subarrays-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '只计算 firstLen 在左侧的情况会漏解；维护左侧最佳和时如果窗口越过右侧起点，则会错误允许区间重叠。',
+        bullets: [
+          '易错点 1：只计算一种左右排列。',
+          '易错点 2：左侧窗口终点超过右侧窗口起点。',
+          '易错点 3：前缀和下标少加或多加一。',
+          '延伸方向：多区间 DP、固定长度滑动窗口、前缀最优值。',
+        ],
+      },
+    ],
+  },
 ];
