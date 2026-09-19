@@ -102781,4 +102781,81 @@ function recoverFromPreorder(traversal: string): RecoveredTreeNode | null {
       },
     ],
   },
+  {
+    id: 'matrix-cells-in-distance-order',
+    label: '1030. LeetCode 1030. 距离顺序排列矩阵单元格',
+    difficulty: '简单',
+    description:
+      '给定矩阵尺寸和中心单元格，返回所有单元格坐标，并按照它们到中心的曼哈顿距离从小到大排列。',
+    outcome:
+      '你能掌握曼哈顿距离的计算方式，理解直接排序与分层 BFS 两种实现的权衡，并写出清晰可靠的坐标枚举方案。',
+    sections: [
+      {
+        id: 'matrix-distance-summary',
+        title: '题目在问什么',
+        summary:
+          '单元格 `(row, column)` 到中心 `(rowCenter, columnCenter)` 的距离是行差绝对值加列差绝对值。所有坐标都要返回，距离相同的坐标顺序任意。',
+        bullets: [
+          '矩阵下标从 0 开始。',
+          '答案必须包含每一个单元格且不能重复。',
+          '曼哈顿距离只允许沿上下左右方向计算。',
+        ],
+      },
+      {
+        id: 'matrix-distance-sort',
+        title: '直接排序：先枚举，再比较距离',
+        summary:
+          '把所有坐标放入数组，然后使用曼哈顿距离作为比较键排序。这种方法代码短、边界少，适合本题的数据规模。',
+        bullets: [
+          '双重循环可以完整枚举矩阵坐标。',
+          '比较器中分别计算两个坐标的距离并相减。',
+          '距离相同返回 0 即可，不需要额外规定顺序。',
+        ],
+        callout:
+          '面对规模可控的排序题，优先选择易验证的直接方案。只有排序复杂度成为瓶颈时，再考虑 BFS 或按距离分桶。',
+      },
+      {
+        id: 'matrix-distance-solution',
+        title: '标准解法：枚举所有坐标后排序',
+        summary: '生成 `rows * columns` 个坐标，按到中心的曼哈顿距离升序排序。',
+        bullets: [
+          '时间复杂度：`O(rows * columns * log(rows * columns))`。',
+          '空间复杂度：`O(rows * columns)`，用于保存返回结果。',
+          '若矩阵非常大，可以使用从中心开始的 BFS 把排序降为线性。',
+        ],
+        code: `function allCellsDistOrder(
+  rows: number,
+  columns: number,
+  rowCenter: number,
+  columnCenter: number,
+): number[][] {
+  const cells: number[][] = []
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let column = 0; column < columns; column += 1) {
+      cells.push([row, column])
+    }
+  }
+
+  const distance = ([row, column]: number[]): number =>
+    Math.abs(row - rowCenter) + Math.abs(column - columnCenter)
+
+  cells.sort((left, right) => distance(left) - distance(right))
+  return cells
+}`,
+      },
+      {
+        id: 'matrix-distance-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '不要把曼哈顿距离写成欧氏距离，也不要遗漏边界行列。返回的是坐标数组，不是距离数组。',
+        bullets: [
+          '易错点 1：使用平方和或开平方计算距离。',
+          '易错点 2：循环边界写成小于等于 rows 或 columns。',
+          '易错点 3：排序后返回距离而不是坐标。',
+          '延伸方向：多源 BFS、桶排序、曼哈顿距离与网格分层遍历。',
+        ],
+      },
+    ],
+  },
 ];
