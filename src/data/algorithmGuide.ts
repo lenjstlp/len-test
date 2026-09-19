@@ -102605,4 +102605,109 @@ function maxAncestorDiff(root: AncestorTreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'recover-a-tree-from-preorder-traversal',
+    label: '1028. LeetCode 1028. 从先序遍历还原二叉树',
+    difficulty: '困难',
+    description:
+      '先序遍历字符串用连续短横线表示节点深度，后面跟节点值。根据这段编码恢复原二叉树。',
+    outcome:
+      '你能掌握混合格式字符串解析，理解深度如何决定父子关系，并使用栈维护当前根到节点的路径。',
+    sections: [
+      {
+        id: 'recover-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '编码按先序顺序排列节点。每个节点前的短横线数量等于节点深度，根节点深度为 0；如果节点只有一个孩子，题目保证它是左孩子。',
+        bullets: [
+          '节点值可能由多个数字组成，不能按单字符解析。',
+          '短横线只表示深度，不是负号。',
+          '先序遍历保证父节点一定在子节点之前出现。',
+          '同一深度的新节点出现时，之前路径中的更深节点已经完成。',
+        ],
+      },
+      {
+        id: 'recover-tree-stack',
+        title: '路径栈：栈长度就是下一节点深度',
+        summary:
+          '解析出节点深度和数值后，把栈弹到长度等于该深度。此时栈顶就是父节点；父节点没有左孩子时挂到左侧，否则挂到右侧。',
+        bullets: [
+          '先数连续短横线得到 depth。',
+          '再读取连续数字得到 value。',
+          '弹栈结束后，栈中保存从根到父节点的完整路径。',
+          '新节点挂接后入栈，等待它后续的子节点。',
+        ],
+        callout:
+          '当输入显式提供层级或深度时，栈通常可以直接表示当前路径。新节点深度下降多少，就从栈中退出多少层。',
+      },
+      {
+        id: 'recover-tree-solution',
+        title: '标准解法：边解析边建树',
+        summary:
+          '使用一个索引扫描字符串，依次解析深度和值；利用栈确定父节点并完成左右孩子挂接。',
+        bullets: [
+          '时间复杂度：`O(n)`，字符串中每个字符只处理一次。',
+          '空间复杂度：`O(h)`，h 为树高。',
+          '判断数字可使用字符范围，避免正则重复创建。',
+        ],
+        code: `type RecoveredTreeNode = {
+  val: number
+  left: RecoveredTreeNode | null
+  right: RecoveredTreeNode | null
+}
+
+function recoverFromPreorder(traversal: string): RecoveredTreeNode | null {
+  const stack: RecoveredTreeNode[] = []
+  let index = 0
+
+  while (index < traversal.length) {
+    let depth = 0
+    while (traversal[index] === '-') {
+      depth += 1
+      index += 1
+    }
+
+    let value = 0
+    while (
+      index < traversal.length &&
+      traversal[index] >= '0' &&
+      traversal[index] <= '9'
+    ) {
+      value = value * 10 + Number(traversal[index])
+      index += 1
+    }
+
+    const node: RecoveredTreeNode = { val: value, left: null, right: null }
+    while (stack.length > depth) {
+      stack.pop()
+    }
+
+    if (stack.length > 0) {
+      const parent = stack[stack.length - 1]
+      if (parent.left === null) {
+        parent.left = node
+      } else {
+        parent.right = node
+      }
+    }
+    stack.push(node)
+  }
+
+  return stack[0] ?? null
+}`,
+      },
+      {
+        id: 'recover-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '解析与建树必须同步进行。只按短横线分割会丢失深度信息，而只弹出一个节点无法处理从深层一次返回多层的情况。',
+        bullets: [
+          '易错点 1：节点值按单个字符读取，无法处理多位数。',
+          '易错点 2：深度下降时只弹栈一次。',
+          '易错点 3：父节点已有左孩子时仍覆盖左孩子。',
+          '延伸方向：序列化与反序列化、语法解析、路径栈和树结构恢复。',
+        ],
+      },
+    ],
+  },
 ];
