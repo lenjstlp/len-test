@@ -102433,4 +102433,93 @@ function sumRootToLeaf(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'maximum-difference-between-node-and-ancestor',
+    label: '1026. LeetCode 1026. 节点与其祖先之间的最大差值',
+    difficulty: '中等',
+    description:
+      '给定一棵二叉树，求任意祖先节点与其后代节点值之差的绝对值最大值。',
+    outcome:
+      '你能掌握在 DFS 路径中携带最小值和最大值的状态压缩，理解为什么无需枚举所有祖先后代节点对。',
+    sections: [
+      {
+        id: 'ancestor-difference-summary',
+        title: '题目在问什么',
+        summary:
+          '如果节点 a 位于从根到节点 b 的路径上，那么 a 是 b 的祖先。需要在所有这样的节点对中，最大化 `Math.abs(a.val - b.val)`。',
+        bullets: [
+          '祖先关系只发生在同一条根到叶路径上。',
+          '对当前节点而言，只需要知道路径上的最小值和最大值。',
+          '路径中任意两值的最大差一定是最大值减最小值。',
+        ],
+      },
+      {
+        id: 'ancestor-difference-dfs',
+        title: 'DFS：沿路径维护最小值与最大值',
+        summary:
+          '递归进入节点时，用节点值更新当前路径的最小值和最大值。到达空节点或叶子后，用二者之差更新答案。',
+        bullets: [
+          '每条递归分支都有自己独立的路径状态。',
+          '只传递两个数字，不需要保存完整祖先列表。',
+          '左右子树共享进入当前节点前的状态值，但后续更新互不影响。',
+        ],
+        callout:
+          '树上路径问题如果只关心某种可合并统计量，就应传递统计量而不是完整路径。这里的路径信息可以压缩成最小值和最大值两个数字。',
+      },
+      {
+        id: 'ancestor-difference-solution',
+        title: '标准解法：路径状态递归',
+        summary:
+          '从根节点开始 DFS，将路径最小值和最大值作为参数传入子树，并返回所有分支中的最大差值。',
+        bullets: [
+          '时间复杂度：`O(n)`，每个节点访问一次。',
+          '空间复杂度：`O(h)`，h 为树高。',
+          '空树返回 0，非空树使用根节点值初始化路径上下界。',
+        ],
+        code: `type AncestorTreeNode = {
+  val: number
+  left: AncestorTreeNode | null
+  right: AncestorTreeNode | null
+}
+
+function maxAncestorDiff(root: AncestorTreeNode | null): number {
+  if (root === null) {
+    return 0
+  }
+
+  const traverse = (
+    node: AncestorTreeNode | null,
+    minimum: number,
+    maximum: number,
+  ): number => {
+    if (node === null) {
+      return maximum - minimum
+    }
+
+    const nextMinimum = Math.min(minimum, node.val)
+    const nextMaximum = Math.max(maximum, node.val)
+
+    return Math.max(
+      traverse(node.left, nextMinimum, nextMaximum),
+      traverse(node.right, nextMinimum, nextMaximum),
+    )
+  }
+
+  return traverse(root, root.val, root.val)
+}`,
+      },
+      {
+        id: 'ancestor-difference-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '只比较父节点和子节点会漏掉跨越多层的最大差值；保存所有祖先再逐个比较虽然可行，但会造成不必要的平方级复杂度。',
+        bullets: [
+          '易错点 1：只计算相邻父子节点的差。',
+          '易错点 2：左右分支共用可变的路径数组，回溯时没有恢复。',
+          '易错点 3：路径最小值和最大值没有包含当前节点。',
+          '延伸方向：树上路径统计、状态压缩 DFS、路径最大最小值。',
+        ],
+      },
+    ],
+  },
 ];
