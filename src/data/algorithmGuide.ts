@@ -102522,4 +102522,87 @@ function maxAncestorDiff(root: AncestorTreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'longest-arithmetic-subsequence',
+    label: '1027. LeetCode 1027. 最长等差数列',
+    difficulty: '中等',
+    description:
+      '给定整数数组，求其中最长等差子序列的长度。子序列保持原数组顺序，但不要求元素连续。',
+    outcome:
+      '你能掌握以结尾位置和公差为状态的动态规划，理解为什么只记录长度无法描述后续转移，以及如何用 Map 支持任意公差。',
+    sections: [
+      {
+        id: 'arithmetic-subsequence-summary',
+        title: '题目在问什么',
+        summary:
+          '等差序列中相邻元素差值相同。需要从原数组中选择若干元素并保持下标递增，使选出的序列具有统一公差，最大化序列长度。',
+        bullets: [
+          '子序列可以跳过元素，但不能改变相对顺序。',
+          '公差可能为负数、零或正数。',
+          '任意两个元素都能组成长度为 2 的等差子序列。',
+        ],
+      },
+      {
+        id: 'arithmetic-subsequence-dp',
+        title: '动态规划：位置与公差共同定义状态',
+        summary:
+          '`dp[right][difference]` 表示以 right 结尾、公差为 difference 的最长等差子序列长度。枚举前一个位置 left，用当前差值连接已有序列。',
+        bullets: [
+          '如果 left 处已有相同公差的序列，就在其长度上加一。',
+          '如果没有已有序列，left 和 right 本身构成长度为 2 的序列。',
+          '同一个 right 可以对应多个不同公差，因此每个位置需要一个 Map。',
+        ],
+        callout:
+          '当“最后一个元素”不足以决定能否继续扩展时，需要把决定转移合法性的属性一起放入状态。本题这个属性就是公差。',
+      },
+      {
+        id: 'arithmetic-subsequence-solution',
+        title: '标准解法：Map 保存不同公差',
+        summary:
+          '枚举所有有序下标对 `(left, right)`，计算公差并更新以 right 结尾的状态，同时维护全局最长长度。',
+        bullets: [
+          '时间复杂度：`O(n^2)`。',
+          '空间复杂度：`O(n^2)`。',
+          '状态默认值使用 1，随后加一得到初始长度 2。',
+        ],
+        code: `function longestArithSeqLength(nums: number[]): number {
+  if (nums.length <= 2) {
+    return nums.length
+  }
+
+  const dp = Array.from(
+    { length: nums.length },
+    () => new Map<number, number>(),
+  )
+  let answer = 2
+
+  for (let right = 0; right < nums.length; right += 1) {
+    for (let left = 0; left < right; left += 1) {
+      const difference = nums[right] - nums[left]
+      const length = (dp[left].get(difference) ?? 1) + 1
+      dp[right].set(
+        difference,
+        Math.max(dp[right].get(difference) ?? 0, length),
+      )
+      answer = Math.max(answer, length)
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'arithmetic-subsequence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '使用一维 DP 会把不同公差的序列混在一起，导致无法判断当前数字能否接上；只保存最后写入的状态也可能覆盖更长结果。',
+        bullets: [
+          '易错点 1：把子序列误写成连续子数组。',
+          '易错点 2：状态中没有记录公差。',
+          '易错点 3：相同状态更新时没有取最大值。',
+          '延伸方向：最长递增子序列、状态哈希 DP、按结尾位置建模。',
+        ],
+      },
+    ],
+  },
 ];
