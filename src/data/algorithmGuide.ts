@@ -102289,4 +102289,87 @@ function sumRootToLeaf(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'video-stitching',
+    label: '1024. LeetCode 1024. 视频拼接',
+    difficulty: '中等',
+    description:
+      '给定若干视频片段的起止时间，可以任意裁剪片段，求覆盖完整区间 [0, time] 至少需要多少个片段；无法覆盖时返回 -1。',
+    outcome:
+      '你能掌握区间覆盖中的贪心策略，理解为什么每次都应在当前可达范围内选择右端点最远的片段，并能正确识别覆盖断点。',
+    sections: [
+      {
+        id: 'video-stitching-summary',
+        title: '题目在问什么',
+        summary:
+          '每个片段 `[start, end]` 可以裁剪成其中任意子区间。目标是用尽量少的片段连续覆盖从 0 到 time 的全部时间，区间之间不能留下空隙。',
+        bullets: [
+          '第一个被选片段必须从 0 或更早的位置开始。',
+          '下一段的起点必须不大于当前已经覆盖到的右端点。',
+          '同一批可选片段中，应优先选择能延伸到最远位置的片段。',
+          '如果无法把当前右端点继续向右扩展，就说明存在覆盖断点。',
+        ],
+      },
+      {
+        id: 'video-stitching-greedy',
+        title: '贪心：每轮扩展到最远右端点',
+        summary:
+          '先按起点排序。每轮收集所有起点不超过当前覆盖终点的片段，从中找到最大的右端点，然后选用其中一个片段完成本轮扩展。',
+        bullets: [
+          '排序后可以用一个指针依次消费当前可用片段。',
+          '`currentEnd` 表示已经确定覆盖的范围。',
+          '`farthestEnd` 表示本轮候选片段能到达的最远位置。',
+          '每成功扩展一次，使用片段数量加一。',
+        ],
+        callout:
+          '最少区间覆盖问题的核心是“在不产生空隙的前提下，每一步走得最远”。这和跳跃游戏、加油站覆盖等问题使用的是同一种分层贪心。',
+      },
+      {
+        id: 'video-stitching-solution',
+        title: '标准解法：排序后扫描区间',
+        summary:
+          '按起点升序排序片段，在当前可达范围内持续更新最远右端点；若最远位置没有变化则返回 -1，否则推进覆盖范围。',
+        bullets: [
+          '时间复杂度：`O(n log n)`，主要开销来自排序。',
+          '空间复杂度：取决于排序实现，通常为 `O(log n)`。',
+          '覆盖范围达到或超过 time 后可以立即返回。',
+        ],
+        code: `function videoStitching(clips: number[][], time: number): number {
+  clips.sort((left, right) => left[0] - right[0])
+  let index = 0
+  let currentEnd = 0
+  let farthestEnd = 0
+  let answer = 0
+
+  while (currentEnd < time) {
+    while (index < clips.length && clips[index][0] <= currentEnd) {
+      farthestEnd = Math.max(farthestEnd, clips[index][1])
+      index += 1
+    }
+
+    if (farthestEnd === currentEnd) {
+      return -1
+    }
+
+    currentEnd = farthestEnd
+    answer += 1
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'video-stitching-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '不能简单按片段长度排序，因为长片段可能与当前覆盖范围不相连；也不能见到可用片段就立刻选择，需要先比较本轮所有候选。',
+        bullets: [
+          '易错点 1：按区间长度选择，而不是按可达右端点选择。',
+          '易错点 2：只检查片段起点等于 currentEnd，漏掉存在重叠的片段。',
+          '易错点 3：无法扩展时没有及时返回 -1，造成死循环。',
+          '延伸方向：区间覆盖、跳跃游戏、会议调度和分层贪心。',
+        ],
+      },
+    ],
+  },
 ];
