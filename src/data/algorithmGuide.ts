@@ -102710,4 +102710,75 @@ function recoverFromPreorder(traversal: string): RecoveredTreeNode | null {
       },
     ],
   },
+  {
+    id: 'two-city-scheduling',
+    label: '1029. LeetCode 1029. 两地调度',
+    difficulty: '中等',
+    description:
+      '有 2n 个人需要平均分配到 A、B 两座城市，每个人去两地的费用不同，求满足每座城市恰好 n 人时的最低总费用。',
+    outcome:
+      '你能掌握按机会成本排序的贪心方法，理解为什么比较绝对费用不够，以及如何从“所有人先去一地”的基准方案推导答案。',
+    sections: [
+      {
+        id: 'two-city-summary',
+        title: '题目在问什么',
+        summary:
+          '`costs[index]` 包含某个人去 A、B 两座城市的费用。必须让一半人去 A，另一半人去 B，并使总费用最小。',
+        bullets: [
+          '不能让所有人都去各自更便宜的城市，因为人数可能不平衡。',
+          '需要衡量把一个人安排到 A 而不是 B 能节省多少费用。',
+          '差值 `costA - costB` 越小，越适合安排到 A。',
+        ],
+      },
+      {
+        id: 'two-city-greedy',
+        title: '贪心：按两地费用差排序',
+        summary:
+          '按 `costA - costB` 从小到大排序。前 n 个人去 A，后 n 个人去 B，就能让每一次名额分配都优先给机会成本更低的人。',
+        bullets: [
+          '差值为负表示去 A 比去 B 更便宜。',
+          '差值很大的正数表示这个人更应该去 B。',
+          '排序后直接按人数对半切分，天然满足城市容量约束。',
+        ],
+        callout:
+          '存在固定配额时，不能只看单项成本，而要比较选择 A 相对选择 B 的增量成本。机会成本排序是许多二选一分配问题的核心。',
+      },
+      {
+        id: 'two-city-solution',
+        title: '标准解法：费用差排序后分组',
+        summary: '将人员按费用差排序，把前一半的 A 费用和后一半的 B 费用累加。',
+        bullets: [
+          '时间复杂度：`O(n log n)`。',
+          '空间复杂度：取决于排序实现。',
+          '排序比较器使用差值之差即可，不需要计算绝对值。',
+        ],
+        code: `function twoCitySchedCost(costs: number[][]): number {
+  costs.sort(
+    (left, right) => left[0] - left[1] - (right[0] - right[1]),
+  )
+
+  const half = costs.length / 2
+  let answer = 0
+
+  for (let index = 0; index < costs.length; index += 1) {
+    answer += index < half ? costs[index][0] : costs[index][1]
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'two-city-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '按 A 费用或 B 费用单独排序都无法体现另一种选择的代价；按绝对差排序也会丢失应去哪个城市的方向。',
+        bullets: [
+          '易错点 1：每个人独立选择便宜城市，破坏人数约束。',
+          '易错点 2：按 `Math.abs(costA - costB)` 排序后直接分组。',
+          '易错点 3：前后两组人数没有严格各占一半。',
+          '延伸方向：机会成本、配额分配、交换论证和排序贪心。',
+        ],
+      },
+    ],
+  },
 ];
