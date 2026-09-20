@@ -102954,4 +102954,111 @@ function recoverFromPreorder(traversal: string): RecoveredTreeNode | null {
       },
     ],
   },
+  {
+    id: 'stream-of-characters',
+    label: '1032. LeetCode 1032. 字符流',
+    difficulty: '困难',
+    description:
+      '设计一个支持逐个接收字符的查询结构，每次接收新字符后，判断当前字符流的某个后缀是否是给定单词列表中的单词。',
+    outcome:
+      '你能理解为什么流式匹配更适合用 Trie 保存反向单词，并掌握“只检查有限长度后缀”的性能优化方式。',
+    sections: [
+      {
+        id: 'stream-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个单词列表，字符会一个接一个地到达。每次调用 query(letter) 后，都要判断当前收到的字符序列是否存在某个后缀，恰好等于单词列表中的一个单词。',
+        bullets: [
+          '每次查询只新增一个字符，之前的字符不能丢失。',
+          '匹配的是当前流的后缀，不要求整个字符流都是单词。',
+          '只要有一个单词匹配，就返回 true。',
+          '单词长度有限，因此没有必要每次从最早字符开始无限回溯。',
+        ],
+      },
+      {
+        id: 'stream-reverse-trie',
+        title: '为什么要把单词反过来存',
+        summary:
+          '新字符到达后，最有价值的信息是“从当前字符向前倒着看”。如果把每个单词反转后放入 Trie，就能从最新字符开始逐步匹配历史字符。',
+        bullets: [
+          '例如单词 `cd` 反转后存成 `dc`。收到 `c`、`d` 时，查询顺序正好是 `d`、`c`。',
+          'Trie 的终点标记表示某个反转单词已经完整匹配。',
+          '查询时最多检查最长单词长度个字符。',
+          '字符流只保留最长单词长度的后缀，避免历史数据无限增长。',
+        ],
+        callout:
+          '流式问题的关键是先找“每次新增数据后，哪些历史数据仍然可能影响结果”。这里真正有用的只有最长单词长度范围内的后缀。',
+      },
+      {
+        id: 'stream-solution',
+        title: '标准解法：反向 Trie + 有限后缀',
+        summary:
+          '构造反向 Trie，每次把新字符放到字符流末尾，再从末尾向前遍历，沿 Trie 查找。遇到单词结束标记即可返回 true。',
+        bullets: [
+          '设最长单词长度为 L，每次查询最多访问 L 个字符。',
+          '构建 Trie 的时间复杂度是所有单词长度之和。',
+          '单次查询时间复杂度为 `O(L)`，空间复杂度为 `O(S + L)`，S 是 Trie 节点总数。',
+          '先判断 Trie 分支是否存在，分支不存在时可以立即停止。',
+        ],
+        code: `class StreamChecker {
+  private readonly root = new Map<string, Map<string, unknown>>()
+  private readonly endings = new WeakSet<object>()
+  private readonly stream: string[] = []
+  private readonly maxLength: number
+
+  constructor(words: string[]) {
+    let longest = 0
+
+    for (const word of words) {
+      longest = Math.max(longest, word.length)
+      let node: Map<string, unknown> = this.root
+
+      for (let index = word.length - 1; index >= 0; index -= 1) {
+        const character = word[index]
+        let next = node.get(character) as Map<string, unknown> | undefined
+        if (!next) {
+          next = new Map<string, unknown>()
+          node.set(character, next)
+        }
+        node = next
+      }
+
+      this.endings.add(node)
+    }
+
+    this.maxLength = longest
+  }
+
+  query(letter: string): boolean {
+    this.stream.push(letter)
+    if (this.stream.length > this.maxLength) {
+      this.stream.shift()
+    }
+
+    let node: Map<string, unknown> = this.root
+    for (let index = this.stream.length - 1; index >= 0; index -= 1) {
+      const next = node.get(this.stream[index]) as Map<string, unknown> | undefined
+      if (!next) return false
+      node = next
+      if (this.endings.has(node)) return true
+    }
+
+    return false
+  }
+}`,
+      },
+      {
+        id: 'stream-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易写错的是匹配方向、Trie 结束标记和字符流截断边界。还可以进一步比较正向 Trie、Aho-Corasick 自动机等方案。',
+        bullets: [
+          '易错点 1：正向遍历后缀，导致 Trie 方向与查询方向不一致。',
+          '易错点 2：只走到 Trie 叶子才算匹配，遗漏一个单词是另一个单词前缀的情况。',
+          '易错点 3：截断字符流时保留少于最长单词长度的字符。',
+          '延伸方向：多模式字符串匹配、Aho-Corasick 自动机、流式日志检测。',
+        ],
+      },
+    ],
+  },
 ];
