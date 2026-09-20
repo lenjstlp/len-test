@@ -103142,4 +103142,123 @@ function recoverFromPreorder(traversal: string): RecoveredTreeNode | null {
       },
     ],
   },
+  {
+    id: 'coloring-a-border',
+    label: '1034. LeetCode 1034. 边界着色',
+    difficulty: '中等',
+    description:
+      '从网格中的指定起点出发，找到与起点连通的同色区域，并把这个区域的边界格子改成指定颜色。',
+    outcome:
+      '你能区分连通区域与区域边界，掌握 DFS/BFS 遍历时如何先保存原色，再统一修改结果，避免改变颜色后影响后续判断。',
+    sections: [
+      {
+        id: 'border-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个二维网格、起点位置和新颜色。只考虑与起点颜色相同且四方向连通的区域，区域中接触网格边缘或邻接不同颜色的位置，都属于边界。',
+        bullets: [
+          '只能上下左右移动，不能沿对角线连通。',
+          '只有和起点颜色相同的格子属于目标区域。',
+          '区域内部格子不应该被重新着色。',
+          '区域边界可能位于网格外侧，也可能接触另一种颜色。',
+        ],
+      },
+      {
+        id: 'border-definition',
+        title: '先找区域，再判断边界',
+        summary:
+          '遍历过程中记录每个属于目标区域的格子。一个格子只要有任意一个方向越界，或相邻格子颜色不同，就属于边界。',
+        bullets: [
+          '保存 `originalColor`，所有区域判断都基于原始颜色。',
+          '用 visited 防止同一个格子重复入队或递归。',
+          '边界判断与区域遍历可以同时进行。',
+          '不建议边遍历边用新颜色覆盖，否则后续格子可能被误判成不同颜色。',
+        ],
+        callout:
+          '网格题经常同时存在“搜索条件”和“修改结果”。当修改会破坏搜索条件时，先记录状态、后统一写回，通常比直接原地修改更稳妥。',
+      },
+      {
+        id: 'border-solution',
+        title: '标准解法：DFS 收集边界',
+        summary:
+          '从起点 DFS，只进入原色相同的格子，并把判断为边界的坐标保存起来。遍历完成后统一设置新颜色。',
+        bullets: [
+          '每个格子最多访问一次，时间复杂度为 `O(mn)`。',
+          'visited 和边界列表需要 `O(mn)` 额外空间。',
+          '如果新旧颜色相同，可以直接返回，避免无意义遍历。',
+          '统一修改可以保证边界判断始终基于原网格。',
+        ],
+        code: `function colorBorder(
+  grid: number[][],
+  row: number,
+  col: number,
+  color: number,
+): number[][] {
+  const rows = grid.length
+  const columns = grid[0].length
+  const originalColor = grid[row][col]
+  const visited = Array.from({ length: rows }, () =>
+    Array<boolean>(columns).fill(false),
+  )
+  const border: Array<[number, number]> = []
+  const directions = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+  ]
+
+  const visit = (currentRow: number, currentCol: number): void => {
+    visited[currentRow][currentCol] = true
+    let isBorder = false
+
+    for (const [rowOffset, colOffset] of directions) {
+      const nextRow = currentRow + rowOffset
+      const nextCol = currentCol + colOffset
+
+      if (
+        nextRow < 0 ||
+        nextRow >= rows ||
+        nextCol < 0 ||
+        nextCol >= columns
+      ) {
+        isBorder = true
+        continue
+      }
+
+      if (grid[nextRow][nextCol] !== originalColor) {
+        isBorder = true
+        continue
+      }
+
+      if (!visited[nextRow][nextCol]) {
+        visit(nextRow, nextCol)
+      }
+    }
+
+    if (isBorder) border.push([currentRow, currentCol])
+  }
+
+  visit(row, col)
+  for (const [borderRow, borderCol] of border) {
+    grid[borderRow][borderCol] = color
+  }
+
+  return grid
+}`,
+      },
+      {
+        id: 'border-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '边界不是“所有访问过的格子”，内部被同色区域完全包围的格子不能改色。大网格中还要注意递归深度问题。',
+        bullets: [
+          '易错点 1：把整个连通区域都涂成新颜色。',
+          '易错点 2：忘记把越界视为边界。',
+          '易错点 3：修改网格后继续用新颜色判断连通性。',
+          '延伸方向：改用显式队列 BFS，处理更大的网格和多源扩散问题。',
+        ],
+      },
+    ],
+  },
 ];
