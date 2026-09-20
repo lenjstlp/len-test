@@ -103347,4 +103347,112 @@ function recoverFromPreorder(traversal: string): RecoveredTreeNode | null {
       },
     ],
   },
+  {
+    id: 'escape-a-large-maze',
+    label: '1036. LeetCode 1036. 逃离大迷宫',
+    difficulty: '困难',
+    description:
+      '在 10^6 × 10^6 的网格中，给定少量被封锁的单元格，判断从 source 是否能到达 target。',
+    outcome:
+      '你能掌握“巨大搜索空间 + 少量障碍”的降维技巧，理解为什么只需要搜索由障碍物数量决定的有限区域，并学会双向验证。',
+    sections: [
+      {
+        id: 'maze-summary',
+        title: '题目在问什么',
+        summary:
+          '网格坐标范围非常大，但被封锁的格子数量很少。每一步只能上下左右移动，不能进入边界外或被封锁的位置，需要判断 source 和 target 是否连通。',
+        bullets: [
+          '网格边长为 1,000,000，不能按普通 BFS 访问整张图。',
+          'blocked 中的坐标不能经过，source 和 target 一定不在 blocked 中。',
+          '如果搜索能走出障碍物可能形成的封锁区域，就可以确定没有被困住。',
+          'source 能走出去还不够，target 也可能被单独围住，因此需要从两端分别检查。',
+        ],
+      },
+      {
+        id: 'maze-bound',
+        title: '用障碍物数量推导搜索上界',
+        summary:
+          'k 个障碍物最多围出一个有限区域。要把某个点完全封住，障碍物之间需要形成边界，因此被困区域的最大面积不超过 k(k-1)/2。',
+        bullets: [
+          '设障碍物数量为 k，最多需要检查 `k * (k - 1) / 2` 个可达单元格。',
+          '如果 BFS 访问数量超过这个上界，说明已经走出了障碍物可能封锁的局部区域。',
+          '如果在达到上界前搜索耗尽，说明当前点确实被围住。',
+          '这个上界远小于 10^6 × 10^6，才能让搜索在可接受时间内完成。',
+        ],
+        callout:
+          '面对超大空间时，不要先想着优化每一次访问，而要先问：题目中的“稀疏限制”是否能证明答案只依赖一个很小的局部区域。',
+      },
+      {
+        id: 'maze-solution',
+        title: '标准解法：受限 BFS + 两端验证',
+        summary:
+          '从 source 搜索 target；如果没遇到 target 但搜索规模超过上界，说明 source 可以走出封锁区。再从 target 搜索 source，两个方向都能走出或相遇才返回 true。',
+        bullets: [
+          '每个方向最多访问 `O(k²)` 个格子，k 是 blocked 数量。',
+          '使用字符串坐标作为 Set key，避免数组引用比较失效。',
+          '四个方向移动时同时判断边界和 blocked。',
+          '双向检查可以排除“起点自由但终点被困住”的误判。',
+        ],
+        code: `function isEscapePossible(
+  blocked: number[][],
+  source: number[],
+  target: number[],
+): boolean {
+  const blockedSet = new Set(blocked.map(([row, col]) => \`${'${'}row},${'${'}col}\`))
+  const limit = (blocked.length * (blocked.length - 1)) / 2
+  const directions = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+  ]
+
+  const canReach = (start: number[], end: number[]): boolean => {
+    const queue: Array<[number, number]> = [[start[0], start[1]]]
+    const visited = new Set([\`${'${'}start[0]},${'${'}start[1]}\`])
+
+    while (queue.length > 0) {
+      const [row, col] = queue.shift()!
+      if (row === end[0] && col === end[1]) return true
+      if (visited.size > limit) return true
+
+      for (const [rowOffset, colOffset] of directions) {
+        const nextRow = row + rowOffset
+        const nextCol = col + colOffset
+        const key = \`${'${'}nextRow},${'${'}nextCol}\`
+
+        if (
+          nextRow >= 0 &&
+          nextRow < 1_000_000 &&
+          nextCol >= 0 &&
+          nextCol < 1_000_000 &&
+          !blockedSet.has(key) &&
+          !visited.has(key)
+        ) {
+          visited.add(key)
+          queue.push([nextRow, nextCol])
+        }
+      }
+    }
+
+    return false
+  }
+
+  return canReach(source, target) && canReach(target, source)
+}`,
+      },
+      {
+        id: 'maze-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这道题的难点是证明停止条件，而不是写 BFS 本身。若只从 source 搜索，会漏掉 target 被围住的情况。',
+        bullets: [
+          '易错点 1：尝试遍历整个百万级网格，导致时间和内存不可接受。',
+          '易错点 2：只验证 source 能否走出封锁区，没有验证 target。',
+          '易错点 3：坐标 key 少拼逗号或使用数组直接放入 Set。',
+          '延伸方向：稀疏图搜索、双向 BFS、A* 搜索和可证明的搜索剪枝。',
+        ],
+      },
+    ],
+  },
 ];
