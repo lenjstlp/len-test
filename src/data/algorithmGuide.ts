@@ -103605,4 +103605,88 @@ function bstToGst(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'minimum-score-triangulation-of-polygon',
+    label: '1039. LeetCode 1039. 多边形三角剖分的最低得分',
+    difficulty: '中等',
+    description:
+      '给定一个凸多边形，使用不相交的对角线将其剖分成三角形，每个三角形得分为三个顶点值的乘积，求所有三角形得分之和的最小值。',
+    outcome:
+      '你能掌握区间 DP 在多边形剖分问题中的标准建模方式，理解如何枚举三角形的第三个顶点并复用左右子区间最优解。',
+    sections: [
+      {
+        id: 'triangulation-summary',
+        title: '题目在问什么',
+        summary:
+          '多边形顶点按顺序给出，不能改变顶点顺序。每次选择一条对角线，最终把多边形分成若干个三角形，目标是让所有三角形的顶点乘积之和最小。',
+        bullets: [
+          '多边形是凸多边形，任意合法对角线都在内部。',
+          '每个三角形必须使用原多边形顶点。',
+          '不同三角形之间不能重叠，但可以共享边或顶点。',
+          '最终总会得到 `n - 2` 个三角形。',
+        ],
+      },
+      {
+        id: 'triangulation-interval',
+        title: '把多边形剖分转成区间 DP',
+        summary:
+          '固定区间端点 i 和 j，考虑它们之间的子多边形。枚举 k 作为与 i、j 组成最后一个三角形的第三个顶点，问题被拆成左右两个更短区间。',
+        bullets: [
+          '`dp[i][j]` 表示顶点 i 到 j 这一段多边形完成剖分的最小得分。',
+          '当 `j - i < 2` 时，区间不足以形成三角形，得分为 0。',
+          '枚举 `i < k < j`，转移为 `dp[i][k] + dp[k][j] + values[i] * values[k] * values[j]`。',
+          '区间长度从短到长计算，确保左右子区间已经求出。',
+        ],
+        callout:
+          '区间 DP 的典型信号是：一个大区间的最优解，可以通过选择一个分割点，拆成两个互不依赖的更小区间，再加上当前分割产生的代价。',
+      },
+      {
+        id: 'triangulation-solution',
+        title: '标准解法：枚举分割点',
+        summary:
+          '初始化所有区间为 0，逐渐扩大区间长度。每个区间枚举第三个顶点，取所有剖分方式中的最小值。',
+        bullets: [
+          '三层循环分别枚举区间起点、区间终点和分割点。',
+          '时间复杂度为 `O(n³)`，空间复杂度为 `O(n²)`。',
+          '使用 `Infinity` 初始化可形成三角形的区间，避免错误保留默认值。',
+          '由于输入是凸多边形，任意合法分割点都不会产生自交问题。',
+        ],
+        code: `function minScoreTriangulation(values: number[]): number {
+  const size = values.length
+  const dp = Array.from({ length: size }, () =>
+    Array<number>(size).fill(0),
+  )
+
+  for (let length = 3; length <= size; length += 1) {
+    for (let left = 0; left + length <= size; left += 1) {
+      const right = left + length - 1
+      dp[left][right] = Number.POSITIVE_INFINITY
+
+      for (let middle = left + 1; middle < right; middle += 1) {
+        const score =
+          dp[left][middle] +
+          dp[middle][right] +
+          values[left] * values[middle] * values[right]
+        dp[left][right] = Math.min(dp[left][right], score)
+      }
+    }
+  }
+
+  return dp[0][size - 1]
+}`,
+      },
+      {
+        id: 'triangulation-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是区间边界和长度顺序。这个问题不能用局部贪心，因为当前选择的三角形会影响左右子多边形的整体最优解。',
+        bullets: [
+          '易错点 1：把 `dp[i][j]` 误认为单个三角形得分，忽略子区间剖分成本。',
+          '易错点 2：区间长度从 2 开始时访问不存在的第三个顶点。',
+          '易错点 3：只选乘积最小的一个三角形，无法保证全局最优。',
+          '延伸方向：矩阵链乘法、戳气球、合并石头、最优二叉搜索树。',
+        ],
+      },
+    ],
+  },
 ];
