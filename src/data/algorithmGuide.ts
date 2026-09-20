@@ -103061,4 +103061,85 @@ function recoverFromPreorder(traversal: string): RecoveredTreeNode | null {
       },
     ],
   },
+  {
+    id: 'moving-stones-until-consecutive',
+    label: '1033. LeetCode 1033. 移动石子直到连续',
+    difficulty: '中等',
+    description:
+      '给定三颗位于不同位置的石子，每次可以把端点石子移动到新的空位置，求让三颗石子连续所需的最小和最大移动次数。',
+    outcome:
+      '你能掌握排序后分析间隔的方式，理解最大次数的总空位公式，以及“特殊一步到位”导致的最小次数例外。',
+    sections: [
+      {
+        id: 'stones-summary',
+        title: '题目在问什么',
+        summary:
+          '三颗石子位于 a、b、c 三个位置，只有当前最左或最右的石子可以移动。目标是让它们占据三个连续位置，并分别计算最少和最多移动次数。',
+        bullets: [
+          '先将三个位置排序为 `a < b < c`。',
+          '每次移动后，被移动的石子必须仍然成为端点石子。',
+          '最终状态一定是三个连续位置。',
+          '答案只需要返回次数，不需要输出具体移动方案。',
+        ],
+      },
+      {
+        id: 'stones-maximum',
+        title: '最大移动次数：把空位逐个填掉',
+        summary:
+          '要让移动次数最多，可以每次只移动一个端点石子，并尽量让它跨过一个空位。最终需要填补的空位数量就是两段间隔中的空位总数。',
+        bullets: [
+          '区间 `[a, c]` 中一共有 `c - a + 1` 个位置。',
+          '已有三颗石子，因此空位总数是 `c - a - 2`。',
+          '从较长的间隔开始移动，可以保证每次都只消耗一个可用空位。',
+          '最大次数为 `c - a - 2`。',
+        ],
+      },
+      {
+        id: 'stones-minimum',
+        title: '最小移动次数：滑动窗口和特殊情况',
+        summary:
+          '如果不存在“一个端点跳到另一个端点旁边”的特殊情况，可以用长度为 3 的窗口计算最少需要移动的石子数。特殊情况则需要直接判定为 1。',
+        bullets: [
+          '窗口覆盖三个连续目标位置，窗口内有几颗石子，就需要移动几颗之外的石子。',
+          '对 `[a, b, c]`，只需要检查包含两颗连续石子的两个窗口。',
+          '当 `b - a === 2` 且 `c - b > 2`，或对称情况成立时，答案是 1。',
+          '若三颗石子已经连续，最小和最大次数都是 0。',
+        ],
+        code: `function numMovesStones(a: number, b: number, c: number): [number, number] {
+  const stones = [a, b, c].sort((left, right) => left - right)
+  const [first, second, third] = stones
+  const leftGap = second - first - 1
+  const rightGap = third - second - 1
+  const maximum = leftGap + rightGap
+
+  if (leftGap === 0 && rightGap === 0) {
+    return [0, 0]
+  }
+
+  const hasOneMoveException =
+    (leftGap === 1 && rightGap > 0) || (rightGap === 1 && leftGap > 0)
+
+  if (hasOneMoveException) {
+    return [1, maximum]
+  }
+
+  const minimum = Math.min(leftGap, rightGap)
+
+  return [minimum, maximum]
+}`,
+      },
+      {
+        id: 'stones-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '难点不在排序，而在最小步数的特殊结构和间隔边界。写窗口公式时要明确“窗口中缺少多少颗石子”。',
+        bullets: [
+          '易错点 1：把最大次数写成 `c - a`，忘记已有三颗石子占用了位置。',
+          '易错点 2：忽略间隔为 2 的特殊情况，错误地返回 2。',
+          '易错点 3：混淆区间长度与中间空位数量，少减或多减 1。',
+          '延伸方向：排序枚举、固定窗口、有限状态的构造题。',
+        ],
+      },
+    ],
+  },
 ];
