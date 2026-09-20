@@ -103455,4 +103455,72 @@ function recoverFromPreorder(traversal: string): RecoveredTreeNode | null {
       },
     ],
   },
+  {
+    id: 'valid-boomerang',
+    label: '1037. LeetCode 1037. 有效回旋镖',
+    difficulty: '简单',
+    description: '给定平面上的三个不同点，判断它们是否不在同一条直线上。',
+    outcome:
+      '你能用向量叉积代替斜率判断三点是否共线，并理解为什么这种写法不会遇到除零和浮点误差问题。',
+    sections: [
+      {
+        id: 'boomerang-summary',
+        title: '题目在问什么',
+        summary:
+          '三个点组成一个有效回旋镖，当且仅当它们不共线。点坐标是整数，要求返回布尔值。',
+        bullets: [
+          '三点坐标互不相同。',
+          '共线时不能组成有效回旋镖。',
+          '不需要计算面积，也不需要排序点。',
+          '只要判断两条向量是否方向相同或相反即可。',
+        ],
+      },
+      {
+        id: 'boomerang-cross-product',
+        title: '用叉积判断是否共线',
+        summary:
+          '以第一个点为起点构造两条向量。如果二维向量叉积为 0，说明两条向量平行，三个点共线；否则三点不共线。',
+        bullets: [
+          '向量 AB 为 `(b.x - a.x, b.y - a.y)`。',
+          '向量 AC 为 `(c.x - a.x, c.y - a.y)`。',
+          '二维叉积为 `AB.x * AC.y - AB.y * AC.x`。',
+          '叉积不为 0 就表示两条向量不平行，三点能围成非零面积。',
+        ],
+        callout:
+          '几何题中尽量优先使用整数运算。相比斜率除法，叉积不需要处理垂直线，也不会因为浮点数精度造成误判。',
+      },
+      {
+        id: 'boomerang-solution',
+        title: '标准解法：比较叉积是否为零',
+        summary: '直接计算叉积并判断是否为 0。时间复杂度和空间复杂度都是常数。',
+        bullets: [
+          '时间复杂度：`O(1)`。',
+          '空间复杂度：`O(1)`。',
+          '不需要开方、除法或三角函数。',
+          '坐标范围较大时，实际工程中要确认乘法结果不会超出数值类型范围。',
+        ],
+        code: `function isBoomerang(points: number[][]): boolean {
+  const [[ax, ay], [bx, by], [cx, cy]] = points
+  const abX = bx - ax
+  const abY = by - ay
+  const acX = cx - ax
+  const acY = cy - ay
+
+  return abX * acY - abY * acX !== 0
+}`,
+      },
+      {
+        id: 'boomerang-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这道题代码很短，但斜率解法容易在垂直线和精度上出问题。叉积的符号还可以进一步用于方向判断。',
+        bullets: [
+          '易错点 1：使用 `(y2 - y1) / (x2 - x1)`，忽略 `x2 === x1`。',
+          '易错点 2：用浮点数比较两个斜率是否相等。',
+          '易错点 3：叉积公式中的两个乘法项顺序写反。',
+          '延伸方向：线段相交、凸包、点在多边形内、判断转向方向。',
+        ],
+      },
+    ],
+  },
 ];
