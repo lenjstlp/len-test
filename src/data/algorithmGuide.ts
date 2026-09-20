@@ -103261,4 +103261,90 @@ function recoverFromPreorder(traversal: string): RecoveredTreeNode | null {
       },
     ],
   },
+  {
+    id: 'uncrossed-lines',
+    label: '1035. LeetCode 1035. 不相交的线',
+    difficulty: '中等',
+    description:
+      '在两组按顺序排列的点之间连线，要求连线不能相交，求最多能画出多少条线。',
+    outcome:
+      '你能看出“不相交连线”与最长公共子序列的等价关系，掌握二维 DP、滚动数组和状态转移的推导过程。',
+    sections: [
+      {
+        id: 'lines-summary',
+        title: '题目在问什么',
+        summary:
+          '两组点分别对应数组 nums1 和 nums2。只有数值相等的点才能连接，连接顺序必须保持不变，目标是让连线互不相交并尽可能多。',
+        bullets: [
+          '同一组中的点按数组顺序排列。',
+          '一条线连接两个数值相等的点。',
+          '如果选择的匹配顺序相反，线就会相交，因此匹配必须保持递增顺序。',
+          '最多连线数量就是满足顺序约束的最大匹配数量。',
+        ],
+      },
+      {
+        id: 'lines-lcs',
+        title: '把几何关系转成最长公共子序列',
+        summary:
+          '选择一组不相交的线，就等价于从两个数组中选出相同的子序列。子序列保持原顺序，所以天然不会产生交叉。',
+        bullets: [
+          'nums1[i] === nums2[j] 时，可以把这两个点配成一条线。',
+          '若不匹配当前两个点，就跳过 nums1[i] 或 nums2[j]。',
+          '最长公共子序列的长度，就是最多不相交连线数。',
+          '这是典型的“相等时取左上角加一，否则取上方和左方最大值”。',
+        ],
+        callout:
+          '很多看起来是几何、字符串或序列的问题，最后都可以落到“是否保持相对顺序”。只要顺序不能反转，就值得优先检查 LCS 思路。',
+      },
+      {
+        id: 'lines-solution',
+        title: '标准解法：二维 DP 压缩成一维',
+        summary:
+          'dp[j] 表示处理到当前 nums1 元素时，与 nums2 前 j 个元素的最长公共子序列长度。更新时要保存左上角旧值。',
+        bullets: [
+          '二维状态为 `dp[i][j]`，表示前 i 和前 j 个元素的最优答案。',
+          '滚动到一维后，`previousDiagonal` 保存更新前的 `dp[i - 1][j - 1]`。',
+          '时间复杂度为 `O(mn)`，空间复杂度降为 `O(n)`。',
+          '为了让空间更小，可以让第二个数组取较短者。',
+        ],
+        code: `function maxUncrossedLines(nums1: number[], nums2: number[]): number {
+  if (nums2.length > nums1.length) {
+    return maxUncrossedLines(nums2, nums1)
+  }
+
+  const dp = Array<number>(nums2.length + 1).fill(0)
+
+  for (const value of nums1) {
+    let previousDiagonal = 0
+
+    for (let index = 1; index <= nums2.length; index += 1) {
+      const previousRowValue = dp[index]
+
+      if (value === nums2[index - 1]) {
+        dp[index] = previousDiagonal + 1
+      } else {
+        dp[index] = Math.max(dp[index], dp[index - 1])
+      }
+
+      previousDiagonal = previousRowValue
+    }
+  }
+
+  return dp[nums2.length]
+}`,
+      },
+      {
+        id: 'lines-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '一维 DP 最容易覆盖掉仍需使用的左上角状态。理解二维表后再压缩，能明显降低下标错误。',
+        bullets: [
+          '易错点 1：相等时错误地使用当前行的左侧值，而不是左上角旧值。',
+          '易错点 2：把子序列误写成子数组，要求连续会得到完全不同的问题。',
+          '易错点 3：忘记不相等时要保留上方和左方较大值。',
+          '延伸方向：编辑距离、最长回文子序列、序列对齐和版本差异比较。',
+        ],
+      },
+    ],
+  },
 ];
