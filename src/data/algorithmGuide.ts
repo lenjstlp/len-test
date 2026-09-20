@@ -103523,4 +103523,86 @@ function recoverFromPreorder(traversal: string): RecoveredTreeNode | null {
       },
     ],
   },
+  {
+    id: 'binary-search-tree-to-greater-sum-tree',
+    label: '1038. LeetCode 1038. 从二叉搜索树到更大和树',
+    difficulty: '中等',
+    description:
+      '将二叉搜索树中的每个节点替换为原树中所有大于或等于该节点值的节点值之和。',
+    outcome:
+      '你能利用 BST 的中序有序性质，理解为什么反向中序遍历可以按从大到小的顺序累加，并掌握原地改树的方法。',
+    sections: [
+      {
+        id: 'greater-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉搜索树，每个节点的新值等于原树中所有值不小于它的节点之和。需要直接修改并返回这棵树。',
+        bullets: [
+          'BST 的左子树值小于根，右子树值大于根。',
+          '节点的新值包含节点自身，所以是“大于或等于”的和。',
+          '可以直接修改节点值，不需要新建同样结构的树。',
+          '关键是找到一个能按降序访问所有节点的遍历顺序。',
+        ],
+      },
+      {
+        id: 'greater-tree-order',
+        title: '为什么是反向中序遍历',
+        summary:
+          '普通中序遍历是左、根、右，得到从小到大的序列；反向中序遍历改成右、根、左，就会得到从大到小的序列。',
+        bullets: [
+          '访问一个节点时，所有更大的节点已经累加到 runningSum。',
+          '将 runningSum 加上当前节点原值后，就得到当前节点的新值。',
+          '再访问左子树时，runningSum 已包含所有不小于左子树节点的值。',
+          '这是把树的结构性质转化为线性序列处理。',
+        ],
+        callout:
+          '遇到“节点依赖所有更大值”时，先找树的排序遍历。BST 不只是支持查找，它本身还隐含了一个有序序列。',
+      },
+      {
+        id: 'greater-tree-solution',
+        title: '标准解法：反向中序 DFS',
+        summary:
+          '用一个累加变量保存已经访问过的更大节点之和，按照右、根、左的顺序递归修改节点。',
+        bullets: [
+          '每个节点只访问一次，时间复杂度为 `O(n)`。',
+          '递归栈空间复杂度为 `O(h)`，h 是树高。',
+          '修改节点前要先保存原值，避免累加时使用已经修改过的值。',
+          '极端退化树可能导致递归层数较深，可以改成显式栈。',
+        ],
+        code: `type TreeNode = {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+}
+
+function bstToGst(root: TreeNode | null): TreeNode | null {
+  let runningSum = 0
+
+  const visit = (node: TreeNode | null): void => {
+    if (!node) return
+
+    visit(node.right)
+    runningSum += node.val
+    node.val = runningSum
+    visit(node.left)
+  }
+
+  visit(root)
+  return root
+}`,
+      },
+      {
+        id: 'greater-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '遍历顺序写成普通中序会得到从小到大的累加，无法满足“更大值之和”。修改原树时还要避免重复创建节点。',
+        bullets: [
+          '易错点 1：写成左、根、右，累加方向完全相反。',
+          '易错点 2：先修改节点再计算累加，导致使用新值重复累加。',
+          '易错点 3：把“严格大于”误写成不包含当前节点。',
+          '延伸方向：树形 DP、迭代中序遍历、BST 前缀和与区间查询。',
+        ],
+      },
+    ],
+  },
 ];
