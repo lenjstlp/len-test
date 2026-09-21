@@ -103689,4 +103689,111 @@ function bstToGst(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'moving-stones-until-consecutive-ii',
+    label: '1040. LeetCode 1040. 移动石子直到连续 II',
+    difficulty: '中等',
+    description:
+      '给定数轴上 n 颗位置不同的石子，每次只能移动当前端点石子，求让所有石子连续所需的最少和最多移动次数。',
+    outcome:
+      '你能掌握排序、滑动窗口和端点空位统计的组合用法，理解为什么“连续的 n-1 颗石子”会产生额外的一步特殊情况。',
+    sections: [
+      {
+        id: 'moving-stones-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '石子位于一条数轴上的不同位置。一次操作只能把最左或最右的石子移动到新的空位置，并且移动后它必须仍然是端点石子。目标是让所有石子占据连续位置。',
+        bullets: [
+          '先排序，得到 `stones[0] < stones[1] < ... < stones[n - 1]`。',
+          '最终状态需要覆盖长度为 n 的连续区间。',
+          '最少次数关注一个连续目标区间中已经有多少颗石子。',
+          '最多次数要考虑端点石子只能从一侧逐步移动。',
+        ],
+      },
+      {
+        id: 'moving-stones-ii-minimum',
+        title: '最少次数：滑动窗口保留最多石子',
+        summary:
+          '长度为 n 的连续位置区间最多能容纳 n 颗石子。排序后用滑动窗口寻找跨度小于 n 的最长窗口，窗口外的石子就是需要移动的数量。',
+        bullets: [
+          '窗口条件是 `stones[right] - stones[left] < n`，这样窗口中的位置可以被放入长度为 n 的连续区间。',
+          '窗口包含 k 颗石子时，通常需要移动 `n - k` 颗。',
+          '如果窗口中已有连续的 n-1 颗石子，而剩余石子距离超过 2，不能用一次普通移动直接完成。',
+          '此时需要先把端点石子移开，再完成连续排列，最少次数应记为 2。',
+        ],
+        callout:
+          '滑动窗口先解决“最多保留多少颗”的主问题，再单独处理操作规则造成的不可一步到位情况。不要把特殊情况硬塞进普通窗口公式。',
+      },
+      {
+        id: 'moving-stones-ii-maximum',
+        title: '最多次数：从较宽的一侧逐步填空位',
+        summary:
+          '最多移动次数来自较宽的端点间隔。保留一侧的 n-1 颗石子，把另一端的石子逐个移动过来，能够尽量多地消耗空位。',
+        bullets: [
+          '保留右侧 n-1 颗石子时，空位数量为 `stones[n - 2] - stones[0] - (n - 2)`。',
+          '保留左侧 n-1 颗石子时，空位数量为 `stones[n - 1] - stones[1] - (n - 2)`。',
+          '两种方向都要计算，最大值才是答案。',
+          '时间复杂度由排序决定，为 `O(n log n)`；扫描部分是 `O(n)`。',
+        ],
+      },
+      {
+        id: 'moving-stones-ii-solution',
+        title: '标准解法：排序 + 双指针',
+        summary:
+          '先排序，再用右指针维护每个左端点能覆盖的最长窗口，计算最少次数；最多次数直接比较两侧端点方案。',
+        bullets: [
+          '滑动窗口每个指针最多向右移动 n 次，空间复杂度为 `O(1)`（不计排序所需空间）。',
+          '当窗口恰好包含 n 颗石子时，说明已经连续，最少次数为 0。',
+          '特殊情况判断窗口是否包含连续的 n-1 颗石子。',
+          'n 较小时仍应按通用公式处理，不要写死只有三颗石子的逻辑。',
+        ],
+        code: `function numMovesStonesII(stones: number[]): [number, number] {
+  stones.sort((left, right) => left - right)
+  const size = stones.length
+  let minimum = size
+  let right = 0
+
+  for (let left = 0; left < size; left += 1) {
+    while (
+      right + 1 < size &&
+      stones[right + 1] - stones[left] < size
+    ) {
+      right += 1
+    }
+
+    const count = right - left + 1
+    if (
+      count === size - 1 &&
+      stones[right] - stones[left] === size - 2
+    ) {
+      minimum = Math.min(minimum, 2)
+    } else {
+      minimum = Math.min(minimum, size - count)
+    }
+
+    if (right === left) right += 1
+  }
+
+  const maximum = Math.max(
+    stones[size - 2] - stones[0],
+    stones[size - 1] - stones[1],
+  ) - (size - 2)
+
+  return [minimum, maximum]
+}`,
+      },
+      {
+        id: 'moving-stones-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这道题最容易错在窗口边界和特殊情况。最大次数不是简单取首尾跨度，而是必须保留一侧的 n-1 颗石子。',
+        bullets: [
+          '易错点 1：窗口条件写成 `<= n`，导致允许的跨度多一个位置。',
+          '易错点 2：忽略连续 n-1 颗石子时的最少步数特殊规则。',
+          '易错点 3：最大次数直接写成 `stones[n - 1] - stones[0] - (n - 1)`。',
+          '延伸方向：双指针窗口、端点操作限制、排序后的区间优化问题。',
+        ],
+      },
+    ],
+  },
 ];
