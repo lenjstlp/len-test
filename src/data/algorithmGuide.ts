@@ -103796,4 +103796,89 @@ function bstToGst(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'robot-bounded-in-circle',
+    label: '1041. LeetCode 1041. 困于环中的机器人',
+    difficulty: '中等',
+    description:
+      '机器人从原点出发，按照一组指令移动或转向，判断无限重复执行这组指令后，机器人是否始终处于一个有限的圆形区域内。',
+    outcome:
+      '你能掌握“模拟一次周期后判断状态”的方法，理解为什么位置回到原点或朝向发生改变，就足以证明机器人不会无限远离原点。',
+    sections: [
+      {
+        id: 'robot-summary',
+        title: '题目在问什么',
+        summary:
+          '机器人初始位于 `(0, 0)`，面朝北方。`G` 表示前进一格，`L` 和 `R` 分别表示左转和右转 90 度。判断重复执行指令序列后，机器人是否被限制在有限范围内。',
+        bullets: [
+          '一组指令执行完后会从头重复执行。',
+          '机器人可能在一次执行后不在原点，但不代表一定会逃逸。',
+          '只需要分析一个指令周期结束时的位置和方向。',
+          '方向可以用 0、1、2、3 分别表示北、东、南、西。',
+        ],
+      },
+      {
+        id: 'robot-cycle',
+        title: '为什么只模拟一轮就够了',
+        summary:
+          '一轮指令结束后，机器人只有两种关键状态：回到原点，或者方向发生了改变。回到原点会不断重复同一轨迹；方向改变则后续位移会在不同方向之间旋转，经过有限轮后不会无限远离原点。',
+        bullets: [
+          '如果一轮后位置是原点，显然会在同一个有限轨迹内循环。',
+          '如果一轮后方向不是北方，重复四轮时方向会完成旋转。',
+          '不同方向的周期位移会相互抵消，轨迹仍然有界。',
+          '只有“一轮后仍然朝北且不在原点”时，位移会在同一方向上不断累加并逃逸。',
+        ],
+        callout:
+          '这类题的重点不是模拟很多次，而是找出状态的周期性。只要一次执行后状态落入“可循环”的充分条件，就不需要继续模拟。',
+      },
+      {
+        id: 'robot-solution',
+        title: '标准解法：一次模拟 + 状态判断',
+        summary:
+          '按指令更新坐标和方向。执行完后，如果坐标回到原点，或者方向不再是北方，就说明机器人被限制在有限范围内。',
+        bullets: [
+          '时间复杂度为 `O(n)`，n 是指令字符串长度。',
+          '空间复杂度为 `O(1)`。',
+          '转向可以用 `(direction + 3) % 4` 表示左转，用 `(direction + 1) % 4` 表示右转。',
+          '前进时根据当前方向修改对应坐标轴。',
+        ],
+        code: `function isRobotBounded(instructions: string): boolean {
+  const directions = [
+    [0, 1],
+    [1, 0],
+    [0, -1],
+    [-1, 0],
+  ]
+  let direction = 0
+  let row = 0
+  let column = 0
+
+  for (const instruction of instructions) {
+    if (instruction === 'L') {
+      direction = (direction + 3) % 4
+    } else if (instruction === 'R') {
+      direction = (direction + 1) % 4
+    } else {
+      row += directions[direction][0]
+      column += directions[direction][1]
+    }
+  }
+
+  return (row === 0 && column === 0) || direction !== 0
+}`,
+      },
+      {
+        id: 'robot-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最常见的误区是认为只有回到原点才算被困住。事实上，只要一轮后的方向改变，后续周期就会把位移限制在有限范围内。',
+        bullets: [
+          '易错点 1：模拟固定次数但没有证明次数上界，造成不必要的复杂度。',
+          '易错点 2：只判断坐标是否回到原点，漏掉方向改变的情况。',
+          '易错点 3：左转和右转的取模方向写反。',
+          '延伸方向：有限状态机、周期模拟、二维运动系统和状态压缩。',
+        ],
+      },
+    ],
+  },
 ];
