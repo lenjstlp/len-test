@@ -103881,4 +103881,89 @@ function bstToGst(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'flower-planting-with-no-adjacent',
+    label: '1042. LeetCode 1042. 不邻接植花',
+    difficulty: '简单',
+    description:
+      '给定一张无向图和若干花园，为每个花园种植四种花之一，要求直接相连的花园不能种相同的花。',
+    outcome:
+      '你能掌握图的邻接表构建和局部贪心染色，理解为什么每个节点最多只需检查三种已使用颜色。',
+    sections: [
+      {
+        id: 'flower-summary',
+        title: '题目在问什么',
+        summary:
+          '有 n 个花园和若干条道路，每个花园最多与三个花园相连。需要给每个花园分配 1 到 4 中的一种花色，使相邻花园花色不同。',
+        bullets: [
+          '道路是无向的，连接关系需要同时记录在两个端点。',
+          '只要求相邻节点颜色不同，不要求使用颜色最少。',
+          '题目保证至少存在一种合法方案。',
+          '节点度数不超过 3，是局部贪心能够成立的关键条件。',
+        ],
+      },
+      {
+        id: 'flower-greedy',
+        title: '按顺序给节点选择未使用颜色',
+        summary:
+          '遍历每个花园，先收集已着色邻居使用的颜色，再从 1 到 4 中选择第一个没有被邻居使用的颜色。',
+        bullets: [
+          '邻居最多只有三个，因此四种颜色中至少有一种可以选择。',
+          '已经处理的邻居颜色是当前节点唯一需要关注的信息。',
+          '不需要回溯，因为当前节点总能找到可用颜色。',
+          '邻接表比邻接矩阵更适合稀疏图，空间复杂度为 `O(n + m)`。',
+        ],
+        callout:
+          '贪心能否成立，通常取决于题目给出的局部约束。这里“每个节点最多三个邻居 + 四种颜色”保证了每一步都不会走入死路。',
+      },
+      {
+        id: 'flower-solution',
+        title: '标准解法：邻接表 + 贪心染色',
+        summary:
+          '构建无向邻接表，依次为每个花园标记邻居颜色，并选择第一个可用颜色。',
+        bullets: [
+          '建图时间复杂度为 `O(n + m)`，染色过程也是 `O(n + m)`。',
+          '结果数组中的 0 表示节点尚未染色。',
+          '用布尔数组标记 1 到 4 的使用情况，避免重复查找。',
+          '题目保证有解，因此不需要处理颜色全部冲突的分支。',
+        ],
+        code: `function gardenNoAdj(n: number, paths: number[][]): number[] {
+  const graph = Array.from({ length: n }, () => [] as number[])
+  for (const [from, to] of paths) {
+    graph[from - 1].push(to - 1)
+    graph[to - 1].push(from - 1)
+  }
+
+  const colors = Array<number>(n).fill(0)
+  for (let garden = 0; garden < n; garden += 1) {
+    const used = Array<boolean>(5).fill(false)
+    for (const neighbor of graph[garden]) {
+      used[colors[neighbor]] = true
+    }
+
+    for (let color = 1; color <= 4; color += 1) {
+      if (!used[color]) {
+        colors[garden] = color
+        break
+      }
+    }
+  }
+
+  return colors
+}`,
+      },
+      {
+        id: 'flower-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '无向边必须双向加入邻接表，颜色数组下标也要注意题目节点编号从 1 开始而数组从 0 开始。',
+        bullets: [
+          '易错点 1：只记录一个方向，导致漏检相邻花园。',
+          '易错点 2：把当前节点颜色也误认为已使用颜色。',
+          '易错点 3：使用颜色 0 访问布尔数组时忘记跳过未染色状态。',
+          '延伸方向：图染色、拓扑顺序、二分图判定和约束满足问题。',
+        ],
+      },
+    ],
+  },
 ];
