@@ -104817,4 +104817,84 @@ HAVING COUNT(*) >= 3;`,
       },
     ],
   },
+  {
+    id: 'previous-permutation-with-one-swap',
+    label: '1053. LeetCode 1053. 交换一次的先前排列',
+    difficulty: '中等',
+    description:
+      '给定一个正整数数组，最多交换一次两个元素，使结果严格小于原数组且尽可能大；如果无法变小则返回原数组。',
+    outcome:
+      '你能掌握字典序前驱的构造方法，理解从右向左寻找拐点、选择最接近的可交换元素，以及重复值去重的必要性。',
+    sections: [
+      {
+        id: 'previous-permutation-summary',
+        title: '题目在问什么',
+        summary:
+          '数组的“先前排列”是所有严格小于当前排列的数组中字典序最大的那个。允许最多交换一次，要求找到这个排列。',
+        bullets: [
+          '只能交换一次，也可以选择不交换。',
+          '结果必须比原数组小，而不是只要求数组无序。',
+          '在所有可行结果中，要尽量接近原数组。',
+          '数组包含重复元素，交换位置选择需要特别处理。',
+        ],
+      },
+      {
+        id: 'previous-permutation-pivot',
+        title: '从右侧寻找最靠右的下降点',
+        summary:
+          '为了让结果尽可能大，只改变尽可能靠右的位置。找到最右侧满足 nums[index] > nums[index + 1] 的位置作为交换左端点。',
+        bullets: [
+          '如果整个数组非递减，说明不存在更小的排列。',
+          '交换位置 index 后，右侧部分应尽量保持原状。',
+          '在 index 右侧寻找小于 nums[index] 的最大值，才能让下降幅度最小。',
+          '从右向左找时，相同候选值只需选择最靠左的合适位置，避免重复交换带来的无效结果。',
+        ],
+        callout:
+          '字典序前驱和后继的共同规律是：先找到最靠右的可改变位置，再用最接近的候选值完成一次局部调整。',
+      },
+      {
+        id: 'previous-permutation-solution',
+        title: '标准解法：拐点 + 最接近候选值',
+        summary:
+          '先从右向左找拐点，再从右向左找第一个小于拐点值且不同于右侧重复值的元素，最后交换。',
+        bullets: [
+          '时间复杂度为 `O(n)`。',
+          '空间复杂度为 `O(1)`，直接修改输入数组。',
+          '从右侧查找时跳过相同值，避免交换到等价位置。',
+          '不需要对交换后的后缀排序，因为只允许一次交换。',
+        ],
+        code: `function prevPermOpt1(arr: number[]): number[] {
+  let pivot = arr.length - 2
+  while (pivot >= 0 && arr[pivot] <= arr[pivot + 1]) {
+    pivot -= 1
+  }
+
+  if (pivot < 0) return arr
+
+  let candidate = arr.length - 1
+  while (
+    arr[candidate] >= arr[pivot] ||
+    (candidate > pivot + 1 && arr[candidate] === arr[candidate - 1])
+  ) {
+    candidate -= 1
+  }
+
+  ;[arr[pivot], arr[candidate]] = [arr[candidate], arr[pivot]]
+  return arr
+}`,
+      },
+      {
+        id: 'previous-permutation-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错在把前驱写成后继的逻辑，或者忽略重复元素。只要拐点和候选值的方向写反，结果就会变大而不是变小。',
+        bullets: [
+          '易错点 1：寻找 `arr[pivot] < arr[candidate]`，那是后继排列方向。',
+          '易错点 2：找到任意更小元素，而不是选择最接近的最大候选值。',
+          '易错点 3：重复值没有跳过，可能得到相同排列或非最优结果。',
+          '延伸方向：下一个排列、字典序、局部交换贪心和排列生成。',
+        ],
+      },
+    ],
+  },
 ];
