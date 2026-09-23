@@ -105321,4 +105321,92 @@ HAVING COUNT(*) >= 3;`,
       },
     ],
   },
+  {
+    id: 'all-paths-from-source-lead-to-destination',
+    label: '1059. LeetCode 1059. 所有路径从源点到终点',
+    difficulty: '中等',
+    description:
+      '给定有向图、源点和终点，判断从源点出发的每一条路径是否最终都会到达终点，且不会进入环或停在其他节点。',
+    outcome:
+      '你能掌握 DFS 中的三色状态，理解“终点必须无出边、所有可达分支都成功、不能访问环”的组合判断。',
+    sections: [
+      {
+        id: 'all-paths-summary',
+        title: '题目在问什么',
+        summary:
+          '从 source 出发沿有向边移动，要求每条可达路径最终都到达 destination。destination 不能继续指向其他节点，其他可达节点也不能形成环或走向错误终点。',
+        bullets: [
+          '只关注从 source 可达的节点。',
+          'destination 必须是终点，不能有出边。',
+          '任何可达死路节点都不是合法终点。',
+          '任何可达环都会导致存在一条无法到达 destination 的路径。',
+        ],
+      },
+      {
+        id: 'all-paths-dfs-state',
+        title: '用三色状态识别环和已验证节点',
+        summary:
+          '状态 0 表示未访问，1 表示正在当前 DFS 路径中，2 表示已经验证所有后继都能到达 destination。再次访问状态 1 的节点说明存在环。',
+        bullets: [
+          '访问 destination 时，必须检查它没有任何出边。',
+          '普通节点没有出边时返回 false，因为它是错误死路。',
+          '所有后继都返回 true，当前节点才可以标记为成功。',
+          '状态 2 可以直接返回 true，避免重复搜索。',
+        ],
+        callout:
+          '图搜索中，“访问中”和“访问完成”必须区分。只使用一个 visited 集合无法判断当前路径是否回到了祖先节点，也就无法正确识别有向环。',
+      },
+      {
+        id: 'all-paths-solution',
+        title: '标准解法：DFS + 三色标记',
+        summary:
+          '从 source 深搜，依次检查所有后继。遇到环、错误终点或 destination 有出边时返回 false。',
+        bullets: [
+          '时间复杂度为 `O(V + E)`，每个节点和边最多被有效处理一次。',
+          '空间复杂度为 `O(V)`，用于状态数组和递归栈。',
+          'destination 先判断出度，再决定是否成功。',
+          '只有所有出边都通向成功状态，当前节点才是成功状态。',
+        ],
+        code: `function leadsToDestination(
+  n: number,
+  edges: number[][],
+  source: number,
+  destination: number,
+): boolean {
+  const graph = Array.from({ length: n }, () => [] as number[])
+  for (const [from, to] of edges) graph[from].push(to)
+
+  const state = Array<number>(n).fill(0)
+  const visit = (node: number): boolean => {
+    if (state[node] === 1) return false
+    if (state[node] === 2) return true
+    if (node === destination) return graph[node].length === 0
+    if (graph[node].length === 0) return false
+
+    state[node] = 1
+    for (const next of graph[node]) {
+      if (!visit(next)) return false
+    }
+
+    state[node] = 2
+    return true
+  }
+
+  return visit(source)
+}`,
+      },
+      {
+        id: 'all-paths-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '到达 destination 不能直接返回 true，必须确认它没有出边；遍历分支失败后也不能把当前节点错误标记为成功。',
+        bullets: [
+          '易错点 1：把到达 destination 当作无条件成功。',
+          '易错点 2：只用全局 visited，无法识别递归路径上的环。',
+          '易错点 3：只验证存在一条成功路径，忽略其他失败分支。',
+          '延伸方向：有向图环检测、拓扑排序、DAG 路径和模型状态验证。',
+        ],
+      },
+    ],
+  },
 ];
