@@ -105145,4 +105145,95 @@ HAVING COUNT(*) >= 3;`,
       },
     ],
   },
+  {
+    id: 'campus-bikes',
+    label: '1057. LeetCode 1057. 校园自行车分配',
+    difficulty: '中等',
+    description:
+      '给定工人和自行车的二维坐标，将自行车分配给工人；优先选择曼哈顿距离最小的组合，距离相同时按工人编号和自行车编号处理。',
+    outcome:
+      '你能掌握带多级排序规则的贪心分配，理解为什么必须统一枚举所有候选组合，再按完整优先级排序。',
+    sections: [
+      {
+        id: 'campus-bikes-summary',
+        title: '题目在问什么',
+        summary:
+          '每个工人最终分配一辆自行车，每辆自行车最多分配一次。每次选择可用组合中优先级最高的一组，优先级依次是曼哈顿距离、工人编号、自行车编号。',
+        bullets: [
+          '曼哈顿距离为 `abs(x1 - x2) + abs(y1 - y2)`。',
+          '距离越小优先级越高。',
+          '距离相同先选择编号更小的工人。',
+          '距离和工人都相同，再选择编号更小的自行车。',
+        ],
+      },
+      {
+        id: 'campus-bikes-greedy',
+        title: '把所有候选组合放进同一优先级序列',
+        summary:
+          '预先计算每个工人与每辆自行车的候选组合，并按照题目规定的三个字段排序。之后按排序顺序遍历，遇到未分配的工人和自行车就完成分配。',
+        bullets: [
+          '排序键必须完整包含距离、工人编号、自行车编号。',
+          '每个工人和自行车都设置一次分配状态。',
+          '候选组合总数是 workers.length * bikes.length。',
+          '遍历到所有工人完成分配后即可停止。',
+        ],
+        callout:
+          '当贪心规则明确规定了全局优先级时，先构造全部候选并按规则排序，通常比边选边搜索局部最小值更容易保证平局处理正确。',
+      },
+      {
+        id: 'campus-bikes-solution',
+        title: '标准解法：多关键字排序 + 贪心',
+        summary:
+          '计算所有候选边，按三层规则排序，然后选择两端都尚未使用的候选边。',
+        bullets: [
+          '设工人数为 m，自行车数为 n，时间复杂度为 `O(mn log(mn))`。',
+          '空间复杂度为 `O(mn)`，用于保存候选组合。',
+          '已分配数组可以在常数时间判断资源是否可用。',
+          '排序比较器必须在前一层相等时继续比较下一层。',
+        ],
+        code: `function assignBikes(
+  workers: number[][],
+  bikes: number[][],
+): number[] {
+  const candidates: Array<[number, number, number]> = []
+
+  for (let worker = 0; worker < workers.length; worker += 1) {
+    for (let bike = 0; bike < bikes.length; bike += 1) {
+      const distance =
+        Math.abs(workers[worker][0] - bikes[bike][0]) +
+        Math.abs(workers[worker][1] - bikes[bike][1])
+      candidates.push([distance, worker, bike])
+    }
+  }
+
+  candidates.sort(
+    ([distanceA, workerA, bikeA], [distanceB, workerB, bikeB]) =>
+      distanceA - distanceB || workerA - workerB || bikeA - bikeB,
+  )
+
+  const assignments = Array<number>(workers.length).fill(-1)
+  const usedBikes = Array<boolean>(bikes.length).fill(false)
+  for (const [, worker, bike] of candidates) {
+    if (assignments[worker] !== -1 || usedBikes[bike]) continue
+    assignments[worker] = bike
+    usedBikes[bike] = true
+  }
+
+  return assignments
+}`,
+      },
+      {
+        id: 'campus-bikes-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '只为每个工人独立选择最近自行车会破坏全局优先级；平局规则也不能依赖排序稳定性来“碰运气”。',
+        bullets: [
+          '易错点 1：忽略自行车已被分配，导致多个工人拿到同一辆车。',
+          '易错点 2：距离相同时没有继续比较工人和自行车编号。',
+          '易错点 3：按工人顺序贪心，而不是按所有候选组合的全局顺序。',
+          '延伸方向：任务分配、优先队列、匹配算法和多级排序。',
+        ],
+      },
+    ],
+  },
 ];
