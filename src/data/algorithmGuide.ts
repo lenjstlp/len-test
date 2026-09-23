@@ -104898,89 +104898,84 @@ HAVING COUNT(*) >= 3;`,
     ],
   },
   {
-    id: 'palindrome-partitioning-ii',
-    label: '1054. LeetCode 1054. 分割回文串 II',
-    difficulty: '困难',
+    id: 'distant-barcodes',
+    label: '1054. LeetCode 1054. 距离相等的条形码',
+    difficulty: '中等',
     description:
-      '将字符串分割成若干个回文子串，求最少需要切割多少次才能完成分割。',
+      '重新排列条形码，使任意两个相邻条形码都不相同，并返回任意一种满足条件的排列。',
     outcome:
-      '你能掌握回文区间预处理和前缀最优 DP，理解为什么先判断子串是否回文，再计算最少切割次数。',
+      '你能掌握按频次优先放置的贪心策略，理解为什么先填偶数位置可以最大化相同数字之间的间隔。',
     sections: [
       {
-        id: 'palindrome-partition-summary',
+        id: 'barcode-summary',
         title: '题目在问什么',
         summary:
-          '把字符串切成若干个连续非空子串，并要求每个子串都是回文，目标是让切割次数最少。一个完整回文串不需要切割。',
+          '给定一个包含重复数字的数组，要求重新排列后任意相邻元素不同。题目保证存在可行答案。',
         bullets: [
-          '切割只能发生在字符之间。',
-          '每个分段必须是回文。',
-          '切割次数等于分段数量减一。',
-          '需要求最优值，不需要输出具体切割方案。',
+          '只能改变元素顺序，不能改变元素数量。',
+          '相同数字不能出现在相邻位置。',
+          '可以返回任意一种合法排列。',
+          '出现频率最高的数字最容易造成相邻冲突，需要优先安排。',
         ],
       },
       {
-        id: 'palindrome-partition-precompute',
-        title: '先预处理所有回文区间',
+        id: 'barcode-greedy',
+        title: '优先安排出现次数最多的数字',
         summary:
-          '用 palindrome[left][right] 表示 s[left..right] 是否为回文。长度为 1 的区间天然是回文，长度更长的区间需要首尾相等且内部区间为回文。',
+          '统计每个条形码的频次，按频次从高到低取出数字，优先填充数组的偶数下标，再填充奇数下标。这样可以让高频数字尽量分散。',
         bullets: [
-          '状态转移为 `s[left] === s[right] && palindrome[left + 1][right - 1]`。',
-          '区间长度从短到长计算，确保内部状态已经存在。',
-          '预处理后可以 O(1) 判断任意子串是否为回文。',
-          '空间复杂度为 `O(n²)`，换取后续 DP 的快速查询。',
+          '偶数下标之间至少隔着一个位置，适合先放置高频元素。',
+          '偶数位置填满后，从数组开头继续填充奇数位置。',
+          '按频次降序处理，保证最难安排的元素拥有最大的间隔。',
+          '题目保证有解，因此最终不会出现相邻冲突。',
         ],
         callout:
-          '字符串分割 DP 经常需要反复判断区间性质。把“区间是否合法”和“如何切分”拆成两层状态，通常比在一个转移里重复验证更清晰。',
+          '当相同元素不能相邻时，最常见的贪心是优先处理频率最高的元素，并把它们尽可能均匀地分散到位置上。',
       },
       {
-        id: 'palindrome-partition-solution',
-        title: '标准解法：回文表 + 最少切割 DP',
+        id: 'barcode-solution',
+        title: '标准解法：频次排序 + 隔位填充',
         summary:
-          'dp[end] 表示前 end 个字符的最少切割次数。枚举最后一个回文段的起点 start，如果 s[start..end-1] 是回文，就用 dp[start] 转移。',
+          '把频次表转成条目并按频次降序排序，依次填入结果数组；位置到末尾后跳到下一个奇数位置。',
         bullets: [
-          '初始将 dp[index] 设为 index，表示每个字符都单独成段。',
-          '若 `palindrome[0][end - 1]` 为真，前缀本身是回文，dp[end] 为 0。',
-          '否则尝试所有回文后缀，转移为 `dp[start] + 1`。',
-          '总时间复杂度为 `O(n²)`，空间复杂度为 `O(n²)`。',
+          '时间复杂度为 `O(n + u log u)`，u 是不同条形码数量。',
+          '空间复杂度为 `O(n + u)`。',
+          '填充位置按 0、2、4……、1、3、5……顺序访问。',
+          '一次放完某个数字的全部频次，再处理下一个数字。',
         ],
-        code: `function minCut(s: string): number {
-  const size = s.length
-  const palindrome = Array.from({ length: size }, () =>
-    Array<boolean>(size).fill(false),
+        code: `function rearrangeBarcodes(barcodes: number[]): number[] {
+  const frequency = new Map<number, number>()
+  for (const barcode of barcodes) {
+    frequency.set(barcode, (frequency.get(barcode) ?? 0) + 1)
+  }
+
+  const entries = [...frequency.entries()].sort(
+    ([, countA], [, countB]) => countB - countA,
   )
+  const result = Array<number>(barcodes.length)
+  let position = 0
 
-  for (let length = 1; length <= size; length += 1) {
-    for (let left = 0; left + length <= size; left += 1) {
-      const right = left + length - 1
-      palindrome[left][right] =
-        s[left] === s[right] &&
-        (length <= 2 || palindrome[left + 1][right - 1])
+  for (const [barcode, count] of entries) {
+    for (let remaining = 0; remaining < count; remaining += 1) {
+      result[position] = barcode
+      position += 2
+      if (position >= result.length) position = 1
     }
   }
 
-  const dp = Array<number>(size + 1).fill(0)
-  for (let end = 1; end <= size; end += 1) {
-    dp[end] = end - 1
-    for (let start = 0; start < end; start += 1) {
-      if (palindrome[start][end - 1]) {
-        dp[end] = Math.min(dp[end], dp[start])
-      }
-    }
-  }
-
-  return dp[size]
+  return result
 }`,
       },
       {
-        id: 'palindrome-partition-mistakes',
+        id: 'barcode-mistakes',
         title: '易错点和延伸方向',
         summary:
-          '切割次数与分段数量相差一，且回文区间的边界必须使用包含端点的定义。',
+          '只按数字大小排序没有意义，关键是频次；填充时也必须在偶数位置用完后切到奇数位置。',
         bullets: [
-          '易错点 1：返回分段数而不是切割次数。',
-          '易错点 2：长度为 2 的回文访问越界内部状态。',
-          '易错点 3：dp[start] 到 dp[end] 转移时多加一次或少加一次。',
-          '延伸方向：回文分割方案、中心扩展优化、区间 DP 和字符串哈希。',
+          '易错点 1：按条形码数值排序，而不是按出现次数排序。',
+          '易错点 2：位置越过末尾后没有切换到奇数下标。',
+          '易错点 3：忽略最高频元素可能导致无解，但题目已保证有解。',
+          '延伸方向：任务调度、字符重排、冷却时间和频次贪心。',
         ],
       },
     ],
