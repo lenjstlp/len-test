@@ -104516,4 +104516,81 @@ function bstToGst(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'last-stone-weight-ii',
+    label: '1049. LeetCode 1049. 最后一块石头的重量 II',
+    difficulty: '中等',
+    description:
+      '每次选择两块石头碰撞，最终剩余重量等于某种分组方式下两组石头总重量之差，求这个差值的最小可能值。',
+    outcome:
+      '你能把碰撞过程转化成两组和的差，掌握一维 0/1 背包，并理解为什么只需要寻找不超过总重量一半的最大可达和。',
+    sections: [
+      {
+        id: 'stone-weight-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '石头重量为正整数，每次选两块碰撞，较大者留下差值。最终可能剩下一块或没有石头，需要求最终剩余重量的最小值。',
+        bullets: [
+          '碰撞顺序可以任意选择。',
+          '最终结果不是固定的，需要寻找最优碰撞方案。',
+          '每块石头最终可以看作被分到两组之一。',
+          '两组总重量相等时，最终可以得到 0。',
+        ],
+      },
+      {
+        id: 'stone-weight-ii-transformation',
+        title: '把碰撞转成两组重量差',
+        summary:
+          '设所有石头总重量为 total。把石头分成两组，组和分别为 A 和 B，反复碰撞的最终结果可以达到 |A - B|。因此问题变成让两组尽量接近。',
+        bullets: [
+          '假设 A 不超过 B，则最终差值为 `B - A = total - 2A`。',
+          '只需要找到不超过 `total / 2` 的最大子集和 A。',
+          '每块石头只能选择一次，因此是 0/1 背包。',
+          '背包容量为 `floor(total / 2)`。',
+        ],
+        callout:
+          '遇到“任意两项合并，结果是差值/和”的题目，可以尝试从最终符号贡献出发，把元素划分成正负两组，寻找更容易求解的等价形式。',
+      },
+      {
+        id: 'stone-weight-ii-solution',
+        title: '标准解法：一维 0/1 背包',
+        summary:
+          'dp[capacity] 表示容量不超过 capacity 时能得到的最大石头总重量。每块石头倒序更新，保证每块只使用一次。',
+        bullets: [
+          '时间复杂度为 `O(n * total)`，空间复杂度为 `O(total)`。',
+          '容量必须从大到小遍历，避免同一块石头在一轮中重复选取。',
+          '最终答案为 `total - 2 * dp[target]`。',
+          '数据范围较小时，这种 DP 比直接模拟所有碰撞顺序更稳定。',
+        ],
+        code: `function lastStoneWeightII(stones: number[]): number {
+  const total = stones.reduce((sum, stone) => sum + stone, 0)
+  const target = Math.floor(total / 2)
+  const dp = Array<number>(target + 1).fill(0)
+
+  for (const stone of stones) {
+    for (let capacity = target; capacity >= stone; capacity -= 1) {
+      dp[capacity] = Math.max(
+        dp[capacity],
+        dp[capacity - stone] + stone,
+      )
+    }
+  }
+
+  return total - dp[target] * 2
+}`,
+      },
+      {
+        id: 'stone-weight-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最大可达和不是任意接近 total 的值，而是不能超过 total/2。0/1 背包的倒序更新也必须保持。',
+        bullets: [
+          '易错点 1：把每次碰撞过程直接暴力枚举，状态数量会迅速膨胀。',
+          '易错点 2：容量正序更新，导致一块石头被重复使用。',
+          '易错点 3：目标容量使用 total 而不是 total/2。',
+          '延伸方向：分组背包、子集和、划分问题和位集优化。',
+        ],
+      },
+    ],
+  },
 ];
