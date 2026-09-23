@@ -105409,4 +105409,87 @@ HAVING COUNT(*) >= 3;`,
       },
     ],
   },
+  {
+    id: 'missing-element-in-sorted-array',
+    label: '1060. LeetCode 1060. 有序数组中的缺失元素',
+    difficulty: '中等',
+    description:
+      '给定一个严格递增的整数数组，求从数组最小值开始按连续整数排列时，第 k 个缺失的数字。',
+    outcome:
+      '你能掌握有序数组中的缺失数量公式和二分定位，理解如何从线性扫描优化到对数时间。',
+    sections: [
+      {
+        id: 'missing-element-summary',
+        title: '题目在问什么',
+        summary:
+          '数组严格递增，但中间可能缺少整数。需要找到从 nums[0] 开始计数的第 k 个缺失数字，缺失数字不包括数组中的已有元素。',
+        bullets: [
+          '数组本身严格递增，没有重复值。',
+          '缺失数字可以位于数组中间，也可以位于最后一个元素之后。',
+          'k 从 1 开始计数。',
+          '目标是返回数字本身，不是返回缺失位置。',
+        ],
+      },
+      {
+        id: 'missing-element-count',
+        title: '用公式计算每个位置前的缺失数量',
+        summary:
+          '对于下标 index，nums[index] 与 nums[0] 之间本应有 nums[index] - nums[0] 个步长，但数组只走了 index 步，因此缺失数量为 `nums[index] - nums[0] - index`。',
+        bullets: [
+          '缺失数量随 index 单调不减。',
+          '如果某个位置的缺失数量小于 k，说明第 k 个缺失数在右侧。',
+          '找到第一个缺失数量大于等于 k 的位置后，可以在前一个元素和当前位置之间计算答案。',
+          '如果整个数组缺失数量都小于 k，答案位于数组末尾之后。',
+        ],
+        callout:
+          '二分查找不只用于查找目标值，也可以查找“第一个满足某个单调条件的位置”。这里的单调条件就是累计缺失数量达到 k。',
+      },
+      {
+        id: 'missing-element-solution',
+        title: '标准解法：缺失数量二分',
+        summary:
+          '二分查找第一个缺失数量大于等于 k 的下标。如果找不到，直接从最后一个元素继续向右推算。',
+        bullets: [
+          '时间复杂度为 `O(log n)`。',
+          '空间复杂度为 `O(1)`。',
+          '在 right 位置使用缺失数量公式判断是否应继续向右。',
+          '定位到 left 后，答案可以写成 `nums[left - 1] + k - missingBefore`。',
+        ],
+        code: `function missingElement(nums: number[], k: number): number {
+  const missingCount = (index: number): number =>
+    nums[index] - nums[0] - index
+
+  if (missingCount(nums.length - 1) < k) {
+    return nums[nums.length - 1] + k - missingCount(nums.length - 1)
+  }
+
+  let left = 0
+  let right = nums.length - 1
+  while (left < right) {
+    const middle = Math.floor((left + right) / 2)
+    if (missingCount(middle) < k) {
+      left = middle + 1
+    } else {
+      right = middle
+    }
+  }
+
+  const previousMissing = missingCount(left - 1)
+  return nums[left - 1] + k - previousMissing
+}`,
+      },
+      {
+        id: 'missing-element-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '二分定位到的下标是第一个达到目标缺失数量的位置，答案要基于它左侧元素计算。还要单独处理 k 超出数组覆盖范围的情况。',
+        bullets: [
+          '易错点 1：把缺失数量写成 `nums[index] - index`，忘记减去 nums[0]。',
+          '易错点 2：没有处理第 k 个缺失数位于数组末尾之后的情况。',
+          '易错点 3：left 为 0 时访问 left - 1，边界条件没有设计清楚。',
+          '延伸方向：单调谓词二分、排名查询、稀疏有序数据和缺失区间统计。',
+        ],
+      },
+    ],
+  },
 ];
