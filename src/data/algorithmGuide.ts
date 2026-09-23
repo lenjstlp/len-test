@@ -105236,4 +105236,89 @@ HAVING COUNT(*) >= 3;`,
       },
     ],
   },
+  {
+    id: 'minimize-rounding-error-to-meet-target',
+    label: '1058. LeetCode 1058. 最小化舍入误差以达到目标',
+    difficulty: '中等',
+    description:
+      '给定一组价格和目标总价，每个价格可以向下或向上取整，要求取整后的总和等于目标，并使总舍入误差最小。',
+    outcome:
+      '你能掌握“先固定向下取整，再按小数部分选择向上取整”的贪心证明，理解不可达目标与格式化误差输出。',
+    sections: [
+      {
+        id: 'rounding-error-summary',
+        title: '题目在问什么',
+        summary:
+          '每个价格保留整数部分，决定它是向下取整还是向上取整。所有取整结果之和必须等于 target，目标是让原价格与取整价格的误差总和最小。',
+        bullets: [
+          '每个价格只能取 floor 或 ceil。',
+          '如果 target 小于所有价格向下取整之和或大于所有价格向上取整之和，则无解。',
+          '向上取整一个价格会让总和增加 1。',
+          '同样增加 1 时，应选择小数部分最大的价格来减少新增误差。',
+        ],
+      },
+      {
+        id: 'rounding-error-greedy',
+        title: '先统一向下取整，再选择提升对象',
+        summary:
+          '先把所有价格向下取整，记录当前总和和每个价格的小数部分。还需要提升多少次，就选择多少个最大的小数部分改为向上取整。',
+        bullets: [
+          '向下取整时产生的小数部分就是初始误差。',
+          '把某个价格从 floor 改成 ceil 后，误差会从 fraction 变为 `1 - fraction`。',
+          '误差变化量是 `1 - 2 * fraction`，fraction 越大越应该优先提升。',
+          '排序小数部分后取前 `target - floorSum` 个即可。',
+        ],
+        callout:
+          '当每次操作都使总量增加相同单位时，比较“操作带来的代价变化”即可排序选择。这里每次加 1，收益最大的操作就是小数部分最大的价格。',
+      },
+      {
+        id: 'rounding-error-solution',
+        title: '标准解法：小数部分排序 + 贪心',
+        summary:
+          '解析价格的小数部分，计算向下取整总和；若目标可达，就将需要向上取整的最大若干小数部分转换并累加误差。',
+        bullets: [
+          '时间复杂度为 `O(n log n)`，主要来自小数部分排序。',
+          '空间复杂度为 `O(n)`。',
+          '使用固定小数格式输出，避免浮点误差造成多位小数。',
+          '价格恰好为整数时，小数部分为 0，不应被当作有效向上取整选择。',
+        ],
+        code: `function minimizeError(prices: string[], target: number): string {
+  const fractions: number[] = []
+  let floorSum = 0
+
+  for (const price of prices) {
+    const value = Number(price)
+    const floorValue = Math.floor(value)
+    floorSum += floorValue
+    fractions.push(value - floorValue)
+  }
+
+  const upgrades = target - floorSum
+  const availableUpgrades = fractions.filter((fraction) => fraction > 0)
+  if (upgrades < 0 || upgrades > availableUpgrades.length) return '-1'
+
+  availableUpgrades.sort((left, right) => right - left)
+  let error = 0
+  for (let index = 0; index < availableUpgrades.length; index += 1) {
+    error +=
+      index < upgrades ? 1 - availableUpgrades[index] : availableUpgrades[index]
+  }
+
+  return error.toFixed(3)
+}`,
+      },
+      {
+        id: 'rounding-error-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '实现时要区分“按小数部分排序的候选列表”和“原价格顺序”，否则误差累加会把不同价格对应关系打乱。',
+        bullets: [
+          '易错点 1：直接四舍五入，无法保证总和等于 target。',
+          '易错点 2：优先向上取整小数部分最小的价格，导致误差更大。',
+          '易错点 3：整数价格也计入可升级数量。',
+          '延伸方向：舍入分配、误差最小化、资源配额和离散贪心。',
+        ],
+      },
+    ],
+  },
 ];
