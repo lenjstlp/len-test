@@ -105065,4 +105065,84 @@ HAVING COUNT(*) >= 3;`,
       },
     ],
   },
+  {
+    id: 'confusing-number',
+    label: '1056. LeetCode 1056. 错位数字',
+    difficulty: '简单',
+    description:
+      '给定一个数字，旋转 180 度后如果得到一个有效且不同的数字，则称其为错位数字，判断给定数字是否满足条件。',
+    outcome:
+      '你能掌握逐位数字映射和反向构造，理解哪些数字旋转后仍然有效，以及如何同时判断结果是否发生变化。',
+    sections: [
+      {
+        id: 'confusing-number-summary',
+        title: '题目在问什么',
+        summary:
+          '数字旋转 180 度后，数字顺序会反转，同时每一位需要经过合法映射。只有 0、1、6、8、9 可以参与旋转，其中 6 和 9 会互换。',
+        bullets: [
+          '2、3、4、5、7 旋转后不是有效数字。',
+          '前导零在最终数字表示中不影响数值判断。',
+          '旋转后的数字必须与原数字不同。',
+          '可以从字符串或整数位运算角度实现。',
+        ],
+      },
+      {
+        id: 'confusing-number-mapping',
+        title: '旋转就是反向遍历并映射数字',
+        summary:
+          '从数字字符串末尾向前遍历，每位通过映射表转换并追加到结果中；遇到不支持的数字立即返回 false。',
+        bullets: [
+          '遍历顺序反转了原数字的位序。',
+          '映射表可以直接表示 0、1、6、8、9 的旋转结果。',
+          '同时构造 rotated 与原字符串比较，避免再次转换。',
+          '单个 0、1、8 旋转后不变，不是错位数字。',
+        ],
+        callout:
+          '对于有限且固定的字符变换规则，映射表通常比复杂分支更直观。关键是先明确“位置变化”和“字符变化”两个独立步骤。',
+      },
+      {
+        id: 'confusing-number-solution',
+        title: '标准解法：映射表 + 反向构造',
+        summary:
+          '把数字转成字符串，从右到左构造旋转结果，最后判断是否有效且不等于原数字。',
+        bullets: [
+          '时间复杂度为 `O(log n)`，即数字位数。',
+          '空间复杂度为 `O(log n)`，用于字符串结果。',
+          '使用对象映射时要区分“不存在”和映射值为 0。',
+          '结果字符串转数字后再比较，可以自然处理前导零。',
+        ],
+        code: `function confusingNumber(n: number): boolean {
+  const rotation: Record<string, string> = {
+    '0': '0',
+    '1': '1',
+    '6': '9',
+    '8': '8',
+    '9': '6',
+  }
+  const original = String(n)
+  let rotated = ''
+
+  for (let index = original.length - 1; index >= 0; index -= 1) {
+    const value = rotation[original[index]]
+    if (value === undefined) return false
+    rotated += value
+  }
+
+  return Number(rotated) !== n
+}`,
+      },
+      {
+        id: 'confusing-number-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '不能只检查字符是否属于可旋转集合，还必须判断旋转后的整体数字发生了变化。',
+        bullets: [
+          '易错点 1：忘记旋转后数字顺序需要反转。',
+          '易错点 2：把 6 和 9 映射成自身。',
+          '易错点 3：只判断旋转有效，没有判断结果是否不同。',
+          '延伸方向：字符串变换、数字编码、对称性和有限映射。',
+        ],
+      },
+    ],
+  },
 ];
