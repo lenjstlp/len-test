@@ -104732,4 +104732,89 @@ HAVING COUNT(*) >= 3;`,
       },
     ],
   },
+  {
+    id: 'grumpy-bookstore-owner',
+    label: '1052. LeetCode 1052. 爱生气的书店老板',
+    difficulty: '中等',
+    description:
+      '书店老板有时会生气导致顾客不满意，但可以使用一次持续 minutes 分钟的技巧让老板不生气，求一天中最多能让多少顾客满意。',
+    outcome:
+      '你能掌握“固定长度窗口最大增益”的滑动窗口模型，理解如何先计算基础收益，再寻找一次技巧带来的额外收益。',
+    sections: [
+      {
+        id: 'grumpy-summary',
+        title: '题目在问什么',
+        summary:
+          'customers[i] 表示第 i 分钟到店顾客数，grumpy[i] 为 1 表示老板生气。老板可以选择一个连续 minutes 分钟使用技巧，让这段时间内的生气状态暂时失效。',
+        bullets: [
+          '不使用技巧时，老板不生气的分钟顾客天然满意。',
+          '技巧只能使用一次，且必须覆盖连续 minutes 分钟。',
+          '技巧可以覆盖本来不生气的时间，但不会额外增加满意顾客。',
+          '目标是基础满意人数加上窗口额外挽回人数的最大值。',
+        ],
+      },
+      {
+        id: 'grumpy-window',
+        title: '把问题拆成基础收益和窗口增益',
+        summary:
+          '先把所有 grumpy[i] === 0 的顾客计入 base。对于生气分钟，customers[i] 是使用技巧后可以挽回的额外收益。问题变成找固定长度 minutes 的最大窗口和。',
+        bullets: [
+          '基础收益与技巧位置无关，可以先一次遍历求出。',
+          '窗口中只有生气分钟的顾客会贡献额外收益。',
+          '窗口右移一格时，减去离开窗口的增益，加上新进入窗口的增益。',
+          '最终答案为 `base + maxWindowGain`。',
+        ],
+        callout:
+          '当一次操作只能覆盖固定长度区间时，先分离“无论如何都能得到的收益”，再用滑动窗口最大化“操作额外带来的收益”，通常能把问题降到线性复杂度。',
+      },
+      {
+        id: 'grumpy-solution',
+        title: '标准解法：固定窗口滑动',
+        summary: '先计算第一个窗口的额外收益，然后逐分钟右移窗口并维护最大值。',
+        bullets: [
+          '时间复杂度为 `O(n)`。',
+          '空间复杂度为 `O(1)`。',
+          '窗口增益只有在 grumpy 为 1 时才累加。',
+          'minutes 可能等于数组长度，统一窗口逻辑即可覆盖。',
+        ],
+        code: `function maxSatisfied(
+  customers: number[],
+  grumpy: number[],
+  minutes: number,
+): number {
+  let base = 0
+  let windowGain = 0
+  let bestGain = 0
+
+  for (let index = 0; index < customers.length; index += 1) {
+    if (grumpy[index] === 0) {
+      base += customers[index]
+    } else {
+      windowGain += customers[index]
+    }
+
+    if (index >= minutes && grumpy[index - minutes] === 1) {
+      windowGain -= customers[index - minutes]
+    }
+
+    bestGain = Math.max(bestGain, windowGain)
+  }
+
+  return base + bestGain
+}`,
+      },
+      {
+        id: 'grumpy-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '窗口中不能把所有顾客都当作额外收益，只有老板原本生气的分钟才会因技巧增加满意人数。',
+        bullets: [
+          '易错点 1：把窗口内全部 customers 都加到增益中，重复计算原本已满意的顾客。',
+          '易错点 2：窗口移出元素时没有根据 grumpy 判断是否需要扣除。',
+          '易错点 3：把 minutes 理解成最多覆盖长度，错误地枚举不同长度。',
+          '延伸方向：固定窗口、最大子数组和、资源投放收益和区间优化。',
+        ],
+      },
+    ],
+  },
 ];
