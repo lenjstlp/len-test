@@ -104436,4 +104436,84 @@ function bstToGst(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'longest-string-chain',
+    label: '1048. LeetCode 1048. 最长字符串链',
+    difficulty: '中等',
+    description:
+      '给定一组单词，如果一个单词可以通过在另一个单词中插入一个字符得到，则它们可以组成链，求最长链长度。',
+    outcome:
+      '你能掌握按单词长度排序的 DP，理解如何枚举删除位置生成所有合法前驱，并避免对所有单词做两两比较。',
+    sections: [
+      {
+        id: 'string-chain-summary',
+        title: '题目在问什么',
+        summary:
+          '一个单词是另一个单词的后继，当且仅当从后继中删除一个字符后可以得到前驱。需要找到一条长度最长的单词链。',
+        bullets: [
+          '单词链中的长度每次增加 1。',
+          '字符顺序不能改变，只能插入一个字符。',
+          '每个单词最多使用一次。',
+          '不存在前驱的单词链长度为 1。',
+        ],
+      },
+      {
+        id: 'string-chain-dp',
+        title: '从删除一个字符反推前驱',
+        summary:
+          '处理当前单词 word 时，枚举删除每个位置后的字符串 predecessor。如果这个前驱已经处理过，就可以在它的链长基础上加一。',
+        bullets: [
+          '按单词长度从短到长排序，确保所有前驱先被处理。',
+          'dp[word] 表示以 word 结尾的最长链长度。',
+          '一个长度为 L 的单词只有 L 个候选前驱。',
+          '即使生成的前驱不在 words 中，也只是查表失败，不影响正确性。',
+        ],
+        callout:
+          '当关系由“删除一个元素得到前驱”定义时，通常应从当前对象反向生成所有前驱，而不是枚举所有对象寻找后继。',
+      },
+      {
+        id: 'string-chain-solution',
+        title: '标准解法：排序 + 哈希表 DP',
+        summary:
+          '按照单词长度排序，逐个单词枚举删除位置，查询前驱链长并更新当前结果。',
+        bullets: [
+          '设单词总字符数为 S，排序复杂度为 `O(n log n)`。',
+          '每个单词生成长度次前驱，时间复杂度约为 `O(S)`（不计字符串切片复制的实现成本）。',
+          '哈希表空间复杂度为 `O(n)`。',
+          '相同长度的单词不会互相成为前驱，可以按长度顺序直接处理。',
+        ],
+        code: `function longestStrChain(words: string[]): number {
+  words.sort((left, right) => left.length - right.length)
+  const chainLength = new Map<string, number>()
+  let answer = 1
+
+  for (const word of words) {
+    let best = 1
+
+    for (let index = 0; index < word.length; index += 1) {
+      const predecessor = word.slice(0, index) + word.slice(index + 1)
+      best = Math.max(best, (chainLength.get(predecessor) ?? 0) + 1)
+    }
+
+    chainLength.set(word, best)
+    answer = Math.max(answer, best)
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'string-chain-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '排序必须按长度而不是字典序，前驱生成要删除一个位置而不是替换字符。重复单词场景也要明确是否需要去重。',
+        bullets: [
+          '易错点 1：未排序就查询前驱，导致前驱状态尚未计算。',
+          '易错点 2：删除位置时只保留前缀或后缀，遗漏拼接部分。',
+          '易错点 3：把插入字符的位置理解成可以改变原有字符顺序。',
+          '延伸方向：DAG 最长路径、单词变换、编辑距离和序列 DP。',
+        ],
+      },
+    ],
+  },
 ];
