@@ -104362,4 +104362,78 @@ function bstToGst(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'remove-all-adjacent-duplicates-in-string',
+    label: '1047. LeetCode 1047. 删除字符串中的所有相邻重复项',
+    difficulty: '简单',
+    description:
+      '反复删除字符串中相邻且相同的两个字符，直到不能继续删除，返回最终字符串。',
+    outcome:
+      '你能掌握栈在“撤销最近结果”和“相邻消除”问题中的典型用法，理解为什么每次只需要比较当前字符与栈顶。',
+    sections: [
+      {
+        id: 'duplicate-removal-summary',
+        title: '题目在问什么',
+        summary:
+          '如果字符串中出现两个相邻且相同的字符，就把它们同时删除。删除后新形成的相邻字符也可能继续触发删除。',
+        bullets: [
+          '删除顺序可能影响中间过程，但最终结果具有唯一性。',
+          '删除后两侧字符会靠拢，必须继续检查新形成的相邻关系。',
+          '字符顺序不能改变，只能删除。',
+          '最终结果中不能存在相邻相同字符。',
+        ],
+      },
+      {
+        id: 'duplicate-removal-stack',
+        title: '栈正好保存“当前未删除结果”',
+        summary:
+          '从左到右扫描字符。若当前字符与栈顶相同，就弹出栈顶，表示这两个字符抵消；否则把当前字符压栈。',
+        bullets: [
+          '栈顶代表当前结果的最后一个字符，也就是最可能与新字符相邻的位置。',
+          '弹出后，栈顶自动变成新的邻接字符，不需要回退指针。',
+          '每个字符最多入栈一次、出栈一次。',
+          '最终按栈中顺序拼接即可得到答案。',
+        ],
+        callout:
+          '只要操作会影响“最近一次形成的结果”，就可以考虑栈。栈把回退和重新检查的过程压缩成了常数时间操作。',
+      },
+      {
+        id: 'duplicate-removal-solution',
+        title: '标准解法：字符栈',
+        summary:
+          '维护一个字符数组作为栈，当前字符与栈顶相同就删除栈顶，否则追加当前字符。',
+        bullets: [
+          '时间复杂度为 `O(n)`。',
+          '空间复杂度为 `O(n)`。',
+          '空栈时直接压入字符。',
+          '用 `join` 按原顺序生成最终字符串。',
+        ],
+        code: `function removeDuplicates(s: string): string {
+  const stack: string[] = []
+
+  for (const character of s) {
+    if (stack[stack.length - 1] === character) {
+      stack.pop()
+    } else {
+      stack.push(character)
+    }
+  }
+
+  return stack.join('')
+}`,
+      },
+      {
+        id: 'duplicate-removal-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '不要用循环反复查找和删除字符串中的重复片段，否则频繁复制字符串会导致平方级复杂度。',
+        bullets: [
+          '易错点 1：只扫描一次相邻字符，遗漏删除后新形成的重复。',
+          '易错点 2：弹出栈顶后错误地跳过当前字符。',
+          '易错点 3：把字符数组当成对象栈，导致拼接结果顺序不对。',
+          '延伸方向：括号匹配、路径简化、字符串消除和编辑撤销。',
+        ],
+      },
+    ],
+  },
 ];
