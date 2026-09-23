@@ -104051,4 +104051,125 @@ function bstToGst(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'longest-duplicate-substring',
+    label: '1044. LeetCode 1044. 最长重复子串',
+    difficulty: '困难',
+    description:
+      '给定一个字符串，找到其中出现至少两次的最长连续子串；如果不存在重复子串则返回空字符串。',
+    outcome:
+      '你能掌握二分答案和滚动哈希的组合，理解固定长度重复子串的单调性，以及如何用哈希快速比较窗口。',
+    sections: [
+      {
+        id: 'duplicate-summary',
+        title: '题目在问什么',
+        summary:
+          '需要在一个字符串中寻找两个起点不同、内容完全相同的最长连续片段。重叠是允许的，只要两个起点不同即可。',
+        bullets: [
+          '子串必须连续，不能跳过字符。',
+          '相同子串可以重叠，例如 `aaaa` 中的 `aaa`。',
+          '答案是任意一个最长重复子串。',
+          '直接枚举所有子串并比较会产生过高的时间复杂度。',
+        ],
+      },
+      {
+        id: 'duplicate-binary-search',
+        title: '固定长度后，问题具有单调性',
+        summary:
+          '定义 check(length) 表示是否存在重复的 length 长子串。如果某个长度可行，那么更短的长度也一定可行，因此可以二分最长可行长度。',
+        bullets: [
+          '二分搜索的范围是 1 到字符串长度。',
+          '检查固定长度时，用滚动哈希将每个窗口压缩成一个值。',
+          '哈希重复时返回对应子串，二分继续尝试更长长度。',
+          '严格工程实现可以使用双哈希或哈希命中后再比较原串，降低碰撞风险。',
+        ],
+        callout:
+          '二分答案的前提不是“答案是数字”，而是“答案是否存在具有单调性”。固定长度的重复子串恰好满足：长度越短越容易重复。',
+      },
+      {
+        id: 'duplicate-solution',
+        title: '标准解法：二分 + 滚动哈希',
+        summary:
+          '用多项式滚动哈希计算窗口哈希，Set 用于记录已经见过的窗口。如果哈希重复，就返回当前长度对应的子串。',
+        bullets: [
+          '若字符串长度为 n，时间复杂度约为 `O(n log n)`。',
+          'Set 和辅助数据需要 `O(n)` 空间。',
+          '窗口右移时减去最高位贡献，再乘基数并加上新字符。',
+          '示例使用单个整数哈希便于理解，生产环境应考虑碰撞处理。',
+        ],
+        code: `function longestDupSubstring(s: string): string {
+  const base = 26
+  const modulus = 2_147_483_647
+
+  const findDuplicate = (length: number): string => {
+    if (length === 0) return ''
+
+    let hash = 0
+    let highestPower = 1
+    for (let index = 0; index < length; index += 1) {
+      hash = (hash * base + s.charCodeAt(index) - 96) % modulus
+      if (index < length - 1) {
+        highestPower = (highestPower * base) % modulus
+      }
+    }
+
+    const seen = new Map<number, number[]>()
+    const remember = (value: number, start: number): string | null => {
+      const starts = seen.get(value) ?? []
+      for (const previousStart of starts) {
+        if (s.slice(previousStart, previousStart + length) === s.slice(start, start + length)) {
+          return s.slice(start, start + length)
+        }
+      }
+      starts.push(start)
+      seen.set(value, starts)
+      return null
+    }
+
+    let duplicate = remember(hash, 0)
+    if (duplicate) return duplicate
+
+    for (let start = 1; start + length <= s.length; start += 1) {
+      hash =
+        (hash - ((s.charCodeAt(start - 1) - 96) * highestPower) % modulus + modulus) % modulus
+      hash = (hash * base + s.charCodeAt(start + length - 1) - 96) % modulus
+      duplicate = remember(hash, start)
+      if (duplicate) return duplicate
+    }
+
+    return null
+  }
+
+  let left = 1
+  let right = s.length - 1
+  let answer = ''
+
+  while (left <= right) {
+    const middle = Math.floor((left + right) / 2)
+    const duplicate = findDuplicate(middle)
+    if (duplicate) {
+      answer = duplicate
+      left = middle + 1
+    } else {
+      right = middle - 1
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'duplicate-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '滚动哈希的核心是维护最高位权重，二分的核心是可行性单调。单哈希可能碰撞，不能把哈希相等当作绝对相等。',
+        bullets: [
+          '易错点 1：把子序列当成子串，错误地允许跳过字符。',
+          '易错点 2：窗口右移时最高位权重少乘一次或多乘一次。',
+          '易错点 3：哈希相等直接返回，忽略哈希碰撞。',
+          '延伸方向：后缀数组、后缀自动机、双哈希和字符串索引结构。',
+        ],
+      },
+    ],
+  },
 ];
