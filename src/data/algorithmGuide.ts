@@ -104593,4 +104593,70 @@ function bstToGst(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'actors-and-directors-who-cooperated-at-least-three-times',
+    label: '1050. LeetCode 1050. 合作过至少三次的演员和导演',
+    difficulty: '简单',
+    description:
+      '给定记录演员和导演合作关系的表，找出合作过至少三次的演员和导演组合。',
+    outcome:
+      '你能掌握 SQL 中按多个字段分组、使用 HAVING 过滤聚合结果，以及如何为高频统计查询设计联合索引。',
+    sections: [
+      {
+        id: 'actors-directors-summary',
+        title: '题目在问什么',
+        summary:
+          '表 ActorDirector 每一行表示一部电影中的演员和导演组合。需要统计每个 `(actor_id, director_id)` 组合出现次数，并保留次数至少为 3 的组合。',
+        bullets: [
+          '相同演员和导演组合可能出现在多部电影中。',
+          '分组键是两个字段的组合，而不是单独某一个字段。',
+          '过滤条件作用于 COUNT 聚合结果。',
+          '返回演员和导演的编号即可，不要求返回合作次数。',
+        ],
+      },
+      {
+        id: 'actors-directors-group',
+        title: '先分组统计，再过滤聚合结果',
+        summary:
+          'GROUP BY actor_id, director_id 会把相同组合归为一组，COUNT(*) 统计每组记录数。由于 count 是聚合值，过滤必须使用 HAVING，而不是 WHERE。',
+        bullets: [
+          'WHERE 在分组前过滤原始行。',
+          'HAVING 在分组后过滤聚合结果。',
+          '如果题目要求“出现至少 N 次”，通常对应 `HAVING COUNT(*) >= N`。',
+          '如果一行可能重复记录但只应按电影去重，则应改用 `COUNT(DISTINCT film_id)`。',
+        ],
+        callout:
+          '看到“每个组合出现次数至少……”时，先确认分组键，再判断过滤条件是在原始记录上还是在统计结果上。',
+      },
+      {
+        id: 'actors-directors-solution',
+        title: '标准解法：GROUP BY + HAVING',
+        summary: '按照演员和导演联合分组，保留计数大于等于 3 的分组。',
+        bullets: [
+          '时间复杂度主要由数据库扫描和分组实现决定。',
+          '如果数据量较大，可以为 `(actor_id, director_id)` 建立联合索引。',
+          'SELECT 中出现的非聚合字段必须出现在 GROUP BY 中。',
+          'HAVING 的条件直接写在聚合表达式上，语义更清晰。',
+        ],
+        code: `SELECT
+  actor_id,
+  director_id
+FROM ActorDirector
+GROUP BY actor_id, director_id
+HAVING COUNT(*) >= 3;`,
+      },
+      {
+        id: 'actors-directors-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最常见错误是把 COUNT 条件写到 WHERE，或者只按演员分组导致不同导演的合作记录被合并。',
+        bullets: [
+          '易错点 1：用 WHERE COUNT(*) >= 3，SQL 语法和执行阶段都不正确。',
+          '易错点 2：只 GROUP BY actor_id，丢失导演维度。',
+          '易错点 3：数据存在重复电影记录时没有考虑 DISTINCT。',
+          '延伸方向：多列聚合、窗口函数、联合索引和执行计划分析。',
+        ],
+      },
+    ],
+  },
 ];
