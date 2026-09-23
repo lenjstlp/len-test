@@ -103966,4 +103966,89 @@ function bstToGst(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'partition-array-for-maximum-sum',
+    label: '1043. LeetCode 1043. 分隔数组以得到最大和',
+    difficulty: '中等',
+    description:
+      '将数组分成若干个长度不超过 k 的连续子数组，每个子数组中的所有元素都替换为该段最大值，求替换后的数组元素总和最大值。',
+    outcome:
+      '你能掌握“最后一段长度枚举”的区间 DP 建模，理解局部最大值如何与前缀最优解组合。',
+    sections: [
+      {
+        id: 'partition-summary',
+        title: '题目在问什么',
+        summary:
+          '数组必须保持原顺序切分成连续段，每段长度最多为 k。一个长度为 length、最大值为 maximum 的分段贡献 `length * maximum`。',
+        bullets: [
+          '每个元素必须且只能属于一个分段。',
+          '分段长度可以从 1 到 k。',
+          '每个分段中的所有元素都变成该段最大值。',
+          '需要最大化所有分段贡献之和，而不是单独最大化某一段。',
+        ],
+      },
+      {
+        id: 'partition-dp',
+        title: '状态定义：枚举最后一段',
+        summary:
+          '令 dp[index] 表示前 index 个元素能得到的最大和。计算 dp[index] 时，枚举最后一段长度 length，维护这段的最大值。',
+        bullets: [
+          '最后一段覆盖 `index - length` 到 `index - 1`。',
+          '前面的元素贡献是 `dp[index - length]`。',
+          '当前分段贡献是 `currentMaximum * length`。',
+          '转移方程为 `dp[index] = max(dp[index - length] + currentMaximum * length)`。',
+        ],
+        callout:
+          '“最后一段是什么”是连续分割问题中非常稳定的切入角度。只要最后一段长度有限，就能在局部枚举后接上前缀最优解。',
+      },
+      {
+        id: 'partition-solution',
+        title: '标准解法：一维 DP',
+        summary:
+          '从左到右计算每个前缀的最优答案。每个位置最多回看 k 个元素，并在回看的过程中更新当前分段最大值。',
+        bullets: [
+          '时间复杂度为 `O(nk)`，空间复杂度为 `O(n)`。',
+          '回看时维护最大值，避免对每个候选区间重复扫描。',
+          'dp[0] 表示空数组，值为 0。',
+          '长度限制同时受 k 和当前前缀长度约束。',
+        ],
+        code: `function maxSumAfterPartitioning(
+  arr: number[],
+  k: number,
+): number {
+  const dp = Array<number>(arr.length + 1).fill(0)
+
+  for (let end = 1; end <= arr.length; end += 1) {
+    let currentMaximum = 0
+
+    for (
+      let length = 1;
+      length <= k && length <= end;
+      length += 1
+    ) {
+      currentMaximum = Math.max(currentMaximum, arr[end - length])
+      dp[end] = Math.max(
+        dp[end],
+        dp[end - length] + currentMaximum * length,
+      )
+    }
+  }
+
+  return dp[arr.length]
+}`,
+      },
+      {
+        id: 'partition-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '分段贡献使用的是当前段最大值乘段长度，不是段内元素和。维护最大值时还要确保更新顺序对应从右向左扩展。',
+        bullets: [
+          '易错点 1：把每段贡献误写成原数组区间和。',
+          '易错点 2：只考虑长度为 k 的分段，漏掉更短的分段方案。',
+          '易错点 3：最大值没有随着候选段扩展及时更新。',
+          '延伸方向：区间 DP、分段 DP、单调结构优化和带代价的数组切分。',
+        ],
+      },
+    ],
+  },
 ];
