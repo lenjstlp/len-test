@@ -104256,4 +104256,110 @@ function bstToGst(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'last-stone-weight',
+    label: '1046. LeetCode 1046. 最后一块石头的重量',
+    difficulty: '简单',
+    description:
+      '反复取出重量最大的两块石头进行碰撞，较重的石头留下差值，求最后剩余石头的重量。',
+    outcome:
+      '你能理解优先队列在“反复取最大值”问题中的作用，并掌握最大堆的插入、取顶和下沉操作。',
+    sections: [
+      {
+        id: 'stone-weight-summary',
+        title: '题目在问什么',
+        summary:
+          '每轮选择当前最重的两块石头 x 和 y，假设 x <= y。如果 x === y，两块都消失；否则留下重量 y - x 的石头。',
+        bullets: [
+          '每一轮都必须取当前最大的两块石头。',
+          '碰撞后的差值石头要重新参与后续比较。',
+          '没有石头时返回 0，最后一块石头存在时返回其重量。',
+          '排序数组每轮删除和插入会反复移动元素，适合用堆优化。',
+        ],
+      },
+      {
+        id: 'stone-weight-heap',
+        title: '为什么使用最大堆',
+        summary:
+          '最大堆始终把最大的元素放在堆顶，取出两个最大值后，把差值重新插入即可。每次操作都不需要重新排序整个数组。',
+        bullets: [
+          '建堆后取最大值是 `O(log n)`，插入差值也是 `O(log n)`。',
+          '整个过程最多处理 n 轮左右，总时间复杂度为 `O(n log n)`。',
+          '堆底层使用数组保存，父节点下标是 `(index - 1) / 2`。',
+          '下沉操作用于删除堆顶后恢复最大堆性质。',
+        ],
+        callout:
+          '当题目反复要求“取出当前最大/最小值，再把新值放回集合”时，优先考虑优先队列，而不是每轮重新排序。',
+      },
+      {
+        id: 'stone-weight-solution',
+        title: '标准解法：手写最大堆',
+        summary:
+          '使用数组实现最大堆，循环取出两个最大值，若不同就把差值重新放入堆中。',
+        bullets: [
+          '建堆可以逐个插入，简单易懂，复杂度为 `O(n log n)`。',
+          '如果使用自底向上的 heapify，建堆可以优化为 `O(n)`。',
+          '堆为空时返回 0，堆只剩一个元素时返回堆顶。',
+          '碰撞结果为 0 时不需要把 0 再放入堆。',
+        ],
+        code: `function lastStoneWeight(stones: number[]): number {
+  const heap: number[] = []
+
+  const push = (value: number): void => {
+    heap.push(value)
+    let index = heap.length - 1
+
+    while (index > 0) {
+      const parent = Math.floor((index - 1) / 2)
+      if (heap[parent] >= heap[index]) break
+      ;[heap[parent], heap[index]] = [heap[index], heap[parent]]
+      index = parent
+    }
+  }
+
+  const pop = (): number => {
+    const result = heap[0]
+    const last = heap.pop()!
+    if (heap.length > 0) {
+      heap[0] = last
+      let index = 0
+
+      while (true) {
+        const left = index * 2 + 1
+        const right = index * 2 + 2
+        let largest = index
+        if (left < heap.length && heap[left] > heap[largest]) largest = left
+        if (right < heap.length && heap[right] > heap[largest]) largest = right
+        if (largest === index) break
+        ;[heap[index], heap[largest]] = [heap[largest], heap[index]]
+        index = largest
+      }
+    }
+    return result
+  }
+
+  for (const stone of stones) push(stone)
+  while (heap.length > 1) {
+    const heavier = pop()
+    const lighter = pop()
+    if (heavier !== lighter) push(heavier - lighter)
+  }
+
+  return heap[0] ?? 0
+}`,
+      },
+      {
+        id: 'stone-weight-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '手写堆时最容易错在删除堆顶后的下沉过程和最后一个元素的处理。交换语句前加分号是为了避免 ASI 解析歧义。',
+        bullets: [
+          '易错点 1：只排序一次，碰撞后的差值没有重新参与排序。',
+          '易错点 2：弹出最后一个元素后仍然访问不存在的堆顶。',
+          '易错点 3：下沉时没有选择左右孩子中更大的一个。',
+          '延伸方向：优先队列、Top K、合并多个有序流和哈夫曼编码。',
+        ],
+      },
+    ],
+  },
 ];
