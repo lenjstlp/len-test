@@ -104659,4 +104659,77 @@ HAVING COUNT(*) >= 3;`,
       },
     ],
   },
+  {
+    id: 'height-checker',
+    label: '1051. LeetCode 1051. 高度检查',
+    difficulty: '简单',
+    description:
+      '给定学生当前站队顺序和按身高非递减排序后的正确顺序，计算当前顺序中位于错误位置的学生数量。',
+    outcome:
+      '你能掌握“复制排序后逐位比较”的直接解法，并理解为什么这里不需要模拟交换，也不应只比较逆序对数量。',
+    sections: [
+      {
+        id: 'height-checker-summary',
+        title: '题目在问什么',
+        summary:
+          '学生按照 heights 给出的顺序站队。正确顺序是将这些身高按非递减顺序排列后得到的 expected，要求统计两个数组对应位置不同的数量。',
+        bullets: [
+          '统计的是位置错误的学生数，不是最少交换次数。',
+          '身高可能重复，相同身高交换与否不影响位置比较结果。',
+          '原数组不需要被真正调整。',
+          '排序后的副本与原数组逐位比较即可。',
+        ],
+      },
+      {
+        id: 'height-checker-compare',
+        title: '把“正确队列”作为基准',
+        summary:
+          '复制当前数组并排序得到 expected。对于每一个下标，如果 heights[index] 与 expected[index] 不相同，就说明该位置需要调整。',
+        bullets: [
+          '排序只用于生成目标状态，不代表要模拟移动过程。',
+          '相同身高的学生不需要区分身份，因为题目只比较身高。',
+          '逐位比较直接对应题目“学生处于错误位置”的定义。',
+          '数组长度为 n 时，比较阶段只需 O(n)。',
+        ],
+        callout:
+          '先构造题目要求的最终状态，再和当前状态做差异统计，往往比模拟每一步变换更简单，也更不容易引入额外状态。',
+      },
+      {
+        id: 'height-checker-solution',
+        title: '标准解法：排序副本 + 位置比较',
+        summary:
+          '复制 heights 得到 expected，排序后计算两个数组在相同下标上的不一致数量。',
+        bullets: [
+          '时间复杂度为 `O(n log n)`，主要来自排序。',
+          '空间复杂度为 `O(n)`，用于保存排序副本。',
+          '不需要交换学生，也不需要计算逆序对。',
+          '使用数值升序比较器，避免 JavaScript 默认字典序排序。',
+        ],
+        code: `function heightChecker(heights: number[]): number {
+  const expected = [...heights].sort((left, right) => left - right)
+  let mismatches = 0
+
+  for (let index = 0; index < heights.length; index += 1) {
+    if (heights[index] !== expected[index]) {
+      mismatches += 1
+    }
+  }
+
+  return mismatches
+}`,
+      },
+      {
+        id: 'height-checker-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          'JavaScript 的 sort 默认按字符串排序，必须显式提供数值比较器。题目要的是错位人数，不能替换成交换次数。',
+        bullets: [
+          '易错点 1：直接调用 sort()，导致 10 排在 2 前面。',
+          '易错点 2：原地排序后丢失当前队列，无法再做位置比较。',
+          '易错点 3：统计逆序对或最少交换次数，改变了题目目标。',
+          '延伸方向：计数排序、稳定排序、数组差异比较和排列分析。',
+        ],
+      },
+    ],
+  },
 ];
