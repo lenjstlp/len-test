@@ -104985,4 +104985,84 @@ HAVING COUNT(*) >= 3;`,
       },
     ],
   },
+  {
+    id: 'shortest-way-to-form-string',
+    label: '1055. LeetCode 1055. 形成字符串的最短路径',
+    difficulty: '简单',
+    description:
+      '给定 source 和 target，每次可以从 source 中按原顺序选取字符组成一个子序列，求组成 target 至少需要多少次这样的操作。',
+    outcome:
+      '你能掌握子序列匹配的贪心扫描，理解为什么每次尽可能多地匹配 source，匹配不到时必须重新从 source 开始。',
+    sections: [
+      {
+        id: 'shortest-way-summary',
+        title: '题目在问什么',
+        summary:
+          '每次操作都可以从 source 中选择一个非空子序列，按顺序拼接到结果后面。需要用尽可能少的操作拼出 target；如果 source 不包含 target 中的某个字符则返回 -1。',
+        bullets: [
+          '每次选择的字符必须保持 source 中的相对顺序。',
+          '一次操作结束后，下一次可以重新从 source 的开头选择。',
+          'source 中的一个字符不能在同一次操作中重复使用。',
+          '目标是操作次数最少，不是每次选择的字符数量最多。',
+        ],
+      },
+      {
+        id: 'shortest-way-greedy',
+        title: '每次尽可能匹配最长前缀',
+        summary:
+          '从 target 当前未匹配的位置开始，在 source 中向后扫描，尽可能匹配更多字符。一次扫描结束后，如果仍有 target 字符，就重新从 source 开头继续。',
+        bullets: [
+          '每次操作选择的都是 target 当前前缀能匹配的最长子序列。',
+          '如果一次扫描没有匹配任何字符，说明 target 中存在 source 没有的字符。',
+          '匹配长度越长，剩余 target 越短，不会增加后续操作次数。',
+          'source 扫描完成后才将操作次数加一。',
+        ],
+        callout:
+          '当每次操作都可以从同一个序列重新开始取子序列时，贪心地在当前操作中尽可能多取字符，不会影响后续可行性，反而能最早消耗 target。',
+      },
+      {
+        id: 'shortest-way-solution',
+        title: '标准解法：双指针匹配',
+        summary:
+          '维护 target 指针，每轮从 source 开头扫描并推进 target 指针。直到 target 全部匹配，统计扫描轮数。',
+        bullets: [
+          '最简单实现的时间复杂度为 `O(source.length * answer)`，最坏可写成 `O(source.length * target.length)`。',
+          '空间复杂度为 `O(1)`。',
+          '每轮必须记录 target 指针是否前进，防止无效循环。',
+          '如果 source 字符集固定，可以预处理字符位置表优化匹配。',
+        ],
+        code: `function shortestWay(source: string, target: string): number {
+  let targetIndex = 0
+  let operations = 0
+
+  while (targetIndex < target.length) {
+    const startIndex = targetIndex
+
+    for (const character of source) {
+      if (targetIndex < target.length && character === target[targetIndex]) {
+        targetIndex += 1
+      }
+    }
+
+    if (targetIndex === startIndex) return -1
+    operations += 1
+  }
+
+  return operations
+}`,
+      },
+      {
+        id: 'shortest-way-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '不能把 source 当成可以任意重排的字符集合，也不能在一次操作中反复使用同一位置。',
+        bullets: [
+          '易错点 1：匹配失败后没有重新从 source 开头开始。',
+          '易错点 2：一轮没有匹配字符仍然增加操作次数，造成死循环或错误答案。',
+          '易错点 3：把子序列误写成连续子串。',
+          '延伸方向：字符位置索引、自动机、子序列匹配和字符串贪心。',
+        ],
+      },
+    ],
+  },
 ];
