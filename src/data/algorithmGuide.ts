@@ -104897,4 +104897,92 @@ HAVING COUNT(*) >= 3;`,
       },
     ],
   },
+  {
+    id: 'palindrome-partitioning-ii',
+    label: '1054. LeetCode 1054. 分割回文串 II',
+    difficulty: '困难',
+    description:
+      '将字符串分割成若干个回文子串，求最少需要切割多少次才能完成分割。',
+    outcome:
+      '你能掌握回文区间预处理和前缀最优 DP，理解为什么先判断子串是否回文，再计算最少切割次数。',
+    sections: [
+      {
+        id: 'palindrome-partition-summary',
+        title: '题目在问什么',
+        summary:
+          '把字符串切成若干个连续非空子串，并要求每个子串都是回文，目标是让切割次数最少。一个完整回文串不需要切割。',
+        bullets: [
+          '切割只能发生在字符之间。',
+          '每个分段必须是回文。',
+          '切割次数等于分段数量减一。',
+          '需要求最优值，不需要输出具体切割方案。',
+        ],
+      },
+      {
+        id: 'palindrome-partition-precompute',
+        title: '先预处理所有回文区间',
+        summary:
+          '用 palindrome[left][right] 表示 s[left..right] 是否为回文。长度为 1 的区间天然是回文，长度更长的区间需要首尾相等且内部区间为回文。',
+        bullets: [
+          '状态转移为 `s[left] === s[right] && palindrome[left + 1][right - 1]`。',
+          '区间长度从短到长计算，确保内部状态已经存在。',
+          '预处理后可以 O(1) 判断任意子串是否为回文。',
+          '空间复杂度为 `O(n²)`，换取后续 DP 的快速查询。',
+        ],
+        callout:
+          '字符串分割 DP 经常需要反复判断区间性质。把“区间是否合法”和“如何切分”拆成两层状态，通常比在一个转移里重复验证更清晰。',
+      },
+      {
+        id: 'palindrome-partition-solution',
+        title: '标准解法：回文表 + 最少切割 DP',
+        summary:
+          'dp[end] 表示前 end 个字符的最少切割次数。枚举最后一个回文段的起点 start，如果 s[start..end-1] 是回文，就用 dp[start] 转移。',
+        bullets: [
+          '初始将 dp[index] 设为 index，表示每个字符都单独成段。',
+          '若 `palindrome[0][end - 1]` 为真，前缀本身是回文，dp[end] 为 0。',
+          '否则尝试所有回文后缀，转移为 `dp[start] + 1`。',
+          '总时间复杂度为 `O(n²)`，空间复杂度为 `O(n²)`。',
+        ],
+        code: `function minCut(s: string): number {
+  const size = s.length
+  const palindrome = Array.from({ length: size }, () =>
+    Array<boolean>(size).fill(false),
+  )
+
+  for (let length = 1; length <= size; length += 1) {
+    for (let left = 0; left + length <= size; left += 1) {
+      const right = left + length - 1
+      palindrome[left][right] =
+        s[left] === s[right] &&
+        (length <= 2 || palindrome[left + 1][right - 1])
+    }
+  }
+
+  const dp = Array<number>(size + 1).fill(0)
+  for (let end = 1; end <= size; end += 1) {
+    dp[end] = end - 1
+    for (let start = 0; start < end; start += 1) {
+      if (palindrome[start][end - 1]) {
+        dp[end] = Math.min(dp[end], dp[start])
+      }
+    }
+  }
+
+  return dp[size]
+}`,
+      },
+      {
+        id: 'palindrome-partition-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '切割次数与分段数量相差一，且回文区间的边界必须使用包含端点的定义。',
+        bullets: [
+          '易错点 1：返回分段数而不是切割次数。',
+          '易错点 2：长度为 2 的回文访问越界内部状态。',
+          '易错点 3：dp[start] 到 dp[end] 转移时多加一次或少加一次。',
+          '延伸方向：回文分割方案、中心扩展优化、区间 DP 和字符串哈希。',
+        ],
+      },
+    ],
+  },
 ];
