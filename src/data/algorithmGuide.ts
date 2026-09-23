@@ -104172,4 +104172,88 @@ function bstToGst(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'longest-chunked-palindrome-decomposition',
+    label: '1045. LeetCode 1045. 最长回文串分解',
+    difficulty: '困难',
+    description:
+      '将字符串分割成尽可能多的非空片段，使得第一个片段和最后一个片段相等、第二个和倒数第二个相等，以此类推。',
+    outcome:
+      '你能掌握从两端同步匹配的贪心方法，理解为什么找到最短相等首尾片段后立即配对，可以获得最多的分解片段数。',
+    sections: [
+      {
+        id: 'palindrome-decomposition-summary',
+        title: '题目在问什么',
+        summary:
+          '把字符串分成若干连续非空块，要求从外向内对称位置的块内容完全相同，求最多能分成多少块。',
+        bullets: [
+          '分割必须覆盖整个字符串，不能遗漏字符。',
+          '块的顺序不能改变，只能从左右两侧逐步配对。',
+          '中间可以剩下一个独立块，它不需要与另一个块配对。',
+          '目标是片段数量最大，而不是片段长度最大。',
+        ],
+      },
+      {
+        id: 'palindrome-decomposition-greedy',
+        title: '从两端寻找最短可配对片段',
+        summary:
+          '从左侧和右侧同时扩展，找到一对相等的最短首尾片段后立即计入答案。较短的匹配能尽早锁定两块，并把剩余问题缩小为中间子串。',
+        bullets: [
+          '左片段从 left 开始逐渐增长，右片段从 right 末尾逐渐向前增长。',
+          '当两段相等时，答案加 2，并继续处理两段之间的部分。',
+          '如果最后只剩中间一段，答案加 1。',
+          '找不到相等片段时，剩余整体只能作为一个中间块。',
+        ],
+        callout:
+          '这道题的贪心关键是：外层两块一旦相等，它们在任何合法分解中都必须占据对称位置；选择最短可行块只会给内部留下更多空间，不会减少后续可分解数量。',
+      },
+      {
+        id: 'palindrome-decomposition-solution',
+        title: '标准解法：双指针 + 增长片段',
+        summary:
+          '维护左右边界和两段临时字符串，逐字符扩展并比较；匹配后收缩边界，最后处理未配对的中间部分。',
+        bullets: [
+          '时间复杂度为 `O(n²)`，直接字符串拼接和比较可能重复扫描片段。',
+          '额外空间复杂度为 `O(n)`，用于保存当前左右片段。',
+          '如果追求更高性能，可以使用哈希或双指针比较避免重复复制。',
+          '答案初始为 0，左右指针相遇或交错后结束。',
+        ],
+        code: `function longestDecomposition(text: string): number {
+  let left = 0
+  let right = text.length - 1
+  let leftChunk = ''
+  let rightChunk = ''
+  let chunks = 0
+
+  while (left <= right) {
+    leftChunk += text[left]
+    rightChunk = text[right] + rightChunk
+    left += 1
+    right -= 1
+
+    if (leftChunk === rightChunk) {
+      chunks += left > right ? 1 : 2
+      leftChunk = ''
+      rightChunk = ''
+    }
+  }
+
+  if (leftChunk !== '') chunks += 1
+  return chunks
+}`,
+      },
+      {
+        id: 'palindrome-decomposition-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '左右片段的比较方向要保持一致，右侧片段需要插到前面。循环结束后，未匹配的中间片段只能算一个块。',
+        bullets: [
+          '易错点 1：把右侧字符追加到字符串末尾，导致比较方向错误。',
+          '易错点 2：匹配后忘记清空临时片段。',
+          '易错点 3：左指针超过右指针时仍然把匹配计为两个块。',
+          '延伸方向：回文分解、字符串哈希、区间贪心和分治。',
+        ],
+      },
+    ],
+  },
 ];
