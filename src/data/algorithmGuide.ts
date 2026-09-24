@@ -105487,4 +105487,100 @@ HAVING COUNT(*) >= 3;`,
       },
     ],
   },
+  {
+    id: 'smallest-equivalent-string',
+    label: '1061. LeetCode 1061. 按字典序排列最小的等效字符串',
+    difficulty: '中等',
+    description:
+      '给定两组等长字符串，表示对应位置的字符互相等价。将 baseStr 中的每个字符替换为与它等价的字符后，返回字典序最小的结果。',
+    outcome:
+      '你能掌握并查集处理传递性等价关系的方法，理解如何在合并集合时维护字典序最小代表元。',
+    sections: [
+      {
+        id: 'smallest-equivalent-summary',
+        title: '题目在问什么',
+        summary:
+          's1 和 s2 等长，s1[i] 与 s2[i] 互相等价。等价关系具有传递性，例如 a 等价 b、b 等价 c，那么 a、b、c 都可以互相替换。需要把 baseStr 每个字符替换成其等价集合中的最小字符。',
+        bullets: [
+          '等价关系具有自反性、对称性和传递性，多个直接关系可能连接成一个集合。',
+          '没有出现在等价关系中的字符只与自身等价。',
+          '每个字符都应该替换为所在集合的字典序最小字符。',
+          '处理 baseStr 时保持字符顺序不变，只改变每个字符的取值。',
+        ],
+      },
+      {
+        id: 'smallest-equivalent-union-find',
+        title: '用并查集维护等价字符集合',
+        summary:
+          '把 26 个小写字母看成 26 个节点。每遇到一对等价字符就合并它们，并让字典序更小的根作为集合代表；最后查找每个 baseStr 字符的根即可得到最小等价字符。',
+        bullets: [
+          '并查集的 find 操作用于找到字符所在集合的代表元。',
+          '路径压缩可以让后续查找更快。',
+          '合并时比较两个根的字符编号，让较大编号指向较小编号，直接维护最小代表元。',
+          '因为字符数量固定为 26，也可以使用简单数组实现，不需要额外的复杂数据结构。',
+        ],
+        callout:
+          '这里不能只记录直接等价关系。等价关系会通过传递性扩散，使用并查集可以把多次合并后的连通分量统一管理。',
+      },
+      {
+        id: 'smallest-equivalent-solution',
+        title: '标准解法：并查集 + 最小代表元',
+        summary:
+          '先合并两组等价字符串中的对应字符，再遍历 baseStr，把每个字符映射到其所在集合的根。根始终是集合中字典序最小的字符。',
+        bullets: [
+          '时间复杂度为 `O((m + n) * alpha(26))`，m 是等价关系长度，n 是 baseStr 长度。',
+          '由于字符集固定为 26，实际运行时间近似为 `O(m + n)`。',
+          '空间复杂度为 `O(26)`，只保存小写字母的并查集父节点。',
+          '合并时不需要额外维护集合内容，比较两个根即可确定新的代表元。',
+        ],
+        code: `function smallestEquivalentString(
+  s1: string,
+  s2: string,
+  baseStr: string,
+): string {
+  const parent = Array.from({ length: 26 }, (_, index) => index)
+
+  const find = (char: number): number => {
+    if (parent[char] !== char) {
+      parent[char] = find(parent[char])
+    }
+    return parent[char]
+  }
+
+  const union = (first: number, second: number): void => {
+    const firstRoot = find(first)
+    const secondRoot = find(second)
+    if (firstRoot === secondRoot) return
+
+    if (firstRoot < secondRoot) {
+      parent[secondRoot] = firstRoot
+    } else {
+      parent[firstRoot] = secondRoot
+    }
+  }
+
+  for (let index = 0; index < s1.length; index += 1) {
+    union(s1.charCodeAt(index) - 97, s2.charCodeAt(index) - 97)
+  }
+
+  return Array.from(baseStr, (char) => {
+    const root = find(char.charCodeAt(0) - 97)
+    return String.fromCharCode(root + 97)
+  }).join('')
+}`,
+      },
+      {
+        id: 'smallest-equivalent-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '合并时必须比较集合根，而不是比较当前传入的字符；否则经过多次合并后，集合代表元可能不是字典序最小字符。',
+        bullets: [
+          '易错点 1：只保存直接映射，遗漏 a 等价 b、b 等价 c 这种传递关系。',
+          '易错点 2：合并普通节点而不是合并根节点，破坏并查集结构。',
+          '易错点 3：输出时直接使用 parent[index]，没有先调用 find 完成路径压缩。',
+          '延伸方向：连通分量、最小生成树、账户合并、动态等价关系和字符串规范化。',
+        ],
+      },
+    ],
+  },
 ];
