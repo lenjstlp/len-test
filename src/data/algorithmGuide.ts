@@ -105583,4 +105583,82 @@ HAVING COUNT(*) >= 3;`,
       },
     ],
   },
+  {
+    id: 'longest-repeating-substring',
+    label: '1062. LeetCode 1062. 最长重复子串',
+    difficulty: '中等',
+    description:
+      '给定一个字符串，寻找至少出现两次的最长连续子串，并返回它的长度；两次出现的位置允许重叠。',
+    outcome:
+      '你能掌握字符串重复区间的动态规划建模，理解如何用一维滚动数组压缩最长公共后缀状态。',
+    sections: [
+      {
+        id: 'longest-repeating-substring-summary',
+        title: '题目在问什么',
+        summary:
+          '需要从同一个字符串中选择两个不同起点，使它们向后延伸时拥有尽可能长的相同连续片段。答案只要求长度，不需要返回具体子串。',
+        bullets: [
+          '重复内容必须连续，不能跳过字符。',
+          '两次出现的起点必须不同，但覆盖区间可以重叠。',
+          '没有重复字符时答案为 0。',
+          '本质上是在字符串与自身之间寻找起点不同的最长公共子串。',
+        ],
+      },
+      {
+        id: 'longest-repeating-substring-dp',
+        title: '把状态定义为两个位置的公共后缀',
+        summary:
+          '令 dp[j] 表示当前下标 i 与下标 j 结尾的最长相同连续片段长度。若 s[i] 等于 s[j]，状态由前一轮的 dp[j - 1] 加一得到，否则清零。',
+        bullets: [
+          '只比较 i 小于 j 的位置，确保两次出现的起点不同。',
+          '相同字符只能延续左上角状态，因此属于最长公共子串而不是最长公共子序列。',
+          '一维数组必须从右向左更新，避免覆盖本轮仍需读取的旧状态。',
+          '每次状态增长时更新全局最大值。',
+        ],
+        callout:
+          '允许重复片段重叠，因此不需要额外限制两个区间的距离。只要起点不同，就可以按普通公共后缀状态计算。',
+      },
+      {
+        id: 'longest-repeating-substring-solution',
+        title: '标准解法：动态规划压缩空间',
+        summary:
+          '枚举两个结尾位置，字符相同就延长公共后缀。使用一维数组保存上一轮状态，并通过逆序遍历完成空间压缩。',
+        bullets: [
+          '时间复杂度为 `O(n^2)`，需要比较所有位置对。',
+          '空间复杂度为 `O(n)`，保存一行动态规划状态。',
+          '外层下标从 0 向右，内层下标从末尾逆序到 i + 1。',
+          '字符不相同时必须把对应状态重置为 0。',
+        ],
+        code: `function longestRepeatingSubstring(s: string): number {
+  const dp = Array<number>(s.length).fill(0)
+  let longest = 0
+
+  for (let i = 0; i < s.length; i += 1) {
+    for (let j = s.length - 1; j > i; j -= 1) {
+      if (s[i] === s[j]) {
+        dp[j] = (i === 0 ? 0 : dp[j - 1]) + 1
+        longest = Math.max(longest, dp[j])
+      } else {
+        dp[j] = 0
+      }
+    }
+  }
+
+  return longest
+}`,
+      },
+      {
+        id: 'longest-repeating-substring-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '空间压缩后最容易出现更新方向错误。若从左向右更新，dp[j - 1] 已经属于当前轮，会把不连续的匹配错误地串联起来。',
+        bullets: [
+          '易错点 1：把问题写成最长公共子序列，允许跳过字符。',
+          '易错点 2：一维状态从左向右更新，读取了本轮新值。',
+          '易错点 3：错误禁止重叠，漏掉类似 `aaaa` 中长度为 3 的重复子串。',
+          '延伸方向：滚动哈希、后缀数组、后缀自动机和重复文本检测。',
+        ],
+      },
+    ],
+  },
 ];
