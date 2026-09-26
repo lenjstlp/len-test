@@ -105907,4 +105907,94 @@ function indexPairs(text: string, words: string[]): number[][] {
       },
     ],
   },
+  {
+    id: 'campus-bikes-ii',
+    label: '1066. LeetCode 1066. 校园自行车分配 II',
+    difficulty: '中等',
+    description:
+      '给定若干工人和自行车的二维坐标，为每位工人分配一辆不同的自行车，使所有工人与自行车之间的曼哈顿距离总和最小。',
+    outcome:
+      '你能掌握位掩码表示已使用资源的状态压缩动态规划，理解如何通过记忆化搜索枚举最优分配方案。',
+    sections: [
+      {
+        id: 'campus-bikes-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '每个工人必须得到一辆自行车，每辆自行车最多被分配一次。目标不是让每个人都拿最近的车，而是让所有人的距离总和最小。',
+        bullets: [
+          '工人与自行车数量通常较小，但分配组合数量很多。',
+          '曼哈顿距离为 `|x1 - x2| + |y1 - y2|`。',
+          '工人的处理顺序固定时，已使用的自行车集合就能完整描述后续决策。',
+          '局部选择最近自行车不一定得到全局最优，需要枚举可行分配并缓存重复状态。',
+        ],
+      },
+      {
+        id: 'campus-bikes-ii-bitmask',
+        title: '用位掩码表示自行车使用情况',
+        summary:
+          '用 mask 的第 j 位表示第 j 辆自行车是否已被占用。处理到第 worker 个工人时，mask 中 1 的数量就是已经完成分配的工人数。',
+        bullets: [
+          '状态 `(worker, mask)` 表示前 worker 位工人已经完成分配，mask 中的自行车不可再选。',
+          '可以从 mask 的二进制位数量推出当前处理的工人下标。',
+          '每次尝试一辆未使用的自行车，递归进入下一个工人。',
+          '同一个 mask 对应的最小后续代价只需计算一次。',
+        ],
+        callout:
+          '状态压缩的核心是找到足够描述未来决策的信息。由于工人顺序固定，已分配哪些自行车比具体的历史路径更重要。',
+      },
+      {
+        id: 'campus-bikes-ii-solution',
+        title: '标准解法：位掩码记忆化搜索',
+        summary:
+          '从第一个工人开始尝试所有未使用的自行车，递归求剩余工人的最小代价，并缓存每个 mask 的最优结果。',
+        bullets: [
+          '时间复杂度为 `O(m * 2^m)`，m 是自行车数量；每个状态最多尝试 m 辆车。',
+          '空间复杂度为 `O(2^m)`，用于记忆化数组和递归栈。',
+          '工人数量不超过自行车数量时，最多只需处理前 n 个分配层。',
+          '距离使用整数计算，不需要浮点数。',
+        ],
+        code: `function assignBikes(
+  workers: number[][],
+  bikes: number[][],
+): number {
+  const memo = new Map<number, number>()
+
+  const distance = (worker: number[], bike: number[]): number =>
+    Math.abs(worker[0] - bike[0]) + Math.abs(worker[1] - bike[1])
+
+  const search = (workerIndex: number, mask: number): number => {
+    if (workerIndex === workers.length) return 0
+    if (memo.has(mask)) return memo.get(mask) as number
+
+    let best = Number.POSITIVE_INFINITY
+    for (let bikeIndex = 0; bikeIndex < bikes.length; bikeIndex += 1) {
+      if ((mask & (1 << bikeIndex)) !== 0) continue
+      const next = search(
+        workerIndex + 1,
+        mask | (1 << bikeIndex),
+      )
+      best = Math.min(best, distance(workers[workerIndex], bikes[bikeIndex]) + next)
+    }
+
+    memo.set(mask, best)
+    return best
+  }
+
+  return search(0, 0)
+}`,
+      },
+      {
+        id: 'campus-bikes-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '记忆化键必须能唯一确定后续问题。由于 workerIndex 可以由 mask 的已用位数量推导，使用 mask 作为键即可；若改变工人处理顺序，则需要把 workerIndex 一并纳入键。',
+        bullets: [
+          '易错点 1：允许一辆自行车被重复分配。',
+          '易错点 2：只选择当前最近的自行车，错误使用贪心。',
+          '易错点 3：缓存中混入不同 workerIndex 的状态，导致状态定义不一致。',
+          '延伸方向：任务分配、旅行商问题、子集动态规划和分支限界剪枝。',
+        ],
+      },
+    ],
+  },
 ];
