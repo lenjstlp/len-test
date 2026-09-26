@@ -106088,4 +106088,72 @@ function indexPairs(text: string, words: string[]): number[][] {
       },
     ],
   },
+  {
+    id: 'product-sales-analysis-i',
+    label: '1068. LeetCode 1068. 产品销售分析 I',
+    difficulty: '简单',
+    description:
+      '给定销售记录表 Sales 和产品表 Product，查询每条销售记录对应的产品名称、销售年份和销售价格。',
+    outcome:
+      '你能掌握 SQL 中基于外键的内连接，理解如何只返回销售记录与产品信息都存在的匹配结果。',
+    sections: [
+      {
+        id: 'product-sales-analysis-i-summary',
+        title: '题目在问什么',
+        summary:
+          'Sales 保存销售事实，Product 保存产品名称。需要使用两张表中共同的 product_id 关联数据，并返回指定的三个字段。',
+        bullets: [
+          'Sales.product_id 与 Product.product_id 是关联两张表的键。',
+          '每条销售记录都需要展示对应产品名称。',
+          '只选择题目要求的 product_name、year 和 price。',
+          '题目没有要求额外排序，因此不应无故添加排序条件。',
+        ],
+      },
+      {
+        id: 'product-sales-analysis-i-join',
+        title: '用内连接组合销售与产品信息',
+        summary:
+          'Sales 是事实表，Product 是维度表。以 product_id 做 INNER JOIN，可以为每条有效销售记录补齐产品名称。',
+        bullets: [
+          'FROM Sales 先确定需要查询的销售记录集合。',
+          'JOIN Product ON Sales.product_id = Product.product_id 建立关联条件。',
+          'SELECT 只投影题目要求的字段，避免返回无关列。',
+          '如果产品表中没有匹配记录，内连接会过滤掉该销售记录。',
+        ],
+        callout:
+          '连接条件必须写在 ON 子句中并使用正确的键。不要依赖同名列的隐式关联，否则容易在字段改名或表结构变化时产生错误。',
+      },
+      {
+        id: 'product-sales-analysis-i-solution',
+        title: '标准解法：INNER JOIN 查询指定字段',
+        summary:
+          '通过 product_id 连接两张表，再选择产品名称、销售年份和销售价格。',
+        bullets: [
+          '时间复杂度由数据库的连接执行计划决定，通常可利用 product_id 索引。',
+          '结果集空间复杂度为输出行数。',
+          '使用表别名可以让查询更短、更容易阅读。',
+          '不要把 year 写成依赖数据库方言的函数调用，直接选择列即可。',
+        ],
+        code: `SELECT
+  product.product_name,
+  sales.year,
+  sales.price
+FROM Sales AS sales
+INNER JOIN Product AS product
+  ON sales.product_id = product.product_id;`,
+      },
+      {
+        id: 'product-sales-analysis-i-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这道题的核心是准确识别连接键和输出列，不需要聚合，也不需要按年份分组。',
+        bullets: [
+          '易错点 1：连接 sale_id 和 product_id，导致销售记录与产品错配。',
+          '易错点 2：误用 LEFT JOIN，返回题目不要求的无产品匹配记录。',
+          '易错点 3：加入 GROUP BY 或聚合函数，改变了每条销售记录的粒度。',
+          '延伸方向：多表连接、事实表与维度表、索引设计和连接执行计划。',
+        ],
+      },
+    ],
+  },
 ];
