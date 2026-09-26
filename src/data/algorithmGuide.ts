@@ -106156,4 +106156,70 @@ INNER JOIN Product AS product
       },
     ],
   },
+  {
+    id: 'product-sales-analysis-ii',
+    label: '1069. LeetCode 1069. 产品销售分析 II',
+    difficulty: '简单',
+    description:
+      '给定销售记录表 Sales，统计每种产品的总销售数量，并返回产品编号和总数量。',
+    outcome:
+      '你能掌握 SQL 的分组聚合，理解如何使用 SUM 按产品维度汇总销售事实。',
+    sections: [
+      {
+        id: 'product-sales-analysis-ii-summary',
+        title: '题目在问什么',
+        summary:
+          'Sales 中同一个 product_id 可能有多条不同年份的销售记录，需要把这些记录的 quantity 相加，得到每个产品的总销售数量。',
+        bullets: [
+          '统计粒度是产品，而不是单条销售记录。',
+          '同一产品跨多个年份的记录需要合并。',
+          '使用 quantity 求和，不要把 price 当作销售数量。',
+          '结果至少包含 product_id 和 total_quantity 两列。',
+        ],
+      },
+      {
+        id: 'product-sales-analysis-ii-group',
+        title: '按产品分组后求和',
+        summary:
+          '先按照 product_id 划分分组，再对每组的 quantity 使用 SUM 聚合。每个产品最终只产生一行结果。',
+        bullets: [
+          'GROUP BY product_id 决定结果的行粒度。',
+          'SUM(quantity) 计算当前产品所有销售记录的数量总和。',
+          '聚合列需要使用别名，便于结果字段表达业务含义。',
+          '查询中没有非聚合的额外字段，因此只按 product_id 分组即可。',
+        ],
+        callout:
+          'SQL 聚合的关键不是写出 SUM，而是先明确“一行结果代表什么”。这里一行代表一个产品，所以分组键必须是 product_id。',
+      },
+      {
+        id: 'product-sales-analysis-ii-solution',
+        title: '标准解法：GROUP BY + SUM',
+        summary:
+          '按 product_id 分组，对 quantity 求和，并将聚合结果命名为 total_quantity。',
+        bullets: [
+          '时间复杂度由数据库扫描和分组算法决定，通常为 `O(n)` 到 `O(n log n)`。',
+          '空间复杂度取决于分组数量和执行计划。',
+          '不需要连接 Product 表，因为题目只要求产品编号和数量。',
+          '不需要按年份分组，否则会把同一个产品拆成多行。',
+        ],
+        code: `SELECT
+  product_id,
+  SUM(quantity) AS total_quantity
+FROM Sales
+GROUP BY product_id;`,
+      },
+      {
+        id: 'product-sales-analysis-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '分组字段和聚合字段必须与题目要求的统计粒度一致，不能因为表中存在 year 就把年份加入分组。',
+        bullets: [
+          '易错点 1：忘记 GROUP BY，得到全表总数量而不是每个产品的数量。',
+          '易错点 2：按 product_id、year 一起分组，结果变成每年每个产品一行。',
+          '易错点 3：使用 COUNT(*) 统计记录条数，忽略了 quantity 的实际数值。',
+          '延伸方向：HAVING 过滤聚合结果、窗口函数、销售报表和指标口径设计。',
+        ],
+      },
+    ],
+  },
 ];
