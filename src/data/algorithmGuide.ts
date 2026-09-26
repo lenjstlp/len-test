@@ -105813,4 +105813,98 @@ HAVING COUNT(*) >= 3;`,
       },
     ],
   },
+  {
+    id: 'index-pairs-of-a-string',
+    label: '1065. LeetCode 1065. 字符串的索引对',
+    difficulty: '简单',
+    description:
+      '给定一个字符串 text 和若干单词 words，返回 text 中所有恰好等于某个单词的子串起止下标，结果按起点和终点升序排列。',
+    outcome:
+      '你能掌握 Trie 前缀树在字符串匹配中的应用，理解如何从每个起点向右扫描并在线判断完整单词。',
+    sections: [
+      {
+        id: 'index-pairs-of-a-string-summary',
+        title: '题目在问什么',
+        summary:
+          '对于 text 的每个起点 i，检查从 i 开始的每个前缀是否完整出现在 words 中。每发现一个单词，就记录它覆盖的闭区间 [i, j]。',
+        bullets: [
+          '同一个单词可能在 text 中出现多次，每次出现都要记录。',
+          '一个位置可能同时匹配短单词和长单词，两种区间都要保留。',
+          '结果要求按照起点 i，再按照终点 j 升序排列。',
+          '单词通常只包含小写英文字母，可以使用固定大小的子节点数组。',
+        ],
+      },
+      {
+        id: 'index-pairs-of-a-string-trie',
+        title: '用 Trie 共享单词前缀',
+        summary:
+          '先把 words 插入 Trie。扫描 text 的每个起点时，沿字符逐层向下走；走到带有 isWord 标记的节点，就找到了一个匹配区间。',
+        bullets: [
+          'Trie 的每条边代表一个字符，根到节点的路径就是某个单词前缀。',
+          '当前字符不存在子节点时，可以立即停止该起点的扫描。',
+          'isWord 表示当前位置的路径本身就是完整单词，不能只在叶子节点记录。',
+          '由于从小终点向大终点扫描，天然满足同一起点下的终点排序。',
+        ],
+        callout:
+          '如果只用 words.includes(text.slice(i, j))，会重复创建字符串并反复扫描单词集合。Trie 把公共前缀合并后，可以更早终止不可能的匹配。',
+      },
+      {
+        id: 'index-pairs-of-a-string-solution',
+        title: '标准解法：Trie + 起点扫描',
+        summary:
+          '构造前缀树后，从 text 的每个字符作为起点向右遍历，遇到完整单词就追加索引对。扫描顺序保证结果有序。',
+        bullets: [
+          '设所有单词字符总数为 L，text 长度为 n，构建 Trie 的时间复杂度为 `O(L)`。',
+          '匹配阶段最坏时间复杂度为 `O(n * w)`，w 是最长单词长度。',
+          'Trie 空间复杂度为 `O(L)`，结果数组额外占用输出空间。',
+          '节点使用 26 个槽位，访问子节点的时间是常数。',
+        ],
+        code: `type TrieNode = {
+  children: Array<TrieNode | undefined>
+  isWord: boolean
+}
+
+function indexPairs(text: string, words: string[]): number[][] {
+  const createNode = (): TrieNode => ({
+    children: Array<TrieNode | undefined>(26),
+    isWord: false,
+  })
+
+  const root = createNode()
+  for (const word of words) {
+    let node = root
+    for (const char of word) {
+      const index = char.charCodeAt(0) - 97
+      node.children[index] ??= createNode()
+      node = node.children[index] as TrieNode
+    }
+    node.isWord = true
+  }
+
+  const result: number[][] = []
+  for (let start = 0; start < text.length; start += 1) {
+    let node: TrieNode | undefined = root
+    for (let end = start; end < text.length && node; end += 1) {
+      node = node.children[text.charCodeAt(end) - 97]
+      if (node?.isWord) result.push([start, end])
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'index-pairs-of-a-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          'Trie 节点的 isWord 必须在每个完整单词结束处标记；否则 words 中短单词是长单词前缀时，会漏掉短区间。',
+        bullets: [
+          '易错点 1：只记录 Trie 叶子节点，漏掉单词前缀也是完整单词的情况。',
+          '易错点 2：匹配失败后继续向右扫描，造成无意义的复杂度。',
+          '易错点 3：只返回每个起点最长的匹配，漏掉同起点的多个合法区间。',
+          '延伸方向：多模式匹配、Aho-Corasick 自动机、敏感词过滤和搜索联想。',
+        ],
+      },
+    ],
+  },
 ];
