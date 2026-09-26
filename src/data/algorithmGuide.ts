@@ -105737,4 +105737,80 @@ HAVING COUNT(*) >= 3;`,
       },
     ],
   },
+  {
+    id: 'fixed-point',
+    label: '1064. LeetCode 1064. 不动点',
+    difficulty: '简单',
+    description:
+      '给定一个严格递增的整数数组，找到最小的下标 i，使得 nums[i] 等于 i；如果不存在则返回 -1。',
+    outcome:
+      '你能掌握利用有序性进行二分查找，理解如何把“数组值与下标的比较”转化为单调判定条件。',
+    sections: [
+      {
+        id: 'fixed-point-summary',
+        title: '题目在问什么',
+        summary:
+          '需要寻找数组值恰好等于自身下标的位置，并且返回最左侧的一个。数组严格递增，因此可以利用值和下标的相对关系排除一半区间。',
+        bullets: [
+          '数组元素严格递增，没有重复值。',
+          '目标条件是 `nums[i] === i`，不是寻找某个固定值。',
+          '如果存在多个不动点，需要返回最小下标。',
+          '数组为空或没有满足条件的位置时返回 -1。',
+        ],
+      },
+      {
+        id: 'fixed-point-binary-search',
+        title: '用差值关系判断搜索方向',
+        summary:
+          '当 nums[mid] 小于 mid 时，由于数组递增，右侧更可能追上下标；当 nums[mid] 大于等于 mid 时，答案应在 mid 左侧或就是 mid。',
+        bullets: [
+          '若 nums[mid] < mid，则 mid 及左侧不可能存在不动点，搜索右半部分。',
+          '若 nums[mid] >= mid，则保留 mid，继续向左寻找更小答案。',
+          '判定条件具有单调性，可以使用寻找第一个满足条件的二分模板。',
+          '最终只需检查 left 是否真的满足 nums[left] === left。',
+        ],
+        callout:
+          '严格递增意味着 nums[i] - i 虽不一定严格递增，但当某个位置出现 nums[mid] >= mid 时，左边界收缩到左侧仍然安全；二分只需围绕等式位置的两侧关系设计。',
+      },
+      {
+        id: 'fixed-point-solution',
+        title: '标准解法：二分查找最左不动点',
+        summary:
+          '使用闭区间二分：小于条件时向右移动，否则收缩右边界。循环结束后验证候选位置。',
+        bullets: [
+          '时间复杂度为 `O(log n)`。',
+          '空间复杂度为 `O(1)`。',
+          '遇到等于时不能立即返回，因为左侧可能还有更小的不动点。',
+          '使用 `left < right` 的模板可以直接定位第一个 `nums[i] >= i` 的位置。',
+        ],
+        code: `function fixedPoint(arr: number[]): number {
+  let left = 0
+  let right = arr.length - 1
+
+  while (left < right) {
+    const middle = Math.floor((left + right) / 2)
+    if (arr[middle] < middle) {
+      left = middle + 1
+    } else {
+      right = middle
+    }
+  }
+
+  return left < arr.length && arr[left] === left ? left : -1
+}`,
+      },
+      {
+        id: 'fixed-point-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '二分比较的是 nums[mid] 和 mid 的关系，不是与目标值 0 比较；等号出现时也要继续向左搜索。',
+        bullets: [
+          '易错点 1：找到相等位置后直接返回，没有保证它是最小下标。',
+          '易错点 2：把 nums[mid] < mid 的区间判断反了。',
+          '易错点 3：空数组时 right 为 -1，结束后没有做边界校验。',
+          '延伸方向：寻找数组中第一个满足不等式的位置、旋转数组二分和单调谓词搜索。',
+        ],
+      },
+    ],
+  },
 ];
