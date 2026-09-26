@@ -105997,4 +105997,95 @@ function indexPairs(text: string, words: string[]): number[][] {
       },
     ],
   },
+  {
+    id: 'digit-count-in-range',
+    label: '1067. LeetCode 1067. 范围内的数字计数',
+    difficulty: '困难',
+    description:
+      '给定整数 digit、low 和 high，统计从 low 到 high 的所有整数中，数字 digit 出现的总次数。',
+    outcome:
+      '你能掌握按数位统计出现次数的数学方法，理解最高位前导零为什么必须单独处理。',
+    sections: [
+      {
+        id: 'digit-count-in-range-summary',
+        title: '题目在问什么',
+        summary:
+          '需要统计一个闭区间内所有数字的十进制表示中，某个指定数字出现了多少次。直接逐个转换字符串会受到区间范围限制，需要按每一位的位置进行计数。',
+        bullets: [
+          '统计的是十进制表示中的真实数字，不包含数字前面的前导零。',
+          '区间是闭区间 [low, high]。',
+          'digit 可以是 0，因此零的统计公式与其他数字不同。',
+          '可以先求 1 到 n 的次数，再用前缀和思想相减得到区间答案。',
+        ],
+      },
+      {
+        id: 'digit-count-in-range-position-counting',
+        title: '按当前位拆分高位、当前位和低位',
+        summary:
+          '固定一个 factor = 1、10、100 等数位位置，把 1 到 n 的数字按当前位分成高位、当前位和低位。对于非零数字，完整周期直接贡献，高位和当前位再决定边界部分。',
+        bullets: [
+          'higher 表示当前位左侧的数字，current 表示当前位，lower 表示右侧的数字。',
+          '非零 digit 可以直接按完整周期统计，再根据 current 与 digit 的大小补边界。',
+          '统计 0 时，最高位不能出现 0，所以完整周期中的高位需要减一。',
+          '当 higher 为 0 时，当前 factor 已经超出最高有效位，不再统计前导零。',
+        ],
+        callout:
+          '数字 0 的难点不在出现次数本身，而在“例如 7 不能被写成 007”这一表示规则。忽略前导零修正会让高位统计明显偏大。',
+      },
+      {
+        id: 'digit-count-in-range-solution',
+        title: '标准解法：前缀计数相减',
+        summary:
+          '实现 countUntil(n, digit) 统计 1 到 n 中 digit 的出现次数，最终返回 countUntil(high) - countUntil(low - 1)。',
+        bullets: [
+          '时间复杂度为 `O(log n)`，每个十进制数位只处理一次。',
+          '空间复杂度为 `O(1)`。',
+          'digit 为 0 时，只有 higher 大于 0 的位置才可能产生有效贡献。',
+          'n 小于 1 时直接返回 0，避免处理负数边界。',
+        ],
+        code: `function digitsCount(
+  digit: number,
+  low: number,
+  high: number,
+): number {
+  const countUntil = (limit: number): number => {
+    if (limit < 1) return 0
+
+    let count = 0
+    for (let factor = 1; factor <= limit; factor *= 10) {
+      const lower = limit % factor
+      const current = Math.floor(limit / factor) % 10
+      const higher = Math.floor(limit / (factor * 10))
+
+      if (digit === 0) {
+        if (higher === 0) break
+        count += (higher - 1) * factor
+        count += current === 0 ? lower + 1 : factor
+      } else {
+        count += higher * factor
+        if (current > digit) count += factor
+        else if (current === digit) count += lower + 1
+      }
+    }
+
+    return count
+  }
+
+  return countUntil(high) - countUntil(low - 1)
+}`,
+      },
+      {
+        id: 'digit-count-in-range-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '位统计公式必须区分 0 和其他数字，且区间计数要使用 low - 1 的前缀结果做差。',
+        bullets: [
+          '易错点 1：把 0 按普通数字统计，错误计算前导零。',
+          '易错点 2：区间减法写成 countUntil(high) - countUntil(low)，漏掉 low。',
+          '易错点 3：factor 继续乘 10 时没有考虑数值范围溢出。',
+          '延伸方向：数位 DP、数字频率统计、区间数字和及第 k 个数字查询。',
+        ],
+      },
+    ],
+  },
 ];
