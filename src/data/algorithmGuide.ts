@@ -106222,4 +106222,80 @@ GROUP BY product_id;`,
       },
     ],
   },
+  {
+    id: 'product-sales-analysis-iii',
+    label: '1070. LeetCode 1070. 产品销售分析 III',
+    difficulty: '中等',
+    description:
+      '给定销售记录表 Sales，找出每种产品第一次销售的年份，并返回该产品在首次销售年份的销售数量和销售价格。',
+    outcome:
+      '你能掌握“先求每组最小值，再回表取完整记录”的 SQL 模式，理解如何保留首次销售年份对应的 quantity 和 price。',
+    sections: [
+      {
+        id: 'product-sales-analysis-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '同一个产品可能在多个年份销售。需要先找到每个 product_id 的最早销售年份，再只保留该产品在这个年份的销售记录，并返回 product_id、first_year、quantity 和 price。',
+        bullets: [
+          '结果的一行代表一个产品在其首次销售年份的一条销售记录。',
+          '首次年份是每个产品分组内 year 的最小值。',
+          'quantity 和 price 必须来自首次年份的原始记录，不能对所有年份求和或取平均。',
+          '如果一个产品在首次年份有多条记录，应保留这些记录对应的结果行。',
+        ],
+      },
+      {
+        id: 'product-sales-analysis-iii-min-year',
+        title: '先按产品求最早年份',
+        summary:
+          '使用 GROUP BY product_id 和 MIN(year) 得到每个产品的首年结果。这个中间结果只知道产品与年份，还需要与 Sales 原表连接才能取回数量和价格。',
+        bullets: [
+          '子查询或公共表表达式的粒度是每个 product_id 一行。',
+          'MIN(year) 只负责定位首年，不应该同时聚合 quantity 和 price。',
+          '回表连接时必须同时匹配 product_id 和 year。',
+          '只按 product_id 连接会把该产品其他年份的销售记录也带回来。',
+        ],
+        callout:
+          '这是典型的“组内极值对应整行”问题：先求出每组最小年份，再用完整键回到原表取其他列。只写 MIN(year) 无法可靠地得到与首年对应的 quantity 和 price。',
+      },
+      {
+        id: 'product-sales-analysis-iii-solution',
+        title: '标准解法：分组取最小值后回表连接',
+        summary:
+          '先构造每个产品的首年表，再将它与 Sales 按 product_id 和 year 连接，得到首年销售记录的完整字段。',
+        bullets: [
+          '时间复杂度由数据库扫描、分组和连接执行计划决定，通常为 `O(n)` 到 `O(n log n)`。',
+          '空间复杂度取决于分组中间结果和连接执行计划。',
+          '连接条件必须同时包含 product_id 和 year，二者共同确定首年记录。',
+          '不需要连接 Product 表，因为题目只要求 Sales 表中的字段。',
+        ],
+        code: `SELECT
+  sales.product_id,
+  first_sales.first_year,
+  sales.quantity,
+  sales.price
+FROM Sales AS sales
+INNER JOIN (
+  SELECT
+    product_id,
+    MIN(year) AS first_year
+  FROM Sales
+  GROUP BY product_id
+) AS first_sales
+  ON sales.product_id = first_sales.product_id
+ AND sales.year = first_sales.first_year;`,
+      },
+      {
+        id: 'product-sales-analysis-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '首年筛选的关键是保持结果粒度与连接键一致。先求最小年份，再用产品编号和年份共同回表，才能避免跨年份污染。',
+        bullets: [
+          '易错点 1：只按 product_id 连接首年结果，导致同一产品的其他年份也被返回。',
+          '易错点 2：直接对 quantity、price 使用 MIN，无法保证它们来自首年记录。',
+          '易错点 3：按 product_id、year 分组后又取 MIN(year)，没有先明确每个产品的统计粒度。',
+          '延伸方向：窗口函数 `ROW_NUMBER()`、组内 Top 1、最新记录回表和时间维度分析。',
+        ],
+      },
+    ],
+  },
 ];
