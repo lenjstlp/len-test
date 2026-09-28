@@ -106373,4 +106373,80 @@ INNER JOIN (
       },
     ],
   },
+  {
+    id: 'flip-columns-for-maximum-number-of-equal-rows',
+    label: '1072. LeetCode 1072. 按列翻转得到最大等值行数',
+    difficulty: '中等',
+    description:
+      '给定一个只包含 0 和 1 的矩阵，每次可以翻转任意一列，求经过若干次列翻转后，内容完全相同的行的最大数量。',
+    outcome:
+      '你能掌握用规范化表示识别可通过列翻转互相转换的行，理解首位基准和按位取反之间的等价关系。',
+    sections: [
+      {
+        id: 'flip-columns-for-maximum-number-of-equal-rows-summary',
+        title: '题目在问什么',
+        summary:
+          '列翻转会同时影响所有行的同一列。需要判断哪些行可以通过同一组列翻转变成完全相同的形式，并找出这样的行组最大规模。',
+        bullets: [
+          '一次翻转作用于整列，不是单独作用于某一行。',
+          '目标是最大化最终相等的行数，而不是让整个矩阵所有行都相等。',
+          '行中的 0 和 1 可以同时翻转，但列选择对所有行一致。',
+          '可以把每一行转换成一个稳定的规范形式，再统计频次。',
+        ],
+      },
+      {
+        id: 'flip-columns-for-maximum-number-of-equal-rows-normalize',
+        title: '以行首为基准进行规范化',
+        summary:
+          '如果两行可以通过列翻转变得相等，那么它们要么完全相同，要么每一列都相反。将每行首元素统一变为 0：首位为 0 的保留，首位为 1 的整行取反。',
+        bullets: [
+          '同一组中的行规范化后一定得到同一个模式。',
+          '规范化操作等价于判断每个位置是否与行首相同。',
+          '不需要真的执行列翻转，因为只关心行之间的可转换关系。',
+          '使用字符串作为哈希键可以在线统计每种规范形式的出现次数。',
+        ],
+        callout:
+          '列翻转的全局约束可以转化为“两个行是否相同或互补”。这是把矩阵操作题转换成行模式计数题的关键。',
+      },
+      {
+        id: 'flip-columns-for-maximum-number-of-equal-rows-solution',
+        title: '标准解法：规范化行模式 + 频次统计',
+        summary:
+          '遍历每一行，根据首元素决定是否取反，生成规范字符串并统计其频次，最大频次就是答案。',
+        bullets: [
+          '时间复杂度为 `O(m * n)`，m 是行数，n 是列数。',
+          '空间复杂度为 `O(m * n)`，用于保存规范化后的行键。',
+          '首元素为 0 时保持 `row[j]`，首元素为 1 时使用 `1 - row[j]`。',
+          '不需要尝试所有列翻转组合，避免指数级枚举。',
+        ],
+        code: `function maxEqualRowsAfterFlips(matrix: number[][]): number {
+  const counts = new Map<string, number>()
+  let best = 0
+
+  for (const row of matrix) {
+    const normalized = row
+      .map((value) => (value === row[0] ? 0 : 1))
+      .join('')
+    const count = (counts.get(normalized) ?? 0) + 1
+    counts.set(normalized, count)
+    best = Math.max(best, count)
+  }
+
+  return best
+}`,
+      },
+      {
+        id: 'flip-columns-for-maximum-number-of-equal-rows-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '规范化必须以整行首元素为基准，不能对每一列单独选择翻转方向；列翻转方案必须同时适用于目标行组。',
+        bullets: [
+          '易错点 1：逐列统计 0 和 1 的多数，忽略一组行必须共享同一翻转方案。',
+          '易错点 2：只统计完全相同的行，漏掉互补行。',
+          '易错点 3：取反时只改变行首，未对整行每个位置同步处理。',
+          '延伸方向：等价类计数、位掩码规范化、汉明距离和二进制特征聚类。',
+        ],
+      },
+    ],
+  },
 ];
