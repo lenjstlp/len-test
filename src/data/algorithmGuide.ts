@@ -106624,4 +106624,71 @@ INNER JOIN (
       },
     ],
   },
+  {
+    id: 'project-employees-i',
+    label: '1075. LeetCode 1075. 项目员工 I',
+    difficulty: '简单',
+    description:
+      '给定项目分配表 Project 和员工表 Employee，计算每个项目的员工平均工作年限，并将结果保留两位小数。',
+    outcome:
+      '你能掌握按业务实体分组的 SQL 平均值计算，理解连接、分组和结果舍入之间的关系。',
+    sections: [
+      {
+        id: 'project-employees-i-summary',
+        title: '题目在问什么',
+        summary:
+          'Project 记录员工参与了哪些项目，Employee 保存每位员工的工作年限。需要把两张表连接起来，再按项目分组计算 experience_years 的平均值。',
+        bullets: [
+          '一行结果代表一个项目。',
+          'Project.employee_id 用于关联 Employee.employee_id。',
+          '平均值只针对当前项目的员工计算。',
+          '结果字段 average_years 需要四舍五入保留两位小数。',
+        ],
+      },
+      {
+        id: 'project-employees-i-aggregation',
+        title: '连接员工信息后按项目聚合',
+        summary:
+          '先通过 employee_id 将项目成员与员工工作年限连接，再以 project_id 分组，使用 AVG 计算每组平均值。',
+        bullets: [
+          'INNER JOIN 可以过滤掉不存在对应员工的异常分配记录。',
+          'GROUP BY project_id 决定结果粒度，每个项目输出一行。',
+          'AVG 会对当前项目连接后的所有员工年限求平均。',
+          'ROUND 应该包裹 AVG 结果，明确控制最终展示精度。',
+        ],
+        callout:
+          '先明确“一行代表一个项目”，再决定 GROUP BY 字段。若忘记按 project_id 分组，就会得到全体项目成员的一个总平均值。',
+      },
+      {
+        id: 'project-employees-i-solution',
+        title: '标准解法：INNER JOIN + AVG + ROUND',
+        summary: '连接项目员工关系与员工信息，按项目分组并计算平均工作年限。',
+        bullets: [
+          '时间复杂度由连接和分组执行计划决定，通常为 `O(n)` 到 `O(n log n)`。',
+          '空间复杂度取决于数据库的分组执行策略。',
+          '使用别名让输出列名与题目要求一致。',
+          '不要在 GROUP BY 中加入 employee_id，否则会变成每个员工一行。',
+        ],
+        code: `SELECT
+  project.project_id,
+  ROUND(AVG(employee.experience_years), 2) AS average_years
+FROM Project AS project
+INNER JOIN Employee AS employee
+  ON project.employee_id = employee.employee_id
+GROUP BY project.project_id;`,
+      },
+      {
+        id: 'project-employees-i-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '题目要求的是每个项目的平均年限，不是员工数量，也不是项目总年限；分组字段必须保持项目粒度。',
+        bullets: [
+          '易错点 1：按 employee_id 分组，结果变成员工维度而不是项目维度。',
+          '易错点 2：使用 SUM 而不是 AVG，得到的是总工作年限。',
+          '易错点 3：忘记 ROUND 或把 ROUND 放在错误的聚合层级。',
+          '延伸方向：加权平均、项目成本聚合、HAVING 过滤和窗口平均值。',
+        ],
+      },
+    ],
+  },
 ];
