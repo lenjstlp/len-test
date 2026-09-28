@@ -106449,4 +106449,90 @@ INNER JOIN (
       },
     ],
   },
+  {
+    id: 'adding-two-negabinary-numbers',
+    label: '1073. LeetCode 1073. 负二进制数相加',
+    difficulty: '中等',
+    description:
+      '给定两个以数组逆序表示的负二进制数，计算它们的和，并以同样的负二进制格式返回结果。',
+    outcome:
+      '你能掌握任意进制加法中的进位处理，理解负进制下如何把当前位规范为 0 或 1 并计算下一位进位。',
+    sections: [
+      {
+        id: 'adding-two-negabinary-numbers-summary',
+        title: '题目在问什么',
+        summary:
+          '数组低位在前，每个元素只有 0 或 1。位权从右到左依次为 1、-2、4、-8……，需要完成加法后去掉结果最高位多余的 0。',
+        bullets: [
+          '负二进制的基数是 -2，而不是普通二进制的 2。',
+          '输入数组最低位位于下标 0。',
+          '两个数组可能长度不同，缺失位按 0 处理。',
+          '结果不能包含最高位的前导 0，但数字 0 要表示为 `[0]`。',
+        ],
+      },
+      {
+        id: 'adding-two-negabinary-numbers-carry',
+        title: '用规范余数处理负进位',
+        summary:
+          '每一位先计算两个输入位与上一位 carry 的总和 sum，再选择 bit 为 0 或 1，使 `sum - bit` 可以被 -2 整除，下一位进位为 `(sum - bit) / -2`。',
+        bullets: [
+          '当前位必须规范为 0 或 1，不能直接使用普通除法的余数。',
+          '当 sum 为负数时，JavaScript 的 `%` 结果也可能是负数，需要手动规范。',
+          '继续处理的条件包括两个数组尚有位，或 carry 不为 0。',
+          '结果按低位到高位生成，最后反转为题目要求的数组格式。',
+        ],
+        callout:
+          '负进制的进位方向与普通进制不同：进位公式必须使用基数 -2。只要保证当前位落在合法数字范围内，余数和进位就能唯一确定。',
+      },
+      {
+        id: 'adding-two-negabinary-numbers-solution',
+        title: '标准解法：逐位相加 + 负二进制进位',
+        summary:
+          '从两个数组的最低位开始相加，计算合法当前位和下一位 carry，最后反转并清理前导零。',
+        bullets: [
+          '时间复杂度为 `O(max(m, n))`，m、n 是两个数组长度。',
+          '空间复杂度为 `O(max(m, n))`，用于结果数组。',
+          '使用 `((sum % 2) + 2) % 2` 将余数规范到 0 或 1。',
+          '结果为空或只剩前导零时，返回 `[0]`。',
+        ],
+        code: `function addNegabinary(
+  arr1: number[],
+  arr2: number[],
+): number[] {
+  let first = arr1.length - 1
+  let second = arr2.length - 1
+  let carry = 0
+  const result: number[] = []
+
+  while (first >= 0 || second >= 0 || carry !== 0) {
+    const sum =
+      (first >= 0 ? arr1[first--] : 0) +
+      (second >= 0 ? arr2[second--] : 0) +
+      carry
+    const bit = ((sum % 2) + 2) % 2
+    result.push(bit)
+    carry = (sum - bit) / -2
+  }
+
+  while (result.length > 1 && result[result.length - 1] === 0) {
+    result.pop()
+  }
+
+  return result.reverse()
+}`,
+      },
+      {
+        id: 'adding-two-negabinary-numbers-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '负二进制的关键是负进位，不是把输入转成十进制后相加；直接转十进制还可能产生溢出或失去题目要求的线性处理。',
+        bullets: [
+          '易错点 1：使用普通二进制的 carry 除以 2。',
+          '易错点 2：对负 sum 直接使用 `% 2`，得到非法的负位。',
+          '易错点 3：清理前导零时把结果 0 清成空数组。',
+          '延伸方向：任意负进制转换、平衡进制、大整数运算和位表示规范化。',
+        ],
+      },
+    ],
+  },
 ];
