@@ -106691,4 +106691,76 @@ GROUP BY project.project_id;`,
       },
     ],
   },
+  {
+    id: 'project-employees-ii',
+    label: '1076. LeetCode 1076. 项目员工 II',
+    difficulty: '简单',
+    description:
+      '给定项目分配表 Project，找出拥有最多员工的项目；如果多个项目并列第一，需要全部返回。',
+    outcome:
+      '你能掌握分组计数、聚合结果再比较最大值的 SQL 写法，理解为什么不能只用 LIMIT 1 处理并列结果。',
+    sections: [
+      {
+        id: 'project-employees-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '需要统计每个 project_id 关联的员工数量，再找出数量最大的一组项目编号。项目员工数相同时，所有并列项目都必须返回。',
+        bullets: [
+          '统计粒度是项目。',
+          '一条 Project 记录代表一名员工参与一个项目。',
+          'COUNT(*) 可以统计每个项目的员工分配记录数。',
+          '不能只返回任意一个最大项目，必须保留并列结果。',
+        ],
+      },
+      {
+        id: 'project-employees-ii-max-count',
+        title: '先统计数量，再筛选最大值',
+        summary:
+          '先按 project_id 分组计数得到每个项目的员工数，再求这些计数中的最大值，最后筛选等于最大值的项目。',
+        bullets: [
+          '第一层 GROUP BY project_id 产生项目员工计数。',
+          'MAX 作用于“每个项目的计数结果”，而不是直接作用于原表。',
+          '外层使用 HAVING 或 WHERE 与最大计数比较。',
+          '通过等号筛选而不是 LIMIT 1，才能保留所有并列项目。',
+        ],
+        callout:
+          '“最多”与“任选一个最多”是不同需求。排序后 LIMIT 1 会吞掉并列结果，统计题应优先使用最大值比较来保留完整答案集。',
+      },
+      {
+        id: 'project-employees-ii-solution',
+        title: '标准解法：分组计数 + 最大计数回筛',
+        summary:
+          '构造项目员工数的派生表，求其最大值，再返回计数等于最大值的项目编号。',
+        bullets: [
+          '时间复杂度由分组和聚合执行计划决定，通常为 `O(n)` 到 `O(n log n)`。',
+          '空间复杂度取决于项目分组数量。',
+          '派生表必须先按 project_id 聚合，否则 MAX(COUNT(*)) 没有明确语义。',
+          '外层比较使用等号，天然支持多个项目并列第一。',
+        ],
+        code: `SELECT project_id
+FROM Project
+GROUP BY project_id
+HAVING COUNT(*) = (
+  SELECT MAX(employee_count)
+  FROM (
+    SELECT COUNT(*) AS employee_count
+    FROM Project
+    GROUP BY project_id
+  ) AS project_counts
+);`,
+      },
+      {
+        id: 'project-employees-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最大值比较必须建立在“每个项目的员工数”之上，不能直接对原始记录做全局 COUNT。',
+        bullets: [
+          '易错点 1：使用 ORDER BY COUNT(*) DESC LIMIT 1，漏掉并列项目。',
+          '易错点 2：忘记 GROUP BY project_id，得到全表记录总数。',
+          '易错点 3：把员工编号去重规则混淆，需根据题目表约束选择 COUNT(*) 或 COUNT(DISTINCT)。',
+          '延伸方向：Top K 分组、窗口排名、并列排名和聚合结果过滤。',
+        ],
+      },
+    ],
+  },
 ];
