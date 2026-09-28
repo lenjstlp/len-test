@@ -106763,4 +106763,88 @@ HAVING COUNT(*) = (
       },
     ],
   },
+  {
+    id: 'project-employees-iii',
+    label: '1077. LeetCode 1077. 项目员工 III',
+    difficulty: '中等',
+    description:
+      '给定项目分配表 Project 和员工表 Employee，找出员工平均工作年限最高的项目，并返回项目编号和平均年限；并列项目全部返回。',
+    outcome:
+      '你能掌握先分组聚合、再比较聚合结果的 SQL 模式，理解如何准确处理平均值并列最大的问题。',
+    sections: [
+      {
+        id: 'project-employees-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '先为每个项目计算其成员的平均工作年限，再从这些项目平均值中找出最大值，返回所有达到最大平均年限的项目。',
+        bullets: [
+          '每个项目的平均值只使用参与该项目的员工。',
+          '一行结果代表一个平均年限最高的项目。',
+          '项目平均值需要保留两位小数展示。',
+          '若多个项目平均值相同，必须全部返回。',
+        ],
+      },
+      {
+        id: 'project-employees-iii-aggregation',
+        title: '先得到项目平均值，再取最大值',
+        summary:
+          '将项目员工关系与 Employee 连接，按 project_id 计算 AVG；再把项目平均值作为派生表，使用 MAX 找到最高平均值并回筛。',
+        bullets: [
+          '内层聚合结果的一行代表一个项目。',
+          'MAX 必须作用于项目平均值集合，而不是原始 experience_years。',
+          '外层使用等值比较保留所有并列最高项目。',
+          'ROUND 负责展示精度，比较时应基于未舍入的 AVG，避免舍入造成错误并列。',
+        ],
+        callout:
+          '平均值最高不等于员工个人工作年限最高。必须先完成项目粒度的 AVG，再在项目之间比较 AVG，不能直接用员工表的 MAX。',
+      },
+      {
+        id: 'project-employees-iii-solution',
+        title: '标准解法：项目平均值派生表 + MAX',
+        summary:
+          '内层查询计算每个项目的平均工作年限，外层取最大平均值并返回匹配项目，同时对展示结果保留两位小数。',
+        bullets: [
+          '时间复杂度由连接、分组和聚合执行计划决定，通常为 `O(n)` 到 `O(n log n)`。',
+          '空间复杂度取决于项目分组数量。',
+          '用未舍入 AVG 参与最大值比较，最后再 ROUND 输出。',
+          '使用等值筛选而不是 LIMIT 1，避免丢失并列结果。',
+        ],
+        code: `SELECT
+  project_averages.project_id,
+  ROUND(project_averages.average_years, 2) AS average_years
+FROM (
+  SELECT
+    project.project_id,
+    AVG(employee.experience_years) AS average_years
+  FROM Project AS project
+  INNER JOIN Employee AS employee
+    ON project.employee_id = employee.employee_id
+  GROUP BY project.project_id
+) AS project_averages
+WHERE project_averages.average_years = (
+  SELECT MAX(average_years)
+  FROM (
+    SELECT
+      AVG(employee.experience_years) AS average_years
+    FROM Project AS project
+    INNER JOIN Employee AS employee
+      ON project.employee_id = employee.employee_id
+    GROUP BY project.project_id
+  ) AS all_project_averages
+);`,
+      },
+      {
+        id: 'project-employees-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最高平均值的比较层级必须是项目，展示舍入和比较逻辑也要分开处理。',
+        bullets: [
+          '易错点 1：直接使用 MAX(employee.experience_years)，得到的是个人最大年限。',
+          '易错点 2：先 ROUND 再比较，可能因舍入导致原本不同的平均值被视为相同。',
+          '易错点 3：使用 LIMIT 1，遗漏平均值并列最高的项目。',
+          '延伸方向：窗口函数 RANK、百分位数、分组 Top N 和指标精度治理。',
+        ],
+      },
+    ],
+  },
 ];
