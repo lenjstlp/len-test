@@ -106535,4 +106535,93 @@ INNER JOIN (
       },
     ],
   },
+  {
+    id: 'number-of-submatrices-that-sum-to-target',
+    label: '1074. LeetCode 1074. 元素和为目标值的子矩阵数量',
+    difficulty: '困难',
+    description:
+      '给定一个整数矩阵和目标值 target，统计所有元素和等于 target 的非空子矩阵数量。',
+    outcome:
+      '你能掌握二维前缀和与一维子数组和的降维技巧，理解如何用哈希表在线统计满足目标和的边界组合。',
+    sections: [
+      {
+        id: 'number-of-submatrices-that-sum-to-target-summary',
+        title: '题目在问什么',
+        summary:
+          '子矩阵由连续的行和连续的列组成，需要统计其元素总和恰好为 target 的所有矩形区域。矩阵元素可以为负数，因此不能使用只适用于正数的滑动窗口。',
+        bullets: [
+          '子矩阵必须连续，至少包含一个元素。',
+          '矩阵中的数可能为负数、0 或正数。',
+          '不同位置或不同大小的子矩阵分别计数。',
+          '直接枚举上下左右四条边并计算区域和，会产生过高复杂度。',
+        ],
+      },
+      {
+        id: 'number-of-submatrices-that-sum-to-target-compress',
+        title: '固定上下边界，把二维压成一维',
+        summary:
+          '枚举 top 和 bottom，将这两行之间每一列的元素累加成 columnSums。此时任意连续列区间的和，就是一个对应子矩阵的元素和。',
+        bullets: [
+          '每增加一行 bottom，就把该行加入 columnSums。',
+          '对于固定的 top 和 bottom，问题变成统计一维数组中和为 target 的连续子数组数量。',
+          '使用前缀和 current，若之前出现过 current - target，就形成一个目标区间。',
+          '哈希表记录每个前缀和出现次数，支持负数和重复前缀和。',
+        ],
+        callout:
+          '二维区域可以用上下边界固定后转化为列区间。剩下的一维目标子数组问题使用前缀和计数即可在线完成。',
+      },
+      {
+        id: 'number-of-submatrices-that-sum-to-target-solution',
+        title: '标准解法：边界压缩 + 前缀和哈希',
+        summary:
+          '枚举行边界，逐步维护两行之间的列和；每轮用一维前缀和哈希统计目标区间，并累加到答案。',
+        bullets: [
+          '时间复杂度为 `O(rows^2 * cols)`。',
+          '空间复杂度为 `O(cols)`。',
+          '哈希表初始化 `0 -> 1`，表示从第一列开始的空前缀。',
+          '不能使用滑动窗口，因为负数会破坏窗口和的单调性。',
+        ],
+        code: `function numSubmatrixSumTarget(
+  matrix: number[][],
+  target: number,
+): number {
+  const rows = matrix.length
+  const columns = matrix[0].length
+  let count = 0
+
+  for (let top = 0; top < rows; top += 1) {
+    const columnSums = Array<number>(columns).fill(0)
+
+    for (let bottom = top; bottom < rows; bottom += 1) {
+      for (let column = 0; column < columns; column += 1) {
+        columnSums[column] += matrix[bottom][column]
+      }
+
+      const prefixCounts = new Map<number, number>([[0, 1]])
+      let prefix = 0
+      for (const value of columnSums) {
+        prefix += value
+        count += prefixCounts.get(prefix - target) ?? 0
+        prefixCounts.set(prefix, (prefixCounts.get(prefix) ?? 0) + 1)
+      }
+    }
+  }
+
+  return count
+}`,
+      },
+      {
+        id: 'number-of-submatrices-that-sum-to-target-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '前缀和哈希的初始值和出现次数都很重要；同一个前缀和出现多次，代表多个不同的起点。',
+        bullets: [
+          '易错点 1：忘记初始化前缀和 0，漏掉从第一列开始的区间。',
+          '易错点 2：只判断哈希表是否存在，不累加前缀和出现次数。',
+          '易错点 3：用滑动窗口处理包含负数的矩阵，无法保证窗口调整方向正确。',
+          '延伸方向：最大子矩阵、二维前缀和、矩阵乘积优化和子数组目标和。',
+        ],
+      },
+    ],
+  },
 ];
