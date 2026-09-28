@@ -106298,4 +106298,79 @@ INNER JOIN (
       },
     ],
   },
+  {
+    id: 'greatest-common-divisor-of-strings',
+    label: '1071. LeetCode 1071. 字符串的最大公因子',
+    difficulty: '简单',
+    description:
+      '给定两个字符串 str1 和 str2，找到一个最长字符串 x，使得 x 可以重复若干次分别拼接得到 str1 和 str2。',
+    outcome:
+      '你能掌握字符串拼接验证与长度最大公约数的结合，理解字符串版本的最大公因子为何必须满足可交换拼接条件。',
+    sections: [
+      {
+        id: 'greatest-common-divisor-of-strings-summary',
+        title: '题目在问什么',
+        summary:
+          '如果两个字符串都由同一个基础字符串重复组成，那么基础字符串的长度一定整除两个字符串长度；同时，str1 + str2 必须等于 str2 + str1。',
+        bullets: [
+          'x 必须是 str1 和 str2 的共同重复模式。',
+          '要求返回最长的 x，不存在时返回空字符串。',
+          '字符串重复次数必须是正整数。',
+          '长度最大公约数只能确定候选长度，还需要验证拼接顺序是否一致。',
+        ],
+      },
+      {
+        id: 'greatest-common-divisor-of-strings-euclidean',
+        title: '把字符串问题还原为最大公约数',
+        summary:
+          '若存在共同基础字符串，那么两个字符串都由同一模式重复产生，因此它们交换顺序拼接后应完全相同。候选答案长度就是两个字符串长度的最大公约数。',
+        bullets: [
+          '先判断 `str1 + str2` 是否等于 `str2 + str1`。',
+          '使用欧几里得算法求两个长度的最大公约数。',
+          '截取 str1 的前 gcd 个字符作为候选基础字符串。',
+          '拼接验证能排除“长度满足整除但模式不同”的情况。',
+        ],
+        callout:
+          '只比较长度是不够的。例如两个字符串长度可能存在公约数，但字符模式并不相同。可交换拼接是判断它们是否来自同一重复模式的关键条件。',
+      },
+      {
+        id: 'greatest-common-divisor-of-strings-solution',
+        title: '标准解法：拼接验证 + 欧几里得算法',
+        summary:
+          '先验证两个字符串是否属于同一重复序列，再截取长度最大公约数对应的前缀。',
+        bullets: [
+          '时间复杂度为 `O(m + n)`，m、n 是两个字符串长度。',
+          '空间复杂度为 `O(m + n)`，用于拼接验证产生的临时字符串。',
+          '欧几里得算法的复杂度低于字符串扫描，不会成为主要瓶颈。',
+          '候选前缀一定来自 str1，不需要额外枚举长度。',
+        ],
+        code: `function gcdOfStrings(str1: string, str2: string): string {
+  if (str1 + str2 !== str2 + str1) return ''
+
+  const gcd = (first: number, second: number): number => {
+    while (second !== 0) {
+      const remainder = first % second
+      first = second
+      second = remainder
+    }
+    return first
+  }
+
+  return str1.slice(0, gcd(str1.length, str2.length))
+}`,
+      },
+      {
+        id: 'greatest-common-divisor-of-strings-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最大公约数解决的是长度选择，不是内容验证；必须先确认两个字符串的重复顺序一致。',
+        bullets: [
+          '易错点 1：只求长度 gcd，不验证字符模式。',
+          '易错点 2：只检查一个字符串能否由候选串组成，遗漏另一个字符串。',
+          '易错点 3：候选长度取最小字符串长度，而不是两个长度的最大公约数。',
+          '延伸方向：字符串周期、最小重复单元、KMP 的周期判断和字符串哈希。',
+        ],
+      },
+    ],
+  },
 ];
