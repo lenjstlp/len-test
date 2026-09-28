@@ -106847,4 +106847,81 @@ WHERE project_averages.average_years = (
       },
     ],
   },
+  {
+    id: 'occurrences-after-bigram',
+    label: '1078. LeetCode 1078. Bigram 分词',
+    difficulty: '简单',
+    description:
+      '给定一段由单词和空格组成的文本，以及 first 和 second 两个单词，返回所有紧跟在连续 bigram “first second”之后的单词。',
+    outcome:
+      '你能掌握固定窗口的文本扫描，理解如何在不修改原文的情况下识别连续三词模式并收集第三个词。',
+    sections: [
+      {
+        id: 'occurrences-after-bigram-summary',
+        title: '题目在问什么',
+        summary:
+          '把文本按单词拆开，寻找连续出现的 first、second；每当它们位于相邻位置，就把紧随其后的第三个单词加入结果。',
+        bullets: [
+          'first 和 second 必须连续出现，中间不能夹其他单词。',
+          '匹配到末尾的两个单词时，没有第三个单词可返回。',
+          '同一个 bigram 可以出现多次，每次后面的单词都要收集。',
+          '结果顺序与它们在原文中出现的顺序一致。',
+        ],
+      },
+      {
+        id: 'occurrences-after-bigram-window',
+        title: '用长度为三的窗口扫描文本',
+        summary:
+          '将相邻三个词看作一个窗口，窗口左侧两个词分别与 first 和 second 比较；匹配时记录窗口第三个词，然后窗口向右滑动一格。',
+        bullets: [
+          '只需要扫描到 `words.length - 3`，确保窗口中存在第三个词。',
+          '使用下标访问三个相邻单词，避免复杂的正则回溯。',
+          '不提前删除重复结果，因为每次出现都代表一个独立答案。',
+          '文本拆分后保持原有词序，结果自然按出现顺序排列。',
+        ],
+        callout:
+          '这道题本质是固定窗口模式匹配：窗口大小固定为 3，前两个位置是条件，第三个位置是输出。',
+      },
+      {
+        id: 'occurrences-after-bigram-solution',
+        title: '标准解法：分词 + 三词窗口',
+        summary:
+          '按空白拆分文本后遍历所有长度为三的连续窗口，匹配前两个单词时收集第三个单词。',
+        bullets: [
+          '时间复杂度为 `O(n)`，n 是文本中的单词数量。',
+          '空间复杂度为 `O(n)`，用于保存分词结果和答案。',
+          '只在第三个单词存在时比较窗口，避免数组越界。',
+          '使用 `\\s+` 拆分连续空白，可以让示例实现更稳健。',
+        ],
+        code: `function findOcurrences(
+  text: string,
+  first: string,
+  second: string,
+): string[] {
+  const words = text.trim().length === 0 ? [] : text.trim().split(/\\s+/)
+  const result: string[] = []
+
+  for (let index = 0; index + 2 < words.length; index += 1) {
+    if (words[index] === first && words[index + 1] === second) {
+      result.push(words[index + 2])
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'occurrences-after-bigram-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '匹配单位是连续的两个词，输出的是它们之后的第三个词；边界和重复出现是最常见的错误来源。',
+        bullets: [
+          '易错点 1：只匹配 first，忽略 second 必须紧随其后。',
+          '易错点 2：遍历到倒数第二个词时仍访问第三个下标。',
+          '易错点 3：使用集合去重，错误丢失同一结果的多次出现。',
+          '延伸方向：n-gram 统计、文本索引、流式窗口和语言模型上下文匹配。',
+        ],
+      },
+    ],
+  },
 ];
