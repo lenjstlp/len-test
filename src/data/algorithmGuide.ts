@@ -107408,4 +107408,74 @@ AND NOT EXISTS (
       },
     ],
   },
+  {
+    id: 'sum-of-digits-in-the-minimum-number',
+    label: '1085. LeetCode 1085. 最小元素各数位之和',
+    difficulty: '简单',
+    description:
+      '给定一个整数数组，找到其中的最小值，并返回该最小值十进制表示中所有数字的和。',
+    outcome:
+      '你能掌握先求数组极值再做数位处理的两阶段思路，理解字符串遍历和算术取模两种数位求和方式。',
+    sections: [
+      {
+        id: 'sum-of-digits-in-the-minimum-number-summary',
+        title: '题目在问什么',
+        summary:
+          '先从数组中找出最小整数，再把这个整数的每一位数字相加。题目要求的是最小元素的数位和，而不是所有元素数位和的最小值。',
+        bullets: [
+          '最小值比较发生在原始整数层面。',
+          '找到最小元素后才开始拆分数字。',
+          '每个十进制数字只贡献一次。',
+          '数组非空时一定存在可处理的最小值。',
+        ],
+      },
+      {
+        id: 'sum-of-digits-in-the-minimum-number-digit-sum',
+        title: '先找最小值，再计算数位和',
+        summary:
+          '使用 Math.min 找出最小元素，然后将其转换为字符串，遍历字符并累加数字值。字符串方法直观且不需要额外处理位数。',
+        bullets: [
+          'Math.min(...nums) 适合题目规模较小的数组。',
+          '字符转数字可以使用 Number(char)。',
+          '如果改用算术法，需要反复取 `% 10` 和整除 10。',
+          '先求最小值再求数位和，避免把两个概念混为一谈。',
+        ],
+        callout:
+          '“最小数字的数位和”与“数位和最小的数字”不是同一个问题。应先完成数值比较，再对唯一选中的最小值做数位处理。',
+      },
+      {
+        id: 'sum-of-digits-in-the-minimum-number-solution',
+        title: '标准解法：最小值 + 字符串数位遍历',
+        summary: '扫描得到最小值，将其转为十进制字符串并累加各字符对应的数字。',
+        bullets: [
+          '时间复杂度为 `O(n + d)`，n 是数组长度，d 是最小值的十进制位数。',
+          '空间复杂度为 `O(d)`，用于字符串表示。',
+          '使用 `reduce` 可以简洁表达数位求和，但显式循环更便于初学者理解。',
+          '如果题目扩展到负数，应先取绝对值或按题目定义处理符号。',
+        ],
+        code: `function sumOfDigits(nums: number[]): number {
+  const minimum = Math.min(...nums)
+  let sum = 0
+
+  for (const digit of String(minimum)) {
+    sum += Number(digit)
+  }
+
+  return sum
+}`,
+      },
+      {
+        id: 'sum-of-digits-in-the-minimum-number-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '排序后取第一个元素也能完成任务，但会引入不必要的排序成本；核心是一次扫描得到最小值。',
+        bullets: [
+          '易错点 1：计算每个元素的数位和后取最小，改变了题意。',
+          '易错点 2：为了找最小值先完整排序，增加不必要的 `O(n log n)` 成本。',
+          '易错点 3：算术拆位时忘记处理数字为 0 的情况。',
+          '延伸方向：数字特征提取、流式最小值、数位 DP 和大整数数位处理。',
+        ],
+      },
+    ],
+  },
 ];
