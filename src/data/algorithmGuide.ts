@@ -106924,4 +106924,84 @@ WHERE project_averages.average_years = (
       },
     ],
   },
+  {
+    id: 'letter-tile-possibilities',
+    label: '1079. LeetCode 1079. 活字印刷',
+    difficulty: '中等',
+    description:
+      '给定一组带有字母的瓷砖，统计可以拼出的非空不同字符串数量；每块瓷砖最多使用一次。',
+    outcome:
+      '你能掌握重复字符排列的回溯计数，理解用字符频次避免重复分支，而不是先生成大量重复排列再去重。',
+    sections: [
+      {
+        id: 'letter-tile-possibilities-summary',
+        title: '题目在问什么',
+        summary:
+          '每次可以选择一块尚未使用的瓷砖追加到当前字符串中，只要当前字符串非空就构成一种结果。相同字母来自不同瓷砖时，最终字符串仍只算一次。',
+        bullets: [
+          '字符串长度可以小于瓷砖总数，不要求使用全部字符。',
+          '结果按字符串内容去重，而不是按瓷砖使用路径计数。',
+          '相同字符应该被视为同一种选择，避免重复递归。',
+          '每个有效的非空前缀都贡献一种可拼字符串。',
+        ],
+      },
+      {
+        id: 'letter-tile-possibilities-backtracking',
+        title: '用字符频次压缩重复选择',
+        summary:
+          '统计每个字母还剩多少块。每次选择一个剩余数量大于 0 的字母，先将它消耗一块并把当前结果计数加一，再递归继续扩展。',
+        bullets: [
+          '递归层次代表当前字符串长度，而不是固定排列位置。',
+          '选择某个字符后立即计数，因为当前前缀本身就是一种非空结果。',
+          '回溯时恢复该字符的频次，保证其他分支不受影响。',
+          '相同字符共享同一个频次分支，自然消除重复排列。',
+        ],
+        callout:
+          '不要用 Set 收集所有排列作为主要方案。频次回溯直接在搜索过程中去重，状态更小、意图更清晰，也避免保存大量中间字符串。',
+      },
+      {
+        id: 'letter-tile-possibilities-solution',
+        title: '标准解法：频次数组 + 回溯计数',
+        summary:
+          '对 26 个英文字母维护剩余数量，遍历每一种可用字符，统计当前分支及其所有延伸结果。',
+        bullets: [
+          '时间复杂度上界为 `O(n!)`，n 是瓷砖数量，实际会因重复字符显著减少。',
+          '空间复杂度为 `O(n + 26)`，分别用于递归深度和频次数组。',
+          '每次递归选择一个字符后都需要恢复频次。',
+          '不需要显式保存当前字符串，因为只要求数量。',
+        ],
+        code: `function numTilePossibilities(tiles: string): number {
+  const counts = Array<number>(26).fill(0)
+  for (const char of tiles) {
+    counts[char.charCodeAt(0) - 65] += 1
+  }
+
+  const search = (): number => {
+    let total = 0
+    for (let index = 0; index < counts.length; index += 1) {
+      if (counts[index] === 0) continue
+      counts[index] -= 1
+      total += 1 + search()
+      counts[index] += 1
+    }
+    return total
+  }
+
+  return search()
+}`,
+      },
+      {
+        id: 'letter-tile-possibilities-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '计数对象是所有非空前缀，且重复字母不能产生重复分支；结束递归时不应额外把空字符串计入答案。',
+        bullets: [
+          '易错点 1：把空字符串也计入结果。',
+          '易错点 2：按每一块瓷砖分别递归，导致相同字母产生重复结果。',
+          '易错点 3：递归返回后忘记恢复字符频次。',
+          '延伸方向：排列组合去重、子集计数、字典序生成和状态压缩搜索。',
+        ],
+      },
+    ],
+  },
 ];
