@@ -107478,4 +107478,83 @@ AND NOT EXISTS (
       },
     ],
   },
+  {
+    id: 'high-five',
+    label: '1086. LeetCode 1086. 前五科的均分',
+    difficulty: '简单',
+    description:
+      '给定学生编号和考试分数，计算每位学生最高的五次成绩平均值，平均值向下取整，并按 student_id 升序返回。',
+    outcome:
+      '你能掌握按键聚合、Top K 选择和结果排序，理解先分组保留高分再进行整数平均的处理顺序。',
+    sections: [
+      {
+        id: 'high-five-summary',
+        title: '题目在问什么',
+        summary:
+          '每条记录表示一名学生的一次考试成绩。需要按学生分组，选出每位学生最高的五个分数，求平均值并向下取整。',
+        bullets: [
+          '同一学生可能有超过五次考试。',
+          '只有最高五次成绩参与平均，不是取最早或任意五次。',
+          '平均值向下取整，可以使用 Math.floor。',
+          '结果需要按照学生编号升序排列。',
+        ],
+      },
+      {
+        id: 'high-five-top-k',
+        title: '分组后保留每组 Top 5',
+        summary:
+          '先把分数按 student_id 收集起来，再对每位学生的分数降序排序并截取前五项。也可以用固定大小的小顶堆在线维护 Top 5。',
+        bullets: [
+          '分组键是 student_id，不能把不同学生的分数混合。',
+          '降序排序后前五个就是最高五次成绩。',
+          '题目保证每位学生至少有五条成绩记录。',
+          '平均值计算应在截取 Top 5 之后进行。',
+        ],
+        callout:
+          'Top K 问题的关键是先明确每组的 K，再做聚合。若先对全部成绩求平均再截取，结果会把低分错误纳入平均值。',
+      },
+      {
+        id: 'high-five-solution',
+        title: '标准解法：Map 分组 + 排序取前五',
+        summary:
+          '使用 Map 按学生编号收集成绩，遍历学生编号排序后计算每组最高五分的向下平均值。',
+        bullets: [
+          '时间复杂度为 `O(n log n)`，主要来自每个学生分组内的排序。',
+          '空间复杂度为 `O(n)`，用于保存分组成绩和答案。',
+          '使用 `slice(0, 5)` 明确只保留前五个分数。',
+          '排序学生编号时使用数值比较器，避免字符串字典序问题。',
+        ],
+        code: `function highFive(items: number[][]): number[][] {
+  const scores = new Map<number, number[]>()
+  for (const [studentId, score] of items) {
+    const studentScores = scores.get(studentId) ?? []
+    studentScores.push(score)
+    scores.set(studentId, studentScores)
+  }
+
+  return [...scores.keys()]
+    .sort((first, second) => first - second)
+    .map((studentId) => {
+      const topFive = (scores.get(studentId) as number[])
+        .sort((first, second) => second - first)
+        .slice(0, 5)
+      const total = topFive.reduce((sum, score) => sum + score, 0)
+      return [studentId, Math.floor(total / 5)]
+    })
+}`,
+      },
+      {
+        id: 'high-five-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '题目要求的是每个学生的最高五次成绩平均值，学生排序和平均舍入也属于结果正确性的一部分。',
+        bullets: [
+          '易错点 1：对所有成绩求平均，忘记先截取最高五次。',
+          '易错点 2：按字符串排序学生编号，导致 10 排在 2 前面。',
+          '易错点 3：使用四舍五入而不是题目要求的向下取整。',
+          '延伸方向：固定大小堆、分组 Top K、流式成绩统计和窗口排名。',
+        ],
+      },
+    ],
+  },
 ];
