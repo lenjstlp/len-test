@@ -107330,4 +107330,82 @@ HAVING SUM(
       },
     ],
   },
+  {
+    id: 'sales-analysis-iii',
+    label: '1084. LeetCode 1084. 销售分析 III',
+    difficulty: '简单',
+    description:
+      '给定产品表 Product 和销售表 Sales，找出只在 2019 年 3 月 16 日至 2019 年 3 月 22 日期间销售过、且没有在该区间外销售过的产品。',
+    outcome:
+      '你能掌握“区间内至少存在且区间外不存在”的 SQL 集合过滤，理解日期边界和双重存在性条件。',
+    sections: [
+      {
+        id: 'sales-analysis-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '产品必须有销售记录，并且所有销售记录的日期都位于闭区间 [2019-03-16, 2019-03-22] 内。只在区间内卖过的产品符合条件，区间外有任何销售记录都要排除。',
+        bullets: [
+          '日期区间包含起始日和结束日。',
+          '“只在区间内销售”不等于“在区间内曾经销售过”。',
+          '没有销售记录的产品不能返回。',
+          '产品名称来自 Product 表，销售日期来自 Sales 表。',
+        ],
+      },
+      {
+        id: 'sales-analysis-iii-date-filter',
+        title: '用 EXISTS 和 NOT EXISTS 表达区间约束',
+        summary:
+          '对每个产品同时检查：至少存在一条区间内销售记录，并且不存在任何区间外销售记录。这样可以完整表达“只在区间内销售”。',
+        bullets: [
+          'EXISTS 保证产品不是从未销售。',
+          'NOT EXISTS 排除日期早于起始日或晚于结束日的记录。',
+          '使用 `>=` 和 `<=` 明确包含两个边界日期。',
+          '无需 GROUP BY，主表 Product 每个产品只输出一行。',
+        ],
+        callout:
+          '只使用 WHERE sale_date BETWEEN ... 会把区间外记录过滤掉，却无法知道它们是否存在。要判断“全部记录都满足条件”，必须补充 NOT EXISTS 反向检查。',
+      },
+      {
+        id: 'sales-analysis-iii-solution',
+        title: '标准解法：区间内存在 + 区间外不存在',
+        summary:
+          '连接产品编号后，先确认区间内有销售，再排除区间外的销售记录，返回产品编号和名称。',
+        bullets: [
+          '时间复杂度取决于 product_id、sale_date 索引和半连接执行计划。',
+          '空间复杂度取决于数据库执行计划和临时结果。',
+          '日期条件用闭区间表达，避免漏掉 16 日或 22 日的记录。',
+          'EXISTS 与 NOT EXISTS 都按当前产品 product_id 关联。',
+        ],
+        code: `SELECT product.product_id, product.product_name
+FROM Product AS product
+WHERE EXISTS (
+  SELECT 1
+  FROM Sales AS sales
+  WHERE sales.product_id = product.product_id
+    AND sales.sale_date BETWEEN '2019-03-16' AND '2019-03-22'
+)
+AND NOT EXISTS (
+  SELECT 1
+  FROM Sales AS sales
+  WHERE sales.product_id = product.product_id
+    AND (
+      sales.sale_date < '2019-03-16'
+      OR sales.sale_date > '2019-03-22'
+    )
+);`,
+      },
+      {
+        id: 'sales-analysis-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '日期题最容易错在边界和“存在”与“全部满足”的区别，先明确集合条件再写过滤逻辑。',
+        bullets: [
+          '易错点 1：只用 BETWEEN，忽略区间外销售记录仍然存在。',
+          '易错点 2：使用大于起始日或小于结束日，误排除边界日期。',
+          '易错点 3：没有 EXISTS 条件，把从未销售的产品也纳入结果。',
+          '延伸方向：时间区间覆盖、全称量词 SQL 化、反连接和日期索引设计。',
+        ],
+      },
+    ],
+  },
 ];
