@@ -107099,4 +107099,91 @@ function sufficientSubset(
       },
     ],
   },
+  {
+    id: 'smallest-subsequence-of-distinct-characters',
+    label: '1081. LeetCode 1081. 不同字符的最小子序列',
+    difficulty: '中等',
+    description:
+      '给定一个字符串，删除部分字符后得到一个包含原字符串所有不同字符且每个字符只出现一次的最小字典序子序列。',
+    outcome:
+      '你能掌握单调栈构造字典序最小结果，理解何时可以弹出栈顶字符以及如何保证被弹出的字符后面仍会出现。',
+    sections: [
+      {
+        id: 'smallest-subsequence-of-distinct-characters-summary',
+        title: '题目在问什么',
+        summary:
+          '结果必须包含原字符串中的每一种字符且不重复，同时保持字符的相对顺序，并在所有合法子序列中选择字典序最小的一种。',
+        bullets: [
+          '结果是子序列，可以删除字符但不能改变剩余字符顺序。',
+          '每个不同字符恰好出现一次。',
+          '字典序优先级高于结果长度，但长度已由“包含所有不同字符”确定。',
+          '构造时需要知道每个字符最后一次出现的位置。',
+        ],
+      },
+      {
+        id: 'smallest-subsequence-of-distinct-characters-monotonic-stack',
+        title: '单调栈维护字典序最小前缀',
+        summary:
+          '从左到右扫描字符。若当前字符比栈顶小，且栈顶字符后面还会出现，就可以弹出栈顶，为更小字符让出更优位置；已入栈字符不再重复加入。',
+        bullets: [
+          'last[c] 记录字符 c 在字符串中的最后位置。',
+          'seen 集合保证每个字符只进入结果一次。',
+          '只有当栈顶字符还会在后面出现时，才能安全弹出。',
+          '弹出后再把当前字符压栈，最终栈内容就是答案。',
+        ],
+        callout:
+          '“更小就弹出”必须附带“后面还能补回来”的条件。若栈顶字符已经是最后一次出现，弹出后就无法满足包含所有不同字符的要求。',
+      },
+      {
+        id: 'smallest-subsequence-of-distinct-characters-solution',
+        title: '标准解法：最后出现位置 + 单调栈',
+        summary:
+          '记录每个字符的最后下标，扫描时使用栈维护结果；遇到更小且可补回的栈顶字符就持续弹出。',
+        bullets: [
+          '时间复杂度为 `O(n)`，每个字符最多入栈和出栈一次。',
+          '空间复杂度为 `O(k)`，k 是不同字符数量。',
+          '重复字符已在结果中时直接跳过，但仍应保留后续扫描。',
+          '弹出条件必须同时满足栈顶大于当前字符且栈顶后面仍会出现。',
+        ],
+        code: `function smallestSubsequence(s: string): string {
+  const last = new Map<string, number>()
+  for (let index = 0; index < s.length; index += 1) {
+    last.set(s[index], index)
+  }
+
+  const stack: string[] = []
+  const seen = new Set<string>()
+  for (let index = 0; index < s.length; index += 1) {
+    const char = s[index]
+    if (seen.has(char)) continue
+
+    while (
+      stack.length > 0 &&
+      stack[stack.length - 1] > char &&
+      (last.get(stack[stack.length - 1]) as number) > index
+    ) {
+      seen.delete(stack.pop() as string)
+    }
+
+    stack.push(char)
+    seen.add(char)
+  }
+
+  return stack.join('')
+}`,
+      },
+      {
+        id: 'smallest-subsequence-of-distinct-characters-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '字典序优化和字符完整性必须同时满足；只按字符大小排序会破坏原字符串的相对顺序。',
+        bullets: [
+          '易错点 1：弹出栈顶后忘记从 seen 中移除，导致字符无法重新入栈。',
+          '易错点 2：不检查最后出现位置，删除后无法补回某个字符。',
+          '易错点 3：把问题当作排序，忽略子序列的相对顺序约束。',
+          '延伸方向：去重字典序子序列、最小表示、单调栈和贪心正确性证明。',
+        ],
+      },
+    ],
+  },
 ];
