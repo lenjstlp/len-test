@@ -107004,4 +107004,99 @@ WHERE project_averages.average_years = (
       },
     ],
   },
+  {
+    id: 'insufficient-nodes-in-root-to-leaf-paths',
+    label: '1080. LeetCode 1080. 根到叶路径上的不足节点',
+    difficulty: '中等',
+    description:
+      '给定一棵二叉树和 limit，删除所有不存在从根到叶路径且路径节点值总和至少为 limit 的节点，返回修剪后的树。',
+    outcome:
+      '你能掌握后序遍历中的树剪枝，理解节点是否保留取决于子树中是否存在满足阈值的根到叶路径。',
+    sections: [
+      {
+        id: 'insufficient-nodes-in-root-to-leaf-paths-summary',
+        title: '题目在问什么',
+        summary:
+          '一条路径必须从根开始并在叶节点结束。若某个节点连接的所有根到叶路径总和都小于 limit，那么该节点及其整棵子树都应被删除。',
+        bullets: [
+          '路径总和包含路径上的每个节点值。',
+          '判断一个节点时，需要知道它向下能达到的最佳根到叶路径和。',
+          '叶节点没有子节点，直接比较当前累计路径和。',
+          '删除子节点后，如果当前节点变成叶节点，还必须重新判断它是否满足阈值。',
+        ],
+      },
+      {
+        id: 'insufficient-nodes-in-root-to-leaf-paths-postorder',
+        title: '后序剪枝保证判断完整',
+        summary:
+          '先递归修剪左右子树，再根据当前节点到根的累计和判断它是否还有可行路径。后序顺序确保子节点已经完成保留或删除。',
+        bullets: [
+          '递归参数 carry 表示从根到当前节点的路径和。',
+          '叶节点返回当前路径和是否达到 limit。',
+          '非叶节点只要左、右任一子树存在有效路径，就保留当前节点。',
+          '无效子树返回 null，父节点据此断开对应 child 指针。',
+        ],
+        callout:
+          '剪枝条件是“是否存在一条有效路径”，不是左右子树路径和的简单相加。树节点保留属于存在性判断，任一有效分支即可保留。',
+      },
+      {
+        id: 'insufficient-nodes-in-root-to-leaf-paths-solution',
+        title: '标准解法：后序 DFS + 空节点剪枝',
+        summary:
+          '递归修剪左右子树，叶节点直接判断路径和；非叶节点在两个子树都无有效路径时删除。',
+        bullets: [
+          '时间复杂度为 `O(n)`，每个节点最多访问一次。',
+          '空间复杂度为 `O(h)`，h 是树高，用于递归栈。',
+          '使用 `null` 表示当前节点子树不存在有效根到叶路径。',
+          '必须在修剪子树后再判断父节点，避免保留已经失去有效叶子的节点。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(
+    val = 0,
+    left: TreeNode | null = null,
+    right: TreeNode | null = null,
+  ) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function sufficientSubset(
+  root: TreeNode | null,
+  limit: number,
+): TreeNode | null {
+  const prune = (node: TreeNode, pathSum: number): TreeNode | null => {
+    const currentSum = pathSum + node.val
+    if (!node.left && !node.right) {
+      return currentSum >= limit ? node : null
+    }
+
+    if (node.left) node.left = prune(node.left, currentSum)
+    if (node.right) node.right = prune(node.right, currentSum)
+
+    return node.left || node.right ? node : null
+  }
+
+  return root ? prune(root, 0) : null
+}`,
+      },
+      {
+        id: 'insufficient-nodes-in-root-to-leaf-paths-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '只看当前节点值或只在第一次遍历时判断都不够，父节点的保留状态依赖修剪后的子树是否仍有有效叶子。',
+        bullets: [
+          '易错点 1：把路径条件误写成节点值大于 limit。',
+          '易错点 2：只判断原始叶节点，忽略子树删除后父节点可能成为新叶节点。',
+          '易错点 3：左右子树都无效时仍保留当前节点。',
+          '延伸方向：树形 DP、路径约束剪枝、二叉树后序遍历和可行性传播。',
+        ],
+      },
+    ],
+  },
 ];
