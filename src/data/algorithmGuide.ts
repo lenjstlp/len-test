@@ -107256,4 +107256,78 @@ WHERE NOT EXISTS (
       },
     ],
   },
+  {
+    id: 'sales-analysis-ii',
+    label: '1083. LeetCode 1083. 销售分析 II',
+    difficulty: '简单',
+    description:
+      '给定销售员、公司和订单表，找出只为名称为 RED 或 YELLOW 的公司下过订单、且没有为其他公司下过订单的销售员。',
+    outcome:
+      '你能掌握按实体聚合并检查集合约束的 SQL 写法，理解“服务过的公司集合必须是指定集合的非空子集”。',
+    sections: [
+      {
+        id: 'sales-analysis-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '销售员必须至少有订单，并且其所有订单对应的公司都属于 RED 或 YELLOW。只服务 RED、只服务 YELLOW、同时服务两者都符合；服务其他公司则排除。',
+        bullets: [
+          '统计粒度是销售员。',
+          '需要区分“订单数量大于 0”和“没有其他公司订单”两个条件。',
+          '同一公司有多条订单时，判断公司集合不应受重复订单影响。',
+          '销售员没有订单时不能被当作满足“没有其他公司”。',
+        ],
+      },
+      {
+        id: 'sales-analysis-ii-set-constraint',
+        title: '用条件聚合检查公司集合',
+        summary:
+          '连接订单与公司后按销售员分组，要求分组内至少有一条记录，并且不满足 RED/YELLOW 的记录数为 0。',
+        bullets: [
+          'COUNT(*) > 0 确保销售员确实服务过公司。',
+          '条件聚合统计非目标公司的订单数量。',
+          '目标公司判断使用 `company.name NOT IN (...)`。',
+          '按销售员分组后输出姓名，避免按订单明细重复返回。',
+        ],
+        callout:
+          '“没有其他公司”不能只筛掉其他公司行，因为那会把同一个销售员的非目标订单隐藏掉。应先完整分组，再检查非目标记录数是否为 0。',
+      },
+      {
+        id: 'sales-analysis-ii-solution',
+        title: '标准解法：分组 + 条件聚合',
+        summary:
+          '连接有效订单，按销售员聚合，并保留存在订单且非 RED/YELLOW 订单数为 0 的销售员。',
+        bullets: [
+          '时间复杂度由连接和分组执行计划决定，通常为 `O(n)` 到 `O(n log n)`。',
+          '空间复杂度取决于销售员分组数量。',
+          '条件聚合比先 WHERE 过滤再分组更能保留“不能存在其他公司”的判断信息。',
+          '若表结构允许订单重复，使用 COUNT(DISTINCT company.com_id) 也可以表达公司集合。',
+        ],
+        code: `SELECT salesperson.name
+FROM SalesPerson AS salesperson
+INNER JOIN Orders AS orders
+  ON orders.sales_id = salesperson.sales_id
+INNER JOIN Company AS company
+  ON company.com_id = orders.com_id
+GROUP BY salesperson.sales_id, salesperson.name
+HAVING SUM(
+  CASE
+    WHEN company.name NOT IN ('RED', 'YELLOW') THEN 1
+    ELSE 0
+  END
+) = 0;`,
+      },
+      {
+        id: 'sales-analysis-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '先用 WHERE 只保留 RED/YELLOW 会掩盖销售员是否还服务过其他公司，必须让所有订单参与分组判断。',
+        bullets: [
+          '易错点 1：WHERE company.name IN (...) 后直接返回，导致服务过其他公司的销售员也被误保留。',
+          '易错点 2：使用 LEFT JOIN 且没有订单数量条件，把无订单销售员当成满足条件。',
+          '易错点 3：只按姓名分组，忽略不同销售员可能重名。',
+          '延伸方向：集合包含判断、条件聚合、关系除法和权限范围校验。',
+        ],
+      },
+    ],
+  },
 ];
