@@ -107186,4 +107186,74 @@ function sufficientSubset(
       },
     ],
   },
+  {
+    id: 'sales-analysis-i',
+    label: '1082. LeetCode 1082. 销售分析 I',
+    difficulty: '简单',
+    description:
+      '给定销售员表 SalesPerson、公司表 Company 和订单表 Orders，找出没有为名为 RED 的公司下过订单的销售员。',
+    outcome:
+      '你能掌握 SQL 的反连接思想，理解如何使用 NOT EXISTS 排除存在目标公司订单的销售员。',
+    sections: [
+      {
+        id: 'sales-analysis-i-summary',
+        title: '题目在问什么',
+        summary:
+          '需要返回所有销售员中，从未与 RED 公司订单产生关联的人。销售员可能有其他公司的订单，也可能完全没有订单，这两类都应保留。',
+        bullets: [
+          'SalesPerson.sales_id 与 Orders.sales_id 关联销售员。',
+          'Orders.com_id 与 Company.com_id 关联公司。',
+          '目标是排除至少存在一条 RED 订单的销售员。',
+          '没有任何订单的销售员不能被错误过滤掉。',
+        ],
+      },
+      {
+        id: 'sales-analysis-i-anti-join',
+        title: '用 NOT EXISTS 表达反连接',
+        summary:
+          '以 SalesPerson 为主表，对每位销售员检查是否存在一条连接到 RED 公司的订单；不存在时才返回该销售员。',
+        bullets: [
+          '外层查询保证每个销售员都有机会被判断。',
+          '子查询按 sales_id 关联当前销售员，再连接 Company 筛选名称 RED。',
+          'NOT EXISTS 对没有订单的销售员返回真，符合题意。',
+          '不需要 GROUP BY 或 DISTINCT，因为主表每位销售员只输出一行。',
+        ],
+        callout:
+          '使用 LEFT JOIN 后再判断 NULL 也能实现反连接，但 NOT EXISTS 更直接表达“不存在目标关联记录”，且不受订单重复行影响。',
+      },
+      {
+        id: 'sales-analysis-i-solution',
+        title: '标准解法：NOT EXISTS 过滤目标公司订单',
+        summary: '遍历销售员，排除存在 RED 公司订单的记录，返回销售员姓名。',
+        bullets: [
+          '时间复杂度取决于数据库连接和索引执行计划，通常可利用 sales_id、com_id 索引。',
+          '空间复杂度取决于子查询执行策略。',
+          '不存在条件应关联当前销售员，避免把一个人的订单误用于所有销售员。',
+          '公司名称过滤放在关联子查询中，语义清晰。',
+        ],
+        code: `SELECT salesperson.name
+FROM SalesPerson AS salesperson
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM Orders AS orders
+  INNER JOIN Company AS company
+    ON orders.com_id = company.com_id
+  WHERE orders.sales_id = salesperson.sales_id
+    AND company.name = 'RED'
+);`,
+      },
+      {
+        id: 'sales-analysis-i-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '反连接要保留没有订单的主表记录，直接使用 INNER JOIN 再筛选名称会把这类销售员提前丢掉。',
+        bullets: [
+          '易错点 1：用 INNER JOIN 后只保留有订单的销售员，漏掉无订单人员。',
+          '易错点 2：只判断销售员是否有订单，没有继续关联公司名称。',
+          '易错点 3：子查询没有按当前 sales_id 关联，导致全局存在 RED 订单时全部被排除。',
+          '延伸方向：反连接、集合差、NOT IN 的 NULL 陷阱和权限排除查询。',
+        ],
+      },
+    ],
+  },
 ];
