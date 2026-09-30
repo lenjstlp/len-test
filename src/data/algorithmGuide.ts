@@ -107642,4 +107642,113 @@ AND NOT EXISTS (
       },
     ],
   },
+  {
+    id: 'confusing-number-ii',
+    label: '1088. LeetCode 1088. 易混淆数字 II',
+    difficulty: '困难',
+    description:
+      '给定一个整数 n，统计 1 到 n 中旋转 180 度后得到一个不同数字的数字。数字只能使用 0、1、6、8、9，旋转后仍必须是合法数字。',
+    outcome:
+      '你能掌握受限数字枚举、回溯生成和数字旋转映射，理解为什么旋转时既要替换每一位，又要反转数字的整体顺序。',
+    sections: [
+      {
+        id: 'confusing-number-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '从 1 到 n 中找出所有只由 0、1、6、8、9 组成的数字，将它们旋转 180 度后，如果结果与原数字不同，就计入答案。最高位不能是 0。',
+        bullets: [
+          '可用数字只有 0、1、6、8、9，其他数字旋转后没有合法含义。',
+          '旋转映射为 0 -> 0、1 -> 1、6 -> 9、8 -> 8、9 -> 6。',
+          '旋转 180 度不仅要替换数字，还要把数字顺序反过来。',
+          '例如 16 旋转后是 91，88 旋转后仍是 88，因此 88 不计入。',
+        ],
+      },
+      {
+        id: 'confusing-number-ii-enumeration',
+        title: '只生成合法候选数字',
+        summary:
+          '使用 DFS 从高位到低位拼接数字，每一层从 0、1、6、8、9 中选择一个字符。这样不会生成包含非法数字的候选值，也不需要从 1 遍历到 n 再逐个判断。',
+        bullets: [
+          '第一位跳过 0，避免生成前导零。',
+          '当前数值超过 n 时立即剪枝，后续继续添加数字只会更大。',
+          '每次形成一个非空数字后，都可以判断它是否为易混淆数字。',
+          '候选数量由位数和允许数字种类决定，适合 n 较大但位数有限的场景。',
+        ],
+        callout:
+          '“能旋转”与“旋转后不同”是两个条件。只使用 0、1、8 的数字可能完全不变，例如 1、8、11、88，必须排除这些数字。',
+      },
+      {
+        id: 'confusing-number-ii-rotation',
+        title: '旋转时替换并反转顺序',
+        summary:
+          '将当前数字保留为字符串，先 reverse，再按映射表替换每一位。字符串方式能直接表达 180 度旋转规则，也能正确处理旋转结果开头出现 0 的情况。',
+        bullets: [
+          '单个数字 6 旋转为 9，单个数字 9 旋转为 6。',
+          '多位数字必须反转后再映射，例如 69 旋转为 87。',
+          '10 旋转后得到 01，作为数值看就是 1，但与原数字 10 不同，仍然计数。',
+          '比较时可以比较字符串，因为原数字和旋转结果长度相同，前导 0 也不会影响“不相同”的判断。',
+        ],
+      },
+      {
+        id: 'confusing-number-ii-solution',
+        title: '标准解法：DFS 枚举 + 字符串旋转',
+        summary:
+          'DFS 生成所有不超过 n 的合法数字；对每个候选数字反转并映射，旋转结果不同则累加答案。',
+        bullets: [
+          '设 n 有 d 位，候选数量最多为 `5^d`，每个候选旋转需要 `O(d)`。',
+          '时间复杂度为 `O(5^d * d)`，实际会因为超过 n 的剪枝而更低。',
+          '空间复杂度为 `O(d)`，来自递归深度和当前数字字符串。',
+          '示例 `n = 20` 时，符合条件的数字为 6、9、10、16、18、19，答案为 6。',
+        ],
+        code: `function confusingNumberII(n: number): number {
+  const digits = ['0', '1', '6', '8', '9']
+  const rotation: Record<string, string> = {
+    '0': '0',
+    '1': '1',
+    '6': '9',
+    '8': '8',
+    '9': '6',
+  }
+  let count = 0
+
+  const search = (current: string): void => {
+    if (current.length > 0) {
+      const value = Number(current)
+      if (value > n) return
+
+      const rotated = [...current]
+        .reverse()
+        .map((digit) => rotation[digit])
+        .join('')
+
+      if (rotated !== current) count += 1
+    }
+
+    for (const digit of digits) {
+      if (current.length === 0 && digit === '0') continue
+
+      const next = current + digit
+      if (Number(next) <= n) search(next)
+    }
+  }
+
+  search('')
+  return count
+}`,
+      },
+      {
+        id: 'confusing-number-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这道题的难点不在枚举本身，而在于准确理解旋转规则、处理前导零，并在搜索过程中及时剪枝。',
+        bullets: [
+          '易错点 1：只替换每一位但不反转顺序，把 16 错算成 19 而不是 91。',
+          '易错点 2：允许最高位为 0，生成重复表示或不符合整数表示习惯的候选值。',
+          '易错点 3：把旋转后相同的数字计入，例如 1、8、11、88。',
+          '易错点 4：超过 n 后仍继续递归，造成无意义的候选生成。',
+          '延伸方向：回溯剪枝、数字 DP、状态压缩、可旋转数字计数和大整数字符串比较。',
+        ],
+      },
+    ],
+  },
 ];
