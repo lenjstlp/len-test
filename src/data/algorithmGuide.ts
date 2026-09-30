@@ -107557,4 +107557,89 @@ AND NOT EXISTS (
       },
     ],
   },
+  {
+    id: 'brace-expansion',
+    label: '1087. LeetCode 1087. 花括号展开',
+    difficulty: '中等',
+    description:
+      '给定一个只包含小写字母、花括号和逗号的表达式，将每组花括号中的可选字符展开，返回所有可能的字符串，并按字典序排序。',
+    outcome:
+      '你能掌握递归解析与笛卡尔积生成，理解如何把普通字符和花括号选项统一拼接成所有合法结果。',
+    sections: [
+      {
+        id: 'brace-expansion-summary',
+        title: '题目在问什么',
+        summary:
+          '表达式中的普通小写字母只有一个选择，花括号中的多个小写字母表示可任选其一。需要按照从左到右的顺序组合所有选择，最终返回排序后的字符串数组。',
+        bullets: [
+          '表达式中每个花括号只包含互不重复的小写字母选项。',
+          '花括号外的普通字母必须出现在每个结果的对应位置。',
+          '多个花括号会形成选择的笛卡尔积。',
+          '结果需要按字典序升序排列。',
+        ],
+      },
+      {
+        id: 'brace-expansion-parser',
+        title: '递归解析每个位置的可选字符',
+        summary:
+          '从左到右扫描表达式：遇到普通字符就只有一个选择，遇到花括号就解析逗号分隔的选项；将当前前缀分别追加每个选择，再递归处理后续内容。',
+        bullets: [
+          '递归状态由当前扫描下标和已经构造的前缀组成。',
+          '普通字符直接推进一个位置。',
+          '遇到 `{` 后读取到 `}`，按逗号切分出可选字符。',
+          '到达表达式末尾时，将完整前缀加入结果。',
+        ],
+        callout:
+          '每个位置的选择互不影响，所有结果就是各位置选项集合的笛卡尔积。递归只负责枚举选择，最终统一排序即可保证输出顺序。',
+      },
+      {
+        id: 'brace-expansion-solution',
+        title: '标准解法：递归展开 + 排序',
+        summary:
+          '递归扫描表达式并构造所有字符串，结束后排序返回。由于题目保证选项不重复，不需要额外去重集合。',
+        bullets: [
+          '设结果数量为 R，表达式长度为 n，时间复杂度约为 `O(R * n + R log R)`。',
+          '空间复杂度为 `O(R * n)`，用于保存结果和递归路径。',
+          '解析花括号时下标必须跳过右花括号，避免重复读取选项。',
+          '排序使用字符串默认字典序比较即可。',
+        ],
+        code: `function expandBraceExpression(expression: string): string[] {
+  const result: string[] = []
+
+  const search = (index: number, prefix: string): void => {
+    if (index === expression.length) {
+      result.push(prefix)
+      return
+    }
+
+    if (expression[index] !== '{') {
+      search(index + 1, prefix + expression[index])
+      return
+    }
+
+    const end = expression.indexOf('}', index)
+    const options = expression.slice(index + 1, end).split(',')
+    for (const option of options) {
+      search(end + 1, prefix + option)
+    }
+  }
+
+  search(0, '')
+  return result.sort()
+}`,
+      },
+      {
+        id: 'brace-expansion-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '花括号表示选择而不是连续字符串，解析后必须从右花括号之后继续递归；最终结果排序不能依赖生成顺序。',
+        bullets: [
+          '易错点 1：把花括号内容拼成一个整体，遗漏不同选项产生的分支。',
+          '易错点 2：解析完右花括号后没有跳过它，导致重复处理字符。',
+          '易错点 3：假设递归生成顺序天然有序，没有显式排序结果。',
+          '延伸方向：表达式解析、笛卡尔积、回溯生成器和惰性迭代展开。',
+        ],
+      },
+    ],
+  },
 ];
