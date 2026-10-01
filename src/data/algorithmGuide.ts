@@ -107921,4 +107921,103 @@ AND NOT EXISTS (
       },
     ],
   },
+  {
+    id: 'shortest-path-in-binary-matrix',
+    label: '1091. LeetCode 1091. 二进制矩阵中的最短路径',
+    difficulty: '中等',
+    description:
+      '在只包含 0 和 1 的方阵中，从左上角走到右下角，每次可以向八个相邻方向移动，求经过的最短路径长度。',
+    outcome:
+      '你能掌握网格图上的 BFS、八方向遍历和按层计步，识别“无权图最短路”问题。',
+    sections: [
+      {
+        id: 'shortest-path-in-binary-matrix-summary',
+        title: '题目在问什么',
+        summary:
+          '只能走值为 0 的格子，起点和终点都必须可达。每移动到一个相邻格子，路径长度增加 1；允许水平、垂直和对角线移动。',
+        bullets: [
+          '起点或终点为 1 时直接无路可走。',
+          '每个格子最多有八个邻居。',
+          '同一个格子第一次被 BFS 访问时，得到的就是最短距离。',
+          '可以直接把已访问格子改成 1，省掉 visited 数组。',
+        ],
+      },
+      {
+        id: 'shortest-path-in-binary-matrix-bfs',
+        title: '无权网格最短路使用 BFS',
+        summary:
+          '从起点开始按距离一层层扩展。第一层距离为 1，下一层距离为 2；第一次抵达终点时一定是最短路径。',
+        bullets: [
+          '队列保存待处理的行列坐标。',
+          '每轮记录当前队列长度，就能表示一整层。',
+          '方向数组包含八种行列增量。',
+          '越界、障碍物和已访问格子都跳过。',
+        ],
+        callout:
+          'BFS 的最短性依赖于每条边代价相同。网格中的每一步代价都是 1，所以不需要 Dijkstra；如果不同方向代价不同，算法也需要随之变化。',
+      },
+      {
+        id: 'shortest-path-in-binary-matrix-solution',
+        title: '标准解法：八方向 BFS',
+        summary:
+          '使用队列按层遍历可走格子，并在入队时标记，避免同一格子重复进入队列。',
+        bullets: [
+          '时间复杂度为 `O(n²)`，每个格子最多入队一次。',
+          '空间复杂度为 `O(n²)`，最坏情况下队列占满网格。',
+          '入队时标记比出队时标记更稳妥，可以避免重复入队。',
+          '路径长度从 1 开始，因为起点本身算一个格子。',
+        ],
+        code: `function shortestPathBinaryMatrix(grid: number[][]): number {
+  const size = grid.length
+  if (grid[0][0] === 1 || grid[size - 1][size - 1] === 1) return -1
+
+  const directions = [
+    [-1, -1], [-1, 0], [-1, 1],
+    [0, -1],           [0, 1],
+    [1, -1],  [1, 0],  [1, 1],
+  ]
+  const queue: Array<[number, number]> = [[0, 0]]
+  grid[0][0] = 1
+  let distance = 1
+
+  for (let head = 0; head < queue.length;) {
+    const levelEnd = queue.length
+    distance += 1
+
+    while (head < levelEnd) {
+      const [row, column] = queue[head++]
+      for (const [rowOffset, columnOffset] of directions) {
+        const nextRow = row + rowOffset
+        const nextColumn = column + columnOffset
+        if (
+          nextRow < 0 || nextRow >= size ||
+          nextColumn < 0 || nextColumn >= size ||
+          grid[nextRow][nextColumn] === 1
+        ) continue
+
+        if (nextRow === size - 1 && nextColumn === size - 1) {
+          return distance
+        }
+        grid[nextRow][nextColumn] = 1
+        queue.push([nextRow, nextColumn])
+      }
+    }
+  }
+
+  return size === 1 ? 1 : -1
+}`,
+      },
+      {
+        id: 'shortest-path-in-binary-matrix-mistakes',
+        title: '易错点和延伸方向',
+        summary: '这道题容易因为方向数量、距离初始值和访问标记时机出错。',
+        bullets: [
+          '易错点 1：只遍历上下左右，遗漏四个对角方向。',
+          '易错点 2：把起点距离初始化为 0，导致答案少 1。',
+          '易错点 3：出队时才标记，造成同一格子重复入队。',
+          '延伸方向：迷宫最短路、多源 BFS、0-1 BFS 和路径恢复。',
+        ],
+      },
+    ],
+  },
 ];
