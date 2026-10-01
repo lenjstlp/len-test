@@ -108116,4 +108116,97 @@ AND NOT EXISTS (
       },
     ],
   },
+  {
+    id: 'statistics-from-a-large-sample',
+    label: '1093. LeetCode 1093. 大样本统计',
+    difficulty: '中等',
+    description:
+      '给定一个长度为 256 的计数数组，counts[i] 表示数字 i 出现的次数，返回最小值、最大值、平均值、中位数和众数。',
+    outcome:
+      '你能掌握频率数组上的统计量计算、奇偶中位数定位和加权平均，理解如何避免展开超大样本。',
+    sections: [
+      {
+        id: 'statistics-from-a-large-sample-summary',
+        title: '题目在问什么',
+        summary:
+          '样本的取值范围固定在 0 到 255，但某些值可能出现很多次。需要根据频率统计五个结果：最小值、最大值、平均值、中位数和出现次数最多的值。',
+        bullets: [
+          'counts 的下标就是样本值，数组元素是频率。',
+          '最小值是第一个频率非零的下标。',
+          '最大值是最后一个频率非零的下标。',
+          '众数是频率最大的下标，频率相同时题目保证答案唯一。',
+        ],
+      },
+      {
+        id: 'statistics-from-a-large-sample-position',
+        title: '用累计频率定位中位数',
+        summary:
+          '不需要把所有样本展开成数组，只要累计 counts 就能定位排序后的第 k 个元素。根据样本总数的奇偶性，分别取一个或两个中间位置。',
+        bullets: [
+          '总数为奇数时，中位数是第 `(total + 1) / 2` 个元素。',
+          '总数为偶数时，中位数是第 `total / 2` 和 `total / 2 + 1` 个元素的平均。',
+          '使用 1-based 的排名描述更容易避免下标偏移。',
+          '平均值是 `sum(value * frequency) / total`，不是不同取值的平均。',
+        ],
+        callout:
+          '频率数组已经是压缩后的排序信息：下标天然有序，频率提供重复次数。因此可以用一次扫描完成统计，而不需要复制样本。',
+      },
+      {
+        id: 'statistics-from-a-large-sample-solution',
+        title: '标准解法：频率扫描 + 位置查找',
+        summary:
+          '扫描 0 到 255，累计总数、总和、最小值、最大值和众数；再通过累计频率找到两个中位数位置。',
+        bullets: [
+          '时间复杂度为 `O(256)`，也可以视为 `O(1)` 的固定值域扫描。',
+          '空间复杂度为 `O(1)`，不展开样本。',
+          '平均值使用加权总和计算。',
+          '中位数查找要正确处理某个值覆盖多个排名的情况。',
+        ],
+        code: `function sampleStats(counts: number[]): number[] {
+  let total = 0
+  let sum = 0
+  let minimum = -1
+  let maximum = -1
+  let mode = 0
+
+  for (let value = 0; value < counts.length; value += 1) {
+    const frequency = counts[value]
+    if (frequency === 0) continue
+    if (minimum === -1) minimum = value
+    maximum = value
+    total += frequency
+    sum += value * frequency
+    if (frequency > counts[mode]) mode = value
+  }
+
+  const findKth = (rank: number): number => {
+    let passed = 0
+    for (let value = 0; value < counts.length; value += 1) {
+      passed += counts[value]
+      if (passed >= rank) return value
+    }
+    return 0
+  }
+
+  const median = total % 2 === 1
+    ? findKth((total + 1) / 2)
+    : (findKth(total / 2) + findKth(total / 2 + 1)) / 2
+
+  return [minimum, maximum, sum / total, median, mode]
+}`,
+      },
+      {
+        id: 'statistics-from-a-large-sample-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '统计题的主要风险是把频率当成取值集合，或者在中位数位置上混淆 0-based 与 1-based。',
+        bullets: [
+          '易错点 1：平均值只累加不同取值，没有乘出现次数。',
+          '易错点 2：偶数样本只取一个中间值。',
+          '易错点 3：众数比较频率时没有更新对应的取值下标。',
+          '延伸方向：直方图统计、分位数、流式中位数和计数压缩。',
+        ],
+      },
+    ],
+  },
 ];
