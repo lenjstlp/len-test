@@ -107751,4 +107751,87 @@ AND NOT EXISTS (
       },
     ],
   },
+  {
+    id: 'duplicate-zeros',
+    label: '1089. LeetCode 1089. 复写零',
+    difficulty: '简单',
+    description:
+      '给定一个固定长度数组，将其中的每个 0 复写一次，并删除数组末尾多出的元素，要求原地修改数组。',
+    outcome:
+      '你能掌握原地数组移动、边界截断和“先统计再倒序写入”的技巧，避免从前向后覆盖尚未处理的数据。',
+    sections: [
+      {
+        id: 'duplicate-zeros-summary',
+        title: '题目在问什么',
+        summary:
+          '数组中的 0 要变成两个连续的 0，非零元素保持一个。数组长度固定，超出末尾的内容直接丢弃，而且不能创建另一个等长结果数组。',
+        bullets: [
+          '必须在原数组上完成修改。',
+          '末尾元素复写后如果越界，只保留数组范围内的部分。',
+          '从前向后移动会覆盖还没有读取的数据。',
+          '关键是先判断哪些元素最终能进入数组，再从后向前写入。',
+        ],
+      },
+      {
+        id: 'duplicate-zeros-count',
+        title: '先计算最终长度，再倒序移动',
+        summary:
+          '把每个 0 看作占用两个位置，先统计扩展后的逻辑长度。然后从数组末尾和逻辑末尾同时向前移动，遇到 0 就写两次。',
+        bullets: [
+          '逻辑下标可以暂时超过真实数组下标。',
+          '从后向前写不会破坏尚未读取的前方数据。',
+          '如果逻辑末尾的 0 只能写入一个位置，需要单独处理边界。',
+          '这种“扩展后压回固定容器”的方法也适用于原地删除与复制问题。',
+        ],
+        callout:
+          '原地移动题首先要问“写入方向会不会覆盖未处理数据”。当目标位置不小于源位置时，倒序处理通常是更安全的选择。',
+      },
+      {
+        id: 'duplicate-zeros-solution',
+        title: '标准解法：倒序原地写入',
+        summary:
+          '使用两个指针表示逻辑数组尾部和真实数组尾部，倒序复制元素；遇到 0 时复制两次，但每次写入前都检查边界。',
+        bullets: [
+          '时间复杂度为 `O(n)`，最多扫描和写入数组常数次。',
+          '空间复杂度为 `O(1)`，只使用几个下标变量。',
+          '真实数组末尾是 `length - 1`，逻辑数组末尾可能更大。',
+          '写入第二个 0 后，如果真实指针已经小于 0，就可以结束。',
+        ],
+        code: `function duplicateZeros(arr: number[]): void {
+  let expandedLength = arr.length
+
+  for (const value of arr) {
+    if (value === 0) expandedLength += 1
+  }
+
+  let source = arr.length - 1
+  let target = expandedLength - 1
+
+  while (source >= 0 && target >= 0) {
+    if (target < arr.length) arr[target] = arr[source]
+    target -= 1
+
+    if (arr[source] === 0) {
+      if (target < arr.length) arr[target] = 0
+      target -= 1
+    }
+
+    source -= 1
+  }
+}`,
+      },
+      {
+        id: 'duplicate-zeros-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '复写零的难点是边界，而不是移动本身；尤其要正确处理最后一个 0 恰好只剩一个位置的情况。',
+        bullets: [
+          '易错点 1：从前向后写入，导致后续元素被提前覆盖。',
+          '易错点 2：把逻辑数组长度当成真实数组长度直接访问。',
+          '易错点 3：末尾 0 超出边界时仍然写两次。',
+          '延伸方向：原地压缩、双指针覆盖、固定容量缓冲区和数组搬移。',
+        ],
+      },
+    ],
+  },
 ];
