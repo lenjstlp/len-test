@@ -108495,4 +108495,81 @@ function findInMountainArray(
       },
     ],
   },
+  {
+    id: 'game-play-analysis-v',
+    label: '1097. LeetCode 1097. 游戏玩法分析 V',
+    difficulty: '困难',
+    description:
+      '基于 Activity 表按玩家安装日期分组，统计每天的安装人数和次日留存率，并将留存率四舍五入到两位小数。',
+    outcome:
+      '你能掌握 SQL 首次登录日期计算、cohort 分组、次日行为关联和留存率聚合。',
+    sections: [
+      {
+        id: 'game-play-analysis-v-summary',
+        title: '题目在问什么',
+        summary:
+          'Activity 表记录玩家每天的登录行为。玩家的安装日期是其首次登录日期；对每个安装日期，统计当天安装玩家数，以及这些玩家中第二天再次登录的比例。',
+        bullets: [
+          '同一玩家可能有多条登录记录。',
+          '首次登录日期必须先按 player_id 求最小 event_date。',
+          '次日留存要求玩家在首次登录日期的下一天有登录记录。',
+          '结果按 install_dt 分组，每组都要输出 installs 和 Day1_retention。',
+        ],
+      },
+      {
+        id: 'game-play-analysis-v-model',
+        title: '先构造玩家首日，再连接后续行为',
+        summary:
+          '先为每位玩家求 install_dt，再用 LEFT JOIN 查找恰好在 install_dt 次日登录的记录，最后按 install_dt 分组统计人数和留存比例。',
+        bullets: [
+          'CTE 先把每位玩家压缩为一条安装记录，避免原始 Activity 行重复计入分母。',
+          'LEFT JOIN 保留没有次日登录的玩家，他们仍属于安装人数。',
+          '每位玩家最多贡献一条次日记录，因此留存人数可直接计数。',
+          '分母是该 install_dt 的全部玩家数，不能只用成功留存的人数。',
+        ],
+        callout:
+          '留存分析先固定 cohort，再观察相对安装日期的行为。若将次日条件放在 WHERE 中，LEFT JOIN 会丢掉未留存玩家，分母就会被错误缩小。',
+      },
+      {
+        id: 'game-play-analysis-v-solution',
+        title: '标准解法：CTE + 日期差 + 去重聚合',
+        summary:
+          '先用 CTE 求每位玩家的安装日期，再左连接次日活动，按安装日期输出安装人数和次日留存率。',
+        bullets: [
+          '时间复杂度由 Activity 表扫描和连接成本决定。',
+          '为 player_id、event_date 建索引有助于首日查找和行为连接。',
+          '安装人数来自首日表，不能用有次日行为的玩家数代替。',
+          '留存分子按安装日期统计次日登录玩家，分母是该日期的全部安装玩家。',
+        ],
+        code: `WITH first_login AS (
+  SELECT
+    player_id,
+    MIN(event_date) AS install_dt
+  FROM Activity
+  GROUP BY player_id
+)
+SELECT
+  first.install_dt,
+  COUNT(*) AS installs,
+  ROUND(COUNT(next_day.player_id) * 1.0 / COUNT(*), 2) AS Day1_retention
+FROM first_login AS first
+LEFT JOIN Activity AS next_day
+  ON next_day.player_id = first.player_id
+ AND next_day.event_date = DATE_ADD(first.install_dt, INTERVAL 1 DAY)
+GROUP BY first.install_dt;`,
+      },
+      {
+        id: 'game-play-analysis-v-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '留存 SQL 最容易错在 cohort 分母、安装日期分组和次日关联条件的位置。',
+        bullets: [
+          '易错点 1：只输出一个全局留存率，没有按 install_dt 分组。',
+          '易错点 2：把次日过滤放在 WHERE，导致未留存玩家从分母中消失。',
+          '易错点 3：直接从原始 Activity 统计安装数，同一玩家被重复计算。',
+          '延伸方向：多日留存、漏斗分析、cohort 矩阵和窗口函数。',
+        ],
+      },
+    ],
+  },
 ];
