@@ -108644,4 +108644,81 @@ HAVING COALESCE(SUM(orders.quantity), 0) < 10;`,
       },
     ],
   },
+  {
+    id: 'two-sum-less-than-k',
+    label: '1099. LeetCode 1099. 小于 K 的两数之和',
+    difficulty: '简单',
+    description:
+      '给定一个整数数组和整数 K，找出两个不同元素，使它们的和小于 K 且尽可能大，若不存在则返回 -1。',
+    outcome:
+      '你能掌握排序双指针、接近目标值的贪心移动和不重复使用同一个元素的边界处理。',
+    sections: [
+      {
+        id: 'two-sum-less-than-k-summary',
+        title: '题目在问什么',
+        summary:
+          '从数组中选两个不同下标的元素，要求两数之和严格小于 K，并让这个和尽量大。不存在满足条件的组合时返回 -1。',
+        bullets: [
+          '条件是严格小于 K，不是小于等于 K。',
+          '两个元素必须来自不同下标，即使数值相同也要有两个位置。',
+          '目标是在所有合法和中取最大值。',
+          '排序后可以用左右指针同时控制和的大小。',
+        ],
+      },
+      {
+        id: 'two-sum-less-than-k-two-pointers',
+        title: '排序后用双指针逼近 K',
+        summary:
+          '将数组升序排序，左指针指向最小值，右指针指向最大值。如果当前和小于 K，就记录答案并增大左指针；否则减小右指针。',
+        bullets: [
+          '当前和小于 K 时，右指针固定下的更大左值仍可能合法，所以移动 left。',
+          '当前和大于等于 K 时，增大 left 只会让和更大，应移动 right。',
+          '每次移动都让一个指针向内，保证线性扫描。',
+          '排序不会改变可选择的下标集合，只改变枚举顺序。',
+        ],
+        callout:
+          '双指针的关键不是“看到小于 K 就随便移动”，而是证明当前和不合法时哪一侧不可能产生更优解，从而安全排除一批组合。',
+      },
+      {
+        id: 'two-sum-less-than-k-solution',
+        title: '标准解法：排序 + 双指针',
+        summary: '排序数组后从两端向中间扫描，维护目前最大的合法两数之和。',
+        bullets: [
+          '时间复杂度为 `O(n log n)`，主要来自排序。',
+          '空间复杂度为 `O(1)`，若排序原地完成。',
+          '使用 `sum < k` 而不是 `sum <= k`。',
+          'left < right 保证不会把同一元素使用两次。',
+        ],
+        code: `function twoSumLessThanK(nums: number[], k: number): number {
+  nums.sort((first, second) => first - second)
+  let left = 0
+  let right = nums.length - 1
+  let best = -1
+
+  while (left < right) {
+    const sum = nums[left] + nums[right]
+    if (sum < k) {
+      best = Math.max(best, sum)
+      left += 1
+    } else {
+      right -= 1
+    }
+  }
+
+  return best
+}`,
+      },
+      {
+        id: 'two-sum-less-than-k-mistakes',
+        title: '易错点和延伸方向',
+        summary: '小于 K 的两数之和是双指针基础题，边界条件决定结果是否正确。',
+        bullets: [
+          '易错点 1：把严格小于写成小于等于。',
+          '易错点 2：没有排序比较器，导致数字按字符串顺序排序。',
+          '易错点 3：left 和 right 相等时仍计算，重复使用同一元素。',
+          '延伸方向：三数之和、最接近目标值、计数排序和双指针证明。',
+        ],
+      },
+    ],
+  },
 ];
