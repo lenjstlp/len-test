@@ -108392,4 +108392,107 @@ function findInMountainArray(
       },
     ],
   },
+  {
+    id: 'brace-expansion-ii',
+    label: '1096. LeetCode 1096. 花括号展开 II',
+    difficulty: '困难',
+    description:
+      '给定包含字母、花括号、逗号和嵌套表达式的字符串，展开其中的并集与连接运算，返回所有不同结果并按字典序排列。',
+    outcome:
+      '你能掌握递归下降解析、集合并集与笛卡尔积，理解如何把带优先级的字符串表达式转化为可组合的集合。',
+    sections: [
+      {
+        id: 'brace-expansion-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '花括号中的逗号表示并集，连续出现的表达式表示连接。例如 `{a,b}c` 得到 `ac`、`bc`，`{a,{b,c}}` 得到 `a`、`b`、`c`。',
+        bullets: [
+          '同一个结果可能通过不同路径生成，只返回一次。',
+          '并集优先合并集合，连接则计算两个集合的笛卡尔积。',
+          '花括号可以嵌套。',
+          '最终结果按字典序升序排列。',
+        ],
+      },
+      {
+        id: 'brace-expansion-ii-parser',
+        title: '用递归下降解析并集和连接',
+        summary:
+          '把表达式拆成“逗号分隔的并集项”，每个项又由多个原子表达式连接而成。解析函数返回集合，连接时做笛卡尔积，并集时做 Set 合并。',
+        bullets: [
+          'parseExpression 负责处理逗号并集。',
+          'parseTerm 负责处理连续原子之间的连接。',
+          'parseFactor 负责读取字母或花括号内的表达式。',
+          '使用 Set 消除重复结果，最后排序。',
+        ],
+        callout:
+          '这道题本质上是一个小型表达式解析器：先明确语法层级，再让每个解析函数只负责一种运算，代码会比在循环里处理所有符号更可靠。',
+      },
+      {
+        id: 'brace-expansion-ii-solution',
+        title: '标准解法：递归解析 + 集合运算',
+        summary:
+          '递归解析花括号内容，字母形成单元素集合，连接做组合，并集做合并，最终将结果转成排序数组。',
+        bullets: [
+          '设结果数为 R，具体复杂度还取决于中间集合的大小。',
+          '空间复杂度主要来自递归栈和各层中间集合。',
+          '解析花括号后必须消费右花括号，避免重复读取。',
+          '连接空集合时结果为空，连接单位应使用包含空字符串的集合。',
+        ],
+        code: `function braceExpansionII(expression: string): string[] {
+  let index = 0
+
+  const union = (left: Set<string>, right: Set<string>): Set<string> => {
+    return new Set([...left, ...right])
+  }
+
+  const product = (left: Set<string>, right: Set<string>): Set<string> => {
+    const result = new Set<string>()
+    for (const first of left) {
+      for (const second of right) result.add(first + second)
+    }
+    return result
+  }
+
+  const parseExpression = (): Set<string> => {
+    let result = parseTerm()
+    while (expression[index] === ',') {
+      index += 1
+      result = union(result, parseTerm())
+    }
+    return result
+  }
+
+  const parseTerm = (): Set<string> => {
+    let result = new Set([''])
+    while (index < expression.length && expression[index] !== '}' && expression[index] !== ',') {
+      result = product(result, parseFactor())
+    }
+    return result
+  }
+
+  const parseFactor = (): Set<string> => {
+    if (expression[index] !== '{') return new Set([expression[index++]])
+    index += 1
+    const result = parseExpression()
+    index += 1
+    return result
+  }
+
+  return [...parseExpression()].sort()
+}`,
+      },
+      {
+        id: 'brace-expansion-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '花括号展开 II 比普通展开多了嵌套、并集和连接，不能只靠简单 split 处理。',
+        bullets: [
+          '易错点 1：没有区分逗号并集和连续连接。',
+          '易错点 2：嵌套花括号中遇到逗号就直接结束当前层。',
+          '易错点 3：连接时只拼接一个代表值，遗漏笛卡尔积。',
+          '延伸方向：递归下降、正则表达式引擎、AST 求值和表达式优化。',
+        ],
+      },
+    ],
+  },
 ];
