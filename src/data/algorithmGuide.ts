@@ -108020,4 +108020,100 @@ AND NOT EXISTS (
       },
     ],
   },
+  {
+    id: 'shortest-common-supersequence',
+    label: '1092. LeetCode 1092. 最短公共超序列',
+    difficulty: '困难',
+    description:
+      '给定两个字符串 str1 和 str2，构造一个最短字符串，使 str1 和 str2 都是它的子序列。',
+    outcome:
+      '你能掌握最长公共子序列与最短公共超序列的关系，并学会通过 DP 表反向恢复具体字符串，而不只是计算长度。',
+    sections: [
+      {
+        id: 'shortest-common-supersequence-summary',
+        title: '题目在问什么',
+        summary:
+          '目标字符串不要求连续包含两个原串，只要能通过删除部分字符分别得到 str1 和 str2，并且长度尽可能短。',
+        bullets: [
+          '两个字符串中相同且顺序一致的字符可以复用。',
+          '不同字符不能强行合并，必须按各自顺序加入结果。',
+          '最长公共子序列越长，最短公共超序列通常越短。',
+          '除了长度，还需要恢复一条具体的最优路径。',
+        ],
+      },
+      {
+        id: 'shortest-common-supersequence-dp',
+        title: '先求 LCS，再反向合并',
+        summary:
+          '先用动态规划计算两个前缀的最长公共子序列长度。反向遍历时，相同字符只加入一次；不同字符则优先走 LCS 值更大的方向。',
+        bullets: [
+          'dp[i][j] 表示 str1 前 i 个字符和 str2 前 j 个字符的 LCS 长度。',
+          '字符相同则 dp[i][j] = dp[i - 1][j - 1] + 1。',
+          '字符不同则取 dp[i - 1][j] 和 dp[i][j - 1] 的较大值。',
+          '反向恢复完成后需要把收集的字符反转。',
+        ],
+        callout:
+          '最短公共超序列长度等于 `str1.length + str2.length - LCS.length`。恢复字符串时，LCS 表提供了“哪些字符可以复用”的决策信息。',
+      },
+      {
+        id: 'shortest-common-supersequence-solution',
+        title: '标准解法：LCS DP + 反向重建',
+        summary:
+          '建立二维 LCS 表，从两个字符串末尾向前走：相等时加入一个字符，不等时加入能够保持更长公共子序列的那一侧字符。',
+        bullets: [
+          '时间复杂度为 `O(mn)`，m、n 是两个字符串长度。',
+          '空间复杂度为 `O(mn)`，用于保存 DP 表。',
+          '相等字符只写入一次，避免在结果中重复加入。',
+          '两条 DP 路径长度相等时任选一条都能得到合法最优答案。',
+        ],
+        code: `function shortestCommonSupersequence(
+  first: string,
+  second: string,
+): string {
+  const rows = first.length + 1
+  const columns = second.length + 1
+  const lcs = Array.from({ length: rows }, () => Array(columns).fill(0))
+
+  for (let row = 1; row < rows; row += 1) {
+    for (let column = 1; column < columns; column += 1) {
+      lcs[row][column] = first[row - 1] === second[column - 1]
+        ? lcs[row - 1][column - 1] + 1
+        : Math.max(lcs[row - 1][column], lcs[row][column - 1])
+    }
+  }
+
+  const result: string[] = []
+  let row = first.length
+  let column = second.length
+
+  while (row > 0 || column > 0) {
+    if (row === 0) result.push(second[--column])
+    else if (column === 0) result.push(first[--row])
+    else if (first[row - 1] === second[column - 1]) {
+      result.push(first[--row])
+      column -= 1
+    } else if (lcs[row - 1][column] >= lcs[row][column - 1]) {
+      result.push(first[--row])
+    } else {
+      result.push(second[--column])
+    }
+  }
+
+  return result.reverse().join('')
+}`,
+      },
+      {
+        id: 'shortest-common-supersequence-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '计算出最短长度并不等于完成题目，真正容易出错的是反向重建过程。',
+        bullets: [
+          '易错点 1：把子串误当成子序列，要求字符必须连续。',
+          '易错点 2：两个字符相等时仍把它们加入两次。',
+          '易错点 3：只返回 DP 长度，没有恢复具体字符串。',
+          '延伸方向：编辑距离、LCS 路径恢复、序列对齐和空间压缩 DP。',
+        ],
+      },
+    ],
+  },
 ];
