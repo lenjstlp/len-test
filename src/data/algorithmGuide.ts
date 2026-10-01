@@ -108288,4 +108288,108 @@ AND NOT EXISTS (
       },
     ],
   },
+  {
+    id: 'find-in-mountain-array',
+    label: '1095. LeetCode 1095. 山脉数组中查找目标值',
+    difficulty: '困难',
+    description:
+      '在一个先严格递增后严格递减的山脉数组中查找 target，要求调用 MountainArray.get 的次数尽可能少。',
+    outcome:
+      '你能掌握山峰二分、升序区间二分和降序区间二分，学会在受限访问接口上控制读取次数。',
+    sections: [
+      {
+        id: 'find-in-mountain-array-summary',
+        title: '题目在问什么',
+        summary:
+          '山脉数组只有一个峰值：峰值左边递增，右边递减。不能直接访问底层数组，只能调用 get(index) 和 length()，需要返回 target 的最小下标。',
+        bullets: [
+          '峰值元素比左右相邻元素都大。',
+          '目标可能出现在峰值左侧、峰值本身或右侧。',
+          '左侧是升序数组，右侧是降序数组。',
+          '如果两侧都找到，必须返回更小的下标，通常左侧优先搜索。',
+        ],
+      },
+      {
+        id: 'find-in-mountain-array-three-binary-searches',
+        title: '三次二分定位结果',
+        summary:
+          '先在整个数组中二分找到山峰，再在 `[0, peak]` 的升序区间查找，失败后在 `[peak + 1, n - 1]` 的降序区间查找。',
+        bullets: [
+          '找峰值时比较 mid 与 mid + 1。',
+          '升序二分中，当前值小于 target 时向右走。',
+          '降序二分中，当前值小于 target 时向左走。',
+          '每个阶段都只通过接口读取必要位置。',
+        ],
+        callout:
+          '降序二分不是换一个比较符号那么简单：当值大于 target 时应向右移动，因为右侧值更小；当值小于 target 时应向左移动。',
+      },
+      {
+        id: 'find-in-mountain-array-solution',
+        title: '标准解法：峰值 + 双侧二分',
+        summary:
+          '将 MountainArray 抽象成只提供读取操作的接口，分别实现峰值搜索、升序搜索和降序搜索。',
+        bullets: [
+          '时间复杂度为 `O(log n)` 次接口访问。',
+          '空间复杂度为 `O(1)`。',
+          '先查左侧保证返回最小下标。',
+          '实际代码中可以缓存重复读取的下标和值，进一步减少 get 调用。',
+        ],
+        code: `interface MountainArray {
+  get(index: number): number
+  length(): number
+}
+
+function findInMountainArray(
+  target: number,
+  mountain: MountainArray,
+): number {
+  const length = mountain.length()
+  let left = 0
+  let right = length - 1
+
+  while (left < right) {
+    const middle = Math.floor((left + right) / 2)
+    if (mountain.get(middle) < mountain.get(middle + 1)) left = middle + 1
+    else right = middle
+  }
+
+  const peak = left
+  const ascending = binarySearch(0, peak, false)
+  if (ascending !== -1) return ascending
+  return binarySearch(peak + 1, length - 1, true)
+
+  function binarySearch(
+    start: number,
+    end: number,
+    descending: boolean,
+  ): number {
+    let low = start
+    let high = end
+    while (low <= high) {
+      const middle = Math.floor((low + high) / 2)
+      const value = mountain.get(middle)
+      if (value === target) return middle
+
+      const shouldMoveRight = descending ? value > target : value < target
+      if (shouldMoveRight) low = middle + 1
+      else high = middle - 1
+    }
+    return -1
+  }
+}`,
+      },
+      {
+        id: 'find-in-mountain-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '山脉数组的两个半区排序方向不同，最容易在降序区间的边界和移动方向上写反。',
+        bullets: [
+          '易错点 1：找峰值时访问 mid + 1 越界。',
+          '易错点 2：降序区间仍使用升序二分的移动规则。',
+          '易错点 3：先搜索右侧，返回了更大的下标。',
+          '延伸方向：旋转有序数组、单峰函数搜索、黑盒接口和访问次数优化。',
+        ],
+      },
+    ],
+  },
 ];
