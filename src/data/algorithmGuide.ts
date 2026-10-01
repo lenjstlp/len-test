@@ -108209,4 +108209,83 @@ AND NOT EXISTS (
       },
     ],
   },
+  {
+    id: 'car-pooling',
+    label: '1094. LeetCode 1094. 拼车',
+    difficulty: '中等',
+    description:
+      '给定多组乘客的上车人数、上车地点和下车地点，判断一辆容量固定的车是否能完成所有行程。',
+    outcome:
+      '你能掌握差分数组和扫描线思想，把乘客上下车事件转化为每个位置的容量变化。',
+    sections: [
+      {
+        id: 'car-pooling-summary',
+        title: '题目在问什么',
+        summary:
+          '每条行程 `[passengers, from, to]` 表示乘客在 from 上车，并在 to 下车。要求任何时刻车内人数都不能超过 capacity。',
+        bullets: [
+          '乘客在 from 位置已经占用座位。',
+          '到达 to 位置时先下车，因此 to 不再占用这批座位。',
+          '不同行程可以在同一位置同时发生上下车。',
+          '只需要判断容量是否超限，不需要模拟车辆路径。',
+        ],
+      },
+      {
+        id: 'car-pooling-difference',
+        title: '把上下车表示成容量变化',
+        summary:
+          '在 from 位置增加乘客，在 to 位置减少乘客。使用差分数组记录变化，再按地点从小到大累加，就能得到每一段路程的车内人数。',
+        bullets: [
+          'change[from] += passengers。',
+          'change[to] -= passengers。',
+          '前缀和就是当前地点开始行驶时的车内人数。',
+          '车辆容量检查可以在扫描过程中提前失败。',
+        ],
+        callout:
+          '差分数组适合“区间统一增加，最后查询每个位置状态”的问题。这里每批乘客占用的是半开区间 `[from, to)`。',
+      },
+      {
+        id: 'car-pooling-solution',
+        title: '标准解法：差分数组 + 前缀和',
+        summary:
+          '建立覆盖所有站点的差分数组，写入上下车变化后扫描前缀和，任何时刻超过容量就返回 false。',
+        bullets: [
+          '时间复杂度为 `O(n + p)`，n 是行程数，p 是站点范围。',
+          '空间复杂度为 `O(p)`。',
+          '先减后加还是先加后减不影响同一站点最终人数，只要使用半开区间语义。',
+          '若站点范围很大，可以改用事件排序避免创建大数组。',
+        ],
+        code: `function carPooling(
+  trips: number[][],
+  capacity: number,
+): boolean {
+  const change = new Array(1001).fill(0)
+
+  for (const [passengers, from, to] of trips) {
+    change[from] += passengers
+    change[to] -= passengers
+  }
+
+  let current = 0
+  for (const delta of change) {
+    current += delta
+    if (current > capacity) return false
+  }
+
+  return true
+}`,
+      },
+      {
+        id: 'car-pooling-mistakes',
+        title: '易错点和延伸方向',
+        summary: '拼车问题看似需要模拟每一站，实际上只需要关注人数变化事件。',
+        bullets: [
+          '易错点 1：把 to 也算作乘客继续占座，导致多算一段。',
+          '易错点 2：只检查每条行程人数，不检查行程重叠。',
+          '易错点 3：差分数组大小没有覆盖最大站点下标。',
+          '延伸方向：会议室调度、航班预订、扫描线和事件排序。',
+        ],
+      },
+    ],
+  },
 ];
