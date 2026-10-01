@@ -108572,4 +108572,76 @@ GROUP BY first.install_dt;`,
       },
     ],
   },
+  {
+    id: 'unpopular-books',
+    label: '1098. LeetCode 1098. 不受欢迎的书',
+    difficulty: '中等',
+    description:
+      '从 Books 和 Orders 表中找出上市至少一个月、且过去一年销量少于 10 本的书。',
+    outcome:
+      '你能掌握 LEFT JOIN、日期范围过滤、聚合后 HAVING 和“没有订单也要保留”的 SQL 语义。',
+    sections: [
+      {
+        id: 'unpopular-books-summary',
+        title: '题目在问什么',
+        summary:
+          'Books 表包含图书信息，Orders 表包含订单。需要找出最近一年销售量小于 10 本、且图书没有被标记为可用库存之外状态的图书。',
+        bullets: [
+          '统计的是指定时间窗口内的销售数量。',
+          '没有订单的书也应当视为销量 0。',
+          '图书自身的 available_from 等条件要在结果中保留。',
+          '聚合后的销量限制应该使用 HAVING，而不是 WHERE。',
+        ],
+      },
+      {
+        id: 'unpopular-books-join',
+        title: 'LEFT JOIN 保留零销量图书',
+        summary:
+          '以 Books 为主表 LEFT JOIN Orders，把日期条件放在 ON 子句中，这样没有匹配订单的图书仍会保留，SUM 或 COALESCE 后按销量过滤。',
+        bullets: [
+          '如果把订单日期条件写在 WHERE 中，LEFT JOIN 会退化成只保留有订单的结果。',
+          '订单日期应同时满足开始日期和结束日期边界。',
+          '使用 COALESCE(SUM(quantity), 0) 表示没有订单。',
+          '按 book_id、name 等非聚合字段分组。',
+        ],
+        callout:
+          '“没有关联记录也要进入结果”是 LEFT JOIN 的典型场景。过滤右表字段时，先判断该过滤属于连接条件还是最终结果条件。',
+      },
+      {
+        id: 'unpopular-books-solution',
+        title: '标准解法：LEFT JOIN + GROUP BY + HAVING',
+        summary:
+          '把时间条件写入连接条件，按书聚合订单数量，再用 HAVING 筛选低销量图书。',
+        bullets: [
+          '时间复杂度主要由订单连接和聚合决定。',
+          'Orders(book_id, dispatch_date) 索引有助于连接和范围过滤。',
+          'HAVING 用于过滤聚合结果，WHERE 用于过滤聚合前的行。',
+          '若题目规定没有订单也算不受欢迎，COALESCE 是必要的。',
+        ],
+        code: `SELECT
+  books.book_id,
+  books.name
+FROM Books AS books
+LEFT JOIN Orders AS orders
+  ON orders.book_id = books.book_id
+ AND orders.dispatch_date >= '2018-06-23'
+ AND orders.dispatch_date <= '2019-06-23'
+WHERE books.available_from < '2019-05-23'
+GROUP BY books.book_id, books.name
+HAVING COALESCE(SUM(orders.quantity), 0) < 10;`,
+      },
+      {
+        id: 'unpopular-books-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '这道题的重点是 SQL 执行语义：连接、过滤、分组和聚合过滤的顺序会直接改变结果。',
+        bullets: [
+          '易错点 1：使用 INNER JOIN，遗漏零销量图书。',
+          '易错点 2：把订单日期条件写在 WHERE，破坏 LEFT JOIN。',
+          '易错点 3：使用 WHERE SUM(quantity) < 10，语法和语义都不正确。',
+          '延伸方向：反连接、库存分析、时间窗口聚合和索引设计。',
+        ],
+      },
+    ],
+  },
 ];
