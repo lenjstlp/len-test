@@ -107834,4 +107834,91 @@ AND NOT EXISTS (
       },
     ],
   },
+  {
+    id: 'largest-values-from-labels',
+    label: '1090. LeetCode 1090. 受标签影响的最大值',
+    difficulty: '中等',
+    description:
+      '从带有价值和标签的商品中最多选择 num_wanted 个，使总价值最大，同时同一个标签最多选择 use_limit 个。',
+    outcome:
+      '你能掌握排序贪心、按标签计数和受约束的 Top K 选择，理解为什么先按价值降序考虑每个候选是安全的。',
+    sections: [
+      {
+        id: 'largest-values-from-labels-summary',
+        title: '题目在问什么',
+        summary:
+          '每个商品有一个 value 和一个 label。选择数量不能超过 num_wanted，每个 label 的选择数不能超过 use_limit，目标是让所选 value 之和最大。',
+        bullets: [
+          '总数量限制和单标签数量限制必须同时满足。',
+          '商品价值越大，通常越应该优先选择。',
+          '同一标签的计数需要独立维护。',
+          '达到 num_wanted 后即可停止扫描。',
+        ],
+      },
+      {
+        id: 'largest-values-from-labels-greedy',
+        title: '按价值降序选择可用商品',
+        summary:
+          '把 value 和 label 绑定后按 value 降序排序。依次尝试商品：如果该标签还没达到上限且总选择数未满，就选入答案。',
+        bullets: [
+          '排序后第一次遇到某个标签的商品一定是该标签当前最高价值的可选商品。',
+          '跳过被标签限制拒绝的商品不会影响后续更低价值商品的可行性。',
+          '选择一个高价值商品不会让其他标签的上限失效。',
+          '这是“先按收益排序，再用约束过滤”的常见贪心模板。',
+        ],
+        callout:
+          '约束只限制“能不能选”，不改变不同商品之间的价值大小关系，因此可以在全局价值降序的顺序中直接做可行性选择。',
+      },
+      {
+        id: 'largest-values-from-labels-solution',
+        title: '标准解法：排序 + Map 计数',
+        summary:
+          '按照价值从大到小遍历商品，用 Map 记录各标签已选择的数量，满足两个限制时累加价值。',
+        bullets: [
+          '时间复杂度为 `O(n log n)`，主要来自排序。',
+          '空间复杂度为 `O(n)`，用于排序后的商品和标签计数。',
+          '使用元组 `[value, label]` 能保持价值与标签的对应关系。',
+          '价值相同的商品先后顺序不影响最优总和。',
+        ],
+        code: `function largestValsFromLabels(
+  values: number[],
+  labels: number[],
+  numWanted: number,
+  useLimit: number,
+): number {
+  const items = values
+    .map((value, index) => ({ value, label: labels[index] }))
+    .sort((first, second) => second.value - first.value)
+  const selectedByLabel = new Map<number, number>()
+  let total = 0
+  let selected = 0
+
+  for (const item of items) {
+    if (selected === numWanted) break
+
+    const used = selectedByLabel.get(item.label) ?? 0
+    if (used === useLimit) continue
+
+    selectedByLabel.set(item.label, used + 1)
+    total += item.value
+    selected += 1
+  }
+
+  return total
+}`,
+      },
+      {
+        id: 'largest-values-from-labels-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '不要把标签限制误解成每个标签必须选择相同数量；它只是一个上限。',
+        bullets: [
+          '易错点 1：只取全局前 num_wanted 个，忽略标签上限。',
+          '易错点 2：把 use_limit 当成恰好选择数量，而不是最多选择数量。',
+          '易错点 3：排序时丢失 value 与 label 的对应关系。',
+          '延伸方向：带分组约束的 Top K、堆、流式选择和多维资源限制。',
+        ],
+      },
+    ],
+  },
 ];
