@@ -108721,4 +108721,97 @@ HAVING COALESCE(SUM(orders.quantity), 0) < 10;`,
       },
     ],
   },
+  {
+    id: 'find-k-length-substrings-with-no-repeated-characters',
+    label: '1100. LeetCode 1100. 长度为 K 的无重复字符子串',
+    difficulty: '中等',
+    description:
+      '给定一个字符串 s 和一个整数 k，返回 s 中长度为 k 且不含重复字符的子串数量。',
+    outcome:
+      '你能掌握固定长度滑动窗口的标准写法，理解为什么“每步进入一个字符、移出一个字符”就能让窗口恒定为 k 个字符，并学会直接用频次表的 `size` 判断窗口内是否全部不重复。',
+    sections: [
+      {
+        id: 'find-k-length-substrings-with-no-repeated-characters-summary',
+        title: '题目在问什么',
+        summary:
+          '要在所有长度为 k 的连续子串里，数出“内部字符两两不同”的那些。窗口长度是固定的，所以这题不需要像变长窗口那样纠结左右边界怎么挪，重点在于如何高效判断当前窗口有没有重复字符。',
+        bullets: [
+          '子串必须连续，长度恰好是 `k`，短一个长一个都不算。',
+          '判断依据是“窗口内没有重复字符”，等价于窗口内不同字符的个数等于 `k`。',
+          '如果 `k` 大于字符串长度，一个窗口都放不下，答案直接是 `0`。',
+          '朴素做法是对每个窗口都重新统计一次，会重复劳动，需要增量维护。',
+        ],
+      },
+      {
+        id: 'find-k-length-substrings-with-no-repeated-characters-sliding-window',
+        title: '滑动窗口：固定长度配频次表',
+        summary:
+          '固定长度窗口的维护方式很统一：右边界每前进一格，就把新字符的次数加一；一旦窗口长度超过 `k`，就把最左边那个字符的次数减一。这样窗口里始终恰好保留最近 `k` 个字符。',
+        bullets: [
+          '用一张频次表记录窗口内每个字符出现的次数。',
+          '窗口长度不足 `k` 时不计数，只需要继续往右扩。',
+          '窗口刚好是 `k` 个字符时，如果频次表的键数量也是 `k`，说明没有重复。',
+          '次数减到 0 的字符要从频次表里删除，否则 `size` 会虚高。',
+        ],
+        callout:
+          '固定长度滑动窗口的关键是“进出配平”：每加入一个新元素，就必然要淘汰一个旧元素。只要时刻维持这个不变量，窗口内容永远是对的，不需要每次都从头统计。',
+      },
+      {
+        id: 'find-k-length-substrings-with-no-repeated-characters-solution',
+        title: '标准解法：一次遍历维护窗口',
+        summary:
+          '先处理 `k > s.length` 的边界。然后从左到右扫描，先把当前字符计入频次表；当下标达到 `k` 时，说明需要把 `s[index - k]` 移出窗口；最后判断窗口是否已满且无重复，累加答案。',
+        bullets: [
+          '移出逻辑用 `index >= k` 触发，此时窗口右端是 `index`，左端是 `index - k + 1`。',
+          '计数降到 0 时必须 `delete`，让 `counts.size` 真实反映窗口内的不同字符数。',
+          '计数条件同时检查 `index >= k - 1`（窗口已满）和 `counts.size === k`（无重复）。',
+          '时间复杂度：`O(n)`，每个字符最多进出窗口各一次。',
+          '空间复杂度：`O(min(n, sigma))`，`sigma` 为字符集大小。',
+        ],
+        code: `function numKLenSubstrNoRepeats(s: string, k: number): number {
+  if (k > s.length) {
+    return 0
+  }
+
+  const counts = new Map<string, number>()
+  let answer = 0
+
+  for (let index = 0; index < s.length; index += 1) {
+    const entering = s[index]
+    counts.set(entering, (counts.get(entering) ?? 0) + 1)
+
+    if (index >= k) {
+      const leaving = s[index - k]
+      const remaining = (counts.get(leaving) ?? 0) - 1
+
+      if (remaining === 0) {
+        counts.delete(leaving)
+      } else {
+        counts.set(leaving, remaining)
+      }
+    }
+
+    if (index >= k - 1 && counts.size === k) {
+      answer += 1
+    }
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'find-k-length-substrings-with-no-repeated-characters-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最常见的错误是移出窗口时只把计数减一却忘了删除归零的键，导致 `counts.size` 一直大于真实的不同字符数，窗口明明有重复也会被判成合法。',
+        bullets: [
+          '易错点 1：计数归零后没有 `delete`，`size` 虚高导致误判。',
+          '易错点 2：移出时机写成 `index > k`，窗口实际长度变成 `k + 1`。',
+          '易错点 3：忘记 `k > s.length` 的边界，空跑一圈返回 0 之外的错误结果。',
+          '易错点 4：用 `s.slice(index - k + 1, index + 1)` 配 `Set` 每次重建窗口，退化到 `O(n * k)`。',
+          '延伸方向：无重复字符的最长子串、滑动窗口定长与变长、字符频次表和窗口内最值。',
+        ],
+      },
+    ],
+  },
 ];
