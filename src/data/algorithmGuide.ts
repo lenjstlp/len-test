@@ -61636,7 +61636,7 @@ JOIN (
     ],
   },
   {
-    id: 'insert-into-a-sorted-circular-linked-list',
+    id: 'insert-into-a-sorted-circular-linked-list-571',
     label: '571. LeetCode 571. 在循环有序链表中插入节点',
     difficulty: '中等',
     description:
@@ -61644,7 +61644,7 @@ JOIN (
     outcome: '你能处理循环链表的边界和回环位置，避免因为首尾衔接而漏判。',
     sections: [
       {
-        id: 'insert-into-a-sorted-circular-linked-list-summary',
+        id: 'insert-into-a-sorted-circular-linked-list-571-summary',
         title: '题目在问什么',
         summary:
           '给定一个循环递增链表和一个值 `insertVal`，要求插入一个新节点，使链表仍然满足循环有序性质。若链表为空，需要单独创建一个自环节点。',
@@ -61656,7 +61656,7 @@ JOIN (
         ],
       },
       {
-        id: 'insert-into-a-sorted-circular-linked-list-loop',
+        id: 'insert-into-a-sorted-circular-linked-list-571-loop',
         title: '循环链表里，真正的插入点可能出现在“断点”附近',
         summary:
           '普通递增区间满足 `cur.val <= insertVal <= next.val`。但如果当前节点是最大值、下一个节点是最小值，也就是链表断点，那么插入值只要大于等于最大值或小于等于最小值，都可以插在这里。',
@@ -61668,7 +61668,7 @@ JOIN (
         ],
       },
       {
-        id: 'insert-into-a-sorted-circular-linked-list-traverse',
+        id: 'insert-into-a-sorted-circular-linked-list-571-traverse',
         title: '如果整圈都没找到，就随便插在当前位置后面',
         summary:
           '由于链表是循环的，遍历一圈后如果没有命中任何“合适插入点”，通常说明所有节点值都相同，或者 `insertVal` 落在统一边界外。这时插到当前节点后面即可，仍然满足循环有序性质。',
@@ -61680,7 +61680,7 @@ JOIN (
         ],
       },
       {
-        id: 'insert-into-a-sorted-circular-linked-list-solution',
+        id: 'insert-into-a-sorted-circular-linked-list-571-solution',
         title: '标准解法：遍历一圈寻找插入点',
         summary:
           '若头节点为空，直接创建自环新节点。否则从头开始遍历，检查当前节点和下一个节点之间是否满足正常区间或断点区间。找到任一合法位置就插入；若整圈都没找到，则插在起点后面。',
@@ -61734,7 +61734,7 @@ function insert(head: Node | null, insertVal: number): Node {
 }`,
       },
       {
-        id: 'insert-into-a-sorted-circular-linked-list-mistakes',
+        id: 'insert-into-a-sorted-circular-linked-list-571-mistakes',
         title: '易错点和延伸方向',
         summary:
           '这题最常见的问题，是没处理空链表；或者在断点区间里条件写反，导致最大值和最小值附近插错位置。',
@@ -84935,7 +84935,7 @@ function numComponents(head: ListNode | null, nums: number[]): number {
     ],
   },
   {
-    id: 'insert-into-a-sorted-circular-linked-list',
+    id: 'insert-into-a-sorted-circular-linked-list-828',
     label: '828. LeetCode 828. 环形链表插入',
     difficulty: '中等',
     description:
@@ -84944,7 +84944,7 @@ function numComponents(head: ListNode | null, nums: number[]): number {
       '你能在环形递增链表中正确处理边界断点和普通区间插入，并保持指针关系闭合。',
     sections: [
       {
-        id: 'insert-into-a-sorted-circular-linked-list-summary',
+        id: 'insert-into-a-sorted-circular-linked-list-828-summary',
         title: '题目在问什么',
         summary:
           '给定一个环形递增链表的任意节点和一个整数 `insertVal`。要求把该值插入链表中，使链表仍然满足环形递增有序。',
@@ -84956,7 +84956,7 @@ function numComponents(head: ListNode | null, nums: number[]): number {
         ],
       },
       {
-        id: 'insert-into-a-sorted-circular-linked-list-observe',
+        id: 'insert-into-a-sorted-circular-linked-list-828-observe',
         title: '环形有序链表只有两类插入点',
         summary:
           '如果当前节点 `curr` 和下一个节点 `next` 满足 `curr.val <= insertVal <= next.val`，那么新值应插在它们之间。另一种情况是到了“断点”：`curr.val > next.val`，表示从最大值回到了最小值；此时如果 `insertVal` 大于等于当前最大值或小于等于下一个最小值，也应该插在这里。若绕一圈都找不到合适位置，说明所有值都相等，直接插在任意位置即可。',
@@ -84968,7 +84968,7 @@ function numComponents(head: ListNode | null, nums: number[]): number {
         ],
       },
       {
-        id: 'insert-into-a-sorted-circular-linked-list-solution',
+        id: 'insert-into-a-sorted-circular-linked-list-828-solution',
         title: '标准解法：单圈遍历寻找插入点',
         summary:
           '从任意节点开始，顺着环遍历一圈。若发现普通递增区间满足插入条件，或者断点满足回绕插入条件，就把新节点插入到当前节点和下一个节点之间并返回头节点。若走完一圈都没有找到位置，说明链表中所有节点值相同，直接把新节点插在任意两点之间返回即可。',
@@ -85023,7 +85023,7 @@ function insert(head: Node | null, insertVal: number): Node {
 }`,
       },
       {
-        id: 'insert-into-a-sorted-circular-linked-list-mistakes',
+        id: 'insert-into-a-sorted-circular-linked-list-828-mistakes',
         title: '易错点和延伸方向',
         summary:
           '这题最常见的问题，是把它当普通单链表插入，忽略了环和断点；或者绕一圈后没有处理“所有值都相等”的特殊情况。',
@@ -97457,7 +97457,7 @@ function flipEquiv(
     ],
   },
   {
-    id: 'reverse-nodes-in-k-group',
+    id: 'flip-binary-tree-to-match-preorder-traversal',
     label: '971. LeetCode 971. 翻转二叉树以匹配先序遍历',
     difficulty: '中等',
     description:
@@ -97466,7 +97466,7 @@ function flipEquiv(
       '你能把先序遍历匹配问题转化为递归状态转移，并理解为什么只有左右子树的翻转组合才能匹配全局先序。',
     sections: [
       {
-        id: 'reverse-nodes-in-k-group-summary',
+        id: 'flip-binary-tree-to-match-preorder-traversal-summary',
         title: '题目在问什么',
         summary:
           '给定二叉树和一组目标先序遍历，判断是否可以通过在节点上翻转子树使当前二叉树变成目标先序遍历。',
@@ -97478,7 +97478,7 @@ function flipEquiv(
         ],
       },
       {
-        id: 'reverse-nodes-in-k-group-observe',
+        id: 'flip-binary-tree-to-match-preorder-traversal-observe',
         title: '先序结构是左子树先序 + 根 + 右子树先序',
         summary:
           '如果目标先序以当前根节点开头，那么目标左子树的先序必须是当前左子树的先序；否则必须是当前右子树的先序。递归检查左右子树是否能通过翻转匹配各自的子目标。',
@@ -97490,7 +97490,7 @@ function flipEquiv(
         ],
       },
       {
-        id: 'reverse-nodes-in-k-group-solution',
+        id: 'flip-binary-tree-to-match-preorder-traversal-solution',
         title: '标准解法：递归匹配先序',
         summary:
           '定义 `match(node, target)` 检查以当前节点为根的子树能否通过翻转匹配 `target` 数组的前缀。递归检查左子树能否匹配目标前半段，右子树能否匹配后半段；翻转左子树后尝试匹配右子树，翻转右子树后尝试匹配左子树。',
@@ -97537,7 +97537,7 @@ function flipEquiv(
 }`,
       },
       {
-        id: 'reverse-nodes-in-k-group-mistakes',
+        id: 'flip-binary-tree-to-match-preorder-traversal-mistakes',
         title: '易错点和延伸方向',
         summary:
           '这题的关键是先序遍历的结构性质：左子树先序必须连续在根节点前，右子树先序必须连续在根节点后。递归时需要尝试翻转左右子树两种组合，以匹配可能的子目标。',
@@ -100055,7 +100055,7 @@ function isCousins(
     ],
   },
   {
-    id: 'maximum-binary-tree',
+    id: 'maximum-binary-tree-ii',
     label: '998. LeetCode 998. 最大二叉树 II',
     difficulty: '中等',
     description:
@@ -100064,7 +100064,7 @@ function isCousins(
       '你能理解最大二叉树的构造规则，掌握沿右链寻找插入位置的递归写法，并知道为什么新值只可能影响右侧路径。',
     sections: [
       {
-        id: 'maximum-binary-tree-summary',
+        id: 'maximum-binary-tree-ii-summary',
         title: '题目在问什么',
         summary:
           '最大二叉树的根是数组最大值，根左侧元素递归构成左子树，根右侧元素递归构成右子树。现在把 `val` 追加到数组末尾后重建这棵树。',
@@ -100075,7 +100075,7 @@ function isCousins(
         ],
       },
       {
-        id: 'maximum-binary-tree-insert',
+        id: 'maximum-binary-tree-ii-insert',
         title: '递归：沿右链寻找第一个更小节点',
         summary:
           '从根开始比较。若新值更大，直接创建新根并把当前树接到左侧；否则递归处理右子树。由于新值追加在末尾，左子树不需要改变。',
@@ -100088,7 +100088,7 @@ function isCousins(
           '当一个元素追加到序列末尾时，基于“区间最大值”的递归树结构通常只会沿着右侧路径变化；识别这条不变量可以避免整棵树重建。',
       },
       {
-        id: 'maximum-binary-tree-solution',
+        id: 'maximum-binary-tree-ii-solution',
         title: '标准解法：只更新右子树',
         summary:
           '比较当前节点与新值。如果新值更大，创建新节点；否则继续向右递归。',
@@ -100120,7 +100120,7 @@ function insertIntoMaxTree(
 }`,
       },
       {
-        id: 'maximum-binary-tree-mistakes',
+        id: 'maximum-binary-tree-ii-mistakes',
         title: '易错点和延伸方向',
         summary:
           '不要因为新值变大就重建整棵树。关键是理解它只追加到数组末尾，因此不会改变任何左侧区间。',
