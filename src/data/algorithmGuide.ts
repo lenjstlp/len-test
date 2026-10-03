@@ -108814,4 +108814,110 @@ HAVING COALESCE(SUM(orders.quantity), 0) < 10;`,
       },
     ],
   },
+  {
+    id: 'the-earliest-moment-when-everyone-become-friends',
+    label: '1101. LeetCode 1101. 彼此熟识的最早时间',
+    difficulty: '中等',
+    description:
+      '在一个有 n 个人的社交群体里（编号 0 到 n-1），给定一组日志 logs[i] = [timestamp, x, y]，表示 x 和 y 在 timestamp 时刻成为朋友。朋友关系是对称且可传递的。返回所有人彼此熟识的最早时刻，如果始终无法达成则返回 -1。',
+    outcome:
+      '你能掌握用并查集维护连通块数量的写法，理解为什么“所有人彼此熟识”恰好等价于“连通块数量降到 1”，并建立按时间排序后增量合并的解题框架。',
+    sections: [
+      {
+        id: 'the-earliest-moment-when-everyone-become-friends-summary',
+        title: '题目在问什么',
+        summary:
+          '朋友关系会传染：A 和 B 是朋友、B 和 C 是朋友，那么 A 和 C 也算彼此熟识。所以“所有人彼此熟识”并不是要求每个人都直接认识其他人，而是要求整个群体连成一片。',
+        bullets: [
+          '日志的输入顺序是乱的，而题目问的是“最早时刻”，所以第一步必然是按时间排序。',
+          '两个本来就在同一片里的人成为朋友，不会改变任何事情。',
+          '需要判断的是整张关系图什么时候变成单个连通块。',
+          '如果处理完所有日志仍有孤立的群体，就返回 `-1`。',
+        ],
+      },
+      {
+        id: 'the-earliest-moment-when-everyone-become-friends-union-find',
+        title: '并查集：用连通块数量判断是否全员互通',
+        summary:
+          '维护“当前有几片人”这个计数，初始时 n 个人互不相识，连通块数量就是 n。每当一次有效合并把两片人合成一片，计数就减一。计数第一次降到 1 的时刻，就是题目要的答案。',
+        bullets: [
+          '并查集用 `parent` 数组记录每个节点的父指针，根节点指向自己。',
+          '`find` 负责找根，顺便做路径压缩，把沿途节点直接挂到根上，摊还后接近常数时间。',
+          '合并前先比较两个根是否相同，相同说明本就在一片，直接跳过。',
+          '只有真正发生跨片合并时才把 `groups` 减一。',
+        ],
+        callout:
+          '“图什么时候变成连通”这类问题，绝大多数都可以用并查集的连通块计数来做。你不需要真的去跑连通性搜索，只要盯着这个计数从 n 掉到 1 的过程即可。',
+      },
+      {
+        id: 'the-earliest-moment-when-everyone-become-friends-solution',
+        title: '标准解法：按时间排序后逐个合并',
+        summary:
+          '先把日志按时间戳升序排列，然后依次处理每条日志：合并两人的集合，若成功则递减连通块计数；计数降到 1 时立刻返回当前时间戳。全部处理完仍未合并成一片就返回 -1。',
+        bullets: [
+          '用 `[...logs].sort(...)` 复制一份再排序，避免原地修改调用方传入的数组。',
+          '比较器写成 `left[0] - right[0]`，直接按数值排序时间戳。',
+          '提前返回是安全的：日志已按时间升序，第一次满足条件必然是最早时刻。',
+          '时间复杂度：`O(m log m)`，`m` 为日志条数，主要开销在排序；并查集部分接近 `O(m)`。',
+          '空间复杂度：`O(n)`，用于 `parent` 数组。',
+        ],
+        code: `function earliestAcq(logs: number[][], n: number): number {
+  const parent = Array.from({ length: n }, (_, index) => index)
+  let groups = n
+
+  const find = (node: number): number => {
+    let root = node
+
+    while (parent[root] !== root) {
+      root = parent[root]
+    }
+
+    let current = node
+
+    while (parent[current] !== root) {
+      const next = parent[current]
+      parent[current] = root
+      current = next
+    }
+
+    return root
+  }
+
+  const sorted = [...logs].sort((left, right) => left[0] - right[0])
+
+  for (const [timestamp, first, second] of sorted) {
+    const firstRoot = find(first)
+    const secondRoot = find(second)
+
+    if (firstRoot === secondRoot) {
+      continue
+    }
+
+    parent[firstRoot] = secondRoot
+    groups -= 1
+
+    if (groups === 1) {
+      return timestamp
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'the-earliest-moment-when-everyone-become-friends-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是不做根比较就无脑递减计数。当两个人在同一条日志里其实早就相识时，这次日志不会改变连通性，计数一旦多减就会把答案提前。',
+        bullets: [
+          '易错点 1：没判断两个根是否相同就递减 `groups`，导致答案偏早。',
+          '易错点 2：忘记按时间戳排序，直接按输入顺序处理。',
+          '易错点 3：`groups` 初值写成 `n - 1`，答案整体偏移一次合并。',
+          '易错点 4：用 `logs.sort(...)` 原地排序，悄悄改掉了调用方的数组。',
+          '易错点 5：`find` 不做路径压缩，链状合并时退化到近似线性。',
+          '延伸方向：连通块计数、最小生成树、冗余连接和等式方程的可满足性。',
+        ],
+      },
+    ],
+  },
 ];
