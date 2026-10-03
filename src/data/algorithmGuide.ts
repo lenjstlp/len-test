@@ -109652,4 +109652,108 @@ ORDER BY login_date;`,
       },
     ],
   },
+  {
+    id: 'delete-nodes-and-return-forest',
+    label: '1110. LeetCode 1110. 删点成林',
+    difficulty: '中等',
+    description:
+      '给定一棵二叉树和一组待删除的节点值，删掉这些节点后原本断开的连通块会各自成为一棵树，返回这些树的根节点。',
+    outcome:
+      '你能掌握树上删除类问题的后序遍历框架：用返回值把子树接回父节点，同时用「父节点是否被删」这个信号判断自己是否成为新根。',
+    sections: [
+      {
+        id: 'delete-nodes-and-return-forest-summary',
+        title: '题目在问什么',
+        summary:
+          '给定二叉树根节点 root 和一个整数数组 to_delete，把树中所有值出现在 to_delete 里的节点删除。删除后剩下的节点按原有的父子关系分裂成若干棵互不相连的树，返回所有这些树的根节点。',
+        bullets: [
+          '节点值互不相同，所以可以用值直接定位节点。',
+          '删除一个节点时它的左右子树不会连带消失，而是各自独立出去。',
+          '原根节点若被删除，剩下的每一棵子树都可能成为新根。',
+          '返回顺序不影响判定，但按先序遍历输出最自然。',
+        ],
+      },
+      {
+        id: 'delete-nodes-and-return-forest-postorder',
+        title: '后序遍历：返回值决定父子是否还连着',
+        summary:
+          '定义一个递归函数，返回处理完之后的子树根。函数内先判断自己是否被删，再递归处理左右孩子；孩子返回 null 说明它被删了，否则就把处理好的子树接回来。最后自己若是被删的就返回 null 给父节点断链。',
+        bullets: [
+          '判断「我是不是一棵新树的根」需要知道父节点有没有被删，所以往下递归时要带上这个信号。',
+          '递归的返回值就是「这棵子树处理完后该交给父节点的东西」，被删时交回 null。',
+          '接回子树必须在递归返回之后做，这正是后序位置的意义。',
+          '根节点没有父节点，等价于父节点已被删除，所以初始信号传 true。',
+        ],
+        callout:
+          '这是树上删除问题的通用范式：递归函数返回「给父节点的替代物」。如果删除意味着断链，就返回 null；如果删除意味着跳过某一层，就返回子树本身的根。想清楚返回值语义，代码就只有几行。',
+      },
+      {
+        id: 'delete-nodes-and-return-forest-solution',
+        title: '标准解法：带标志的后序 DFS',
+        summary:
+          '用集合加速查找待删值，递归时传入「父节点是否被删」的标志，进入节点时若自己是新根就收集，递归结束后按是否被删返回 null 或自己。',
+        bullets: [
+          '用 `Set` 而不是数组查找，避免每层递归都做线性扫描。',
+          '收集根节点的时机在递归之前，保证输出是先序顺序。',
+          '被删除的节点返回 null，父节点赋值后就把这条边断开了。',
+          '时间复杂度：`O(n)`，每个节点访问一次，集合查询是常数时间。',
+          '空间复杂度：`O(n)`，递归栈深度最坏为链状树的高度。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(val = 0, left: TreeNode | null = null, right: TreeNode | null = null) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function delNodes(
+  root: TreeNode | null,
+  to_delete: number[],
+): Array<TreeNode | null> {
+  const targets = new Set(to_delete)
+  const forest: Array<TreeNode | null> = []
+
+  const walk = (node: TreeNode | null, isRoot: boolean): TreeNode | null => {
+    if (!node) {
+      return null
+    }
+
+    const removed = targets.has(node.val)
+
+    if (isRoot && !removed) {
+      forest.push(node)
+    }
+
+    node.left = walk(node.left, removed)
+    node.right = walk(node.right, removed)
+
+    return removed ? null : node
+  }
+
+  walk(root, true)
+
+  return forest
+}`,
+      },
+      {
+        id: 'delete-nodes-and-return-forest-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是把「我是不是新根」判断成「我的父节点是否还在树里」但没有传递父节点的状态，或者在递归前就把子树接回去导致顺序混乱。',
+        bullets: [
+          '易错点 1：递归时没传父节点是否被删的标志，无法识别中途产生的森林根。',
+          '易错点 2：先递归再判断自己是否被删时漏掉了根节点，根被删时第一层没断链。',
+          '易错点 3：用数组 `includes` 查找待删值，退化到 `O(n^2)`。',
+          '易错点 4：把被删节点的左右子树一起丢弃，导致它们本该自成森林的部分丢失。',
+          '易错点 5：返回值写成被删时返回自己，导致父节点仍指向已删节点。',
+          '延伸方向：二叉树剪枝、删除 BST 节点、树上连通块划分、并查集维护森林。',
+        ],
+      },
+    ],
+  },
 ];
