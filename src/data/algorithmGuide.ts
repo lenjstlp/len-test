@@ -109326,4 +109326,108 @@ HAVING COALESCE(SUM(orders.quantity), 0) < 10;`,
       },
     ],
   },
+  {
+    id: 'parsing-a-boolean-expression',
+    label: '1106. LeetCode 1106. 解析布尔表达式',
+    difficulty: '困难',
+    description:
+      '解析由 t、f、!、&、|、括号和逗号组成的布尔表达式，其中 ! 为一元非、& 为多元与、| 为多元或，返回求值结果。',
+    outcome:
+      '你能掌握表达式求值的栈式解析：把操作数和运算符一起压栈，遇到右括号就弹出一组操作数并按栈顶运算符归约。',
+    sections: [
+      {
+        id: 'parsing-a-boolean-expression-summary',
+        title: '题目在问什么',
+        summary:
+          '表达式的文法很规整：原子是 t 或 f；复合表达式是 `!(` 表达式 `)`、`&(` 表达式列表 `)` 或 `|(` 表达式列表 `)`。操作数之间用逗号分隔。给定一个保证合法的表达式，求它的布尔值。',
+        bullets: [
+          '`&` 与 `|` 可以带任意多个操作数，至少一个。',
+          '`!` 永远只有一个操作数。',
+          '表达式保证合法且完全括号化，不需要处理优先级。',
+          '返回的是布尔值本身，不是字符串。',
+        ],
+      },
+      {
+        id: 'parsing-a-boolean-expression-stack',
+        title: '用栈把括号当成归约信号',
+        summary:
+          '从左到右扫描，把 t、f、运算符、左括号统统压栈，逗号直接忽略。遇到右括号时，从栈顶往下弹出操作数直到看见左括号，再把左括号和它下面的运算符弹出，按该运算符把这一组操作数归约成一个 t 或 f 压回去。',
+        bullets: [
+          '逗号只是分隔符，除了跳过不需要任何处理。',
+          '归约时只需记录「这一组里出现过 t 吗」和「出现过 f 吗」两个布尔量。',
+          '`!` 取反单个操作数；`&` 只要有 f 就是 f；`|` 只要有 t 就是 t。',
+          '扫描结束后栈里恰好剩下一个字符，就是整个表达式的值。',
+        ],
+        callout:
+          '完全括号化的表达式不需要运算符优先级表，右括号出现的位置天然就是归约点。这也是这一题被标为困难但实际解法很短的原因：难点在于想清楚谁和谁配对，而不在于代码量。',
+      },
+      {
+        id: 'parsing-a-boolean-expression-solution',
+        title: '标准解法：单栈扫描',
+        summary:
+          '用字符栈保存未完成的部分，遇到右括号就归约一层，最后读取栈顶字符判断真假。',
+        bullets: [
+          '判断 `!` 时不需要区分操作数个数，`hasTrue` 为真就压 f，否则压 t。',
+          '`&` 与 `|` 分别检查是否出现过反例或者出现过真值。',
+          '时间复杂度：`O(n)`，每个字符最多入栈出栈各一次。',
+          '空间复杂度：`O(n)`，最坏情况是表达式嵌套很深时栈的高度。',
+        ],
+        code: `function parseBoolExpr(expression: string): boolean {
+  const stack: string[] = []
+
+  for (const char of expression) {
+    if (char === ',') {
+      continue
+    }
+
+    if (char !== ')') {
+      stack.push(char)
+      continue
+    }
+
+    let hasTrue = false
+    let hasFalse = false
+
+    while (stack[stack.length - 1] !== '(') {
+      const value = stack.pop()
+
+      if (value === 't') {
+        hasTrue = true
+      } else {
+        hasFalse = true
+      }
+    }
+
+    stack.pop()
+
+    const operator = stack.pop()
+
+    if (operator === '!') {
+      stack.push(hasTrue ? 'f' : 't')
+    } else if (operator === '&') {
+      stack.push(hasFalse ? 'f' : 't')
+    } else {
+      stack.push(hasTrue ? 't' : 'f')
+    }
+  }
+
+  return stack[stack.length - 1] === 't'
+}`,
+      },
+      {
+        id: 'parsing-a-boolean-expression-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是归约时把左括号也当成操作数读走，导致运算符错位；其次是忘记忽略逗号。',
+        bullets: [
+          '易错点 1：弹出操作数的循环条件写成 `stack.length > 0`，越过左括号继续弹。',
+          '易错点 2：把逗号压栈，归约时它被当成一个既非 t 也非 f 的操作数。',
+          '易错点 3：`&` 与 `|` 的真假判断写反，与取真或、或取全真。',
+          '易错点 4：`!` 用操作数个数去判断，实际上只需看那唯一的操作数。',
+          '易错点 5：先弹运算符再弹左括号，顺序颠倒后拿到的不是运算符。',
+          '延伸方向：逆波兰表达式求值、括号匹配、递归下降解析器、表达式树求值。',
+        ],
+      },
+    ],
+  },
 ];
