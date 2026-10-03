@@ -109835,4 +109835,84 @@ function delNodes(
       },
     ],
   },
+  {
+    id: 'highest-grade-for-each-student',
+    label: '1112. LeetCode 1112. 每位学生的最高成绩',
+    difficulty: '中等',
+    description:
+      '基于 Enrollments 表求每位学生最高的成绩以及对应的课程；成绩相同时取课程号最小的那门，结果按学生号升序输出。',
+    outcome:
+      '你能掌握 SQL 的「分组取 Top-1 整行」模式：用窗口函数按组排序打上序号，再筛出每组的第一行。',
+    sections: [
+      {
+        id: 'highest-grade-for-each-student-summary',
+        title: '题目在问什么',
+        summary:
+          'Enrollments 表记录学生选课与成绩，(student_id, course_id) 是主键，grade 非空。要求为每位学生找出最高的成绩，并给出取得该成绩的课程编号；如果有多门课成绩并列最高，取课程编号最小的那门。',
+        bullets: [
+          '要返回的是整行信息，不只是最高分这个数值。',
+          '并列时用课程编号作为第二排序键，保证结果唯一确定。',
+          '每位学生在结果中恰好出现一行。',
+          '结果按 student_id 升序排列。',
+        ],
+      },
+      {
+        id: 'highest-grade-for-each-student-model',
+        title: '先组内排序，再取每组第一行',
+        summary:
+          '用窗口函数按 student_id 分区，在组内按 grade 降序、course_id 升序排序并编号，编号为 1 的那一行就是答案。外层再按 student_id 排序输出。',
+        bullets: [
+          '窗口函数不会像 GROUP BY 那样把多行压成一行，所以排序后仍能取回整行。',
+          '排序键写成 `ORDER BY grade DESC, course_id`，并列时的课程号取舍直接由排序完成。',
+          '加 `course_id` 作为第二排序键后组内不再有真正的并列，`ROW_NUMBER` 与 `RANK` 结果一致。',
+          '若只用 `ORDER BY grade DESC`，并列行的名次会相同，必须改用 `ROW_NUMBER` 才能只取一行。',
+        ],
+        callout:
+          '这是 SQL 面试里的「分组取 Top-N 整行」模式。`GROUP BY` 加 `MAX` 只能拿到那个数值，拿不回同一行的其它列；要返回整行就必须用窗口函数或者自连接。',
+      },
+      {
+        id: 'highest-grade-for-each-student-solution',
+        title: '标准解法：ROW_NUMBER 分组排序',
+        summary:
+          '在内层子查询里给每行标注组内名次，外层筛选名次为 1 的记录并排序。',
+        bullets: [
+          '窗口函数在 MySQL 8.0 及以上可用，旧版本需要改用自连接写法。',
+          '外层必须再写一次 ORDER BY，子查询里的排序不保证最终输出顺序。',
+          '为 (student_id, grade) 建索引能加速分区排序。',
+          '复杂度由排序决定，约为 `O(n log n)`。',
+        ],
+        code: `SELECT
+  student_id,
+  course_id,
+  grade
+FROM (
+  SELECT
+    student_id,
+    course_id,
+    grade,
+    ROW_NUMBER() OVER (
+      PARTITION BY student_id
+      ORDER BY grade DESC, course_id
+    ) AS rn
+  FROM Enrollments
+) AS ranked
+WHERE rn = 1
+ORDER BY student_id;`,
+      },
+      {
+        id: 'highest-grade-for-each-student-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是写成 GROUP BY student_id 加 MAX(grade)，却同时 SELECT 了 course_id——这个 course_id 并不保证属于最高分那一行。',
+        bullets: [
+          '易错点 1：`SELECT student_id, course_id, MAX(grade) ... GROUP BY student_id`，`course_id` 来自任意一行。',
+          '易错点 2：用 `HAVING MAX(grade)` 想过滤，但 HAVING 不接数值表达式，语义完全不对。',
+          '易错点 3：漏掉 `course_id` 这个第二排序键，并列时结果不稳定。',
+          '易错点 4：只用 `ORDER BY grade DESC` 配 `RANK`，并列两行都被选中。',
+          '易错点 5：外层忘记 ORDER BY，输出顺序不符合要求。',
+          '延伸方向：分组取 Top-N、ROW_NUMBER 与 RANK、DENSE_RANK 的区别、相关子查询、窗口帧。',
+        ],
+      },
+    ],
+  },
 ];
