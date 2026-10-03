@@ -109060,4 +109060,82 @@ HAVING COALESCE(SUM(orders.quantity), 0) < 10;`,
       },
     ],
   },
+  {
+    id: 'distribute-candies-to-people',
+    label: '1103. LeetCode 1103. 分糖果 II',
+    difficulty: '简单',
+    description:
+      '把 candies 颗糖果按 1、2、3 递增的数量依次分给 num_people 个人循环发放，最后一轮不足时把剩下的全部给出，返回每人最终拿到的糖果数。',
+    outcome:
+      '你能掌握按轮次递增的循环分配模拟，处理好「最后一轮不足」这一边界。',
+    sections: [
+      {
+        id: 'distribute-candies-to-people-summary',
+        title: '题目在问什么',
+        summary:
+          '有 candies 颗糖果和 num_people 个人，按顺序第 1 人拿 1 颗、第 2 人拿 2 颗，依此类推，一轮结束后又从第 1 人继续，但每次给出的数量仍在上一次的基础上递增。当剩余糖果不够这次应给的数量时，把剩下的全部给对方，分配结束。',
+        bullets: [
+          '发放数量是全局递增的计数器，不会在每一轮开始时重置。',
+          '最后一轮可能只给出不足额的部分，且立刻结束。',
+          '有可能还没轮完一整圈糖果就分完了。',
+          '返回数组长度固定为 num_people，没轮到的人保持 0。',
+        ],
+      },
+      {
+        id: 'distribute-candies-to-people-simulation',
+        title: '直接模拟：计数器递增，下标取模',
+        summary:
+          '维护三个量：当前要发放的数量、剩余糖果数、当前下标。每次先算这次实际能给多少，加进结果，再递减剩余、递增发放量、下标循环右移。',
+        bullets: [
+          '实际给出的是 `Math.min(give, remaining)`，这就是处理「不足额」的全部逻辑。',
+          '下标用 `(index + 1) % num_people` 实现环形轮转。',
+          '循环条件是 `remaining > 0`，天然覆盖「中途分完」的情况。',
+          '不要在循环里判断 num_people 的倍数来决定是否重置发放量，发放量永远不重置。',
+        ],
+        callout:
+          '这类「按递增步长发一圈再一圈」的问题直接模拟即可，规模是 O(sqrt(candies)) 轮，不需要找闭式解。真要优化可以先用等差数列求出完整圈数再一次填表，但这里没必要。',
+      },
+      {
+        id: 'distribute-candies-to-people-solution',
+        title: '标准解法：一轮一轮地发',
+        summary:
+          '用 while 循环模拟每一次发放，把不足额的情况并入同一条语句，代码短且边界清晰。',
+        bullets: [
+          '复杂度：轮数约等于 O(sqrt(candies))，每次发放是常数时间。',
+          '空间复杂度：`O(num_people)`，只用于返回数组。',
+          '`give` 从 1 开始，每发一次自增 1，不做取模。',
+          '最后一轮 `take` 小于 `give`，`remaining` 随之归零，循环自然退出。',
+        ],
+        code: `function distributeCandies(candies: number, num_people: number): number[] {
+  const result = new Array<number>(num_people).fill(0)
+  let remaining = candies
+  let give = 1
+  let index = 0
+
+  while (remaining > 0) {
+    const take = Math.min(give, remaining)
+    result[index] += take
+    remaining -= take
+    give += 1
+    index = (index + 1) % num_people
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'distribute-candies-to-people-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最常见的错误是把发放数量当成每轮重置，或者忘记最后一轮只给剩余的部分。',
+        bullets: [
+          '易错点 1：每一圈把 `give` 重置为 1，结果变成等额发放。',
+          '易错点 2：最后一轮直接给 `give` 颗，导致给出总量超过 candies。',
+          '易错点 3：循环条件写成 `give <= candies`，中途分完时仍继续发放。',
+          '易错点 4：下标自增后忘记取模，数组越界。',
+          '延伸方向：等差数列求和、约瑟夫环、按权重循环分配。',
+        ],
+      },
+    ],
+  },
 ];
