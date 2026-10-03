@@ -109571,4 +109571,85 @@ ORDER BY login_date;`,
       },
     ],
   },
+  {
+    id: 'corporate-flight-bookings',
+    label: '1109. LeetCode 1109. 航班预订统计',
+    difficulty: '中等',
+    description:
+      '给定若干条形如 [first, last, seats] 的区间预订记录，求编号 1 到 n 的每个航班最终各有多少个座位被预订。',
+    outcome:
+      '你能掌握差分数组：把区间加操作压缩成两个端点修改，再用一次前缀和还原出每个位置的值。',
+    sections: [
+      {
+        id: 'corporate-flight-bookings-summary',
+        title: '题目在问什么',
+        summary:
+          '有 n 个航班，编号从 1 到 n。bookings[i] = [first, last, seats] 表示从 first 到 last（含两端）的每个航班都被预订了 seats 个座位。要求返回长度为 n 的数组，第 i 个元素是航班 i 的座位总数。',
+        bullets: [
+          '区间是闭区间，两端都要加上 seats。',
+          '同一次预订会覆盖区间内的每一个航班，逐个累加是 O(长度)。',
+          '多条预订的记录会叠加，最终每个航班的值是覆盖它的所有预订之和。',
+          '返回数组下标 0 对应航班 1。',
+        ],
+      },
+      {
+        id: 'corporate-flight-bookings-difference-array',
+        title: '用差分数组把区间加变成两点修改',
+        summary:
+          '维护一个长度为 n + 1 的差分数组，对区间 [first, last] 加 seats 只需在 diff[first - 1] 上加 seats、在 diff[last] 上减 seats。全部记录处理完后，对差分数组求一次前缀和，就得到每个航班的实际座位数。',
+        bullets: [
+          '前缀和的第 i 项等于所有覆盖位置 i 的区间增量之和，这正是要的答案。',
+          '`diff[last] -= seats` 中的下标是 last 而不是 last - 1，因为闭区间的增量在下一位失效。',
+          '数组开 n + 1 是为了让 last 等于 n 时下标仍然合法。',
+          '把 m 次长度为 L 的区间加从 `O(m * L)` 降到 `O(m + n)`。',
+        ],
+        callout:
+          '差分数组与前缀和互为逆运算：对数组做前缀和会得到「累积影响」，而差分记录的是「变化点」。凡是只有区间加、最后统一询问每个位置的场景，都应该先想到差分。',
+      },
+      {
+        id: 'corporate-flight-bookings-solution',
+        title: '标准解法：差分打标记，前缀和还原',
+        summary:
+          '先在差分数组上给每条预订打两个标记，再从前往后扫描累加，把前缀和写进结果数组。',
+        bullets: [
+          '差分数组长度取 `n + 1`，多出的一位专门接收右端点后的减量。',
+          '还原时用一个 `running` 变量滚动累加，无需真的构造前缀和数组。',
+          '时间复杂度：`O(m + n)`，m 为预订条数。',
+          '空间复杂度：`O(n)`，差分数组与结果数组。',
+        ],
+        code: `function corpFlightBookings(bookings: number[][], n: number): number[] {
+  const diff = new Array<number>(n + 1).fill(0)
+
+  for (const [first, last, seats] of bookings) {
+    diff[first - 1] += seats
+    diff[last] -= seats
+  }
+
+  const result = new Array<number>(n).fill(0)
+  let running = 0
+
+  for (let index = 0; index < n; index += 1) {
+    running += diff[index]
+    result[index] = running
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'corporate-flight-bookings-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最常见的错误是把右端点也写成 `last - 1`，导致区间变成了左闭右开，区间最后一个航班少了预订量。',
+        bullets: [
+          '易错点 1：写成 `diff[last - 1] -= seats`，右端点没算上。',
+          '易错点 2：差分数组只开 n 个位置，`last` 等于 n 时越界或写丢。',
+          '易错点 3：忘记航班编号从 1 开始，`first` 直接用作了下标。',
+          '易错点 4：还原时用了 `result[index] = running` 却把 `running` 加在了赋值之后。',
+          '易错点 5：区间加量可能是 0 或很大，用 32 位整数存储要留意溢出。',
+          '延伸方向：二维差分、区间修改区间查询（树状数组）、前缀和的各类变形。',
+        ],
+      },
+    ],
+  },
 ];
