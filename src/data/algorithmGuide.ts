@@ -109138,4 +109138,101 @@ HAVING COALESCE(SUM(orders.quantity), 0) < 10;`,
       },
     ],
   },
+  {
+    id: 'path-in-zigzag-labelled-binary-tree',
+    label: '1104. LeetCode 1104. 二叉树寻路',
+    difficulty: '中等',
+    description:
+      '在一棵按行编号、偶数行左右翻转的完全二叉树中，给定某个节点的编号，返回从根到该节点的路径。',
+    outcome:
+      '你能掌握用层号还原翻转编号的方法：先把节点编号映射回正常顺序，再折半求父节点，最后按父节点所在层反向映射回去。',
+    sections: [
+      {
+        id: 'path-in-zigzag-labelled-binary-tree-summary',
+        title: '题目在问什么',
+        summary:
+          '一棵无限深的完全二叉树，第 1 层只有根节点编号 1，第 i 层有 2^(i-1) 个节点，编号取自区间 [2^(i-1), 2^i - 1]。奇数层从左到右递增编号，偶数层从右到左递增编号（也就是左右镜像）。给定某个编号 label，返回从根到它的编号序列。',
+        bullets: [
+          '编号在整个区间内连续，第 i 层恰好占满 2^(i-1) 个连续整数。',
+          '偶数层的编号是从右往左递增的，左端反而是该层最大的编号。',
+          '路径必须从根开始，按层递增输出。',
+          '节点编号可达 10^6，逐层构造整棵树既浪费内存也不必要。',
+        ],
+      },
+      {
+        id: 'path-in-zigzag-labelled-binary-tree-math',
+        title: '先把编号折回正常顺序，再折半找父亲',
+        summary:
+          '正常二叉树里父节点编号是子节点编号的一半。这里偶数层被镜像过，所以每次折半前要先把当前编号映射回该层的正常顺序，得到父节点后再按父节点所在层决定是否镜像回去。',
+        bullets: [
+          '一层内镜像的换算：`正常编号 = 层起点 + 层终点 - 当前编号`。',
+          '先算出 label 所在的层号：反复把层号加一，直到 `2^level > label`。',
+          '路径从下往上收集，最后整体反转即可得到根到叶的顺序。',
+          '整个过程只有常数次算术运算，不需要建树。',
+        ],
+        callout:
+          '镜像层的编号互换是对合的：对 `[start, end]` 内的编号做一次 `start + end - value` 就得到镜像位置，再做一次就回到原值。所以同一行代码既能用于「读入时折回正常序」，也能用于「写出时折回镜像序」。',
+      },
+      {
+        id: 'path-in-zigzag-labelled-binary-tree-solution',
+        title: '标准解法：逐层向上反推',
+        summary:
+          '先定位层号，然后循环：把当前节点压入路径，折回正常顺序求父节点，再按父节点所在层镜像回去，层号减一，直到根节点。',
+        bullets: [
+          '循环终点的根节点在循环外补一次，或把循环写成包含第 1 层。',
+          '判断镜像只看层号的奇偶：偶数层才是翻转层。',
+          '每一层都要用自己的层起点与层终点，不要复用上一层的区间。',
+          '时间复杂度：`O(log label)`，即树的深度。',
+          '空间复杂度：`O(log label)`，用于存放路径。',
+        ],
+        code: `function pathInZigZagTree(label: number): number[] {
+  const path: number[] = []
+  let level = 1
+
+  while (2 ** level <= label) {
+    level += 1
+  }
+
+  let current = label
+
+  while (level > 1) {
+    path.push(current)
+
+    const levelStart = 2 ** (level - 1)
+    const levelEnd = 2 ** level - 1
+    const normalCurrent =
+      level % 2 === 0 ? levelStart + levelEnd - current : current
+    const parent = Math.floor(normalCurrent / 2)
+
+    const parentLevel = level - 1
+    const parentStart = 2 ** (parentLevel - 1)
+    const parentEnd = 2 ** parentLevel - 1
+    const normalParent =
+      parentLevel % 2 === 0 ? parentStart + parentEnd - parent : parent
+
+    current = normalParent
+    level = parentLevel
+  }
+
+  path.push(current)
+
+  return path.reverse()
+}`,
+      },
+      {
+        id: 'path-in-zigzag-labelled-binary-tree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是漏掉其中一次镜像：要么折半前没折回正常序，要么求出父节点后忘了按父节点所在层镜像回去。',
+        bullets: [
+          '易错点 1：只镜像一次，得到的父节点编号落在错误的层位上。',
+          '易错点 2：用 `Math.log2(label)` 直接取整求层号，大编号下浮点误差会给出错误层。',
+          '易错点 3：层起点写成 `2 ** level`，整体偏移一层。',
+          '易错点 4：漏掉根节点，返回的路径缺少第 1 层。',
+          '易错点 5：把奇偶判断写反，奇数层反而被镜像。',
+          '延伸方向：堆式编号、线段树下标、完全二叉树上的层序索引换算。',
+        ],
+      },
+    ],
+  },
 ];
