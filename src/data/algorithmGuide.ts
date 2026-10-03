@@ -109756,4 +109756,83 @@ function delNodes(
       },
     ],
   },
+  {
+    id: 'maximum-nesting-depth-of-two-valid-parentheses-strings',
+    label: '1111. LeetCode 1111. 有效括号的嵌套深度',
+    difficulty: '中等',
+    description:
+      '把一个有效括号字符串拆成两个子序列，各自仍是有效括号串，并使两者的嵌套深度最大值尽可能小。',
+    outcome:
+      '你能掌握按深度奇偶分配的贪心：把相邻层的括号交替分给两组，就恰好把深度对半分摊。',
+    sections: [
+      {
+        id: 'maximum-nesting-depth-of-two-valid-parentheses-strings-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个有效括号字符串 seq，要把它拆成两个子序列 A 和 B：每个字符必须恰好归入其中一个，且保持原有的相对顺序；要求 A 和 B 各自都是有效括号字符串，并且让「A 的深度」与「B 的深度」中的较大值尽可能小。返回一个与 seq 等长的 0/1 数组，标记每个字符归谁。',
+        bullets: [
+          '拆的是子序列而不是子串，字符可以交错归属。',
+          'A 和 B 都必须是合法括号序列，不能出现提前闭合。',
+          '深度指任意时刻未匹配左括号数的最大值。',
+          '返回值只要满足最优即可，不要求唯一。',
+        ],
+      },
+      {
+        id: 'maximum-nesting-depth-of-two-valid-parentheses-strings-parity',
+        title: '按深度奇偶交替分配',
+        summary:
+          '一边扫描一边维护当前深度。遇到左括号时，先按当前深度的奇偶决定它归谁，再把深度加一；遇到右括号时，先把深度减一，再按新的深度奇偶决定它归谁。这样同一层里成对的括号必然落在同一个人手上。',
+        bullets: [
+          '左括号用「进入前的深度」，右括号用「匹配到的那层深度」，两者必须一致才能保证配对不跨组。',
+          '相邻两层的括号被分给不同的人，所以每一组的嵌套深度最多是原深度的一半向上取整。',
+          '这已经达到理论下界：最深处同时有 d 个左括号打开，两组必有其一拿到至少 ceil(d/2) 个。',
+          '同一组的括号顺序天然保持，因为扫描顺序就是原字符串顺序。',
+        ],
+        callout:
+          '关键在于左右括号必须用同一个「层次编号」：左括号在深度 d 处打开，对应的右括号也必须按 d 来归属。如果右括号用了减一之后的深度，配对就会跨组，某一组可能出现多余的右括号而不再是合法序列。',
+      },
+      {
+        id: 'maximum-nesting-depth-of-two-valid-parentheses-strings-solution',
+        title: '标准解法：边扫描边取模',
+        summary:
+          '用一个深度计数器扫过整个字符串，按深度对 2 取模把答案写进结果数组。',
+        bullets: [
+          '左括号：先记录 `depth % 2`，再 `depth += 1`。',
+          '右括号：先 `depth -= 1`，再记录 `depth % 2`。',
+          '返回值的取值只有 0 和 1，正好对应两个分组。',
+          '时间复杂度：`O(n)`，一次扫描。',
+          '空间复杂度：`O(n)`，结果数组。',
+        ],
+        code: `function maxDepthAfterSplit(seq: string): number[] {
+  const result: number[] = []
+  let depth = 0
+
+  for (const char of seq) {
+    if (char === '(') {
+      result.push(depth % 2)
+      depth += 1
+    } else {
+      depth -= 1
+      result.push(depth % 2)
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'maximum-nesting-depth-of-two-valid-parentheses-strings-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是左右括号使用了不同的深度基准，导致分组后某一组括号失衡。',
+        bullets: [
+          '易错点 1：右括号用了减一之前的深度，配对跨组，A 或 B 出现多余的右括号。',
+          '易错点 2：左括号先自增再取模，整体层次编号偏移一位。',
+          '易错点 3：只按扫描下标的奇偶分组，同一对括号可能被拆散。',
+          '易错点 4：认为必须输出字典序最小的方案，题目只要求最大深度最小。',
+          '延伸方向：交错分组、多组分摊（深度对 k 取模）、括号序列的深度与树高对应。',
+        ],
+      },
+    ],
+  },
 ];
