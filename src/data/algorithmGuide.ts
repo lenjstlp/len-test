@@ -109430,4 +109430,83 @@ HAVING COALESCE(SUM(orders.quantity), 0) < 10;`,
       },
     ],
   },
+  {
+    id: 'new-users-daily-count',
+    label: '1107. LeetCode 1107. 每日新用户统计',
+    difficulty: '中等',
+    description:
+      '基于 Traffic 表按用户求出首次登录日期，统计最近 90 天内每天有多少用户是在那一天第一次登录。',
+    outcome:
+      '你能掌握 SQL 里的「首次事件」求法：先按用户聚合取 MIN，再对聚合结果做时间窗口过滤和分组计数。',
+    sections: [
+      {
+        id: 'new-users-daily-count-summary',
+        title: '题目在问什么',
+        summary:
+          'Traffic 表记录用户在各类页面上的行为，activity 可能取 login、logout、jobs、groups、homepage。所谓「新用户」指在那一天第一次登录的用户。要求统计最近 90 天内每天的新用户数，假定今天为 2019-06-30。',
+        bullets: [
+          '同一用户可能有多条 login 记录，只有最早的那条算首次登录。',
+          '用户首次登录之外的其它行为与本统计无关。',
+          '首次登录早于 90 天窗口的用户，即使窗口内又登录过，也不再算新用户。',
+          '只输出有用户的日期，结果按登录日期升序排列。',
+        ],
+      },
+      {
+        id: 'new-users-daily-count-model',
+        title: '先按用户压成一行，再对结果做窗口过滤',
+        summary:
+          '第一步用 GROUP BY user_id 加 MIN(activity_date) 把每个用户压成唯一一条首次登录记录；第二步在这个聚合结果上筛选 90 天窗口，再按日期分组计数。',
+        bullets: [
+          '必须在聚合之后过滤，不能先在 WHERE 里限时间再求 MIN，否则首次登录会被窗口截断成窗口内的某次登录。',
+          '90 天窗口是左闭右闭的，上界是今天本身。',
+          '聚合结果里每个用户只有一行，所以 COUNT(*) 直接就是新用户数。',
+          '按 login_date 分组后日期天然唯一，不需要额外去重。',
+        ],
+        callout:
+          '这是 SQL 里典型的「先聚合再过滤」模式。把时间条件写进 WHERE 会把筛选提前到聚合之前，语义就从「首次登录落在窗口内」变成了「窗口内有过登录」，正是这一题最隐蔽的陷阱。',
+      },
+      {
+        id: 'new-users-daily-count-solution',
+        title: '标准解法：CTE 求首登 + 窗口过滤 + 分组计数',
+        summary:
+          '用 CTE 计算每位用户的首次登录日期，外层限定 90 天窗口并按日期分组统计人数。',
+        bullets: [
+          "CTE 里先用 `WHERE activity = 'login'` 把无关行为挡掉，避免它们影响 MIN。",
+          "窗口下界用 `DATE_SUB('2019-06-30', INTERVAL 90 DAY)` 表达，语义清晰且不依赖手算日期。",
+          '为 (user_id, activity, activity_date) 建索引能加速首登查找。',
+          '复杂度由 Traffic 的全表扫描与分组决定，外层只是对每个用户一行的结果再聚合。',
+        ],
+        code: `WITH first_login AS (
+  SELECT
+    user_id,
+    MIN(activity_date) AS login_date
+  FROM Traffic
+  WHERE activity = 'login'
+  GROUP BY user_id
+)
+SELECT
+  login_date,
+  COUNT(*) AS user_count
+FROM first_login
+WHERE login_date >= DATE_SUB('2019-06-30', INTERVAL 90 DAY)
+  AND login_date <= '2019-06-30'
+GROUP BY login_date
+ORDER BY login_date;`,
+      },
+      {
+        id: 'new-users-daily-count-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是把时间过滤放到聚合之前，或者用 COUNT(DISTINCT user_id) 但忘了先压缩首次登录。',
+        bullets: [
+          '易错点 1：WHERE 里先限时间再 MIN，窗口外的首登被截断成窗口内的登录。',
+          "易错点 2：没有过滤 `activity = 'login'`，MIN 取到了 homepage 等其它行为的日期。",
+          '易错点 3：漏掉上界，把今天之后的登录也统计进来。',
+          '易错点 4：把窗口下界手写成固定日期，天数一变就失效。',
+          '易错点 5：忘记 ORDER BY login_date，输出顺序不确定。',
+          '延伸方向：次日留存、DAU/MAU、首次下单到复购的漏斗、窗口函数 FIRST_VALUE。',
+        ],
+      },
+    ],
+  },
 ];
