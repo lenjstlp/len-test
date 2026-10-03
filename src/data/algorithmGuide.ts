@@ -109235,4 +109235,95 @@ HAVING COALESCE(SUM(orders.quantity), 0) < 10;`,
       },
     ],
   },
+  {
+    id: 'filling-bookcase-shelves',
+    label: '1105. LeetCode 1105. 填充书架',
+    difficulty: '中等',
+    description:
+      '把书按给定顺序摆上书架，每层放连续的一段且总厚度不超过 shelfWidth，每层的层高取决于该层最厚的书，求所有层的层高之和的最小值。',
+    outcome:
+      '你能掌握把「连续分段」转化为区间动态规划的方法：枚举最后一层的起始位置，用层内最大高度作为转移代价。',
+    sections: [
+      {
+        id: 'filling-bookcase-shelves-summary',
+        title: '题目在问什么',
+        summary:
+          'books[i] = [thickness, height] 表示第 i 本书的厚度与高度。书必须按原顺序摆放，每一层放连续的一批书，该层总厚度不能超过 shelfWidth；一层的高度等于这层里最高的那本书。书架总高度是所有层高之和，要求最小。',
+        bullets: [
+          '书的相对顺序不能变，所以问题实质是把序列切成若干连续段。',
+          '每一段内所有书的厚度之和不超过 shelfWidth。',
+          '每一段的代价是该段高度的最大值。',
+          '目标是所有段代价之和最小。',
+        ],
+      },
+      {
+        id: 'filling-bookcase-shelves-dp',
+        title: '定义前缀最优，枚举最后一层',
+        summary:
+          '设 dp[i] 表示摆完前 i 本书的最小总高度。转移时枚举最后一层装的是哪一段 [j, i - 1]，只要这段厚度之和不超过 shelfWidth，就用 dp[j] 加上这段的最大高度去更新 dp[i]。',
+        bullets: [
+          'dp[0] = 0，前 0 本书高度为 0，作为转移的基石。',
+          '内层循环从 i - 1 往前扫，边扫边累加厚度、边取最大高度。',
+          '厚度一旦超过 shelfWidth 立即 break，因为再往前只会更宽。',
+          '因为要求连续分段，枚举的段必然是连续的结尾段，这保证了覆盖所有方案。',
+        ],
+        callout:
+          '注意内层循环是从后往前扩展同一层，而不是从前往后。这样每加一本书只需 `O(1)` 更新最大高度，整段代价不必重复扫描，总复杂度从三方降到平方。',
+      },
+      {
+        id: 'filling-bookcase-shelves-solution',
+        title: '标准解法：前缀 DP + 结尾段枚举',
+        summary:
+          '从 1 到 n 逐个计算 dp 值，对每个 i 从 i - 1 向前枚举同一层的起点，实时维护厚度与最大高度，用候选值更新 dp[i]。',
+        bullets: [
+          'dp 初始化为正无穷，只有 dp[0] 为零，保证转移从合法前缀出发。',
+          '内层变量 `width` 与 `height` 在每次进入新的 i 时都要重置。',
+          '时间复杂度：`O(n^2)`，枚举结尾段是两次循环。',
+          '空间复杂度：`O(n)`，只用一个一维 dp 数组。',
+        ],
+        code: `function minHeightShelves(books: number[][], shelfWidth: number): number {
+  const count = books.length
+  const dp = new Array<number>(count + 1).fill(Number.POSITIVE_INFINITY)
+  dp[0] = 0
+
+  for (let end = 1; end <= count; end += 1) {
+    let width = 0
+    let height = 0
+
+    for (let start = end - 1; start >= 0; start -= 1) {
+      width += books[start][0]
+
+      if (width > shelfWidth) {
+        break
+      }
+
+      height = Math.max(height, books[start][1])
+
+      const candidate = dp[start] + height
+
+      if (candidate < dp[end]) {
+        dp[end] = candidate
+      }
+    }
+  }
+
+  return dp[count]
+}`,
+      },
+      {
+        id: 'filling-bookcase-shelves-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是把「段内取最大高度」写成了「段内高度求和」，其次是在同一层里允许跳过某本书。',
+        bullets: [
+          '易错点 1：代价用 `height += books[start][1]` 累加，把层高当成了书高之和。',
+          '易错点 2：允许不按顺序摆书，问题退化成装箱而不再是连续分段。',
+          '易错点 3：厚度超限时用 break 之外的方式继续，导致越界段被计入。',
+          '易错点 4：忘记判断 `dp[start]` 是否可达，从正无穷转移出更大的值。',
+          '易错点 5：内层循环写了 `start` 与 `end` 反向，段变成了后缀而非前缀。',
+          '延伸方向：分割回文串、分段最小化最大和、书架与缓存行填充。',
+        ],
+      },
+    ],
+  },
 ];
