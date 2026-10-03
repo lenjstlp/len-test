@@ -108920,4 +108920,144 @@ HAVING COALESCE(SUM(orders.quantity), 0) < 10;`,
       },
     ],
   },
+  {
+    id: 'path-with-maximum-minimum-value',
+    label: '1102. LeetCode 1102. 得分最高的路径',
+    difficulty: '中等',
+    description:
+      '在二维网格中从左上角走到右下角，一条路径的得分是沿途格子的最小值，求所有路径中得分的最大值。',
+    outcome:
+      '你能掌握瓶颈路径问题：把格子按值降序激活并逐步合并，用并查集在首次连通时读出答案。',
+    sections: [
+      {
+        id: 'path-with-maximum-minimum-value-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 m x n 的整数网格，从 (0, 0) 出发，每次只能上下左右移动到相邻格子，一直走到 (m - 1, n - 1)。一条路径的分数等于路径上所有格子值的最小值，要求最大化这个分数。',
+        bullets: [
+          '路径可以任意绕行，只要不越界，格子允许重复经过。',
+          '分数的瓶颈永远出现在路径上值最小的那个格子。',
+          '网格带环，所以不能用朴素的递归回溯去枚举所有路径。',
+          '返回的是一个数值，不是路径本身。',
+        ],
+      },
+      {
+        id: 'path-with-maximum-minimum-value-union-find',
+        title: '按值降序激活格子，用并查集接住连通性',
+        summary:
+          '把所有格子按数值从大到小排序，依次激活；每激活一个格子就与已经激活的上下左右邻居合并。当起点与终点第一次落进同一个集合时，当前这个格子的值就是答案。',
+        bullets: [
+          '换个问法：是否存在一条路径，使沿途每个格子都不小于 x？这个判定对 x 具有单调性。',
+          '从大到小激活等价于不断降低阈值，第一次让起点终点连通的那个值就是最大的可行阈值。',
+          '并查集只记录连通关系，不需要保存路径的具体形状。',
+          '起点或终点本身就是瓶颈时答案等于两者中的较小者，算法自然覆盖这种情况。',
+        ],
+        callout:
+          '这类「最大化最小值」的路径问题又叫瓶颈路径，核心是把路径搜索转成阈值上的单调判定。二分答案加 BFS 也能解，但每次判定都要重扫网格；按值降序激活加并查集只需一次排序加一遍扫描。',
+      },
+      {
+        id: 'path-with-maximum-minimum-value-solution',
+        title: '标准解法：降序激活 + 并查集',
+        summary:
+          '先建立并查集与激活标记，把格子索引按数值降序排序，逐个激活并合并已经激活的邻居，起点终点一连通就返回当前值。',
+        bullets: [
+          '一维索引与二维坐标的换算用 `row * cols + col`，方向数组遍历四个邻居。',
+          '只有邻居已被激活时才合并，避免把还没进入阈值的高值格子提前算进来。',
+          '返回的是当前正在激活的那个格子的值，它正好等于此刻的阈值。',
+          '时间复杂度：`O(m * n log(m * n))`，主要开销在排序；并查集部分接近线性。',
+          '空间复杂度：`O(m * n)`，用于并查集、激活标记和排序数组。',
+        ],
+        code: `function maximumMinimumPath(grid: number[][]): number {
+  const rows = grid.length
+  const cols = grid[0].length
+  const total = rows * cols
+  const parent = Array.from({ length: total }, (_, index) => index)
+
+  const find = (node: number): number => {
+    let root = node
+
+    while (parent[root] !== root) {
+      root = parent[root]
+    }
+
+    let current = node
+
+    while (parent[current] !== root) {
+      const next = parent[current]
+      parent[current] = root
+      current = next
+    }
+
+    return root
+  }
+
+  const union = (first: number, second: number) => {
+    const firstRoot = find(first)
+    const secondRoot = find(second)
+
+    if (firstRoot !== secondRoot) {
+      parent[firstRoot] = secondRoot
+    }
+  }
+
+  const active = new Array<boolean>(total).fill(false)
+  const order = Array.from({ length: total }, (_, index) => index).sort(
+    (left, right) =>
+      grid[Math.floor(right / cols)][right % cols] -
+      grid[Math.floor(left / cols)][left % cols],
+  )
+
+  const directions = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+  ]
+  const start = 0
+  const end = total - 1
+
+  for (const cell of order) {
+    const row = Math.floor(cell / cols)
+    const col = cell % cols
+    active[cell] = true
+
+    for (const [rowDelta, colDelta] of directions) {
+      const nextRow = row + rowDelta
+      const nextCol = col + colDelta
+
+      if (nextRow < 0 || nextRow >= rows || nextCol < 0 || nextCol >= cols) {
+        continue
+      }
+
+      const neighbor = nextRow * cols + nextCol
+
+      if (active[neighbor]) {
+        union(cell, neighbor)
+      }
+    }
+
+    if (active[start] && active[end] && find(start) === find(end)) {
+      return grid[row][col]
+    }
+  }
+
+  return grid[0][0]
+}`,
+      },
+      {
+        id: 'path-with-maximum-minimum-value-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是忘记检查邻居是否已经激活，把整个网格一次性全并起来，于是答案退化成全局最小值。',
+        bullets: [
+          '易错点 1：不判断 `active[neighbor]` 就合并，阈值失去意义。',
+          '易错点 2：按升序处理格子，得到的是最小瓶颈值而不是最大瓶颈值。',
+          '易错点 3：只比较起点与终点的值就返回，忽略了中间的瓶颈。',
+          '易错点 4：把 `row * cols + col` 写成 `row * rows + col`，列宽用错。',
+          '易错点 5：`find` 没有路径压缩，链式合并后性能退化。',
+          '延伸方向：最小生成树的最大边、水位上升问题、二分答案加可达性判定。',
+        ],
+      },
+    ],
+  },
 ];
