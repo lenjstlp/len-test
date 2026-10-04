@@ -110801,4 +110801,107 @@ function maximumAverageSubtree(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'lowest-common-ancestor-of-deepest-leaves',
+    label: '1123. LeetCode 1123. 最深叶节点的最近公共祖先',
+    difficulty: '中等',
+    description:
+      '给定一棵二叉树，返回所有最深叶子节点的最近公共祖先，要求一趟遍历同时得出「最深深度」和「答案节点」。',
+    outcome:
+      '你能用后序 DFS 返回「深度加答案节点」的组合信息，把两个子问题压进同一次递归。',
+    sections: [
+      {
+        id: 'lowest-common-ancestor-of-deepest-leaves-summary',
+        title: '题目在问什么',
+        summary:
+          '叶子指没有子节点的节点，根节点的深度记为 0。把树中深度最大的那些叶子全部找出来，求它们的最近公共祖先（LCA），返回该节点本身。',
+        bullets: [
+          '只比较叶子节点，深度更大的内部节点不算。',
+          '最深叶子可能只有一片，此时答案就是它自己。',
+          '也可能有多片最深叶子，答案取包含它们全部的最深节点。',
+          '返回的是节点对象而不是节点值。',
+        ],
+      },
+      {
+        id: 'lowest-common-ancestor-of-deepest-leaves-model',
+        title: '后序打包返回（深度，答案）',
+        summary:
+          '递归函数返回「这棵子树的最大深度」和「这棵子树内最深叶子的 LCA」。拿到左右两个结果后比较深度：左边更深就继承左边的答案，右边更深就继承右边，两边一样深说明最深叶子分处两侧，当前节点就是它们的 LCA。',
+        bullets: [
+          '空节点返回深度 0、答案为空，作为递归的基准。',
+          '叶子节点左右深度都是 0，两者相等，于是答案是它自己，深度为一。',
+          '左右深度相等时返回当前节点，这正是合并两侧信息的位置。',
+          '把「答案节点」和「深度」一起返回，避免了先求深度再第二遍找节点的两趟遍历。',
+        ],
+        callout:
+          '不要先跑一遍 DFS 求出最大深度、再跑一遍找 LCA。两趟写法要把「第几层」「是否是最深」等状态在函数间来回传，边界条件很容易错；一趟后序把结论自底向上合并，天然处理了「答案可能出现在任意一侧」的情况。',
+      },
+      {
+        id: 'lowest-common-ancestor-of-deepest-leaves-solution',
+        title: '标准解法：一趟后序 DFS',
+        summary:
+          '定义返回 `{ depth, node }` 的递归函数，按左右深度大小关系选择继承或取当前节点，最后返回根节点的计算结果中的节点。',
+        bullets: [
+          '深度用「节点层数」口径，空为 0、叶子为 1，比较时只需保持同一口径。',
+          '左右深度相等时返回当前节点，而不是 null 或某一侧。',
+          '时间复杂度 `O(n)`，每个节点访问一次。',
+          '空间复杂度 `O(h)`，取决于递归栈深度。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(
+    val = 0,
+    left: TreeNode | null = null,
+    right: TreeNode | null = null,
+  ) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function lcaDeepestLeaves(root: TreeNode | null): TreeNode | null {
+  const walk = (
+    node: TreeNode | null,
+  ): { depth: number; node: TreeNode | null } => {
+    if (!node) {
+      return { depth: 0, node: null }
+    }
+
+    const left = walk(node.left)
+    const right = walk(node.right)
+
+    if (left.depth > right.depth) {
+      return { depth: left.depth + 1, node: left.node }
+    }
+
+    if (right.depth > left.depth) {
+      return { depth: right.depth + 1, node: right.node }
+    }
+
+    return { depth: left.depth + 1, node }
+  }
+
+  return walk(root).node
+}`,
+      },
+      {
+        id: 'lowest-common-ancestor-of-deepest-leaves-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是左右深度相等时返回了 null，或者在比较深度时把当前节点的深度算漏了一层。',
+        bullets: [
+          '易错点 1：左右深度相等时返回 null，实际上此时当前节点才是 LCA。',
+          '易错点 2：忘记给返回的深度加一，父子层级整体错位。',
+          '易错点 3：把深度定义混用（空为 0、叶子也为 0），比较时无法区分。',
+          '易错点 4：先求最大深度再遍历找 LCA，两趟之间状态传递写错。',
+          '易错点 5：返回节点的值而不是节点本身。',
+          '延伸方向：树的直径、带父指针的 LCA、倍增法求 LCA、树形 DP 返回多元组。',
+        ],
+      },
+    ],
+  },
 ];
