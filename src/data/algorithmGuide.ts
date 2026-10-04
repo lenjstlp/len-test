@@ -110196,4 +110196,107 @@ class FooBar {
       },
     ],
   },
+  {
+    id: 'print-zero-even-odd',
+    label: '1116. LeetCode 1116. 打印零与奇偶数',
+    difficulty: '中等',
+    description:
+      '三个线程分别负责打印 0、奇数、偶数，要求输出严格是 0102030405……这样的零在前、奇偶相接的序列。',
+    outcome:
+      '你能用三个信号量表达「一个主线程发车、两个线程按奇偶接单」的状态机，理解谁释放谁是有向的。',
+    sections: [
+      {
+        id: 'print-zero-even-odd-summary',
+        title: '题目在问什么',
+        summary:
+          '同一个 ZeroEvenOdd 实例被交给三个线程：线程 A 调用 zero(printNumber)，线程 B 调用 even(printNumber)，线程 C 调用 odd(printNumber)。要求最终输出 0 与 1 到 n 交替，即 n = 5 时输出 0102030405。',
+        bullets: [
+          '每次打印一个数之前都要先打印一个 0，所以 zero 会被调用 n 次。',
+          'odd 打印 1、3、5…，even 打印 2、4、6…，两者轮流接在 0 后面。',
+          '三个方法的调用顺序不确定，靠同步原语保证交错关系。',
+          'n 可能是 1，此时只输出 01。',
+        ],
+      },
+      {
+        id: 'print-zero-even-odd-model',
+        title: '三个信号量构成状态机',
+        summary:
+          '把状态想成「当前该谁上场」：初始时只有 zero 可以跑；zero 打印完一个 0 之后，根据下一个要打印的数是奇数还是偶数，把许可交给 odd 或 even；odd、even 打印完再把许可交回 zero。',
+        bullets: [
+          'zero 持有初始许可 1，保证序列以 0 开头。',
+          'zero 内部用循环变量 i 判断该把许可交给谁：i 为奇数交给 odd，偶数交给 even。',
+          'odd、even 每次打印完都把许可还给 zero，形成闭环。',
+          'zero 循环 n 次，odd 与 even 各按步长 2 遍历自己负责的数。',
+        ],
+        callout:
+          '判断交给谁时，用的是「即将打印的那个数」的奇偶性。如果写成「已经打印的 0 的序号」，语义就错位了——第 i 个 0 后面跟的是数值 i，这一点必须理清。',
+      },
+      {
+        id: 'print-zero-even-odd-solution',
+        title: '标准解法：三个信号量按奇偶交接',
+        summary:
+          '复用 1115 题实现的 Semaphore，初始化 zero 为 1、even 和 odd 为 0。zero 打印后按奇偶释放对应信号量，even 与 odd 打印后释放 zero。',
+        bullets: [
+          '`Semaphore` 实现见上一题，这里只写状态机部分。',
+          'even 从 2 开始、每次加 2；odd 从 1 开始、每次加 2。',
+          '每个打印方法在拿到许可后才输出，输出完立刻交棒。',
+          '时间复杂度：每个数一次 acquire 加一次 release，均为 `O(1)`。',
+        ],
+        code: `// Semaphore 实现见 1115 题
+class ZeroEvenOdd {
+  private readonly n: number
+  private readonly zeroSem = new Semaphore(1)
+  private readonly evenSem = new Semaphore(0)
+  private readonly oddSem = new Semaphore(0)
+
+  constructor(n: number) {
+    this.n = n
+  }
+
+  async zero(printNumber: (value: number) => void): Promise<void> {
+    for (let i = 1; i <= this.n; i += 1) {
+      await this.zeroSem.acquire()
+      printNumber(0)
+
+      if (i % 2 === 1) {
+        this.oddSem.release()
+      } else {
+        this.evenSem.release()
+      }
+    }
+  }
+
+  async even(printNumber: (value: number) => void): Promise<void> {
+    for (let i = 2; i <= this.n; i += 2) {
+      await this.evenSem.acquire()
+      printNumber(i)
+      this.zeroSem.release()
+    }
+  }
+
+  async odd(printNumber: (value: number) => void): Promise<void> {
+    for (let i = 1; i <= this.n; i += 2) {
+      await this.oddSem.acquire()
+      printNumber(i)
+      this.zeroSem.release()
+    }
+  }
+}`,
+      },
+      {
+        id: 'print-zero-even-odd-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是用打印出来的 0 的个数去判断奇偶，或者让 odd 和 even 共用一个信号量。',
+        bullets: [
+          '易错点 1：用「第几次打印 0」判断交给谁，导致 0 后面跟的奇偶颠倒。',
+          '易错点 2：odd、even 共用一个信号量，两个线程会互相抢许可。',
+          '易错点 3：zero 少循环一次，最后一个数前面没有 0。',
+          '易错点 4：打印写在 acquire 之前，0 与数字的先后关系被打乱。',
+          '易错点 5：n 为偶数与奇数两种边界没有分别验证。',
+          '延伸方向：三线程轮转、状态机建模、用条件变量替代多个信号量。',
+        ],
+      },
+    ],
+  },
 ];
