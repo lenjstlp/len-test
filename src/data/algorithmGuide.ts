@@ -110528,4 +110528,106 @@ class BuildingH2O {
       },
     ],
   },
+  {
+    id: 'maximum-average-subtree',
+    label: '1120. LeetCode 1120. 子树的最大平均值',
+    difficulty: '中等',
+    description:
+      '给定一棵二叉树，求所有子树中「节点值之和除以节点个数」的最大值，误差在 1e-5 以内即可。',
+    outcome:
+      '你能用后序遍历一趟同时返回子树的「和」与「节点数」，理解为什么平均值不能直接相加、而和与个数可以。',
+    sections: [
+      {
+        id: 'maximum-average-subtree-summary',
+        title: '题目在问什么',
+        summary:
+          '树中任意一个节点以及它的全部后代构成一棵子树。对每棵子树算出「值之和除以节点个数」，返回这些平均值里的最大值。',
+        bullets: [
+          '叶子本身就是一棵子树，它的平均值就是自身的值。',
+          '根节点对应的子树是整棵树。',
+          '节点值可能是 0 或正数，不会有负数。',
+          '结果按浮点数比较，允许 1e-5 的相对误差。',
+        ],
+      },
+      {
+        id: 'maximum-average-subtree-model',
+        title: '后序返回（和，个数）二元组',
+        summary:
+          '平均值不是可累加的量，两棵子树的平均值不能直接相加；可以累加的是它们的元素之和与节点个数。所以递归函数返回一个二元组，回溯时先把左右子树的和与个数相加，再加上自己，然后算一次平均值并更新全局最优。',
+        bullets: [
+          '空节点返回 (0, 0)，让叶子节点也走同一条计算路径。',
+          '每到一个节点就计算一次 `sum / count`，这就覆盖了以它为根的那棵子树。',
+          '全局最优值在后序位置更新，此时子树信息才完整。',
+          '返回二元组而不是在递归里直接返回平均值，是本题最关键的设计。',
+        ],
+        callout:
+          '这是树上「统计量聚合」的通用套路：先确定哪些量可加（和、个数），把不可加的量（平均值、最大深度、直径）留在回溯时现场计算。想清楚返回值语义，代码就只有十几行。',
+      },
+      {
+        id: 'maximum-average-subtree-solution',
+        title: '标准解法：带返回值的后序 DFS',
+        summary:
+          '递归函数返回子树的节点值之和与节点个数，在回溯时更新最大值，最后返回全局最优。',
+        bullets: [
+          '用 `[sum, count]` 元组作为返回值，解构赋值让代码很直观。',
+          '最优值初始化为负无穷，避免依赖节点值非负这一条件。',
+          '时间复杂度 `O(n)`，每个节点访问一次。',
+          '空间复杂度 `O(h)`，即递归栈的深度，最坏是链状树的 `O(n)`。',
+        ],
+        code: `class TreeNode {
+  val: number
+  left: TreeNode | null
+  right: TreeNode | null
+
+  constructor(
+    val = 0,
+    left: TreeNode | null = null,
+    right: TreeNode | null = null,
+  ) {
+    this.val = val
+    this.left = left
+    this.right = right
+  }
+}
+
+function maximumAverageSubtree(root: TreeNode | null): number {
+  let best = -Infinity
+
+  const walk = (node: TreeNode | null): [number, number] => {
+    if (!node) {
+      return [0, 0]
+    }
+
+    const [leftSum, leftCount] = walk(node.left)
+    const [rightSum, rightCount] = walk(node.right)
+
+    const sum = leftSum + rightSum + node.val
+    const count = leftCount + rightCount + 1
+
+    best = Math.max(best, sum / count)
+
+    return [sum, count]
+  }
+
+  walk(root)
+
+  return best
+}`,
+      },
+      {
+        id: 'maximum-average-subtree-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是把左右子树的平均值再取平均，忽略了不同子树节点数不同、权重并不相等。',
+        bullets: [
+          '易错点 1：用 `(leftAvg + rightAvg) / 2` 参与比较，权重错误。',
+          '易错点 2：只比较内部节点，漏掉叶子子树。',
+          '易错点 3：返回的 count 写成 1，没把左右子树节点数累加进去。',
+          '易错点 4：在遍历过程中就地更新却不返回，导致父节点拿不到子树信息。',
+          '易错点 5：用整数运算或提前取整，损失精度。',
+          '延伸方向：树形 DP 返回值设计、子树和、树的高度与直径、返回多元组的后序遍历。',
+        ],
+      },
+    ],
+  },
 ];
