@@ -109985,4 +109985,97 @@ GROUP BY extra;`,
       },
     ],
   },
+  {
+    id: 'print-in-order',
+    label: '1114. LeetCode 1114. 按序打印',
+    difficulty: '简单',
+    description:
+      '三个线程分别调用 first、second、third，无论调度顺序如何，输出都必须严格是 firstsecondthird。',
+    outcome:
+      '你能用 Promise 链表达线程间的先后约束：后一个方法 await 前一个方法放行的信号，顺序就再也不会错。',
+    sections: [
+      {
+        id: 'print-in-order-summary',
+        title: '题目在问什么',
+        summary:
+          '同一个 PrintInOrder 实例会被交给三个线程：线程 A 调用 first()，线程 B 调用 second()，线程 C 调用 third()。三个方法由不同线程调用，谁先拿到执行权由调度器决定，但必须保证 first 执行完才轮到 second，second 执行完才轮到 third。',
+        bullets: [
+          '输入 [1,2,3] 表示三个线程被安排去调用第 1、2、3 个方法。',
+          '调用顺序不确定，要保证的是执行顺序。',
+          '每个方法内部会调用传入的打印函数来体现自己执行了。',
+          '不能依赖 sleep 或轮询来碰运气。',
+        ],
+      },
+      {
+        id: 'print-in-order-model',
+        title: '把先后关系写成「等待信号」',
+        summary:
+          '给每个方法配一个「我可以开始了吗」的信号：first 不需要等任何人，执行完把信号一放；second 先等 first 的信号再执行，执行完再放行 third；third 等 second 的信号。',
+        bullets: [
+          '信号只需要传递一次，所以一个 Promise 的 resolve 就够了。',
+          '等待方 await 前驱的 Promise，代码是线性的，不用回调嵌套。',
+          '这条链与线程调度顺序无关：谁先被调用只决定谁先挂起。',
+          '每个方法在放行之后才结束，保证后一个方法看到的一定是完整的执行结果。',
+        ],
+        callout:
+          '并发题的关键不是「谁先被调用」，而是「谁在等谁」。把所有等待关系画成一张有向图，只要无环就不会死锁；本题的图是一条链 1 → 2 → 3，最简单的一类。',
+      },
+      {
+        id: 'print-in-order-solution',
+        title: '标准解法：Promise 链',
+        summary:
+          '在构造函数里创建两个 Promise 并保存它们的 resolve；first 打印后 resolve 第一个，second await 第一个后打印、再 resolve 第二个，third await 第二个后打印。',
+        bullets: [
+          '用 `!` 断言 resolve 在构造函数中已赋值，避免类型报错。',
+          '`await` 一个已经 resolve 的 Promise 会在微任务里继续，不会丢顺序。',
+          'second、third 声明为 async 方法，用 await 表达等待。',
+          '时间复杂度：每个方法的额外开销是 `O(1)`。',
+        ],
+        code: `class PrintInOrder {
+  private resolveFirst!: () => void
+  private resolveSecond!: () => void
+  private readonly firstDone: Promise<void>
+  private readonly secondDone: Promise<void>
+
+  constructor() {
+    this.firstDone = new Promise<void>((resolve) => {
+      this.resolveFirst = resolve
+    })
+    this.secondDone = new Promise<void>((resolve) => {
+      this.resolveSecond = resolve
+    })
+  }
+
+  first(printFirst: () => void): void {
+    printFirst()
+    this.resolveFirst()
+  }
+
+  async second(printSecond: () => void): Promise<void> {
+    await this.firstDone
+    printSecond()
+    this.resolveSecond()
+  }
+
+  async third(printThird: () => void): Promise<void> {
+    await this.secondDone
+    printThird()
+  }
+}`,
+      },
+      {
+        id: 'print-in-order-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是用 `setTimeout` 猜一个「够用」的延迟，或者用一个布尔标志做忙等待。',
+        bullets: [
+          '易错点 1：`setTimeout(printSecond, 100)` 赌 first 能先跑完，机器一忙就翻车。',
+          '易错点 2：`while (!flag) {}` 忙等待，占满 CPU，还可能因可见性问题永远跳不出。',
+          '易错点 3：在构造函数里就执行打印，三个方法的时序完全失控。',
+          '易错点 4：只用一个标志记录阶段，却让多个线程同时推进。',
+          '延伸方向：Semaphore、条件变量、CyclicBarrier、Promise.all 与顺序约束的区别。',
+        ],
+      },
+    ],
+  },
 ];
