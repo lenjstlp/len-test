@@ -109915,4 +109915,74 @@ ORDER BY student_id;`,
       },
     ],
   },
+  {
+    id: 'reported-posts',
+    label: '1113. LeetCode 1113. 报告的帖子',
+    difficulty: '简单',
+    description:
+      '基于 Actions 表统计昨天每个举报原因下被举报的帖子数量，同一帖子被同一原因举报多次只能算一篇。',
+    outcome:
+      '你能掌握 SQL 的「先过滤、再分组去重计数」三步走，理解 COUNT(DISTINCT ...) 为什么必须写在聚合函数里面。',
+    sections: [
+      {
+        id: 'reported-posts-summary',
+        title: '题目在问什么',
+        summary:
+          'Actions 表有 user_id、post_id、action_date、action、extra 五列，记录用户对帖子的各种操作；当 action 为 report 时，extra 列存的是举报原因。要求统计「昨天」每个举报原因下被举报的帖子数量，题目把今天固定为 2019-07-05，所以昨天就是 2019-07-04。',
+        bullets: [
+          '只统计 action = report 的行，浏览、点赞、分享都要排除。',
+          '统计对象是帖子而不是举报次数，同一帖子被两个人举报同一原因只算一篇。',
+          '分组键是 extra，也就是举报原因。',
+          '时间窗口写死为 2019-07-04，不要用当前日期函数。',
+        ],
+      },
+      {
+        id: 'reported-posts-model',
+        title: '先过滤行，再分组去重',
+        summary:
+          'SQL 的执行顺序是 WHERE 先筛行、GROUP BY 再分组、最后在组内做聚合。本题的过滤条件有两个维度：时间维度和行为维度，缺一不可。',
+        bullets: [
+          "`action_date = '2019-07-04'` 确定统计窗口。",
+          "`action = 'report'` 确定只保留举报行为。",
+          '`GROUP BY extra` 把同一举报原因的记录聚到一起。',
+          '`COUNT(DISTINCT post_id)` 保证同一帖子在同一原因下只计一次。',
+        ],
+        callout:
+          'DISTINCT 必须写在 COUNT 的括号里，而不是 SELECT 前面。写成 `COUNT(post_id)` 会把同一帖子的多次举报算成多条；写成 `SELECT DISTINCT COUNT(...)` 更是南辕北辙——DISTINCT 作用于聚合后的结果，此时每组只剩一行，毫无去重效果。',
+      },
+      {
+        id: 'reported-posts-solution',
+        title: '标准解法：WHERE + GROUP BY + COUNT(DISTINCT)',
+        summary:
+          '一条聚合查询就能搞定：先用两个过滤条件圈定昨天的举报行，再按 extra 分组，最后统计每组里去重后的帖子数。',
+        bullets: [
+          '非举报行里 extra 可能另有含义，但已经被 WHERE 排除，不必额外担心。',
+          '用 AS 给结果列起别名，输出语义更清楚。',
+          '题目对顺序没有要求，需要稳定输出时可以补 ORDER BY report_reason。',
+          '复杂度大致是 `O(n)` 加上分组与去重的哈希开销。',
+        ],
+        code: `SELECT
+  extra AS report_reason,
+  COUNT(DISTINCT post_id) AS report_count
+FROM Actions
+WHERE action_date = '2019-07-04'
+  AND action = 'report'
+GROUP BY extra;`,
+      },
+      {
+        id: 'reported-posts-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是用 COUNT(post_id) 代替 COUNT(DISTINCT post_id)，把重复举报算成一帖多次。',
+        bullets: [
+          "易错点 1：漏掉 `action = 'report'` 过滤，把浏览、点赞等操作的 extra 也统计进来。",
+          '易错点 2：用 `COUNT(*)` 统计行数，同一帖子被多人举报会重复计数。',
+          '易错点 3：把日期写成 `CURDATE() - 1`，与题目固定的 2019-07-04 对不上。',
+          '易错点 4：GROUP BY 写成 post_id，结果变成每篇帖子一行。',
+          '易错点 5：SELECT 了未参与分组的列，在严格模式下直接报错。',
+          '延伸方向：COUNT(DISTINCT) 的多种等价写法、按日期分组的留存统计、CASE WHEN 配合 SUM 做条件聚合。',
+        ],
+      },
+    ],
+  },
 ];
