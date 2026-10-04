@@ -110707,4 +110707,98 @@ function maximumAverageSubtree(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'relative-sort-array',
+    label: '1122. LeetCode 1122. 数组的相对排序',
+    difficulty: '简单',
+    description:
+      '按 arr2 给定的顺序对 arr1 排序：出现在 arr2 里的元素按 arr2 的相对顺序排在前面，其余元素升序接在后面。',
+    outcome:
+      '你能掌握自定义优先级排序的两条路：比较函数里查表定序，或者统计频次后按值域重建。',
+    sections: [
+      {
+        id: 'relative-sort-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两个数组 arr1 和 arr2，arr2 中的元素互不相同且都出现在 arr1 中。要求把 arr1 重排：先在 arr1 中找出所有出现在 arr2 里的元素，按它们在 arr2 中的先后顺序排列（重复元素保持相邻）；再把 arr1 中不在 arr2 里的元素按升序排在后面。',
+        bullets: [
+          'arr1 中可能有重复元素，重复次数要原样保留。',
+          'arr2 的元素互不相同，这保证了优先级是良定义的。',
+          '结果长度与 arr1 相同，每个元素恰好出现一次。',
+          '例如 arr1 为 [2,3,1,3,2,4,6,7,9,2,19]、arr2 为 [2,1,4,3,9,6] 时，输出 [2,2,2,1,4,3,3,9,6,7,19]。',
+        ],
+      },
+      {
+        id: 'relative-sort-array-model',
+        title: '给每个值定一个排序权重',
+        summary:
+          '把 arr2 看成一个优先级表：值在 arr2 里的下标越小，优先级越高；不在 arr2 里的值统一排到最后，它们之间再按数值升序。于是问题变成一次自定义比较排序。也可以用计数排序的思路：先统计 arr1 中每个值的出现次数，再按 arr2 的顺序输出，最后把剩下的值升序输出。',
+        bullets: [
+          '比较函数先比优先级，优先级相同再比数值，保证是严格的偏序关系。',
+          '计数排序版本不需要比较函数，时间可以做到线性加上对剩余元素的排序。',
+          'arr2 元素互不相同，所以优先级表里不会出现冲突。',
+          '用 Map 记录频次比用对象更稳妥，避免键被转成字符串。',
+        ],
+        callout:
+          '自定义排序时比较函数必须满足传递性。如果只写「不在 arr2 里就返回 0」，会让未出现的元素之间顺序不定，破坏排序算法的前提；正确做法是给它一个统一的大权重，再用第二关键字比值兜底。',
+      },
+      {
+        id: 'relative-sort-array-solution',
+        title: '标准解法：计数加两段输出',
+        summary:
+          '先统计 arr1 的频次，然后按 arr2 的顺序把对应元素按次数追加进结果并删除该键，最后把剩下的值升序追加。',
+        bullets: [
+          '第一段保证 arr2 中的元素按指定顺序成组出现。',
+          '第二段对剩余的值排序后追加，保证升序。',
+          '每个元素只进结果一次，总长度与 arr1 一致。',
+          '时间复杂度 `O(n + m log m)`，其中 m 是未出现在 arr2 中的不同值个数。',
+        ],
+        code: `function relativeSortArray(arr1: number[], arr2: number[]): number[] {
+  const count = new Map<number, number>()
+
+  for (const value of arr1) {
+    count.set(value, (count.get(value) ?? 0) + 1)
+  }
+
+  const result: number[] = []
+
+  for (const value of arr2) {
+    const times = count.get(value) ?? 0
+
+    for (let i = 0; i < times; i += 1) {
+      result.push(value)
+    }
+
+    count.delete(value)
+  }
+
+  const rest = [...count.keys()].sort((a, b) => a - b)
+
+  for (const value of rest) {
+    const times = count.get(value) ?? 0
+
+    for (let i = 0; i < times; i += 1) {
+      result.push(value)
+    }
+  }
+
+  return result
+}`,
+      },
+      {
+        id: 'relative-sort-array-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是比较函数不满足传递性，以及输出剩余元素时忘记按升序排列。',
+        bullets: [
+          '易错点 1：比较时只处理「出现在 arr2 中」的情况，返回 0 让两元素保持原序，结果不稳定。',
+          '易错点 2：用普通对象记录优先级，键被转成字符串后顺序判断出错。',
+          '易错点 3：忘记把频次展开，重复元素只输出一次。',
+          '易错点 4：剩余元素直接按 Map 的插入顺序输出，没有升序。',
+          '易错点 5：直接修改 arr1 又用它做频次统计，数据被破坏。',
+          '延伸方向：自定义比较器、计数排序与桶排序、稳定排序的意义、按外部优先级重排。',
+        ],
+      },
+    ],
+  },
 ];
