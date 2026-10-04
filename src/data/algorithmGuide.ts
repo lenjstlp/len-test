@@ -110299,4 +110299,86 @@ class ZeroEvenOdd {
       },
     ],
   },
+  {
+    id: 'building-h2o',
+    label: '1117. LeetCode 1117. H2O 生成',
+    difficulty: '中等',
+    description:
+      '氧线程与氢线程分别打印 O 和 H，要求把线程按 2 个氢配 1 个氧成组放行，输出必须是若干组合法的水分子。',
+    outcome:
+      '你能用信号量的许可数表达「批量配额」：氢两个许可、氧零个许可，天然凑出 2:1 的批次。',
+    sections: [
+      {
+        id: 'building-h2o-summary',
+        title: '题目在问什么',
+        summary:
+          '同一个 BuildingH2O 实例被交给若干线程：氧线程调用 oxygen(releaseOxygen)，氢线程调用 hydrogen(releaseHydrogen)。每个方法调用时打印自己的原子符号。要求输出长度是 3 的倍数，并且按每三个字符一组看，每组恰好是两个 H 一个 O，例如 HHO、HOH、OHH。',
+        bullets: [
+          '线程到达顺序完全随机，可能一堆氢先到，也可能氧先到。',
+          '不能出现一组的中间被别的组插队，例如 H H H O 就不合法。',
+          '每个线程到达后若无法组成完整分子，必须等待。',
+          '输出形式不唯一，HHO、HOH、OHH 都是有效答案。',
+        ],
+      },
+      {
+        id: 'building-h2o-model',
+        title: '用许可数表达 2:1 的配额',
+        summary:
+          '把两个信号量都当成配额：氢信号量初始 2 个许可，氧信号量初始 0 个。每个氢消耗一个许可、打印 H，并给氧信号量放行一个许可；氧要一次拿到 2 个许可才打印 O，打印后把 2 个氢许可还给下一轮。',
+        bullets: [
+          '初始许可数之和为 2，正好对应「先放两个氢」的批次结构。',
+          '氧线程连续 acquire 两次，等价于「攒够两个氢才轮到我」。',
+          '氧打印后连续 release 两次，把下一轮的氢气配额补满。',
+          '把初值改成氢 1、氧 1 会得到 HOH 的输出，改成氢 0、氧 2 会得到 OHH，都合法。',
+        ],
+        callout:
+          '这里体现的是信号量最本质的用法：许可数就是「这个资源还剩几份」。把化学计量比直接翻译成许可数，比用计数器加锁要简单得多，也不会出现两个氢线程同时判定「我凑齐了」的竞态。',
+      },
+      {
+        id: 'building-h2o-solution',
+        title: '标准解法：两个信号量配平',
+        summary:
+          '复用 1115 题实现的 Semaphore，氢初始 2 个许可、氧初始 0 个。氢打印后释放氧一个许可，氧连续取得两个许可后打印并归还两个氢许可。',
+        bullets: [
+          '`Semaphore` 实现见 1115 题。',
+          '氧连续调用两次 acquire，两次都拿到才算凑齐一个分子。',
+          '氢在拿到许可后立刻打印，不会出现两个氢被氧插在中间的情况。',
+          '时间复杂度：每个线程 `O(1)`，空间 `O(1)`。',
+        ],
+        code: `// Semaphore 实现见 1115 题
+class BuildingH2O {
+  private readonly hydrogenSem = new Semaphore(2)
+  private readonly oxygenSem = new Semaphore(0)
+
+  async hydrogen(releaseHydrogen: () => void): Promise<void> {
+    await this.hydrogenSem.acquire()
+    releaseHydrogen()
+    this.oxygenSem.release()
+  }
+
+  async oxygen(releaseOxygen: () => void): Promise<void> {
+    await this.oxygenSem.acquire()
+    await this.oxygenSem.acquire()
+    releaseOxygen()
+    this.hydrogenSem.release()
+    this.hydrogenSem.release()
+  }
+}`,
+      },
+      {
+        id: 'building-h2o-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是用一个普通整数计数器统计氢原子数量，两个氢线程可能同时自增、同时判定凑齐，把氧放行两次。',
+        bullets: [
+          '易错点 1：用非原子的自增加判断，产生竞态，一批里混进两个氧。',
+          '易错点 2：先打印再 acquire，线程还没拿到配额就输出了。',
+          '易错点 3：氧只 acquire 一次，导致一个氧配一个氢，比例错误。',
+          '易错点 4：氧打印完忘记归还两个氢许可，下一批氢永远进不来。',
+          '易错点 5：只用一个互斥锁保护整个方法，虽然不会错序，但完全失去了并发性。',
+          '延伸方向：CyclicBarrier 按批同步、生产者消费者、多资源配比限流。',
+        ],
+      },
+    ],
+  },
 ];
