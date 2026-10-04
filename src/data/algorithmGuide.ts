@@ -110630,4 +110630,81 @@ function maximumAverageSubtree(root: TreeNode | null): number {
       },
     ],
   },
+  {
+    id: 'divide-array-into-increasing-sequences',
+    label: '1121. LeetCode 1121. 将数组分成几个递增序列',
+    difficulty: '困难',
+    description:
+      '给定非递减排序的数组和整数 k，判断能否把它拆成若干个互不相交、每个长度至少为 k 的严格递增子序列。',
+    outcome:
+      '你能把「拆成递增序列」转化为「最大频率乘 k 与数组长度」的比较，理解这类判定题为什么一个不等式就够。',
+    sections: [
+      {
+        id: 'divide-array-into-increasing-sequences-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个按非递减顺序排好的整数数组 nums 和整数 k，问能否把数组划分成一个或多个互不相交的子序列：每个子序列都严格递增，且长度至少为 k，数组中每个元素恰好用一次。能则返回 true，否则返回 false。',
+        bullets: [
+          '子序列不要求连续，只要保持原有的相对顺序即可。',
+          '严格递增意味着同一个值不能出现在同一个子序列里两次。',
+          '所有元素都要被用上，不能有剩余。',
+          'k 可能等于 1，此时任何数组都能拆（或整段作为唯一子序列）。',
+        ],
+      },
+      {
+        id: 'divide-array-into-increasing-sequences-count',
+        title: '谁决定了最少要拆几条',
+        summary:
+          '严格递增意味着同一个值不能在同一序列里出现两次。设出现次数最多的那个值出现了 cnt 次，它的这 cnt 个副本只能分散到 cnt 条不同的序列里，所以序列数至少是 cnt。反过来，用恰好 cnt 条序列最有利于让每条更长：每个序列至少要 k 个元素，cnt 条就至少要 cnt 乘 k 个元素。于是可判定条件是 cnt 乘 k 不大于数组长度 n。',
+        bullets: [
+          '数组已经排序，所以同一个值必然连续出现，最大频率就是最长连续相等段的长度。',
+          '下界来自出现次数最多的值：它在几条序列里就得占几个位置。',
+          '上界来自总长度：cnt 条序列至少要 cnt 乘 k 个元素才够用。',
+          '两个方向一夹，可行性就等价于 `maxFreq * k <= n`，不需要真的构造划分。',
+        ],
+        callout:
+          '这道题难在「想到」而不在「写出」。一旦意识到最坏情况由出现次数最多的值决定，剩下的就是一次扫描数最长连续相等段。面试里如果陷入真的去构造拆分，复杂度会立刻失控——遇到这类判定题，先问自己「瓶颈资源是什么」。',
+      },
+      {
+        id: 'divide-array-into-increasing-sequences-solution',
+        title: '标准解法：一次扫描求最大频率',
+        summary:
+          '因为数组有序，直接扫描并维护当前连续相等段的长度，取最大值，最后用乘法做判定。',
+        bullets: [
+          '`run` 记录当前连续段的长度，遇到相同的值加一、不同则重置为一。',
+          '`maxFreq` 全程取最大，扫描结束即为整个数组的最大频率。',
+          '乘法可能超出 32 位整数范围，在固定宽度语言里要用 64 位。',
+          '时间复杂度 `O(n)`，空间复杂度 `O(1)`。',
+        ],
+        code: `function canDivideIntoSubsequences(
+  nums: number[],
+  k: number,
+): boolean {
+  let maxFreq = 1
+  let run = 1
+
+  for (let i = 1; i < nums.length; i += 1) {
+    run = nums[i] === nums[i - 1] ? run + 1 : 1
+    maxFreq = Math.max(maxFreq, run)
+  }
+
+  return maxFreq * k <= nums.length
+}`,
+      },
+      {
+        id: 'divide-array-into-increasing-sequences-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是把频率和长度搞混，写成 `maxFreq <= k` 之类的条件，或者忽略了「数组已排序」这个前提。',
+        bullets: [
+          '易错点 1：判定条件写成 `maxFreq <= k`，把「每组至少 k 个」误读成「每个值最多出现 k 次」。',
+          '易错点 2：忘了数组有序，去统计非连续位置的出现次数，代码复杂还容易错。',
+          '易错点 3：试图真的逐个构造递增序列，复杂度和实现风险都很高。',
+          '易错点 4：把「严格递增」理解成「连续整数」，额外的约束会误判成 false。',
+          '易错点 5：只统计元素种类数，而不是最大出现次数。',
+          '延伸方向：抽屉原理与鸽巢原理、最长递增子序列、把数组切成若干长度至少 k 的递增段。',
+        ],
+      },
+    ],
+  },
 ];
