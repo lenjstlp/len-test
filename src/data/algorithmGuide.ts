@@ -110453,4 +110453,79 @@ class BuildingH2O {
       },
     ],
   },
+  {
+    id: 'remove-vowels-from-a-string',
+    label: '1119. LeetCode 1119. 删去字符串中的元音',
+    difficulty: '简单',
+    description:
+      '给定字符串 S，删掉其中所有元音字母 a、e、i、o、u，按原顺序返回剩下的字符。',
+    outcome:
+      '你能用集合做常数时间的字符判断，一次遍历完成过滤，并知道正则替换是这道题的最短写法。',
+    sections: [
+      {
+        id: 'remove-vowels-from-a-string-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含小写字母的字符串 S，删除其中所有的 a、e、i、o、u 五个元音字母，其余字符保持原有的相对顺序拼接返回。删除后结果可能为空字符串。',
+        bullets: [
+          '只删 a、e、i、o、u 这五个字母，y 不算元音。',
+          '非元音字符的相对顺序必须保持不变。',
+          '所有元音都被删除后，结果可以是空串。',
+          '例如 "leetcodeisacommunityforcoders" 返回 "ltcdscmmntyfrcdrs"。',
+        ],
+      },
+      {
+        id: 'remove-vowels-from-a-string-model',
+        title: '一次遍历，边判断边收集',
+        summary:
+          '把五个元音放进集合，遍历字符串，遇到不在集合里的字符就收集起来，最后拼接成结果。集合查找是常数时间，所以整体只需扫描一遍。',
+        bullets: [
+          '用 `Set` 或小字符串加 `includes` 都能表达元音集合。',
+          '用数组收集再 `join`，比反复拼接字符串更符合直觉也更稳。',
+          '`for...of` 按字符遍历，不依赖下标，写起来更安全。',
+          '如果输入可能含大写字母，判断前要先统一大小写。',
+        ],
+        callout:
+          '这类「保留满足条件的字符」是最基础的过滤模式。真正需要留意的是判断集是否完整：元音的集合是五个字母，写代码时漏掉 i 或 u 的答错非常常见，最好把它写成常量或正则，别散落在代码里。',
+      },
+      {
+        id: 'remove-vowels-from-a-string-solution',
+        title: '标准解法：集合过滤',
+        summary:
+          '用 Set 保存五个元音，遍历时把非元音字符推进数组，最后 join 返回。',
+        bullets: [
+          '时间复杂度 `O(n)`，每个字符判断一次。',
+          '空间复杂度 `O(n)`，用于存放结果字符。',
+          "更短的写法是 `s.replace(/[aeiou]/g, '')`，注意 g 标志不能少。",
+          '也可以原地双指针改写数组，把空间降到 `O(1)`，但可读性会下降。',
+        ],
+        code: `function removeVowels(s: string): string {
+  const vowels = new Set(['a', 'e', 'i', 'o', 'u'])
+  const kept: string[] = []
+
+  for (const char of s) {
+    if (!vowels.has(char)) {
+      kept.push(char)
+    }
+  }
+
+  return kept.join('')
+}`,
+      },
+      {
+        id: 'remove-vowels-from-a-string-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是元音集合写漏，以及用 replace 时忘了全局标志，只替换掉第一个元音。',
+        bullets: [
+          '易错点 1：集合里漏掉 i 或 u，剩余结果里混入元音。',
+          "易错点 2：`s.replace(/[aeiou]/, '')` 少了 g，只删第一个匹配。",
+          '易错点 3：把 y 也当成元音一并删除。',
+          '易错点 4：输入含大写时没做大小写归一，A 被保留下来。',
+          '易错点 5：用下标遍历处理含代理对的字符时，可能把字符切碎。',
+          '延伸方向：正则替换与全局标志、字符分类、Unicode 码点遍历、过滤类问题的双指针优化。',
+        ],
+      },
+    ],
+  },
 ];
