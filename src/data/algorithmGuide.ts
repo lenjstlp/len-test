@@ -110078,4 +110078,122 @@ GROUP BY extra;`,
       },
     ],
   },
+  {
+    id: 'print-foobar-alternately',
+    label: '1115. LeetCode 1115. 交替打印 FooBar',
+    difficulty: '中等',
+    description:
+      '两个线程共享一个实例，一个打印 n 次 foo，另一个打印 n 次 bar，要求输出恰好是 foobar 重复 n 次。',
+    outcome:
+      '你能用「一个许可证换来换去」的乒乓结构实现严格交替，理解 Semaphore 的许可数就是可并发通过的线程数。',
+    sections: [
+      {
+        id: 'print-foobar-alternately-summary',
+        title: '题目在问什么',
+        summary:
+          'FooBar 实例会被交给两个线程：线程 A 反复调用 foo()，线程 B 反复调用 bar()，两个方法各被调用 n 次。要求输出字符串恰好是 foo 和 bar 交替出现、以 foo 开头，也就是 (foobar) 重复 n 次。',
+        bullets: [
+          '两个方法分别打印，谁先被调用不由我们控制。',
+          '必须严格交替，不能出现连续两次 foo 或连续两次 bar。',
+          '必须由 foo 打头，bar 不能抢先。',
+          '每个方法恰好执行 n 次，次数由外部循环控制。',
+        ],
+      },
+      {
+        id: 'print-foobar-alternately-model',
+        title: '交替 = 两个许可证来回传递',
+        summary:
+          '准备两个信号量：foo 的许可证初始为 1，bar 的许可证初始为 0。foo 每次先取得自己的许可证，打印后释放一个 bar 许可证；bar 取得许可证后打印，再释放一个 foo 许可证。许可证像击鼓传花一样在两边来回。',
+        bullets: [
+          '初始许可数决定了谁先跑：foo 拿 1、bar 拿 0，所以 foo 必然先执行。',
+          '每次传递恰好放行一个对方线程，多一个都放不进来。',
+          '线程真正的执行顺序无关紧要，被信号量卡住的会挂起等待。',
+          '两个循环各跑 n 次，最后一个 bar 释放的 foo 许可证没人再取，自然作废。',
+        ],
+        callout:
+          '这就是经典的「乒乓」同步模型：两个许可证互相交棒。把它的许可数一改，就能得到「三线程轮转」等变体——关键是让每个线程放行的对象恰好是下一棒。',
+      },
+      {
+        id: 'print-foobar-alternately-solution',
+        title: '标准解法：两个信号量互相放行',
+        summary:
+          '先实现一个简单的计数信号量，用数组保存等待者；acquire 在无许可时挂起，release 优先唤醒队首等待者、否则增加许可。然后 FooBar 用它把两个方法串起来。',
+        bullets: [
+          '手写 Semaphore 是为了演示原理；实际项目里直接用现成的并发原语即可。',
+          'release 时先看等待队列，有等待者就交棒，避免许可被无关线程抢走。',
+          'await acquire 让等待逻辑保持线性，不需要回调。',
+          '时间复杂度：每次 acquire/release 都是 `O(1)`。',
+        ],
+        code: `class Semaphore {
+  private permits: number
+  private readonly waiters: Array<() => void> = []
+
+  constructor(permits: number) {
+    this.permits = permits
+  }
+
+  async acquire(): Promise<void> {
+    if (this.permits > 0) {
+      this.permits -= 1
+      return
+    }
+
+    await new Promise<void>((resolve) => {
+      this.waiters.push(resolve)
+    })
+  }
+
+  release(): void {
+    const next = this.waiters.shift()
+
+    if (next) {
+      next()
+      return
+    }
+
+    this.permits += 1
+  }
+}
+
+class FooBar {
+  private readonly n: number
+  private readonly fooSem = new Semaphore(1)
+  private readonly barSem = new Semaphore(0)
+
+  constructor(n: number) {
+    this.n = n
+  }
+
+  async foo(printFoo: () => void): Promise<void> {
+    for (let i = 0; i < this.n; i += 1) {
+      await this.fooSem.acquire()
+      printFoo()
+      this.barSem.release()
+    }
+  }
+
+  async bar(printBar: () => void): Promise<void> {
+    for (let i = 0; i < this.n; i += 1) {
+      await this.barSem.acquire()
+      printBar()
+      this.fooSem.release()
+    }
+  }
+}`,
+      },
+      {
+        id: 'print-foobar-alternately-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是先打印再 acquire，或者用一把大锁把两个方法都锁住，前者会乱序、后者会死锁。',
+        bullets: [
+          '易错点 1：打印写在 acquire 之前，线程没拿到许可就输出了。',
+          '易错点 2：用同一个互斥锁保护 foo 和 bar，两者同时只允许一个执行，但谁先谁后仍不确定。',
+          '易错点 3：把初值设成 foo 0、bar 1，输出变成 bar 打头。',
+          '易错点 4：循环次数写错，多打或少打一个词。',
+          '延伸方向：三线程轮转打印、生产者消费者、用条件变量替代信号量。',
+        ],
+      },
+    ],
+  },
 ];
