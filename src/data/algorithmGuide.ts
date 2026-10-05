@@ -110904,4 +110904,92 @@ function lcaDeepestLeaves(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'longest-well-performing-interval',
+    label: '1124. LeetCode 1124. 表现良好的最长时间段',
+    difficulty: '中等',
+    description:
+      '把加班日看作 +1、普通日看作 -1，求区间和严格大于 0 的最长连续子数组。',
+    outcome:
+      '你能掌握「前缀和加最早出现位置」求最长合法区间：把区间和的比较转成两个前缀值的大小关系，再用哈希表记住每个前缀值第一次出现的下标。',
+    sections: [
+      {
+        id: 'longest-well-performing-interval-summary',
+        title: '题目在问什么',
+        summary:
+          '给定每天的工作时长数组 hours，把时长大于 8 小时的那天称为「劳累的一天」。如果一个连续时间段里劳累的天数严格多于不劳累的天数，就说这段时间表现良好。要求返回表现良好时间段的最大长度，找不到则返回 0。',
+        bullets: [
+          '判断依据是天数多少，而不是工作时长总和。',
+          '必须是连续的一段，不能跳着选。',
+          '要求「严格多于」，相等不算表现良好。',
+          '例如 hours 为 [9,9,6,0,6,6,9] 时答案是 3，区间 [9,9,6] 里两天劳累一天不劳累。',
+        ],
+      },
+      {
+        id: 'longest-well-performing-interval-model',
+        title: '把天数比较转成前缀和的差',
+        summary:
+          '给每天打一个分：劳累记 +1，不劳累记 -1。这样一来，某个区间里劳累天数是否严格多于不劳累，就等价于这个区间的元素之和是否大于 0。设前缀和 pre[i] 表示前 i 天的得分之和，则区间 (j, i] 的和就是 pre[i] 减 pre[j]，条件变成 pre[i] 大于 pre[j]。',
+        bullets: [
+          '每个元素只有 +1 和 -1 两种取值，前缀和每次只会变化一格。',
+          '问题转化为：在前缀和序列里找两个下标 j 小于 i，使 pre[i] 大于 pre[j]，并让 i 减 j 最大。',
+          '固定右端点 i 时，左端点越靠左越好，所以每个前缀值只需要记住它第一次出现的位置。',
+          '由于步长只有 1，比当前值小的前缀值里，最早出现的那个一定是 pre[i] 减 1。',
+        ],
+        callout:
+          '「前缀和每次只变 1」是本题能只查一个键的关键。因为从 `pre[i] - 1` 继续往下走，必须先经过 `pre[i] - 1`，所以它的首次出现位置一定早于任何更小的值。少了这个前提，就必须去查所有更小的前缀值，复杂度会退化。',
+      },
+      {
+        id: 'longest-well-performing-interval-solution',
+        title: '标准解法：前缀和加最早位置哈希表',
+        summary:
+          '一边遍历一边维护当前前缀和，遇到前缀和大于 0 就说明从开头整段合法，否则查表看「当前值减一」最早出现在哪里，据此更新答案；最后把当前前缀值首次出现的位置记下来。',
+        bullets: [
+          '前缀和大于 0 时答案至少是 `i + 1`，即从第一段开始就合法。',
+          '查 `score - 1` 而不是任意更小的值，原因见上面的步长论证。',
+          '只记录第一次出现的位置；重复出现的位置更靠右，对答案没有帮助。',
+          '时间复杂度 `O(n)`，空间复杂度 `O(n)`。',
+        ],
+        code: `function longestWPI(hours: number[]): number {
+  let best = 0
+  let score = 0
+  const firstSeen = new Map<number, number>()
+
+  for (let i = 0; i < hours.length; i += 1) {
+    score += hours[i] > 8 ? 1 : -1
+
+    if (score > 0) {
+      best = i + 1
+    } else {
+      const previous = firstSeen.get(score - 1)
+
+      if (previous !== undefined) {
+        best = Math.max(best, i - previous)
+      }
+    }
+
+    if (!firstSeen.has(score)) {
+      firstSeen.set(score, i)
+    }
+  }
+
+  return best
+}`,
+      },
+      {
+        id: 'longest-well-performing-interval-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是混淆「前缀和为正」和「区间和为正」，以及记录前缀值时不记录首次出现的位置。',
+        bullets: [
+          '易错点 1：条件写成 `score >= 0`，把劳累与不劳累相等的区间也算进去。',
+          '易错点 2：查表时去查所有更小的前缀值，虽然正确但逻辑冗余，容易写错边界。',
+          '易错点 3：每次都覆盖 `firstSeen`，存成最后一次出现的位置，答案偏小。',
+          '易错点 4：把 prefix 数组写成从 1 开始，下标和区间长度的换算差一位。',
+          '易错点 5：判断劳累用 `hours[i] >= 8`，题目要求严格大于 8。',
+          '延伸方向：最大宽度坡、单调栈求最长区间、和为 k 的最长子数组、前缀和的各类变形。',
+        ],
+      },
+    ],
+  },
 ];
