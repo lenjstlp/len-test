@@ -110992,4 +110992,117 @@ function lcaDeepestLeaves(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'smallest-sufficient-team',
+    label: '1125. LeetCode 1125. 最小的必要团队',
+    difficulty: '困难',
+    description:
+      '在一群人里挑出人数最少的团队，使得所有必要技能都被覆盖。用技能集合的位掩码做状态压缩，把集合覆盖问题转成 0/1 背包式的动态规划。',
+    outcome:
+      '你能把「选几个人覆盖全部技能」抽象成状态压缩 DP：用二进制数表示已覆盖的技能集合，把每个人看成一个可选的转移，并用倒序枚举状态的方式保证同一个人不会被重复选用。',
+    sections: [
+      {
+        id: 'smallest-sufficient-team-summary',
+        title: '题目在问什么',
+        summary:
+          '给定必要技能数组 `reqSkills` 和每个人的技能清单 `people`，需要选出人数最少的一组人，使他们的技能并集包含 `reqSkills` 里的每一项技能，返回这些人的下标。',
+        bullets: [
+          '返回的是下标列表，顺序不限，但人数必须最少。',
+          '同一个人最多只能被选一次。',
+          '`people` 里可能包含 `reqSkills` 之外的技能，这些技能对覆盖没有帮助，必须忽略。',
+          '题目保证存在能覆盖全部技能的人选，所以一定有答案。',
+          '例如 `reqSkills` 为 `["java", "nodejs", "reactjs"]`，`people` 为 `[["java"], ["nodejs"], ["nodejs", "reactjs"]]` 时答案是 `[0, 2]`，两个人就能覆盖三个技能。',
+        ],
+      },
+      {
+        id: 'smallest-sufficient-team-model',
+        title: '把技能集合压成一个二进制状态',
+        summary:
+          '技能种类数最多只有 16，这个规模是一条重要线索：可以用一个二进制数的每一位表示「某项技能是否已经有人会」。于是「当前覆盖到哪些技能」就变成了一个整数状态，选一个人不过是给状态做一次按位或。',
+        bullets: [
+          '先给 `reqSkills` 里的每个技能编号，第 i 个技能对应二进制的第 i 位。',
+          '每个人的技能清单也压成一个掩码，只保留必要技能，其余忽略。',
+          '设当前状态为 `state`，选了下标为 p 的人之后新状态就是 `state | personMask`。',
+          '目标状态是全 1，也就是 `(1 << reqSkills.length) - 1`。',
+          '问题于是变成：从状态 0 出发，用最少的人走到全 1 状态。',
+        ],
+        callout:
+          '为什么是 0/1 背包而不是最短路：每个人最多只能用一次，而且重复选同一个人不会带来任何新技能，所以本质上是在「人」这个维度上做取舍。又因为 `state | personMask` 只会让状态变大或不变，既不会回头也不会循环，于是可以像 0/1 背包那样只用一个 dp 数组，把状态从大到小枚举来原地更新。',
+      },
+      {
+        id: 'smallest-sufficient-team-solution',
+        title: '标准解法：技能掩码加集合 DP',
+        summary:
+          '用 `dp[mask]` 记录覆盖到 `mask` 这个技能集合所需的最少人员下标数组，初始只有 `dp[0]` 是空数组。逐个人处理，每轮枚举所有已经可达的状态，尝试把这个人加入团队并更新新状态。',
+        bullets: [
+          '只有 `dp[state]` 已经有方案时才值得往后转移，`null` 表示这个状态还不可达。',
+          '状态必须**倒序**枚举，否则同一轮里刚被这个人更新出来的状态会再次参与转移，等于把同一个人用了两次。',
+          '更新新状态时要比较人数，只有更短才覆盖，否则会把已经找到的更优方案盖掉。',
+          '一个人如果什么必要技能都不会，他的掩码是 0，直接跳过即可。',
+          '时间复杂度是 `O(n * 2^m)`，空间复杂度是 `O(2^m)`，其中 n 是人数、m 是必要技能数（不超过 16）。',
+        ],
+        code: `function smallestSufficientTeam(reqSkills: string[], people: string[][]): number[] {
+  const skillIndex = new Map<string, number>()
+  reqSkills.forEach((skill, index) => skillIndex.set(skill, index))
+
+  const full = 1 << reqSkills.length
+  const dp: (number[] | null)[] = new Array(full).fill(null)
+  dp[0] = []
+
+  for (let p = 0; p < people.length; p += 1) {
+    let personMask = 0
+
+    for (const skill of people[p]) {
+      const index = skillIndex.get(skill)
+
+      if (index !== undefined) {
+        personMask |= 1 << index
+      }
+    }
+
+    if (personMask === 0) {
+      continue
+    }
+
+    for (let state = full - 1; state >= 0; state -= 1) {
+      const current = dp[state]
+
+      if (current === null) {
+        continue
+      }
+
+      const next = state | personMask
+
+      if (next === state) {
+        continue
+      }
+
+      const candidate = [...current, p]
+      const existing = dp[next]
+
+      if (existing === null || candidate.length < existing.length) {
+        dp[next] = candidate
+      }
+    }
+  }
+
+  return dp[full - 1] ?? []
+}`,
+      },
+      {
+        id: 'smallest-sufficient-team-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是用字符串或集合表示技能状态，以及状态枚举方向写反导致同一个人被重复使用。',
+        bullets: [
+          '易错点 1：直接把 `people` 里的技能名当下标用，忘了先建立 `reqSkills` 到编号的映射。',
+          '易错点 2：状态正序枚举，0/1 背包退化成完全背包，同一个人被反复计入，答案人数偏少但不合法。',
+          '易错点 3：更新新状态时不做人数比较直接覆盖，后出现的更长方案会把最优方案盖掉。',
+          '易错点 4：忘了过滤 `people` 里的非必要技能，掩码里出现超出 m 位的比特，数组越界。',
+          '易错点 5：返回时不做兜底，`dp[full - 1]` 在某些写法下可能是 `null`，直接返回会报类型错误。',
+          '延伸方向：贴纸拼词、每个人戴不同帽子的方案数、访问所有节点的最短路径，都是同一套状压 DP 的变形。',
+        ],
+      },
+    ],
+  },
 ];
