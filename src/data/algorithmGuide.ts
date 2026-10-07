@@ -111349,4 +111349,123 @@ GROUP BY d.spend_date, d.platform;`,
       },
     ],
   },
+  {
+    id: 'shortest-path-with-alternating-colors',
+    label: '1129. LeetCode 1129. 颜色交替的最短路径',
+    difficulty: '中等',
+    description:
+      '状态是「走到哪个点」加上「上一条边是什么颜色」，在这个扩大的状态图上做广度优先搜索，下一跳只能走另一种颜色。',
+    outcome:
+      '你能掌握把带附加约束的图提升成状态图的技巧：当一条路径是否合法取决于上一条边的属性时，把该属性并入状态，再用 (节点, 颜色) 作为搜索的基本单位。',
+    sections: [
+      {
+        id: 'shortest-path-with-alternating-colors-summary',
+        title: '题目在问什么',
+        summary:
+          '有 n 个节点，以及若干条有向的红边和蓝边，同一个节点之间可能有多条边，也允许自己指向自己的边。要求对每个节点求出从 0 出发、且路径上相邻两条边的颜色都不同的最短路径长度，路径长度按边的条数计算，走不到则记为 -1。',
+        bullets: [
+          '只要求相邻两条边颜色不同，第一条边是红色还是蓝色都可以。',
+          '长度为 0 的空路径是合法的，所以 0 到自己的答案是 0。',
+          '到不了的点填 -1。',
+          '例如红边是 0 到 1 和 1 到 2、没有蓝边时，答案是 [0, 1, -1]，因为走第二个红边会与上一个红边相邻。',
+          '自环和平行边都要保留，不能先去重，否则颜色关系会被破坏。',
+        ],
+      },
+      {
+        id: 'shortest-path-with-alternating-colors-model',
+        title: '为什么普通 BFS 不够用',
+        summary:
+          '普通广度优先只记录「这个点访问过没有」，但在这里，一个点能不能继续往前走，取决于它是通过什么颜色的边到达的。同一次访问，上一条边是红色还是蓝色，决定了下一步能走哪一类边，所以只用一个访问标记会把本来可行的路径当成重复访问而丢掉。',
+        bullets: [
+          '把状态定义成「所在节点」和「到达它时用的边颜色」这一对。',
+          '状态总数是节点数的两倍，规模完全可以接受。',
+          '转移规则很干净：上一条边是红色，这一步就必须走蓝边，反之亦然。',
+          '起点要同时入队两种颜色，因为第一条边的颜色是自由的。',
+          '第一个被弹出的状态距离就是最短距离，这正是广度优先搜索的性质。',
+        ],
+        callout:
+          '这个「把约束并进状态」的思路是图论题的通用手法。凡是路径的合法性依赖历史信息（走了几步、用了什么颜色、访问过哪些点）的题，都可以问自己一个问题：要把哪些历史信息一起记下来，才能让下一步的决策只依赖当前状态？答案往往就是需要加进状态里的东西。',
+      },
+      {
+        id: 'shortest-path-with-alternating-colors-solution',
+        title: '标准解法：按颜色分层的状态图 BFS',
+        summary:
+          '把红边和蓝边分别存成两张邻接表，用二维的访问标记记录「某节点是否已用某种颜色到达过」，从起点的一个红状态和一个蓝状态同时开始做逐层的广度优先搜索。',
+        bullets: [
+          '邻接表用 `graph[颜色][起点]` 的形式存放，取另一种颜色的边时直接按下标取反，代码非常短。',
+          '颜色用 0 和 1 表示，另一种颜色就是与 1 做异或，比写判断清晰。',
+          '访问标记要在入队时就打上，而不是等到出队，否则同一个状态会被重复压入队列。',
+          '节点第一次被访问时把当前层数记进答案，之后不再覆盖。',
+          '时间复杂度 `O(n + m)`，空间复杂度 `O(n + m)`，其中 m 是边数。',
+        ],
+        code: `function shortestAlternatingPaths(
+  n: number,
+  redEdges: number[][],
+  blueEdges: number[][],
+): number[] {
+  const graph: number[][][] = [
+    Array.from({ length: n }, () => [] as number[]),
+    Array.from({ length: n }, () => [] as number[]),
+  ]
+
+  for (const [from, to] of redEdges) {
+    graph[0][from].push(to)
+  }
+
+  for (const [from, to] of blueEdges) {
+    graph[1][from].push(to)
+  }
+
+  const answer = new Array(n).fill(-1)
+  const visited = Array.from({ length: n }, () => [false, false])
+  let queue: [number, number][] = [
+    [0, 0],
+    [0, 1],
+  ]
+  visited[0][0] = true
+  visited[0][1] = true
+
+  let distance = 0
+
+  while (queue.length > 0) {
+    const next: [number, number][] = []
+
+    for (const [node, color] of queue) {
+      if (answer[node] === -1) {
+        answer[node] = distance
+      }
+
+      const nextColor = color ^ 1
+
+      for (const to of graph[nextColor][node]) {
+        if (!visited[to][nextColor]) {
+          visited[to][nextColor] = true
+          next.push([to, nextColor])
+        }
+      }
+    }
+
+    queue = next
+    distance += 1
+  }
+
+  return answer
+}`,
+      },
+      {
+        id: 'shortest-path-with-alternating-colors-mistakes',
+        title: '易错点和延伸方向',
+        summary: '最容易错的是访问标记只用一维数组，以及起点只入队一种颜色。',
+        bullets: [
+          '易错点 1：`visited` 只记节点不记颜色，某个点用一种颜色访问过后，用另一种颜色到达的更优路径会被错误跳过。',
+          '易错点 2：只把起点的一个颜色状态入队，等于人为规定了第一条边的颜色，会漏掉本该可达的点。',
+          '易错点 3：走下一步时没有切换颜色，等于允许相邻两边同色。',
+          '易错点 4：访问标记在出队时才设置，同一个状态被多次入队，虽然答案可能还对，但队列会膨胀。',
+          '易错点 5：为了「优化」把平行边去重，或者删掉自环，会改变颜色结构导致答案错误。',
+          '易错点 6：把路径长度定义成节点数而不是边数，所有答案都差一。',
+          '延伸方向：带状态的最短路（限制步数、限制转乘次数）、分层图最短路、以及最短路计数这类模板题。',
+        ],
+      },
+    ],
+  },
 ];
