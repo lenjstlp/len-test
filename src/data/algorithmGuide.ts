@@ -111468,4 +111468,102 @@ GROUP BY d.spend_date, d.platform;`,
       },
     ],
   },
+  {
+    id: 'minimum-cost-tree-from-leaf-values',
+    label: '1130. LeetCode 1130. 叶值的最小代价生成树',
+    difficulty: '中等',
+    description:
+      '每个非叶节点的值等于左右子树最大叶值的乘积，要在所有合法的树形态里让非叶节点之和最小。用区间 DP 枚举根节点的切分位置。',
+    outcome:
+      '你能掌握区间 DP 的建模方法：把「选一棵树」看成「把叶子区间切成两段」，把切分的代价写清楚之后，用 `dp[i][j]` 枚举分割点取最小值。',
+    sections: [
+      {
+        id: 'minimum-cost-tree-from-leaf-values-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个正整数数组 arr，考虑所有满足以下条件的二叉树：每个节点要么没有孩子、要么正好两个孩子；叶子节点的值按中序遍历恰好等于 arr；每个非叶节点的值等于它左子树中最大叶值与右子树中最大叶值的乘积。要求返回所有非叶节点的值之和的最小值。',
+        bullets: [
+          '中序遍历固定了叶子的左右顺序，arr 的顺序就是叶子从左到右的顺序。',
+          '非叶节点的值取的是子树的「最大叶值」，不是直接孩子的值，这是最容易理解错的地方。',
+          '叶子的数量等于 arr 的长度，非叶节点有 n 减 1 个。',
+          '例如 arr 为 [6, 2, 4] 时答案 32，另一种树形态会得到 36。',
+          'arr 为 [4, 11] 时只有一种形态，答案是 44。',
+        ],
+      },
+      {
+        id: 'minimum-cost-tree-from-leaf-values-model',
+        title: '把选树变成切分区间',
+        summary:
+          '树的形态虽然多，但每一棵树都可以由根节点唯一地确定：根把它负责的那段叶子切成左右两段，左边归左子树，右边归右子树。于是「挑一棵最优的树」等价于「对区间选一个最优的切分点」，切完之后左右两段各自递归处理。',
+        bullets: [
+          '根节点的代价是左段最大值乘以右段最大值。',
+          '加上左右两棵子树的代价，就得到这次切分的总代价。',
+          '设 `dp[i][j]` 表示把区间 i 到 j 的叶子组织成子树的最小代价，答案就是 `dp[0][n-1]`。',
+          '只剩一个叶子时没有非叶节点，所以 `dp[i][i]` 等于 0。',
+          '反复要用到「区间最大值」，可以先用 `maxLeaf[i][j]` 预处理出来，避免重复扫描。',
+        ],
+        callout:
+          '这里不能用「每次挑相邻最小的一对合并」这种贪心。局部看，把最小的两个数先乘起来确实便宜，但这个选择会改变后面所有区间的最大值构成，代价可能反而更高。区间 DP 的价值就在于把所有切分方式都试过一遍，用状态把重叠子问题存下来。',
+      },
+      {
+        id: 'minimum-cost-tree-from-leaf-values-solution',
+        title: '标准解法：区间 DP',
+        summary:
+          '先预处理所有区间的最大值，再按区间长度从小到大递推：每个区间枚举所有切分点，取代价最小的那个。',
+        bullets: [
+          '长度从 2 开始递推，长度为 1 的区间代价是 0，正好作为边界。',
+          '切分点 k 取遍 i 到 j 减 1，左段是 i 到 k，右段是 k 加 1 到 j。',
+          '转移式是 `dp[i][k] + dp[k+1][j] + maxLeaf[i][k] * maxLeaf[k+1][j]`。',
+          '按长度递增的顺序递推，可以保证用到的子区间都已经算好。',
+          '时间复杂度 `O(n³)`，空间复杂度 `O(n²)`；本题叶子数最多 40，完全够用。',
+        ],
+        code: `function mctFromLeafValues(arr: number[]): number {
+  const n = arr.length
+  const maxLeaf = Array.from({ length: n }, () => new Array(n).fill(0))
+
+  for (let i = n - 1; i >= 0; i -= 1) {
+    maxLeaf[i][i] = arr[i]
+
+    for (let j = i + 1; j < n; j += 1) {
+      maxLeaf[i][j] = Math.max(maxLeaf[i][j - 1], arr[j])
+    }
+  }
+
+  const dp = Array.from({ length: n }, () => new Array(n).fill(0))
+
+  for (let length = 2; length <= n; length += 1) {
+    for (let i = 0; i + length - 1 < n; i += 1) {
+      const j = i + length - 1
+      let best = Infinity
+
+      for (let k = i; k < j; k += 1) {
+        const cost =
+          dp[i][k] + dp[k + 1][j] + maxLeaf[i][k] * maxLeaf[k + 1][j]
+        best = Math.min(best, cost)
+      }
+
+      dp[i][j] = best
+    }
+  }
+
+  return dp[0][n - 1]
+}`,
+      },
+      {
+        id: 'minimum-cost-tree-from-leaf-values-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是把非叶节点的值当成两个直接孩子相乘，而题目要的是两个子树各自的最大叶值相乘。',
+        bullets: [
+          '易错点 1：用相邻叶子的值相乘，忽略了非叶节点取的是整个子树的最大叶值。',
+          '易错点 2：边界条件写成 `dp[i][i]` 等于 `arr[i]`，单个叶子没有非叶节点，代价应该是 0。',
+          '易错点 3：直接用朴素递归不记忆化，重叠子问题导致指数级重复计算。',
+          '易错点 4：贪心合并相邻最小的一对，得到的和不是最小值。',
+          '易错点 5：用二维数组当备忘录时拿 0 当「还没算过」的标记，虽然本题代价不会为 0 而侥幸正确，但换个题就会出错。',
+          '易错点 6：初始化二维数组时写成 `new Array(n).fill(new Array(n))`，所有行共享同一个数组，改一行等于改所有行。',
+          '延伸方向：石子合并、戳气球、矩阵链乘，都是同一套「区间切分加枚举分割点」的模板。',
+        ],
+      },
+    ],
+  },
 ];
