@@ -111105,4 +111105,79 @@ function lcaDeepestLeaves(root: TreeNode | null): TreeNode | null {
       },
     ],
   },
+  {
+    id: 'active-businesses',
+    label: '1126. LeetCode 1126. 查询活跃业务',
+    difficulty: '中等',
+    description:
+      '先按事件类型求出全局平均发生次数，再挑出「超过平均值的事件类型多于一个」的业务。核心是两级聚合：先算均值，再回明细行做比较。',
+    outcome:
+      '你能掌握 SQL 的两级聚合写法：用一个子查询把分组均值先算好，再连接回明细表做逐行比较，最后分组计数并配合 HAVING 筛出满足条件的业务。',
+    sections: [
+      {
+        id: 'active-businesses-summary',
+        title: '题目在问什么',
+        summary:
+          'Events 表有 business_id、event_type、occurrences 三列，记录每家公司每种事件的发生次数。先定义「平均活跃度」：某种事件类型在所有公司上的 occurrences 平均值。再定义「活跃业务」：存在多于一种事件类型，该业务在这些类型上的 occurrences 都严格大于对应的平均活跃度。要求找出所有活跃业务的 business_id。',
+        bullets: [
+          '平均活跃度是按事件类型算的全局平均值，不是按业务算的。',
+          '比较必须是严格大于，等于平均值不算。',
+          '「多于一种」意味着至少要在两种事件类型上同时超过平均值。',
+          '只返回 business_id 一列，顺序任意。',
+          '例如 reviews 的均值是 5、ads 的均值是 8，业务 1 的 7 和 11 都超过各自均值，就是活跃业务。',
+        ],
+      },
+      {
+        id: 'active-businesses-model',
+        title: '为什么不能一步 GROUP BY 解决',
+        summary:
+          '平均值的口径是「按事件类型分组」，而最终要判断的对象是「按业务分组的行」，两个分组维度不一样，所以没法在一次聚合里同时完成。稳妥的办法是把两件事拆开：先算出每种事件类型的均值，形成一张只有 event_type 和均值两列的小表，再把它连接回原始明细表。',
+        bullets: [
+          '子查询按 event_type 分组求 AVG，得到每种事件的基准线。',
+          '把明细表的每一行按 event_type 连上它对应的基准线。',
+          '逐行比较 occurrences 和均值，先筛出「这一行超标」的记录。',
+          '最后按 business_id 分组，数一数超标的事件类型有几个。',
+        ],
+        callout:
+          '过滤和计数的顺序不能颠倒。必须先用 WHERE 把「超标」的行留下来，再 GROUP BY 业务去数数量；如果先按业务分组、在组内去比均值，写起来会对外层均值束手无策。换句话说，WHERE 筛行在前面，HAVING 筛组在后面，两件事管的不是一回事。',
+      },
+      {
+        id: 'active-businesses-solution',
+        title: '标准解法：子查询求均值，连接后分组计数',
+        summary:
+          '把「每种事件类型的平均发生次数」做成子查询 t2，与明细表 t1 按 event_type 连接，用 WHERE 留下超过均值的行，再按业务分组并保留超标类型数大于 1 的业务。',
+        bullets: [
+          '子查询先聚合再连接，连接后每一行都能直接拿到自己类型的均值。',
+          '`COUNT(*) > 1` 对应题目里的「多于一种事件类型」，写成 `>= 1` 会把只超标一种的业务也算进来。',
+          'MySQL 8 也可以用窗口函数：`AVG(occurrences) OVER (PARTITION BY event_type)` 直接给每行算好均值，省掉子查询。',
+          '两层聚合的复杂度大致是两次扫描加上分组哈希，可以认为是 `O(n)`。',
+        ],
+        code: `SELECT business_id
+FROM Events AS t1
+JOIN (
+  SELECT event_type, AVG(occurrences) AS avg_occurrences
+  FROM Events
+  GROUP BY event_type
+) AS t2
+  ON t1.event_type = t2.event_type
+WHERE t1.occurrences > t2.avg_occurrences
+GROUP BY business_id
+HAVING COUNT(*) > 1;`,
+      },
+      {
+        id: 'active-businesses-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是把平均值算成了「按业务分组」，以及漏掉「多于一种」这个计数条件。',
+        bullets: [
+          '易错点 1：比较写成 `>=`，把正好等于平均值的业务也算成活跃。',
+          '易错点 2：漏掉 `HAVING COUNT(*) > 1`，只超标一种事件类型的业务也被选了出来。',
+          '易错点 3：把均值按 business_id 分组算，口径直接错了——题目要的是每种事件类型的全局均值。',
+          '易错点 4：先分组再想比较均值，写到最后发现外层均值取不到，只能返工。',
+          '易错点 5：列名拼写。旧题面写的是 occurences，而当前判题表的列名是 occurrences，照抄老解法会直接报错。',
+          '延伸方向：窗口函数改写同一道题、按维度求占比、以及「先聚合出基准线再回表明细比较」这一类模板题。',
+        ],
+      },
+    ],
+  },
 ];
