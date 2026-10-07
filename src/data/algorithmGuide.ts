@@ -111180,4 +111180,97 @@ HAVING COUNT(*) > 1;`,
       },
     ],
   },
+  {
+    id: 'user-purchase-platform',
+    label: '1127. LeetCode 1127. 用户购买平台',
+    difficulty: '困难',
+    description:
+      '按日期统计只用移动端、只用桌面端、以及两端都用过的用户数与消费总额。难点在于不存在的组合也必须补出 0 行，得先构造完整维度再左连接。',
+    outcome:
+      '你能掌握 SQL 里「先构造完整维度表、再左连接聚合结果」的套路：用 UNION 把日期与平台的组合凑齐，左连接后靠 IFNULL 把没有数据的格子补成 0。',
+    sections: [
+      {
+        id: 'user-purchase-platform-summary',
+        title: '题目在问什么',
+        summary:
+          'Spending 表有 user_id、spend_date、platform、amount 四列，主键是三者组合，platform 只有 desktop 和 mobile 两种取值。要求对每个日期分别统计「只用移动端」「只用桌面端」「两端都用过」这三类的用户总数和消费总额。',
+        bullets: [
+          '每个日期都要输出三行，分别对应 desktop、mobile、both，顺序任意。',
+          'both 这一行统计的是同一天里两个平台都消费过的用户，要把两端的金额合并成一行。',
+          'total_users 数的是人数，不是消费记录的条数。',
+          '即使某个日期没有人两端都用过，也必须输出 both 这一行，值为 0 和 0。',
+          '输出列依次是 spend_date、platform、total_amount、total_users。',
+          '例如 2019-07-01 用户 1 两端都用，合并成一行 both，金额 200、人数 1；当天 mobile 和 desktop 各剩一个用户。',
+        ],
+      },
+      {
+        id: 'user-purchase-platform-model',
+        title: '先把人合并，再补齐维度',
+        summary:
+          '这道题要同时解决两个问题。第一是口径问题：同一个人同一天可能在两个平台都消费过，必须先把「一个人一天」压缩成一行，再判断他属于哪一类。第二是完整性问题：GROUP BY 只会产出数据里出现过的组合，没出现过的组合不会凭空长出来。',
+        bullets: [
+          '第一步按 user_id 和 spend_date 分组，把同一个人同一天的多条记录合成一行。',
+          "平台标签用 `IF(COUNT(platform) = 1, platform, 'both')` 判定：只有一个平台就保留原值，两个平台就记成 both。",
+          '第二步构造完整维度：把数据里出现过的日期，分别与 desktop、mobile、both 拼成全集。',
+          '第三步用维度表左连接第一步的结果，没有匹配的组合保留下来，再用 IFNULL 把金额补成 0。',
+        ],
+        callout:
+          '维度表是这道题的分水岭。很多人会想在聚合之后「把没有的组补出来」，但聚合函数只在已有的组上工作，缺失的组在结果集里根本不存在，是补不出来的。唯一可靠的做法是反过来：先人为列出所有应该出现的组合，再去左连接数据，让空组合自然浮出水面。',
+      },
+      {
+        id: 'user-purchase-platform-solution',
+        title: '标准解法：维度表左连接',
+        summary:
+          '用 UNION 三段查询拼出「日期乘平台」的全集，再把按人合并后的明细左连接上去，最后分组做条件求和。',
+        bullets: [
+          '维度表用 `UNION` 而不是 `UNION ALL`，让重复日期自动去重，否则左连接会放大行数。',
+          '必须用 `LEFT JOIN`，内连接会把没有数据的组合直接丢掉，both 这类空行就没了。',
+          '人数统计写成 `COUNT(t.user_id)` 而不是 `COUNT(*)`：左连接补出来的空行里 t.user_id 是 NULL，`COUNT(*)` 会把它算成 1 个人。',
+          '金额用 `IFNULL(SUM(t.amount), 0)` 兜底，因为 SUM 遇到全是 NULL 的组会返回 NULL。',
+          '复杂度大致是所有明细行扫一遍做分组，加上维度表的哈希连接，可以认为是 `O(n)`。',
+        ],
+        code: `WITH platform_dim AS (
+  SELECT DISTINCT spend_date, 'desktop' AS platform FROM Spending
+  UNION
+  SELECT DISTINCT spend_date, 'mobile' FROM Spending
+  UNION
+  SELECT DISTINCT spend_date, 'both' FROM Spending
+),
+day_user AS (
+  SELECT
+    user_id,
+    spend_date,
+    SUM(amount) AS amount,
+    IF(COUNT(platform) = 1, platform, 'both') AS platform
+  FROM Spending
+  GROUP BY user_id, spend_date
+)
+SELECT
+  d.spend_date,
+  d.platform,
+  IFNULL(SUM(u.amount), 0) AS total_amount,
+  COUNT(u.user_id) AS total_users
+FROM platform_dim AS d
+LEFT JOIN day_user AS u
+  ON u.spend_date = d.spend_date
+  AND u.platform = d.platform
+GROUP BY d.spend_date, d.platform;`,
+      },
+      {
+        id: 'user-purchase-platform-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是没有维度表导致空组合缺失，以及用 COUNT(*) 把补出来的空行算成了一个人。',
+        bullets: [
+          '易错点 1：只对 Spending 做 GROUP BY，2019-07-02 的 both 行根本不会出现，而题目要求它显示为 0 和 0。',
+          '易错点 2：人数写成 `COUNT(*)`，左连接补出的空行被统计成 1 个人；要写 `COUNT(u.user_id)`。',
+          '易错点 3：没有先按人合并，两端都用的用户被拆成两行，both 的金额和人数都不对。',
+          '易错点 4：把两端都用的用户算成 2 个人，total_users 要求的是不重复的人数。',
+          '易错点 5：维度表用 `UNION ALL` 拼接，同一个日期重复出现，左连接后金额被成倍放大。',
+          '易错点 6：写成 `IF(COUNT(platform) >= 1, ...)`，只要有一个平台就判成 both，单平台用户全被错分类。',
+          '延伸方向：用 CROSS JOIN 生成日历再补零、漏斗与留存统计中的空档补齐、以及任何「要求输出固定分组全集」的报表题。',
+        ],
+      },
+    ],
+  },
 ];
