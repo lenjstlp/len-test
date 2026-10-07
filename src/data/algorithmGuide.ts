@@ -111658,4 +111658,83 @@ GROUP BY d.spend_date, d.platform;`,
       },
     ],
   },
+  {
+    id: 'reported-posts-ii',
+    label: '1132. LeetCode 1132. 报告的记录 II',
+    difficulty: '中等',
+    description:
+      '先按日期分别算出「被举报为垃圾的帖子中被删除的比例」，再对这些每日比例求平均并保留两位小数。',
+    outcome:
+      '你能掌握 SQL 里「先分日算比例、再对比例求平均」的两步走，并理解为什么这个顺序不能颠倒——先合并再算比值与先算比值再平均，结果并不相同。',
+    sections: [
+      {
+        id: 'reported-posts-ii-summary',
+        title: '题目在问什么',
+        summary:
+          'Actions 表记录用户对帖子的操作，列有 user_id、post_id、action_date、action、extra，其中 extra 在举报场景下存的是举报原因，表里允许出现重复行。Removals 表记录被删除的帖子，列有 post_id 和 remove_date，post_id 是主键。要求统计：被举报为「spam」的帖子中，最终被删除的帖子所占比例的按天平均值，保留两位小数。',
+        bullets: [
+          '只统计举报原因为 spam 的记录，其他原因比如 racism 必须从分子和分母里同时排除。',
+          '先算出每一天的比例，再把这些每日比例求平均，不是先汇总再算一个总比例。',
+          '被举报但没有被删除的帖子仍然要计入当天的分母。',
+          '输出只有一列，列名是 average_daily_percent。',
+          '例如某天两篇垃圾举报中删了一篇是百分之五十，另一天一篇全删是百分之百，平均值是百分之七十五。',
+        ],
+      },
+      {
+        id: 'reported-posts-ii-model',
+        title: '分子分母都要限定，再按日分组',
+        summary:
+          '这类「比例的平均值」题，最关键的是想清楚三件事：分子是什么、分母是什么、按什么维度分组。这里分子是当天被删除的垃圾举报帖子数，分母是当天被垃圾举报的帖子数，分组维度是举报发生的日期。',
+        bullets: [
+          "过滤条件 `extra = 'spam'` 写在 WHERE 里，一次性限定分子和分母的取值范围。",
+          '用 LEFT JOIN 连接 Removals，让没有被删除的帖子保留下来，只是分子里数不到它。',
+          '两侧都用 `COUNT(DISTINCT post_id)`，因为 Actions 允许重复行，同一帖子同一天可能被举报多次。',
+          '在连接结果上按 action_date 分组，每个组算出一个百分比。',
+          '最后把这组百分比交给 AVG，并用 ROUND 保留两位小数。',
+        ],
+        callout:
+          '为什么不能直接算一个总比例：假设一天只有一篇举报且被删，另一天有一百篇举报只删了一篇。每日比例分别是百分之百和百分之一，平均下来是百分之五十左右；但如果把两天合并，比例接近百分之一。两者的差别来自每天的样本量不同，题目要的是「每日比例的平均」，所以必须先把每天压缩成一个比例数。',
+      },
+      {
+        id: 'reported-posts-ii-solution',
+        title: '标准解法：分日子查询加外层平均',
+        summary:
+          '用一个公共表表达式先按日期分组算出每日百分比，外层直接对这个百分比列求平均并取两位小数。',
+        bullets: [
+          '内层的分母用 Actions 侧的帖子去重计数，分子用 Removals 侧的去重计数。',
+          'LEFT JOIN 是必需的，换成内连接会把「举报了但没删」的帖子整行丢掉，分母偏小、比例虚高。',
+          '写入 `* 100` 是为了得到百分数而不是小数比例。',
+          '删除日期本身不参与计算，帖子只要出现在 Removals 里就算被删除。',
+          '`ROUND(..., 2)` 只作用于最终平均值，不要在每日比例上就提前取整，否则误差会被放大。',
+        ],
+        code: `WITH daily AS (
+  SELECT
+    COUNT(DISTINCT r.post_id) / COUNT(DISTINCT a.post_id) * 100 AS percent
+  FROM Actions AS a
+  LEFT JOIN Removals AS r
+    ON a.post_id = r.post_id
+  WHERE a.extra = 'spam'
+  GROUP BY a.action_date
+)
+SELECT ROUND(AVG(percent), 2) AS average_daily_percent
+FROM daily;`,
+      },
+      {
+        id: 'reported-posts-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是直接算一个总的比值，以及把 JOIN 写成内连接导致分母丢掉未被删除的帖子。',
+        bullets: [
+          '易错点 1：不分日期，直接算一个总体比例再输出，与题意的「每日比例的平均」不符。',
+          '易错点 2：把 LEFT JOIN 写成 JOIN，未被删除的帖子连行都没有了，分母凭空变小。',
+          '易错点 3：过滤写成只判断 action 为 report，没有限定 extra 为 spam，其他举报原因混了进来。',
+          '易错点 4：用 `COUNT(*)` 代替 `COUNT(DISTINCT post_id)`，重复行被算成多篇帖子。',
+          '易错点 5：分组按 post_id 或 remove_date，正确的分组维度是举报发生的 action_date。',
+          '易错点 6：忘记乘 100，输出的是小数比例而不是百分比。',
+          '易错点 7：在每日比例那一层就 ROUND，最后再平均时精度已经损失。',
+          '延伸方向：留存率与转化率的分日平均、漏斗各环节比率的聚合、以及「比率之比的聚合口径」这一类统计陷阱。',
+        ],
+      },
+    ],
+  },
 ];
