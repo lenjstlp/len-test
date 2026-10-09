@@ -112582,4 +112582,82 @@ ORDER BY day;`,
       },
     ],
   },
+  {
+    id: 'user-activity-for-the-past-30-days-ii',
+    label: '1142. LeetCode 1142. 查询近30天活跃用户数 II',
+    difficulty: '简单',
+    description:
+      '在同一个三十天窗口里分别数出「去重后的会话数」和「去重后的用户数」，两者相除就是人均会话数，再用 ROUND 保留两位小数，并对空结果做兜底。',
+    outcome:
+      '你能掌握「平均值可以用两个去重计数的商来表达」这一技巧，并学会处理分母为零或者窗口内没有记录的退化情况。',
+    sections: [
+      {
+        id: 'user-activity-for-the-past-30-days-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '还是 Activity 表，列有 user_id、session_id、activity_date、activity_type。这一次要统计 2019 年 6 月 28 日到 2019 年 7 月 27 日这三十天里，每个用户平均产生了多少个会话，结果保留两位小数。如果窗口内一条记录都没有，返回 0。',
+        bullets: [
+          '一次会话由一个用户配上一个 session_id 来标识，同一个用户同一天可能有多次会话。',
+          '人均会话数是「会话总数除以用户总数」，不是先按天求平均再平均。',
+          '会话要按用户和会话编号联合去重，否则一次会话里的多条行为会被算成多次会话。',
+          '结果只有一列，列名固定为 average_sessions_per_user。',
+          '窗口内没有记录时返回 0，而不是返回空值或者空结果集。',
+          '例如窗口内两个用户一共产生了五个会话，平均值是 2.50。',
+        ],
+      },
+      {
+        id: 'user-activity-for-the-past-30-days-ii-model',
+        title: '为什么不用先按天分组再求平均',
+        summary:
+          '本题问的是整个窗口的人均会话数，维度是「人」而不是「天」，所以应该直接对全窗口汇总。如果先按天算出人均再对这些值求平均，每天的活跃人数不同、权重不一致，结果会偏离题意。',
+        bullets: [
+          '分子是窗口内的会话去重计数，按 user_id 和 session_id 的组合去重。',
+          '分母是窗口内的活跃用户数，也就是 `COUNT(DISTINCT user_id)`。',
+          '两者相除，外面套一层 ROUND 保留两位小数。',
+          '组合去重可以写成 `COUNT(DISTINCT user_id, session_id)`，也可以先在子查询里拼成一个字段再计数。',
+          '窗口为空时两个计数都是零，相除得到空值，需要用兜底函数转成 0。',
+        ],
+        callout:
+          '平均值在 SQL 里不一定非得用 AVG。当平均的对象是「每个用户有多少次会话」这类派生量时，直接用两个去重计数的商往往更直观，也更不容易出错。要特别区分两种口径：一种是先分组求平均、再对结果平均，另一种是用总量相除。题目的措辞决定该用哪一种，而本题明确要的是后者。',
+      },
+      {
+        id: 'user-activity-for-the-past-30-days-ii-solution',
+        title: '标准解法：两个去重计数相除',
+        summary:
+          '用 BETWEEN 圈出与上一题完全一致的三十天窗口，在过滤后的数据上直接算出会话去重计数与用户去重计数的商，再取两位小数并用空值兜底。',
+        bullets: [
+          'WHERE 里的日期区间和上一题保持同一个口径，起点 2019 年 6 月 28 日、终点 2019 年 7 月 27 日。',
+          '分子写成 `COUNT(DISTINCT user_id, session_id)`，一次完成对人的去重和对会话的去重。',
+          '分母写成 `COUNT(DISTINCT user_id)`。',
+          '用 IFNULL 或者 COALESCE 把空结果兜成 0，零除得到的是空值而不是错误。',
+          'ROUND 套在最外层，不要在分子分母上分别提前取整。',
+          '不需要 GROUP BY，整张表汇总成一行。',
+        ],
+        code: `SELECT
+  IFNULL(
+    ROUND(
+      COUNT(DISTINCT user_id, session_id) / COUNT(DISTINCT user_id),
+      2
+    ),
+    0
+  ) AS average_sessions_per_user
+FROM Activity
+WHERE activity_date BETWEEN '2019-06-28' AND '2019-07-27';`,
+      },
+      {
+        id: 'user-activity-for-the-past-30-days-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary: '最容易错的是口径选错，先按天求人均再平均。',
+        bullets: [
+          '易错点 1：先按天算出人均会话数，再对这些值求平均，权重不一致，结果偏离题意。',
+          '易错点 2：分子只写 `COUNT(DISTINCT session_id)`，不同用户恰好用了相同会话编号时会被错误合并。',
+          '易错点 3：分子写 `COUNT(*)`，同一次会话的多条行为记录被重复计数。',
+          '易错点 4：忘记处理分母为零，窗口内没有记录时返回空值而不是 0。',
+          '易错点 5：ROUND 写在了分子或者分母上，提前取整损失精度。',
+          '易错点 6：多乘了一个 100 把比值变成百分数，或者漏掉必要的浮点转换导致整数除法。',
+          '延伸方向：人均、单均价这类派生指标的两种口径、窗口函数算分组占比，以及空结果集的兜底写法。',
+        ],
+      },
+    ],
+  },
 ];
