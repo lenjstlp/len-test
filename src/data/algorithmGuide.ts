@@ -112299,4 +112299,109 @@ FROM daily;`,
       },
     ],
   },
+  {
+    id: 'largest-1-bordered-square',
+    label: '1139. LeetCode 1139. 最大的以 1 为边界的正方形',
+    difficulty: '中等',
+    description:
+      '先预处理出每个格子往右和往下各自连续有多少个 1，再枚举每个格子作为左上角、从大到小尝试边长，用两个方向的信息在常数时间里校验另外两条边。',
+    outcome:
+      '你能掌握「预处理好两个方向的连续 1 计数，把正方形边界校验降到常数时间」这一手法，并理解为什么枚举边长要从大到小、以及四条边的校验怎么拆开。',
+    sections: [
+      {
+        id: 'largest-1-bordered-square-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只含 0 和 1 的二维矩阵，找出四条边全部由 1 构成的最大正方形子矩阵，返回它的元素个数也就是边长的平方；如果不存在这样的正方形，返回 0。',
+        bullets: [
+          '只要求四条边全为 1，正方形内部是什么值都不影响结果。',
+          '边长为一的单个 1 也算合法正方形，所以答案至少是 1。',
+          '返回的是面积，不是边长，这一点很容易看漏。',
+          '例如矩阵是 [[1,1,1],[1,0,1],[1,1,1]]，最大的边界全 1 正方形边长是 3，答案是 9。',
+          '再如 [[1,1,0,0]] 这样的单行矩阵，最大合法正方形是单个 1，答案是 1。',
+          '子矩阵必须是正方形，长方形不算数。',
+        ],
+      },
+      {
+        id: 'largest-1-bordered-square-model',
+        title: '为什么先做两个方向的预处理',
+        summary:
+          '校验一个正方形要看四条边：上边和左边是从左上角出发的两段，下边和右边是从右下角出发的两段。如果每换一个边长就现场数一遍，复杂度会上到立方甚至更高。把「从某个格子往右连续有多少个 1」和「往下连续有多少个 1」预先算好，四条边就都能一次查询。',
+        bullets: [
+          '`right[row][col]` 表示从(row, col)出发向右连续 1 的个数。',
+          '`down[row][col]` 表示从(row, col)出发向下连续 1 的个数。',
+          '左上角(row, col)加上边长 size 就确定了四个角。',
+          '上边和左边分别由 `right[row][col]` 与 `down[row][col]` 至少为 size 来保证。',
+          '下边由 `right[row + size - 1][col]` 校验，右边由 `down[row][col + size - 1]` 校验。',
+        ],
+        callout:
+          '枚举边长要从大到小：一旦某个边长成立，它就是当前位置能得到的最大解，可以立刻跳出内层循环。反过来从小到大枚举就失去了提前退出的机会，内层必须完整跑完。另外，把当前位置的边长上界直接取成「向右连续 1 的个数」与「向下连续 1 的个数」中的较小者，可以省掉大量注定不成立的尝试。',
+      },
+      {
+        id: 'largest-1-bordered-square-solution',
+        title: '标准解法：两个方向的预处理加倒序枚举边长',
+        summary:
+          '从右下往左上倒推，填出 right 和 down 两张表；再对每个格子，从它的边长上界开始向下枚举，四条边都满足就更新答案并中断。',
+        bullets: [
+          '两张辅助表的初始化：格子本身是 1 时，等于相邻方向的值加一，否则为零。',
+          '倒着遍历是为了保证相邻方向的值已经算好。',
+          '内层循环写成 `size > best`，只尝试可能刷新纪录的边长，天然实现了提前退出。',
+          '上边和左边不需要单独判断，它们由边长上界本身保证。',
+          '答案在循环外化成面积返回。',
+          '时间复杂度 `O(rows * cols * min(rows, cols))`，空间复杂度 `O(rows * cols)`。',
+        ],
+        code: `function largest1BorderedSquare(grid: number[][]): number {
+  const rows = grid.length
+  const cols = grid[0].length
+
+  const right = Array.from({ length: rows }, () => new Array(cols).fill(0))
+  const down = Array.from({ length: rows }, () => new Array(cols).fill(0))
+
+  for (let row = rows - 1; row >= 0; row -= 1) {
+    for (let col = cols - 1; col >= 0; col -= 1) {
+      if (grid[row][col] === 1) {
+        right[row][col] = (col + 1 < cols ? right[row][col + 1] : 0) + 1
+        down[row][col] = (row + 1 < rows ? down[row + 1][col] : 0) + 1
+      }
+    }
+  }
+
+  let best = 0
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      const limit = Math.min(right[row][col], down[row][col])
+
+      for (let size = limit; size > best; size -= 1) {
+        const bottomLeft = right[row + size - 1][col]
+        const topRight = down[row][col + size - 1]
+
+        if (bottomLeft >= size && topRight >= size) {
+          best = size
+          break
+        }
+      }
+    }
+  }
+
+  return best * best
+}`,
+      },
+      {
+        id: 'largest-1-bordered-square-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是只校验左上角出发的两条边，漏掉右下角出发的那两条。',
+        bullets: [
+          '易错点 1：返回边长而不是面积，题目要的是元素个数。',
+          '易错点 2：只校验上边和左边，漏掉下边和右边，含 0 的错误正方形会被算进答案。',
+          '易错点 3：只要求四条边全为 1，却顺手要求内部也全为 1，把很多合法答案排除掉了。',
+          '易错点 4：边长从小到大枚举且不提前跳出，复杂度过高，大数据上超时。',
+          '易错点 5：预处理 right 和 down 的遍历方向写反，用到了还没算出来的格子。',
+          '易错点 6：把矩阵的行数和列数混用，越界访问。',
+          '延伸方向：最大全 1 正方形、最大全 1 矩形、以 1 为边框的矩形，以及二维前缀和在这类边界统计问题里的应用。',
+        ],
+      },
+    ],
+  },
 ];
