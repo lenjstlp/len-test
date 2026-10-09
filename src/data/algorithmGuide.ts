@@ -111905,4 +111905,112 @@ FROM daily;`,
       },
     ],
   },
+  {
+    id: 'connecting-cities-with-minimum-cost',
+    label: '1135. LeetCode 1135. 最低成本联通所有城市',
+    difficulty: '中等',
+    description:
+      '把城市当成点、可修建的连接当成带权边，问题就变成求最小生成树的总权重：按花费从小到大依次尝试加边，用并查集判断这条边会不会成环，加满 n 减 1 条边即可。',
+    outcome:
+      '你能掌握最小生成树的 Kruskal 写法：排序边、用并查集判环、靠已加入的边数判断连通性，并理解这套贪心为什么是正确的。',
+    sections: [
+      {
+        id: 'connecting-cities-with-minimum-cost-summary',
+        title: '题目在问什么',
+        summary:
+          '有 n 个城市，编号从 1 到 n，以及一组可以修建的道路 connections，每条写成 [城市 A, 城市 B, 花费]。求让所有城市互相连通所需的最小总花费；如果无论怎么修都无法把城市连成一片，返回 -1。',
+        bullets: [
+          '边是无向的，连接可以任意组合，只要求最终所有城市属于同一个连通块。',
+          '目标是最小化总花费，而不是最小化道路条数。',
+          '连通 n 个点最少需要 n 减 1 条边，这是判断能否成功的直接依据。',
+          '例如三个城市，可以修的是 [1,2,5] 和 [2,3,6]，最小花费是 11，恰好用掉两条边。',
+          '再如三个城市只有 [1,2,5] 这一条可选，城市 3 永远孤立，答案是 -1。',
+          '题目约束城市数至少为 2，所以不需要单独考虑只有一个城市的情况。',
+        ],
+      },
+      {
+        id: 'connecting-cities-with-minimum-cost-model',
+        title: '为什么按花费从小到大加边不会错',
+        summary:
+          '要让所有城市连通且总花费最小，直觉上就是尽量用便宜的连接。这个直觉可以被证明：一条横跨两个当前互不连通的块的、花费最小的边，一定属于某棵最小生成树。因此每次贪心地加入当前最便宜且不成环的边是安全的。',
+        bullets: [
+          '按花费升序遍历所有连接，最便宜的边优先考虑。',
+          '用并查集维护「目前哪些城市已经连在一起」。',
+          '一条边的两个端点若已经在同一个集合里，加入它会形成环，直接跳过。',
+          '否则加入这条边，合并两个集合，并把花费累加进答案。',
+          '成功加入的边数达到 n 减 1 时，所有城市已经连通，可以提前结束。',
+        ],
+        callout:
+          '这套贪心成立的关键是「切割性质」和「环性质」：任何一条横跨两个连通块的最便宜边都可以安全地放进答案，任何一条两端已经在同一个连通块里的边都可以安全地丢掉。前者保证了按花费从小到大的选择不失一般性，后者保证了判环的跳过是正确的。理解这两条性质，也就理解了为什么 Prim 算法同样成立，以及为什么它们都叫最小生成树算法。',
+      },
+      {
+        id: 'connecting-cities-with-minimum-cost-solution',
+        title: '标准解法：排序边加并查集',
+        summary:
+          '先把所有连接按花费排序，然后依次处理每条边，用并查集判断两端是否已经连通，连通的跳过、不连通的合并并累加花费。',
+        bullets: [
+          '先对 connections 按第三个元素也就是花费升序排序，注意复制一份再排，别改动入参。',
+          '并查集用父数组，父数组开 n 加 1 的大小，因为城市编号从 1 开始。',
+          '查找函数顺带做路径压缩，把沿途节点的父指针直接指向根，避免退化成链。',
+          '合并成功就累加花费并把已用边数加一，达到 n 减 1 直接返回当前花费。',
+          '遍历完所有边边数仍然不够，说明原图不连通，返回 -1。',
+          '时间复杂度 `O(m log m)`，瓶颈在排序，其中 m 是连接条数；空间复杂度 `O(n)`。',
+        ],
+        code: `function minimumCost(n: number, connections: number[][]): number {
+  const parent = Array.from({ length: n + 1 }, (_, index) => index)
+
+  function find(x: number): number {
+    let root = x
+    while (parent[root] !== root) {
+      root = parent[root]
+    }
+    while (parent[x] !== root) {
+      const next = parent[x]
+      parent[x] = root
+      x = next
+    }
+    return root
+  }
+
+  const edges = [...connections].sort((a, b) => a[2] - b[2])
+
+  let total = 0
+  let used = 0
+
+  for (const [from, to, cost] of edges) {
+    const rootFrom = find(from)
+    const rootTo = find(to)
+
+    if (rootFrom === rootTo) {
+      continue
+    }
+
+    parent[rootFrom] = rootTo
+    total += cost
+    used += 1
+
+    if (used === n - 1) {
+      return total
+    }
+  }
+
+  return -1
+}`,
+      },
+      {
+        id: 'connecting-cities-with-minimum-cost-mistakes',
+        title: '易错点和延伸方向',
+        summary: '最容易错的是漏掉判环这一步，以及用错了判断连通性的依据。',
+        bullets: [
+          '易错点 1：没有先按花费排序，按输入顺序加边，得到的是某种生成树但不是最小的。',
+          '易错点 2：忘了判环，把任意 n 减 1 条边的花费加起来，答案偏小。',
+          '易错点 3：判断连通性时只看总花费或者只看有没有边可选，无法发现图不连通，应该数已加入的边数。',
+          '易错点 4：并查集的查找不写路径压缩，极端数据下退化成链表，会超时。',
+          '易错点 5：城市编号从 1 开始，父数组按 n 开大小会越界一位。',
+          '易错点 6：直接在入参 connections 上排序，修改了调用方的数据，属于不该有的副作用。',
+          '延伸方向：Prim 算法与稠密图上的选择、最大生成树、以及 Kruskal 重构树这类进阶用法。',
+        ],
+      },
+    ],
+  },
 ];
