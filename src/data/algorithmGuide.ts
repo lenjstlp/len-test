@@ -112506,4 +112506,80 @@ FROM daily;`,
       },
     ],
   },
+  {
+    id: 'user-activity-for-the-past-30-days-i',
+    label: '1141. LeetCode 1141. 查询近30天活跃用户数',
+    difficulty: '简单',
+    description:
+      '先按日期分组、对用户去重计数，再用日期范围过滤出以 2019 年 7 月 27 日为最后一天的三十天窗口，最后按日期升序排列。',
+    outcome:
+      '你能掌握「按天去重计数」这个活跃类统计的标准写法，并学会用左右闭区间精确表达「最近三十天」这类时间窗口，同时避免在日期列上做函数运算。',
+    sections: [
+      {
+        id: 'user-activity-for-the-past-30-days-i-summary',
+        title: '题目在问什么',
+        summary:
+          'Activity 表记录用户每一天的活跃行为，列有 user_id、session_id、activity_date、activity_type，同一个用户在同一天可能有多条记录。要求统计 2019 年 6 月 28 日到 2019 年 7 月 27 日这三十天里，每一天的活跃用户数，这里的活跃定义为当天至少有过一条记录。结果按日期升序，没有活跃记录的日期不出现。',
+        bullets: [
+          '活跃的定义是「当天至少有一条记录」，不区分 activity_type 是哪一种。',
+          '同一个用户当天有多条记录只能算一个人，所以必须去重。',
+          '时间窗口是左右都包含的闭区间，2019 年 7 月 27 日要算进去。',
+          '结果只有两列，列名固定为 day 和 active_users。',
+          '没有记录的日期不会出现在结果里，不需要补零。',
+          '例如某天只有同一个用户的三条不同操作记录，当天的活跃用户数就是 1。',
+        ],
+      },
+      {
+        id: 'user-activity-for-the-past-30-days-i-model',
+        title: '为什么用日期范围而不是日期函数',
+        summary:
+          '「最近三十天」是一个固定窗口，用两次比较就能表达，而且能走上索引。如果改成对 activity_date 套函数再比较，条件列上就有了运算，索引用不上，大表上会明显变慢。',
+        bullets: [
+          '窗口终点是 2019 年 7 月 27 日，起点是终点往前推二十九天，也就是 2019 年 6 月 28 日。',
+          '过滤条件写成 BETWEEN 两端的形式，清楚表达这是一个闭区间。',
+          '分组维度是 activity_date，因为它决定了「哪一天」这一行。',
+          '计数用 `COUNT(DISTINCT user_id)`，去掉当天重复的活跃记录。',
+          '没有活跃记录的日期不会出现在分组结果里，正好符合题目要求。',
+        ],
+        callout:
+          '把「最近 N 天」翻译成日期区间时最容易差一天。记住窗口长度是三十天、首尾都算，所以终点往前推二十九天才对。如果题目问的是「从今天起往前三十天」并且「今天」是动态值，才需要用到日期函数；本题给的是固定日期，直接写字面量更清楚，也更快。',
+      },
+      {
+        id: 'user-activity-for-the-past-30-days-i-solution',
+        title: '标准解法：闭区间过滤加按天去重计数',
+        summary:
+          '用 BETWEEN 圈出三十天窗口，按 activity_date 分组，对 user_id 去重计数，最后按日期升序输出。',
+        bullets: [
+          'BETWEEN 的两端分别是 2019 年 6 月 28 日和 2019 年 7 月 27 日，都是闭区间端点。',
+          '分组键是 activity_date，输出时用 AS 重命名为 day。',
+          '去重计数写成 `COUNT(DISTINCT user_id)`，别名取 active_users。',
+          '如果不重命名，某些方言里 day 是保留字，直接当列名会报错。',
+          'ORDER BY 用 day 或者 activity_date 都可以，结果是同一份。',
+          '本题数据量不大，但写法要保证过滤条件能走上日期列的索引。',
+        ],
+        code: `SELECT
+  activity_date AS day,
+  COUNT(DISTINCT user_id) AS active_users
+FROM Activity
+WHERE activity_date BETWEEN '2019-06-28' AND '2019-07-27'
+GROUP BY activity_date
+ORDER BY day;`,
+      },
+      {
+        id: 'user-activity-for-the-past-30-days-i-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '最容易错的是窗口起点算错一天，以及用 `COUNT(*)` 代替去重计数。',
+        bullets: [
+          '易错点 1：窗口起点写成 2019 年 6 月 27 日，窗口变成了三十一天。',
+          '易错点 2：终点用小于而不是小于等于，把 7 月 27 日整整一天漏掉。',
+          '易错点 3：用 `COUNT(*)` 代替 `COUNT(DISTINCT user_id)`，同一用户的多条记录被重复计数。',
+          '易错点 4：对 activity_date 套日期函数再比较，表达式上有了函数，索引失效。',
+          '易错点 5：按 activity_type 一起分组，结果被拆成多行，同一天出现多个计数。',
+          '易错点 6：忘记排序，虽然不少评测不校验顺序，但输出顺序仍应符合要求。',
+          '延伸方向：日活月活与留存类统计、连续活跃天数（需要窗口函数），以及时间窗口左右开闭口径这一类容易踩坑的约定。',
+        ],
+      },
+    ],
+  },
 ];
