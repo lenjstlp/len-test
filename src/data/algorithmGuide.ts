@@ -113996,4 +113996,178 @@ ORDER BY id ASC;`,
       },
     ],
   },
+  {
+    id: 'online-majority-element-in-subarray',
+    label: '1157. LeetCode 1157. 子数组中占绝大多数的元素',
+    difficulty: '困难',
+    description:
+      '查询要求的门槛是「出现次数不少于 threshold」，而题目保证 threshold 一定是区间长度的严格多数，因此符合条件的元素至多一个。这正好是摩尔投票法的适用条件，而投票结果还能分段合并，于是可以把它嵌进线段树：查询时把覆盖区间的若干结点合并出唯一候选，再回到位置表里用二分统计候选的真实次数来验收。',
+    outcome:
+      '你能掌握摩尔投票的「可合并」性质并把它做成线段树结点，同时学会「先用廉价方式猜出候选、再用精确手段验证」这个处理众数类问题的两步套路。',
+    sections: [
+      {
+        id: 'online-majority-element-in-subarray-summary',
+        title: '题目在问什么',
+        summary:
+          '先用一个数组初始化，之后要反复回答：在下标区间里，出现次数不少于给定门槛的元素是哪一个；若不存在这样的元素就返回 -1。同一个数组上会有多次查询，所以初始化阶段可以多做些预处理，换取每次查询的快速回答。',
+        bullets: [
+          '查询给出三个参数：区间左端点、右端点和次数门槛。',
+          '要求的元素必须在区间内出现至少门槛次，出现次数正好等于门槛也算满足。',
+          '题目保证门槛一定大于区间长度的一半，也就是它必然是区间里的严格多数。',
+          '严格多数至多只能有一个，所以答案唯一，不存在需要在多个候选里挑一个的情形。',
+          '数组长度和元素取值范围都在两万以内，查询调用不超过一万次。',
+          '例如数组是 `[1,1,2,2,1,1]` 时，区间 0 到 5 里 1 出现四次，门槛是 4，返回 1。',
+          '再如同样这个数组，区间 0 到 3 里 1 和 2 各出现两次，门槛是 3，返回 -1。',
+        ],
+      },
+      {
+        id: 'online-majority-element-in-subarray-model',
+        title: '为什么可以先猜一个候选再去验证',
+        summary:
+          '严格多数的元素最多只有一个，这条性质让问题变成「先把唯一可能的那个找出来，再数一数它够不够」。摩尔投票法恰好能在一次遍历里找出这个候选，而且它的结果可以分段计算后再合并，于是可以用线段树把任意区间拆成若干个预处理过的段，合并出唯一候选。',
+        bullets: [
+          '严格多数唯一：两个元素都超过一半会互相矛盾，所以答案不可能有两个。',
+          '摩尔投票的思路是「相同就配对，不同就抵消」：候选与当前元素相同则计数加一，不同则计数减一，计数归零就换候选。',
+          '关键性质是它可以分段做再合并：把两段的投票结果按「候选相同则计数相加、候选不同则计数大的减小的」合并，等价于在整段上直接跑一遍。',
+          '合并规则满足交换律和结合律，所以可以预先按固定的分段结构（比如线段树）算好每一段的摘要，任意区间都能由若干个结点拼出来。',
+          '投票只能给出候选，不能给出次数，所以候选拿到手之后必须回到原数组核实。',
+          '核实次数用位置表加二分：预先记下每个值的全部出现位置，区间内的次数就是「不超过右端点的个数」减去「小于左端点的个数」。',
+        ],
+      },
+      {
+        id: 'online-majority-element-in-subarray-solution',
+        title: '标准解法：线段树求候选，位置表加二分核实',
+        summary:
+          '初始化时建立两张表：一张是按值分类的位置表，另一张是存投票摘要的线段树，每个结点记录该段内的候选和它的计数。查询时自底向上取出覆盖区间的结点逐个合并得到候选，再用两次二分数出候选的真实次数，达标就返回，否则返回 -1。',
+        bullets: [
+          '位置表用映射存放：键是元素值，值是一个按出现顺序排好的下标数组，天然有序。',
+          '线段树用自底向上的写法：后半段直接放叶子，每个叶子是「值、计数 1」；前半段由两个孩子合并而来。',
+          '合并函数处理两种情况：候选相同就把计数相加，不同就让计数大的那个减去小的那个。',
+          '查询时用两个指针从叶子层向上收拢，左边界为奇数就把该结点并入候选，右边界为偶数同样并入，然后一起上移一层。',
+          '空候选用计数为零的占位值表示，它与任何真实候选合并都不影响结果。',
+          '统计次数用两次二分：一次求第一个不小于左端点的位置，一次求第一个大于右端点的位置，两者之差就是区间内的出现次数。',
+          '构建需要 `O(n)`，单次查询是 `O(log n)` 的结点合并加上 `O(log k)` 的次数统计，k 是候选的出现总次数。',
+        ],
+        code: `type Candidate = [value: number, count: number]
+
+function mergeCandidate(a: Candidate, b: Candidate): Candidate {
+  if (a[0] === b[0]) {
+    return [a[0], a[1] + b[1]]
+  }
+
+  return a[1] >= b[1] ? [a[0], a[1] - b[1]] : [b[0], b[1] - a[1]]
+}
+
+class MajorityChecker {
+  private size = 0
+  private positions = new Map<number, number[]>()
+  private tree: Candidate[] = []
+
+  constructor(arr: number[]) {
+    this.size = arr.length
+    this.tree = new Array<Candidate>(this.size * 2)
+
+    for (let i = 0; i < this.size; i += 1) {
+      this.tree[this.size + i] = [arr[i], 1]
+
+      const list = this.positions.get(arr[i])
+
+      if (list) {
+        list.push(i)
+      } else {
+        this.positions.set(arr[i], [i])
+      }
+    }
+
+    for (let i = this.size - 1; i > 0; i -= 1) {
+      this.tree[i] = mergeCandidate(this.tree[i * 2], this.tree[i * 2 + 1])
+    }
+  }
+
+  query(left: number, right: number, threshold: number): number {
+    let low = left + this.size
+    let high = right + this.size
+    let candidate: Candidate = [0, 0]
+
+    while (low <= high) {
+      if (low % 2 === 1) {
+        candidate = mergeCandidate(candidate, this.tree[low])
+        low += 1
+      }
+
+      if (high % 2 === 0) {
+        candidate = mergeCandidate(candidate, this.tree[high])
+        high -= 1
+      }
+
+      low = Math.floor(low / 2)
+      high = Math.floor(high / 2)
+    }
+
+    const positions = this.positions.get(candidate[0])
+
+    if (!positions) {
+      return -1
+    }
+
+    const count =
+      this.upperBound(positions, right) - this.lowerBound(positions, left)
+
+    return count >= threshold ? candidate[0] : -1
+  }
+
+  private lowerBound(list: number[], target: number): number {
+    let low = 0
+    let high = list.length
+
+    while (low < high) {
+      const mid = (low + high) >> 1
+
+      if (list[mid] < target) {
+        low = mid + 1
+      } else {
+        high = mid
+      }
+    }
+
+    return low
+  }
+
+  private upperBound(list: number[], target: number): number {
+    let low = 0
+    let high = list.length
+
+    while (low < high) {
+      const mid = (low + high) >> 1
+
+      if (list[mid] <= target) {
+        low = mid + 1
+      } else {
+        high = mid
+      }
+    }
+
+    return low
+  }
+}`,
+        callout:
+          '两个地方最容易想当然。第一，摩尔投票给出的只是候选，不是答案，必须用位置表核实次数，因为区间不长时未必真有严格多数。第二，合并规则不能写成「候选不同就直接归零」：正确做法是让计数大的减去计数小的，把两个候选按最小计数配成对抵消掉，剩下的那个才继续参与后续合并。本题之所以能用这套做法，靠的是题目对门槛的严格多数保证；换成任意门槛，这种「先猜后验」的路子就不成立了。',
+      },
+      {
+        id: 'online-majority-element-in-subarray-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在漏掉验证、合并规则写错，以及二分的两种边界混用。',
+        bullets: [
+          '易错点 1：直接把投票候选当答案返回，没有回到位置表核实次数。',
+          '易错点 2：合并时写成「候选不同则计数归零」，把本该继续参与抵消的计数丢掉了。',
+          '易错点 3：核实次数用线性扫描，单次查询退化成线性，多次查询下严重超时。',
+          '易错点 4：上下界二分混用，把「第一个大于右端点」写成了「第一个不小于右端点」，边界元素被漏掉或多算。',
+          '易错点 5：位置表没有保持有序，或者建表时用了集合丢了重复出现，二分的前提被破坏。',
+          '易错点 6：忽略了门槛的严格多数前提，把这个解法套用到门槛很小的场景，此时答案可能不唯一、候选也可能不是答案。',
+          '易错点 7：自底向上线段树的边界处理写错，把不属于区间的结点也并进了候选。',
+          '延伸方向：摩尔投票及其变体（找超过三分之一、四分之一的元素）、线段树维护可合并摘要（区间最值、最大子段和、区间众数）、以及「先猜候选再用数据结构精确验证」这一模式在众数、频繁项与近似计数问题中的复用。',
+        ],
+      },
+    ],
+  },
 ];
