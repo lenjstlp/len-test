@@ -115629,4 +115629,225 @@ function removeZeroSumSublists(head: ListNode | null): ListNode | null {
       },
     ],
   },
+  {
+    id: 'dinner-plate-stacks',
+    label: '1172. LeetCode 1172. 餐盘栈',
+    difficulty: '困难',
+    description:
+      '要维护一排容量固定的栈：压盘子时放进最左侧还没满的那个栈，取盘子时从最右侧还有盘子的那个栈取，还允许指定编号单独取。朴素实现每次操作都要扫一遍所有栈，栈一多就慢。关键在于看出两个方向的操作其实各自只需要一类编号的极值，于是一个小根堆加上一个指针就能把扫描变成均摊的对数时间。',
+    outcome:
+      '你能掌握设计题里「把扫描换成极值索引」的套路：维护未满栈集合的最小值与非空栈集合的最大值，并学会用惰性校验处理优先队列里残留的失效元素。',
+    sections: [
+      {
+        id: 'dinner-plate-stacks-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个餐盘栈结构，构造时给定每个栈的容量。它支持三种操作：把盘子压入最左侧未满的栈，未满的栈一个都没有时新建一个；从最右侧非空的栈取出一个盘子；以及从指定编号的栈取出一个盘子。后两者在无处可取时返回 -1。',
+        bullets: [
+          '栈的编号从 0 开始，按创建顺序分配，只会增加不会回收或重排。',
+          '压入的目标是最左侧「未满」的栈，空的栈也算未满，所以中间被取空的栈应当被回填。',
+          '取出的目标是编号最大的「非空」栈，中间被取空的栈要跳过。',
+          '指定编号取出只影响那一个栈，不会顺手整理其他栈。',
+          '指定编号不存在或对应栈已经为空时返回 -1，两者都算取不到。',
+          '容量固定，压满一个栈之后它就不再是压入的候选。',
+          '例如容量为 2 时连续压入五个盘子，会用到三个栈，其中只有前两个是满的。',
+        ],
+      },
+      {
+        id: 'dinner-plate-stacks-model',
+        title: '为什么只需要两类编号的极值',
+        summary:
+          '两种压入取出的方向相反，恰好对应两类极值：压入要的是「未满栈中最小的编号」，取出要的是「非空栈中最大的编号」。所以不必每次真的去扫，只要把这两个极值各自维护好——未满栈的编号集合用小根堆，最右侧非空栈用一个只会左右移动的指针。',
+        bullets: [
+          '小根堆里只放编号，栈的实际内容仍放在数组里，堆顶是否有效由当前状态判断。',
+          '编号进堆的时机有两个：新栈被创建且容量大于 1 时，以及某个满栈被指定编号取走一个盘子、由满变不满时。',
+          '编号出堆的时机只有一个：压入操作恰好把堆顶那个栈填满时，连同堆顶一起弹掉。',
+          '指针的更新规则很简单：压入到编号 i 的栈时取「当前指针与 i 的较大值」，取出前先向左跳过所有空栈。',
+          '指针能用是因为压入只会让栈变得更满或新增一个编号最大的栈，不会让右侧凭空多出非空栈。',
+          '取出操作直接复用「指定编号取出」的实现，把指针指向的编号传进去即可，避免两份删除逻辑不一致。',
+        ],
+        callout:
+          '这里有一条容易被忽略的不变量：堆里绝不允许出现已经压满的栈。它恰好总是成立的，因为一个栈由不满变满的唯一途径就是压入操作填满了堆顶那一个，而那一刻我们顺手把堆顶弹掉了。反过来，如果哪天改成「随便找个未满的栈压」，这条不变量立刻被破坏，堆里会积满已满的编号，压入操作就会试图往满栈里塞盘子。',
+      },
+      {
+        id: 'dinner-plate-stacks-solution',
+        title: '标准解法：小根堆加右侧指针',
+        summary:
+          '用一个二维数组保存各个栈的内容，一个小根堆保存未满栈的编号，一个指针记录最右侧非空栈的位置。压入时不断取堆顶校验，有效就放进去、填满则弹掉堆顶；堆空则新建栈。取出时先把指针左移到非空栈，再委托给指定编号取出的逻辑。',
+        bullets: [
+          '压入的循环同时完成两件事：丢弃堆里失效的编号，找到第一个真正未满的栈。',
+          '找到之后立刻判断是否被填满，填满就把堆顶弹掉，维持「堆里没有满栈」的不变量。',
+          '堆被清空说明所有已有栈都满了，此时才新建一个栈，编号就是数组长度。',
+          '新建栈时若容量大于 1，它是未满的，要把编号推进堆里；容量为 1 时它一出生就是满的，不能进堆。',
+          '取出时先左移指针跳过空栈，指针变成负数表示整排栈都空了，返回 -1。',
+          '指定编号取出时判断越界与空栈两种情况，都返回 -1；弹出前记下它是否原本是满的，若是则把编号重新推进堆里。',
+          '每个编号进出堆的次数都是常数级，压入与取出均摊 `O(log n)`，n 是栈的个数。',
+        ],
+        code: `class MinHeap {
+  private data: number[] = []
+
+  size(): number {
+    return this.data.length
+  }
+
+  peek(): number {
+    return this.data[0]
+  }
+
+  push(value: number): void {
+    this.data.push(value)
+
+    let index = this.data.length - 1
+
+    while (index > 0) {
+      const parent = (index - 1) >> 1
+
+      if (this.data[parent] <= this.data[index]) {
+        break
+      }
+
+      ;[this.data[parent], this.data[index]] = [
+        this.data[index],
+        this.data[parent],
+      ]
+      index = parent
+    }
+  }
+
+  pop(): number {
+    const top = this.data[0]
+    const last = this.data.pop()!
+
+    if (this.data.length > 0) {
+      this.data[0] = last
+
+      let index = 0
+
+      while (true) {
+        const left = index * 2 + 1
+        const right = index * 2 + 2
+        let smallest = index
+
+        if (left < this.data.length && this.data[left] < this.data[smallest]) {
+          smallest = left
+        }
+
+        if (right < this.data.length && this.data[right] < this.data[smallest]) {
+          smallest = right
+        }
+
+        if (smallest === index) {
+          break
+        }
+
+        ;[this.data[index], this.data[smallest]] = [
+          this.data[smallest],
+          this.data[index],
+        ]
+        index = smallest
+      }
+    }
+
+    return top
+  }
+}
+
+class DinnerPlates {
+  private capacity: number
+  private stacks: number[][] = []
+  private room = new MinHeap()
+  private right = -1
+
+  constructor(capacity: number) {
+    this.capacity = capacity
+  }
+
+  push(val: number): void {
+    while (this.room.size() > 0) {
+      const index = this.room.peek()
+
+      if (
+        index < this.stacks.length &&
+        this.stacks[index].length < this.capacity
+      ) {
+        this.stacks[index].push(val)
+
+        if (this.stacks[index].length === this.capacity) {
+          this.room.pop()
+        }
+
+        this.right = Math.max(this.right, index)
+
+        return
+      }
+
+      this.room.pop()
+    }
+
+    this.stacks.push([val])
+
+    const index = this.stacks.length - 1
+
+    if (this.capacity > 1) {
+      this.room.push(index)
+    }
+
+    this.right = index
+  }
+
+  pop(): number {
+    while (this.right >= 0 && this.stacks[this.right].length === 0) {
+      this.right -= 1
+    }
+
+    if (this.right < 0) {
+      return -1
+    }
+
+    return this.popAtStack(this.right)
+  }
+
+  popAtStack(index: number): number {
+    if (index < 0 || index >= this.stacks.length) {
+      return -1
+    }
+
+    const stack = this.stacks[index]
+
+    if (stack.length === 0) {
+      return -1
+    }
+
+    const wasFull = stack.length === this.capacity
+    const val = stack.pop()!
+
+    if (wasFull) {
+      this.room.push(index)
+    }
+
+    return val
+  }
+}`,
+        callout:
+          '小根堆里允许存在已经没有意义的编号，只要在取出堆顶时顺手校验并丢弃即可，这叫惰性删除。它的好处是删除操作不必真的去堆里定位元素——普通堆没法高效地删除任意一个元素。代价只是堆可能比实际需要的集合稍大一些，而每个编号的总入堆次数是常数级，所以均摊下来并不吃亏。',
+      },
+      {
+        id: 'dinner-plate-stacks-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '易错点集中在压入时不回填空栈、取出时不跳过空栈，以及指针只在压入时更新。',
+        bullets: [
+          '易错点 1：压入时只会新建栈，不会回填被指定编号取空的中间栈，结果里出现空洞，后续取出的顺序全乱。',
+          '易错点 2：取出时只从编号最大的那个栈拿，没有跳过被取空的中间栈，明明有盘子却返回 -1。',
+          '易错点 3：把「未满」理解成「非空且未满」，空栈被排除在候选之外，回填逻辑因此失效。',
+          '易错点 4：指定编号越界时直接抛异常，而不是返回 -1。',
+          '易错点 5：用一个普通数组当「未满栈集合」，每次操作都要排序或线性查找，操作退化成线性时间。',
+          '易错点 6：容量为 1 时把新建的栈也推进未满集合，堆里混入了其实已经压满的栈。',
+          '易错点 7：维护了右侧指针却只在压入时更新它，取出时不向左跳过空栈，于是反复从一个已经取空的栈里取，返回 -1 或取到错误的值。',
+          '易错点 8：指定编号取出时忘记在「由满变不满」时把编号放回未满集合，这个栈从此再也接不到盘子。',
+          '延伸方向：双堆维护区间两端极值（一个放未满的最小值、一个放非空的最大值）、优先队列的惰性删除与堆内元素失效的判断方式，以及设计题里用「极值指针加集合」把扫描摊还掉这一类套路。',
+        ],
+      },
+    ],
+  },
 ];
