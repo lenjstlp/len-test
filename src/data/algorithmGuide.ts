@@ -115405,4 +115405,118 @@ ORDER BY p.product_id;`,
       },
     ],
   },
+  {
+    id: 'compare-strings-by-frequency-of-the-smallest-character',
+    label: '1170. LeetCode 1170. 比较字符串最小字母出现频次',
+    difficulty: '中等',
+    description:
+      '题目先定义了一个函数：一个字符串的「最小字母频次」指的是它字典序最小的那个字母出现了多少次。于是对每个查询字符串，要统计给定字典里有多少个词的该频次比它大。字典是固定的，所以只要把字典的频次算好排序，之后每个查询二分一次即可，不必每次重新扫一遍。',
+    outcome:
+      '你能掌握「把多次查询共享的预处理提出来做一次」这一降复杂度的通用手法，并顺手复习按值二分里严格大于这一侧边界的处理。',
+    sections: [
+      {
+        id: 'compare-strings-by-frequency-of-the-smallest-character-summary',
+        title: '题目在问什么',
+        summary:
+          '定义函数 f(s)：取出字符串 s 中字典序最小的那个字母，返回它在 s 中出现的次数。给定字符串数组 queries 与 words，对 queries 中的每个字符串 q，统计 words 中有多少个字符串 w 满足 f(w) 大于 f(q)，把结果按查询顺序组成数组返回。',
+        bullets: [
+          'f 的输入是单个字符串，输出是一个正整数，只与字符构成有关，与字符串长度没有直接关系。',
+          '判断的是严格大于，频次相等的字符串不计入答案。',
+          '每个查询独立计算，queries 里的字符串之间互不影响。',
+          'words 数组在所有查询之间保持不变，这是一个可以利用的前提。',
+          '字符串长度不超过 10，因此频次的取值范围很小，最小是 1，最大是 10。',
+          '例如字典是长度递增的四个单字母串，它们的频次依次是 1、2、3、4；查询的频次是 3 时有 1 个更大，频次是 2 时有 2 个更大。',
+        ],
+        callout:
+          '这个函数名很容易被读成「出现次数最少的字母的次数」，实际含义恰好相反：先挑出字典序最小的字母，再看它出现了多少次。区分办法是记住题目关心的是「最小的字母」这个字符本身，频次只是它的一个属性。',
+      },
+      {
+        id: 'compare-strings-by-frequency-of-the-smallest-character-model',
+        title: '为什么排序加二分能省掉重复劳动',
+        summary:
+          '最直白的做法是对每个查询重新遍历整个 words 并逐个求 f，但 words 的 f 值每次都被重算了一遍，而它们根本不会变。把这些值预处理成一张有序表之后，一次查询就只剩「有多少个值严格大于 x」这一个问题，二分即可，重复的工作被彻底消掉了。',
+        bullets: [
+          '字典的频次表只算一次，与查询次数无关。',
+          '升序排序的目的不是输出，而是让「统计大于某个值的元素个数」变成一次二分。',
+          '严格大于对应二分的左侧边界：找第一个大于 x 的位置，它右边的元素个数就是答案。',
+          '左闭右开的二分里，循环结束时下标的含义正好是「第一个大于 x 的位置」，不必额外加一减一。',
+          '频次只有 1 到 10 十种取值，所以也可以用一个计数数组加后缀和，把单次查询降到常数时间。',
+          '求 f 只需一趟扫描：记住当前遇到的最小字符，遇到更小的就把计数重置，与它相同就加一。',
+        ],
+        callout:
+          '为什么这里必须用严格大于而不是大于等于？因为题目比较的是不同字符串的频次大小关系，频次相等意味着两个字符串在该指标上打成平手，不构成「更频繁」或「字母更小」的优势。把这一侧写错，二分的边界条件与最终答案都会整体偏大，而且在样例上不一定暴露。',
+      },
+      {
+        id: 'compare-strings-by-frequency-of-the-smallest-character-solution',
+        title: '标准解法：字典频次排序后二分',
+        summary:
+          '先把 words 里每个字符串的频次算出来并升序排序，再对每个查询求出它的频次，在有序表上二分出第一个严格大于该频次的位置，用表长减去该位置得到答案。求频次用一趟扫描，维护当前最小字符与它的计数。',
+        bullets: [
+          '求频次的初始值取一个比任何小写字母都大的字符当哨兵，第一次比较就会把它替换掉。',
+          '遇到比当前最小字符更小的字符时把计数重置为 1，与它相等时累加，更大的字符直接忽略。',
+          '排序必须显式传数值比较函数，用默认的字符串比较会把两位数拍到一位数前面。',
+          '二分时把区间设成左闭右开，用中点值是否小于等于目标决定收缩方向。',
+          '答案取值是「表长减去第一个大于目标的下标」，下标等于表长时表示没有任何元素满足。',
+          '复杂度是排序 `O(n log n)` 加上每次查询 `O(log n)`，n 是字典规模，与字符串长度无关。',
+        ],
+        code: `function numSmallerByFrequency(queries: string[], words: string[]): number[] {
+  const frequency = (text: string): number => {
+    let smallest = '{'
+    let count = 0
+
+    for (const char of text) {
+      if (char < smallest) {
+        smallest = char
+        count = 1
+      } else if (char === smallest) {
+        count += 1
+      }
+    }
+
+    return count
+  }
+
+  const wordFrequencies = words.map(frequency)
+  wordFrequencies.sort((left, right) => left - right)
+
+  const countGreater = (value: number): number => {
+    let low = 0
+    let high = wordFrequencies.length
+
+    while (low < high) {
+      const mid = (low + high) >> 1
+
+      if (wordFrequencies[mid] <= value) {
+        low = mid + 1
+      } else {
+        high = mid
+      }
+    }
+
+    return wordFrequencies.length - low
+  }
+
+  return queries.map((query) => countGreater(frequency(query)))
+}`,
+        callout:
+          '哨兵字符取左花括号是因为它的 ASCII 码比小写字母 z 还大，任何小写字母都会立刻覆盖它，避免了「初始最小字符该填什么」这个分支。如果输入的字符集合扩展到 ASCII 全表，这个哨兵就不安全了，应当改成用空串或标记变量来判断是否是第一个字符。',
+      },
+      {
+        id: 'compare-strings-by-frequency-of-the-smallest-character-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '易错点集中在把函数语义读反、把严格大于写成大于等于，以及排序比较函数漏传导致两位数乱序。',
+        bullets: [
+          '易错点 1：把 f 理解成「出现次数最少的字母的次数」，语义完全反了，样例恰好也过不了。',
+          '易错点 2：把严格大于写成大于等于，频次相同的那部分被错误计入。',
+          '易错点 3：每个查询都重新遍历 words 求一遍频次，把可以共享的预处理重复做了许多次。',
+          '易错点 4：把 queries 与 words 的角色写反，换来一组方向相反的统计结果。',
+          '易错点 5：排序时没有传数值比较函数，默认的字符串比较会把频次 10 排到 2 前面。',
+          '易错点 6：二分的返回值当成了下标本身，或者表长减下标时多加少减了一位。',
+          '易错点 7：求频次前先把字符串排序或转成小写，做了无用功；一趟扫描就够，而且转小写还会改变字典序口径。',
+          '延伸方向：计数数组加后缀和把区间计数查询降到常数时间、字典序与 ASCII 顺序在大写字母混入时的分歧、以及「把多次查询共享的处理提取为预处理」这一优化习惯在批量统计与报表任务中的推广。',
+        ],
+      },
+    ],
+  },
 ];
