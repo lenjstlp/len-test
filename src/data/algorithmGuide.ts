@@ -116814,4 +116814,112 @@ GROUP BY id;`,
       },
     ],
   },
+  {
+    id: 'maximum-number-of-ones',
+    label: '1183. LeetCode 1183. 矩阵中 1 的最大数目',
+    difficulty: '困难',
+    description:
+      '在一个全零矩阵里放数字一，要求任意一个固定边长的正方形子矩阵内的一的个数不超过给定上限，求最多能放多少个一。突破口是注意到任意一个这样的正方形子矩阵恰好覆盖每个「行列下标对边长取余」的等价类各一个格子，于是问题转成对等价类排序后取前若干个。',
+    outcome:
+      '你能掌握「按时长取余划分等价类」这一视角，把带局部约束的放置问题转成按类计数的排序贪心，并理解余数不同的行与列如何组合出四种数量级。',
+    sections: [
+      {
+        id: 'maximum-number-of-ones-summary',
+        title: '题目在问什么',
+        summary:
+          '给定矩阵的宽和高，再给定正方形子矩阵的边长与其中允许的最大一的个数。可以任意选择一些格子置一，约束是每一个边长固定的正方形子矩阵内一的个数都不超过上限。要求最大化整个矩阵里一的个数。',
+        bullets: [
+          '矩阵初始全为零，可以自由选择把哪些格子置一。',
+          '约束覆盖所有位置的正方形子矩阵，不只是一部分。',
+          '正方形子矩阵的边长固定，远小于矩阵尺寸时数量很多。',
+          '正方形内一的个数允许恰好等于上限，不是严格小于。',
+          '目标是总数最大，而不是让某个局部满足约束。',
+          '题目保证边长不超过矩阵的宽与高。',
+          '宽、高与边长都是正整数。',
+        ],
+      },
+      {
+        id: 'maximum-number-of-ones-model',
+        title: '按余数划分等价类',
+        summary:
+          '任取一个边长为 L 的正方形，它的 L 行下标模 L 恰好取遍所有余数，列下标也一样。所以这个正方形恰好覆盖每一个「行余数、列余数」组合对应的一个格子。若把每类格子看作一个整体，约束就变成「任意正方形内每类各拿一个，合计不超过上限」，于是只要选的类数不超过上限，全填这些类就满足约束。',
+        bullets: [
+          '把格子按行下标模 L 与列下标模 L 分成 L 乘 L 个等价类。',
+          '每个等价类里的格子数由行方向的个数乘列方向的个数决定。',
+          '行方向有「宽除 L 向下取整再加一」个余数各出现一次，其余余数少出现一次；列方向同理。',
+          '于是等价类按大小只分四种，分别对应行多列多、行多列少、行少列多、行少列少。',
+          '任意正方形在每一类里恰好取一个格子，所以整类填一时正方形内恰好有「已填类数」个一。',
+          '类数上限就是正方形内允许的一的上限。',
+          '选择格子数最多的若干个类填满，总数即最优。',
+        ],
+        callout:
+          '四种大小是怎么来的：设宽除 L 的商为 a、余数为 p，则行方向上 p 个余数各出现 a 加一 次，L 减 p 个余数各出现 a 次；列方向设为 b 与 q。两者相乘就得到四个值：a 加一 乘 b 加一（p 乘 q 个类）、a 加一 乘 b（p 乘 L 减 q 个类）、a 乘 b 加一（L 减 p 乘 q 个类）、a 乘 b（其余）。类的大小决定优先级。',
+      },
+      {
+        id: 'maximum-number-of-ones-solution',
+        title: '解法：四个分组排序后累加',
+        summary:
+          '先算出宽、高分别除以边长的商与余数，构造四个分组，每组记录「每个类有多少格子」与「这样的类有多少个」。按每个类的格子数从大到小排序，在类数预算内尽量多取靠前的类，总数就是取到的类数乘以该类大小。',
+        bullets: [
+          '宽除边长得到行方向的商与余数，高除边长得到列方向的商与余数。',
+          '四种组合的类大小分别是四个乘积，类个数分别是余数与补余数的乘积。',
+          '按类大小降序排序，保证优先填满收益最高的类。',
+          '预算初始为正方形内的上限，每取一个类就减一。',
+          '某组能取的类数不超过预算，也不超过该组的类个数。',
+          '预算耗尽立即停止，后面的组不再计入。',
+          '时间复杂度只有常数次排序，与矩阵尺寸无关。',
+        ],
+        code: `function maximumNumberOfOnes(width: number, height: number, sideLength: number, maxOnes: number): number {
+  // 题目保证 sideLength 不超过宽与高；这里仍加一道守卫，
+  // 避免退化输入下把不存在的「行余数」算成有效类。
+  if (sideLength > width || sideLength > height) return width * height
+
+  const rowBase = Math.floor(width / sideLength)
+  const rowExtra = width % sideLength
+  const colBase = Math.floor(height / sideLength)
+  const colExtra = height % sideLength
+
+  const groups = [
+    { value: (rowBase + 1) * (colBase + 1), size: rowExtra * colExtra },
+    { value: (rowBase + 1) * colBase, size: rowExtra * (sideLength - colExtra) },
+    { value: rowBase * (colBase + 1), size: (sideLength - rowExtra) * colExtra },
+    { value: rowBase * colBase, size: (sideLength - rowExtra) * (sideLength - colExtra) },
+  ]
+
+  groups.sort((a, b) => b.value - a.value)
+
+  let total = 0
+  let remaining = maxOnes
+
+  for (const group of groups) {
+    if (remaining <= 0) break
+
+    const take = Math.min(remaining, group.size)
+    total += take * group.value
+    remaining -= take
+  }
+
+  return total
+}`,
+        callout:
+          '这里的 `size` 指的是「有多少个等价类」，`value` 指的是「每个等价类有多少格子」。取名容易混淆，所以循环里用 `take` 强调取的是类的个数。若把两者写反，结果会变成几倍甚至上千倍的量级错误，而小样例未必能暴露出来。',
+      },
+      {
+        id: 'maximum-number-of-ones-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '易错点集中在余数与商的对应关系、把类大小与类个数写反，以及忘记预算耗尽后停止。',
+        bullets: [
+          '易错点 1：把行方向的商与余数配给列方向，四种乘积错位。',
+          '易错点 2：把「每个类的格子数」与「这类有多少个」写反。',
+          '易错点 3：没有按类大小排序，取了较小的类，总数偏小。',
+          '易错点 4：预算耗尽后没有跳出，继续累加多出来的类。',
+          '易错点 5：把约束理解成严格小于上限，少取一个类。',
+          '易错点 6：认为每个类都只能填上限个格子，于是给类大小加了一个上限，实际整类都可以填。',
+          '易错点 7：用二维数组逐格标记等价类，矩阵尺寸大时内存与时间都不可接受。',
+          '延伸方向：周期性子矩阵约束与余数等价类、把二维周期结构压成四组参数的计数方法，以及类似的「行列独立取模」技巧在平铺与矩形覆盖问题中的应用。',
+        ],
+      },
+    ],
+  },
 ];
