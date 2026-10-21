@@ -117320,4 +117320,125 @@ GROUP BY id;`,
       },
     ],
   },
+  {
+    id: 'design-bounded-blocking-queue',
+    label: '1188. LeetCode 1188. 设计有限阻塞队列',
+    difficulty: '中等',
+    description:
+      '实现一个容量固定的阻塞队列：入队时若队列已满就让调用方等待，出队时若队列为空就让调用方等待，条件满足后再自动唤醒。TypeScript 运行在单线程事件循环上，没有真正的线程阻塞，所以用 Promise 挂起调用方来精确复现阻塞语义，核心结构是队列本体加上两组等待者。',
+    outcome:
+      '你能用「数据加两组等待者」实现生产者消费者模型，理解为什么唤醒之后必须在循环里重新检查条件、为什么同步的检查与修改之间不能插入等待点，以及如何避免唤醒错边与丢失唤醒。',
+    sections: [
+      {
+        id: 'design-bounded-blocking-queue-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个容量在构造时固定下来的队列，提供入队、出队与查询大小三个方法。队列满时入队必须等待，队列空时出队必须等待，等待中的调用方在条件满足后恢复执行。元素按先进先出的顺序离队。',
+        bullets: [
+          '容量固定且至少为一，构造之后不再改变。',
+          '入队在队列满时挂起，直到有元素出队腾出位置。',
+          '出队在队列空时挂起，直到有元素入队。',
+          '多个出队方竞争同一个元素时，只有一个能拿到，其余继续等待。',
+          '多个入队方竞争同一个空位时，只有一个能写入，其余继续等待。',
+          '元素顺序是先进先出，先入队者先出队。',
+          '查询大小不阻塞，随时返回当前元素个数，取值在零到容量之间。',
+        ],
+      },
+      {
+        id: 'design-bounded-blocking-queue-model',
+        title: '队列本体加两组等待者',
+        summary:
+          '队列本体是一个普通数组。再准备两个等待者列表，分别存放「因队列满而入队受阻」与「因队列空而出队受阻」的挂起函数。入队成功后唤醒一个出队等待者，出队成功后唤醒一个入队等待者，形成生产者与消费者的互相推动。',
+        bullets: [
+          '每个等待者就是一个 Promise 的完成回调，把它推入对应列表即可让调用方挂起。',
+          '入队的等待条件是没有空位，即元素个数已经达到容量。',
+          '出队的等待条件是没有元素，即元素个数为零。',
+          '条件满足后先修改队列，再唤醒对面的一组等待者中的一个。',
+          '被唤醒不等于取得执行权：它只是被排进微任务队列，恢复后必须重新检查条件。',
+          '因此等待必须写在循环里，被唤醒后回到循环开头的条件判断，而不是直接往下执行。',
+          '单线程事件循环保证同步代码段不会被抢占，检查条件与修改队列之间只要没有等待点，就是原子的。',
+        ],
+        callout:
+          '为什么必须用循环而不是一次判断？被唤醒的调用方并不独占资源：从 Promise 完成到它真正恢复之间，其他同步调用可能已经把新入队的元素取走。醒来后发现条件又不成立，就应该重新挂起。这种「唤醒后重新检查」的语义与真实线程库里的条件变量一致，去掉循环就会出现队列长度越界或者从空队列取值的错误。',
+      },
+      {
+        id: 'design-bounded-blocking-queue-solution',
+        title: '解法：Promise 等待者与循环复查',
+        summary:
+          '构造时保存容量。入队在一个循环里检查是否已满，满则把完成回调推入入队等待者列表并挂起；循环结束后写入元素并唤醒一个出队等待者。出队对称：循环检查是否为空，取出元素后唤醒一个入队等待者。',
+        bullets: [
+          '等待者列表用数组保存完成回调，按先进先出的顺序取出，保证唤醒顺序稳定。',
+          '唤醒只取一个，避免所有等待者同时恢复造成无谓的竞争。',
+          '写入与取出都在条件检查之后同步完成，两个动作之间没有等待点。',
+          '出队用数组头部删除保持先进先出。',
+          '查询大小直接返回数组长度，不需要加锁。',
+          '容量比较用大于等于，恰好填满时也不能再写入。',
+          '空判断用严格等于零，因为长度不可能是负数。',
+        ],
+        code: `class BoundedBlockingQueue {
+  private readonly capacity: number
+  private readonly items: number[] = []
+  private readonly enqueueWaiters: Array<() => void> = []
+  private readonly dequeueWaiters: Array<() => void> = []
+
+  constructor(capacity: number) {
+    this.capacity = capacity
+  }
+
+  async enqueue(element: number): Promise<void> {
+    while (this.items.length >= this.capacity) {
+      await new Promise<void>((resolve) => {
+        this.enqueueWaiters.push(resolve)
+      })
+    }
+
+    this.items.push(element)
+    this.wakeOne(this.dequeueWaiters)
+  }
+
+  async dequeue(): Promise<number> {
+    while (this.items.length === 0) {
+      await new Promise<void>((resolve) => {
+        this.dequeueWaiters.push(resolve)
+      })
+    }
+
+    const value = this.items.shift() as number
+    this.wakeOne(this.enqueueWaiters)
+    return value
+  }
+
+  size(): number {
+    return this.items.length
+  }
+
+  private wakeOne(waiters: Array<() => void>): void {
+    const waiter = waiters.shift()
+    if (waiter) {
+      waiter()
+    }
+  }
+}`,
+        callout:
+          '真实的多线程语言里，检查条件与修改队列必须放在同一把锁内，否则两个线程可能同时通过检查。这里不需要锁，原因不是问题变简单了，而是运行时只有一个线程：只要检查与修改写在同一个同步段里、中间没有 await，就不会有别的代码插进来。把这条前提记清楚，往其他并发模型迁移时才不会误以为可以照搬。',
+      },
+      {
+        id: 'design-bounded-blocking-queue-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '易错点集中在用一次判断代替循环、唤醒错误的一组等待者，以及用忙等代替挂起。',
+        bullets: [
+          '易错点 1：用一次 if 判断代替 while，被唤醒后不复查条件，队列可能超容量或者从空队列取值。',
+          '易错点 2：入队后唤醒了入队等待者，或者出队后唤醒了出队等待者，生产者与消费者互相等待形成死锁。',
+          '易错点 3：忘记唤醒任何等待者，另一侧永远挂起。',
+          '易错点 4：一次唤醒全部等待者，被唤醒者醒来后大多发现条件不成立，又全部重新挂起。',
+          '易错点 5：在检查条件与修改队列之间插入 await 或者异步回调，破坏了同步段的原子性。',
+          '易错点 6：唤醒之后直接返回而不重新执行等待循环，拿到的是旧状态下的判断结果。',
+          '易错点 7：用头部插入加尾部删除，先进先出退化成后进先出。',
+          '易错点 8：用循环轮询查询大小代替挂起，空转占用事件循环，语义上也不是阻塞。',
+          '延伸方向：条件变量与信号量的对应关系、生产者消费者模型的多种变体（有界缓冲、多生产者多消费者、带优先级的队列），以及用队列实现异步任务调度与背压控制。',
+        ],
+      },
+    ],
+  },
 ];
