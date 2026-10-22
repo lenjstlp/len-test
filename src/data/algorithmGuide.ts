@@ -118056,4 +118056,149 @@ ORDER BY group_id;`,
       },
     ],
   },
+  {
+    id: 'fizz-buzz-multithreaded',
+    label: '1195. LeetCode 1195. 交替打印字符串',
+    difficulty: '中等',
+    description:
+      '四个线程分别负责打印 fizz、buzz、fizzbuzz 与普通数字，要求从一到 n 按顺序输出，三的倍数打印 fizz，五的倍数打印 buzz，十五的倍数打印 fizzbuzz，其余打印数字本身。TypeScript 没有真正的多线程，用四个并发执行的异步方法加一个共享的当前下标来复现交替打印。',
+    outcome:
+      '你能用「共享轮次加广播唤醒」协调多个并发的异步方法，理解为什么下一轮可能轮到任意一方所以必须唤醒全部等待者，以及为什么每个方法醒来后都要重新检查是否轮到自己。',
+    sections: [
+      {
+        id: 'fizz-buzz-multithreaded-summary',
+        title: '题目在问什么',
+        summary:
+          '构造一个对象，提供四个方法，分别负责打印 fizz、buzz、fizzbuzz 与数字。四个方法会被并发调用，它们共享同一个上限 n，最终输出必须严格按一到 n 的顺序排列，每个数字恰好对应一条输出。',
+        bullets: [
+          '输出顺序是唯一的目标，谁先被调用不重要。',
+          '三的倍数输出 fizz，五的倍数输出 buzz，同时是三与五的倍数输出 fizzbuzz。',
+          '其余数字原样输出十进制表示。',
+          '每个方法都会一直工作到所有数字处理完毕才返回。',
+          '四个方法并发存在，不能假设它们以固定顺序开始执行。',
+          '普通数字方法通过回调把数字交给调用方格式化。',
+          'n 至少为一。',
+        ],
+      },
+      {
+        id: 'fizz-buzz-multithreaded-model',
+        title: '共享轮次与广播唤醒',
+        summary:
+          '用一个共享的当前数字表示轮到谁。四个方法各自循环：只要还没结束，就判断当前数字是否属于自己负责的类别；不属于就挂起等待，属于就打印、把当前数字加一并唤醒所有等待者。这样每一轮只有类别匹配的那一个方法会动作，输出顺序自然正确。',
+        bullets: [
+          '当前数字从一开始，每完成一次打印就加一。',
+          '四个类别的判断条件互斥：三的倍数、五的倍数、十五的倍数、其余，四者恰好覆盖所有正整数。',
+          '判断条件里都要排除其它类别的交集，例如负责 fizz 的方法必须排除五的倍数。',
+          '不属于自己的轮次就挂起，把完成回调放进等待者列表。',
+          '打印完成后把当前数字加一，并唤醒全部等待者。',
+          '被唤醒的方法重新检查条件，轮到自己就打印，否则继续等待。',
+          '当前数字超过上限时，所有方法都应当返回。',
+        ],
+        callout:
+          '这里必须广播唤醒，不能只唤醒一个。下一轮可能落在任意一个方法上；若只唤醒一个而它恰好不是下一轮的负责方，它会重新挂起，而此时没有新的唤醒事件，所有方法就永远停住了。广播的代价是每一轮可能唤醒几个不该醒来的方法，但它们只做一次条件判断就继续等待，代价可以接受。',
+      },
+      {
+        id: 'fizz-buzz-multithreaded-solution',
+        title: '解法：条件等待加轮次推进',
+        summary:
+          '四个方法共用同一个等待辅助函数与推进函数。等待辅助函数在条件不满足时反复挂起，推进函数把当前数字加一并唤醒全部等待者。每个方法在循环里等待自己的条件，命中后打印、推进，直到当前数字超过上限返回。',
+        bullets: [
+          '等待条件统一写成「已经结束或者轮到自己」。',
+          '结束判断放在打印之前，保证不会越界多打印一次。',
+          '打印与推进在同一个同步段内完成，中间没有等待点。',
+          '推进时先取出全部等待者再逐个唤醒，避免回调执行过程中改动列表。',
+          '四个方法的循环结构完全对称，只有判断条件与打印动作不同。',
+          '单线程事件循环保证条件检查与打印之间不会被其它方法插入。',
+          '空间与同时挂起的方法数相关，最多是四个。',
+        ],
+        code: `class FizzBuzz {
+  private readonly n: number
+  private current = 1
+  private readonly waiters: Array<() => void> = []
+
+  constructor(n: number) {
+    this.n = n
+  }
+
+  async fizz(printFizz: () => void): Promise<void> {
+    for (;;) {
+      await this.waitUntil(
+        () => this.current > this.n || (this.current % 3 === 0 && this.current % 5 !== 0),
+      )
+      if (this.current > this.n) return
+      printFizz()
+      this.advance()
+    }
+  }
+
+  async buzz(printBuzz: () => void): Promise<void> {
+    for (;;) {
+      await this.waitUntil(
+        () => this.current > this.n || (this.current % 5 === 0 && this.current % 3 !== 0),
+      )
+      if (this.current > this.n) return
+      printBuzz()
+      this.advance()
+    }
+  }
+
+  async fizzbuzz(printFizzBuzz: () => void): Promise<void> {
+    for (;;) {
+      await this.waitUntil(() => this.current > this.n || this.current % 15 === 0)
+      if (this.current > this.n) return
+      printFizzBuzz()
+      this.advance()
+    }
+  }
+
+  async number(printNumber: (value: number) => void): Promise<void> {
+    for (;;) {
+      await this.waitUntil(
+        () => this.current > this.n || (this.current % 3 !== 0 && this.current % 5 !== 0),
+      )
+      if (this.current > this.n) return
+      printNumber(this.current)
+      this.advance()
+    }
+  }
+
+  private async waitUntil(predicate: () => boolean): Promise<void> {
+    while (!predicate()) {
+      await new Promise<void>((resolve) => {
+        this.waiters.push(resolve)
+      })
+    }
+  }
+
+  private advance(): void {
+    this.current += 1
+    const waiters = this.waiters.splice(0)
+    for (const wake of waiters) {
+      wake()
+    }
+  }
+}`,
+        callout:
+          '等待条件里包含了「已经结束」这一支，所以每一轮推进后所有方法都会被唤醒并检查结束条件。若只在轮到自己时才唤醒，最后的退出就依赖于某个方法恰好最后被唤醒，很容易留下几个永远挂起的方法，整个程序无法结束。把结束作为每个等待条件的或项，是一种简单而可靠的收尾方式。',
+      },
+      {
+        id: 'fizz-buzz-multithreaded-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '易错点集中在只唤醒一个等待者、判断条件没有互斥，以及打印与推进的顺序。',
+        bullets: [
+          '易错点 1：推进时只唤醒一个等待者，下一轮若轮到别的类别，所有方法一起卡住。',
+          '易错点 2：用一次判断代替循环，醒来后不复查，可能在错误轮次打印。',
+          '易错点 3：负责 fizz 的方法没有排除五的倍数，十五的倍数处多打印一次。',
+          '易错点 4：负责 buzz 的方法没有排除三的倍数，与 fizz 方法重复打印。',
+          '易错点 5：判断条件彼此重叠，导致同一轮多个方法同时通过检查。',
+          '易错点 6：先推进再打印，输出顺序与数字错位。',
+          '易错点 7：结束判断写在打印之后，超出上限时多输出一项。',
+          '易错点 8：每个方法用独立计数器自行推导自己的输出，四个方法的节奏没有共享，顺序无法保证。',
+          '易错点 9：用忙等轮询当前数字，空转占用事件循环。',
+          '延伸方向：条件变量与广播语义、状态机式的协作调度、多线程下交替打印的其它变体（两个线程交替、奇偶交替、按信号量配对），以及把轮次协调推广到流水线式的多阶段任务。',
+        ],
+      },
+    ],
+  },
 ];
