@@ -117738,4 +117738,138 @@ function kConcatenationMaxSum(arr: number[], k: number): number {
       },
     ],
   },
+  {
+    id: 'critical-connections-in-a-network',
+    label: '1192. LeetCode 1192. 查找集群内的关键连接',
+    difficulty: '困难',
+    description:
+      '给出一张无向连通图，找出所有关键连接：删掉这条边之后，网络就不再连通的边，也就是图论里的桥。经典做法是一次深度优先遍历同时维护发现时间与可回溯到的最早时间，当子节点无法绕过父节点回到更早的位置时，父子之间那条边就是桥。',
+    outcome:
+      '你能理解发现时间与 low 值的含义，写出桥的判定条件，并用显式栈实现深度优先遍历，避免十万级节点下递归爆栈。',
+    sections: [
+      {
+        id: 'critical-connections-in-a-network-summary',
+        title: '题目在问什么',
+        summary:
+          '有 n 台服务器与若干条双向连接，任意两台服务器之间可以通过连接互相到达。一条连接被称为关键连接，如果把它移除之后，网络分裂成两个或更多不连通的部分。要求列出所有关键连接。',
+        bullets: [
+          '连接是无向边，两个方向都通。',
+          '题目保证网络初始连通。',
+          '关键连接等价于图论中的桥，删掉它会让端点之间不再连通。',
+          '非关键连接一定位于某个环上，删掉之后还有另一条路可走。',
+          '结果的顺序不作要求，每条边以两个端点的数组表示。',
+          '不存在重复的连接，也不存在自环。',
+          '没有任何关键连接时返回空数组。',
+        ],
+      },
+      {
+        id: 'critical-connections-in-a-network-model',
+        title: '发现时间与 low 值',
+        summary:
+          '深度优先遍历会形成一棵遍历树。为每个节点记录首次访问的时间戳，再记录一个 low 值：从这个节点出发，沿树边向下走、至多经过一条回边，能够到达的最早时间戳。若节点 v 的 low 值严格大于父节点 u 的时间戳，说明 v 的整棵子树都绕不开 u 与 v 之间的这条树边，它就是桥。',
+        bullets: [
+          '时间戳在首次访问节点时分配，单调递增，用来判断访问的先后。',
+          '回边是指向已访问祖先的非树边，它意味着存在一个环。',
+          '遇到回边时，用目标节点的时间戳更新当前节点的 low 值。',
+          '子树遍历完成后，用子节点的 low 值更新父节点的 low 值。',
+          '桥的判定条件是子节点的 low 值严格大于父节点的时间戳。',
+          '若子节点能通过回边到达父节点或更早的祖先，low 值不会大于父节点的时间戳，这条边就在环上，不是桥。',
+          '整张图可能不连通时，对每个未访问的起点各做一次遍历，算法依然成立。',
+        ],
+        callout:
+          '判定条件必须是严格大于。若子节点能回到父节点本身，low 值恰好等于父节点的时间戳，此时父子边与那条回边构成一个环，删掉父子边仍然连通。写成大于等于会把这个环上的边误判为桥。同理，用回边更新 low 时取的是目标的时间戳而不是目标的 low 值，后者可能包含由当前子树自身贡献的信息，会形成循环依赖。',
+      },
+      {
+        id: 'critical-connections-in-a-network-solution',
+        title: '解法：显式栈上的 Tarjan',
+        summary:
+          '用邻接表保存每条边的另一端与边编号。对每个未访问起点做迭代式深度优先遍历，栈帧记录当前节点、来时的边编号与下一条待处理邻边的下标。发现节点时打时间戳，处理回边时更新 low，节点处理完毕后弹栈并用它的 low 值更新父节点，同时判断父子边是否为桥。',
+        bullets: [
+          '邻接表里同时存边编号，跳过父边时只跳过那一条具体的边。',
+          '栈帧的待处理下标避免重复扫描已经处理过的邻边。',
+          '子节点入栈前分配时间戳，保证父子时间戳的大小关系正确。',
+          '回边更新 low 时取的是发现时间。',
+          '弹栈时先更新父节点的 low，再做桥判定，两者用的都是子节点已经算完的 low。',
+          '根节点没有父边，弹栈后不需要判定。',
+          '每个节点与每条边各处理常数次，时间复杂度线性。',
+        ],
+        code: `function criticalConnections(n: number, connections: number[][]): number[][] {
+  const adjacency: Array<Array<[number, number]>> = Array.from({ length: n }, () => [])
+
+  for (let id = 0; id < connections.length; id += 1) {
+    const [u, v] = connections[id]
+    adjacency[u].push([v, id])
+    adjacency[v].push([u, id])
+  }
+
+  const discovered = new Array<number>(n).fill(-1)
+  const low = new Array<number>(n).fill(0)
+  let timer = 0
+  const result: number[][] = []
+
+  for (let start = 0; start < n; start += 1) {
+    if (discovered[start] !== -1) continue
+
+    discovered[start] = timer
+    low[start] = timer
+    timer += 1
+
+    const stack: Array<{ node: number; parentEdge: number; next: number }> = [
+      { node: start, parentEdge: -1, next: 0 },
+    ]
+
+    while (stack.length > 0) {
+      const frame = stack[stack.length - 1]
+
+      if (frame.next < adjacency[frame.node].length) {
+        const [to, edgeId] = adjacency[frame.node][frame.next]
+        frame.next += 1
+
+        if (edgeId === frame.parentEdge) continue
+
+        if (discovered[to] === -1) {
+          discovered[to] = timer
+          low[to] = timer
+          timer += 1
+          stack.push({ node: to, parentEdge: edgeId, next: 0 })
+        } else {
+          low[frame.node] = Math.min(low[frame.node], discovered[to])
+        }
+      } else {
+        stack.pop()
+        if (stack.length > 0) {
+          const parent = stack[stack.length - 1]
+          low[parent.node] = Math.min(low[parent.node], low[frame.node])
+          if (low[frame.node] > discovered[parent.node]) {
+            result.push(connections[frame.parentEdge])
+          }
+        }
+      }
+    }
+  }
+
+  return result
+}`,
+        callout:
+          '用边编号而不是父节点编号来跳过来边，差别只在重边时显现：两条端点相同的平行边构成一个二元环，其中任何一条都不是桥。按边编号只跳过树边本身，另一条平行边会被当作回边，把 low 值压到父节点的时间戳，判定因此正确；若跳过所有连向父节点的边，平行边也被忽略，这条树边就会被误判为桥。题目保证没有重复连接，但按边编号处理是更通用、也更不容易写错的习惯。',
+      },
+      {
+        id: 'critical-connections-in-a-network-mistakes',
+        title: '易错点和延伸方向',
+        summary:
+          '易错点集中在桥判定条件的等号、回边更新用错值，以及递归深度与父边处理。',
+        bullets: [
+          '易错点 1：桥判定写成 low 值大于等于父节点时间戳，把环上的边误判为桥。',
+          '易错点 2：遇到回边时用目标的 low 值更新，而不是目标的时间戳，信息循环依赖。',
+          '易错点 3：忘记跳过来时的边，把它当成回边，导致所有树边都被认为不是桥。',
+          '易错点 4：按父节点而不是父边跳过，遇到重边时逻辑不清晰或出错。',
+          '易错点 5：用递归实现，节点数达到十万时调用栈溢出。',
+          '易错点 6：用布尔访问标记代替时间戳，无法比较先后关系。',
+          '易错点 7：只从一个节点开始遍历，图不连通时漏掉其它分量里的桥。',
+          '易错点 8：把桥与割点混淆，割点是节点，判定条件与桥不同。',
+          '延伸方向：边双连通分量与桥树、割点与点双连通分量、强连通分量的 Tarjan 算法，以及网络可靠性中用桥与割点衡量脆弱性的思路。',
+        ],
+      },
+    ],
+  },
 ];
