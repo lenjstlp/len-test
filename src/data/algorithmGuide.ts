@@ -118877,4 +118877,119 @@ ORDER BY group_id;`,
       },
     ],
   },
+  {
+    id: 'smallest-string-with-swaps',
+    label: '1202. LeetCode 1202. 交换字符串中的元素',
+    difficulty: '中等',
+    description:
+      '给定字符串和若干可交换的下标对，交换可以无限次进行。下标对把位置连成若干连通块，块内的字符可以任意重排。对每个连通块内的字符升序排序，再按原下标放回，就得到字典序最小的字符串。',
+    outcome:
+      '你能把「可交换关系」建模成无向图并用并查集求连通分量，理解块内字符可任意排列的原因，以及为什么块内排序后放回就是全局最优。',
+    sections: [
+      {
+        id: 'smallest-string-with-swaps-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串和一组可以互换的下标对。每次操作可以交换任意一个下标对上的字符，操作次数与顺序都不限。要求返回经过任意次交换后能得到的字典序最小的字符串。',
+        bullets: [
+          '交换只能发生在 pairs 给出的下标对之间。',
+          '交换次数不限，同一个下标对可以反复使用。',
+          '字符只在同一交换连通块内流动，不能跨块移动。',
+          '不同连通块之间互不影响，可以分别求最优。',
+          '目标是整串字典序最小，而不是每个块局部最小。',
+          '下标对可能重复，也可能构成环或多条路径。',
+          '字符串长度与下标对数量都在万级，需要近似线性的做法。',
+        ],
+      },
+      {
+        id: 'smallest-string-with-swaps-model',
+        title: '并查集求连通分量',
+        summary:
+          '把每个下标看成一个节点，每个可交换对是一条无向边。一条边上的两个字符可以直接互换；沿着一条路径依次交换，可以把字符搬运到路径另一端。因此同一连通分量内的字符集合固定，排列可以任意。',
+        bullets: [
+          '无向边的连通性意味着任意两个位置之间存在交换路径。',
+          '沿路径依次交换，可以把一个字符搬到目标位置，其余字符只是发生置换。',
+          '反复使用路径就能实现块内任意排列。',
+          '每个连通块内应放哪些字符是固定的，只是顺序可以调整。',
+          '字典序最小要求靠前的位置尽量放小字符。',
+          '块内把字符升序排序，再按下标从小到大填入，即可满足。',
+          '不同块之间无法交换，分别取最优就是全局最优。',
+        ],
+        callout:
+          '为什么连通块内可以「任意重排」？无向图的连通性保证任意两个位置之间有一条由可交换对组成的路径。沿着路径做一系列交换，等价于对块内字符做一次置换；置换可以复合，因此块内所有排列都可达。如果交换关系是有向的，字符只能单向流动，这个结论就不成立。',
+      },
+      {
+        id: 'smallest-string-with-swaps-solution',
+        title: '解法：并查集加组内排序',
+        summary:
+          '用并查集维护下标的连通关系，遍历所有下标把同根的下标与字符收集到同一个组里。对每个组的字符升序排序，再按下标顺序写回答案数组，最后拼成字符串。',
+        bullets: [
+          '并查集的查找带路径压缩，合并时把两个根相连。',
+          '第二次遍历用根节点作为键，把下标和字符分别放进两个等长列表。',
+          '每个组的下标列表天然按升序排列，因为外层循环从小到大。',
+          '字符列表排序后，与下标列表一一对应写回。',
+          '答案数组预先分配长度，按下标直接赋值，避免字符串拼接。',
+          '最后用 join 拼成字符串，空字符串也能正确处理。',
+          '并查集操作近似常数时间，排序总量不超过字符串长度。',
+        ],
+        code: `function smallestStringWithSwaps(s: string, pairs: number[][]): string {
+  const n = s.length
+  const parent = Array.from({ length: n }, (_, i) => i)
+
+  const find = (x: number): number => {
+    while (parent[x] !== x) {
+      parent[x] = parent[parent[x]]
+      x = parent[x]
+    }
+    return x
+  }
+
+  for (const [a, b] of pairs) {
+    const rootA = find(a)
+    const rootB = find(b)
+    if (rootA !== rootB) {
+      parent[rootB] = rootA
+    }
+  }
+
+  const groups = new Map<number, { indices: number[]; chars: string[] }>()
+  for (let i = 0; i < n; i += 1) {
+    const root = find(i)
+    const group = groups.get(root) ?? { indices: [], chars: [] }
+    group.indices.push(i)
+    group.chars.push(s[i])
+    groups.set(root, group)
+  }
+
+  const answer = new Array<string>(n)
+  for (const group of groups.values()) {
+    group.chars.sort()
+    for (let i = 0; i < group.indices.length; i += 1) {
+      answer[group.indices[i]] = group.chars[i]
+    }
+  }
+
+  return answer.join('')
+}`,
+        callout:
+          '并查集合并前必须先比较两个根，否则会把一个节点直接挂到自己的后代上，破坏树结构。路径压缩可以写成两行循环，但根节点本身不会再被压缩，这不影响正确性。配对的两个下标可能相同，合并时会被根相等直接跳过。',
+      },
+      {
+        id: 'smallest-string-with-swaps-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在连通性方向、排序方向，以及字符写回的位置。',
+        bullets: [
+          '易错点 1：把 pairs 当成有向边，只允许单向交换，连通块被拆小。',
+          '易错点 2：只处理直接相连的位置，忽略通过路径可达的位置。',
+          '易错点 3：对每个连通块降序排序，得到字典序最大的串。',
+          '易错点 4：把字符排序后按连通块顺序拼接，破坏了原下标位置。',
+          '易错点 5：并查集查找没有路径压缩，规模大时树高退化。',
+          '易错点 6：合并时没有比较根，直接把一个节点挂到另一个节点下。',
+          '易错点 7：大小写混合时按字符编码排序，与字典序定义不一致。',
+          '易错点 8：忘记把答案数组转回字符串，返回了数组。',
+          '延伸方向：带权并查集维护块内字符计数、交换关系有向时的可达性分析、以及把「可交换」换成「可循环移位」的变体。',
+        ],
+      },
+    ],
+  },
 ];
