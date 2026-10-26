@@ -118753,4 +118753,128 @@ ORDER BY group_id;`,
       },
     ],
   },
+  {
+    id: 'ugly-number-iii',
+    label: '1201. LeetCode 1201. 丑数 III',
+    difficulty: '中等',
+    description:
+      '给定 n、a、b、c，求第 n 个能被 a、b、c 中至少一个整除的正整数。直接逐个枚举会超时，改为二分答案：对候选值 x 用容斥原理统计不超过 x 的丑数个数，找到第一个计数达到 n 的位置。',
+    outcome:
+      '你能把「第 n 个满足条件的数」转成「计数函数上的二分」，写出三集合容斥，并处理最小公倍数在 JavaScript 中的溢出风险。',
+    sections: [
+      {
+        id: 'ugly-number-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '丑数的定义是能被 a、b、c 中至少一个整除的正整数。给定 n、a、b、c，返回第 n 个丑数。n 与 a、b、c 都可能达到十亿，答案保证不超过二十亿。',
+        bullets: [
+          '一个数只要被 a、b、c 中任意一个整除就算丑数。',
+          '同一个数可能同时被多个数整除，只能计一次。',
+          '要求的是按从小到大排列后的第 n 个，而不是某类数的个数。',
+          'n 最大可达十亿，逐个枚举必然超时。',
+          '答案保证落在二十亿以内，可以按 32 位整数返回。',
+          'a、b、c 的乘积不超过十的十八次方，但单个最小公倍数可能很大。',
+          '计数函数关于上界单调不减，满足二分的前提。',
+        ],
+      },
+      {
+        id: 'ugly-number-iii-model',
+        title: '容斥计数加二分答案',
+        summary:
+          '定义 count(x) 为区间 [1, x] 中丑数的个数。能被 a 整除的数有 floor(x/a) 个，能被 b、c 整除的同理。把三类相加后，两两交集被重复计算，三集合交集被减得过多，需要用容斥修正。',
+        bullets: [
+          '一个数是 a 与 b 的公倍数，当且仅当它是 lcm(a, b) 的倍数。',
+          '容斥公式为：x/a + x/b + x/c 减去两两公倍数的计数，再加回三者的公倍数计数。',
+          'lcm(a, b) 不能直接用 a 乘 b，必须先除以最大公约数。',
+          'count(x) 随 x 增大只增不减，每个整数最多让它增加一。',
+          '第 n 个丑数就是使 count(x) 不小于 n 的最小 x。',
+          '在 [1, 2e9] 上二分，每次用容斥在常数时间内计算 count。',
+          '二分的次数约为三十一次，与 n 的大小无关。',
+        ],
+        callout:
+          '容斥的三个两两交集与一个三交集，边界很容易写错：两两交集要各减一次，三交集在三次两两相减中被减了三次，而它本来只需要被排除一次，所以最后要加回一次。画一个三圆韦恩图，把每个区域被计算的次数数一遍，比死记公式更可靠。',
+      },
+      {
+        id: 'ugly-number-iii-solution',
+        title: '解法：带上限的最小公倍数',
+        summary:
+          '先实现欧几里得算法求最大公约数，再实现带上限的最小公倍数：一旦乘积超过二十亿就返回哨兵值。用哨兵参与容斥，超过上限的公倍数对应的商自然为零。最后在 [1, 2e9] 上二分。',
+        bullets: [
+          'gcd 用辗转相除，lcm 等于 x 除以 gcd 再乘 y，先除后乘减小中间值。',
+          '答案上界是二十亿，任何超过二十亿的公倍数对 count 的贡献都是零。',
+          '哨兵取二十亿零一，保证 floor(x / 哨兵) 对任意 x 不超过上界都为零。',
+          '三者的公倍数要先求 ab，再与 c 求 lcm；若 ab 已是哨兵，abc 直接取哨兵。',
+          '二分维护左闭右闭区间，判定 count(mid) 是否已经达到 n。',
+          '循环结束时 low 与 high 相等，就是最小的可行值。',
+          '整体复杂度 O(log 2e9)，空间 O(1)。',
+        ],
+        code: `function nthUglyNumber(n: number, a: number, b: number, c: number): number {
+  const LIMIT = 2000000000
+
+  const gcd = (x: number, y: number): number => {
+    while (y !== 0) {
+      const rest = x % y
+      x = y
+      y = rest
+    }
+    return x
+  }
+
+  const lcm = (x: number, y: number): number => {
+    const first = x / gcd(x, y)
+    if (first > LIMIT / y) {
+      return LIMIT + 1
+    }
+    return first * y
+  }
+
+  const ab = lcm(a, b)
+  const ac = lcm(a, c)
+  const bc = lcm(b, c)
+  const abc = ab > LIMIT ? LIMIT + 1 : lcm(ab, c)
+
+  const count = (x: number): number =>
+    Math.floor(x / a) +
+    Math.floor(x / b) +
+    Math.floor(x / c) -
+    Math.floor(x / ab) -
+    Math.floor(x / ac) -
+    Math.floor(x / bc) +
+    Math.floor(x / abc)
+
+  let low = 1
+  let high = LIMIT
+
+  while (low < high) {
+    const mid = low + Math.floor((high - low) / 2)
+    if (count(mid) >= n) {
+      high = mid
+    } else {
+      low = mid + 1
+    }
+  }
+
+  return low
+}`,
+        callout:
+          'JavaScript 的 Number 只能精确表示 2 的 53 次方以内的整数，而 a 与 b 的最小公倍数可以达到 10 的 18 次方。这里所有参与除法的 x 都不超过 2e9，超过 2e9 的公倍数对计数没有贡献，所以用哨兵代替既避免 BigInt，也避免精度损失。若把答案上界放宽到 10 的 18 次方，就必须改用 BigInt 全程计算。',
+      },
+      {
+        id: 'ugly-number-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在容斥符号、公倍数计算和二分边界。',
+        bullets: [
+          '易错点 1：逐个枚举自然数，n 很大时必然超时。',
+          '易错点 2：容斥只减两两交集，忘记加回三集合交集。',
+          '易错点 3：用 a 乘 b 直接当公倍数，a 与 b 不互质时重复扣除。',
+          '易错点 4：lcm 的乘法溢出 Number 的安全整数范围，计数出现偏差。',
+          '易错点 5：二分上界取得太小，答案落在区间之外。',
+          '易错点 6：判定条件写成 count(mid) 严格大于 n，返回的是第 n 加一个。',
+          '易错点 7：把 0 或 1 无条件当成丑数，计数整体偏移。',
+          '易错点 8：a、b、c 有相等或成倍数关系时，没有让容斥公式自然退化。',
+          '延伸方向：四个及以上集合的容斥、二分答案加计数的通用套路、以及用 BigInt 处理超大公倍数的工程写法。',
+        ],
+      },
+    ],
+  },
 ];
