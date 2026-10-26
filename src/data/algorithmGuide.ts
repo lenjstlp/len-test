@@ -118522,4 +118522,142 @@ ORDER BY group_id;`,
       },
     ],
   },
+  {
+    id: 'minimum-time-to-build-blocks',
+    label: '1199. LeetCode 1199. 建造街区的最短时间',
+    difficulty: '困难',
+    description:
+      '初始只有一个工人。工人可以选择花 split 时间分裂成两个工人，或者花 blocks[i] 时间建造一个街区后离开。多个工人可以同时工作，求建完所有街区的最短总时间。把分裂过程看成一棵二叉树，问题就变成用最小堆自底向上合并完成时间。',
+    outcome:
+      '你能把「分裂与并行」的调度过程抽象成二叉树，理解为什么每次合并两个最小的完成时间，并能说明代价为什么是取最大值再加 split。',
+    sections: [
+      {
+        id: 'minimum-time-to-build-blocks-summary',
+        title: '题目在问什么',
+        summary:
+          '一开始场上只有一个工人。每个工人随时可以做两件事之一：花 split 时间分裂成两个工人，或者花该街区需要的时间把它建完然后离场。所有工人并行工作，求最后一个街区完工的最早时刻。',
+        bullets: [
+          '分裂的耗时固定为 split，与工人当前在做什么无关。',
+          '分裂后两个工人可以同时工作，互不等待。',
+          '一个工人只建造一个街区，建完就离开。',
+          '最终每个街区恰好由一个工人建造。',
+          '分裂次数不必等于街区数减一，但多分裂出的工人没有用处。',
+          '目标是让所有街区中最后完工的那个尽量早，即最小化最大完成时间。',
+          '街区数量最多一千，允许 O(n log n) 的算法。',
+        ],
+      },
+      {
+        id: 'minimum-time-to-build-blocks-model',
+        title: '分裂树与自底向上合并',
+        summary:
+          '把每个工人的分裂历史画成一棵二叉树：根是初始工人，内部节点表示一次分裂，叶子表示一个负责建造街区的工人。一个叶子要等祖先节点上的所有分裂完成才能开工。',
+        bullets: [
+          '深度为 d 的叶子承担了 d 次分裂的等待，完成时间是 d 乘以 split 再加上街区时间。',
+          '整棵树的完成时间等于所有叶子完成时间的最大值。',
+          '分裂树是一棵满二叉树，叶子数等于实际参与建造的工人数。',
+          '自底向上看，最后一次分裂把两棵子树合并，两棵子树都要先等 split。',
+          '合并后的完成时间是 split 加上左右子树完成时间的较大者。',
+          '为了让最大值尽量小，应该把建造时间短的街区放到更深的位置。',
+          '每次选择两个最小的子树合并，等价于把最短的街区放到最深处。',
+        ],
+        callout:
+          '为什么每次合并最小的两个，而不是最大的两个？在分裂树里，越早被合并的子树还会参与后面每一次合并，相当于被放到更深、等待更多次 split 的位置。把建造时间短的街区放在深层，长街区放在浅层，最大值才会小。这与哈夫曼编码每次合并最小频率的思路完全一致。',
+      },
+      {
+        id: 'minimum-time-to-build-blocks-solution',
+        title: '解法：最小堆反复合并',
+        summary:
+          '把所有街区的建造时间压入最小堆。只要堆里还有至少两个元素，就弹出最小的两个，把较大者加上 split 后压回堆中。最后剩下的那个值就是整棵树的最短完成时间。',
+        bullets: [
+          '堆中的每个元素代表一棵已经调度好的子树的完成时间。',
+          '弹出两个最小元素，对应选择两棵最浅、最该被合并的子树。',
+          '新值取两者的较大者再加 split，对应并行的两条分支等待同一次分裂。',
+          '每次合并减少一个元素，总共进行 n 减一次。',
+          '只剩一个元素时，它覆盖了全部街区，就是答案。',
+          '手写二叉堆实现压入与弹出，避免依赖第三方优先队列库。',
+          '时间复杂度 O(n log n)，空间复杂度 O(n)。',
+        ],
+        code: `function minBuildTime(blocks: number[], split: number): number {
+  const heap: number[] = []
+
+  const push = (value: number): void => {
+    heap.push(value)
+    let index = heap.length - 1
+
+    while (index > 0) {
+      const parent = (index - 1) >> 1
+      if (heap[parent] <= heap[index]) {
+        break
+      }
+      ;[heap[parent], heap[index]] = [heap[index], heap[parent]]
+      index = parent
+    }
+  }
+
+  const pop = (): number => {
+    const top = heap[0]
+    const last = heap.pop()
+
+    if (last === undefined || heap.length === 0) {
+      return top
+    }
+
+    heap[0] = last
+    let index = 0
+
+    for (;;) {
+      const left = index * 2 + 1
+      const right = left + 1
+      let smallest = index
+
+      if (left < heap.length && heap[left] < heap[smallest]) {
+        smallest = left
+      }
+      if (right < heap.length && heap[right] < heap[smallest]) {
+        smallest = right
+      }
+      if (smallest === index) {
+        break
+      }
+
+      ;[heap[smallest], heap[index]] = [heap[index], heap[smallest]]
+      index = smallest
+    }
+
+    return top
+  }
+
+  for (const block of blocks) {
+    push(block)
+  }
+
+  while (heap.length > 1) {
+    const first = pop()
+    const second = pop()
+    push(Math.max(first, second) + split)
+  }
+
+  return heap[0]
+}`,
+        callout:
+          '这个贪心可以用交换论证说明。假设最优分裂树中两个最深的兄弟叶子对应的不是最小的两个街区，把更小的街区换到更深的位置不会让任何叶子的完成时间变大；因此总存在一棵最优树，它最底层的合并用的是两个最小街区。反复应用这个结论，就得到「每次合并两个最小值」的算法。',
+      },
+      {
+        id: 'minimum-time-to-build-blocks-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在并行代价的写法、堆的方向，以及分裂次数的理解。',
+        bullets: [
+          '易错点 1：把合并代价写成两者相加再加 split，误把并行当成串行。',
+          '易错点 2：把 split 加到每个街区上，而不是每次分裂只付一次。',
+          '易错点 3：每次合并最大的两个，长街区被放到深层，答案偏大。',
+          '易错点 4：堆的比较方向写反，弹出的是最大值而不是最小值。',
+          '易错点 5：认为必须分裂到工人数等于街区数，忽略了可以少分裂。',
+          '易错点 6：以为分裂可以无限并行，忘记同一路径上的分裂要依次等待。',
+          '易错点 7：只有一个街区时循环不执行，没有单独处理堆顶。',
+          '易错点 8：用排序加双指针模拟合并，合并出的新值破坏有序性导致结果错误。',
+          '延伸方向：不同工人分裂代价不同的树形调度、把街区时间换成收益的加权版本、以及哈夫曼类贪心「合并两个最小值」的通用交换论证。',
+        ],
+      },
+    ],
+  },
 ];
