@@ -118992,4 +118992,161 @@ ORDER BY group_id;`,
       },
     ],
   },
+  {
+    id: 'sort-items-by-groups-respecting-dependencies',
+    label: '1203. LeetCode 1203. 项目管理',
+    difficulty: '困难',
+    description:
+      '有 n 个物品和 m 个小组，每个物品属于一个组或不属于任何组，另有前置依赖。要求给出一个排列：同组物品必须连续，且每个物品排在它的所有前置物品之后。做法是把不属于任何组的物品各自视为独立组，先对物品做拓扑排序，再对组做拓扑排序，最后按组顺序拼接组内物品。',
+    outcome:
+      '你能把「组内连续加组间依赖」拆成两层拓扑排序，正确处理不属于任何组的物品，并识别物品图或组图出现环时无解。',
+    sections: [
+      {
+        id: 'sort-items-by-groups-respecting-dependencies-summary',
+        title: '题目在问什么',
+        summary:
+          '有 n 个物品，编号从零开始，分属 m 个小组。每个物品可能属于某个组，也可能不属于任何组。依赖关系要求某些物品必须排在另一些物品之前。要求给出一个满足两条规则的物品排列，无解时返回空数组。',
+        bullets: [
+          '同组物品在排列中必须占据一段连续的位置。',
+          '每个物品必须排在它的所有前置物品之后。',
+          '组与组之间的先后没有预设，只要不与依赖冲突即可。',
+          '不属于任何组的物品没有组内连续性要求。',
+          '物品可能有多个前置，也可能没有任何前置。',
+          '依赖关系可能成环，此时不存在合法排列。',
+          '物品数、组数与依赖总数都在数万级。',
+        ],
+      },
+      {
+        id: 'sort-items-by-groups-respecting-dependencies-model',
+        title: '两层拓扑排序',
+        summary:
+          '把问题拆成两张有向图：物品依赖图和组依赖图。物品图保证每个物品排在前置之后，组图保证组与组之间的先后满足跨组依赖。两张图都无环，才有解。',
+        bullets: [
+          '物品图的边从前驱物品指向后继物品。',
+          '跨组的物品依赖在组图上产生一条从前驱组指向后继组的边。',
+          '同组内部的依赖不产生组间边，只在组内排序时起作用。',
+          '先对物品图拓扑排序，排不出全部物品说明依赖成环，无解。',
+          '再对组图拓扑排序，排不出全部组说明组之间互相等待，连续性无法满足，无解。',
+          '从物品拓扑序中过滤出某组的物品，得到的就是该组合法的组内顺序。',
+          '按组拓扑序依次拼接各组的物品，得到最终排列。',
+        ],
+        callout:
+          '为什么要把负一组拆成独立组？如果所有负一物品共享一个「虚拟组」，连续性要求会强迫它们排在一起，而题目并不要求这样，可能把本来有解的情况误判为无解。给每个负一物品分配一个新的唯一组号，既保持组号互不干扰，又不引入额外约束。',
+      },
+      {
+        id: 'sort-items-by-groups-respecting-dependencies-solution',
+        title: '解法：逐层拓扑加拼接',
+        summary:
+          '先复制并改写组号，为每个负一物品分配新组。写一个通用拓扑排序函数，分别对物品和组排序。两次排序都成功时，把物品按组分类，再按组序拼接。',
+        bullets: [
+          '通用拓扑排序接收节点数与前驱列表，内部建邻接表与入度数组。',
+          '用队列保存入度为零的节点，边出队边把后继入度减一。',
+          '返回的序列长度不足节点数，就说明图中存在环。',
+          '物品图排序成功后，再根据跨组依赖构造组图。',
+          '组图只需要前驱组列表，方向是前驱组指向后继组。',
+          '按物品拓扑序分桶，保证桶内顺序已经满足物品依赖。',
+          '按组拓扑序展开桶，空组对应空桶，不影响结果。',
+        ],
+        code: `function sortItems(
+  n: number,
+  m: number,
+  group: number[],
+  beforeItems: number[][],
+): number[] {
+  let nextGroup = m
+  const groupOf = [...group]
+
+  for (let i = 0; i < n; i += 1) {
+    if (groupOf[i] === -1) {
+      groupOf[i] = nextGroup
+      nextGroup += 1
+    }
+  }
+
+  const topoSort = (count: number, incoming: number[][]): number[] => {
+    const adjacency = Array.from({ length: count }, () => [] as number[])
+    const indegree = new Array<number>(count).fill(0)
+
+    for (let node = 0; node < count; node += 1) {
+      for (const prev of incoming[node]) {
+        adjacency[prev].push(node)
+        indegree[node] += 1
+      }
+    }
+
+    const queue: number[] = []
+    for (let node = 0; node < count; node += 1) {
+      if (indegree[node] === 0) {
+        queue.push(node)
+      }
+    }
+
+    const order: number[] = []
+    for (let head = 0; head < queue.length; head += 1) {
+      const node = queue[head]
+      order.push(node)
+
+      for (const next of adjacency[node]) {
+        indegree[next] -= 1
+        if (indegree[next] === 0) {
+          queue.push(next)
+        }
+      }
+    }
+
+    return order
+  }
+
+  const itemOrder = topoSort(n, beforeItems)
+  if (itemOrder.length < n) {
+    return []
+  }
+
+  const groupIncoming = Array.from({ length: nextGroup }, () => [] as number[])
+  for (let item = 0; item < n; item += 1) {
+    for (const prev of beforeItems[item]) {
+      if (groupOf[prev] !== groupOf[item]) {
+        groupIncoming[groupOf[item]].push(groupOf[prev])
+      }
+    }
+  }
+
+  const groupOrder = topoSort(nextGroup, groupIncoming)
+  if (groupOrder.length < nextGroup) {
+    return []
+  }
+
+  const itemsByGroup = Array.from({ length: nextGroup }, () => [] as number[])
+  for (const item of itemOrder) {
+    itemsByGroup[groupOf[item]].push(item)
+  }
+
+  const answer: number[] = []
+  for (const groupId of groupOrder) {
+    answer.push(...itemsByGroup[groupId])
+  }
+
+  return answer
+}`,
+        callout:
+          '组图的边必须按「前驱组指向后继组」的方向添加。若方向写反，拓扑序会整体颠倒，依赖检查立刻失败。另一个细节是空组：它们没有物品，入度为零，会出现在拓扑序的任意位置，展开时对应空桶。若题目要求组号必须全部出现，空组也不能被过滤掉。',
+      },
+      {
+        id: 'sort-items-by-groups-respecting-dependencies-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在负一组的处理、组图环检测和拼接顺序。',
+        bullets: [
+          '易错点 1：所有负一物品共用一个组，强行要求连续，误判无解。',
+          '易错点 2：只对物品拓扑排序，没有检查组图是否有环。',
+          '易错点 3：组图的边方向写反，输出顺序与依赖相反。',
+          '易错点 4：组内物品重新排序，破坏了物品之间的依赖。',
+          '易错点 5：先拼接组再检查物品依赖，跨组依赖无法保证。',
+          '易错点 6：拓扑排序只把初始入度为零的节点入队，后继没有被继续处理。',
+          '易错点 7：无解时返回部分结果，而不是空数组。',
+          '易错点 8：用深度优先搜索判环但没有三色标记，重复访问被误判成环。',
+          '延伸方向：多层嵌套分组的拓扑排序、组内只要求部分连续的项目调度、以及把「必须连续」放松为「同组相对顺序固定」的变体。',
+        ],
+      },
+    ],
+  },
 ];
