@@ -119236,4 +119236,109 @@ LIMIT 1;`,
       },
     ],
   },
+  {
+    id: 'monthly-transactions-ii',
+    label: '1205. LeetCode 1205. 每月交易 II',
+    difficulty: '中等',
+    description:
+      'Transactions 表记录交易的国家、状态、金额与日期，Chargebacks 表记录退单对应的交易与退单日期。要求按月和国家汇总批准交易的数量与金额、退单的数量与金额。退单按退单日期所属月份统计，国家和金额取自原交易。',
+    outcome:
+      '你能把两类口径不同的统计用 UNION ALL 对齐成同一张中间表，再统一分组汇总，并理解退单为什么按退单月份而不是原交易月份计入。',
+    sections: [
+      {
+        id: 'monthly-transactions-ii-summary',
+        title: '题目在问什么',
+        summary:
+          'Transactions 每行是一笔交易，状态为 approved 或 declined；Chargebacks 每行记录一笔退单及其发生日期，trans_id 指向原交易。要求按月和国家输出批准交易与退单的数量和金额。',
+        bullets: [
+          '批准指标来自状态为 approved 的交易。',
+          '退单指标来自 Chargebacks 表，按退单日期所在月份统计。',
+          '退单可能指向被拒绝的交易，这类退单仍然要统计。',
+          '退单的国家与金额取自它所指向的原交易。',
+          '结果按月份和国家分组，月份格式为四位年份加两位月份。',
+          '同一行输出六个字段：月份、国家、批准数、批准金额、退单数、退单金额。',
+          '四个指标全为零的组合不会出现，因为每条记录至少贡献一个计数。',
+        ],
+      },
+      {
+        id: 'monthly-transactions-ii-model',
+        title: '两类记录对齐后合并',
+        summary:
+          '批准交易与退单的统计口径不同，不能直接从同一张表分组。正确做法是把两类事件分别投影成结构相同的行，再用 UNION ALL 合并，最后统一分组求和。',
+        bullets: [
+          '批准交易投影出月份、国家、批准数一、批准金额，退单指标填零。',
+          '退单与交易连接后投影出月份、国家、退单数一、退单金额，批准指标填零。',
+          '两个投影的列数、列序、列含义必须完全一致。',
+          '用 UNION ALL 合并，保留所有事件，不做整行去重。',
+          '外层按月份和国家分组，对四个指标分别求和。',
+          '批准数用状态过滤，而不是在求和时用 CASE 判断。',
+          '退单数对每个退单记录记一，金额取原交易的金额。',
+        ],
+        callout:
+          '为什么用 UNION ALL 而不是 UNION？两类记录代表不同事件，即使月份、国家、金额恰好相同，也不能合并；UNION 会按整行去重，把两笔独立事件压成一条，计数和金额都会少算。只有确定需要去重时才用 UNION。',
+      },
+      {
+        id: 'monthly-transactions-ii-solution',
+        title: '解法：两路投影加分组汇总',
+        summary:
+          '第一个分支从 Transactions 取出批准交易，第二个分支把 Chargebacks 与 Transactions 连接取出退单。两路用 UNION ALL 拼起来，外层分组求和。',
+        bullets: [
+          '月份统一用 DATE_FORMAT 把日期截成年月。',
+          '第一个分支用 WHERE state 等于 approved 过滤。',
+          '第二个分支用内连接按交易编号关联，保证每条退单都能找到国家与金额。',
+          '退单分支的月份取退单日期，而不是原交易日期。',
+          '两个分支都为不涉及的指标补零，保持列对齐。',
+          '外层对四个指标用 SUM，而不是 COUNT。',
+          '按月份与国家分组，结果顺序不影响判题。',
+        ],
+        code: `SELECT
+  month,
+  country,
+  SUM(approved_count) AS approved_count,
+  SUM(approved_amount) AS approved_amount,
+  SUM(chargeback_count) AS chargeback_count,
+  SUM(chargeback_amount) AS chargeback_amount
+FROM (
+  SELECT
+    DATE_FORMAT(trans_date, '%Y-%m') AS month,
+    country,
+    1 AS approved_count,
+    amount AS approved_amount,
+    0 AS chargeback_count,
+    0 AS chargeback_amount
+  FROM Transactions
+  WHERE state = 'approved'
+  UNION ALL
+  SELECT
+    DATE_FORMAT(c.trans_date, '%Y-%m') AS month,
+    t.country,
+    0 AS approved_count,
+    0 AS approved_amount,
+    1 AS chargeback_count,
+    t.amount AS chargeback_amount
+  FROM Chargebacks AS c
+  JOIN Transactions AS t ON t.id = c.trans_id
+) AS combined
+GROUP BY month, country;`,
+        callout:
+          '退单的月份必须取 Chargebacks.trans_date，而不是原交易的 trans_date。题目统计的是「每个月发生了多少退单」，而不是「哪个月份的交易后来被退单」。这也是为什么同一笔交易可以在批准月份贡献一次批准、在退单月份再贡献一次退单。若把退单月份写成原交易月份，跨月退单会全部错位。',
+      },
+      {
+        id: 'monthly-transactions-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在退单月份、交易状态过滤与两路列对齐。',
+        bullets: [
+          '易错点 1：退单按原交易月份统计，跨月退单全部错位。',
+          '易错点 2：只统计 approved 交易的退单，漏掉 declined 交易的退单。',
+          '易错点 3：用 UNION 去重，独立事件被合并，计数偏小。',
+          '易错点 4：两个分支的列数或列序不一致，UNION ALL 报错或串列。',
+          '易错点 5：外层没有求和，同一分组出现多行。',
+          '易错点 6：用 COUNT(amount) 代替 SUM(amount)，金额变成笔数。',
+          '易错点 7：退单金额无条件记零，或者只对 approved 原交易计入。',
+          '易错点 8：分组时漏掉 country，多个国家被合并成一行。',
+          '延伸方向：多事件口径的 UNION ALL 汇总模板、按季度或年份聚合、以及把全额退单改为部分退款后的金额修正。',
+        ],
+      },
+    ],
+  },
 ];
