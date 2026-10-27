@@ -119341,4 +119341,170 @@ GROUP BY month, country;`,
       },
     ],
   },
+  {
+    id: 'design-skiplist',
+    label: '1206. LeetCode 1206. 设计跳表',
+    difficulty: '困难',
+    description:
+      '要求实现跳表，支持插入、删除和查找三个操作，平均时间复杂度均为对数级。跳表用多层有序链表加随机层数维持平衡，底层保存全部元素，上层作为稀疏索引，查找时从最高层向下逐层逼近目标。',
+    outcome:
+      '你能从零写出跳表的查找、插入和删除，理解随机层数如何替代旋转维持平衡，并说清删除时为什么要逐层摘链、查找时为什么要用严格小于。',
+    sections: [
+      {
+        id: 'design-skiplist-summary',
+        title: '题目在问什么',
+        summary:
+          '要求实现一个跳表类，支持插入、删除和查找，三个操作的平均时间复杂度都是对数级。跳表用多层有序链表加随机层数来维持平衡，不需要旋转。',
+        bullets: [
+          '插入一个整数，允许重复值，重复插入会多出一个相同元素。',
+          '删除一个等于给定值的元素，删掉一个即可，不存在时返回假。',
+          '查找判断给定值是否存在，返回布尔值。',
+          '所有操作调用次数最多五万次，值域在零到两万之间。',
+          '期望时间复杂度为对数级，最坏情况因随机化而概率极低。',
+          '题目的重点是手写跳表结构，而不是调用现成的有序集合。',
+          '跳表的高度是动态的，随元素数量增长而增长。',
+        ],
+      },
+      {
+        id: 'design-skiplist-model',
+        title: '多层链表加随机层数',
+        summary:
+          '跳表把有序链表分成多层：底层包含所有元素，每往上一层就按概率丢弃一部分元素，形成稀疏索引。查找时从最高层开始向右走，走不动就下降一层，用高层大步跳、低层精确定位。',
+        bullets: [
+          '每个节点保存一个值和一组指向右侧的指针，指针个数就是节点层数。',
+          '头节点是哨兵，持有最高层的指针，不存实际数据。',
+          '查找时同层右边节点的值小于目标就继续右移，否则下降一层。',
+          '插入和删除前要先记录每一层最后一个小于目标的位置，也就是各层前驱。',
+          '插入时随机决定新节点的层数，再把它接到每一层前驱的后面。',
+          '删除时沿各层前驱把目标节点摘掉，并回收变空的高层。',
+          '随机层数保证每层元素数按概率递减，期望层高与元素数的对数成正比。',
+        ],
+        callout:
+          '随机层数为什么能维持平衡？可以把它看成一连串抛硬币：每次插入都以固定概率继续升层。这样第 k 层大约只剩下底层的固定比例的元素，层高自然是对数级。平衡由概率保证而不是由旋转维护，因此插入和删除都不需要像平衡树那样回溯调整，代价是结构带有随机性、不能保证最坏情况。',
+      },
+      {
+        id: 'design-skiplist-solution',
+        title: '解法：固定最大层数加统一的前驱收集',
+        summary:
+          '用固定上限的最大层数，头节点一次分配好所有层的指针；每次操作都从当前最高层向下走，记录各层前驱。查找只需比较底层后继，插入和删除复用同一套前驱收集逻辑。',
+        bullets: [
+          '最大层数取三十二，足以覆盖五万元素的对数级高度。',
+          '前驱数组预填头节点，新节点层数超过当前高度时直接接在头节点之后。',
+          '右移条件是后继存在且后继值严格小于目标，相等时停下。',
+          '查找结束后看底层后继，存在且值相等才算命中。',
+          '插入时先接新节点的后继、再改前驱的指针，顺序不能反。',
+          '删除时从底层确认命中，再按目标节点自己的层数逐层摘链。',
+          '删除后从最高层向下回收空层，避免后续操作在空层上白走。',
+          '重复值按独立节点处理，删除只摘掉其中一个。',
+        ],
+        code: `class SkiplistNode {
+  readonly value: number
+  readonly next: (SkiplistNode | null)[]
+
+  constructor(value: number, level: number) {
+    this.value = value
+    this.next = new Array<SkiplistNode | null>(level).fill(null)
+  }
+}
+
+class Skiplist {
+  private static readonly MAX_LEVEL = 32
+  private readonly head = new SkiplistNode(-1, Skiplist.MAX_LEVEL)
+  private level = 1
+
+  search(target: number): boolean {
+    const node = this.locate(target)
+    return node !== null && node.value === target
+  }
+
+  add(num: number): void {
+    const update = new Array<SkiplistNode>(Skiplist.MAX_LEVEL).fill(this.head)
+    let current = this.head
+
+    for (let i = this.level - 1; i >= 0; i -= 1) {
+      while (current.next[i] !== null && current.next[i]!.value < num) {
+        current = current.next[i]!
+      }
+      update[i] = current
+    }
+
+    const nodeLevel = this.randomLevel()
+    const node = new SkiplistNode(num, nodeLevel)
+
+    for (let i = 0; i < nodeLevel; i += 1) {
+      node.next[i] = update[i].next[i]
+      update[i].next[i] = node
+    }
+
+    this.level = Math.max(this.level, nodeLevel)
+  }
+
+  erase(num: number): boolean {
+    const update = new Array<SkiplistNode>(Skiplist.MAX_LEVEL).fill(this.head)
+    let current = this.head
+
+    for (let i = this.level - 1; i >= 0; i -= 1) {
+      while (current.next[i] !== null && current.next[i]!.value < num) {
+        current = current.next[i]!
+      }
+      update[i] = current
+    }
+
+    const target = update[0].next[0]
+    if (target === null || target.value !== num) {
+      return false
+    }
+
+    for (let i = 0; i < target.next.length; i += 1) {
+      update[i].next[i] = target.next[i]
+    }
+
+    while (this.level > 1 && this.head.next[this.level - 1] === null) {
+      this.level -= 1
+    }
+
+    return true
+  }
+
+  private locate(target: number): SkiplistNode | null {
+    let current = this.head
+
+    for (let i = this.level - 1; i >= 0; i -= 1) {
+      while (current.next[i] !== null && current.next[i]!.value < target) {
+        current = current.next[i]!
+      }
+    }
+
+    return current.next[0]
+  }
+
+  private randomLevel(): number {
+    let level = 1
+    while (level < Skiplist.MAX_LEVEL && Math.random() < 0.5) {
+      level += 1
+    }
+    return level
+  }
+}`,
+        callout:
+          '右移必须用严格小于。如果写成小于等于，查找时会把所有等于目标的节点都跳过去，search 永远命中不了，删除也会从目标后面开始找。另一个细节是前驱数组要预填头节点：新节点的随机层数可能超过当前高度，这些新层没有更低层的前驱可记录，只能接在头节点后面。',
+      },
+      {
+        id: 'design-skiplist-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在右移条件、前驱收集和删除后的层级回收。',
+        bullets: [
+          '易错点 1：右移条件写成小于等于，相等元素被跳过，查找和删除都失效。',
+          '易错点 2：插入时没有记录各层前驱，只能逐层重新查找或接错位置。',
+          '易错点 3：高层指针数组没有预分配，访问新层时越界。',
+          '易错点 4：删除只摘底层，高层还指着已删除节点，后续查找走进死链。',
+          '易错点 5：删除前不在底层确认命中，删不存在的值时也返回真。',
+          '易错点 6：随机层数没有上限，极端情况下单次插入分配过多指针。',
+          '易错点 7：插入时先改前驱指针再接后继，节点后半段指针丢失。',
+          '易错点 8：把重复值合并成一个节点，一次删除把全部相同值都删掉。',
+          '延伸方向：范围查询与前驱后继定位、Redis 有序集合中跳表的四分之一升层概率、以及用跳表替代平衡树实现排行榜。',
+        ],
+      },
+    ],
+  },
 ];
