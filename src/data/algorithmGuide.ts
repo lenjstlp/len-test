@@ -120018,4 +120018,116 @@ GROUP BY query_name;`,
       },
     ],
   },
+  {
+    id: 'team-scores-in-football-tournament',
+    label: '1212. LeetCode 1212. 查询球队积分',
+    difficulty: '中等',
+    description:
+      'Teams 表记录球队编号和名称，Matches 表记录主客队及比分。胜一场三分、平一场一分、负一场零分，要求输出每支球队的积分和净胜球，并按积分、净胜球、队名依次排序。先把每场比赛展开成主客两条视角一致的行，再按球队汇总。',
+    outcome:
+      '你能用 UNION ALL 把主客场统一成同一口径，配合左连接让没有比赛的球队也出现在结果里，并写对三级排序。',
+    sections: [
+      {
+        id: 'team-scores-in-football-tournament-summary',
+        title: '题目在问什么',
+        summary:
+          'Teams 表是球队名单，Matches 表记录每场比赛的主队、客队与双方进球数。要求计算每支球队的总积分与净胜球，并按积分降序、净胜球降序、队名升序输出。',
+        bullets: [
+          '每支球队都要出现在结果里，包括一场未踢的球队。',
+          '胜一场得三分，平一场双方各得一分，负一场得零分。',
+          '总积分是该队所有比赛得分之和。',
+          '净胜球是总进球数减去总失球数。',
+          '一场比赛同时影响主队和客队两条记录。',
+          '球队名称唯一，可以作为排序的最后一级依据。',
+          '没有比赛的球队积分和净胜球都应为零，而不是空值。',
+          '结果排序依赖计算出的别名，顺序不能颠倒。',
+        ],
+      },
+      {
+        id: 'team-scores-in-football-tournament-model',
+        title: '主客场投影成同一口径',
+        summary:
+          '一场比赛对主队与客队是两条不同的记录。分别从主队视角和客队视角各投影出一行，列是球队编号、进球、失球和本场得分。两路用 UNION ALL 合并后，统计就与主客场无关了。',
+        bullets: [
+          '主队视角的进球取主队进球数，失球取客队进球数。',
+          '客队视角的进球取客队进球数，失球取主队进球数。',
+          '本场得分用 CASE 按胜平负分别映射为三、一、零。',
+          '两个分支的列数、列序和列含义必须完全一致。',
+          '用 UNION ALL 合并，保留每场比赛的两条视角记录。',
+          '合并后按球队编号分组，直接对得分与进失球求和。',
+          '没有比赛的球队不会出现在投影里，需要从球队表左连接补回。',
+          '补回后用 COALESCE 把空值转成零。',
+        ],
+        callout:
+          '为什么要把比赛拆成两条投影，而不是用 OR 连接一次处理两个角色？一场比赛要同时产出主队和客队两份统计，单行无法表达；投影后每行只描述一支球队的一场比赛，列语义统一，后续分组求和与排序都不需要再区分主客场。这里必须用 UNION ALL，去重会改变行数。',
+      },
+      {
+        id: 'team-scores-in-football-tournament-solution',
+        title: '解法：左连接投影结果再分组',
+        summary:
+          '以 Teams 为主表，左连接「主队视角 UNION ALL 客队视角」的子查询，按球队分组求和，用 COALESCE 处理零场比赛的空值，最后按三个字段排序。',
+        bullets: [
+          '子查询第一个分支投影主队，第二个分支投影客队。',
+          '得分用 CASE 判断胜平负，胜三分、平一分、其余零分。',
+          '两个分支的进球与失球必须互换，保持同一视角。',
+          '以 Teams 为主表左连接，保证零场比赛的球队保留。',
+          '积分用 COALESCE(SUM(points), 0) 处理空值。',
+          '净胜球用进球总和减去失球总和，两边都补零。',
+          'ORDER BY 依次写积分降序、净胜球降序、队名升序。',
+          '分组时同时带上球队编号和队名，兼容严格分组模式。',
+        ],
+        code: `SELECT
+  t.team_name,
+  COALESCE(SUM(r.points), 0) AS num_points,
+  COALESCE(SUM(r.goals_for), 0)
+    - COALESCE(SUM(r.goals_against), 0) AS goal_difference
+FROM Teams AS t
+LEFT JOIN (
+  SELECT
+    home_team_id AS team_id,
+    home_team_goals AS goals_for,
+    away_team_goals AS goals_against,
+    CASE
+      WHEN home_team_goals > away_team_goals THEN 3
+      WHEN home_team_goals = away_team_goals THEN 1
+      ELSE 0
+    END AS points
+  FROM Matches
+
+  UNION ALL
+
+  SELECT
+    away_team_id AS team_id,
+    away_team_goals AS goals_for,
+    home_team_goals AS goals_against,
+    CASE
+      WHEN away_team_goals > home_team_goals THEN 3
+      WHEN away_team_goals = home_team_goals THEN 1
+      ELSE 0
+    END AS points
+  FROM Matches
+) AS r ON r.team_id = t.team_id
+GROUP BY t.team_id, t.team_name
+ORDER BY num_points DESC, goal_difference DESC, t.team_name ASC;`,
+        callout:
+          '左连接的条件必须写在 ON 里。如果写成 WHERE r.team_id IS NOT NULL 之类的条件，零场比赛的球队会被过滤掉，左连接退化成内连接。另一个细节是净胜球对零场比赛的球队应输出零，因此求和前后的空值都要用 COALESCE 处理。',
+      },
+      {
+        id: 'team-scores-in-football-tournament-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在视角互换、零场比赛球队与排序规则。',
+        bullets: [
+          '易错点 1：只统计主队或只统计客队，另一半比赛丢失。',
+          '易错点 2：客队视角的进球和失球写反，净胜球符号错误。',
+          '易错点 3：用内连接，没踢过比赛的球队被过滤掉。',
+          '易错点 4：左连接后忘记 COALESCE，零场比赛的球队积分显示为空。',
+          '易错点 5：把平局写成双方零分，或者把胜利算成一分。',
+          '易错点 6：排序只写积分，忽略净胜球与队名的次级比较。',
+          '易错点 7：把补零条件写在 WHERE 里，左连接退化为内连接。',
+          '易错点 8：两个分支的列顺序不一致，UNION ALL 把进球和失球拼错列。',
+          '延伸方向：加入主客场胜率、计算联赛排名与升降级、以及用窗口函数实现并列名次。',
+        ],
+      },
+    ],
+  },
 ];
