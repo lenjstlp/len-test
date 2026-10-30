@@ -119932,4 +119932,90 @@ class Skiplist {
       },
     ],
   },
+  {
+    id: 'queries-quality-and-percentage',
+    label: '1211. LeetCode 1211. 查询结果的质量和占比',
+    difficulty: '简单',
+    description:
+      'Queries 表每行记录一次查询的名称、位置和评分。要求按查询名称分组，计算平均质量（每行评分除以位置后的平均值）和劣质查询占比（评分小于三的记录比例），两者都保留两位小数。两个指标都是先逐行计算再聚合，不能把总和相除。',
+    outcome:
+      '你能一次分组同时算出「比值的平均」和「条件计数的占比」，并区分逐行比值再平均与总量相除这两种容易混淆的口径。',
+    sections: [
+      {
+        id: 'queries-quality-and-percentage-summary',
+        title: '题目在问什么',
+        summary:
+          'Queries 表记录查询名称、结果、位置和评分。同一个查询名称可能对应多行，要求按名称分组，输出该组的平均质量和评分低于三分的记录占比，百分比保留两位小数。',
+        bullets: [
+          '分组键是 query_name，同一名称的多行要合并成一行结果。',
+          'quality 定义为每行评分除以位置，再对这些比值求平均。',
+          'poor_query_percentage 定义为评分小于三的行数占该组行数的百分比。',
+          '两个指标都要四舍五入保留两位小数。',
+          '占比的分母是组内行数，不是整张表的行数。',
+          'position 至少为一，不会出现除零。',
+          'rating 取值在一到五之间，三分既不算劣质也不算优秀。',
+          '名称为空的行不参与分组，需要提前过滤。',
+        ],
+      },
+      {
+        id: 'queries-quality-and-percentage-model',
+        title: '逐行比值再聚合',
+        summary:
+          '质量是比值的算术平均，而不是总评分除以总位置。因为不同行的位置不同，两种口径会得到不同结果。劣质占比则是条件计数除以总计数，再乘以一百。',
+        bullets: [
+          '先算每行的 rating 除以 position，得到该行的质量。',
+          '再对组内所有行的质量求平均，得到 quality。',
+          '把 rating 小于三写成布尔表达式，真为一、假为零。',
+          '布尔表达式的平均值就是劣质记录所占比例。',
+          '把比例乘以一百，转换成百分比。',
+          '两个聚合都按 query_name 对齐，可以在同一次分组中完成。',
+          'AVG 会自动忽略空值，但题目保证参与分组的行字段完整。',
+          '分母是组内行数，聚合函数天然按组计算。',
+        ],
+        callout:
+          '为什么不能写 SUM(rating) / SUM(position)？举例来说，两行数据分别是评分二、位置一和评分四、位置四，逐行质量是二和一，平均为一点五；而总评分六除以总位置五等于一点二。定义要求的是前者。位置在这里是每行的权重，不是可以合并的分母。',
+      },
+      {
+        id: 'queries-quality-and-percentage-solution',
+        title: '解法：一次分组求两个聚合',
+        summary:
+          '过滤掉名称为空的行，按查询名称分组，用 AVG 计算逐行比值的平均，用布尔表达式求平均得到劣质比例，最后统一四舍五入到两位小数。',
+        bullets: [
+          '先用 WHERE 过滤掉 query_name 为空的行。',
+          '按 query_name 分组，一组输出一行。',
+          '质量直接写 AVG(rating / position)，让除法在行级别完成。',
+          '用 ROUND 保留两位小数，不要用截断函数。',
+          '劣质占比可以写 AVG(rating < 3) * 100。',
+          '也可以写 SUM(rating < 3) / COUNT(*) * 100，语义相同。',
+          '两个表达式都放在 SELECT 中，避免重复计算。',
+          '结果顺序不影响判题，题目没有要求排序。',
+        ],
+        code: `SELECT
+  query_name,
+  ROUND(AVG(rating / position), 2) AS quality,
+  ROUND(AVG(rating < 3) * 100, 2) AS poor_query_percentage
+FROM Queries
+WHERE query_name IS NOT NULL
+GROUP BY query_name;`,
+        callout:
+          'MySQL 的斜杠做小数除法，整数列相除也能得到小数；而在 PostgreSQL 等数据库中，两个整数相除会截断，需要先转换成小数类型。另一个细节是布尔值参与聚合时会被当作零或一，这是 AVG(rating < 3) 能直接表示比例的前提。',
+      },
+      {
+        id: 'queries-quality-and-percentage-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在平均口径、占比分母与小数处理。',
+        bullets: [
+          '易错点 1：用 SUM(rating) / SUM(position) 代替逐行比值的平均。',
+          '易错点 2：劣质占比的分母用了全表行数，而不是组内行数。',
+          '易错点 3：比较写成小于等于三，把评分为三的记录也算成劣质。',
+          '易错点 4：忘记乘一百，输出零点几而不是百分比。',
+          '易错点 5：用 COUNT(rating < 3) 统计，条件不成立的行也会被计数。',
+          '易错点 6：忘记过滤空名称，结果里出现一个空字符串分组。',
+          '易错点 7：两个指标的顺序或别名写反，quality 与占比互换。',
+          '易错点 8：按 result 分组而不是按 query_name 分组，粒度错误。',
+          '延伸方向：加权平均、按质量分档统计、以及用窗口函数计算组内排名与占比。',
+        ],
+      },
+    ],
+  },
 ];
