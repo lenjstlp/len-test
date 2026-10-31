@@ -121439,4 +121439,121 @@ ORDER BY num_points DESC, goal_difference DESC, t.team_name ASC;`,
       },
     ],
   },
+  {
+    id: 'report-contiguous-dates',
+    label: '1225. LeetCode 1225. 报告系统状态的连续日期',
+    difficulty: '困难',
+    description:
+      'Failed 与 Succeeded 两张表分别记录失败和成功的日期，要求输出二零一九年内每个状态连续出现的日期区间。把两张表合并成事件流，按状态分区并按日期编号，连续日期的「日期减编号」恒定，用它作为分组键即可切出连续段。',
+    outcome:
+      '你能掌握 gap-and-islands 的日期版本，用日期减去行号构造分组键，并理解为什么必须先过滤年份再编号。',
+    sections: [
+      {
+        id: 'report-contiguous-dates-summary',
+        title: '题目在问什么',
+        summary:
+          'Failed 表的 fail_date 记录失败发生的日期，Succeeded 表的 success_date 记录成功发生的日期。要求只统计二零一九年内的日期，按状态输出每一段连续日期的开始与结束。',
+        bullets: [
+          '两种状态分别来自两张表，列名不同但语义对称。',
+          '只考虑二零一九年一月一日到十二月三十一日之间的日期。',
+          '同一种状态连续出现的日期要合并成一段。',
+          '中间缺一天就断开，不能跨过空缺合并。',
+          '输出三列：状态、开始日期、结束日期。',
+          '状态取值为 failed 或 succeeded，使用小写。',
+          '结果按开始日期升序排列。',
+          '每张表内部的日期唯一，但两张表之间可能落在同一天。',
+        ],
+      },
+      {
+        id: 'report-contiguous-dates-model',
+        title: '日期减编号构造分组键',
+        summary:
+          '把两张表的事件合并成一张事件流，按状态分区、按日期排序后编号。若日期连续，日期每加一天编号也加一天，日期减编号的差值保持不变；一旦中间缺日期，差值就会跳变。因此相同的状态与差值就对应一段连续区间。',
+        bullets: [
+          '先用 UNION ALL 把失败与成功事件投影成相同的两列。',
+          '过滤出二零一九年内的日期，排除其他年份的干扰。',
+          '按状态分区，保证失败段和成功段不会互相串组。',
+          '在每个分区内按日期升序编号。',
+          '用日期减去编号得到分组键。',
+          '日期连续时，两者同步增长，分组键恒定。',
+          '日期断开时，编号只加一而日期跳了多天，分组键改变。',
+          '最后按状态与分组键分组，取最小和最大日期。',
+        ],
+        callout:
+          '为什么是「日期减编号」而不是「编号减日期」？两种写法只要能作为分组键都可以，关键是同一连续段内结果恒定，跨段结果不同。日期减编号更直观：连续日期每天加一，编号也每天加一，差值自然不变，像把每段起点平移回同一个常数。',
+      },
+      {
+        id: 'report-contiguous-dates-solution',
+        title: '解法：合并、过滤、编号、分组',
+        summary:
+          '用公共表表达式串起四步：合并事件、过滤年份、按状态编号并计算分组键、按分组键聚合起止日期。最后按开始日期排序。',
+        bullets: [
+          '合并时把日期列统一命名，状态列直接用字符串常量。',
+          '过滤条件写在编号之前，确保行号只统计有效日期。',
+          'ROW_NUMBER 的分区列必须是状态，排序列必须是日期。',
+          '日期减法使用 DATE_SUB，单位是天。',
+          '外层按状态和分组键分组。',
+          '开始日期取 MIN，结束日期取 MAX。',
+          '排序使用开始日期，而不是结束日期。',
+          '窗口函数需要 MySQL 八及以上版本。',
+        ],
+        code: `WITH events AS (
+  SELECT fail_date AS event_date, 'failed' AS period_state
+  FROM Failed
+
+  UNION ALL
+
+  SELECT success_date, 'succeeded'
+  FROM Succeeded
+),
+filtered AS (
+  SELECT event_date, period_state
+  FROM events
+  WHERE event_date BETWEEN '2019-01-01' AND '2019-12-31'
+),
+numbered AS (
+  SELECT
+    event_date,
+    period_state,
+    ROW_NUMBER() OVER (
+      PARTITION BY period_state
+      ORDER BY event_date
+    ) AS day_number
+  FROM filtered
+),
+grouped AS (
+  SELECT
+    event_date,
+    period_state,
+    DATE_SUB(event_date, INTERVAL day_number DAY) AS group_key
+  FROM numbered
+)
+SELECT
+  period_state,
+  MIN(event_date) AS start_date,
+  MAX(event_date) AS end_date
+FROM grouped
+GROUP BY period_state, group_key
+ORDER BY start_date;`,
+        callout:
+          '编号必须在过滤二零一九年之后进行。如果先对全部历史事件编号、再在外层过滤年份，编号已经把二零一八年和二零一九年的日期串在一起，分组键会在本应断开的地方保持连续，导致跨年合并或段边界错误。先过滤再编号，分组键才只反映目标年份内的相邻关系。',
+      },
+      {
+        id: 'report-contiguous-dates-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在分区、过滤顺序与分组键计算。',
+        bullets: [
+          '易错点 1：编号时不按状态分区，失败日期与成功日期被编进同一序列。',
+          '易错点 2：先编号后过滤年份，跨年日期被错误地连成一段。',
+          '易错点 3：忘记过滤二零一九年，历史数据出现在结果里。',
+          '易错点 4：用日期差直接分组，没有结合行号，连续段识别错误。',
+          '易错点 5：按结束日期排序，输出顺序不符合要求。',
+          '易错点 6：把 MIN 和 MAX 写反，起止日期颠倒。',
+          '易错点 7：两张表合并时列名或状态常量写错，状态值大小写不一致。',
+          '易错点 8：用 UNION 代替 UNION ALL，虽然多数场景结果相同，但会多做无意义的去重排序。',
+          '延伸方向：连续登录天数、用户会话切分、以及任意事件流的 gap-and-islands 统计。',
+        ],
+      },
+    ],
+  },
 ];
