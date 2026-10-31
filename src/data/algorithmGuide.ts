@@ -120672,4 +120672,100 @@ ORDER BY num_points DESC, goal_difference DESC, t.team_name ASC;`,
       },
     ],
   },
+  {
+    id: 'longest-arithmetic-subsequence-of-given-difference',
+    label: '1218. LeetCode 1218. 最长定差子序列',
+    difficulty: '中等',
+    description:
+      '给定数组和公差，求最长的等差子序列长度。子序列不要求连续，但相邻两项的差必须恰好等于给定值。用哈希表记录「以某个值结尾的最长长度」，遍历时直接查前驱。',
+    outcome:
+      '你能把下标维度的子序列 DP 改写成以数值为键的 DP，理解为什么这样既能处理重复值又能做到线性时间。',
+    sections: [
+      {
+        id: 'longest-arithmetic-subsequence-of-given-difference-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 arr 和整数 difference，要求找出最长的子序列，使相邻两项之差都等于 difference。返回这个最长长度。',
+        bullets: [
+          '子序列不要求连续，只需保持原有相对顺序。',
+          '相邻两项的差必须恰好等于 difference，不能是绝对差。',
+          'difference 可以为负数，此时序列整体递减。',
+          '单个元素视为长度为 1 的等差子序列。',
+          '数组长度可能很大，平方做法无法通过。',
+          '同一个数值可能在数组中出现多次。',
+          '只要求返回长度，不要求输出具体子序列。',
+          '数组元素与 difference 都可能为负，不能假设非负。',
+        ],
+      },
+      {
+        id: 'longest-arithmetic-subsequence-of-given-difference-model',
+        title: '以数值结尾的最长长度',
+        summary:
+          '定义 dp[x] 为以数值 x 结尾的最长定差子序列长度。若当前值 x 要接在某个序列后面，前一项必须是 x 减 difference。因此 dp[x] 等于 dp[x 减 difference] 加一。',
+        bullets: [
+          '状态键是数值，而不是下标。',
+          '遍历到 x 时，只需要查询 x 减 difference 的最优长度。',
+          '前驱不存在时，当前值自己构成新序列，长度为 1。',
+          '因为按数组顺序遍历，查询到的前驱一定出现在当前元素之前。',
+          '同一个值重复出现时，后出现的更新不会破坏已有答案。',
+          '所有 dp 值的最大者就是全局最长长度。',
+          '哈希表让每次查询与更新都是常数时间。',
+          '整体时间线性，空间与不同数值的个数成正比。',
+        ],
+        callout:
+          '为什么可以按值而不是按下标做状态？按下标需要枚举所有前驱位置，时间退化为平方；而本题只关心前一项的数值，正好是当前值减去公差。把所有以同一数值结尾的序列压缩成一条最优记录，既保留了足够信息，又消掉了重复枚举。后出现的同值元素只会让记录变长，不会让旧的最优解失效。',
+      },
+      {
+        id: 'longest-arithmetic-subsequence-of-given-difference-solution',
+        title: '解法：哈希表一次遍历',
+        summary:
+          '遍历数组，用当前值减去 difference 去哈希表查前驱长度，得到当前长度后写回哈希表，并更新全局最大值。',
+        bullets: [
+          '哈希表初始为空，查询不到时按零处理。',
+          '当前长度等于前驱长度加一。',
+          '把当前长度写入以当前值为键的位置。',
+          '更新答案时与当前长度比较，而不是与哈希表长度比较。',
+          'difference 为负数时公式不变，减负数等于加正数。',
+          'difference 为零时，每个相同值都在前一个基础上加一，等价于统计众数频次。',
+          '答案为 1 起步，因为数组至少有一个元素。',
+          '不要用集合去重，重复值正是延长序列的机会。',
+        ],
+        code: `function longestSubsequence(
+  arr: number[],
+  difference: number,
+): number {
+  const dp = new Map<number, number>()
+  let answer = 1
+
+  for (const value of arr) {
+    const previous = dp.get(value - difference) ?? 0
+    const current = previous + 1
+
+    dp.set(value, current)
+    answer = Math.max(answer, current)
+  }
+
+  return answer
+}`,
+        callout:
+          '写入顺序是先读取前驱、再更新当前值。difference 为零时这两步会落在同一个键上，必须先用旧值算出新长度，再覆盖，否则会把刚刚写入的长度又当成前驱，导致长度虚增。另一个细节是重复值覆盖旧记录是安全的，因为后出现的位置能接上的前驱只会更多，长度不会变短。',
+      },
+      {
+        id: 'longest-arithmetic-subsequence-of-given-difference-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在子序列语义、前驱方向与重复值处理。',
+        bullets: [
+          '易错点 1：把子序列当成连续子数组，漏掉不连续但合法的答案。',
+          '易错点 2：查找后继 x 加 difference，方向反了，得到的是倒序关系。',
+          '易错点 3：用下标做状态并枚举所有前驱，时间退化为平方。',
+          '易错点 4：用集合去重，difference 为零时丢失重复次数。',
+          '易错点 5：先更新当前值再读取前驱，公差为零时长度虚增。',
+          '易错点 6：只更新全局答案，忘记把当前长度写回哈希表。',
+          '易错点 7：假设 difference 非负，遇到负数时判断逻辑出错。',
+          '易错点 8：答案初始化为零，空数组或单元素时返回错误。',
+          '延伸方向：等差子序列计数、最长等比子序列、以及每个位置都必须参与的最长定差链。',
+        ],
+      },
+    ],
+  },
 ];
