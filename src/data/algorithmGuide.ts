@@ -121203,4 +121203,123 @@ ORDER BY num_points DESC, goal_difference DESC, t.team_name ASC;`,
       },
     ],
   },
+  {
+    id: 'dice-roll-simulation',
+    label: '1223. LeetCode 1223. 掷骰子模拟',
+    difficulty: '困难',
+    description:
+      '掷 n 次六面骰子，每个点数 i 最多连续出现 rollMax[i] 次，统计合法的序列数量。状态不能只记录末位点数，还要记录它已经连续出现了几次，才能判断下一次能否继续掷出同一个点数。',
+    outcome:
+      '你能设计「末位点数加连续长度」的状态，写出换面与续面的两类转移，并用滚动数组把空间控制在常数级。',
+    sections: [
+      {
+        id: 'dice-roll-simulation-summary',
+        title: '题目在问什么',
+        summary:
+          '掷一个六面骰子 n 次，rollMax 的第 i 项表示点数 i 加一最多可以连续出现多少次。要求统计所有合法结果序列的数量，并对十的九次方加七取模。',
+        bullets: [
+          '序列长度为 n，每一位是一到六。',
+          '同一个点数连续出现的次数不能超过该点数对应的上限。',
+          '上限按点数分别给出，不是统一的全局上限。',
+          '只要没有超限，序列就是合法的。',
+          '不同序列按点数序列区分，位置不同视为不同。',
+          '只求数量，不要求输出序列。',
+          'n 可能很大，不能枚举所有六的 n 次方种序列。',
+          '结果需要对固定的模数取余。',
+        ],
+      },
+      {
+        id: 'dice-roll-simulation-model',
+        title: '末位点数加连续长度',
+        summary:
+          '未来是否合法只取决于两件事：上一位是哪个点数，以及这个点数已经连续出现了几次。记录这两个信息，就能判断下一次继续掷出同一点数会不会超限，以及换成其他点数时连续长度重置为一。',
+        bullets: [
+          '状态定义为「当前长度为若干、末位是点数 f、该点数连续出现 k 次」的序列数。',
+          '长度为一时，每个点数的连续长度都是一，各有一种序列。',
+          '续面：末位点数不变，连续长度加一，但加一后不能超过该点数的上限。',
+          '换面：末位变成另一个点数，连续长度重置为一。',
+          '换面时，上一位可以是其他任意点数，且连续长度任意。',
+          '因此新状态中连续长度为一的计数，等于上一轮其他点数所有连续长度计数之和。',
+          '状态总数是六乘以最大连续长度，层数是 n。',
+          '每一层只依赖上一层，可以用滚动数组压缩空间。',
+        ],
+        callout:
+          '为什么不能只记录末位点数？同样是末位为六，连续出现一次和连续出现 rollMax 次，下一步允许的操作不同。只记录点数会把这两种情况混在一起，无法正确执行上限约束。连续长度是状态里不可省略的一部分。',
+      },
+      {
+        id: 'dice-roll-simulation-solution',
+        title: '解法：逐层转移并滚动数组',
+        summary:
+          '用二维数组记录每个点数在各个连续长度下的方案数。每一轮先求出各点数的总数，再构造下一轮：续面按长度平移，换面把其他点数的总数累加到长度一。',
+        bullets: [
+          '初始化每个点数连续长度为一的方案数为一。',
+          '每轮先对每个点数求所有连续长度的总和。',
+          '新状态中，点数 f 连续长度为一的计数，等于其他五个点数总数之和。',
+          '新状态中，点数 f 连续长度为 k 的计数，来自上一轮同点数长度为 k 减一。',
+          '长度上限按 rollMax 对每个点数分别限制。',
+          '所有加法都要对模数取余。',
+          '最后一轮把所有状态求和即为答案。',
+          'n 等于一时答案为六，可以直接由初始化得到。',
+        ],
+        code: `function dieSimulator(n: number, rollMax: number[]): number {
+  const MOD = 1_000_000_007
+  const maxLength = Math.max(...rollMax)
+  let dp: number[][] = Array.from({ length: 6 }, () =>
+    new Array<number>(maxLength + 1).fill(0),
+  )
+
+  for (let face = 0; face < 6; face += 1) {
+    dp[face][1] = 1
+  }
+
+  for (let roll = 2; roll <= n; roll += 1) {
+    const totals: number[] = dp.map((counts) =>
+      counts.reduce((sum, value) => (sum + value) % MOD, 0),
+    )
+    const next: number[][] = Array.from({ length: 6 }, () =>
+      new Array<number>(maxLength + 1).fill(0),
+    )
+
+    for (let face = 0; face < 6; face += 1) {
+      for (let other = 0; other < 6; other += 1) {
+        if (other !== face) {
+          next[face][1] = (next[face][1] + totals[other]) % MOD
+        }
+      }
+
+      for (let length = 2; length <= rollMax[face]; length += 1) {
+        next[face][length] = dp[face][length - 1]
+      }
+    }
+
+    dp = next
+  }
+
+  return dp.reduce(
+    (answer, counts) =>
+      counts.reduce((sum, value) => (sum + value) % MOD, answer),
+    0,
+  )
+}`,
+        callout:
+          '换面转移为什么用其他点数的总数？因为新序列以 face 结尾且只出现一次，前一位可以是除 face 外的任意点数，前一位的连续长度不受限制，直接把那些状态全部加起来即可。续面转移则必须保持点数相同、长度加一，不能混入其他点数。',
+      },
+      {
+        id: 'dice-roll-simulation-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在状态维度、上限使用与滚动更新。',
+        bullets: [
+          '易错点 1：状态只记录末位点数，无法判断连续次数是否超限。',
+          '易错点 2：所有点数共用同一个连续上限，而不是各自的 rollMax。',
+          '易错点 3：换面时把同一点数也计入长度一，序列凭空多算。',
+          '易错点 4：续面时没有检查长度加一是否超过该点数的上限。',
+          '易错点 5：在构造下一轮前没有保存上一轮各点数的总数，读到新值。',
+          '易错点 6：只对最终答案取模，中间累加溢出。',
+          '易错点 7：连续长度下标从零开始，与长度一错位。',
+          '易错点 8：n 等于一时返回零或一，而不是六个一位序列。',
+          '延伸方向：点数带权、连续约束随位置变化、以及用矩阵快速幂处理极大的 n。',
+        ],
+      },
+    ],
+  },
 ];
