@@ -121556,4 +121556,147 @@ ORDER BY start_date;`,
       },
     ],
   },
+  {
+    id: 'the-dining-philosophers',
+    label: '1226. LeetCode 1226. 哲学家进餐',
+    difficulty: '中等',
+    description:
+      '五位哲学家围桌而坐，每两人之间放一把叉子，进餐必须同时拿到左右两把叉子。要求实现进餐逻辑，既不能让任何人饿死，也不能出现五人各拿一把叉子互相等待的死锁。限制同时就座的人数，或规定取叉顺序，都能打破循环等待。',
+    outcome:
+      '你能从死锁的四个必要条件出发，用「最多四人同时进餐」的座位信号量打破循环等待，并写出取叉、进餐、放叉的完整同步流程。',
+    sections: [
+      {
+        id: 'the-dining-philosophers-summary',
+        title: '题目在问什么',
+        summary:
+          '五位哲学家围成一圈，相邻两人之间各有一把叉子，共五把。每位哲学家需要同时持有左右两把叉子才能进餐。实现 wantsToEat，让每位调用者都能完成拿叉、进餐、放叉的动作，且系统不会死锁。',
+        bullets: [
+          '哲学家编号固定为零到四，叉子同样编号为零到四。',
+          '哲学家 i 的左手叉子是 i，右手叉子是 i 加一对五取模。',
+          '必须同时拿到两把叉子才能调用进餐回调。',
+          '每次 wantsToEat 调用对应一次完整进餐。',
+          '多个哲学家可能并发调用，顺序不可预知。',
+          '不能出现所有人各持一把叉子、互相等待的局面。',
+          '允许部分哲学家等待，但必须保证最终有人能进餐。',
+          '拿叉、进餐、放叉的先后顺序必须与回调语义一致。',
+        ],
+      },
+      {
+        id: 'the-dining-philosophers-model',
+        title: '叉子即互斥资源',
+        summary:
+          '每把叉子是一个只能被一个哲学家持有的资源，可以用初值唯一的信号量表示。死锁来自循环等待：如果五个人同时先拿左叉，再等右叉，五把叉子全被占住，谁也无法前进。只要打破四个必要条件中的任意一个，就能消除死锁。',
+        bullets: [
+          '互斥由叉子信号量保证。',
+          '持有并等待是死锁的第二个条件，所有哲学家都拿着左叉等右叉。',
+          '不可剥夺意味着已经拿到的叉子不能被强行收回。',
+          '循环等待是五人围成一圈的等待环。',
+          '限制同时就座人数为四，直接破坏循环等待。',
+          '五把叉子、最多四人争用，至少有一人能凑齐两把。',
+          '进餐结束后按相反顺序释放右叉、左叉和座位。',
+          '释放座位让等待的第五人有机会进入。',
+        ],
+        callout:
+          '为什么限制到四人就能避免死锁？假设四人都已就座且都卡在等待右叉，那么每人各持一把左叉，共四把被占，第五把空闲。空闲的这把一定是不在场那位哲学家的左叉，同时是它右边邻居的右叉；那位邻居已经就座，因此他能拿到右叉并进餐。这与四人全部阻塞矛盾，所以总有人能推进。',
+      },
+      {
+        id: 'the-dining-philosophers-solution',
+        title: '解法：座位信号量加五把叉子',
+        summary:
+          '先实现一个计数信号量。用餐类持有初始为四的座位信号量和五把初值为一的叉子信号量。进入时先抢座位，再依次拿左叉和右叉，完成回调后按相反顺序释放。',
+        bullets: [
+          '座位信号量初值为四，保证最多四人同时参与取叉。',
+          '每把叉子对应一个初值为一的信号量。',
+          '先获取座位再获取叉子，避免占着叉子等座位。',
+          '拿叉顺序固定为左后右，与回调顺序一致。',
+          '进餐回调结束后先放右叉，再放左叉。',
+          '最后释放座位，唤醒可能等待的哲学家。',
+          '等待队列按先来先服务，不需要额外公平性处理。',
+          '每次调用的额外开销只与信号量操作有关。',
+        ],
+        code: `class Semaphore {
+  private permits: number
+  private readonly waiters: Array<() => void> = []
+
+  constructor(permits: number) {
+    this.permits = permits
+  }
+
+  async acquire(): Promise<void> {
+    if (this.permits > 0) {
+      this.permits -= 1
+      return
+    }
+
+    await new Promise<void>((resolve) => {
+      this.waiters.push(resolve)
+    })
+  }
+
+  release(): void {
+    const next = this.waiters.shift()
+
+    if (next) {
+      next()
+      return
+    }
+
+    this.permits += 1
+  }
+}
+
+class DiningPhilosophers {
+  private readonly seats = new Semaphore(4)
+  private readonly forks = Array.from(
+    { length: 5 },
+    () => new Semaphore(1),
+  )
+
+  async wantsToEat(
+    philosopher: number,
+    pickLeftFork: () => void,
+    pickRightFork: () => void,
+    eat: () => void,
+    putLeftFork: () => void,
+    putRightFork: () => void,
+  ): Promise<void> {
+    const left = philosopher
+    const right = (philosopher + 1) % 5
+
+    await this.seats.acquire()
+    await this.forks[left].acquire()
+    await this.forks[right].acquire()
+
+    pickLeftFork()
+    pickRightFork()
+    eat()
+    putLeftFork()
+    putRightFork()
+
+    this.forks[right].release()
+    this.forks[left].release()
+    this.seats.release()
+  }
+}`,
+        callout:
+          '释放顺序要与获取顺序相反，先放右叉再放左叉，最后放座位。另一个看似可行的方案是规定所有人先拿编号较小的叉子，但那样回调顺序可能需要变成先右后左，必须和实际持叉顺序保持一致。无论采用哪种方案，都要保证异常路径也能释放资源，实际工程中应写进 try/finally。',
+      },
+      {
+        id: 'the-dining-philosophers-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在死锁条件、资源释放与回调顺序。',
+        bullets: [
+          '易错点 1：五个人都先拿左叉再等右叉，形成循环等待，直接死锁。',
+          '易错点 2：座位信号量初值写成五，限制等于没有限制。',
+          '易错点 3：拿叉前不加锁，多个哲学家同时拿到同一把叉子。',
+          '易错点 4：进餐后忘记释放某把叉子或许可，资源泄漏，最终全员卡死。',
+          '易错点 5：用一把全局锁串行化所有哲学家，虽然不死锁但完全失去并发。',
+          '易错点 6：回调顺序与实际持叉顺序不一致，输出与状态矛盾。',
+          '易错点 7：先拿右叉再拿左叉，却仍然调用先左后右的回调。',
+          '易错点 8：用睡眠或忙等待碰运气，无法保证正确性。',
+          '延伸方向：读者写者问题、生产者消费者、银行家死锁避免算法、以及条件变量与信号量的对照。',
+        ],
+      },
+    ],
+  },
 ];
