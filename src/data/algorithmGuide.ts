@@ -121322,4 +121322,121 @@ ORDER BY num_points DESC, goal_difference DESC, t.team_name ASC;`,
       },
     ],
   },
+  {
+    id: 'maximum-equal-frequency',
+    label: '1224. LeetCode 1224. 最大相等频率',
+    difficulty: '困难',
+    description:
+      '要求最长的前缀，使其中恰好删除一个元素后所有数字出现频率相同。边扫描边维护每个值的频次、每种频次对应的值个数以及最大频次，再用三种可行形态即时判断当前前缀是否合法。',
+    outcome:
+      '你能用频次的频次刻画「删一个后全部相等」的充要条件，并在扫描过程中维护常数时间可判定的三种情况。',
+    sections: [
+      {
+        id: 'maximum-equal-frequency-summary',
+        title: '题目在问什么',
+        summary:
+          '给定数组 nums，找到一个最长的前缀，使得从前缀中恰好删除一个元素后，剩下的每个不同数字出现次数都相同。返回这个最长前缀的长度。',
+        bullets: [
+          '前缀必须从数组开头连续取。',
+          '删除恰好一个元素，不能删两个，也不能不删。',
+          '删除后可以剩下空数组，空数组的频率条件视为满足。',
+          '比较的是每个不同数字在整个剩余前缀中的出现次数。',
+          '返回长度，不是下标或删除位置。',
+          '前缀长度为一时，删掉唯一元素后为空，一定合法。',
+          '数组元素可以重复，数值本身不影响判断。',
+          '要求最长，因此需要在每个前缀位置判断一次。',
+        ],
+      },
+      {
+        id: 'maximum-equal-frequency-model',
+        title: '频次的频次与三种可行形态',
+        summary:
+          '维护三个量：每个值出现了几次、每种出现次数对应多少个值、当前最大出现次数。删除一个元素后所有频率相同，只有三种形态：全部频率为一；唯一的最高频值删掉一次后与其余值齐平；唯一的一个只出现一次的值被整个删掉。',
+        bullets: [
+          '第一种形态：所有不同数字的频次都是一，删掉任意一个后仍然全是一。',
+          '第二种形态：最大值 m 只属于一个数字，其余所有数字的频次都等于 m 减一。',
+          '第二种形态通过把那个最高频数字删一次来达成。',
+          '第三种形态：恰好有一个数字只出现一次，其余所有数字频次相同且大于一。',
+          '第三种形态通过把这个单次数字整个删掉来达成。',
+          '只有一种数字时，前两种形态覆盖了删一个后仍相等的情况。',
+          '除此之外的任何频率分布，删除一个元素都无法让所有频率相等。',
+          '判断时用频次映射的计数，而不是逐个遍历所有数字。',
+        ],
+        callout:
+          '为什么可以只检查这三种形态？删掉的那个元素所属数字，要么频次大于一，删除后它仍然存在，此时它必须和其他数字同频，只能是唯一的最高频降到次高频；要么频次等于一，删除后该数字消失，此时其他数字必须本来就同频。所有情况都被这两种分支覆盖，全一只是前者的边界特例。',
+      },
+      {
+        id: 'maximum-equal-frequency-solution',
+        title: '解法：扫描时维护频率分布',
+        summary:
+          '逐个读入数字，更新它的频次和频次计数表，同时更新最大频次。用三个条件判断当前前缀是否可行，可行就更新答案。',
+        bullets: [
+          '用哈希表记录每个数字的当前频次。',
+          '用另一个哈希表记录「频次为 k 的数字有多少个」。',
+          '读入一个数字时，先把旧频次的计数减一，再把新频次的计数加一。',
+          '更新最大频次，它只会随读入增大。',
+          '不同数字的个数可以直接从频次表的键数得到。',
+          '条件一：最大频次等于一，所有数字都只出现一次。',
+          '条件二：最大频次对应的数字只有一个，且频次为最大频次减一的数字个数等于其余数字总数。',
+          '条件三：频次为一的数字只有一个，且最大频次对应的数字个数等于其余数字总数。',
+        ],
+        code: `function maxEqualFreq(nums: number[]): number {
+  const freq = new Map<number, number>()
+  const countOfFreq = new Map<number, number>()
+  let maxFreq = 0
+  let answer = 0
+
+  for (let index = 0; index < nums.length; index += 1) {
+    const value = nums[index]
+    const oldFreq = freq.get(value) ?? 0
+    const newFreq = oldFreq + 1
+
+    freq.set(value, newFreq)
+
+    if (oldFreq > 0) {
+      countOfFreq.set(oldFreq, (countOfFreq.get(oldFreq) ?? 0) - 1)
+    }
+    countOfFreq.set(newFreq, (countOfFreq.get(newFreq) ?? 0) + 1)
+
+    maxFreq = Math.max(maxFreq, newFreq)
+
+    const distinct = freq.size
+    const maxCount = countOfFreq.get(maxFreq) ?? 0
+    const allOnes = maxFreq === 1
+    const removeFromMax =
+      maxCount === 1 &&
+      (countOfFreq.get(maxFreq - 1) ?? 0) === distinct - 1
+    const removeSingleton =
+      maxFreq > 1 &&
+      (countOfFreq.get(1) ?? 0) === 1 &&
+      maxCount === distinct - 1
+
+    if (allOnes || removeFromMax || removeSingleton) {
+      answer = index + 1
+    }
+  }
+
+  return answer
+}`,
+        callout:
+          '三个条件缺一不可。只看最大频次会漏掉「删掉唯一单次值」的情况，例如频次分布为二、二、一；只判断最大频次是否唯一又会漏掉全部为一的情况。第三个条件里的最大频次大于一是必须的，否则会和全部为一的情形重复判断，且分母关系不再成立。',
+      },
+      {
+        id: 'maximum-equal-frequency-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在条件覆盖、计数同步与下标换算。',
+        bullets: [
+          '易错点 1：只考虑从最高频数字删一次，漏掉把唯一单次数字整个删掉的情况。',
+          '易错点 2：忘记全部频次都为一的边界，前缀全由不同数字组成时判错。',
+          '易错点 3：频次计数表更新时只加新频次，忘记减旧频次，分布被污染。',
+          '易错点 4：不同数字个数用数组长度代替，重复元素被多算。',
+          '易错点 5：条件二里「其余数字总数」写成不同数字总数，没有减一。',
+          '易错点 6：条件三没有排除最大频次为一，与条件一重叠。',
+          '易错点 7：答案记录成下标，题目要求的是前缀长度。',
+          '易错点 8：每次判断都重新统计所有频次，时间退化为平方。',
+          '延伸方向：允许删除至多 k 个元素、求最长可行子数组、以及维护频率分布的众数问题。',
+        ],
+      },
+    ],
+  },
 ];
