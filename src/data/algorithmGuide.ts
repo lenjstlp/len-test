@@ -122476,4 +122476,120 @@ class DiningPhilosophers {
       },
     ],
   },
+  {
+    id: 'maximum-profit-in-job-scheduling',
+    label: '1235. LeetCode 1235. 规划兼职工作',
+    difficulty: '困难',
+    description:
+      '给定每个工作的开始时间、结束时间和报酬，选择互不重叠的工作使总报酬最大。把工作按结束时间排序，用动态规划决定每个工作选或不选；选择时二分查找上一个结束时间不晚于当前开始时间的工作。',
+    outcome:
+      '你能把加权区间调度写成按结束时间排序的前缀 DP，并用二分把每次转移从线性优化到对数。',
+    sections: [
+      {
+        id: 'maximum-profit-in-job-scheduling-summary',
+        title: '题目在问什么',
+        summary:
+          '给定三个等长数组，分别表示每个工作的开始时间、结束时间和报酬。要求选择若干工作，使它们在时间上不重叠，并且总报酬最大。返回最大总报酬。',
+        bullets: [
+          '一个工作一旦选择，整个区间都被占用。',
+          '下一个工作可以在当前工作结束的同一时刻开始。',
+          '每个工作最多选择一次，不能拆分。',
+          '可以放弃任意多个工作，不要求全部安排。',
+          '报酬都是正数，因此只会在冲突时放弃工作。',
+          '三个数组按下标一一对应，输入不保证按时间排序。',
+          '时间范围很大，不能用按时间刻度的数组 DP。',
+          '只返回最大报酬，不要求给出工作组合。',
+        ],
+      },
+      {
+        id: 'maximum-profit-in-job-scheduling-model',
+        title: '按结束时间排序的前缀 DP',
+        summary:
+          '把所有工作按结束时间升序排列。定义 dp[i] 为前 i 个工作中能获得的最大报酬。对于第 i 个工作，有两种选择：不做，继承 dp[i 减一]；做，则报酬加上在它开始之前结束的所有工作的最优解。',
+        bullets: [
+          '按结束时间排序后，前 i 个工作的最优解只依赖更早结束的工作。',
+          '选择当前工作时，之前兼容的工作必须满足结束时间不晚于它的开始时间。',
+          '这些兼容工作在排序后构成一个前缀。',
+          '用二分查找这个前缀的最后一个下标。',
+          'dp 的下标表示「处理了几个工作」，从零开始。',
+          '不选当前工作时，答案为 dp[i 减一]。',
+          '选择当前工作时，答案为兼容前缀的最优值加当前报酬。',
+          '两者取较大值写入 dp[i]。',
+        ],
+        callout:
+          '为什么必须按结束时间排序，而不是开始时间？DP 的前缀含义是「前面已经结束的工作」。按结束时间排序，任意一个工作之前的元素都更早结束，才能用前缀的最优值直接接上。按开始时间排序时，前面的工作可能还没结束，无法判断兼容性。',
+      },
+      {
+        id: 'maximum-profit-in-job-scheduling-solution',
+        title: '解法：排序加 DP 加二分',
+        summary:
+          '先把三个数组组合成工作对象并按结束时间排序，单独保存结束时间数组。对每个工作，在它之前的工作里二分最后一个结束时间不超过其开始时间的位置，用它更新 dp。',
+        bullets: [
+          '组合时保留开始、结束、报酬三个字段。',
+          '排序键是结束时间，升序。',
+          'dp 长度为工作数加一，dp[0] 为零。',
+          '第 i 个工作对应 dp 下标 i，从一计数。',
+          '二分的范围是它之前的所有工作。',
+          '二分条件用结束时间小于等于当前开始时间。',
+          '找到的兼容工作数量就是 dp 的下标。',
+          '转移时比较跳过与选择两种方案。',
+        ],
+        code: `function jobScheduling(
+  startTime: number[],
+  endTime: number[],
+  profit: number[],
+): number {
+  const jobs = startTime
+    .map((start, index) => ({
+      start,
+      end: endTime[index],
+      profit: profit[index],
+    }))
+    .sort((a, b) => a.end - b.end)
+
+  const ends = jobs.map((job) => job.end)
+  const dp = new Array<number>(jobs.length + 1).fill(0)
+
+  for (let index = 1; index <= jobs.length; index += 1) {
+    const job = jobs[index - 1]
+
+    let low = 0
+    let high = index - 1
+
+    while (low < high) {
+      const middle = Math.floor((low + high) / 2)
+
+      if (ends[middle] <= job.start) {
+        low = middle + 1
+      } else {
+        high = middle
+      }
+    }
+
+    dp[index] = Math.max(dp[index - 1], dp[low] + job.profit)
+  }
+
+  return dp[jobs.length]
+}`,
+        callout:
+          '二分的下标体系很容易错位。当前工作是第 index 个，它之前只有 index 减一个工作，所以搜索范围是零到 index 减一。二分结束时 low 是兼容工作的数量，也正好是 dp 的下标。结束时间等于开始时间是允许的，条件必须写小于等于，不能写严格小于。',
+      },
+      {
+        id: 'maximum-profit-in-job-scheduling-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在排序键、兼容条件和下标换算。',
+        bullets: [
+          '易错点 1：按开始时间排序，导致前缀中混入尚未结束的工作。',
+          '易错点 2：选择当前工作时直接加 dp[i 减一]，没有排除重叠工作。',
+          '易错点 3：二分条件用严格小于，结束时间恰好等于开始时间的工作被漏掉。',
+          '易错点 4：dp 下标与工作下标差一，转移取到错误的前缀。',
+          '易错点 5：二分范围包含当前工作自身，工作与自己重叠。',
+          '易错点 6：只考虑相邻工作是否兼容，忽略可以跨越多个工作。',
+          '易错点 7：用二维区间 DP，时间复杂度退化为平方。',
+          '易错点 8：返回 dp 的最后一个元素之外的值，遗漏最优解。',
+          '延伸方向：加权区间调度、带冷却时间的任务安排、以及多台机器上的最大收益分配。',
+        ],
+      },
+    ],
+  },
 ];
