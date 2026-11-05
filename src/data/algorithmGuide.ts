@@ -123484,4 +123484,106 @@ async function crawl(
       },
     ],
   },
+  {
+    id: 'design-a-leaderboard',
+    label: '1244. LeetCode 1244. 力扣排行榜',
+    difficulty: '中等',
+    description:
+      '设计排行榜：支持给选手累加分数、查询前 K 名总分、以及把某位选手分数清零。用哈希表保存累计分数，查询时取出所有分数排序后累加前 K 个。',
+    outcome:
+      '你能用哈希表处理按选手累加与重置，并在查询时正确排序、截断和求和。',
+    sections: [
+      {
+        id: 'design-a-leaderboard-summary',
+        title: '题目在问什么',
+        summary:
+          '实现一个排行榜类，支持三种操作：addScore 给指定选手增加分数，top 返回总分最高的前 K 名选手的分数之和，reset 把指定选手的分数清零。',
+        bullets: [
+          'addScore 是累加，不是覆盖。',
+          '选手第一次出现时从零开始累加。',
+          'top 的 K 是人数，不是分数阈值。',
+          'K 可能大于当前选手数量，此时统计所有选手。',
+          'reset 后该选手分数归零，但仍可再次被加分。',
+          '选手编号不保证连续。',
+          '并列分数不影响求和，按任意顺序取满 K 人即可。',
+          'reset 一个不存在的选手应当无副作用。',
+        ],
+      },
+      {
+        id: 'design-a-leaderboard-model',
+        title: '哈希表加排序',
+        summary:
+          '选手编号与总分是一对一映射，适合用哈希表保存。top 需要按分数从高到低取前 K 个，最直接的方法是把所有总分取出排序，再累加前 K 项。',
+        bullets: [
+          '键是选手编号，值是累计总分。',
+          'addScore 用旧值加新分，缺失时按零处理。',
+          'reset 可以直接删除键，效果等同于清零。',
+          'top 把所有值复制到数组。',
+          '按降序排序。',
+          '取前 K 个，K 超过数组长度时取全部。',
+          '累加这些分数并返回。',
+          '排序不修改哈希表本身。',
+        ],
+        callout:
+          'reset 用删除而不是写零，有两个好处：top 排序时不会混入大量零分选手，选手再次加分时也从零自然开始。若业务要求保留选手记录，写零也可以，但查询时要决定零分选手是否参与排名。',
+      },
+      {
+        id: 'design-a-leaderboard-solution',
+        title: '解法：Map 保存总分，查询时降序累加',
+        summary:
+          '用 Map 维护每个选手的累计分数。addScore 做累加，reset 删除键，top 取出所有值降序排序后累加前 K 项。',
+        bullets: [
+          'addScore 读取旧分数，缺失时用零。',
+          '写回旧分数加新增分数。',
+          'reset 直接删除对应键。',
+          'top 把迭代器展开成数组。',
+          '排序比较函数用后者减前者实现降序。',
+          '循环上界取 K 与数组长度的较小值。',
+          '累加过程中直接返回总和。',
+          '所有操作都不需要维护额外索引。',
+        ],
+        code: `class Leaderboard {
+  private readonly scores = new Map<number, number>()
+
+  addScore(playerId: number, score: number): void {
+    const current = this.scores.get(playerId) ?? 0
+    this.scores.set(playerId, current + score)
+  }
+
+  top(K: number): number {
+    const values = [...this.scores.values()].sort((a, b) => b - a)
+    let total = 0
+
+    for (let index = 0; index < Math.min(K, values.length); index += 1) {
+      total += values[index]
+    }
+
+    return total
+  }
+
+  reset(playerId: number): void {
+    this.scores.delete(playerId)
+  }
+}`,
+        callout:
+          '复杂度取舍：addScore 与 reset 是常数时间，top 是 O(n log n)。题目调用规模不大时这样最清晰。若 top 非常频繁，可以维护有序结构或堆，但删除与更新会让实现复杂很多，需要先确认操作比例再优化。',
+      },
+      {
+        id: 'design-a-leaderboard-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在累加语义、重置方式和前 K 截断。',
+        bullets: [
+          '易错点 1：addScore 直接覆盖旧分数。',
+          '易错点 2：reset 后没有清除记录，再次加分从旧值继续。',
+          '易错点 3：top 排序方向写反，取到了最低的 K 个。',
+          '易错点 4：K 大于选手数时数组越界。',
+          '易错点 5：把 K 当成分数阈值而不是人数。',
+          '易错点 6：top 排序时修改了 Map 中的原始值。',
+          '易错点 7：reset 不存在的选手时报错。',
+          '易错点 8：并列分数时错误地去重，导致人数不足。',
+          '延伸方向：实时榜单、按分数分桶、堆维护前 K、以及带时间窗口的排行榜。',
+        ],
+      },
+    ],
+  },
 ];
