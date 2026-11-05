@@ -123231,4 +123231,148 @@ ORDER BY p.sub_id;`,
       },
     ],
   },
+  {
+    id: 'web-crawler-multithreaded',
+    label: '1242. LeetCode 1242. 多线程网络爬虫',
+    difficulty: '中等',
+    description:
+      '在单线程爬虫的基础上要求多线程抓取同一主机名下的页面。多个执行流共享已访问集合与待抓取队列，核心是把「检查是否访问过」和「标记已访问」做成原子操作，否则同一页面会被重复抓取。',
+    outcome:
+      '你能识别并发爬虫里的竞态条件，用互斥锁保护检查并插入，同时把网络请求放在锁外避免串行化。',
+    sections: [
+      {
+        id: 'web-crawler-multithreaded-summary',
+        title: '题目在问什么',
+        summary:
+          '给定起始网址和网页解析接口，要求用多线程抓取所有与起始网址同主机名的页面，返回每个页面恰好一次的列表。',
+        bullets: [
+          '抓取目标与单线程版本相同：同主机名、去重、包含起始页。',
+          '实现需要支持多个执行流并发工作。',
+          '所有线程共享已访问集合、待抓取队列和结果列表。',
+          '同一个网址不能被多个线程重复解析。',
+          '主机名不同的链接要过滤掉。',
+          '页面之间可能有环，访问集合必须能终止遍历。',
+          '返回顺序不做要求。',
+          '线程数量应有上限，不能为每个链接无限创建线程。',
+        ],
+      },
+      {
+        id: 'web-crawler-multithreaded-model',
+        title: '共享状态的竞态与原子检查',
+        summary:
+          '并发爬虫的难点不在图遍历，而在共享集合的更新。若两个线程同时读到「未访问」，它们会各自把同一网址加入队列并解析。必须把检查和插入合并成临界区，由一个互斥锁保护。',
+        bullets: [
+          '已访问集合是共享可变状态。',
+          '先查后插不是原子操作，中间可能被其他线程插入。',
+          '互斥锁保证同一时刻只有一个线程执行检查并插入。',
+          '锁只保护集合操作，不要包住网络请求。',
+          '拿到网址后先释放锁，再调用解析接口。',
+          '解析出的链接逐个过滤主机名。',
+          '只有成功插入访问集合的链接才继续调度。',
+          '所有派生任务完成后，整个抓取结束。',
+        ],
+        callout:
+          '为什么不能把解析接口也放进锁里？网络请求耗时远大于集合操作，持锁调用会让所有线程排队，退化成串行爬虫，还可能因为回调重入造成死锁。临界区应尽可能短，只包住必须原子的检查与插入。',
+      },
+      {
+        id: 'web-crawler-multithreaded-solution',
+        title: '解法：互斥锁加递归并发调度',
+        summary:
+          '实现一个互斥锁。访问函数先加锁，若已访问则释放并返回；否则标记访问、加入结果、释放锁，再解析页面并为同主机链接并发派生访问任务。',
+        bullets: [
+          '锁的获取与释放在同一层完成，不能嵌套持锁。',
+          '检查、插入、记录结果三步放在同一个临界区。',
+          '释放锁后再调用网页解析接口。',
+          '对每个链接先解析并比较主机名。',
+          '同主机链接全部交给并发任务处理。',
+          '用 Promise.all 等待当前页面派生的全部任务。',
+          '重复链接会在访问函数入口被集合挡掉。',
+          '所有任务结束后返回结果列表。',
+        ],
+        code: `class Mutex {
+  private locked = false
+  private readonly waiters: Array<() => void> = []
+
+  async acquire(): Promise<void> {
+    if (!this.locked) {
+      this.locked = true
+      return
+    }
+
+    await new Promise<void>((resolve) => {
+      this.waiters.push(resolve)
+    })
+  }
+
+  release(): void {
+    const next = this.waiters.shift()
+
+    if (next) {
+      next()
+      return
+    }
+
+    this.locked = false
+  }
+}
+
+async function crawl(
+  startUrl: string,
+  htmlParser: HtmlParser,
+): Promise<string[]> {
+  const hostname = new URL(startUrl).hostname
+  const visited = new Set<string>()
+  const result: string[] = []
+  const mutex = new Mutex()
+
+  const visit = async (url: string): Promise<void> => {
+    await mutex.acquire()
+
+    if (visited.has(url)) {
+      mutex.release()
+      return
+    }
+
+    visited.add(url)
+    result.push(url)
+    mutex.release()
+
+    const tasks: Array<Promise<void>> = []
+
+    for (const next of htmlParser.getUrls(url)) {
+      if (new URL(next).hostname !== hostname) {
+        continue
+      }
+
+      tasks.push(visit(next))
+    }
+
+    await Promise.all(tasks)
+  }
+
+  await visit(startUrl)
+
+  return result
+}`,
+        callout:
+          '在浏览器的单线程事件循环里，同步的集合操作本来就不会交错，但这段代码演示的是真正多线程运行时必须遵守的模式。无论语言如何，判断未访问与写入已访问之间都不能被其他线程插入，否则重复抓取只是最轻的后果，结果列表和队列都可能被破坏。',
+      },
+      {
+        id: 'web-crawler-multithreaded-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在临界区范围、重复调度与终止条件。',
+        bullets: [
+          '易错点 1：先检查后插入但不加锁，两个线程同时抓到同一页面。',
+          '易错点 2：持锁调用网页解析接口，所有线程被迫串行。',
+          '易错点 3：在锁内等待子任务，形成嵌套等待或死锁。',
+          '易错点 4：出队与入队没有同步，共享队列结构被破坏。',
+          '易错点 5：过滤主机名放在入队之后，外部链接也被抓取。',
+          '易错点 6：只在解析完成后去重，重复请求已经发出。',
+          '易错点 7：没有等待所有派生任务结束就返回，结果不完整。',
+          '易错点 8：为每个链接创建新线程，线程数量失控。',
+          '延伸方向：固定大小线程池、条件变量控制队列、按域名限速与抓取深度限制。',
+        ],
+      },
+    ],
+  },
 ];
