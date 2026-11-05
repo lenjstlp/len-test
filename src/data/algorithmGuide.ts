@@ -123013,4 +123013,134 @@ class DiningPhilosophers {
       },
     ],
   },
+  {
+    id: 'tiling-a-rectangle-with-the-fewest-squares',
+    label: '1240. LeetCode 1240. 铺瓷砖',
+    difficulty: '困难',
+    description:
+      '用边长为整数的正方形铺满 n 乘 m 的矩形，求最少需要多少块。按列维护已铺高度，每次找到最低的未铺格子，尝试放各种边长且不超高的正方形，配合当前最优值剪枝做回溯搜索。',
+    outcome:
+      '你能用列高度剖面表示铺砖状态，证明只需填补最低空白格，并写出带剪枝的回溯搜索。',
+    sections: [
+      {
+        id: 'tiling-a-rectangle-with-the-fewest-squares-summary',
+        title: '题目在问什么',
+        summary:
+          '给定矩形的长和宽，要求用若干个边长为整数的正方形把它完全覆盖，正方形之间不能重叠，也不能超出边界，求最少需要的正方形数量。',
+        bullets: [
+          '正方形必须与矩形边平行，不能旋转出斜边。',
+          '正方形边长必须是整数。',
+          '所有正方形面积之和必须恰好等于矩形面积。',
+          '矩形边长最多为十三，规模允许指数级搜索。',
+          '长和宽可以互换，旋转矩形不改变答案。',
+          '全部使用单位正方形一定可行，因此答案存在。',
+          '不要求正方形大小相同。',
+          '返回数量，不要求给出铺法。',
+        ],
+      },
+      {
+        id: 'tiling-a-rectangle-with-the-fewest-squares-model',
+        title: '列高度剖面与最低空白格',
+        summary:
+          '维护每一列已经铺到的高度。每次找出高度最小的列，也就是最靠左的最低空白格，尝试以这个格子为左下角放置正方形。枚举所有可行边长并递归，回溯时恢复列高度。',
+        bullets: [
+          '高度数组的每一列记录从底部连续铺了多少行。',
+          '最低的空白格必须被某个正方形覆盖。',
+          '由于左侧列的高度都不低于它，正方形不可能向左或向下扩展。',
+          '因此正方形的左下角只能落在该空白格。',
+          '正方形可以向右扩展，只要右侧若干列高度相同且总高度不超限。',
+          '枚举边长时从最大可行值向小枚举，通常更快找到优解。',
+          '每放一个正方形，把覆盖列的高度都增加边长。',
+          '递归返回后把这些列恢复，继续尝试其他边长。',
+        ],
+        callout:
+          '为什么只填最低空白格不会漏掉最优解？任何完整铺法都必须在最低空白格上放一块正方形，而且这块正方形的左下角只能与该格重合，因为左边和下面的空间已经被占满。把它固定下来，只是在枚举所有合法铺法的第一种必然选择，不会排除任何可行方案。',
+      },
+      {
+        id: 'tiling-a-rectangle-with-the-fewest-squares-solution',
+        title: '解法：回溯加最优值剪枝',
+        summary:
+          '递归函数接收当前已用正方形数量。超过当前最优值直接返回；全部列高度都达到矩形高度时更新答案；否则找最低列，计算最大可行边长，从大到小逐个尝试。',
+        bullets: [
+          '当前数量已经不小于最优值时，继续搜索不可能更优。',
+          '找出高度最小的列，若有并列，取最左边一列。',
+          '从该列向右检查连续等高的列，同时保证高度加边长不超过矩形高度。',
+          '最大可行边长就是能连续覆盖的列数上限。',
+          '从最大边长递减到一，依次放置并递归。',
+          '放置时对覆盖范围内的每一列高度加上边长。',
+          '递归结束后必须把高度减回去，恢复现场。',
+          '初始最优值设为矩形面积，即全部用单位正方形。',
+        ],
+        code: `function tilingRectangle(n: number, m: number): number {
+  const heights = new Array<number>(m).fill(0)
+  let answer = n * m
+
+  const dfs = (count: number): void => {
+    if (count >= answer) {
+      return
+    }
+
+    let minHeight = Infinity
+    let column = -1
+
+    for (let c = 0; c < m; c += 1) {
+      if (heights[c] < minHeight) {
+        minHeight = heights[c]
+        column = c
+      }
+    }
+
+    if (minHeight === n) {
+      answer = count
+      return
+    }
+
+    let maxSize = 0
+
+    while (
+      column + maxSize < m &&
+      heights[column + maxSize] === minHeight &&
+      minHeight + maxSize < n
+    ) {
+      maxSize += 1
+    }
+
+    for (let size = maxSize; size >= 1; size -= 1) {
+      for (let offset = 0; offset < size; offset += 1) {
+        heights[column + offset] += size
+      }
+
+      dfs(count + 1)
+
+      for (let offset = 0; offset < size; offset += 1) {
+        heights[column + offset] -= size
+      }
+    }
+  }
+
+  dfs(0)
+
+  return answer
+}`,
+        callout:
+          '最大边长的循环条件同时约束了两个维度：向右不能越过矩形宽度，放置后高度不能超过矩形高度。两者任一不满足就必须停止，不能只检查其中一个。剪枝条件用大于等于当前最优值，因为即使剩余部分只用单位正方形，也不可能比已有答案更少。',
+      },
+      {
+        id: 'tiling-a-rectangle-with-the-fewest-squares-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在贪心、边长枚举与回溯恢复。',
+        bullets: [
+          '易错点 1：每次只放最大正方形，局部最优不保证全局最优。',
+          '易错点 2：只尝试最大边长，没有枚举更小的正方形。',
+          '易错点 3：没有剪枝，搜索树规模爆炸。',
+          '易错点 4：放置时列高度超过矩形高度，覆盖溢出。',
+          '易错点 5：只检查起始列和宽度，没有检查后续列是否等高。',
+          '易错点 6：回溯时忘记把高度减回去，后续分支状态被污染。',
+          '易错点 7：全部列都铺满时继续递归，错过更新答案或陷入死循环。',
+          '易错点 8：用面积除以最大正方形面积估算答案，忽略整数边长与几何约束。',
+          '延伸方向：用轮廓状态压缩做动态规划、允许矩形块、以及更大尺寸下的精确覆盖搜索。',
+        ],
+      },
+    ],
+  },
 ];
