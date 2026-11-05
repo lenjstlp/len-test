@@ -123143,4 +123143,92 @@ class DiningPhilosophers {
       },
     ],
   },
+  {
+    id: 'number-of-comments-per-post',
+    label: '1241. LeetCode 1241. 每个帖子的评论数',
+    difficulty: '简单',
+    description:
+      'Submissions 表中 parent_id 为空表示帖子，否则表示评论。要求统计每个帖子的评论数量，没有评论的帖子也要输出零。用帖子表左连接评论表，再按帖子分组计数。',
+    outcome:
+      '你能用自连接把帖子和评论对齐，用左连接保留零评论，并区分 COUNT 星号与 COUNT 列带来的空值差异。',
+    sections: [
+      {
+        id: 'number-of-comments-per-post-summary',
+        title: '题目在问什么',
+        summary:
+          'Submissions 表记录提交编号与父提交编号。parent_id 为空的行是帖子，parent_id 指向某个帖子的行是该帖子的评论。要求输出每个帖子的编号和它的评论数量。',
+        bullets: [
+          'parent_id 为空标识帖子。',
+          '评论的 parent_id 等于所属帖子的 sub_id。',
+          '每个帖子都要输出，即使没有任何评论。',
+          '零评论的帖子数量显示为零，而不是空值。',
+          '结果按帖子编号升序排列。',
+          '只统计评论，不把帖子自身算进数量。',
+          '同一帖子可能有多条评论。',
+          '表中可能没有帖子，此时结果为空。',
+        ],
+      },
+      {
+        id: 'number-of-comments-per-post-model',
+        title: '帖子左连接评论',
+        summary:
+          '把表看成两份：一份只取帖子，另一份取全部提交作为评论候选。用帖子编号与评论的 parent_id 做左连接，没有匹配的评论会补空值，正好用来输出零。',
+        bullets: [
+          '帖子侧的条件是 parent_id 为空。',
+          '连接条件是评论的 parent_id 等于帖子的 sub_id。',
+          '使用左连接，帖子是保留侧。',
+          '匹配到的每一行代表一条评论。',
+          '没有匹配时评论侧所有列为空。',
+          '按帖子编号分组。',
+          '统计评论侧的提交编号数量。',
+          '分组后按帖子编号排序。',
+        ],
+        callout:
+          '为什么必须用左连接？内连接只会保留有评论的帖子，零评论的帖子会直接消失，而题目要求它们出现且数量为零。左连接保留左侧全部帖子，再用计数函数忽略空值，自然得到零。',
+      },
+      {
+        id: 'number-of-comments-per-post-solution',
+        title: '解法：左连接加分组计数',
+        summary:
+          '从只含帖子的子集出发，左连接评论行，按帖子编号分组，统计评论提交编号的数量，最后排序。',
+        bullets: [
+          '在连接条件里限制帖子侧的 parent_id 为空。',
+          '评论侧不需要额外过滤，连接键天然只匹配评论。',
+          '计数时写 COUNT(评论侧的 sub_id)，不要写 COUNT 星号。',
+          '左连接产生的空评论行会被 COUNT 列自动忽略。',
+          '可以加 DISTINCT 防止重复评论行被重复计数。',
+          '分组键用帖子的 sub_id。',
+          '结果列别名为 post_id 与 number_of_comments。',
+          '按 post_id 升序输出。',
+        ],
+        code: `SELECT
+  p.sub_id AS post_id,
+  COUNT(DISTINCT c.sub_id) AS number_of_comments
+FROM Submissions AS p
+LEFT JOIN Submissions AS c
+  ON c.parent_id = p.sub_id
+WHERE p.parent_id IS NULL
+GROUP BY p.sub_id
+ORDER BY p.sub_id;`,
+        callout:
+          'COUNT 星号会把左连接补出来的那一行空值也算作一行，导致零评论的帖子返回一。COUNT 具体列只统计非空值，正好返回零。另一个细节是过滤条件必须作用在帖子侧；如果写成评论侧 parent_id 为空，连接结果会退化为帖子自身。',
+      },
+      {
+        id: 'number-of-comments-per-post-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在连接类型、计数方式和帖子过滤。',
+        bullets: [
+          '易错点 1：使用内连接，零评论的帖子从结果中消失。',
+          '易错点 2：计数写 COUNT 星号，零评论帖子被算成一。',
+          '易错点 3：忘记过滤帖子侧的空 parent_id，评论也被当成帖子输出。',
+          '易错点 4：连接条件写反，把帖子接到评论的父级上。',
+          '易错点 5：分组键用 parent_id，多个帖子被合并。',
+          '易错点 6：把帖子自身也算作一条评论，数量整体偏大。',
+          '易错点 7：结果没有按帖子编号排序。',
+          '易错点 8：评论表存在重复行时没有去重，数量重复累加。',
+          '延伸方向：多层评论与回复计数、按帖子统计互动率、以及用递归查询展开评论树。',
+        ],
+      },
+    ],
+  },
 ];
