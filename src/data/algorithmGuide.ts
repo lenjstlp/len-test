@@ -123586,4 +123586,126 @@ async function crawl(
       },
     ],
   },
+  {
+    id: 'tree-diameter',
+    label: '1245. LeetCode 1245. 树的直径',
+    difficulty: '中等',
+    description:
+      '给定无向树的边，求任意两节点之间最长路径的边数。从任意节点出发找到最远点，再从该点出发找到最远距离，第二次的距离就是直径。',
+    outcome:
+      '你能把树的无环特性转化为两次广度优先搜索，并正确处理单节点与边数计数。',
+    sections: [
+      {
+        id: 'tree-diameter-summary',
+        title: '题目在问什么',
+        summary:
+          '输入一棵无向树的全部边，要求返回树的直径，也就是最长简单路径包含的边数。',
+        bullets: [
+          '节点编号从零开始，但不保证按顺序出现在边里。',
+          '边是无向的，每条边连接两个节点。',
+          '树没有环，任意两点之间的路径唯一。',
+          '直径按边数计算，不按节点数。',
+          '只有一个节点时直径为零。',
+          '边数等于节点数减一。',
+          '答案至少为零。',
+          '可能有多条最长路径，只需要长度。',
+        ],
+      },
+      {
+        id: 'tree-diameter-model',
+        title: '两次遍历找端点',
+        summary:
+          '树中任取一个节点，距离它最远的节点一定是某条直径的一个端点。先从这个任意点找到端点 a，再从 a 出发找最远点，得到的距离就是直径。',
+        bullets: [
+          '把边表转换成邻接表。',
+          '第一次从任意节点做广度优先搜索。',
+          '记录距离最远的节点作为端点。',
+          '第二次从该端点再做一次广度优先搜索。',
+          '第二次搜索中的最大距离就是直径。',
+          '距离用边数累计，起点距离为零。',
+          '树无环，访问标记只需记录是否到过。',
+          '队列用头指针推进，避免反复移动数组元素。',
+        ],
+        callout:
+          '为什么第一次随便选点也能找到直径端点？反证即可：若所选起点不在任何直径端点上，设真实直径为 u 到 v，从起点出发的最远点 x 会落在某条分支上。比较路径长度会推出 u 到 x 或 v 到 x 比 u 到 v 更长，与直径定义矛盾。因此最远点一定是某个直径端点。',
+      },
+      {
+        id: 'tree-diameter-solution',
+        title: '解法：邻接表加两次 BFS',
+        summary:
+          '建图后写一个返回最远节点与距离的广度优先搜索，先求端点，再求直径。',
+        bullets: [
+          '节点总数为边数加一。',
+          '每条边双向加入邻接表。',
+          '距离数组初始化为负一表示未访问。',
+          '起点距离设为零并入队。',
+          '出队时遍历邻居，未访问则距离加一并入队。',
+          '同时维护最远节点和最远距离。',
+          '第一次调用忽略返回的节点，只取端点。',
+          '第二次调用返回距离作为答案。',
+        ],
+        code: `function treeDiameter(edges: number[][]): number {
+  const n = edges.length + 1
+  const graph: number[][] = Array.from({ length: n }, () => [])
+
+  for (const [a, b] of edges) {
+    graph[a].push(b)
+    graph[b].push(a)
+  }
+
+  const farthest = (start: number): [number, number] => {
+    const distance = new Array<number>(n).fill(-1)
+    distance[start] = 0
+    const queue: number[] = [start]
+    let head = 0
+    let bestNode = start
+    let bestDistance = 0
+
+    while (head < queue.length) {
+      const node = queue[head]
+      head += 1
+
+      for (const next of graph[node]) {
+        if (distance[next] !== -1) {
+          continue
+        }
+
+        distance[next] = distance[node] + 1
+        queue.push(next)
+
+        if (distance[next] > bestDistance) {
+          bestDistance = distance[next]
+          bestNode = next
+        }
+      }
+    }
+
+    return [bestNode, bestDistance]
+  }
+
+  const [endpoint] = farthest(0)
+
+  return farthest(endpoint)[1]
+}`,
+        callout:
+          '若树带正权，把距离改成累加边权，两次遍历仍然成立，只是广度优先要换成优先队列或两次深度优先。若存在负权或零权，最远点性质会被破坏，需要换用树形动态规划求每个节点向下的最长与次长链。',
+      },
+      {
+        id: 'tree-diameter-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在端点性质、距离口径和建图。',
+        bullets: [
+          '易错点 1：只从零号节点搜索一次就把最远距离当直径。',
+          '易错点 2：把节点数当直径，答案多一。',
+          '易错点 3：只建单向边，树被拆成不连通。',
+          '易错点 4：节点总数用边数而不是边数加一。',
+          '易错点 5：没处理只有零个节点或一个节点的退化情况。',
+          '易错点 6：访问标记初始化错误，起点被重复入队。',
+          '易错点 7：队列每次 shift，复杂度退化为平方。',
+          '易错点 8：把树当成一般图，担心中间有环导致路径不唯一。',
+          '延伸方向：带权直径、树形动态规划、多次询问的最近公共祖先与虚树。',
+        ],
+      },
+    ],
+  },
 ];
