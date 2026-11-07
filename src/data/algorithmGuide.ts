@@ -124667,4 +124667,147 @@ GROUP BY p.product_id;`,
       },
     ],
   },
+  {
+    id: 'maximum-score-words-formed-by-letters',
+    label: '1255. LeetCode 1255. 得分最高的单词集合',
+    difficulty: '困难',
+    description:
+      '从给定单词中选出一个子集，使用的字母不能超过可用字母数量，单词中每个字母按分值计分。用回溯逐个决定选或不选，维护剩余字母计数，取最大总分。',
+    outcome:
+      '你能把子集选择建模为带资源约束的深度优先搜索，并在递归中正确扣减与恢复字母计数。',
+    sections: [
+      {
+        id: 'maximum-score-words-formed-by-letters-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一组单词、一组可用字母和每个字母的分数。要求选出一个单词子集，使得所有被选单词用到的每个字母数量不超过可用数量，并最大化这些单词的字母分数总和。',
+        bullets: [
+          '每个单词最多选一次。',
+          '可以一个单词都不选，总分为零。',
+          '字母可以重复使用，但总量受可用字母限制。',
+          '单词中的每个字母都按分值计分，重复出现重复计分。',
+          '单词顺序不影响得分。',
+          '单词数量和长度都不大。',
+          '可用字母可能多于实际需要。',
+          '返回最大总分。',
+        ],
+      },
+      {
+        id: 'maximum-score-words-formed-by-letters-model',
+        title: '子集回溯与字母账本',
+        summary:
+          '每个单词只有选与不选两种状态，适合用回溯枚举。维护一个长度为二十六的剩余字母计数，选单词前检查是否足够，足够就扣减并累加该词得分，递归返回后恢复。',
+        bullets: [
+          '把可用字母转换成每个字母的剩余数量。',
+          '预先统计每个单词的字母需求。',
+          '预先计算每个单词的得分。',
+          '递归参数只需要当前单词下标和当前总分。',
+          '不选当前单词直接递归下一个。',
+          '选当前单词前逐字母检查剩余量。',
+          '任一字母不足就不能选。',
+          '选完后扣减计数、累加得分，再递归下一个。',
+        ],
+        callout:
+          '为什么不需要额外记录已经选了哪些单词？递归下标从左到右推进，每个单词只在当前层决定一次，后续层不会回头看前面的单词。子树天然对应一个子集，字母账本则保证资源约束。',
+      },
+      {
+        id: 'maximum-score-words-formed-by-letters-solution',
+        title: '解法：回溯加可行性检查',
+        summary:
+          '预处理可用字母、单词需求和单词得分。深度优先搜索每个单词的选与不选，在叶子处更新最大得分。',
+        bullets: [
+          '可用字母计数用字符编码减小写 a 定位。',
+          '单词需求同样用长度二十六的数组保存。',
+          '单词得分等于每个字母次数乘对应分数。',
+          '不选分支无条件递归。',
+          '选分支先检查所有字母是否足够。',
+          '足够时一次性扣减全部字母。',
+          '递归结束后一次性恢复全部字母。',
+          '到达单词末尾时用当前总分更新答案。',
+        ],
+        code: `function maxScoreWords(
+  words: string[],
+  letters: string[],
+  score: number[],
+): number {
+  const available = new Array<number>(26).fill(0)
+
+  for (const char of letters) {
+    available[char.charCodeAt(0) - 97] += 1
+  }
+
+  const wordCounts = words.map((word) => {
+    const counts = new Array<number>(26).fill(0)
+
+    for (const char of word) {
+      counts[char.charCodeAt(0) - 97] += 1
+    }
+
+    return counts
+  })
+
+  const wordScores = wordCounts.map((counts) =>
+    counts.reduce((sum, count, index) => sum + count * score[index], 0),
+  )
+
+  let answer = 0
+
+  const dfs = (index: number, total: number): void => {
+    if (index === words.length) {
+      answer = Math.max(answer, total)
+      return
+    }
+
+    dfs(index + 1, total)
+
+    const counts = wordCounts[index]
+    let canUse = true
+
+    for (let letter = 0; letter < 26; letter += 1) {
+      if (counts[letter] > available[letter]) {
+        canUse = false
+        break
+      }
+    }
+
+    if (!canUse) {
+      return
+    }
+
+    for (let letter = 0; letter < 26; letter += 1) {
+      available[letter] -= counts[letter]
+    }
+
+    dfs(index + 1, total + wordScores[index])
+
+    for (let letter = 0; letter < 26; letter += 1) {
+      available[letter] += counts[letter]
+    }
+  }
+
+  dfs(0, 0)
+
+  return answer
+}`,
+        callout:
+          '单词数量最多十四个，最坏要枚举约一万六千个子集，每个子集做二十六次字母检查，规模完全可控。即使不用额外剪枝也能通过；若单词更多，可以按得分密度排序或做上界剪枝。',
+      },
+      {
+        id: 'maximum-score-words-formed-by-letters-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在资源扣减恢复、得分口径和分支处理。',
+        bullets: [
+          '易错点 1：选单词后忘记恢复字母计数，其它分支被污染。',
+          '易错点 2：只检查一个字母是否足够。',
+          '易错点 3：字母不足时提前返回，但此前已经扣减了部分计数。',
+          '易错点 4：单词得分只算一次字母，忽略重复字符。',
+          '易错点 5：把单词长度当得分。',
+          '易错点 6：不选分支也扣减字母。',
+          '易错点 7：认为必须选至少一个单词，漏掉全不选的最优解。',
+          '易错点 8：用字符本身做数组下标而没有减去 a 的编码。',
+          '延伸方向：多重背包、带权集合选择、以及用位掩码枚举子集。',
+        ],
+      },
+    ],
+  },
 ];
