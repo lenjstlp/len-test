@@ -125005,4 +125005,163 @@ GROUP BY p.product_id;`,
       },
     ],
   },
+  {
+    id: 'synonymous-sentences',
+    label: '1258. LeetCode 1258. 近义词句子',
+    difficulty: '中等',
+    description:
+      '近义词关系具有传递性，先用并查集把同义词合并成组，组内单词排序。句子按空格拆词，每个词替换成所在组的任一单词，做笛卡尔积得到所有句子，最后按字典序排序。',
+    outcome: '你能用并查集处理传递性同义关系，并对每个词位做多选一的组合枚举。',
+    sections: [
+      {
+        id: 'synonymous-sentences-summary',
+        title: '题目在问什么',
+        summary:
+          '给定若干对近义词和一个句子。近义词关系可以传递，句子中的每个单词都可以替换成与它同义的任意单词。要求返回所有可能的不同句子，按字典序排列。',
+        bullets: [
+          '近义词对是无向的。',
+          '关系具有传递性，同一组的词彼此可替换。',
+          '句子按空格分词。',
+          '每个位置可以选择原词或它的任一同义词。',
+          '不同位置的选择相互独立。',
+          '所有组合都要输出。',
+          '结果不能重复。',
+          '输出句子用单个空格连接。',
+        ],
+      },
+      {
+        id: 'synonymous-sentences-model',
+        title: '并查集分组与笛卡尔积',
+        summary:
+          '同义词关系是等价关系，适合用并查集维护连通分量。合并完成后，每个分量就是一组可互换的词。把句子拆成单词序列，每个位置的可选集合就是它所在分量，所有位置做笛卡尔积。',
+        bullets: [
+          '每个出现过的单词初始指向自己。',
+          '每对近义词执行合并。',
+          '查找时做路径压缩，保持近似常数时间。',
+          '按根节点收集每组的所有单词。',
+          '组内单词排序，方便后续按字典序生成。',
+          '句子中不在任何近义词对里的词只有自身一个选择。',
+          '每个位置依次选择组内单词。',
+          '递归到句末时拼接成一个结果。',
+        ],
+        callout:
+          '为什么必须先传递闭包再做替换？如果只按输入中的直接近义词对替换，a 与 b 同义、b 与 c 同义时，a 和 c 不会被当作同义。并查集把这条传递链合并成一个连通分量，组内任意两个词都可互换，才不会漏解。',
+      },
+      {
+        id: 'synonymous-sentences-solution',
+        title: '解法：并查集加回溯枚举',
+        summary:
+          '并查集合并所有近义词，按根分组并排序。把句子拆词，为每个词确定候选列表，回溯生成所有句子，最后整体排序。',
+        bullets: [
+          '查找函数在节点不存在时先建立自环。',
+          '合并函数把两个根连接起来。',
+          '遍历所有近义词对完成合并。',
+          '遍历映射中的所有单词，按根归组。',
+          '每组内部排序。',
+          '把文本按空格拆成单词。',
+          '每个单词映射到它所在组的候选列表。',
+          '递归选择候选并拼接，最后对结果排序。',
+        ],
+        code: `function generateSentences(
+  synonyms: string[][],
+  text: string,
+): string[] {
+  const parent = new Map<string, string>()
+
+  const find = (word: string): string => {
+    if (!parent.has(word)) {
+      parent.set(word, word)
+    }
+
+    let root = word
+
+    while (parent.get(root) !== root) {
+      root = parent.get(root) as string
+    }
+
+    while (parent.get(word) !== root) {
+      const next = parent.get(word) as string
+      parent.set(word, root)
+      word = next
+    }
+
+    return root
+  }
+
+  const union = (a: string, b: string): void => {
+    const rootA = find(a)
+    const rootB = find(b)
+
+    if (rootA !== rootB) {
+      parent.set(rootB, rootA)
+    }
+  }
+
+  for (const [a, b] of synonyms) {
+    union(a, b)
+  }
+
+  const groups = new Map<string, string[]>()
+
+  for (const word of parent.keys()) {
+    const root = find(word)
+    const group = groups.get(root)
+
+    if (group) {
+      group.push(word)
+    } else {
+      groups.set(root, [word])
+    }
+  }
+
+  for (const group of groups.values()) {
+    group.sort()
+  }
+
+  const words = text.split(' ')
+  const choices = words.map((word) =>
+    parent.has(word) ? (groups.get(find(word)) as string[]) : [word],
+  )
+
+  const result: string[] = []
+
+  const build = (index: number, parts: string[]): void => {
+    if (index === choices.length) {
+      result.push(parts.join(' '))
+      return
+    }
+
+    for (const choice of choices[index]) {
+      parts.push(choice)
+      build(index + 1, parts)
+      parts.pop()
+    }
+  }
+
+  build(0, [])
+  result.sort()
+
+  return result
+}`,
+        callout:
+          '结果数量是各位置候选数的乘积，最坏可能很大，但题目约束保证可枚举。组内排序只能让生成顺序更规整，最终仍要整体排序，因为不同位置的词典序交织在一起，仅靠局部顺序不能保证全局有序。',
+      },
+      {
+        id: 'synonymous-sentences-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在传递性、句子切分和重复结果。',
+        bullets: [
+          '易错点 1：只处理直接近义词，忽略传递关系。',
+          '易错点 2：把近义词对当成有向边，只能单向替换。',
+          '易错点 3：分组时没有用根节点，同一组被拆成多组。',
+          '易错点 4：句子按字符拆分而不是按空格拆分。',
+          '易错点 5：不在近义词表中的词被丢掉。',
+          '易错点 6：回溯时没有弹出已选词，结果串越来越长。',
+          '易错点 7：没有对最终结果排序。',
+          '易错点 8：同一单词在组内重复出现，输出重复句子。',
+          '延伸方向：带权替换、保持原句标点、以及大规模组合的迭代生成。',
+        ],
+      },
+    ],
+  },
 ];
