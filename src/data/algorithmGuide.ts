@@ -124891,4 +124891,118 @@ GROUP BY p.product_id;`,
       },
     ],
   },
+  {
+    id: 'smallest-common-region',
+    label: '1257. LeetCode 1257. 找到最小公共区域',
+    difficulty: '中等',
+    description:
+      '每个区域列表的第一个元素是父区域，其余是直接子区域。为所有子区域记录父指针，把第一个区域的所有祖先放入集合，再让第二个区域向上爬，第一个命中的就是最小公共区域。',
+    outcome:
+      '你能从嵌套区域列表构建父指针树，并用祖先集合求两个节点的最低公共祖先。',
+    sections: [
+      {
+        id: 'smallest-common-region-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一组区域层级描述，每个列表的第一个名称是父区域，后面的名称都是它的直接子区域。再给定两个区域名称，要求找到同时包含它们的最小区域。',
+        bullets: [
+          '区域构成一棵树，根区域没有父区域。',
+          '每个子区域在输入中只出现一次父级关系。',
+          '一个区域可能包含多个子区域。',
+          '公共区域必须同时是两者的祖先或自身。',
+          '最小公共区域是层级最深的那个公共祖先。',
+          '区域名称全局唯一。',
+          '两个区域保证在同一棵树中。',
+          '返回区域名称。',
+        ],
+      },
+      {
+        id: 'smallest-common-region-model',
+        title: '父指针与祖先集合',
+        summary:
+          '不需要显式建树，只需要为每个子区域记录它的直接父区域。先把第一个区域不断向上走，把沿途所有祖先放入集合；再从第二个区域向上走，第一次遇到集合中的节点就是最低公共祖先。',
+        bullets: [
+          '遍历每个区域列表。',
+          '列表首元素是父区域。',
+          '其余每个元素都以首元素为父。',
+          '父指针用哈希表保存。',
+          '从第一个区域开始向上收集祖先。',
+          '区域自身也要加入集合。',
+          '根节点没有父指针，走到它后停止。',
+          '从第二个区域向上爬，首次命中集合即答案。',
+        ],
+        callout:
+          '为什么第一次命中就是最低公共祖先？从第二个区域向上走的顺序是由深到浅，先遇到的公共祖先一定比后遇到的更深。第一个区域的祖先集合包含它到根的全部节点，所以命中点必然是两者的公共祖先中层级最深的那个。',
+      },
+      {
+        id: 'smallest-common-region-solution',
+        title: '解法：父映射加两次上行',
+        summary:
+          '先构建每个子区域到父区域的映射，再收集第一个区域的祖先，最后让第二个区域逐级向上查找。',
+        bullets: [
+          '父映射的键是子区域，值是直接父区域。',
+          '区域列表首元素不需要记录父。',
+          '祖先集合用 Set 保证常数查询。',
+          '第一个循环沿父指针直到没有父。',
+          '第二个循环同样直到根。',
+          '每次先检查当前节点是否在祖先集合。',
+          '命中立即返回当前区域。',
+          '题目保证有解，循环结束后的返回值只是兜底。',
+        ],
+        code: `function findSmallestRegion(
+  regions: string[][],
+  region1: string,
+  region2: string,
+): string {
+  const parent = new Map<string, string>()
+
+  for (const region of regions) {
+    const head = region[0]
+
+    for (let index = 1; index < region.length; index += 1) {
+      parent.set(region[index], head)
+    }
+  }
+
+  const ancestors = new Set<string>()
+  let current: string | undefined = region1
+
+  while (current !== undefined) {
+    ancestors.add(current)
+    current = parent.get(current)
+  }
+
+  current = region2
+
+  while (current !== undefined) {
+    if (ancestors.has(current)) {
+      return current
+    }
+
+    current = parent.get(current)
+  }
+
+  return ''
+}`,
+        callout:
+          '复杂度是 O(总区域数) 建表，加上两次树高遍历。由于每个子区域只记录一个父，空间是 O(区域数)。也可以用递归求两条路径再比较，但父指针加集合更直接，不依赖树的具体存储结构。',
+      },
+      {
+        id: 'smallest-common-region-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在父子方向、自身祖先与遍历顺序。',
+        bullets: [
+          '易错点 1：把列表首元素也设置为某个子区域的父，方向写反。',
+          '易错点 2：只收集第一个区域的父，不包含自身。',
+          '易错点 3：第二个区域从父开始检查，漏掉自身就是答案的情况。',
+          '易错点 4：父映射覆盖已有父指针，树结构被破坏。',
+          '易错点 5：从根向下找，得到的是最浅公共祖先。',
+          '易错点 6：用数组线性查找祖先，复杂度退化。',
+          '易错点 7：两个区域相同时没有正确处理。',
+          '易错点 8：认为每个区域列表只有两个元素。',
+          '延伸方向：一般树的最近公共祖先、带深度的二进制 lifting、以及离线查询。',
+        ],
+      },
+    ],
+  },
 ];
