@@ -125750,4 +125750,101 @@ GROUP BY p.product_id;`,
       },
     ],
   },
+  {
+    id: 'page-recommendations',
+    label: '1264. LeetCode 1264. 页面推荐',
+    difficulty: '中等',
+    description:
+      '给定好友关系和点赞记录，要给用户一推荐他好友点过赞、但自己还没点过赞的页面。好友关系是无向的，需要把两个方向的好友都并起来，再去掉用户一已经点过的页面。',
+    outcome: '你能把无向好友关系展开成两个方向，并用子查询排除已点赞页面。',
+    sections: [
+      {
+        id: 'page-recommendations-summary',
+        title: '题目在问什么',
+        summary:
+          '有两张表：Friendship 记录一对好友，Likes 记录用户点赞过的页面。要求给编号为一的用户推荐页面，来源是他所有好友点过赞的页面，并且要排除他自己已经点过赞的页面。',
+        bullets: [
+          'Friendship 表每行是一对好友，关系双向。',
+          'Likes 表记录用户和页面编号。',
+          '只为编号为一的用户做推荐。',
+          '推荐来源限于该用户的好友。',
+          '好友包括 user1_id 等于一和 user2_id 等于一两种情况。',
+          '用户自己已经点过赞的页面不能推荐。',
+          '同一个页面只输出一次。',
+          '结果列名为 recommended_page。',
+        ],
+      },
+      {
+        id: 'page-recommendations-model',
+        title: '先展开好友，再减去已点赞',
+        summary:
+          '好友关系在一行里只写一个方向，但语义上是双向的。因此先从 Friendship 中取出用户一作为 user1_id 时的 user2_id，再取出用户一作为 user2_id 时的 user1_id，用 UNION 合并成完整好友集合。然后拿这个集合去 Likes 里取页面，最后排除用户一自己点过的页面。',
+        bullets: [
+          '好友关系无向，查询时必须补齐两个方向。',
+          '第一个方向取 user1_id 等于一时的 user2_id。',
+          '第二个方向取 user2_id 等于一时的 user1_id。',
+          '两个集合用 UNION 合并并自动去重。',
+          '用合并后的好友集合去 Likes 表取页面。',
+          '再用 NOT IN 子查询排除用户一点过的页面。',
+          '外层 DISTINCT 去掉多个好友点赞同一页面的重复。',
+          '最后按页面编号排序，让输出稳定可比。',
+        ],
+        callout:
+          '为什么不能只查一个方向？如果只取 user1_id 等于一，就会漏掉用户一作为 user2_id 出现的那一半好友。UNION 会自动去重，比 UNION ALL 更适合这里，因为同一个人可能以两种方向重复出现。',
+      },
+      {
+        id: 'page-recommendations-solution',
+        title: '解法：好友子查询加反选',
+        summary:
+          '内层用两个 SELECT 分别取两个方向的好友编号，再用 UNION 合并。外层从 Likes 中筛选点赞者属于好友集合的记录，并用 NOT IN 去掉用户一已经点过的页面。',
+        bullets: [
+          '内层子查询取出所有好友编号。',
+          '两个 SELECT 分别覆盖两个方向。',
+          'UNION 合并两个结果并去重。',
+          '外层从 Likes 中筛选点赞者属于好友集合的记录。',
+          'NOT IN 子查询取出用户一点过的页面。',
+          'DISTINCT 保证每个页面只出现一次。',
+          '别名统一写成 recommended_page。',
+          'ORDER BY 让结果稳定可比。',
+        ],
+        code: `SELECT DISTINCT l.page_id AS recommended_page
+FROM Likes l
+WHERE l.user_id IN (
+  SELECT user2_id
+  FROM Friendship
+  WHERE user1_id = 1
+
+  UNION
+
+  SELECT user1_id
+  FROM Friendship
+  WHERE user2_id = 1
+)
+AND l.page_id NOT IN (
+  SELECT page_id
+  FROM Likes
+  WHERE user_id = 1
+)
+ORDER BY recommended_page;`,
+        callout:
+          '如果好友数量很大，NOT IN 遇到空值会有陷阱：子查询返回空集时判断仍为真，但列表里一旦出现 NULL，整条判断就变成未知。本题 page_id 不允许为空，所以写法安全；更稳妥的写法是用 NOT EXISTS 做反连接。',
+      },
+      {
+        id: 'page-recommendations-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在好友方向、去重和已点赞页面的排除。',
+        bullets: [
+          '易错点 1：只查 user1_id 等于一，漏掉另一半好友。',
+          '易错点 2：用 UNION ALL 合并，同一个好友重复出现。',
+          '易错点 3：忘记排除用户一已经点过赞的页面。',
+          '易错点 4：把 Likes 表直接和 Friendship 按页面连接。',
+          '易错点 5：输出列没有起别名 recommended_page。',
+          '易错点 6：用了 JOIN 却没有 DISTINCT，同一页面重复输出。',
+          '易错点 7：把用户一自己也放进好友集合。',
+          '易错点 8：子查询里只排除了好友的点赞，没有排除用户一自己的。',
+          '延伸方向：无向关系展开、反连接写法、以及推荐系统的召回与去重。',
+        ],
+      },
+    ],
+  },
 ];
