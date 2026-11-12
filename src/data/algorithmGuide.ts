@@ -125565,4 +125565,189 @@ GROUP BY p.product_id;`,
       },
     ],
   },
+  {
+    id: 'minimum-moves-to-move-a-box-to-their-target-location',
+    label: '1263. LeetCode 1263. 推箱子',
+    difficulty: '困难',
+    description:
+      '在一个二维仓库里，玩家要把箱子推到目标位置，每次只能推动一格，而且自己必须站在箱子正后方。局面由箱子位置和玩家位置共同决定，按推动次数分层做广度优先搜索，先判断玩家能否绕到指定方向，再尝试推箱。',
+    outcome:
+      '你能把“人推箱子”拆成玩家可达性判断加箱子状态搜索，并用访问集合避免重复局面。',
+    sections: [
+      {
+        id: 'minimum-moves-to-move-a-box-to-their-target-location-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个二维仓库，格子里可能是墙、空地、箱子、玩家或目标。玩家每次可以向上下左右走一格，也可以推动相邻的箱子：箱子沿同一方向移动一格，玩家移动到箱子原来的位置。求把箱子推到目标位置所需的最少推动次数。',
+        bullets: [
+          '玩家不能穿墙，也不能穿过箱子。',
+          '每次推箱，箱子移动一格，玩家必须站在箱子正后方。',
+          '只能推，不能拉，也不能斜着推。',
+          '箱子不能被推入墙或推出边界。',
+          '目标位置只有一个，箱子到达就结束。',
+          '题目统计的是推动次数，不是玩家走的总步数。',
+          '如果无论怎么推都到不了目标，返回负一。',
+          '仓库最大二十行二十列，状态数量有限。',
+        ],
+      },
+      {
+        id: 'minimum-moves-to-move-a-box-to-their-target-location-model',
+        title: '把局面拆成箱子位置和玩家位置',
+        summary:
+          '只记录箱子位置不够，因为同样的箱子位置，玩家站在不同方向，能推的方向也不同。把“箱子坐标加玩家坐标”作为一个状态，每次转移代表一次成功的推动。推动前先用一次小范围搜索判断玩家能否走到箱子背后。',
+        bullets: [
+          '状态需要同时记录箱子和玩家的位置。',
+          '一次推动让箱子移动一格，推动次数加一。',
+          '推箱子前，玩家必须先走到箱子背后的格子。',
+          '箱子背后的格子不能是墙，也不能越界。',
+          '玩家走位时不能穿过箱子。',
+          '对每个状态，用一次广度优先搜索判断玩家能否到达站位。',
+          '同一个箱子位置和玩家位置只处理一次。',
+          '队列按推动次数从少到多扩展，第一次到目标就是最优。',
+        ],
+        callout:
+          '为什么玩家的具体路径不用进状态？因为同一层里玩家的所有移动都不消耗推动次数，只要人能到达箱子背后，具体怎么绕过去并不影响后续。把“能否到达”压缩成一次可达性判断，状态数就从无限种走法降为有限的位置组合。',
+      },
+      {
+        id: 'minimum-moves-to-move-a-box-to-their-target-location-solution',
+        title: '解法：分层搜索加可达性判断',
+        summary:
+          '先扫描网格找到箱子、玩家和目标。队列中存放箱子行列、玩家行列和已用推动次数。对每个状态枚举四个方向，检查新箱子格与玩家站位是否合法，再用可达性搜索确认玩家能走到站位，最后把新状态入队。',
+        bullets: [
+          '先扫描网格记录箱子、玩家和目标坐标。',
+          '队列元素包含箱子行列、玩家行列和已用推动次数。',
+          '四个方向分别代表把箱子往上下左右推。',
+          '新箱子格必须在界内且不是墙。',
+          '玩家需要站的格子是箱子当前位置减去方向。',
+          '站位也必须在界内且不是墙。',
+          '用一次广度优先搜索判断玩家能否在不穿过箱子的情况下到达站位。',
+          '新状态中玩家的位置就是旧箱子位置。',
+          '用字符串或四维数组记录已访问状态。',
+          '队列为空仍未到达目标时返回负一。',
+        ],
+        code: `function minPushBox(grid: string[][]): number {
+  const rows = grid.length
+  const cols = grid[0].length
+  const directions = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+  ]
+  let box: [number, number] = [0, 0]
+  let player: [number, number] = [0, 0]
+  let target: [number, number] = [0, 0]
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      if (grid[row][col] === 'B') box = [row, col]
+      if (grid[row][col] === 'S') player = [row, col]
+      if (grid[row][col] === 'T') target = [row, col]
+    }
+  }
+
+  const canReach = (
+    from: [number, number],
+    to: [number, number],
+    blocked: [number, number],
+  ): boolean => {
+    const seen = Array.from({ length: rows }, () =>
+      new Array<boolean>(cols).fill(false),
+    )
+    const queue: [number, number][] = [from]
+    seen[from[0]][from[1]] = true
+
+    for (let head = 0; head < queue.length; head += 1) {
+      const [row, col] = queue[head]
+      if (row === to[0] && col === to[1]) return true
+
+      for (const [dr, dc] of directions) {
+        const nextRow = row + dr
+        const nextCol = col + dc
+
+        if (nextRow < 0 || nextRow >= rows || nextCol < 0 || nextCol >= cols) {
+          continue
+        }
+        if (seen[nextRow][nextCol] || grid[nextRow][nextCol] === '#') {
+          continue
+        }
+        if (nextRow === blocked[0] && nextCol === blocked[1]) {
+          continue
+        }
+
+        seen[nextRow][nextCol] = true
+        queue.push([nextRow, nextCol])
+      }
+    }
+
+    return false
+  }
+
+  const visited = new Set<string>()
+  const queue: [number, number, number, number, number][] = [
+    [box[0], box[1], player[0], player[1], 0],
+  ]
+  visited.add([box[0], box[1], player[0], player[1]].join(','))
+
+  for (let head = 0; head < queue.length; head += 1) {
+    const [boxRow, boxCol, playerRow, playerCol, pushes] = queue[head]
+
+    if (boxRow === target[0] && boxCol === target[1]) {
+      return pushes
+    }
+
+    for (const [dr, dc] of directions) {
+      const nextBoxRow = boxRow + dr
+      const nextBoxCol = boxCol + dc
+      const standRow = boxRow - dr
+      const standCol = boxCol - dc
+
+      if (nextBoxRow < 0 || nextBoxRow >= rows) continue
+      if (nextBoxCol < 0 || nextBoxCol >= cols) continue
+      if (grid[nextBoxRow][nextBoxCol] === '#') continue
+      if (standRow < 0 || standRow >= rows) continue
+      if (standCol < 0 || standCol >= cols) continue
+      if (grid[standRow][standCol] === '#') continue
+
+      if (
+        !canReach(
+          [playerRow, playerCol],
+          [standRow, standCol],
+          [boxRow, boxCol],
+        )
+      ) {
+        continue
+      }
+
+      const key = [nextBoxRow, nextBoxCol, boxRow, boxCol].join(',')
+      if (visited.has(key)) continue
+
+      visited.add(key)
+      queue.push([nextBoxRow, nextBoxCol, boxRow, boxCol, pushes + 1])
+    }
+  }
+
+  return -1
+}`,
+        callout:
+          '也可以写成零一广度优先搜索：把“玩家走一步”看作零权边，“推动箱子”看作一权边，用双端队列维护。这样不必为每个状态单独跑可达性搜索，但状态里必须带玩家位置，转移更多。两种写法复杂度同阶，分层写法更容易讲清楚推动次数从何而来。',
+      },
+      {
+        id: 'minimum-moves-to-move-a-box-to-their-target-location-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在状态定义、可达性判断和最少步数的保证上。',
+        bullets: [
+          '易错点 1：把人走的总步数当成答案，题目只统计推动次数。',
+          '易错点 2：只记录箱子位置，忽略玩家站的位置。',
+          '易错点 3：判断可达性时允许玩家穿过箱子。',
+          '易错点 4：推箱后忘记把玩家移动到箱子原来的位置。',
+          '易错点 5：先移动箱子再判断人能否到达，顺序写反。',
+          '易错点 6：边界判断只查箱子，漏查玩家站位。',
+          '易错点 7：访问标记只记箱子坐标，不同站位被错误合并。',
+          '易错点 8：用深度优先搜索，无法保证第一次到达就是最少推动次数。',
+          '延伸方向：状态空间搜索、推前可达性预处理、双端队列零一最短路。',
+        ],
+      },
+    ],
+  },
 ];
