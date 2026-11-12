@@ -126228,4 +126228,111 @@ ORDER BY recommended_page;`,
       },
     ],
   },
+  {
+    id: 'number-of-ways-to-stay-in-the-same-place-after-some-steps',
+    label: '1269. LeetCode 1269. 停在原地的方案数',
+    difficulty: '困难',
+    description:
+      '在一个长度为 arrLen 的数组上，每步可以左移、右移或停在原地，最终回到下标零。用动态规划记录每步落在每个位置的方案数，位置只需枚举到剩余步数允许返回的范围。',
+    outcome:
+      '你能写出带滚动数组的计数动态规划，并用“最多走到一半步数”缩小状态范围。',
+    sections: [
+      {
+        id: 'number-of-ways-to-stay-in-the-same-place-after-some-steps-summary',
+        title: '题目在问什么',
+        summary:
+          '有一个长度为 arrLen 的数组，下标从零开始，初始站在下标零。每步可以向左移动一格、向右移动一格或停在原地，但不能走出数组边界。要求走完 steps 步后仍然站在下标零的方案数，结果对十的九次方加七取模。',
+        bullets: [
+          '数组下标范围是零到 arrLen 减一。',
+          '初始位置固定在下标零。',
+          '每步有三种选择：左移、右移、停留。',
+          '任何时刻都不能越出数组边界。',
+          '走完恰好 steps 步后必须回到下标零。',
+          '不同移动序列视为不同方案。',
+          '结果需要对大质数取模。',
+          'steps 最大可达五百。',
+        ],
+      },
+      {
+        id: 'number-of-ways-to-stay-in-the-same-place-after-some-steps-model',
+        title: '按步数和位置定义状态',
+        summary:
+          '设 dp[i][j] 表示走 i 步后站在位置 j 的方案数。第 i 步的状态只能从上一层的 j 减一、j、j 加一三个位置转移过来，边界位置少一个来源。最终答案就是走完所有步后位置零的方案数。',
+        bullets: [
+          '状态 dp[i][j] 表示走 i 步后位于位置 j 的方案数。',
+          '初始 dp[0][0] 等于一。',
+          '每步从上一层的 j 减一、j、j 加一转移。',
+          '左边界位置少一个来源。',
+          '右边界位置少一个来源。',
+          '最终答案是 dp[steps][0]。',
+          '每一层只依赖上一层，可以用滚动数组。',
+          '位置不会超过 steps，也不会超过 arrLen 减一。',
+        ],
+        callout:
+          '为什么位置上界可以取 steps 的一半？从零出发走到位置 p 至少要 p 步，走回来还要 p 步，总共至少二 p 步。因此 p 大于 steps 的一半时，无论怎么走都不可能回到零，这些状态可以完全丢弃。',
+      },
+      {
+        id: 'number-of-ways-to-stay-in-the-same-place-after-some-steps-solution',
+        title: '解法：滚动数组动态规划',
+        summary:
+          '最大有效位置取 arrLen 减一与 steps 除二向下取整中的较小值。每轮创建新数组，对每个位置累加停留、左移、右移三种来源，然后整体替换旧数组。',
+        bullets: [
+          '最大有效位置取边界与步数一半中的较小值。',
+          '初始数组只有位置零等于一。',
+          '外层循环枚举每一步。',
+          '内层循环枚举所有有效位置。',
+          '原地停留继承上一层同位置的方案。',
+          '从左边来继承 dp[position - 1]。',
+          '从右边来继承 dp[position + 1]。',
+          '每次加法后对模数取余。',
+          '用新数组覆盖旧数组。',
+          '返回位置零的方案数。',
+        ],
+        code: `function numWays(steps: number, arrLen: number): number {
+  const MOD = 1_000_000_007
+  const maxPosition = Math.min(arrLen - 1, Math.floor(steps / 2))
+  let dp = new Array<number>(maxPosition + 1).fill(0)
+  dp[0] = 1
+
+  for (let step = 0; step < steps; step += 1) {
+    const next = new Array<number>(maxPosition + 1).fill(0)
+
+    for (let position = 0; position <= maxPosition; position += 1) {
+      next[position] = dp[position]
+
+      if (position > 0) {
+        next[position] = (next[position] + dp[position - 1]) % MOD
+      }
+
+      if (position < maxPosition) {
+        next[position] = (next[position] + dp[position + 1]) % MOD
+      }
+    }
+
+    dp = next
+  }
+
+  return dp[0]
+}`,
+        callout:
+          '也可以只保留两个长度为 arrLen 的数组，复杂度是 O(steps 乘 arrLen)。本题 arrLen 可能远大于 steps，但真正有意义的位置不超过 steps 的一半，所以缩小上界后内层循环最多约二百五十次，时间与空间都更可控。',
+      },
+      {
+        id: 'number-of-ways-to-stay-in-the-same-place-after-some-steps-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在取模、边界转移和滚动数组的更新时机。',
+        bullets: [
+          '易错点 1：忘记取模，方案数迅速溢出。',
+          '易错点 2：位置上界直接取 arrLen 减一，浪费大量无效状态。',
+          '易错点 3：边界位置仍然从越界方向转移。',
+          '易错点 4：在旧数组上原地更新，污染本轮数据。',
+          '易错点 5：把停留误当成两种不同的选择。',
+          '易错点 6：steps 为零时返回零，实际只有原地不动一种方案。',
+          '易错点 7：初始状态放在位置一而不是位置零。',
+          '易错点 8：用递归枚举所有移动序列，指数级超时。',
+          '延伸方向：计数动态规划、滚动数组、以及用矩阵快速幂处理超大 steps。',
+        ],
+      },
+    ],
+  },
 ];
