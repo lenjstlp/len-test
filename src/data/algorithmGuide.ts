@@ -125847,4 +125847,95 @@ ORDER BY recommended_page;`,
       },
     ],
   },
+  {
+    id: 'print-immutable-linked-list-in-reverse',
+    label: '1265. LeetCode 1265. 逆序打印不可变链表',
+    difficulty: '中等',
+    description:
+      '链表节点不可修改，只能调用取值和取下一个节点。要逆序打印，就把节点依次压栈，再逐个弹出打印；时间线性，额外空间线性。',
+    outcome: '你能在不能改指针的约束下，用显式栈把逆序输出转化为后进先出。',
+    sections: [
+      {
+        id: 'print-immutable-linked-list-in-reverse-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个不可变链表的头节点，节点只提供 printValue 和 getNext 两个接口。要求从尾到头打印每个节点的值。不能修改节点，也不能反转指针，只需要按逆序输出。',
+        bullets: [
+          '接口只提供打印当前值和获取下一个节点。',
+          '不能修改节点，也不能改变节点之间的指向。',
+          '输出顺序必须从表尾到表头。',
+          '空链表不打印任何内容。',
+          '每个节点恰好打印一次。',
+          '不需要返回数组，直接调用打印接口。',
+          '链表可能很长，递归深度需要留意。',
+          '额外空间可以接受。',
+        ],
+      },
+      {
+        id: 'print-immutable-linked-list-in-reverse-model',
+        title: '为什么栈能解决不可变链表',
+        summary:
+          '正序遍历时把节点依次压入栈，最后一个节点就在栈顶。之后不断弹出，得到的顺序正好与链表相反。整个过程只读节点，不改变任何指针，符合不可变的约束。',
+        bullets: [
+          '正序遍历把节点压入栈。',
+          '栈顶始终是最近访问的节点。',
+          '遍历结束后栈顶就是表尾。',
+          '依次弹出就能得到逆序。',
+          '不需要修改任何节点指针。',
+          '正序遍历只依赖 getNext。',
+          '打印只依赖 printValue。',
+          '时间复杂度和空间复杂度都是节点数。',
+        ],
+        callout:
+          '递归本质上是借用函数调用栈：先递归到表尾，再在回溯时打印。显式栈把这份调用栈放到堆上，避免深层递归撑爆调用栈，也更容易观察入栈和出栈的顺序。',
+      },
+      {
+        id: 'print-immutable-linked-list-in-reverse-solution',
+        title: '解法：一次压栈，一次弹出',
+        summary:
+          '用一个数组模拟栈，从表头沿 getNext 遍历，把每个节点压入数组。遍历结束后，只要栈非空就弹出栈顶并调用 printValue。',
+        bullets: [
+          '用一个数组模拟栈。',
+          '从 head 开始沿 getNext 遍历。',
+          '每访问一个节点就压栈。',
+          '遍历到空节点停止。',
+          '第二次循环在栈非空时弹出。',
+          '弹出后立即调用 printValue。',
+          '函数不需要返回任何值。',
+          '空链表时两个循环都不执行。',
+        ],
+        code: `function printLinkedListInReverse(head: ImmutableListNode | null): void {
+  const stack: ImmutableListNode[] = []
+  let current = head
+
+  while (current !== null) {
+    stack.push(current)
+    current = current.getNext()
+  }
+
+  while (stack.length > 0) {
+    stack.pop()!.printValue()
+  }
+}`,
+        callout:
+          '如果要求额外空间是 O(log n)，可以用分治：先求出链表长度，把后半段交给递归，再打印前半段。但求长度本身要遍历，时间会变成 O(n log n)。面试里先给出栈写法，再说明这个权衡即可。',
+      },
+      {
+        id: 'print-immutable-linked-list-in-reverse-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在不可变约束、栈的顺序和递归深度。',
+        bullets: [
+          '易错点 1：试图反转链表指针，但节点不可变。',
+          '易错点 2：用递归处理超长链表，导致调用栈溢出。',
+          '易错点 3：用队列而不是栈，输出仍然是正序。',
+          '易错点 4：遍历时漏掉最后一个节点。',
+          '易错点 5：弹出节点后忘记调用 printValue。',
+          '易错点 6：空链表时仍然访问头节点的接口。',
+          '易错点 7：同一节点被压栈两次，打印结果重复。',
+          '易错点 8：以为必须返回数组，额外构造了不需要的结果。',
+          '延伸方向：显式栈与递归的转换、分治降低栈深度、以及不可变数据结构的遍历。',
+        ],
+      },
+    ],
+  },
 ];
