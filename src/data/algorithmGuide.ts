@@ -126335,4 +126335,97 @@ ORDER BY recommended_page;`,
       },
     ],
   },
+  {
+    id: 'all-people-report-to-the-given-manager',
+    label: '1270. LeetCode 1270. 向公司 CEO 汇报工作的所有人',
+    difficulty: '中等',
+    description:
+      '员工表记录每个人的直属经理，CEO 的员工编号是一。要求找出直接或间接向 CEO 汇报的所有员工编号。用递归公共表表达式沿着经理链向下展开，再去掉 CEO 本人即可。',
+    outcome: '你能用递归公共表表达式遍历组织层级，并区分直属汇报与间接汇报。',
+    sections: [
+      {
+        id: 'all-people-report-to-the-given-manager-summary',
+        title: '题目在问什么',
+        summary:
+          'Employees 表记录员工编号、姓名和直属经理编号。CEO 的员工编号固定为一，其他员工的经理编号指向他们的上级。要求找出所有直接或间接向 CEO 汇报的员工编号，结果不包含 CEO 自己。',
+        bullets: [
+          '每名员工有一个唯一的员工编号。',
+          'manager_id 指向直属经理的员工编号。',
+          'CEO 的员工编号固定为一。',
+          '直接汇报者的经理编号等于一。',
+          '间接汇报者的经理链最终连到一。',
+          '结果只输出员工编号。',
+          '结果不包含 CEO 本人。',
+          '返回顺序不作要求。',
+        ],
+      },
+      {
+        id: 'all-people-report-to-the-given-manager-model',
+        title: '沿着经理链做递归',
+        summary:
+          '把 CEO 作为递归起点，每层找出经理编号等于上一层员工编号的人，这些人就是下一层的直接下属。继续以他们为经理向下展开，直到没有新的下属。用 UNION 去重，避免 CEO 的自引用导致无限递归。',
+        bullets: [
+          '递归的起点是 CEO。',
+          '每层找出经理编号等于当前层员工编号的人。',
+          '这些人是当前层的直接下属。',
+          '继续以他们为经理向下展开。',
+          '直到没有新的下属为止。',
+          '用 UNION 而不是 UNION ALL 去重并防止成环。',
+          '最终结果中排除编号一。',
+          '递归深度等于组织层级数。',
+        ],
+        callout:
+          '为什么 CEO 自己会出现在递归结果里？样例中 CEO 的经理编号也写成一，表示自己向自己汇报。递归如果从编号一开始，下一轮又会把一选出来。UNION 的去重让递归自然终止，最后再用不等号把 CEO 排除，避免死循环。',
+      },
+      {
+        id: 'all-people-report-to-the-given-manager-solution',
+        title: '解法：递归公共表表达式',
+        summary:
+          '用 WITH RECURSIVE 定义层级结果集。锚定成员选出编号为一的 CEO，递归成员把 Employees 与上一层结果连接，条件是员工的经理编号等于上一层员工编号。主查询排除 CEO 后返回员工编号。',
+        bullets: [
+          'WITH RECURSIVE 定义递归公共表表达式。',
+          '锚定成员选出编号为一的 CEO。',
+          '递归成员连接 Employees 与上一层结果。',
+          '连接条件是员工的经理编号等于上一层员工编号。',
+          'UNION 负责去重并阻断自引用循环。',
+          '主查询从结果集中取员工编号。',
+          'WHERE 排除编号一。',
+          'ORDER BY 让输出稳定可比。',
+        ],
+        code: `WITH RECURSIVE employee_hierarchy AS (
+  SELECT employee_id
+  FROM Employees
+  WHERE employee_id = 1
+
+  UNION
+
+  SELECT e.employee_id
+  FROM Employees e
+  JOIN employee_hierarchy h ON e.manager_id = h.employee_id
+)
+SELECT employee_id
+FROM employee_hierarchy
+WHERE employee_id <> 1
+ORDER BY employee_id;`,
+        callout:
+          '如果题目保证层级最多三层，也可以写两次自连接，但那样把层数写死，组织一变深就要改 SQL。递归公共表表达式把“沿链向下”表达成通用逻辑，代价是某些数据库对递归深度和性能有额外限制。',
+      },
+      {
+        id: 'all-people-report-to-the-given-manager-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在递归方向、去重和 CEO 的排除。',
+        bullets: [
+          '易错点 1：只查直接下属，漏掉间接汇报者。',
+          '易错点 2：忘记排除 CEO 本人。',
+          '易错点 3：使用 UNION ALL，CEO 的自引用导致无限递归。',
+          '易错点 4：连接方向写反，沿着经理向上查找祖先。',
+          '易错点 5：把 manager_id 当成员工编号输出。',
+          '易错点 6：输出员工姓名而不是员工编号。',
+          '易错点 7：递归起点选错，从普通员工开始。',
+          '易错点 8：没有处理查询结果为空的情况。',
+          '延伸方向：递归公共表表达式、组织树遍历、以及向上查找祖先与向下查找后代。',
+        ],
+      },
+    ],
+  },
 ];
