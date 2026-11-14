@@ -126750,4 +126750,119 @@ ORDER BY employee_id;`,
       },
     ],
   },
+  {
+    id: 'number-of-ships-in-a-rectangle',
+    label: '1274. LeetCode 1274. 矩形内船只的数目',
+    difficulty: '困难',
+    description:
+      '海面上的船只是一个个点，系统只提供一个查询矩形内是否有船的接口。用分治把矩形不断切成四块，先问有没有船，再递归计数；没有船的区域立即剪枝，避免逐点枚举。',
+    outcome:
+      '你能把交互式计数问题转化为四叉分治，并设计正确的递归出口与剪枝条件。',
+    sections: [
+      {
+        id: 'number-of-ships-in-a-rectangle-summary',
+        title: '题目在问什么',
+        summary:
+          '海面上分布着若干艘船，每艘船用一个整数坐标点表示。你不能直接读取船只列表，只能调用接口查询一个矩形区域内是否有船。要求返回给定矩形内的船只总数。',
+        bullets: [
+          '船只用整数坐标点表示。',
+          '不能直接访问船只列表。',
+          '只能调用接口查询矩形内是否有船。',
+          '查询矩形用右上角和左下角表示。',
+          '坐标范围零到一千。',
+          '需要返回矩形内的船只总数。',
+          '接口只返回布尔值，不返回数量。',
+          '查询次数需要尽量少。',
+        ],
+      },
+      {
+        id: 'number-of-ships-in-a-rectangle-model',
+        title: '四叉分治加空区域剪枝',
+        summary:
+          '先查询整个矩形有没有船，没有就直接返回零。如果矩形退化成一个点且有船，就返回一。否则用横纵中点把矩形切成四个子矩形，分别递归计数，再把四个结果相加。没有船的子矩形会在下一次查询时被整体剪掉。',
+        bullets: [
+          '没有船的区域直接返回零。',
+          '单点有船返回一。',
+          '用中点把横坐标和纵坐标各切一刀。',
+          '矩形被分成左下、右下、左上、右上四块。',
+          '四块分别递归计数。',
+          '四个结果累加得到当前矩形答案。',
+          '空区域不再向下展开。',
+          '每次切分规模大约减半。',
+        ],
+        callout:
+          '为什么先查询再切分？如果先切分，会对四个必然为空的区域也发起递归，浪费查询次数。先问一次“有没有船”，没有就直接返回，能把大量空区域剪掉；这在大坐标范围、船只稀疏时尤其明显。',
+      },
+      {
+        id: 'number-of-ships-in-a-rectangle-solution',
+        title: '解法：递归切分四个象限',
+        summary:
+          '递归函数接收右上角和左下角。先查询该矩形是否有船，没有就返回零；单点有船返回一。然后用中点构造四个非空子矩形，分别递归并累加。',
+        bullets: [
+          '参数是右上角和左下角坐标。',
+          '先调用接口判断当前区域是否有船。',
+          '没有船直接返回零。',
+          '横纵坐标都相等时返回一。',
+          '用中点切出四个子矩形。',
+          '只有非空子矩形才继续递归。',
+          '四个子结果累加。',
+          '返回当前区域的船只总数。',
+        ],
+        code: `function countShips(
+  sea: Sea,
+  topRight: number[],
+  bottomLeft: number[],
+): number {
+  const [right, top] = topRight
+  const [left, bottom] = bottomLeft
+
+  if (!sea.hasShips(topRight, bottomLeft)) {
+    return 0
+  }
+
+  if (left === right && bottom === top) {
+    return 1
+  }
+
+  const middleX = Math.floor((left + right) / 2)
+  const middleY = Math.floor((bottom + top) / 2)
+  let total = 0
+
+  total += countShips(sea, [middleX, middleY], [left, bottom])
+
+  if (middleX + 1 <= right) {
+    total += countShips(sea, [right, middleY], [middleX + 1, bottom])
+  }
+
+  if (middleY + 1 <= top) {
+    total += countShips(sea, [middleX, top], [left, middleY + 1])
+  }
+
+  if (middleX + 1 <= right && middleY + 1 <= top) {
+    total += countShips(sea, [right, top], [middleX + 1, middleY + 1])
+  }
+
+  return total
+}`,
+        callout:
+          '递归出口必须包含单点判断，否则宽高都为一的矩形会被反复切分。切分时右半部分的起点是 middleX 加一，上方的起点是 middleY 加一；漏掉这个加一会让子矩形重叠，船被重复计数。',
+      },
+      {
+        id: 'number-of-ships-in-a-rectangle-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在递归出口、切分边界和剪枝顺序。',
+        bullets: [
+          '易错点 1：不先判断是否有船，对空区域也继续递归。',
+          '易错点 2：缺少单点出口，导致无限递归。',
+          '易错点 3：切分后子矩形互相重叠，船被重复计数。',
+          '易错点 4：切分后漏掉某个象限。',
+          '易错点 5：把右上角和左下角的坐标顺序写反。',
+          '易错点 6：调用查询接口时参数顺序写反。',
+          '易错点 7：逐坐标查询，查询次数爆炸。',
+          '易错点 8：忘记把四个子结果累加。',
+          '延伸方向：分治、四叉树、交互式题目、以及空间索引结构。',
+        ],
+      },
+    ],
+  },
 ];
