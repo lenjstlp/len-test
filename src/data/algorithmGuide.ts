@@ -126635,4 +126635,119 @@ ORDER BY employee_id;`,
       },
     ],
   },
+  {
+    id: 'delete-tree-nodes',
+    label: '1273. LeetCode 1273. 删除树节点',
+    difficulty: '中等',
+    description:
+      '给定每个节点的父节点和权值，要求删除所有权值和为零的子树，最后返回剩余节点数。自底向上计算子树和，同时统计未被删除的节点数量，一次后序遍历即可。',
+    outcome:
+      '你能用后序遍历同时维护子树和与剩余节点数，并理解为什么删除零和子树不会影响祖先的和。',
+    sections: [
+      {
+        id: 'delete-tree-nodes-summary',
+        title: '题目在问什么',
+        summary:
+          '树有 nodes 个节点，编号从零开始。parent[i] 是节点 i 的父节点，value[i] 是节点 i 的权值。要求删除所有权值之和为零的子树，返回删除后剩余节点的数量。',
+        bullets: [
+          '节点编号范围是零到 nodes 减一。',
+          'parent[i] 指向节点 i 的父节点。',
+          '根节点的 parent 值为负一。',
+          'value[i] 是节点 i 的权值。',
+          '子树和等于该节点及所有后代的权值之和。',
+          '子树和为零就删除整棵子树。',
+          '被删除子树中的所有节点都不再计数。',
+          '返回剩余节点的数量。',
+          '树结构保证合法。',
+        ],
+      },
+      {
+        id: 'delete-tree-nodes-model',
+        title: '后序遍历同时维护两个量',
+        summary:
+          '只有先知道所有子节点的子树和，才能算出当前节点的子树和，因此必须自底向上。每个节点返回两个值：当前子树的和，以及当前子树删除后剩余的节点数。若子树和为零，就把剩余数设为零。',
+        bullets: [
+          '后序遍历先处理所有子节点。',
+          '当前子树和等于自身权值加所有子节点和。',
+          '当前剩余数等于一加所有子节点剩余数。',
+          '若当前子树和为零，返回和零、数量零。',
+          '否则返回当前和与当前数量。',
+          '子节点被删除时，对当前和的贡献本来就是零。',
+          '因此删除零和子树不会改变祖先的和。',
+          '根节点汇总后的数量就是答案。',
+        ],
+        callout:
+          '为什么一遍后序就够？删除条件是子树和为零，而零和子树从祖先的和里减掉也不会改变祖先的和。因此不需要先删除再重新计算，只需要在回溯时把零和子树整体标记为移除即可。',
+      },
+      {
+        id: 'delete-tree-nodes-solution',
+        title: '解法：建树后深度优先统计',
+        summary:
+          '先根据 parent 数组建立每个节点的子节点列表，并找到根节点。然后从根节点递归，返回子树和与剩余节点数。当前和为零时整棵子树返回零节点，否则返回一加子节点结果。',
+        bullets: [
+          '用二维数组保存每个节点的子节点。',
+          'parent 为负一的节点是根节点。',
+          '递归函数返回子树和与剩余数量。',
+          '初始和为当前节点权值，数量为一。',
+          '遍历每个子节点并累加两个返回值。',
+          '子树和为零时返回和零、数量零。',
+          '否则返回累加后的和与数量。',
+          '最终返回根节点的剩余数量。',
+        ],
+        code: `function deleteTreeNodes(
+  nodes: number,
+  parent: number[],
+  value: number[],
+): number {
+  const children: number[][] = Array.from({ length: nodes }, () => [])
+  let root = 0
+
+  for (let index = 0; index < nodes; index += 1) {
+    if (parent[index] === -1) {
+      root = index
+    } else {
+      children[parent[index]].push(index)
+    }
+  }
+
+  const dfs = (node: number): [number, number] => {
+    let sum = value[node]
+    let count = 1
+
+    for (const child of children[node]) {
+      const [childSum, childCount] = dfs(child)
+      sum += childSum
+      count += childCount
+    }
+
+    if (sum === 0) {
+      return [0, 0]
+    }
+
+    return [sum, count]
+  }
+
+  return dfs(root)[1]
+}`,
+        callout:
+          '题目通常保证根节点编号为零，但通过 parent 中负一来寻找根更稳妥。递归深度等于树高，极端退化成链时可能超过调用栈限制；如果数据规模更大，可以改成显式栈做后序遍历。',
+      },
+      {
+        id: 'delete-tree-nodes-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在遍历顺序、删除范围和计数的传递。',
+        bullets: [
+          '易错点 1：先序遍历计算子树和，子节点还没准备好。',
+          '易错点 2：只返回子树和，没有返回剩余节点数。',
+          '易错点 3：子树和为零时只删除当前节点，留下后代。',
+          '易错点 4：删除后仍然把后代节点计入数量。',
+          '易错点 5：忘记把自身权值加入子树和。',
+          '易错点 6：把 value 数组当成父节点数组使用。',
+          '易错点 7：直接假设根节点为零，没有处理其他根。',
+          '易错点 8：递归深度过大导致调用栈溢出。',
+          '延伸方向：树上后序动态规划、子树聚合、以及显式栈实现。',
+        ],
+      },
+    ],
+  },
 ];
