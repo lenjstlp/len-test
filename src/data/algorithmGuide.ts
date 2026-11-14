@@ -127172,4 +127172,118 @@ ORDER BY employee_id;`,
       },
     ],
   },
+  {
+    id: 'palindrome-partitioning-iii',
+    label: '1278. LeetCode 1278. 分割回文串 III',
+    difficulty: '困难',
+    description:
+      '把一个字符串切成 k 个非空回文子串，允许修改字符，要求总修改次数最少。先预处理任意区间改成回文的代价，再用分割动态规划把前 i 个字符切成若干段求最小代价。',
+    outcome:
+      '你能设计区间代价预处理加分段动态规划，把三维枚举优化成清晰的两层状态转移。',
+    sections: [
+      {
+        id: 'palindrome-partitioning-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串和一个整数 k，要求把字符串切成 k 个非空连续子串，并且每个子串都是回文。可以修改任意字符，代价是修改次数。求满足条件的最小总修改次数。',
+        bullets: [
+          '输入是一个字符串 s。',
+          '必须恰好切成 k 个非空子串。',
+          '每个子串都必须是回文。',
+          '可以修改任意位置的字符。',
+          '代价是字符修改的总次数。',
+          '子串必须连续并覆盖整个字符串。',
+          'k 不超过字符串长度。',
+          '字符串长度最多一百。',
+          '返回最小总修改次数。',
+        ],
+      },
+      {
+        id: 'palindrome-partitioning-iii-model',
+        title: '区间代价预处理加分割动态规划',
+        summary:
+          '先计算把任意区间变成回文的最小代价。区间两端字符相同就不需要改，不同就改一端，代价加一，内部区间的代价可以复用。然后设 dp[p][i] 表示前 i 个字符切成 p 段的最小代价，枚举最后一段的起点进行转移。',
+        bullets: [
+          '区间代价只依赖两端和内部区间。',
+          '长度为一时代价为零。',
+          '两端字符相同则新增代价为零。',
+          '两端字符不同则新增代价为一。',
+          '区间代价按长度从短到长递推。',
+          'dp[p][i] 表示前 i 个字符切成 p 段的最小代价。',
+          '转移时枚举最后一段的起点。',
+          '最后一段的代价直接用预处理结果。',
+        ],
+        callout:
+          '为什么要把区间代价单独预处理？分割时每个候选最后一段都要问“这段改成回文要多少代价”，如果每次都重新比较两端，转移会多出一层线性开销。预处理后每次转移只做一次加法。',
+      },
+      {
+        id: 'palindrome-partitioning-iii-solution',
+        title: '解法：两层动态规划',
+        summary:
+          '先用区间长度递推所有改成回文的代价。再初始化 dp，零段零字符的代价为零，其余为正无穷。枚举段数、前 i 个字符和最后一段起点，取所有转移的最小值。最终答案是切成 k 段覆盖 n 个字符的代价。',
+        bullets: [
+          '区间长度为一时代价为零。',
+          '长度从二开始递推。',
+          '两端字符相同则新增代价为零。',
+          '两端字符不同则新增代价为一。',
+          '内部区间代价已经计算完成。',
+          'dp 初始只有零段零字符合法。',
+          '枚举段数、字符前缀和最后一段起点。',
+          '取所有合法转移的最小值。',
+          '返回 dp[k][n]。',
+        ],
+        code: `function palindromePartition(s: string, k: number): number {
+  const length = s.length
+  const cost = Array.from({ length }, () =>
+    new Array<number>(length).fill(0),
+  )
+
+  for (let size = 2; size <= length; size += 1) {
+    for (let left = 0; left + size - 1 < length; left += 1) {
+      const right = left + size - 1
+      cost[left][right] =
+        cost[left + 1][right - 1] + (s[left] === s[right] ? 0 : 1)
+    }
+  }
+
+  const infinity = Number.POSITIVE_INFINITY
+  const dp = Array.from({ length: k + 1 }, () =>
+    new Array<number>(length + 1).fill(infinity),
+  )
+  dp[0][0] = 0
+
+  for (let parts = 1; parts <= k; parts += 1) {
+    for (let end = parts; end <= length; end += 1) {
+      for (let start = parts - 1; start < end; start += 1) {
+        dp[parts][end] = Math.min(
+          dp[parts][end],
+          dp[parts - 1][start] + cost[start][end - 1],
+        )
+      }
+    }
+  }
+
+  return dp[k][length]
+}`,
+        callout:
+          '复杂度是 O(n 的三次方加 k 乘 n 的平方)，n 不超过一百，可以接受。也可以把区间代价和分割状态合并，但分开写更清楚；注意 dp 的非法状态要初始化为正无穷，否则会把不存在的分割方案当成零代价。',
+      },
+      {
+        id: 'palindrome-partitioning-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在区间递推顺序、非法状态和分割边界。',
+        bullets: [
+          '易错点 1：区间代价没有按长度从短到长计算。',
+          '易错点 2：两端字符不同时忘记把代价加一。',
+          '易错点 3：允许分割出空子串。',
+          '易错点 4：dp 的非法状态初始化为零。',
+          '易错点 5：段数大于字符数时仍返回零。',
+          '易错点 6：最后一段起点枚举越界。',
+          '易错点 7：把修改字符当成删除字符。',
+          '易错点 8：忘记子串必须覆盖整个字符串。',
+          '延伸方向：回文分割、区间动态规划、编辑距离、以及滚动数组优化。',
+        ],
+      },
+    ],
+  },
 ];
