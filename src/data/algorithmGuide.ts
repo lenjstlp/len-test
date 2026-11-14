@@ -126865,4 +126865,110 @@ ORDER BY employee_id;`,
       },
     ],
   },
+  {
+    id: 'find-winner-on-a-tic-tac-toe-game',
+    label: '1275. LeetCode 1275. 找出井字棋的获胜者',
+    difficulty: '简单',
+    description:
+      '按落子顺序还原井字棋盘，检查三行、三列和两条对角线是否有同一玩家的三连。有人获胜就返回对应玩家，棋盘下满无人获胜返回平局，否则返回游戏继续。',
+    outcome: '你能在固定三乘三棋盘上枚举全部获胜线，并按落子步数判断当前状态。',
+    sections: [
+      {
+        id: 'find-winner-on-a-tic-tac-toe-game-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个落子序列，每一步给出落子的行列。玩家 A 先手，玩家 B 后手，两人轮流在空位落子。要求根据最终棋盘判断 A 获胜、B 获胜、平局，还是游戏仍在进行。',
+        bullets: [
+          'moves 按落子顺序给出。',
+          '玩家 A 先手，玩家 B 后手。',
+          '棋盘固定为三行三列。',
+          '返回 A 表示玩家 A 获胜。',
+          '返回 B 表示玩家 B 获胜。',
+          '返回 Draw 表示棋盘下满且无人获胜。',
+          '返回 Pending 表示游戏还没结束。',
+          '输入保证每次落子都在空位。',
+          '最多只有九步。',
+        ],
+      },
+      {
+        id: 'find-winner-on-a-tic-tac-toe-game-model',
+        title: '还原棋盘后检查八条获胜线',
+        summary:
+          '先把落子序列还原成棋盘，偶数步属于 A，奇数步属于 B。井字棋只有三行、三列和两条对角线共八条线，任意一条线的三个格子相同且非空，就说明对应玩家获胜。无人获胜时再用步数区分平局和继续。',
+        bullets: [
+          '用三乘三数组记录每个格子的玩家。',
+          '落子下标为偶数时是 A。',
+          '落子下标为奇数时是 B。',
+          '获胜线共有八条。',
+          '一条线的三个格子相同且非空才算获胜。',
+          '八条线都没有获胜者时检查步数。',
+          '下满九步就是平局。',
+          '不足九步就是游戏继续。',
+        ],
+        callout:
+          '为什么可以最后统一检查？井字棋一旦有人获胜，后续不会再有合法落子，输入保证落子合法，因此最终棋盘已经包含所有落子。统一检查比每步回滚或提前返回更简单。',
+      },
+      {
+        id: 'find-winner-on-a-tic-tac-toe-game-solution',
+        title: '解法：建棋盘加八线扫描',
+        summary:
+          '先按步数把 A 和 B 的落子写入棋盘，再依次检查三行、三列和两条对角线。发现三连直接返回对应玩家。扫描结束按步数返回 Draw 或 Pending。',
+        bullets: [
+          '创建三乘三的空棋盘。',
+          '遍历落子序列并按奇偶决定玩家。',
+          '把玩家字符写入对应格子。',
+          '检查三行是否有三连。',
+          '检查三列是否有三连。',
+          '检查主对角线和副对角线。',
+          '发现三连立即返回该玩家。',
+          '否则根据步数返回平局或继续。',
+        ],
+        code: `function tictactoe(moves: number[][]): string {
+  const board = Array.from({ length: 3 }, () =>
+    new Array<string>(3).fill(''),
+  )
+
+  moves.forEach(([row, col], index) => {
+    board[row][col] = index % 2 === 0 ? 'A' : 'B'
+  })
+
+  const lines: string[][] = []
+
+  for (let index = 0; index < 3; index += 1) {
+    lines.push([board[index][0], board[index][1], board[index][2]])
+    lines.push([board[0][index], board[1][index], board[2][index]])
+  }
+
+  lines.push([board[0][0], board[1][1], board[2][2]])
+  lines.push([board[0][2], board[1][1], board[2][0]])
+
+  for (const [first, second, third] of lines) {
+    if (first !== '' && first === second && second === third) {
+      return first
+    }
+  }
+
+  return moves.length === 9 ? 'Draw' : 'Pending'
+}`,
+        callout:
+          '也可以边落子边维护每行、每列、两条对角线的计数，落子后若某条线达到三就立即返回。这样能更早结束，但三乘三规模很小，最后统一扫描八条线已经完全够用。',
+      },
+      {
+        id: 'find-winner-on-a-tic-tac-toe-game-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在玩家顺序、获胜线覆盖和状态判断。',
+        bullets: [
+          '易错点 1：把 A 和 B 的先后顺序写反。',
+          '易错点 2：只检查行，没有检查列。',
+          '易错点 3：漏掉两条对角线。',
+          '易错点 4：把空字符串也当成三连。',
+          '易错点 5：步数判断条件写成小于等于九。',
+          '易错点 6：Draw 或 Pending 的大小写与题目要求不一致。',
+          '易错点 7：有人获胜时仍然返回平局。',
+          '易错点 8：创建棋盘时共享同一行引用，改一行影响三行。',
+          '延伸方向：状态机、棋类胜负判定、以及增量维护计数。',
+        ],
+      },
+    ],
+  },
 ];
