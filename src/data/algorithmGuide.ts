@@ -127069,4 +127069,107 @@ ORDER BY employee_id;`,
       },
     ],
   },
+  {
+    id: 'count-square-submatrices-with-all-ones',
+    label: '1277. LeetCode 1277. 统计全为 1 的正方形子矩阵',
+    difficulty: '中等',
+    description:
+      '统计矩阵中所有元素全为一的正方形子矩阵数量。以每个格子为右下角，最大全一正方形边长等于上、左、左上三个状态的最小值加一，把所有边长累加就是答案。',
+    outcome:
+      '你能用二维动态规划同时求出以每个格子结尾的最大正方形边长，并理解边长之和等于正方形个数。',
+    sections: [
+      {
+        id: 'count-square-submatrices-with-all-ones-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含零和一的矩阵，要求统计其中所有元素全部为一的正方形子矩阵数量。正方形边长至少为一，不同位置的正方形视为不同子矩阵。',
+        bullets: [
+          '输入矩阵只包含零和一。',
+          '子矩阵必须是正方形。',
+          '正方形内所有元素都必须是一。',
+          '边长至少为一。',
+          '不同位置的子矩阵分别计数。',
+          '边长为 k 的正方形包含更小的正方形。',
+          '返回的是正方形子矩阵总数。',
+          '矩阵行列最多三百。',
+          '所有元素都为一的矩阵也可以处理。',
+        ],
+      },
+      {
+        id: 'count-square-submatrices-with-all-ones-model',
+        title: '以右下角定义最大边长',
+        summary:
+          '设 dp[i][j] 表示以第 i 行第 j 列的格子为右下角的最大全一正方形边长。若当前格为零，dp 为零；若当前格为一，则它至少能形成边长一，更大的正方形要求上、左、左上三个方向也能形成，因此取三者最小值加一。',
+        bullets: [
+          '每个正方形都有唯一的右下角。',
+          'dp 值表示以该格为右下角的最大边长。',
+          '当前格为零时 dp 为零。',
+          '当前格为一时 dp 至少为一。',
+          '更大的正方形需要上、左、左上三处同时满足。',
+          '转移是三个状态的最小值加一。',
+          '以该格为右下角的正方形数量恰好等于 dp 值。',
+          '把所有 dp 值累加就是答案。',
+        ],
+        callout:
+          '为什么 dp 值可以直接当成个数？以某个格子为右下角时，边长为 k 的正方形存在，就意味着边长一到 k 减一的所有更小正方形都存在，而且都唯一对应这个右下角。因此这个格子的贡献正好是它的最大边长。',
+      },
+      {
+        id: 'count-square-submatrices-with-all-ones-solution',
+        title: '解法：二维动态规划累加边长',
+        summary:
+          '创建与矩阵同形的 dp 数组。遇到零就跳过；遇到一则取上方、左方、左上方三个状态的最小值加一，写入 dp，并把该值累加到总数。边界外统一视为零。',
+        bullets: [
+          '创建与矩阵同形的 dp 数组。',
+          '当前格为零时跳过。',
+          '上方状态在首行时视为零。',
+          '左方状态在首列时视为零。',
+          '左上方状态在边界时视为零。',
+          '三个状态取最小值后加一。',
+          '把当前 dp 值累加到总数。',
+          '返回累加后的总数。',
+        ],
+        code: `function countSquares(matrix: number[][]): number {
+  const rows = matrix.length
+  const cols = matrix[0].length
+  const dp = Array.from({ length: rows }, () =>
+    new Array<number>(cols).fill(0),
+  )
+  let total = 0
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      if (matrix[row][col] === 0) continue
+
+      const top = row > 0 ? dp[row - 1][col] : 0
+      const left = col > 0 ? dp[row][col - 1] : 0
+      const topLeft = row > 0 && col > 0 ? dp[row - 1][col - 1] : 0
+
+      dp[row][col] = Math.min(top, left, topLeft) + 1
+      total += dp[row][col]
+    }
+  }
+
+  return total
+}`,
+        callout:
+          '可以只保留一行 dp 来压缩空间，但更新时必须先保存左上角的旧值，否则会被本轮覆盖。完整二维写法更直观，三百乘三百的规模内存完全够用。',
+      },
+      {
+        id: 'count-square-submatrices-with-all-ones-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在贡献计数、转移方向和边界处理。',
+        bullets: [
+          '易错点 1：只统计最大正方形，忘记累加所有边长。',
+          '易错点 2：当前格为零时仍然加一。',
+          '易错点 3：三个邻居取最大值而不是最小值。',
+          '易错点 4：边界外没有当成零处理。',
+          '易错点 5：把 dp 定义成以左上角为起点，转移写错。',
+          '易错点 6：把正方形子矩阵当成任意矩形。',
+          '易错点 7：忘记在最小值上加一。',
+          '易错点 8：返回 dp 的最后一个值而不是总和。',
+          '延伸方向：最大正方形、单调栈统计矩形、以及二维前缀和。',
+        ],
+      },
+    ],
+  },
 ];
