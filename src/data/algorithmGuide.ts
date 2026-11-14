@@ -127286,4 +127286,103 @@ ORDER BY employee_id;`,
       },
     ],
   },
+  {
+    id: 'traffic-light-controlled-intersection',
+    label: '1279. LeetCode 1279. 红绿灯路口',
+    difficulty: '简单',
+    description:
+      '两条路共享一个路口，同一时刻只能有一条路的车辆通过。用一个字段记录当前绿灯道路，车辆到达时若不在绿灯路上就先切灯，再放行；把判断、切灯和放行放在同一段不可分割的执行里，避免两路同时通行。',
+    outcome:
+      '你能识别路口控制中的临界区，用当前绿灯道路加互斥执行保证同一时刻只有一条路通行。',
+    sections: [
+      {
+        id: 'traffic-light-controlled-intersection-summary',
+        title: '题目在问什么',
+        summary:
+          '两条道路在路口相交，每条路各有一个红绿灯，但两个灯不能同时为绿。初始时 A 路绿灯、B 路红灯。车辆按到达时间调用 carArrived，需要决定是否切换绿灯，并让车辆安全通过路口。',
+        bullets: [
+          'A 路包含方向一和方向二，B 路包含方向三和方向四。',
+          '每个路口只有一盏灯能是绿色。',
+          'A 路绿灯时，B 路必须是红灯。',
+          '初始状态是 A 路绿灯、B 路红灯。',
+          '绿灯路上的车辆可以双向通行。',
+          '红灯路上的车辆必须等待。',
+          'turnGreen 把当前道路的灯变绿。',
+          'crossCar 让当前车辆通过路口。',
+          '同一条路已经是绿灯时，不允许再次调用 turnGreen。',
+          '不同道路的车辆不能同时通过。',
+        ],
+      },
+      {
+        id: 'traffic-light-controlled-intersection-model',
+        title: '把通行过程看成一个临界区',
+        summary:
+          '整个系统共享的状态只有当前绿灯道路编号。每辆车到达时先检查自己是否在这条路上：不在就切灯并更新状态，然后在同一段不可分割的执行里放行。这样其他车辆不可能在切灯和放行之间插入，避免两路同时通行。',
+        bullets: [
+          '共享状态是当前绿灯道路编号。',
+          '车辆到达后先比较自己的道路与绿灯道路。',
+          '道路不同时调用 turnGreen 并更新状态。',
+          '道路相同时不需要切灯。',
+          '判断、切灯、更新和放行必须原子完成。',
+          '同一时刻只允许一个执行流进入临界区。',
+          '车辆方向不影响控制逻辑。',
+          '同一条路的两个方向共享同一盏绿灯。',
+        ],
+        callout:
+          '为什么方向参数可以忽略？红绿灯是按道路控制的，一条路变绿后两个方向的车都能通行。方向只用于输出日志，不参与是否切换或是否放行的判断；把方向当成区分条件，会让同一条路上的两辆车错误地争抢绿灯。',
+      },
+      {
+        id: 'traffic-light-controlled-intersection-solution',
+        title: '解法：记录绿灯道路并原子放行',
+        summary:
+          '用 greenRoad 记录当前绿灯道路，初始为一。carArrived 中若车辆不在绿灯路上，先调用 turnGreen，再把 greenRoad 更新为当前道路，最后调用 crossCar。若已经在绿灯路上，直接放行。',
+        bullets: [
+          'greenRoad 初始为一，对应 A 路。',
+          '比较传入的 roadId 与 greenRoad。',
+          '不同时先调用 turnGreen。',
+          '紧接着把 greenRoad 更新为当前道路。',
+          '然后调用 crossCar 放行。',
+          '相同时跳过切灯直接放行。',
+          '三步在同一个同步函数中完成。',
+          '多线程语言需要给这段过程加互斥锁。',
+        ],
+        code: `class TrafficLight {
+  private greenRoad = 1
+
+  carArrived(
+    carId: number,
+    roadId: number,
+    direction: number,
+    turnGreen: () => void,
+    crossCar: () => void,
+  ): void {
+    if (roadId !== this.greenRoad) {
+      turnGreen()
+      this.greenRoad = roadId
+    }
+
+    crossCar()
+  }
+}`,
+        callout:
+          '在多线程语言里，carArrived 的整个判断加放行过程必须放在互斥锁内，否则两个线程可能同时把各自的道路切成绿灯。JavaScript 的主线程是单线程的，同步函数一旦开始就会执行到返回，因此这段同步代码本身就是临界区；如果改成 async 并在中间 await，就必须重新引入锁或队列。',
+      },
+      {
+        id: 'traffic-light-controlled-intersection-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在切灯时机、临界区范围和状态更新顺序。',
+        bullets: [
+          '易错点 1：每次到达都调用 turnGreen，已在绿灯时重复切灯。',
+          '易错点 2：先调用 crossCar 再切灯，车辆在红灯下通过。',
+          '易错点 3：用方向而不是道路判断是否需要切灯。',
+          '易错点 4：放行之后才更新 greenRoad，状态与灯不一致。',
+          '易错点 5：认为两条路可以同时绿灯。',
+          '易错点 6：把 carArrived 写成异步并在临界区中间 await。',
+          '易错点 7：多线程环境下不加锁，两路车辆同时通过。',
+          '易错点 8：忘记初始状态是 A 路绿灯。',
+          '延伸方向：互斥锁、条件变量、生产者消费者队列、以及无死锁调度。',
+        ],
+      },
+    ],
+  },
 ];
