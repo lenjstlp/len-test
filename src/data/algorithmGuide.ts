@@ -127385,4 +127385,102 @@ ORDER BY employee_id;`,
       },
     ],
   },
+  {
+    id: 'students-and-examinations',
+    label: '1280. LeetCode 1280. 学生们参加各科测试的次数',
+    difficulty: '简单',
+    description:
+      '要把每个学生和每门科目都组合一遍，再统计该学生在对应科目上参加考试的次数。先用学生表与科目表做笛卡尔积保证零次记录也出现，再左连接考试表按学生和科目匹配计数。',
+    outcome:
+      '你能用交叉连接补全所有组合，再用左连接加分组计数得到包含零次的统计结果。',
+    sections: [
+      {
+        id: 'students-and-examinations-summary',
+        title: '题目在问什么',
+        summary:
+          '有三张表：Students 记录学生，Subjects 记录科目，Examinations 记录每次考试。要求统计每个学生在每门科目上参加考试的次数，包括从未参加过的学生科目组合。',
+        bullets: [
+          'Students 表每行一个学生。',
+          'Subjects 表每行一门科目。',
+          'Examinations 表每行是一条考试记录。',
+          '同一个学生同一科目可能考多次。',
+          '需要输出每个学生与每门科目的组合。',
+          '没有参加过的组合也要输出，次数为零。',
+          '结果包含学生编号、姓名、科目名和次数。',
+          '结果按学生编号和科目名排序。',
+          '统计的是考试记录条数。',
+          '考试表中的每一行都算一次。',
+        ],
+      },
+      {
+        id: 'students-and-examinations-model',
+        title: '先补全组合，再左连接计数',
+        summary:
+          '学生表和科目表之间没有直接关联，直接从考试表分组只能得到出现过的组合。因此先用学生表与科目表做交叉连接，生成完整的学生科目矩阵，再按学生编号和科目名左连接考试表，最后分组计数。',
+        bullets: [
+          '只从考试表出发会漏掉零次的组合。',
+          '交叉连接生成所有学生与所有科目的组合。',
+          '按学生编号和科目名左连接考试表。',
+          '左连接保证没有考试记录的组合仍然保留。',
+          '分组键是学生编号、姓名和科目名。',
+          '计数时只统计考试表中的学生编号。',
+          '左连接未匹配时该列为空，计数不计入。',
+          '最终结果中零次组合也会出现。',
+        ],
+        callout:
+          '为什么不能直接从考试表分组？只从考试表出发只能看到参加过的组合，没参加过的学生和科目会整行消失。题目要求完整矩阵，因此必须先构造所有组合，再把考试数据贴上去；这是“补零统计”的典型模式。',
+      },
+      {
+        id: 'students-and-examinations-solution',
+        title: '解法：交叉连接加左连接分组',
+        summary:
+          '从学生表和科目表出发做交叉连接，再左连接考试表。连接条件同时匹配学生编号和科目名。按三个非聚合列分组，用 COUNT 统计考试表中的学生编号，最后按学生编号和科目名排序。',
+        bullets: [
+          '从 Students 表和 Subjects 表开始。',
+          'CROSS JOIN 生成完整组合。',
+          'LEFT JOIN Examinations 表。',
+          '连接条件同时匹配学生编号和科目名。',
+          'GROUP BY 学生编号、姓名和科目名。',
+          'COUNT 考试表的学生编号。',
+          '把计数别名写成 attended_exams。',
+          'ORDER BY 学生编号和科目名。',
+        ],
+        code: `SELECT
+  s.student_id,
+  s.student_name,
+  sub.subject_name,
+  COUNT(e.student_id) AS attended_exams
+FROM Students s
+CROSS JOIN Subjects sub
+LEFT JOIN Examinations e
+  ON e.student_id = s.student_id
+  AND e.subject_name = sub.subject_name
+GROUP BY
+  s.student_id,
+  s.student_name,
+  sub.subject_name
+ORDER BY
+  s.student_id,
+  sub.subject_name;`,
+        callout:
+          '连接条件必须同时匹配学生编号和科目名，只匹配学生会把该学生所有科目的考试都算到每一门科目上。COUNT 的参数要选考试表的列而不是学生表的列，否则左连接补出的空行也会被计成一。',
+      },
+      {
+        id: 'students-and-examinations-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在零次组合、连接条件和计数方式。',
+        bullets: [
+          '易错点 1：只统计考试表中出现过的组合，漏掉零次。',
+          '易错点 2：连接条件只匹配学生编号。',
+          '易错点 3：连接条件只匹配科目名。',
+          '易错点 4：用 COUNT 星号，零次组合被计成一。',
+          '易错点 5：忘记把姓名加入分组，查询报错或结果合并。',
+          '易错点 6：使用 INNER JOIN，零次组合被过滤掉。',
+          '易错点 7：忘记按学生编号和科目名排序。',
+          '易错点 8：把考试次数当成不同科目的数量统计。',
+          '延伸方向：交叉连接补全、左连接计数、以及报表中的零填充。',
+        ],
+      },
+    ],
+  },
 ];
