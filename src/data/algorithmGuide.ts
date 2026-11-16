@@ -127674,4 +127674,114 @@ ORDER BY
       },
     ],
   },
+  {
+    id: 'find-the-smallest-divisor-given-a-threshold',
+    label: '1283. LeetCode 1283. 使结果不超过阈值的最小除数',
+    difficulty: '中等',
+    description:
+      '给定数组和阈值，要求找一个最小正整数除数，使所有元素除以它后向上取整的和不超过阈值。和随除数增大单调不增，因此可以二分答案。',
+    outcome: '你能识别答案的单调性，并在整数范围内二分最小可行除数。',
+    sections: [
+      {
+        id: 'find-the-smallest-divisor-given-a-threshold-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个正整数数组和一个阈值，选择一个正整数除数，把每个元素除以除数后向上取整，再求和。要求这个和不超过阈值，并使除数尽可能小。',
+        bullets: [
+          '输入是正整数数组。',
+          '除数必须是正整数。',
+          '每个元素除以除数后向上取整。',
+          '所有向上取整结果之和不能超过阈值。',
+          '要求除数尽可能小。',
+          '题目保证至少存在一个解。',
+          '数组长度最多五万。',
+          '元素值最大一百万。',
+          '阈值不小于数组长度。',
+        ],
+      },
+      {
+        id: 'find-the-smallest-divisor-given-a-threshold-model',
+        title: '利用单调性二分答案',
+        summary:
+          '除数越大，每个元素向上取整后的值越小或不变，总和也单调不增。满足条件的除数构成一个后缀区间，因此可以二分查找第一个满足条件的除数。',
+        bullets: [
+          '除数越大，每个向上取整结果越小或不变。',
+          '总和随除数增大单调不增。',
+          '满足条件的除数构成一个后缀区间。',
+          '二分查找第一个满足条件的除数。',
+          '下界是一。',
+          '上界是数组最大值。',
+          '检查函数计算当前除数的总和。',
+          '总和小于等于阈值就尝试更小。',
+        ],
+        callout:
+          '为什么上界可以取数组最大值？当除数等于最大值时，每个非零元素除以它向上取整都等于一，总和正好是数组长度；题目保证阈值不小于数组长度，因此最大值一定可行，不需要再往更大范围搜索。',
+      },
+      {
+        id: 'find-the-smallest-divisor-given-a-threshold-solution',
+        title: '解法：二分加线性检查',
+        summary:
+          '在闭区间一到最大值之间二分。每次计算候选除数的向上取整和，若不超过阈值就收缩右边界，否则移动左边界。循环结束时左指针就是最小可行除数。',
+        bullets: [
+          '检查函数遍历数组累加向上取整结果。',
+          '向上取整可以写成整除后加余数判断。',
+          '下界初始化为一。',
+          '上界取数组最大值。',
+          '循环条件是两个边界不相等。',
+          '取中点向下取整。',
+          '可行时把右边界移到中点。',
+          '不可行时把左边界移到中点加一。',
+          '返回左边界。',
+        ],
+        code: `function smallestDivisor(nums: number[], threshold: number): number {
+  const computeSum = (divisor: number): number => {
+    let sum = 0
+
+    for (const value of nums) {
+      sum += Math.ceil(value / divisor)
+    }
+
+    return sum
+  }
+
+  let low = 1
+  let high = 0
+
+  for (const value of nums) {
+    high = Math.max(high, value)
+  }
+
+  while (low < high) {
+    const middle = Math.floor((low + high) / 2)
+
+    if (computeSum(middle) <= threshold) {
+      high = middle
+    } else {
+      low = middle + 1
+    }
+  }
+
+  return low
+}`,
+        callout:
+          '二分时把可行区间放在右侧：当前除数可行就收缩右边界，不可行就移动左边界。最后两个指针相遇的位置就是最小可行除数。如果写成找最后一个可行值，需要额外处理越界。',
+      },
+      {
+        id: 'find-the-smallest-divisor-given-a-threshold-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在取整方式、二分边界和单调方向。',
+        bullets: [
+          '易错点 1：使用向下取整而不是向上取整。',
+          '易错点 2：二分上界取成数组最小值。',
+          '易错点 3：当前除数可行时移动左边界。',
+          '易错点 4：当前除数不可行时移动右边界。',
+          '易错点 5：向上取整公式写错，边界元素结果偏小。',
+          '易错点 6：循环结束后返回右边界以外未验证的值。',
+          '易错点 7：认为除数必须出现在数组中。',
+          '易错点 8：检查函数里提前返回，漏算后面的元素。',
+          '延伸方向：二分答案、单调函数、以及取整除法的边界处理。',
+        ],
+      },
+    ],
+  },
 ];
