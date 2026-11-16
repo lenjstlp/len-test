@@ -128025,4 +128025,112 @@ ORDER BY start_id;`,
       },
     ],
   },
+  {
+    id: 'iterator-for-combination',
+    label: '1286. LeetCode 1286. 字母组合迭代器',
+    difficulty: '中等',
+    description:
+      '给定按字典序排列的字符和组合长度，要求按字典序逐个返回所有组合。可以先用回溯预生成全部组合，再用下标控制 next 和 hasNext。',
+    outcome: '你能用回溯按字典序生成定长组合，并把迭代器状态压缩成一个下标。',
+    sections: [
+      {
+        id: 'iterator-for-combination-summary',
+        title: '题目在问什么',
+        summary:
+          '设计一个迭代器，给定一组按字典序排列且互不相同的字符，以及一个组合长度。迭代器需要按字典序依次返回所有长度为该值的不重复组合。',
+        bullets: [
+          '输入字符按字典序排列。',
+          '组合长度固定。',
+          '每个组合由不同位置的字符组成。',
+          '组合之间按字典序排列。',
+          'next 返回下一个组合。',
+          'hasNext 判断是否还有组合。',
+          '组合不能重复。',
+          '字符最多十五个。',
+          '字符互不相同。',
+        ],
+      },
+      {
+        id: 'iterator-for-combination-model',
+        title: '回溯生成加下标迭代',
+        summary:
+          '回溯时从当前位置向后选择字符，已经选够长度就记录一个组合。每次选择的下标严格递增，既避免重复，也让生成顺序天然符合字典序。把所有组合预先存入数组，迭代器只需要维护当前下标。',
+        bullets: [
+          '回溯从当前位置向后选字符。',
+          '已经选够长度就记录一个组合。',
+          '每次选择下标递增，避免重复和乱序。',
+          '递归顺序天然是字典序。',
+          '预生成所有组合放入数组。',
+          'next 返回当前下标并后移。',
+          'hasNext 比较下标与数组长度。',
+          '组合总数是组合数公式的结果。',
+        ],
+        callout:
+          '为什么递归顺序就是字典序？每一层都从上一个字符的下一位开始枚举，先选较小字符的分支会先递归到底，因此生成的组合严格按字符序列递增。只要输入字符已经排序，就不需要额外排序结果。',
+      },
+      {
+        id: 'iterator-for-combination-solution',
+        title: '解法：先建表再顺序读取',
+        summary:
+          '构造函数中用回溯生成全部组合。next 读取当前组合并递增下标，hasNext 判断下标是否还在数组范围内。',
+        bullets: [
+          '构造函数保存组合数组。',
+          '递归函数接收起点和当前前缀。',
+          '前缀长度达到目标时加入结果。',
+          '否则从起点开始枚举字符。',
+          '递归时把起点设为下一个位置。',
+          'next 先取值再递增下标。',
+          'hasNext 返回下标是否小于长度。',
+          '查询操作都是常数时间。',
+        ],
+        code: `class CombinationIterator {
+  private readonly combinations: string[] = []
+  private index = 0
+
+  constructor(characters: string, combinationLength: number) {
+    const build = (start: number, current: string): void => {
+      if (current.length === combinationLength) {
+        this.combinations.push(current)
+        return
+      }
+
+      for (let cursor = start; cursor < characters.length; cursor += 1) {
+        build(cursor + 1, current + characters[cursor])
+      }
+    }
+
+    build(0, '')
+  }
+
+  next(): string {
+    const value = this.combinations[this.index]
+    this.index += 1
+    return value
+  }
+
+  hasNext(): boolean {
+    return this.index < this.combinations.length
+  }
+}`,
+        callout:
+          '预生成需要保存所有组合，空间是组合总数乘长度。字符最多十五个，组合数最多六千四百三十五，完全可以接受。如果字符更多，可以改用下标编码按需生成，避免一次性占用内存。',
+      },
+      {
+        id: 'iterator-for-combination-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在重复组合、字符顺序和迭代器边界。',
+        bullets: [
+          '易错点 1：外层循环每次从零开始，产生重复组合。',
+          '易错点 2：没有按输入顺序选择字符，输出不是字典序。',
+          '易错点 3：字符未排序却假设字典序。',
+          '易错点 4：next 返回后忘记移动下标。',
+          '易错点 5：hasNext 条件写成小于等于。',
+          '易错点 6：组合长度还没达到就记录。',
+          '易错点 7：用集合去重，破坏了原有顺序。',
+          '易错点 8：把字符位置当成值去重，错误跳过重复字符。',
+          '延伸方向：回溯、组合生成、惰性迭代器、以及字典序编码。',
+        ],
+      },
+    ],
+  },
 ];
