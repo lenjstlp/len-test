@@ -128133,4 +128133,94 @@ ORDER BY start_id;`,
       },
     ],
   },
+  {
+    id: 'element-appearing-more-than-25-in-sorted-array',
+    label: '1287. LeetCode 1287. 有序数组中出现次数超过25%的元素',
+    difficulty: '简单',
+    description:
+      '有序数组中有一个元素出现次数超过四分之一，要求找出它。由于数组有序，相同元素连续出现；每隔四分之一个长度比较一次，就能在常数次比较内锁定答案。',
+    outcome: '你能利用有序性和频率下界，用固定间隔的相等判断找到超标元素。',
+    sections: [
+      {
+        id: 'element-appearing-more-than-25-in-sorted-array-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个非递减排列的整数数组，其中恰好有一个元素的出现次数严格超过数组长度的四分之一。要求找出并返回这个元素。',
+        bullets: [
+          '数组按非递减顺序排列。',
+          '恰好有一个元素出现次数超过四分之一。',
+          '需要返回这个元素。',
+          '其他元素出现次数不超过四分之一。',
+          '数组长度至少为一。',
+          '元素是整数。',
+          '答案一定存在。',
+          '不要求返回出现次数。',
+          '同一个值可能出现多次。',
+        ],
+      },
+      {
+        id: 'element-appearing-more-than-25-in-sorted-array-model',
+        title: '利用间隔 step 锁定候选',
+        summary:
+          '相同元素在有序数组中连续排列。若某元素出现次数超过四分之一，它占据的区间长度至少是四分之一个数组。令 step 等于长度除以四向下取整，检查每个下标与它后面第 step 个位置是否相等，第一次相等处就是答案。',
+        bullets: [
+          '相同元素在有序数组中连续排列。',
+          '出现次数超过四分之一意味着跨度足够大。',
+          '令 step 等于长度除以四向下取整。',
+          '检查下标 i 与 i 加 step 的值是否相等。',
+          '若相等，该值至少出现 step 加一次。',
+          '第一个满足的位置就是答案。',
+          '只需一次线性扫描。',
+          '也可以对候选值做二分查找。',
+        ],
+        callout:
+          '为什么比较间隔 step 就能保证找到？设某元素第一次出现在 l，最后一次在 r，出现次数大于四分之 n，因此 r 减 l 至少等于 step。取 i 等于 l，就有 i 加 step 不超过 r，两个位置的值必然相同。',
+      },
+      {
+        id: 'element-appearing-more-than-25-in-sorted-array-solution',
+        title: '解法：固定间隔扫描',
+        summary:
+          '先计算 step。遍历数组，只要当前下标加 step 仍在范围内，就比较两个位置的值。相等就返回该值。由于答案一定存在，循环中必然命中。',
+        bullets: [
+          '计算数组长度的四分之一向下取整。',
+          '从下标零开始遍历。',
+          '循环条件是下标加 step 不越界。',
+          '比较两个位置的元素是否相等。',
+          '相等时直接返回该元素。',
+          '不相等时继续后移。',
+          '答案保证存在，循环必然命中。',
+          '时间复杂度是数组长度。',
+        ],
+        code: `function findSpecialInteger(arr: number[]): number {
+  const step = Math.floor(arr.length / 4)
+
+  for (let index = 0; index + step < arr.length; index += 1) {
+    if (arr[index] === arr[index + step]) {
+      return arr[index]
+    }
+  }
+
+  return arr[arr.length - 1]
+}`,
+        callout:
+          '也可以利用有序性做二分：候选只可能是下标零、step、二倍 step 等位置的值，对每个候选二分左右边界计算出现次数。时间复杂度是 O(step 乘 log n)，但本题一次扫描已经是 O(n)，常数更小。',
+      },
+      {
+        id: 'element-appearing-more-than-25-in-sorted-array-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在有序前提、间隔计算和边界处理。',
+        bullets: [
+          '易错点 1：对无序数组使用同样方法。',
+          '易错点 2：step 没有向下取整。',
+          '易错点 3：比较 i 与 i 加 step 时越界。',
+          '易错点 4：找到相等后继续扫描，返回了后面的值。',
+          '易错点 5：忽略答案可能出现在数组末尾。',
+          '易错点 6：用哈希计数但判断条件写成大于等于四分之一。',
+          '易错点 7：把严格超过四分之一写成超过二分之一。',
+          '易错点 8：数组长度为一时没有处理。',
+          '延伸方向：有序数组二分、摩尔投票、以及频率统计。',
+        ],
+      },
+    ],
+  },
 ];
