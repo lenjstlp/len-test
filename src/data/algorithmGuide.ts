@@ -127784,4 +127784,155 @@ ORDER BY
       },
     ],
   },
+  {
+    id: 'minimum-number-of-flips-to-convert-binary-matrix-to-zero-matrix',
+    label: '1284. LeetCode 1284. 转化为全零矩阵的最少反转次数',
+    difficulty: '困难',
+    description:
+      '每次反转一个格子会同时翻转它和上下左右的邻居，要求把二进制矩阵变成全零。矩阵最多九格，把整个矩阵压成一个整数状态，用广度优先搜索枚举所有反转，第一次到达零状态就是最少次数。',
+    outcome:
+      '你能把矩阵局面编码成位掩码，预计算每个格子的翻转掩码，并在状态图上做最短步数搜索。',
+    sections: [
+      {
+        id: 'minimum-number-of-flips-to-convert-binary-matrix-to-zero-matrix-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个只包含零和一的矩阵。每次选择一个格子反转，该格以及它上下左右相邻的格子都会从零变一、从一变零。要求把整个矩阵变成全零，返回最少反转次数；做不到时返回负一。',
+        bullets: [
+          '输入是零一矩阵。',
+          '每次选择一个格子反转。',
+          '反转会同时翻转该格和上下左右相邻格。',
+          '越界的邻居不存在，不参与翻转。',
+          '目标是把所有格子变成零。',
+          '求最少反转次数。',
+          '无法变成全零时返回负一。',
+          '矩阵最多三行三列。',
+          '每个格子都可以被选择多次。',
+        ],
+      },
+      {
+        id: 'minimum-number-of-flips-to-convert-binary-matrix-to-zero-matrix-model',
+        title: '把局面压缩成位掩码',
+        summary:
+          '每个格子对应整数的一位，整个矩阵就是一个二进制状态。一个格子被反转时，受影响的格子集合是固定的，可以预先算成一个翻转掩码。对当前状态异或这个掩码就得到新状态，问题变成无权图上的最短路径。',
+        bullets: [
+          '每个局面可以压成一个整数。',
+          '第 i 个格子对应整数的第 i 位。',
+          '一个格子的反转会影响固定的一组位。',
+          '这些位可以用一个翻转掩码表示。',
+          '对当前状态异或翻转掩码得到新状态。',
+          '每次操作代价为一，状态图是无权图。',
+          '广度优先搜索第一次到零就是最少步数。',
+          '用集合记录已访问状态。',
+        ],
+        callout:
+          '为什么可以只关心状态而不关心操作顺序？反转操作满足交换律，同一个格子反转两次等于没有反转，因此一个局面只由哪些格子被反转的奇偶性决定。把状态压成位掩码后，重复或等价的操自然被去重。',
+      },
+      {
+        id: 'minimum-number-of-flips-to-convert-binary-matrix-to-zero-matrix-solution',
+        title: '解法：状态压缩加广度优先搜索',
+        summary:
+          '先为每个格子计算翻转掩码，再把初始矩阵编码成整数。从初始状态开始做广度优先搜索，每层尝试翻转所有格子，第一次得到零状态时返回步数。',
+        bullets: [
+          '先计算格子总数。',
+          '为每个格子构造翻转掩码。',
+          '掩码包含自身和界内邻居。',
+          '把初始矩阵压成整数。',
+          '初始为零直接返回零。',
+          '队列保存状态和步数。',
+          '每个状态尝试翻转所有格子。',
+          '新状态为零立即返回步数加一。',
+          '访问过的状态不再入队。',
+          '队列为空返回负一。',
+        ],
+        code: `function minFlips(mat: number[][]): number {
+  const rows = mat.length
+  const cols = mat[0].length
+  const total = rows * cols
+  const directions = [
+    [0, 0],
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+  const flipMasks = new Array<number>(total).fill(0)
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      let mask = 0
+
+      for (const [dr, dc] of directions) {
+        const nextRow = row + dr
+        const nextCol = col + dc
+
+        if (nextRow < 0 || nextRow >= rows) continue
+        if (nextCol < 0 || nextCol >= cols) continue
+
+        mask |= 1 << (nextRow * cols + nextCol)
+      }
+
+      flipMasks[row * cols + col] = mask
+    }
+  }
+
+  let start = 0
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      if (mat[row][col] === 1) {
+        start |= 1 << (row * cols + col)
+      }
+    }
+  }
+
+  if (start === 0) {
+    return 0
+  }
+
+  const visited = new Set<number>([start])
+  const queue: Array<[number, number]> = [[start, 0]]
+
+  for (let head = 0; head < queue.length; head += 1) {
+    const [state, steps] = queue[head]
+
+    for (let cell = 0; cell < total; cell += 1) {
+      const next = state ^ flipMasks[cell]
+
+      if (next === 0) {
+        return steps + 1
+      }
+
+      if (visited.has(next)) {
+        continue
+      }
+
+      visited.add(next)
+      queue.push([next, steps + 1])
+    }
+  }
+
+  return -1
+}`,
+        callout:
+          '也可以枚举所有操作组合，但那样每个状态要重复计算。广度优先搜索按步数分层，第一次遇到零状态就可以停止；由于格子最多九个，状态总数最多五百一十二个，搜索空间非常小。',
+      },
+      {
+        id: 'minimum-number-of-flips-to-convert-binary-matrix-to-zero-matrix-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在掩码构造、状态编码和搜索方式。',
+        bullets: [
+          '易错点 1：只翻转当前格，忘记上下左右邻居。',
+          '易错点 2：邻居越界时仍然翻转。',
+          '易错点 3：状态编码的行列顺序与解码不一致。',
+          '易错点 4：把异或写成按位或。',
+          '易错点 5：用深度优先搜索，无法保证最少次数。',
+          '易错点 6：访问集合漏掉初始状态。',
+          '易错点 7：初始全零时仍然进入搜索。',
+          '易错点 8：把重复反转同一格当成新的有效状态。',
+          '延伸方向：状态压缩、广度优先最短路径、位运算、以及熄灯问题。',
+        ],
+      },
+    ],
+  },
 ];
