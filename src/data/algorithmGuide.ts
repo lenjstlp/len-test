@@ -127576,4 +127576,102 @@ ORDER BY
       },
     ],
   },
+  {
+    id: 'group-the-people-given-the-group-size-they-belong-to',
+    label: '1282. LeetCode 1282. 用户分组',
+    difficulty: '中等',
+    description:
+      '每个人给出自己所在小组的人数，需要把所有人分到大小正好等于该人数的小组。按人数分桶，桶满就成组，天然满足每个人的要求。',
+    outcome:
+      '你能用哈希表按组大小分桶，并在桶满时立即结算，构造出任意一组合法分组。',
+    sections: [
+      {
+        id: 'group-the-people-given-the-group-size-they-belong-to-summary',
+        title: '题目在问什么',
+        summary:
+          '数组 groupSizes 的第 i 个元素表示第 i 个人所在小组的人数。要求把所有人分成若干小组，使每个人所在小组的大小正好等于他给出的数字，返回任意一组合法分组。',
+        bullets: [
+          'groupSizes[i] 是第 i 个人所在组的大小。',
+          '需要返回若干小组。',
+          '每个小组的大小必须等于组内成员给出的值。',
+          '同一个人的编号只能出现一次。',
+          '所有人都必须被分到某个组。',
+          '可以返回任意一组合法答案。',
+          '小组之间没有顺序要求。',
+          '组内成员顺序也没有要求。',
+          '输入保证至少存在一种分组。',
+        ],
+      },
+      {
+        id: 'group-the-people-given-the-group-size-they-belong-to-model',
+        title: '按组大小分桶',
+        summary:
+          '用哈希表记录每种组大小当前正在填充的桶。遍历每个人，把他放入对应大小的桶；桶里人数达到目标大小就立即结算成一组，并为该大小重新开一个空桶。',
+        bullets: [
+          '按组大小分桶。',
+          '相同大小的人可以放进同一个桶。',
+          '桶里人数达到该大小就形成一组。',
+          '形成后把桶清空或换一个新桶。',
+          '继续处理后面的人。',
+          '每个人只进入一个桶。',
+          '桶里人数不会超过目标大小。',
+          '最终所有桶都会恰好清空。',
+        ],
+        callout:
+          '为什么桶满就必须立刻结算？如果继续往同一个桶里加人，小组人数会超过目标值，违反组内每个人的要求。由于输入保证存在解，按大小分组后，每一类人的总数一定是该大小的整数倍，因此每个桶最终都会在满的时候被结算。',
+      },
+      {
+        id: 'group-the-people-given-the-group-size-they-belong-to-solution',
+        title: '解法：哈希表加即时结算',
+        summary:
+          '遍历数组，用 Map 保存每种大小当前的小组。把人加入对应小组，若小组长度达到该大小，就把它放入结果并清空该键下的临时小组。',
+        bullets: [
+          '用 Map 保存组大小到当前成员列表的映射。',
+          '遍历每个人的编号。',
+          '取出该人对应大小的桶。',
+          '把编号加入桶。',
+          '桶长度等于目标大小时结算。',
+          '结算后把桶重置为空。',
+          '所有结算的小组加入结果。',
+          '遍历结束返回结果。',
+        ],
+        code: `function groupThePeople(groupSizes: number[]): number[][] {
+  const groups = new Map<number, number[]>()
+  const result: number[][] = []
+
+  for (let index = 0; index < groupSizes.length; index += 1) {
+    const size = groupSizes[index]
+    const bucket = groups.get(size) ?? []
+    bucket.push(index)
+    groups.set(size, bucket)
+
+    if (bucket.length === size) {
+      result.push(bucket)
+      groups.set(size, [])
+    }
+  }
+
+  return result
+}`,
+        callout:
+          '也可以先按组大小排序，再每 k 个切一段，其中 k 是当前人的组大小。排序写法需要改动原数组顺序，而分桶写法只遍历一次，并且直接得到一组可行解。',
+      },
+      {
+        id: 'group-the-people-given-the-group-size-they-belong-to-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在桶的结算、编号来源和组大小对应关系。',
+        bullets: [
+          '易错点 1：把 groupSizes 的值当成人的编号。',
+          '易错点 2：桶满后忘记清空，下一组人数超标。',
+          '易错点 3：桶没满就提前成组。',
+          '易错点 4：同一个人被加入多个桶。',
+          '易错点 5：只处理一种组大小。',
+          '易错点 6：返回的组大小与成员要求不符。',
+          '易错点 7：用值去重，导致同大小的不同人丢失。',
+          '易错点 8：结算时把桶的引用直接放入结果，后续修改污染已结算小组。',
+          '延伸方向：哈希分桶、贪心构造、以及按约束分组。',
+        ],
+      },
+    ],
+  },
 ];
