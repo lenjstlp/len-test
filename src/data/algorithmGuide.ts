@@ -128324,4 +128324,118 @@ ORDER BY start_id;`,
       },
     ],
   },
+  {
+    id: 'minimum-falling-path-sum-ii',
+    label: '1289. LeetCode 1289. 下降路径最小和 II',
+    difficulty: '困难',
+    description:
+      '每行选择一个元素，下一行的列不能与上一行相同，求最小路径和。用动态规划逐行转移，并只记录上一行的最小值和次小值及其列，就能把每行的枚举成本降到线性。',
+    outcome:
+      '你能用最小值和次小值代替整行枚举，在 O(n²) 时间内完成带禁列约束的动态规划。',
+    sections: [
+      {
+        id: 'minimum-falling-path-sum-ii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 n 行 n 列的整数矩阵。从第一行任意一个元素出发，每行选择一个元素向下走，且下一行选择的列不能与上一行相同。求所有合法路径中最小的元素和。',
+        bullets: [
+          '矩阵是 n 行 n 列。',
+          '起点可以是第一行的任意元素。',
+          '每行必须恰好选择一个元素。',
+          '下一行的列不能与上一行相同。',
+          '路径和是所选元素之和。',
+          '要求返回最小路径和。',
+          '行数等于列数。',
+          '矩阵元素可能为负数。',
+          '路径每次只向下移动一行。',
+          '至少有一行。',
+        ],
+      },
+      {
+        id: 'minimum-falling-path-sum-ii-model',
+        title: '动态规划加最小次小值',
+        summary:
+          '设 dp[row][col] 表示走到当前格子的最小路径和。第一行就是原矩阵的值。之后每个格子只能从上一行不同列转移，如果直接枚举上一行所有列，每行要平方时间；实际上只需要上一行最小值所在列和次小值。',
+        bullets: [
+          'dp[row][col] 表示到达该格的最小路径和。',
+          '第一行的 dp 值就是矩阵原值。',
+          '当前格只能从上一行不同列转移。',
+          '如果当前列不是上一行最小值所在列，直接取最小值。',
+          '如果当前列正是最小值所在列，就取次小值。',
+          '每行先扫描一次找出最小值和次小值。',
+          '再扫描一次计算当前行的 dp。',
+          '每行只花线性时间。',
+        ],
+        callout:
+          '为什么只保留最小值和次小值就够？当前列只禁止一个来源列，也就是最小值所在的那一列。其他所有列都允许，其中最优的一定是全局最小值；只有被禁止时，才需要退而取次小值。',
+      },
+      {
+        id: 'minimum-falling-path-sum-ii-solution',
+        title: '解法：滚动数组与两个极值',
+        summary:
+          '用 previous 保存上一行的 dp。每处理新的一行，先扫描 previous 求出最小值、次小值和最小值所在列，再根据当前列是否等于该列选择对应值，加上矩阵当前格得到 current。',
+        bullets: [
+          'previous 初始化为矩阵第一行。',
+          '每行扫描一次找最小值、次小值和最小列。',
+          '当前列等于最小列时使用次小值。',
+          '否则使用最小值。',
+          '当前 dp 等于矩阵值加上选中的来源值。',
+          '计算完成后用 current 覆盖 previous。',
+          '最后取 previous 中的最小值。',
+          '空间只需要两行。',
+        ],
+        code: `function minFallingPathSum(grid: number[][]): number {
+  const size = grid.length
+  let previous = [...grid[0]]
+
+  for (let row = 1; row < size; row += 1) {
+    let smallest = Number.POSITIVE_INFINITY
+    let secondSmallest = Number.POSITIVE_INFINITY
+    let smallestColumn = -1
+
+    for (let col = 0; col < size; col += 1) {
+      const value = previous[col]
+
+      if (value < smallest) {
+        secondSmallest = smallest
+        smallest = value
+        smallestColumn = col
+      } else if (value < secondSmallest) {
+        secondSmallest = value
+      }
+    }
+
+    const current = new Array<number>(size).fill(0)
+
+    for (let col = 0; col < size; col += 1) {
+      const best = col === smallestColumn ? secondSmallest : smallest
+      current[col] = grid[row][col] + best
+    }
+
+    previous = current
+  }
+
+  return Math.min(...previous)
+}`,
+        callout:
+          '如果上一行有多个并列最小值，次小值会等于最小值。此时被禁止的最小列使用次小值，得到的仍是另一个并列最小列的值，结果依然正确。不要用严格大于去更新次小值，否则并列情况会丢失候选。',
+      },
+      {
+        id: 'minimum-falling-path-sum-ii-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在禁列约束、极值维护和滚动数组更新。',
+        bullets: [
+          '易错点 1：允许从上一行同一列转移。',
+          '易错点 2：只记录最小值，没有记录所在列。',
+          '易错点 3：当前列等于最小列时仍然使用最小值。',
+          '易错点 4：次小值更新逻辑写错，遇到并列最小值丢失候选。',
+          '易错点 5：每行枚举上一行所有列，退化成 O(n 的三次方)。',
+          '易错点 6：最后返回第一行的最小值。',
+          '易错点 7：把极值初始化成零，负权值场景结果错误。',
+          '易错点 8：原地修改 previous，计算当前行时读到已被覆盖的值。',
+          '延伸方向：滚动数组、每行前 k 小值、以及带禁列约束的最短路径。',
+        ],
+      },
+    ],
+  },
 ];
