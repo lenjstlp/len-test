@@ -128438,4 +128438,95 @@ ORDER BY start_id;`,
       },
     ],
   },
+  {
+    id: 'convert-binary-number-in-a-linked-list-to-integer',
+    label: '1290. LeetCode 1290. 二进制链表转整数',
+    difficulty: '简单',
+    description:
+      '链表每个节点存 0 或 1，头节点是最高位。从头到尾遍历，每读一位就把已有结果乘二再加上当前位，一次扫描即可得到十进制值。',
+    outcome: '你能把二进制位权累加写成 O(n) 时间、O(1) 空间的链表遍历。',
+    sections: [
+      {
+        id: 'convert-binary-number-in-a-linked-list-to-integer-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个单链表，每个节点的值只能是 0 或 1。链表的顺序对应一个二进制数，头节点是最高位，尾节点是最低位。要求返回这个二进制数对应的十进制整数。',
+        bullets: [
+          '单链表的每个节点存 0 或 1。',
+          '头节点对应二进制最高位。',
+          '尾节点对应最低位。',
+          '节点顺序就是从高位到低位的位序。',
+          '要求返回对应的十进制整数。',
+          '链表长度最多为 30。',
+          '不能修改链表结构。',
+          '结果保证在 32 位有符号整数范围内。',
+          '链表至少有一个节点。',
+          '只需要返回值，不需要返回位数。',
+        ],
+      },
+      {
+        id: 'convert-binary-number-in-a-linked-list-to-integer-model',
+        title: '把位权累加变成一次遍历',
+        summary:
+          '读到一个新位时，已经读过的所有位整体左移一位，也就是把当前结果乘二，再把新位加到最低位。这样每读一个节点就完成一次移位和一次赋值，遍历结束就得到完整数值。',
+        bullets: [
+          '结果初始为 0。',
+          '每读一位，先把结果乘二。',
+          '再加上当前节点的值。',
+          '相当于每次把旧结果左移一位。',
+          '头节点最先读，天然占据最高位。',
+          '尾节点最后读，成为最低位。',
+          '只依赖遍历顺序，不需要额外存储。',
+          '复杂度 O(n) 时间、O(1) 空间。',
+        ],
+        callout:
+          '为什么是乘二而不是加一？二进制中每多读一位，之前所有位的权值都翻倍，乘二正好完成这个整体移位。',
+      },
+      {
+        id: 'convert-binary-number-in-a-linked-list-to-integer-solution',
+        title: '解法：遍历并累乘',
+        summary:
+          '用一个变量保存累计结果，指针从 head 开始沿着 next 前进，每次先让结果乘二再加上当前节点的值，遍历结束后直接返回。',
+        bullets: [
+          '结果变量初始化为 0。',
+          '指针从 head 开始。',
+          '循环直到指针为空。',
+          '每轮先执行 result = result * 2。',
+          '再加上 current.val。',
+          '指针移动到 next。',
+          '返回结果。',
+          '空链表直接返回 0。',
+        ],
+        code: `function getDecimalValue(head: ListNode | null): number {
+  let result = 0
+  let current = head
+
+  while (current !== null) {
+    result = result * 2 + current.val
+    current = current.next
+  }
+
+  return result
+}`,
+        callout:
+          '也可以把每一位存进数组再按权求和，但那需要额外空间；一次遍历累乘是同样正确且更省的写法。',
+      },
+      {
+        id: 'convert-binary-number-in-a-linked-list-to-integer-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在位顺序、移位方式和对链表为空的处理。',
+        bullets: [
+          '易错点 1：从尾节点开始读，位序反了。',
+          '易错点 2：每次加一而不是乘二。',
+          '易错点 3：先加后乘，写成 (result + val) * 2。',
+          '易错点 4：用 Math.pow 逐位计算，代码更繁琐。',
+          '易错点 5：忘记推进 current 指针，死循环。',
+          '易错点 6：空链表没有返回 0。',
+          '易错点 7：把 result 声明成浮点数，其实整数即可。',
+          '易错点 8：试图修改链表节点来存储中间结果。',
+          '延伸方向：二进制加法、链表表示大整数、以及按位运算。',
+        ],
+      },
+    ],
+  },
 ];
