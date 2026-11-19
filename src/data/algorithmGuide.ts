@@ -129078,4 +129078,119 @@ GROUP BY c.country_id, c.country_name;`,
       },
     ],
   },
+  {
+    id: 'divide-array-in-sets-of-k-consecutive-numbers',
+    label: '1296. LeetCode 1296. 划分数组为连续数字的集合',
+    difficulty: '中等',
+    description:
+      '把数组划分成若干个长度为 k、元素连续的集合。先统计频次，再按数值从小到大贪心取走每组 k 个数，任何一环数量不够就失败。',
+    outcome: '你能用频次表加有序贪心处理「连续分组」类问题。',
+    sections: [
+      {
+        id: 'divide-array-in-sets-of-k-consecutive-numbers-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 nums 和整数 k，判断能否把数组中的全部元素划分成若干组，每组恰好 k 个元素，且组内元素是连续整数。每个元素必须用且只用一次。',
+        bullets: [
+          '数组元素可能重复。',
+          '每组长度恰好是 k。',
+          '组内元素必须连续。',
+          '例如 1、2、3 可以成组。',
+          '每个元素只能用一次。',
+          '能全部划分返回 true。',
+          '否则返回 false。',
+          '数组长度必须是 k 的倍数。',
+          '组与组之间不共享元素。',
+          '组的顺序不影响答案。',
+        ],
+      },
+      {
+        id: 'divide-array-in-sets-of-k-consecutive-numbers-model',
+        title: '最小元素必须当组头',
+        summary:
+          '排序后最小的未使用元素，不可能出现在任何以更小数开头的组里，所以它只能作为自己那组的起点。这组的其余 k-1 个成员随之固定，贪心选择没有回旋余地。',
+        bullets: [
+          '最小未用元素一定是某个组的起点。',
+          '这组必须包含它以及后面 k-1 个连续数。',
+          '每一组都由当时的起点唯一确定。',
+          '因此贪心是唯一可行的策略。',
+          '频次表记录每个值还剩多少个。',
+          '从最小剩余值开始消耗整组。',
+          '某个值数量不够就立即失败。',
+          '所有值都消耗完即成功。',
+        ],
+        callout:
+          '为什么从最小值开始不会错？最小值不可能出现在任何「以更小数开头」的组里，它只能当自己这一组的起点，所以先处理它不会排除其他合法方案。',
+      },
+      {
+        id: 'divide-array-in-sets-of-k-consecutive-numbers-solution',
+        title: '解法：频次表加有序贪心',
+        summary:
+          '先检查长度能否被 k 整除，再统计每个值的出现次数。把所有不同的值排序，依次把当前值当作组起点，如果它还有剩余，就让起点到起点加 k 减一每个值各消耗相同数量。',
+        bullets: [
+          '长度不能被 k 整除直接返回 false。',
+          '用哈希表统计每个值出现次数。',
+          '对不同值从小到大排序。',
+          '依次把当前值当作组起点。',
+          '剩余数量为零就跳过。',
+          '组内每个值都要有足够数量。',
+          '不足则返回 false。',
+          '足够则整体减去该数量。',
+          '全部处理完返回 true。',
+        ],
+        code: `function isPossibleDivide(nums: number[], k: number): boolean {
+  if (nums.length % k !== 0) {
+    return false
+  }
+
+  const counts = new Map<number, number>()
+
+  for (const value of nums) {
+    counts.set(value, (counts.get(value) ?? 0) + 1)
+  }
+
+  const startValues = [...counts.keys()].sort((left, right) => left - right)
+
+  for (const start of startValues) {
+    const amount = counts.get(start) ?? 0
+
+    if (amount === 0) {
+      continue
+    }
+
+    for (let offset = 0; offset < k; offset += 1) {
+      const value = start + offset
+      const current = counts.get(value) ?? 0
+
+      if (current < amount) {
+        return false
+      }
+
+      counts.set(value, current - amount)
+    }
+  }
+
+  return true
+}`,
+        callout:
+          '也可以先整体排序，再用一个「当前组还缺几个」的计数器扫描。那样省掉哈希表，但需要保证同一数值连续出现时被分到不同组，写法更容易出错；频次表思路更清晰。',
+      },
+      {
+        id: 'divide-array-in-sets-of-k-consecutive-numbers-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在整除检查、贪心方向和频次扣减。',
+        bullets: [
+          '易错点 1：忘记检查长度是否是 k 的倍数。',
+          '易错点 2：从大到小贪心，组头判断错误。',
+          '易错点 3：只扣当前值，忘记扣后续 k-1 个。',
+          '易错点 4：数量不足时继续扣成负数。',
+          '易错点 5：没有排序，处理顺序错乱。',
+          '易错点 6：用下标代替数值，重复元素出错。',
+          '易错点 7：把连续理解成相邻下标。',
+          '易错点 8：提前返回 true，没有消耗完所有元素。',
+          '延伸方向：频次贪心、任务调度和手牌分组。',
+        ],
+      },
+    ],
+  },
 ];
