@@ -128896,4 +128896,95 @@ ORDER BY start_id;`,
       },
     ],
   },
+  {
+    id: 'weather-type-in-each-country',
+    label: '1294. LeetCode 1294. 不同国家的天气类型',
+    difficulty: '简单',
+    description:
+      '国家表和天气表按国家关联，统计 2019 年 11 月每个国家的平均天气状态，再按阈值映射成 Cold、Hot、Warm。',
+    outcome: '你能把区间条件映射成 CASE 表达式，并在聚合结果上做分类。',
+    sections: [
+      {
+        id: 'weather-type-in-each-country-summary',
+        title: '题目在问什么',
+        summary:
+          'Countries 表保存国家编号和名称，Weather 表保存国家编号、天气状态值和日期。要求统计 2019 年 11 月每个国家的平均天气状态：平均不超过 15 记为 Cold，不低于 25 记为 Hot，其余记为 Warm。',
+        bullets: [
+          'Countries 表每行一个国家。',
+          'Weather 表每行一条天气记录。',
+          '两张表通过国家编号关联。',
+          '只需要 2019 年 11 月的数据。',
+          '按国家求平均天气状态。',
+          '平均值不超过 15 是 Cold。',
+          '平均值不低于 25 是 Hot。',
+          '其余情况是 Warm。',
+          '返回国家名称和天气类型。',
+          '每个国家输出一行。',
+        ],
+      },
+      {
+        id: 'weather-type-in-each-country-model',
+        title: '过滤、聚合、分类三步走',
+        summary:
+          '先连接两张表，再用日期范围筛出十一月，然后按国家分组求平均，最后用 CASE 把平均值翻译成天气类型。过滤放在聚合之前，平均值才只统计目标月份。',
+        bullets: [
+          '连接条件是国家编号相等。',
+          '日期条件用 BETWEEN 覆盖整月。',
+          '分组键是国家编号和国家名称。',
+          '组内用 AVG 求平均状态。',
+          'CASE 按阈值判断类型。',
+          '两个阈值区间互不重叠。',
+          '结果列别名写成 weather_type。',
+          '不需要额外排序。',
+        ],
+        callout:
+          'CASE 的判断顺序只在条件重叠时才重要；这里「不超过 15」和「不低于 25」互斥，先写冷还是先写热，结果都一样。',
+      },
+      {
+        id: 'weather-type-in-each-country-solution',
+        title: '解法：连接后分组聚合',
+        summary:
+          '用 JOIN 把国家名补到天气记录上，WHERE 限制日期范围，GROUP BY 按国家分组，SELECT 里用 CASE 包住 AVG 得到类型。',
+        bullets: [
+          '从 Countries 出发连接 Weather。',
+          'WHERE 筛选十一月。',
+          'GROUP BY 按国家分组。',
+          'SELECT 输出国家名称。',
+          'AVG 求平均天气状态。',
+          'CASE 按阈值返回类型。',
+          '别名使用 weather_type。',
+          '平均值直接和整数比较。',
+        ],
+        code: `SELECT
+  c.country_name,
+  CASE
+    WHEN AVG(w.weather_state) <= 15 THEN 'Cold'
+    WHEN AVG(w.weather_state) >= 25 THEN 'Hot'
+    ELSE 'Warm'
+  END AS weather_type
+FROM Countries AS c
+JOIN Weather AS w ON w.country_id = c.id
+WHERE w.day BETWEEN '2019-11-01' AND '2019-11-30'
+GROUP BY c.country_id, c.country_name;`,
+        callout:
+          'AVG 返回小数，直接和整数比较即可；如果先四舍五入再判断，恰好落在边界附近的平均值会被分到错误的类型。',
+      },
+      {
+        id: 'weather-type-in-each-country-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在日期过滤位置、阈值方向和国家关联。',
+        bullets: [
+          '易错点 1：日期条件写在聚合之后，无法过滤原始行。',
+          '易错点 2：用等于比较日期，漏掉整月数据。',
+          '易错点 3：把冷热阈值写反。',
+          '易错点 4：CASE 放在 WHERE 里，语法错误。',
+          '易错点 5：没有按国家分组，所有国家混在一起。',
+          '易错点 6：连接方向写反，国家名丢失。',
+          '易错点 7：把天气状态值当成温度区间直接分类。',
+          '易错点 8：别名写错，结果列名不符合要求。',
+          '延伸方向：CASE 分类、日期范围聚合、以及多表连接统计。',
+        ],
+      },
+    ],
+  },
 ];
