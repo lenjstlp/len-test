@@ -129521,4 +129521,132 @@ GROUP BY c.country_id, c.country_name;`,
       },
     ],
   },
+  {
+    id: 'sum-of-mutated-array-closest-to-target',
+    label: '1300. LeetCode 1300. 转变数组后最接近目标值的数组和',
+    difficulty: '中等',
+    description:
+      '选一个值 value，把所有大于它的元素改成 value，使数组和最接近目标。数组和随 value 单调不减，因此可以二分找到跨越目标的位置，再比较相邻两个候选。',
+    outcome:
+      '你能把「最接近目标」的问题转成单调函数的二分，并在相邻候选之间做一次比较。',
+    sections: [
+      {
+        id: 'sum-of-mutated-array-closest-to-target-summary',
+        title: '题目在问什么',
+        summary:
+          '给定整数数组 arr 和目标值 target。选择一个非负整数 value，把数组中所有大于 value 的元素都改成 value，小于等于 value 的元素保持不变。要求返回使修改后的数组和最接近 target 的 value；距离相同时返回较小的 value。',
+        bullets: [
+          '数组元素是整数。',
+          'value 是非负整数。',
+          '大于 value 的元素会被压成 value。',
+          '小于等于 value 的元素不变。',
+          '修改后的和要最接近 target。',
+          '距离相同返回较小的 value。',
+          '数组长度最多一万。',
+          'value 可以大于所有元素。',
+          '修改后的和随 value 单调不减。',
+          '返回 value，不是数组和。',
+        ],
+      },
+      {
+        id: 'sum-of-mutated-array-closest-to-target-model',
+        title: '把价值函数看成单调阶梯',
+        summary:
+          '固定 value 后，修改后的和唯一确定，并且随着 value 增大不会减小。函数是一条单调的阶梯线。目标是与 target 最接近，所以最优点只可能出现在和从小于 target 跳到大于 target 的切换处两侧。',
+        bullets: [
+          '固定 value 后数组和唯一确定。',
+          'value 增大时和不会减小。',
+          '函数是分段线性的阶梯。',
+          '随着 value 增大，和从小变到大。',
+          '最接近的位置在跨越点附近。',
+          '二分找第一个使和不小于 target 的 value。',
+          '再与它减一比较。',
+          '距离相等取较小值。',
+        ],
+        callout:
+          '为什么只看相邻两个候选？函数单调，所以切换点左侧的和都不超过 target、右侧的和都不低于 target，距离最近的点必然落在切换处左右。',
+      },
+      {
+        id: 'sum-of-mutated-array-closest-to-target-solution',
+        title: '解法：排序前缀和加二分',
+        summary:
+          '把数组排序并做前缀和。对给定 value，用二分找到第一个大于 value 的位置，左侧用前缀和原样相加、右侧全部按 value 计算。再对 value 二分找第一个和不小于 target 的取值，最后比较它和它减一。',
+        bullets: [
+          '排序不改变修改后的和。',
+          '前缀和让固定 value 的求和变成 O(log n)。',
+          '在有序数组中二分第一个大于 value 的位置。',
+          '左侧部分来自前缀和。',
+          '右侧个数乘以 value。',
+          '对 value 二分第一个和不少于 target 的值。',
+          '候选一是该值本身。',
+          '候选二是该值减一与零的较大者。',
+          '距离相同时返回较小的候选。',
+        ],
+        code: `function findBestValue(arr: number[], target: number): number {
+  const sorted = [...arr].sort((left, right) => left - right)
+  const length = sorted.length
+  const prefix = new Array<number>(length + 1).fill(0)
+
+  for (let index = 0; index < length; index += 1) {
+    prefix[index + 1] = prefix[index] + sorted[index]
+  }
+
+  const sumAfterCap = (value: number): number => {
+    let low = 0
+    let high = length
+
+    while (low < high) {
+      const middle = Math.floor((low + high) / 2)
+
+      if (sorted[middle] <= value) {
+        low = middle + 1
+      } else {
+        high = middle
+      }
+    }
+
+    return prefix[low] + value * (length - low)
+  }
+
+  const maximum = sorted[length - 1]
+  let low = 0
+  let high = maximum
+
+  while (low < high) {
+    const middle = Math.floor((low + high) / 2)
+
+    if (sumAfterCap(middle) < target) {
+      low = middle + 1
+    } else {
+      high = middle
+    }
+  }
+
+  const lowerValue = Math.max(0, low - 1)
+  const lowerDiff = Math.abs(sumAfterCap(lowerValue) - target)
+  const upperDiff = Math.abs(sumAfterCap(low) - target)
+
+  return lowerDiff <= upperDiff ? lowerValue : low
+}`,
+        callout:
+          '也可以按排序后的每个元素分段枚举，直接算出每段的候选值，复杂度 O(n log n)。二分写法复用「固定 value 求和」这个子问题，边界更少。',
+      },
+      {
+        id: 'sum-of-mutated-array-closest-to-target-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在候选比较、value 范围和前缀求和上。',
+        bullets: [
+          '易错点 1：只比较二分落点，忽略减一的候选。',
+          '易错点 2：距离相等时返回较大的值。',
+          '易错点 3：value 取到负数，违反题意。',
+          '易错点 4：对未排序数组做位置二分。',
+          '易错点 5：求和时重复计算被替换的元素。',
+          '易错点 6：二分上界取错，遗漏大于全部元素的取值。',
+          '易错点 7：用整数除法近似代替二分。',
+          '易错点 8：前缀和没有留出第零项。',
+          '延伸方向：单调函数二分、分段线性函数和三分搜索。',
+        ],
+      },
+    ],
+  },
 ];
