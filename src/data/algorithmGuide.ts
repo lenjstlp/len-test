@@ -129430,4 +129430,95 @@ GROUP BY c.country_id, c.country_name;`,
       },
     ],
   },
+  {
+    id: 'replace-elements-with-greatest-element-on-right-side',
+    label: '1299. LeetCode 1299. 将每个元素替换为右侧最大元素',
+    difficulty: '简单',
+    description:
+      '把每个位置替换成它右侧所有元素的最大值，最后一个位置替换成 -1。从右往左维护一个最大值，一次遍历就能原地完成。',
+    outcome: '你能用逆序单变量维护后缀最大值，避免每个位置都重新扫描右侧。',
+    sections: [
+      {
+        id: 'replace-elements-with-greatest-element-on-right-side-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个整数数组 arr，要求把每个位置的值替换成它右侧所有元素中的最大值。最后一个位置右侧没有元素，替换成 -1。返回替换后的数组。',
+        bullets: [
+          '给定一个整数数组。',
+          '每个位置替换成右侧最大值。',
+          '右侧指下标严格更大的元素。',
+          '最后一个位置没有右侧元素。',
+          '最后一个位置写 -1。',
+          '返回替换后的数组。',
+          '可以原地修改。',
+          '数组长度至少为一。',
+          '元素可能为负数。',
+          '计算时使用原始值。',
+        ],
+      },
+      {
+        id: 'replace-elements-with-greatest-element-on-right-side-model',
+        title: '从右往左滚动后缀最大',
+        summary:
+          '最右侧位置的答案固定是 -1。从右往左走时，右侧最大值只会因为遇到更大的元素而变大，因此用一个变量保存即可，不需要预先计算整个后缀数组。',
+        bullets: [
+          '最右侧答案固定是 -1。',
+          '右侧最大值只会单调不减。',
+          '用一个变量保存当前右侧最大值。',
+          '每处理一格先保存它的原值。',
+          '把该格写成当前右侧最大值。',
+          '再用原值更新右侧最大值。',
+          '顺序不能反，否则原值被覆盖。',
+          '一次遍历完成。',
+        ],
+        callout:
+          '关键顺序是先写答案、后更新最大值。如果先更新再写入，当前元素会被算进自己的右侧最大值里。',
+      },
+      {
+        id: 'replace-elements-with-greatest-element-on-right-side-solution',
+        title: '解法：逆序一次遍历',
+        summary:
+          'rightMax 初始为 -1，下标从末尾开始。每轮先保存 arr 当前元素，把该位置写成 rightMax，再用保存的原值更新 rightMax，最后下标左移。',
+        bullets: [
+          'rightMax 初始为 -1。',
+          '下标从末尾开始。',
+          '先保存当前元素。',
+          '把当前元素写为 rightMax。',
+          '用保存的值更新 rightMax。',
+          '下标左移。',
+          '遍历结束返回数组。',
+          '空间复杂度常数。',
+        ],
+        code: `function replaceElements(arr: number[]): number[] {
+  let rightMax = -1
+
+  for (let index = arr.length - 1; index >= 0; index -= 1) {
+    const current = arr[index]
+    arr[index] = rightMax
+    rightMax = Math.max(rightMax, current)
+  }
+
+  return arr
+}`,
+        callout:
+          '如果题目要求不修改原数组，就先复制一份再按同样顺序处理；核心逻辑不变，只是多一个 O(n) 的副本。',
+      },
+      {
+        id: 'replace-elements-with-greatest-element-on-right-side-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在遍历方向、更新顺序和初值上。',
+        bullets: [
+          '易错点 1：从左往右更新，拿到的是左侧最大值。',
+          '易错点 2：先更新最大值再写入，当前元素被算进去。',
+          '易错点 3：忘记保存原值，覆盖后无法更新。',
+          '易错点 4：最后一个位置写成零而不是 -1。',
+          '易错点 5：最大值初值设成零，负数数组出错。',
+          '易错点 6：把右侧最大值理解成右侧元素之和。',
+          '易错点 7：额外建数组，空间不必要。',
+          '易错点 8：忘记返回数组。',
+          '延伸方向：后缀最值、前缀积和单调栈。',
+        ],
+      },
+    ],
+  },
 ];
