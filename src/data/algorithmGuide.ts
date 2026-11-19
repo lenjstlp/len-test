@@ -129296,4 +129296,138 @@ GROUP BY c.country_id, c.country_name;`,
       },
     ],
   },
+  {
+    id: 'maximum-candies-you-can-get-from-boxes',
+    label: '1298. LeetCode 1298. 你能从盒子里获得的最大糖果数',
+    difficulty: '困难',
+    description:
+      '每个盒子可能上锁，打开后能得到糖果、钥匙和其他盒子。用集合分别记录手上的盒子和拥有的钥匙，反复尝试开盒，打不开就先等着，拿到新钥匙再回头尝试。',
+    outcome:
+      '你能用「手牌加钥匙加待开队列」模拟依赖链，并处理「先拿不到、后来才满足条件」的情况。',
+    sections: [
+      {
+        id: 'maximum-candies-you-can-get-from-boxes-summary',
+        title: '题目在问什么',
+        summary:
+          '有 n 个盒子，每个盒子有状态（开或锁）、糖果数、钥匙列表和内含盒子列表。初始手上有一批盒子，打开盒子能拿到糖果、钥匙和里面的盒子。要求返回能获得的最大糖果总数。',
+        bullets: [
+          '每个盒子有编号。',
+          '状态一表示开着，零表示上锁。',
+          '盒子打开后能得到糖果。',
+          '钥匙可以打开同编号的盒子。',
+          '内含盒子会进入你的手上。',
+          '初始盒子可能上锁。',
+          '每个盒子最多打开一次。',
+          '盒子之间可能形成依赖环。',
+          '拿不到的盒子不计糖果。',
+          '要求最大糖果总数。',
+        ],
+      },
+      {
+        id: 'maximum-candies-you-can-get-from-boxes-model',
+        title: '两个集合加一个待开队列',
+        summary:
+          '手上的盒子用一个集合记录，拥有的钥匙用另一个集合记录。能打开的盒子放进队列；打开后把糖果累加，把新钥匙和新盒子并入集合，再回头检查之前打不开的盒子。',
+        bullets: [
+          '手上的盒子用集合记录。',
+          '拥有的钥匙用集合记录。',
+          '能打开的盒子放进待办队列。',
+          '开盒后累加糖果。',
+          '钥匙加入钥匙集合。',
+          '新钥匙可能解锁已在手上的盒子。',
+          '新盒子加入盒子集合。',
+          '新盒子若已解锁也立即入队。',
+          '打不开的盒子留在集合里等待。',
+          '队列为空时结束。',
+        ],
+        callout:
+          '为什么不能丢掉暂时打不开的盒子？它可能在后面被别的盒子的钥匙打开，所以必须保留在手上，每次获得新钥匙时重新检查。',
+      },
+      {
+        id: 'maximum-candies-you-can-get-from-boxes-solution',
+        title: '解法：队列加集合反复解锁',
+        summary:
+          '初始化三个集合和空队列。初始盒子全部放进手上集合，能打开的入队。循环取盒、累加糖果、收集钥匙和新盒子，并在每次获得新钥匙或新盒子时尝试解锁。',
+        bullets: [
+          '手上集合保存所有已获得的盒子。',
+          '钥匙集合保存所有已获得的钥匙。',
+          '已打开集合防止重复计算。',
+          '初始盒子逐个判断能否打开。',
+          '队列取出盒子后累加糖果。',
+          '遍历钥匙，加入钥匙集合并尝试解锁。',
+          '遍历内含盒子，加入手上集合并尝试解锁。',
+          '尝试解锁只对未打开且在手上的盒子生效。',
+          '队列空后返回糖果总数。',
+        ],
+        code: `function maxCandies(
+  status: number[],
+  candies: number[],
+  keys: number[][],
+  containedBoxes: number[][],
+  initialBoxes: number[],
+): number {
+  const ownedKeys = new Set<number>()
+  const boxesInHand = new Set<number>()
+  const opened = new Set<number>()
+  const queue: number[] = []
+  let total = 0
+
+  const tryOpen = (box: number) => {
+    if (opened.has(box) || !boxesInHand.has(box)) {
+      return
+    }
+
+    if (status[box] === 1 || ownedKeys.has(box)) {
+      opened.add(box)
+      queue.push(box)
+    }
+  }
+
+  for (const box of initialBoxes) {
+    boxesInHand.add(box)
+    tryOpen(box)
+  }
+
+  while (queue.length > 0) {
+    const box = queue.pop() as number
+    total += candies[box]
+
+    for (const key of keys[box]) {
+      if (!ownedKeys.has(key)) {
+        ownedKeys.add(key)
+        tryOpen(key)
+      }
+    }
+
+    for (const inner of containedBoxes[box]) {
+      if (!boxesInHand.has(inner)) {
+        boxesInHand.add(inner)
+        tryOpen(inner)
+      }
+    }
+  }
+
+  return total
+}`,
+        callout:
+          'tryOpen 里先检查盒子是否已经在手上，可以避免「钥匙先到、盒子后到」和「盒子先到、钥匙后到」两种顺序写出两套逻辑，一个函数就能同时处理。',
+      },
+      {
+        id: 'maximum-candies-you-can-get-from-boxes-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在回头检查、钥匙消耗和重复开盒上。',
+        bullets: [
+          '易错点 1：只开初始已解锁的盒子，拿到钥匙后不再回头。',
+          '易错点 2：拿到钥匙后没有检查手上的盒子。',
+          '易错点 3：把钥匙当消耗品，用掉就删除。',
+          '易错点 4：重复打开同一个盒子，糖果重复计算。',
+          '易错点 5：盒子入队后没有标记已打开。',
+          '易错点 6：忘记把内含盒子加入手上集合。',
+          '易错点 7：遇到打不开的盒子直接丢弃。',
+          '易错点 8：用数组模拟集合，重复盒子导致重复计算。',
+          '延伸方向：依赖图遍历、拓扑解锁和状态集合模拟。',
+        ],
+      },
+    ],
+  },
 ];
