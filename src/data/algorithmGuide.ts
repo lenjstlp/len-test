@@ -129649,4 +129649,155 @@ GROUP BY c.country_id, c.country_name;`,
       },
     ],
   },
+  {
+    id: 'number-of-paths-with-max-score',
+    label: '1301. LeetCode 1301. 最大得分的路径数目',
+    difficulty: '困难',
+    description:
+      '从棋盘左下角走到右上角，只能向上、向左或向右移动，求最大得分和达到该得分的路径数。按行从下往上做 DP，每行枚举进入列并向左右各扫一遍，就能覆盖所有简单路径。',
+    outcome:
+      '你能把行内左右移动拆成「从某一列进入后单调横扫」，用分层 DP 同时维护最大值和方案数。',
+    sections: [
+      {
+        id: 'number-of-paths-with-max-score-summary',
+        title: '题目在问什么',
+        summary:
+          '给定 n 行 n 列的字符棋盘，数字格是得分，S 是左下角起点，E 是右上角终点，X 是障碍。每次可以向上、向左或向右移动一格，不能向下。要求返回最大得分以及达到该得分的路径数，路径数对十的九次方加七取模。',
+        bullets: [
+          '棋盘是 n 行 n 列。',
+          '数字格表示得分。',
+          'S 在左下角，是起点。',
+          'E 在右上角，是终点。',
+          'X 是障碍，不能经过。',
+          '只能向上、向左或向右移动。',
+          '不能向下移动。',
+          '得分是路径经过的数字之和。',
+          '要求返回最大得分和路径数。',
+          '无法到达时返回两个零。',
+        ],
+      },
+      {
+        id: 'number-of-paths-with-max-score-model',
+        title: '每一行只进入一次',
+        summary:
+          '因为不能向下，路径只会从下一行向上进入当前行，之后在当前行左右移动，再向上离开。简单路径在行内不会折返，所以行内的走法一定是从某个进入列出发、单调向左或向右的一段。',
+        bullets: [
+          '不能向下，每行最多进入一次。',
+          '进入某行后只能左右移动。',
+          '简单路径在行内不会来回折返。',
+          '行内路径是单调的一段。',
+          '从下一行的某一列向上进入当前行。',
+          '在当前行选择向左或向右走。',
+          '状态记录到达每一格的最大得分。',
+          '同一状态还要记录方案数。',
+          '障碍把行分成互不连通的段。',
+          '得分相同时方案数相加。',
+        ],
+        callout:
+          '为什么行内不能来回走？一旦向左再向右就会重复经过同一格，得分不会变得更好，却会让路径计数混乱。DP 只考虑行内单调的走法，既覆盖全部最优路径，也避免重复计数。',
+      },
+      {
+        id: 'number-of-paths-with-max-score-solution',
+        title: '解法：逐行 DP 加双向扫描',
+        summary:
+          '从最底行开始，把下一行每个格子的最优得分当作进入点。对每个有效进入列，分别向左右延伸累加数字，并更新当前行的最优得分和方案数；得分相同时方案数相加取模。',
+        bullets: [
+          'previous 保存下一行的最大得分。',
+          'previousWays 保存对应方案数。',
+          '起点初始得分为零、方案数为一。',
+          '每行先取数字数组和障碍位置。',
+          '枚举所有可进入的列。',
+          '向右扫到边界或障碍为止。',
+          '向左扫时跳过进入列本身。',
+          '每到一个格子就合并候选。',
+          '更大得分覆盖，相同得分累加方案。',
+          '行处理完把当前行作为下一轮的 previous。',
+          '终点无法到达时返回两个零。',
+        ],
+        code: `function pathsWithMaxScore(board: string[]): number[] {
+  const size = board.length
+  const modulo = 1_000_000_007
+  const digits = board.map((line) =>
+    [...line].map((cell) =>
+      cell === 'S' || cell === 'E' || cell === 'X' ? 0 : Number(cell),
+    ),
+  )
+
+  let previous = new Array<number>(size).fill(-1)
+  let previousWays = new Array<number>(size).fill(0)
+  previous[0] = 0
+  previousWays[0] = 1
+
+  for (let row = size - 1; row >= 0; row -= 1) {
+    const blocked = [...board[row]].map((cell) => cell === 'X')
+    const scores = new Array<number>(size).fill(-1)
+    const ways = new Array<number>(size).fill(0)
+
+    const merge = (col: number, score: number, count: number) => {
+      if (score > scores[col]) {
+        scores[col] = score
+        ways[col] = count
+      } else if (score === scores[col]) {
+        ways[col] = (ways[col] + count) % modulo
+      }
+    }
+
+    for (let entry = 0; entry < size; entry += 1) {
+      if (previous[entry] < 0 || blocked[entry]) {
+        continue
+      }
+
+      const start = previous[entry]
+      const count = previousWays[entry]
+      let running = start
+
+      for (let col = entry; col < size; col += 1) {
+        if (blocked[col]) {
+          break
+        }
+
+        running += digits[row][col]
+        merge(col, running, count)
+      }
+
+      running = start + digits[row][entry]
+
+      for (let col = entry - 1; col >= 0; col -= 1) {
+        if (blocked[col]) {
+          break
+        }
+
+        running += digits[row][col]
+        merge(col, running, count)
+      }
+    }
+
+    previous = scores
+    previousWays = ways
+  }
+
+  const last = size - 1
+  return previous[last] < 0 ? [0, 0] : [previous[last], previousWays[last]]
+}`,
+        callout:
+          '这里枚举进入列再横扫，单行代价是 O(n²)，总复杂度 O(n³)。n 最多一百，完全够用；若想更快，可以用前缀最大值把单行压到 O(n)，但代码会明显变长。',
+      },
+      {
+        id: 'number-of-paths-with-max-score-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在移动方向、重复计数和障碍处理上。',
+        bullets: [
+          '易错点 1：允许向下移动，状态依赖成环。',
+          '易错点 2：向左扫时把进入列又算一遍，方案数翻倍。',
+          '易错点 3：得分相同时忘了累加方案数。',
+          '易错点 4：障碍段没有截断，路径穿过墙。',
+          '易错点 5：把 S 和 E 当成数字字符解析。',
+          '易错点 6：方案数没有取模。',
+          '易错点 7：终点不可达时返回零和一。',
+          '易错点 8：只更新得分不记录方案数。',
+          '延伸方向：网格 DP、带权路径计数和状态转移合并。',
+        ],
+      },
+    ],
+  },
 ];
