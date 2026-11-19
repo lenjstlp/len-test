@@ -128629,4 +128629,138 @@ ORDER BY start_id;`,
       },
     ],
   },
+  {
+    id: 'maximum-side-length-of-a-square-with-sum-less-than-or-equal-to-threshold',
+    label: '1292. LeetCode 1292. 元素和小于等于阈值的正方形的最大边长',
+    difficulty: '中等',
+    description:
+      '给定矩阵和阈值，求元素和不超过阈值的正方形的最大边长。二维前缀和让任意正方形的和在常数时间内求出，再对边长二分，整体复杂度降到 O(mn log min(m, n))。',
+    outcome:
+      '你能用二维前缀和加二分把正方形面积约束问题拆成「判定加搜索」两步。',
+    sections: [
+      {
+        id: 'maximum-side-length-of-a-square-with-sum-less-than-or-equal-to-threshold-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 m 行 n 列的非负整数矩阵和阈值 threshold。要求找到一个与矩阵边平行的正方形，使正方形内元素之和不超过阈值，并返回满足条件的最大边长；一个都找不到时返回 0。',
+        bullets: [
+          '矩阵有 m 行 n 列。',
+          '矩阵元素都是非负整数。',
+          '正方形必须与矩阵边平行。',
+          '正方形可以放在任意位置。',
+          '正方形内元素和不能超过 threshold。',
+          '要求返回最大的边长。',
+          '没有可行正方形时返回 0。',
+          '边长不能超过 min(m, n)。',
+          '返回边长而不是元素和。',
+          '元素非负意味着边长越大和越大。',
+        ],
+      },
+      {
+        id: 'maximum-side-length-of-a-square-with-sum-less-than-or-equal-to-threshold-model',
+        title: '前缀和判定加二分答案',
+        summary:
+          '二维前缀和把任意矩形的和压缩成四个前缀值的加减。固定边长时，枚举所有位置判断是否可行的成本是 O(mn)；由于元素非负，边长越大越难满足，可行性随边长单调，因此可以对边长二分。',
+        bullets: [
+          '二维前缀和记录左上角到当前格的和。',
+          '任意正方形和用四个前缀值加减得到。',
+          '固定边长时枚举所有右下角判断。',
+          '元素非负，边长增大和不会减小。',
+          '可行边长构成从 0 开始的一段前缀。',
+          '因此可以二分最大可行边长。',
+          '单次判定是 O(mn)。',
+          '二分只需 O(log min(m, n)) 次判定。',
+        ],
+        callout:
+          '二分的单调性来自元素非负：把边长从 s 缩到 s-1，原来那个正方形里任取一个 s-1 的子正方形，和只会更小，所以边长一旦不可行，更大的边长也一定不可行。',
+      },
+      {
+        id: 'maximum-side-length-of-a-square-with-sum-less-than-or-equal-to-threshold-solution',
+        title: '解法：二维前缀和加边长二分',
+        summary:
+          '先建 (m+1)×(n+1) 的前缀和数组，再写一个按边长判定的函数。二分区间取 0 到 min(m, n)，每次检查是否存在和不超过阈值的正方形，可行就记录并右移下界。',
+        bullets: [
+          '前缀和数组多留一行一列。',
+          '递推式是上方、左方、左上方三个值加减。',
+          '判定时枚举正方形的右下角。',
+          '四个前缀值加减得到正方形和。',
+          '任一正方形和不超过阈值就返回真。',
+          '二分中点向下取整。',
+          '可行时记录答案并右移下界。',
+          '不可行时左移上界。',
+          '最终返回记录的边长。',
+        ],
+        code: `function maxSideLength(mat: number[][], threshold: number): number {
+  const rows = mat.length
+  const cols = mat[0].length
+  const prefix = Array.from({ length: rows + 1 }, () =>
+    new Array<number>(cols + 1).fill(0),
+  )
+
+  for (let row = 1; row <= rows; row += 1) {
+    for (let col = 1; col <= cols; col += 1) {
+      prefix[row][col] =
+        mat[row - 1][col - 1] +
+        prefix[row - 1][col] +
+        prefix[row][col - 1] -
+        prefix[row - 1][col - 1]
+    }
+  }
+
+  const hasSquare = (side: number): boolean => {
+    for (let row = side; row <= rows; row += 1) {
+      for (let col = side; col <= cols; col += 1) {
+        const sum =
+          prefix[row][col] -
+          prefix[row - side][col] -
+          prefix[row][col - side] +
+          prefix[row - side][col - side]
+
+        if (sum <= threshold) {
+          return true
+        }
+      }
+    }
+
+    return false
+  }
+
+  let low = 0
+  let high = Math.min(rows, cols)
+  let answer = 0
+
+  while (low <= high) {
+    const middle = Math.floor((low + high) / 2)
+
+    if (hasSquare(middle)) {
+      answer = middle
+      low = middle + 1
+    } else {
+      high = middle - 1
+    }
+  }
+
+  return answer
+}`,
+        callout:
+          '也可以不二分，直接枚举边长并利用「可行边长的最大值」单调性做线性扫描，但二分把判定次数压到对数级，写起来同样简单，优先选二分。',
+      },
+      {
+        id: 'maximum-side-length-of-a-square-with-sum-less-than-or-equal-to-threshold-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在前缀下标、正方形求和公式和二分边界。',
+        bullets: [
+          '易错点 1：前缀和数组没有留出第零行第零列。',
+          '易错点 2：正方形求和时加减符号写错。',
+          '易错点 3：枚举右下角时下标从零开始，越界。',
+          '易错点 4：二分上界取了 m 或 n 而不是较小值。',
+          '易错点 5：返回元素和而不是边长。',
+          '易错点 6：认为边长可行不单调，放弃二分。',
+          '易错点 7：阈值判断用了严格小于。',
+          '易错点 8：矩阵为空时没有处理。',
+          '延伸方向：二维前缀和、最大子矩阵和、以及带约束的二分答案。',
+        ],
+      },
+    ],
+  },
 ];
