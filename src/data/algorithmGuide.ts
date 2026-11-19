@@ -128763,4 +128763,137 @@ ORDER BY start_id;`,
       },
     ],
   },
+  {
+    id: 'shortest-path-in-a-grid-with-obstacles-elimination',
+    label: '1293. LeetCode 1293. 网格中的最短路径',
+    difficulty: '困难',
+    description:
+      '网格中最多可以消除 k 个障碍，求左上角到右下角的最短步数。把「已消除障碍数」并进 BFS 状态，每个格子按消除次数分层记录访问，就能得到最短路。',
+    outcome:
+      '你能把资源约束并入 BFS 状态，用三维访问标记处理带代价的网格最短路。',
+    sections: [
+      {
+        id: 'shortest-path-in-a-grid-with-obstacles-elimination-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 m 行 n 列的 0/1 网格，0 表示空格，1 表示障碍。你从左上角出发，每次可以上下左右移动一步，并且最多可以消除 k 个障碍。求到右下角的最少步数，走不到时返回 -1。',
+        bullets: [
+          '网格由空格和障碍组成。',
+          '起点是左上角。',
+          '终点是右下角。',
+          '每次移动走一格，方向上下左右。',
+          '最多可以消除 k 个障碍。',
+          '走到障碍格会消耗一次消除机会。',
+          '消除障碍本身也计入步数。',
+          '要求返回最少步数。',
+          '无法到达时返回 -1。',
+          '起点和终点保证不是障碍。',
+        ],
+      },
+      {
+        id: 'shortest-path-in-a-grid-with-obstacles-elimination-model',
+        title: '状态里带上已消除次数',
+        summary:
+          '普通 BFS 的访问标记只有位置，这题多了一个资源维度：走到同一格时，剩余消除次数越多越有利。因此状态写成行、列、已用消除次数三元组，同一格按不同次数分别标记。',
+        bullets: [
+          '位置相同不代表状态相同。',
+          '剩余消除次数越多越优。',
+          '状态包括行、列和已用次数。',
+          '进入障碍格时已用次数加一。',
+          '已用次数超过 k 的状态丢弃。',
+          '同一格同一已用次数只入队一次。',
+          'BFS 按步数分层，第一次到终点即最短。',
+          '状态总数是 m×n×(k+1)。',
+          '消除上限可以截断为 rows + cols - 2。',
+        ],
+        callout:
+          '为什么不能只记录位置？如果只用位置标记，先到达的路径可能已经把消除次数用光，后来到达同一格但剩余次数更多的状态会被错误剪掉，正确答案就丢了。',
+      },
+      {
+        id: 'shortest-path-in-a-grid-with-obstacles-elimination-solution',
+        title: '解法：三维标记的分层 BFS',
+        summary:
+          '队列元素携带行、列、已用消除次数和步数。起点入队并标记，每层统一扩展；新格子的已用次数等于旧值加上该格的值，超过上限就跳过，访问过的组合不再入队。',
+        bullets: [
+          '访问数组第三维长度是 k+1。',
+          '起点状态入队。',
+          '每轮处理当前层的全部状态。',
+          '越界直接跳过。',
+          '新状态已用次数等于旧值加格子值。',
+          '超过上限就跳过。',
+          '已访问的组合不再入队。',
+          '到达终点立即返回步数。',
+          '队列耗尽返回 -1。',
+        ],
+        code: `function shortestPath(grid: number[][], k: number): number {
+  const rows = grid.length
+  const cols = grid[0].length
+  const limit = Math.min(k, rows + cols - 2)
+  const visited = Array.from({ length: rows }, () =>
+    Array.from({ length: cols }, () =>
+      new Array<boolean>(limit + 1).fill(false),
+    ),
+  )
+  const directions = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ]
+  let queue: number[][] = [[0, 0, 0, 0]]
+  visited[0][0][0] = true
+
+  while (queue.length > 0) {
+    const nextQueue: number[][] = []
+
+    for (const [row, col, used, steps] of queue) {
+      if (row === rows - 1 && col === cols - 1) {
+        return steps
+      }
+
+      for (const [dr, dc] of directions) {
+        const nextRow = row + dr
+        const nextCol = col + dc
+
+        if (nextRow < 0 || nextRow >= rows || nextCol < 0 || nextCol >= cols) {
+          continue
+        }
+
+        const nextUsed = used + grid[nextRow][nextCol]
+
+        if (nextUsed > limit || visited[nextRow][nextCol][nextUsed]) {
+          continue
+        }
+
+        visited[nextRow][nextCol][nextUsed] = true
+        nextQueue.push([nextRow, nextCol, nextUsed, steps + 1])
+      }
+    }
+
+    queue = nextQueue
+  }
+
+  return -1
+}`,
+        callout:
+          '把 k 截断为 rows + cols - 2 是安全的：从左上到右下有一条只向下向右的路径，最多经过这么多个格子，需要消除的障碍不会超过这个数量，更大的 k 在本题里用不到。',
+      },
+      {
+        id: 'shortest-path-in-a-grid-with-obstacles-elimination-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在状态维度、访问标记和终点判断。',
+        bullets: [
+          '易错点 1：只用二维 visited，丢失消除次数信息。',
+          '易错点 2：把消除次数当成剩余次数，加减方向反了。',
+          '易错点 3：进入障碍格时忘记累加已用次数。',
+          '易错点 4：已用次数等于 k 时仍允许进入障碍。',
+          '易错点 5：起点没有标记已访问，导致重复入队。',
+          '易错点 6：到达终点后继续扩展，返回的不是最短。',
+          '易错点 7：步数没有随层递增。',
+          '易错点 8：起点等于终点时没有返回零。',
+          '延伸方向：带资源约束的最短路、状态图搜索、以及双端队列 BFS。',
+        ],
+      },
+    ],
+  },
 ];
