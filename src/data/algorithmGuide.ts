@@ -129193,4 +129193,107 @@ GROUP BY c.country_id, c.country_name;`,
       },
     ],
   },
+  {
+    id: 'maximum-number-of-occurrences-of-a-substring',
+    label: '1297. LeetCode 1297. 子串的最大出现次数',
+    difficulty: '中等',
+    description:
+      '在字符串中找出现次数最多的合法子串，合法指长度在区间内且不同字母数不超过 maxLetters。关键观察是：更长的合法子串必然包含一个同样合法的短子串，因此只需要统计最短长度的子串。',
+    outcome: '你能用「短串不劣于长串」的单调性把三重枚举压成一次定长滑窗。',
+    sections: [
+      {
+        id: 'maximum-number-of-occurrences-of-a-substring-summary',
+        title: '题目在问什么',
+        summary:
+          '给定只含小写字母的字符串 s，以及 maxLetters、minSize、maxSize。一个子串合法，当且仅当它的长度在 minSize 到 maxSize 之间，且其中不同字母的数量不超过 maxLetters。要求返回合法子串的最大出现次数。',
+        bullets: [
+          '字符串只含小写字母。',
+          '合法子串长度有上下界。',
+          '不同字母数量不能超过 maxLetters。',
+          '子串可以重叠。',
+          '要求最大出现次数。',
+          '不要求返回具体的子串。',
+          'minSize 不大于 maxSize。',
+          '答案至少为零。',
+          '不同位置出现相同内容是同一种子串。',
+          '出现次数按内容统计。',
+        ],
+      },
+      {
+        id: 'maximum-number-of-occurrences-of-a-substring-model',
+        title: '长串合法则短前缀也合法',
+        summary:
+          '如果一个长串的不同字母数不超过上限，那么它的任意子串也不同超过上限。每个长串的出现都对应一个短串的出现，所以短串的出现次数不会更少。于是最优答案一定能在最短长度上取到。',
+        bullets: [
+          '长串不同字母数不超限。',
+          '它的任意子串也不同超限。',
+          '长串的每次出现都包含一次短串出现。',
+          '短串的出现次数不会更少。',
+          '最优答案能在最短长度取到。',
+          'maxSize 实际不参与计算。',
+          '只需要枚举长度为 minSize 的窗口。',
+          '用哈希表累计每个窗口内容的出现次数。',
+        ],
+        callout:
+          '反过来不成立：短串合法不代表扩成长串仍合法，所以不能只看长串。但我们求的是最大次数，短串已经覆盖了长串的全部贡献，只看短串反而更优。',
+      },
+      {
+        id: 'maximum-number-of-occurrences-of-a-substring-solution',
+        title: '解法：定长窗口统计',
+        summary:
+          '固定窗口长度为 minSize，从左到右滑动。每个窗口用集合统计不同字母数，不超限就在哈希表里累加该窗口内容的次数，并更新最大值。',
+        bullets: [
+          '结果初始为零。',
+          '窗口长度固定为 minSize。',
+          '窗口起点从零走到末尾减 minSize。',
+          '取当前窗口子串。',
+          '用集合统计不同字母数。',
+          '超限就跳过。',
+          '否则在哈希表中累加次数。',
+          '用当前次数更新最大值。',
+          '返回最大值。',
+          '时间复杂度 O(n × minSize)。',
+        ],
+        code: `function maxFreq(
+  s: string,
+  maxLetters: number,
+  minSize: number,
+  maxSize: number,
+): number {
+  const counts = new Map<string, number>()
+  let answer = 0
+
+  for (let start = 0; start + minSize <= s.length; start += 1) {
+    const piece = s.slice(start, start + minSize)
+
+    if (new Set(piece).size <= maxLetters) {
+      const nextCount = (counts.get(piece) ?? 0) + 1
+      counts.set(piece, nextCount)
+      answer = Math.max(answer, nextCount)
+    }
+  }
+
+  return answer
+}`,
+        callout:
+          'maxSize 参数保持签名完整但实际不用。若数据量再大一个数量级，可以把集合换成固定二十六长度的计数数组，让每个窗口的不同字母数在常数时间内得到。',
+      },
+      {
+        id: 'maximum-number-of-occurrences-of-a-substring-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在窗口长度选择、字母去重和计数对象上。',
+        bullets: [
+          '易错点 1：枚举 maxSize 长度的子串，做了多余工作。',
+          '易错点 2：忘记限制不同字母数。',
+          '易错点 3：窗口右端越界。',
+          '易错点 4：把不同字母数当成窗口长度。',
+          '易错点 5：统计子串种类数而不是最大出现次数。',
+          '易错点 6：要求子串不重叠，次数偏小。',
+          '易错点 7：用滑动窗口频率但忘记删除清零的字母。',
+          '易错点 8：忽略 minSize 大于字符串长度的情况。',
+          '延伸方向：定长滑窗、字符串哈希和众数统计。',
+        ],
+      },
+    ],
+  },
 ];
