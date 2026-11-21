@@ -129911,4 +129911,89 @@ GROUP BY c.country_id, c.country_name;`,
       },
     ],
   },
+  {
+    id: 'find-the-team-size',
+    label: '1303. LeetCode 1303. 求团队人数',
+    difficulty: '简单',
+    description:
+      'Employee 表里每行一名员工及其所属团队，要求为每名员工返回所在团队的总人数。用窗口函数按团队分区计数，可以在不改变行数的前提下把团队规模贴到每一行上。',
+    outcome:
+      '你能用 PARTITION BY 加 COUNT 窗口函数做组内统计，并知道分组聚合与窗口函数的区别。',
+    sections: [
+      {
+        id: 'find-the-team-size-summary',
+        title: '题目在问什么',
+        summary:
+          'Employee 表保存员工编号和团队编号，每行一名员工。要求返回每个员工的编号，以及他所在团队里一共有多少人。输出行数与 Employee 表相同，每名员工一行。',
+        bullets: [
+          'Employee 表每行一名员工。',
+          '每行包含员工编号和团队编号。',
+          '同一个团队编号可能出现多次。',
+          '团队人数就是相同团队编号的行数。',
+          '要求为每名员工输出一行。',
+          '第一列是员工编号。',
+          '第二列是所在团队人数。',
+          '输出行数与原表相同。',
+          '不需要排序。',
+          '员工一定属于某个团队。',
+        ],
+      },
+      {
+        id: 'find-the-team-size-model',
+        title: '分组聚合与窗口计数的区别',
+        summary:
+          '按团队编号分组再 COUNT，得到的是每个团队一行；而题目要求每名员工一行，所以不能直接把结果当成最终输出。窗口函数在分组计数后仍保留每一行，正好满足这个要求。',
+        bullets: [
+          'GROUP BY 会把同一团队的多行压成一行。',
+          '压成一行后员工编号就丢失了。',
+          '窗口函数不会减少行数。',
+          'PARTITION BY 按团队划分计算范围。',
+          'COUNT 在分区内统计行数。',
+          '同一团队的每一行得到相同的计数。',
+          '结果可以按员工编号逐行输出。',
+          '不需要额外连接子查询。',
+        ],
+        callout:
+          '也可以先按团队分组算出人数，再用团队编号连接回原表。两种写法结果一样，但窗口函数少一次连接，语义也更直接。',
+      },
+      {
+        id: 'find-the-team-size-solution',
+        title: '解法：分区计数窗口函数',
+        summary:
+          '在 SELECT 里对 COUNT 使用 OVER (PARTITION BY team_id)，让计数在团队内部进行，同时保留每一行员工记录。',
+        bullets: [
+          '从 Employee 表查询。',
+          '输出 employee_id 列。',
+          'COUNT 统计分区内行数。',
+          'PARTITION BY team_id 按团队分区。',
+          '窗口计数结果起别名 team_size。',
+          '不需要 GROUP BY。',
+          '不需要 DISTINCT。',
+          '每名员工输出一行。',
+        ],
+        code: `SELECT
+  employee_id,
+  COUNT(*) OVER (PARTITION BY team_id) AS team_size
+FROM Employee;`,
+        callout:
+          '如果数据库不支持窗口函数，可以写子查询：先 GROUP BY team_id 求 COUNT，再按 team_id 连接回 Employee，最后选出员工编号和人数，结果完全相同。',
+      },
+      {
+        id: 'find-the-team-size-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在聚合粒度、分区键和输出行数上。',
+        bullets: [
+          '易错点 1：直接 GROUP BY，输出变成每队一行。',
+          '易错点 2：分组后 SELECT 员工编号，结果不合法。',
+          '易错点 3：PARTITION BY 写成员工编号，人数恒为一。',
+          '易错点 4：COUNT 了员工编号却没有去重，重复编号会算重。',
+          '易错点 5：忘记给计数列起别名。',
+          '易错点 6：把团队人数理解成团队编号的数量。',
+          '易错点 7：使用 DISTINCT 想去重员工，改变了统计粒度。',
+          '易错点 8：排序要求写错，输出顺序不符合预期。',
+          '延伸方向：窗口函数、分区聚合和组内占比统计。',
+        ],
+      },
+    ],
+  },
 ];
