@@ -130092,4 +130092,137 @@ FROM Employee;`,
       },
     ],
   },
+  {
+    id: 'all-elements-in-two-binary-search-trees',
+    label: '1305. LeetCode 1305. 两棵二叉搜索树中的所有元素',
+    difficulty: '中等',
+    description:
+      '要求把两棵二叉搜索树的节点值合并成一个升序数组。中序遍历二叉搜索树天然得到有序序列，于是问题转化成合并两个有序数组，双指针归并即可。',
+    outcome: '你能利用二叉搜索树的有序性，把「收集后排序」优化成线性归并。',
+    sections: [
+      {
+        id: 'all-elements-in-two-binary-search-trees-summary',
+        title: '题目在问什么',
+        summary:
+          '给定两棵二叉搜索树的根节点，要求返回一个数组，包含两棵树中所有节点的值，并且按非递减顺序排列。两棵树都可能为空，节点值可能重复。',
+        bullets: [
+          '给定两棵二叉搜索树。',
+          '要求收集两棵树的全部节点值。',
+          '结果必须按非递减顺序排列。',
+          '节点值可能重复。',
+          '任意一棵树都可能为空。',
+          '返回一个数组。',
+          '不需要保留树结构。',
+          '节点总数最多几千。',
+          '两棵树的结构可能差异很大。',
+          '升序即允许相等元素相邻。',
+        ],
+      },
+      {
+        id: 'all-elements-in-two-binary-search-trees-model',
+        title: '中序有序加双指针归并',
+        summary:
+          '二叉搜索树的中序遍历结果本身就是非递减序列。分别遍历两棵树得到两个有序数组，再用双指针合并，就避免了把所有节点收集起来整体排序。',
+        bullets: [
+          '中序遍历二叉搜索树得到非递减序列。',
+          '分别对两棵树做中序遍历。',
+          '得到两个有序数组。',
+          '双指针从两个数组头部比较。',
+          '每次取较小的元素。',
+          '相等时取任意一个，顺序仍正确。',
+          '一个数组用完后追加另一个的剩余。',
+          '总时间与节点总数成正比。',
+          '不需要对结果整体排序。',
+        ],
+        callout:
+          '为什么不能直接前序拼接再排序？那样需要 O(n log n)。利用两棵树各自中序有序的性质，归并只要 O(n)，这才是这题真正想考的点。',
+      },
+      {
+        id: 'all-elements-in-two-binary-search-trees-solution',
+        title: '解法：中序遍历加归并',
+        summary:
+          '写一个用显式栈的中序遍历函数，返回树的有序数组。分别处理两棵树后，用双指针把两个有序数组合并成最终结果。',
+        bullets: [
+          '中序遍历函数返回有序数组。',
+          '用显式栈避免递归深度问题。',
+          '一路向左把节点压栈。',
+          '弹出节点时收集节点值。',
+          '转向右子树继续遍历。',
+          '分别收集两棵树的值。',
+          '双指针合并两个有序数组。',
+          '剩余元素直接追加到结果。',
+          '返回合并后的数组。',
+        ],
+        code: `function getAllElements(
+  root1: TreeNode | null,
+  root2: TreeNode | null,
+): number[] {
+  const collect = (root: TreeNode | null): number[] => {
+    const values: number[] = []
+    const stack: TreeNode[] = []
+    let current = root
+
+    while (current !== null || stack.length > 0) {
+      while (current !== null) {
+        stack.push(current)
+        current = current.left
+      }
+
+      const node = stack.pop() as TreeNode
+      values.push(node.val)
+      current = node.right
+    }
+
+    return values
+  }
+
+  const left = collect(root1)
+  const right = collect(root2)
+  const merged: number[] = []
+  let i = 0
+  let j = 0
+
+  while (i < left.length && j < right.length) {
+    if (left[i] <= right[j]) {
+      merged.push(left[i])
+      i += 1
+    } else {
+      merged.push(right[j])
+      j += 1
+    }
+  }
+
+  while (i < left.length) {
+    merged.push(left[i])
+    i += 1
+  }
+
+  while (j < right.length) {
+    merged.push(right[j])
+    j += 1
+  }
+
+  return merged
+}`,
+        callout:
+          '也可以写两个树共用的迭代器，用一个栈表示当前遍历位置，每次从两棵树中取出较小的下一个值，省掉两个中间数组；但代码更长，先掌握「中序加归并」就够用了。',
+      },
+      {
+        id: 'all-elements-in-two-binary-search-trees-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在遍历顺序、合并边界和重复值处理上。',
+        bullets: [
+          '易错点 1：用前序或后序遍历，结果无序。',
+          '易错点 2：递归写法在极深的树上栈溢出。',
+          '易错点 3：合并时遇到相等值只保留一个。',
+          '易错点 4：一个数组耗尽后没有追加剩余。',
+          '易错点 5：指针越界没有检查。',
+          '易错点 6：把树节点排序，比较器写成比较节点对象。',
+          '易错点 7：空树没有处理，遍历直接崩溃。',
+          '易错点 8：要求升序却输出降序。',
+          '延伸方向：中序遍历、归并排序和迭代器合并。',
+        ],
+      },
+    ],
+  },
 ];
