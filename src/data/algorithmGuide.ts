@@ -130329,4 +130329,144 @@ FROM Employee;`,
       },
     ],
   },
+  {
+    id: 'verbal-arithmetic-puzzle',
+    label: '1307. LeetCode 1307. 口算难题',
+    difficulty: '困难',
+    description:
+      '给一组单词和结果串，每个字母代表互不相同的数字，要求单词之和等于结果。把每个字母的位权系数相加，用回溯按系数给字母分配数字，等式等价于加权和为零。',
+    outcome: '你能把字符算式转成带权分配问题，并用回溯加前导零约束求解。',
+    sections: [
+      {
+        id: 'verbal-arithmetic-puzzle-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个单词数组 words 和一个结果单词 result，每个字母代表一个零到九的数字，不同字母数字不同，相同字母数字相同。单词按十进制整数解读，要求所有单词之和等于结果，返回是否存在这样的分配。',
+        bullets: [
+          '给定若干单词和一个结果串。',
+          '每个字母代表一个数字。',
+          '不同字母的数字必须不同。',
+          '相同字母必须对应相同数字。',
+          '多位数不能有前导零。',
+          '单词按十进制整数解读。',
+          '要求单词之和等于结果。',
+          '存在解返回 true。',
+          '不存在返回 false。',
+          '所有输入只含小写字母。',
+        ],
+      },
+      {
+        id: 'verbal-arithmetic-puzzle-model',
+        title: '把竖式转成加权和',
+        summary:
+          '按位展开后，等式两边相减，可以合并成每个字母系数乘数字的加权和。单词中的字符取正位权，结果串中的字符取负位权，解存在的充要条件就是这个加权和为零。',
+        bullets: [
+          '每个字母在每个数位上有位权。',
+          '单词中的位权取正。',
+          '结果串中的位权取负。',
+          '等式成立等价于加权和为零。',
+          '这样不必逐列模拟进位。',
+          '每个字母的系数等于正位权减负位权。',
+          '系数只需统计一次。',
+          '字母数超过十一定无解。',
+          '首位字母不能分配零。',
+        ],
+        callout:
+          '为什么加权和为零就等价于竖式成立？把每个数按位展开后移项，相同字母的系数合并，得到的正是「每个字母系数乘对应数字」的总和，它与原等式同时成立。',
+      },
+      {
+        id: 'verbal-arithmetic-puzzle-solution',
+        title: '解法：系数表加回溯',
+        summary:
+          '先统计每个字母的净系数和所有首位字母，再收集出现过的字母。回溯依次为每个字母选择未被占用的数字，首位不能选零，全部字母分配完后判断加权和是否为零。',
+        bullets: [
+          '统计每个字母的净系数。',
+          '单词字符按位权加正数。',
+          '结果字符按位权加负数。',
+          '记录所有出现在首位的字母。',
+          '收集全部不同的字母。',
+          '字母超过十个直接返回 false。',
+          '回溯给每个字母选数字。',
+          '已用数字跳过。',
+          '首位字母跳过零。',
+          '全部字母分配完判断和是否为零。',
+        ],
+        code: `function isSolvable(words: string[], result: string): boolean {
+  const coefficients = new Map<string, number>()
+  const leading = new Set<string>()
+
+  const add = (letter: string, value: number) => {
+    coefficients.set(letter, (coefficients.get(letter) ?? 0) + value)
+  }
+
+  for (const word of words) {
+    leading.add(word[0])
+
+    for (let index = 0; index < word.length; index += 1) {
+      add(word[index], 10 ** (word.length - 1 - index))
+    }
+  }
+
+  leading.add(result[0])
+
+  for (let index = 0; index < result.length; index += 1) {
+    add(result[index], -(10 ** (result.length - 1 - index)))
+  }
+
+  const letters = [...coefficients.keys()]
+
+  if (letters.length > 10) {
+    return false
+  }
+
+  const used = new Array<boolean>(10).fill(false)
+
+  const search = (position: number, total: number): boolean => {
+    if (position === letters.length) {
+      return total === 0
+    }
+
+    const letter = letters[position]
+    const weight = coefficients.get(letter) ?? 0
+
+    for (let digit = 0; digit <= 9; digit += 1) {
+      if (used[digit] || (digit === 0 && leading.has(letter))) {
+        continue
+      }
+
+      used[digit] = true
+
+      if (search(position + 1, total + weight * digit)) {
+        return true
+      }
+
+      used[digit] = false
+    }
+
+    return false
+  }
+
+  return search(0, 0)
+}`,
+        callout:
+          '系数为零的字母其实不影响等式，但仍会占用数字；可以先把它们从字母表里剔除，缩小搜索空间，正确性不变。',
+      },
+      {
+        id: 'verbal-arithmetic-puzzle-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在位权方向、数字唯一性和前导零约束上。',
+        bullets: [
+          '易错点 1：忘记结果串的位权取负。',
+          '易错点 2：位权方向写反，个位当成最高位。',
+          '易错点 3：允许两个字母分配相同数字。',
+          '易错点 4：首位字母分配了零。',
+          '易错点 5：字母超过十没有提前返回。',
+          '易错点 6：相同字母在不同单词里没有合并系数。',
+          '易错点 7：回溯时没有撤销已用标记。',
+          '易错点 8：把多位数按字符串比较而不是数值相加。',
+          '延伸方向：字符算术、约束满足和回溯剪枝。',
+        ],
+      },
+    ],
+  },
 ];
