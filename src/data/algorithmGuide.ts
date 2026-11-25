@@ -130997,4 +130997,98 @@ ORDER BY gender, day;`,
       },
     ],
   },
+  {
+    id: 'decompress-run-length-encoded-list',
+    label: '1313. LeetCode 1313. 解压缩编码列表',
+    difficulty: '简单',
+    description:
+      '数组成对给出频次和值，要求按顺序把每个值重复对应次数。按步长二遍历，内层循环重复追加即可。',
+    outcome: '你能正确解析成对编码，并把重复展开写成两重循环。',
+    sections: [
+      {
+        id: 'decompress-run-length-encoded-list-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个长度为偶数的整数数组 nums。每两个相邻元素组成一对，第一个表示频次，第二个表示值。要求按照原来的顺序，把每个值重复对应频次次，拼成一个新数组返回。',
+        bullets: [
+          '数组长度一定是偶数。',
+          '每两个元素组成一对。',
+          '第一个元素是频次。',
+          '第二个元素是要重复的值。',
+          '按原顺序展开。',
+          '频次可能为零。',
+          '返回一维数组。',
+          '数组长度不超过一百。',
+          '不同对的值可能相同。',
+          '输出长度是各频次之和。',
+        ],
+      },
+      {
+        id: 'decompress-run-length-encoded-list-model',
+        title: '成对解析',
+        summary:
+          '下标零和一是第一对，下标二和三是第二对，步长固定为二。对每一对，内层循环把值追加频次次，频次为零就跳过。',
+        bullets: [
+          '下标零和一是第一对。',
+          '下标二和三是第二对。',
+          '步长固定为二。',
+          '内层重复频次次。',
+          '频次为零就不追加。',
+          '顺序保持原样。',
+          '总输出长度等于频次总和。',
+          '一遍扫描完成。',
+        ],
+        callout:
+          '为什么步长是二而不是逐元素处理？编码的语义就是每两个数一组，第二个数只有在和第一个数配对后才有意义。',
+      },
+      {
+        id: 'decompress-run-length-encoded-list-solution',
+        title: '解法：双重循环展开',
+        summary:
+          '外层循环每轮取相邻两个元素作为频次和值，内层循环重复频次次把值加入结果，外层下标每次加二。',
+        bullets: [
+          '结果数组初始为空。',
+          '下标从零开始。',
+          '每次取频次和值。',
+          '内层循环重复频次次。',
+          '每次追加值。',
+          '下标加二。',
+          '遍历结束返回结果。',
+          '时间与输出长度成正比。',
+        ],
+        code: `function decompressRLElist(nums: number[]): number[] {
+  const result: number[] = []
+
+  for (let index = 0; index < nums.length; index += 2) {
+    const frequency = nums[index]
+    const value = nums[index + 1]
+
+    for (let count = 0; count < frequency; count += 1) {
+      result.push(value)
+    }
+  }
+
+  return result
+}`,
+        callout:
+          '如果语言支持，可以用 Array(frequency).fill(value) 一次生成一段再拼接；手写循环没有额外分配，语义也更明显。',
+      },
+      {
+        id: 'decompress-run-length-encoded-list-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在步长、频次与值的位置和循环次数上。',
+        bullets: [
+          '易错点 1：步长写成一，把频次也当成值。',
+          '易错点 2：频次和值的位置写反。',
+          '易错点 3：内层循环次数写成值。',
+          '易错点 4：频次为零时仍然追加。',
+          '易错点 5：下标越界没有检查。',
+          '易错点 6：返回二维数组而不是一维。',
+          '易错点 7：展开顺序被打乱。',
+          '易错点 8：把频次累加进结果。',
+          '延伸方向：游程编码、成对数据解析和数组展开。',
+        ],
+      },
+    ],
+  },
 ];
