@@ -130885,4 +130885,116 @@ ORDER BY gender, day;`,
       },
     ],
   },
+  {
+    id: 'minimum-insertion-steps-to-make-a-string-palindrome',
+    label: '1312. LeetCode 1312. 让字符串成为回文串的最少插入次数',
+    difficulty: '困难',
+    description:
+      '最少插入次数等于字符串长度减去最长回文子序列长度。用区间动态规划求最长回文子序列，两端相等就继承内部，不等就取去掉左端或右端后的较优值。',
+    outcome:
+      '你能把「补成回文」转成区间 DP，并理解插入次数与最长回文子序列的互补关系。',
+    sections: [
+      {
+        id: 'minimum-insertion-steps-to-make-a-string-palindrome-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个字符串 s，可以在任意位置插入任意字符，要求把它变成回文串，并返回最少的插入次数。插入字符不改变原有字符之间的相对顺序。',
+        bullets: [
+          '给定一个字符串。',
+          '可以在任意位置插入字符。',
+          '每次插入算一次操作。',
+          '插入的字符可以任意选择。',
+          '要求最终字符串是回文串。',
+          '求最少插入次数。',
+          '原有字符顺序不能改变。',
+          '空串和单字符已经是回文。',
+          '字符串长度最多五百。',
+          '只返回次数，不要求构造结果。',
+        ],
+      },
+      {
+        id: 'minimum-insertion-steps-to-make-a-string-palindrome-model',
+        title: '长度减最长回文子序列',
+        summary:
+          '原串中能保留下来构成回文的部分，其相对顺序不变，因此对应一个回文子序列。不在这个子序列里的每个字符，都需要在对称位置补一个相同字符，所以最少插入次数等于长度减去最长回文子序列长度。',
+        bullets: [
+          '回文子序列保持原串相对顺序。',
+          '保留的部分越长，需要补的越少。',
+          '不在回文子序列里的字符各需要一次镜像插入。',
+          '插入次数等于长度减最长回文子序列长度。',
+          '区间 DP 求最长回文子序列。',
+          '两端字符相等时可以同时保留。',
+          '不相等时至少丢掉一端。',
+          '按区间长度从小到大填表。',
+        ],
+        callout:
+          '为什么是子序列而不是子串？插入不会打乱原字符顺序，保留下来的部分只要相对顺序一致就能构成回文，不必连续，所以对应的是子序列。',
+      },
+      {
+        id: 'minimum-insertion-steps-to-make-a-string-palindrome-solution',
+        title: '解法：区间 DP 求最长回文子序列',
+        summary:
+          '定义 dp[left][right] 为子串的最长回文子序列长度。单字符区间长度为一；两端相等时等于内部区间加二；不等时取去掉左端或去掉右端后的较大值。最终返回原长减整个区间的 dp 值。',
+        bullets: [
+          'dp[left][right] 表示区间内的最长回文子序列长度。',
+          '单字符区间初始长度为一。',
+          '区间长度从二开始枚举。',
+          '两端相等时继承内部并加二。',
+          '不相等时取去掉左端或右端的较大者。',
+          '按区间长度递增填表。',
+          '答案是原长减 dp[0][n-1]。',
+          '空间复杂度 O(n²)。',
+          '时间复杂度 O(n²)。',
+        ],
+        code: `function minInsertions(s: string): number {
+  const length = s.length
+  const dp: number[][] = Array.from({ length }, () =>
+    new Array<number>(length).fill(0),
+  )
+
+  for (let index = 0; index < length; index += 1) {
+    dp[index][index] = 1
+  }
+
+  for (let span = 1; span < length; span += 1) {
+    for (let left = 0; left + span < length; left += 1) {
+      const right = left + span
+
+      if (s[left] === s[right]) {
+        const inner = span >= 2 ? dp[left + 1][right - 1] : 0
+        dp[left][right] = inner + 2
+      } else {
+        dp[left][right] = Math.max(
+          dp[left + 1][right],
+          dp[left][right - 1],
+        )
+      }
+    }
+  }
+
+  const longest = dp[0][length - 1]
+
+  return length - longest
+}`,
+        callout:
+          '也可以直接定义 dp 为「区间变成回文的最少插入次数」：两端相等时答案等于内部，不等时为一加两侧的较小者，最终答案相同，两种推导选一种理解清楚即可。',
+      },
+      {
+        id: 'minimum-insertion-steps-to-make-a-string-palindrome-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在子序列与子串的区分、填表顺序和答案换算上。',
+        bullets: [
+          '易错点 1：求最长回文子串而不是子序列。',
+          '易错点 2：两端相等时仍然取最小值。',
+          '易错点 3：区间填表顺序错误，用了未计算的状态。',
+          '易错点 4：返回 dp 值而不是插入次数。',
+          '易错点 5：单字符区间没有初始化。',
+          '易错点 6：区间端点写反。',
+          '易错点 7：把插入次数当成删除次数，虽然数值相同但推导错误。',
+          '易错点 8：数组开成 n 乘 n 却访问到 n 的下标。',
+          '延伸方向：区间 DP、最长回文子序列和编辑距离。',
+        ],
+      },
+    ],
+  },
 ];
