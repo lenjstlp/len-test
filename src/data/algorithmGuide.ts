@@ -130225,4 +130225,108 @@ FROM Employee;`,
       },
     ],
   },
+  {
+    id: 'jump-game-iii',
+    label: '1306. LeetCode 1306. 跳跃游戏 III',
+    difficulty: '中等',
+    description:
+      '从起点出发，每次只能跳到下标加或减当前元素值的位置，判断能否落在值为零的格子上。用广度或深度优先遍历可达下标，并标记访问防止来回跳跃。',
+    outcome:
+      '你能把「下标跳跃」建模成有向图可达性，用一次遍历判断能否到达目标集合。',
+    sections: [
+      {
+        id: 'jump-game-iii-summary',
+        title: '题目在问什么',
+        summary:
+          '给定非负整数数组 arr 和起点下标 start。站在下标 i 时，可以跳到 i 加 arr[i] 或 i 减 arr[i]，落点必须仍在数组范围内。如果存在一条路径能到达任意一个值为 0 的下标，返回 true，否则返回 false。',
+        bullets: [
+          '给定非负整数数组 arr。',
+          '给定起点下标 start。',
+          '每次可以跳到 i 加 arr[i]。',
+          '每次也可以跳到 i 减 arr[i]。',
+          '跳跃落点必须仍在数组内。',
+          '目标是到达值为 0 的下标。',
+          '到达任意一个零值下标即可返回 true。',
+          '不能修改数组。',
+          '访问过的下标不必重复访问。',
+          '起点本身可能就是零值下标。',
+        ],
+      },
+      {
+        id: 'jump-game-iii-model',
+        title: '把下标看成图节点',
+        summary:
+          '把每个下标当作图中的一个节点，两种跳跃方向就是两条有向边，边是否有效取决于落点是否越界。问题于是变成从起点出发能否到达任意零值节点。',
+        bullets: [
+          '每个下标是一个节点。',
+          '两种跳跃方向是两条有向边。',
+          '落点越界就不是有效边。',
+          '问题变成起点到零值集合的可达性。',
+          '广度优先和深度优先都适用。',
+          '访问标记防止重复处理。',
+          '找到任意零值节点即可提前返回。',
+          '遍历完所有可达节点仍没有零就返回 false。',
+        ],
+        callout:
+          '为什么加访问标记就够了？每个下标的出边固定只有两条，重复访问不会到达新节点；标记之后每个下标最多入队一次，总代价是 O(n)。',
+      },
+      {
+        id: 'jump-game-iii-solution',
+        title: '解法：栈式深度优先搜索',
+        summary:
+          '用栈保存待访问下标，起点标记后入栈。每次弹出下标检查值是否为零，再计算两个落点，落点在界内且未访问就标记并入栈。',
+        bullets: [
+          '访问数组长度与 arr 相同。',
+          '起点标记后入栈。',
+          '循环直到栈为空。',
+          '弹出下标并检查值是否为零。',
+          '计算向右和向左两个落点。',
+          '落点在界内且未访问就入栈。',
+          '已访问的下标不重复处理。',
+          '栈空后返回 false。',
+          '时间复杂度 O(n)，空间 O(n)。',
+        ],
+        code: `function canReach(arr: number[], start: number): boolean {
+  const visited = new Array<boolean>(arr.length).fill(false)
+  const stack: number[] = [start]
+  visited[start] = true
+
+  while (stack.length > 0) {
+    const index = stack.pop() as number
+
+    if (arr[index] === 0) {
+      return true
+    }
+
+    for (const next of [index + arr[index], index - arr[index]]) {
+      if (next >= 0 && next < arr.length && !visited[next]) {
+        visited[next] = true
+        stack.push(next)
+      }
+    }
+  }
+
+  return false
+}`,
+        callout:
+          '这里只要求可达性，不需要最短步数，所以深度优先就够；若题目改成求最少跳跃次数，就该换成广度优先。',
+      },
+      {
+        id: 'jump-game-iii-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在边界检查、重复访问和目标条件上。',
+        bullets: [
+          '易错点 1：跳跃后没有检查下标越界。',
+          '易错点 2：没有访问标记，两个下标来回跳死循环。',
+          '易错点 3：只尝试向右跳，漏掉向左。',
+          '易错点 4：把「值为零」写成「下标为零」。',
+          '易错点 5：入栈时不标记，重复入栈。',
+          '易错点 6：起点为零时还继续搜索。',
+          '易错点 7：把 arr[i] 当成目标下标而不是跳跃长度。',
+          '易错点 8：递归写法在长链上爆栈。',
+          '延伸方向：隐式图遍历、可达性判断和广度优先最短路。',
+        ],
+      },
+    ],
+  },
 ];
