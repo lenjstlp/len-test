@@ -130469,4 +130469,101 @@ FROM Employee;`,
       },
     ],
   },
+  {
+    id: 'running-total-for-different-genders',
+    label: '1308. LeetCode 1308. 不同性别每日分数总计',
+    difficulty: '中等',
+    description:
+      'Scores 表按性别和日期记录玩家得分，要求返回每种性别按日期累计的分数总和。先按性别和日期聚合当天总分，再用窗口函数做累计求和。',
+    outcome:
+      '你能在同一查询里组合分组聚合与窗口累计，既消除同日多行又保留运行总量。',
+    sections: [
+      {
+        id: 'running-total-for-different-genders-summary',
+        title: '题目在问什么',
+        summary:
+          'Scores 表每行记录一名玩家某一天的得分，包含玩家名、性别、日期和分数。要求返回每种性别在每一天结束时的累计总分，输出性别、日期和累计值，并按性别和日期排序。',
+        bullets: [
+          'Scores 表每行一个玩家一天的得分。',
+          '每行包含性别和日期。',
+          '同一性别同一天可能有多行。',
+          '要求输出性别和日期。',
+          '还要求输出截至当天的累计总分。',
+          '累计按日期升序进行。',
+          '每个性别独立累计。',
+          '结果按性别和日期排序。',
+          '每天的总分需要先把同天多行加起来。',
+          '累计值保持整数类型。',
+        ],
+      },
+      {
+        id: 'running-total-for-different-genders-model',
+        title: '先按日聚合再组内累计',
+        summary:
+          '如果直接对原始行使用窗口函数，同一天有多个玩家时，每个玩家行都会得到一次累计，输出会出现重复日期。因此第一步先按性别和日期分组求出当天总分，第二步再在性别分区内按日期累计。',
+        bullets: [
+          '窗口函数直接算会按原始行重复。',
+          '同一天多行会被重复累加。',
+          '第一步按性别和日期分组。',
+          '组内 SUM 得到当天总分。',
+          '第二步在性别分区内累计。',
+          'PARTITION BY gender 保证各性别独立。',
+          'ORDER BY day 定义累计顺序。',
+          '最后按性别和日期排序输出。',
+        ],
+        callout:
+          '如果直接对原始表使用 SUM() OVER，同一天有两个玩家时，两个输出行都会带上当天累计值，日期就重复了；先聚合每日总分是保证每性别每天只输出一行的关键。',
+      },
+      {
+        id: 'running-total-for-different-genders-solution',
+        title: '解法：日聚合加窗口累计',
+        summary:
+          '内层子查询按性别和日期分组求和，外层对分数使用 PARTITION BY gender ORDER BY day 的累计窗口，最后按性别和日期排序。',
+        bullets: [
+          '内层按性别和日期分组。',
+          'SUM(score) 得到当天总分。',
+          '外层使用窗口累计。',
+          'PARTITION BY gender 分区。',
+          'ORDER BY day 排序。',
+          '累计列别名为 running_total。',
+          '外层按性别和日期排序。',
+          '每个性别每天输出一行。',
+        ],
+        code: `SELECT
+  gender,
+  day,
+  SUM(score) OVER (
+    PARTITION BY gender
+    ORDER BY day
+  ) AS running_total
+FROM (
+  SELECT
+    gender,
+    day,
+    SUM(score) AS score
+  FROM Scores
+  GROUP BY gender, day
+) AS daily
+ORDER BY gender, day;`,
+        callout:
+          '窗口函数默认的范围是从分区首行到当前行，正好就是累计语义；如果显式写 ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW，结果相同但更啰嗦。',
+      },
+      {
+        id: 'running-total-for-different-genders-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在聚合粒度、分区键和排序方向上。',
+        bullets: [
+          '易错点 1：直接对原始表累计，输出日期重复。',
+          '易错点 2：没有按性别分区，两个性别混在一起。',
+          '易错点 3：累计顺序写成降序。',
+          '易错点 4：忘记按日期排序就输出。',
+          '易错点 5：内层没有按日期分组。',
+          '易错点 6：把 running_total 写成当天分数。',
+          '易错点 7：窗口函数里用了错误的排序键。',
+          '易错点 8：输出列顺序与要求不一致。',
+          '延伸方向：窗口累计、分组聚合和分区排序。',
+        ],
+      },
+    ],
+  },
 ];
