@@ -130756,4 +130756,133 @@ ORDER BY gender, day;`,
       },
     ],
   },
+  {
+    id: 'get-watched-videos-by-your-friends',
+    label: '1311. LeetCode 1311. 获取你好友已观看的视频',
+    difficulty: '中等',
+    description:
+      '从指定用户出发做广度优先搜索，找到距离恰好为 level 的好友，统计他们看过的视频，按观看次数升序、次数相同按字典序排列。',
+    outcome:
+      '你能用分层 BFS 精确定位某一距离的节点，并在结果上做双关键字排序。',
+    sections: [
+      {
+        id: 'get-watched-videos-by-your-friends-summary',
+        title: '题目在问什么',
+        summary:
+          '有 n 个用户，watchedVideos[i] 是用户 i 看过的视频列表，friends[i] 是用户 i 的好友列表。给定用户 id 和层级 level，要求统计距离 id 恰好为 level 的好友看过的所有视频，去重后按观看次数升序、次数相同按字典序排列返回。',
+        bullets: [
+          '给定每个用户看过的视频列表。',
+          '给定好友关系邻接表。',
+          '好友关系是相互的。',
+          '给定起点用户 id。',
+          '给定目标距离 level。',
+          '只统计距离恰好为 level 的好友。',
+          '不包含起点自己。',
+          '不统计更近或更远的好友。',
+          '同一视频被多人观看要累计次数。',
+          '结果按次数升序、同次数按字典序排列。',
+        ],
+      },
+      {
+        id: 'get-watched-videos-by-your-friends-model',
+        title: '分层 BFS 加频次排序',
+        summary:
+          '好友关系是无向图，距离就是最短边数。广度优先按层推进，第 level 层恰好是距离为 level 的用户。收集这一层所有用户的视频，用哈希表计频，再按规则排序。',
+        bullets: [
+          '好友关系建成无向图。',
+          '距离等于图中的最短边数。',
+          '第 level 层就是距离恰好为 level 的用户。',
+          'BFS 按层推进。',
+          '访问标记防止重复。',
+          '只收集第 level 层用户的视频。',
+          '哈希表统计每个视频的观看人数。',
+          '排序先比次数再比字典序。',
+        ],
+        callout:
+          '为什么不能直接收集所有可达好友？题目只要求恰好 level 层；更近的好友和更远的好友都不算，BFS 分层正好能精确截取这一层。',
+      },
+      {
+        id: 'get-watched-videos-by-your-friends-solution',
+        title: '解法：逐层 BFS 后排序',
+        summary:
+          '访问数组初始全假，起点入队并标记。每轮把当前队列的邻居加入下一层，层数加一，直到达到 level。此时队列中就是目标好友，统计他们的视频并排序。',
+        bullets: [
+          '访问数组初始全假。',
+          '起点入队并标记。',
+          '层数从零开始。',
+          '每轮扩展一层。',
+          '邻居未访问就入队。',
+          '到达 level 层停止扩展。',
+          '当前队列就是目标好友。',
+          '遍历他们的视频并计数。',
+          '按次数和字典序排序。',
+          '返回视频名数组。',
+        ],
+        code: `function watchedVideosByFriends(
+  watchedVideos: string[][],
+  friends: number[][],
+  id: number,
+  level: number,
+): string[] {
+  const visited = new Array<boolean>(friends.length).fill(false)
+  let queue: number[] = [id]
+  visited[id] = true
+  let distance = 0
+
+  while (queue.length > 0 && distance < level) {
+    const nextQueue: number[] = []
+
+    for (const person of queue) {
+      for (const friend of friends[person]) {
+        if (!visited[friend]) {
+          visited[friend] = true
+          nextQueue.push(friend)
+        }
+      }
+    }
+
+    queue = nextQueue
+    distance += 1
+  }
+
+  const counts = new Map<string, number>()
+
+  for (const person of queue) {
+    for (const video of watchedVideos[person]) {
+      counts.set(video, (counts.get(video) ?? 0) + 1)
+    }
+  }
+
+  return [...counts.keys()].sort((left, right) => {
+    const leftCount = counts.get(left) ?? 0
+    const rightCount = counts.get(right) ?? 0
+
+    if (leftCount !== rightCount) {
+      return leftCount - rightCount
+    }
+
+    return left < right ? -1 : 1
+  })
+}`,
+        callout:
+          '如果 level 超过图的最远距离，队列会提前变空，此时结果为空数组，这正是「没有该层好友」的正确输出，不需要额外特判。',
+      },
+      {
+        id: 'get-watched-videos-by-your-friends-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在层级起点、收集范围和排序规则上。',
+        bullets: [
+          '易错点 1：把起点自己算进第零层好友。',
+          '易错点 2：层数从一还是零开始搞混。',
+          '易错点 3：收集了小于 level 层的好友。',
+          '易错点 4：没有访问标记，好友环导致重复。',
+          '易错点 5：只按次数排序，忘记字典序。',
+          '易错点 6：字典序降序，方向反了。',
+          '易错点 7：把视频列表当成人去重。',
+          '易错点 8：好友关系当成有向图只走单向。',
+          '延伸方向：图的 BFS 分层、多关键字排序和频次统计。',
+        ],
+      },
+    ],
+  },
 ];
