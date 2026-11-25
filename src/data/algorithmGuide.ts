@@ -130566,4 +130566,103 @@ ORDER BY gender, day;`,
       },
     ],
   },
+  {
+    id: 'decrypt-string-from-alphabet-to-integer-mapping',
+    label: '1309. LeetCode 1309. 解码字母到整数映射',
+    difficulty: '简单',
+    description:
+      '字符串用 1 到 26 的数字编码字母，十以上的数字后面带井号。从左往右扫描，遇到形如两位数字加井号就整体解码，否则解码单个数字。',
+    outcome: '你能处理带后缀标记的变长编码，并正确维护扫描指针。',
+    sections: [
+      {
+        id: 'decrypt-string-from-alphabet-to-integer-mapping-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个由数字和井号组成的字符串。数字 1 到 9 分别映射到字母 a 到 i，数字 10 到 26 后面紧跟井号，分别映射到 j 到 z。要求把编码还原成原字符串。',
+        bullets: [
+          '给定一个编码字符串。',
+          '数字一到九映射到 a 到 i。',
+          '数字十到二十六映射到 j 到 z。',
+          '十以上的编码带井号后缀。',
+          '输入保证可以正确解码。',
+          '字符只包含数字和井号。',
+          '井号只跟在两位数字后面。',
+          '结果只含小写字母。',
+          '编码长度至少为一。',
+          '不需要处理非法输入。',
+        ],
+      },
+      {
+        id: 'decrypt-string-from-alphabet-to-integer-mapping-model',
+        title: '看第三位是不是井号',
+        summary:
+          '从当前位置往后看两个字符。如果第三个字符是井号，说明当前是两位编码；否则当前是一位编码。两位编码前进三步，一位编码前进一步，每一步都会推进指针。',
+        bullets: [
+          '从当前位置往后看两个字符。',
+          '第三个字符是井号就按两位解码。',
+          '否则按一位解码。',
+          '两位编码前进三步。',
+          '一位编码前进一步。',
+          '数字加九十六转成小写字母。',
+          '扫描到末尾结束。',
+          '指针每步前进，不会死循环。',
+        ],
+        callout:
+          '为什么只看第三个字符？十以上的编码固定是两位数字加井号，而一位编码后面不会出现井号，所以第三个字符足以区分两种格式。',
+      },
+      {
+        id: 'decrypt-string-from-alphabet-to-integer-mapping-solution',
+        title: '解法：单指针扫描',
+        summary:
+          '用字符数组收集结果，指针从零开始。每次判断后两位之后是否是井号，是就取两位数字并前进三格，否则取一位数字并前进一格，最后拼接成字符串。',
+        bullets: [
+          '结果用字符数组收集。',
+          '指针从零开始。',
+          '检查后两位之后是否为井号。',
+          '是则取两位数，指针加三。',
+          '否则取一位数，指针加一。',
+          '数字加九十六转成字母。',
+          '把字母加入结果。',
+          '指针越过末尾时结束。',
+          '返回拼接后的字符串。',
+        ],
+        code: `function freqAlphabets(s: string): string {
+  const letters: string[] = []
+  let index = 0
+
+  while (index < s.length) {
+    if (index + 2 < s.length && s[index + 2] === '#') {
+      const code = Number(s.slice(index, index + 2))
+      letters.push(String.fromCharCode(96 + code))
+      index += 3
+    } else {
+      const code = Number(s[index])
+      letters.push(String.fromCharCode(96 + code))
+      index += 1
+    }
+  }
+
+  return letters.join('')
+}`,
+        callout:
+          '也可以从右往左扫描：遇到井号就取左边两位，否则取一位。倒序扫描不用向前预读，但拼接顺序要反过来处理，正序写法更直观。',
+      },
+      {
+        id: 'decrypt-string-from-alphabet-to-integer-mapping-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在井号判断、指针步长和字母映射上。',
+        bullets: [
+          '易错点 1：判断井号时下标越界。',
+          '易错点 2：两位编码只前进两步，井号被当成字符。',
+          '易错点 3：一位编码也前进三步，跳过字符。',
+          '易错点 4：字符码偏移写错，映射不到 a。',
+          '易错点 5：把井号也拼进结果。',
+          '易错点 6：从右往左扫描却没有反转结果。',
+          '易错点 7：把十当一位数处理。',
+          '易错点 8：返回数组而不是字符串。',
+          '延伸方向：变长编码、词法扫描和字符串解析。',
+        ],
+      },
+    ],
+  },
 ];
