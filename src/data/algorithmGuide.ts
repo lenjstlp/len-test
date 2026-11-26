@@ -131091,4 +131091,123 @@ ORDER BY gender, day;`,
       },
     ],
   },
+  {
+    id: 'matrix-block-sum',
+    label: '1314. LeetCode 1314. 矩阵区域和',
+    difficulty: '中等',
+    description:
+      '对矩阵每个位置求以它为中心、半径为 k 的矩形区域和，超出边界的部分自动截断。二维前缀和让每个区域的和在常数时间内求出，整体复杂度为 O(mn)。',
+    outcome: '你能用二维前缀和批量回答矩形求和，并正确处理边界截断。',
+    sections: [
+      {
+        id: 'matrix-block-sum-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个 m 行 n 列的整数矩阵 mat 和整数 k。对每个位置 (row, col)，取所有满足行差、列差绝对值都不超过 k 的格子，把它们相加作为该位置的答案。区域超出矩阵边界时按矩阵边界截断，最后返回同样大小的答案矩阵。',
+        bullets: [
+          '矩阵有 m 行 n 列。',
+          '给定半径为 k 的整数。',
+          '每个答案以原位置为中心。',
+          '区域是行差和列差都不超过 k 的格子。',
+          '区域超出矩阵时按边界截断。',
+          '区域包含中心格本身。',
+          '返回与原矩阵同样大小的矩阵。',
+          '元素可能为负。',
+          '不需要修改原矩阵。',
+          '每个位置独立计算。',
+        ],
+      },
+      {
+        id: 'matrix-block-sum-model',
+        title: '二维前缀和加四边截断',
+        summary:
+          '每个答案对应一个矩形区域，四条边由中心坐标加减 k 再和矩阵边界取交集得到。二维前缀和把任意矩形的求和压缩成四个前缀值的加减，于是每个位置只需常数时间。',
+        bullets: [
+          '每个答案对应一个矩形区域。',
+          '矩形四边由行列加减 k 得到。',
+          '四边分别与矩阵边界取交集。',
+          '直接枚举区域是 O(mn k²)。',
+          '二维前缀和让矩形求和变成 O(1)。',
+          '四个前缀值加减得到区域和。',
+          '总复杂度降到 O(mn)。',
+          '截断保证下标不越界。',
+        ],
+        callout:
+          '为什么截断后仍是矩形？行范围和列范围分别独立地与矩阵边界取交集，得到的是原区域的子矩形；二维前缀和只要求四边与坐标轴对齐，不要求边长固定。',
+      },
+      {
+        id: 'matrix-block-sum-solution',
+        title: '解法：前缀和加边界收缩',
+        summary:
+          '先建 (m+1)×(n+1) 的二维前缀和，再遍历每个位置，用 max 和 min 算出截断后的上下左右边界，最后用四个前缀值加减出区域和。',
+        bullets: [
+          '前缀数组多留一行一列。',
+          '递推使用上方、左方和左上方。',
+          '遍历答案矩阵的每个位置。',
+          '上边界取 max(0, row - k)。',
+          '下边界取 min(rows - 1, row + k)。',
+          '左边界取 max(0, col - k)。',
+          '右边界取 min(cols - 1, col + k)。',
+          '四个前缀值加减得到区域和。',
+          '返回答案矩阵。',
+        ],
+        code: `function matrixBlockSum(mat: number[][], k: number): number[][] {
+  const rows = mat.length
+  const cols = mat[0].length
+  const prefix = Array.from({ length: rows + 1 }, () =>
+    new Array<number>(cols + 1).fill(0),
+  )
+
+  for (let row = 1; row <= rows; row += 1) {
+    for (let col = 1; col <= cols; col += 1) {
+      prefix[row][col] =
+        mat[row - 1][col - 1] +
+        prefix[row - 1][col] +
+        prefix[row][col - 1] -
+        prefix[row - 1][col - 1]
+    }
+  }
+
+  const answer = Array.from({ length: rows }, () =>
+    new Array<number>(cols).fill(0),
+  )
+
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < cols; col += 1) {
+      const top = Math.max(0, row - k)
+      const bottom = Math.min(rows - 1, row + k)
+      const left = Math.max(0, col - k)
+      const right = Math.min(cols - 1, col + k)
+
+      answer[row][col] =
+        prefix[bottom + 1][right + 1] -
+        prefix[top][right + 1] -
+        prefix[bottom + 1][left] +
+        prefix[top][left]
+    }
+  }
+
+  return answer
+}`,
+        callout:
+          '注意前缀数组的坐标比原矩阵大一位：原矩阵的 (top, left) 对应前缀的 (top, left)，右下角 (bottom, right) 对应前缀的 (bottom + 1, right + 1)。',
+      },
+      {
+        id: 'matrix-block-sum-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在边界截断、下标偏移和求和公式上。',
+        bullets: [
+          '易错点 1：边界没有截断，下标越界。',
+          '易错点 2：截断后忘记前缀数组多一位的偏移。',
+          '易错点 3：矩形求和公式的加减符号写错。',
+          '易错点 4：认为区域必须恰好是 (2k+1) 边长。',
+          '易错点 5：前缀数组没有留第零行第零列。',
+          '易错点 6：返回原矩阵而不是新矩阵。',
+          '易错点 7：k 大于矩阵尺寸时处理错误。',
+          '易错点 8：前缀和初值用了一而不是零。',
+          '延伸方向：二维前缀和、滑动窗口矩阵和与图像滤波。',
+        ],
+      },
+    ],
+  },
 ];
