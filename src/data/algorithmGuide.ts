@@ -131210,4 +131210,108 @@ ORDER BY gender, day;`,
       },
     ],
   },
+  {
+    id: 'sum-of-nodes-with-even-valued-grandparent',
+    label: '1315. LeetCode 1315. 祖父节点值为偶数的节点和',
+    difficulty: '中等',
+    description:
+      '遍历二叉树时同时向下传递父节点和祖父节点，只有当祖父节点的值为偶数时，才把当前节点的值累加进答案。一次深度优先遍历即可完成。',
+    outcome: '你能在遍历中携带祖先信息，把判断写成递归参数，并正确处理空节点。',
+    sections: [
+      {
+        id: 'sum-of-nodes-with-even-valued-grandparent-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一棵二叉树的根节点 root。对每个节点，如果它的祖父节点存在且值为偶数，就把这个节点的值加进总和。返回所有满足条件的节点值之和；没有满足条件的节点时返回零。',
+        bullets: [
+          '输入是一棵二叉树。',
+          '祖父节点是父节点的父节点。',
+          '祖父节点必须存在。',
+          '祖父节点的值必须是偶数。',
+          '满足条件时累加的是当前节点的值。',
+          '根节点和根的左右孩子没有祖父节点。',
+          '节点值都是正数。',
+          '没有满足条件的节点时返回零。',
+          '结果只需要总和，不需要节点列表。',
+          '每个节点最多贡献一次。',
+        ],
+      },
+      {
+        id: 'sum-of-nodes-with-even-valued-grandparent-model',
+        title: '向下传递祖先',
+        summary:
+          '从根开始遍历，递归时同时带上父节点和祖父节点。进入节点后先检查传进来的祖父是否为偶数，再决定要不要累加当前值；接着把当前节点变成下一层的父节点、把父节点变成下一层的祖父节点。',
+        bullets: [
+          '遍历顺序不影响结果。',
+          '根节点的父节点为空。',
+          '根节点的祖父节点为空。',
+          '空祖父直接跳过判断。',
+          '祖父为偶数时累加当前值。',
+          '递归参数携带父与祖父。',
+          '左右子树使用同一套参数。',
+          '每个节点只访问一次。',
+        ],
+        callout:
+          '为什么要在参数里同时传祖父，而不是只传父节点？因为判断条件用的是祖父的值，而父节点的值要到更深一层才成为祖父；提前把两个祖先都带下去，判断在进入节点时一次完成。',
+      },
+      {
+        id: 'sum-of-nodes-with-even-valued-grandparent-solution',
+        title: '解法：深度优先遍历',
+        summary:
+          '用递归函数接收当前节点、父节点和祖父节点。进入节点后先判断祖父是否存在且为偶数，满足就累加当前值，然后带上新的父与祖父递归左右子树。',
+        bullets: [
+          '空节点返回零。',
+          '祖父存在且为偶数时累加当前值。',
+          '左子树传入当前节点和父节点。',
+          '右子树同样传入当前节点和父节点。',
+          '把两棵子树的结果相加。',
+          '初始调用时父与祖父都为空。',
+          '时间与节点数成正比。',
+          '递归深度等于树高。',
+        ],
+        code: `function sumEvenGrandparent(root: TreeNode | null): number {
+  const walk = (
+    node: TreeNode | null,
+    parent: TreeNode | null,
+    grandparent: TreeNode | null,
+  ): number => {
+    if (node === null) {
+      return 0
+    }
+
+    let total = 0
+
+    if (grandparent !== null && grandparent.val % 2 === 0) {
+      total += node.val
+    }
+
+    total += walk(node.left, node, parent)
+    total += walk(node.right, node, parent)
+
+    return total
+  }
+
+  return walk(root, null, null)
+}`,
+        callout:
+          '递归左右子树时传的是 (node, parent)：当前节点成为孩子的父节点，原来的父节点成为孩子的祖父节点，两个参数一起向下一层平移。',
+      },
+      {
+        id: 'sum-of-nodes-with-even-valued-grandparent-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在祖先参数的平移、空值判断和判断对象上。',
+        bullets: [
+          '易错点 1：把父节点当成祖父节点判断。',
+          '易错点 2：递归时参数传成 node 和祖父，层级错位。',
+          '易错点 3：祖父为空时直接取 val，空指针。',
+          '易错点 4：判断父节点是否为偶数。',
+          '易错点 5：累加祖父的值而不是当前节点的值。',
+          '易错点 6：根节点被误判为有祖父。',
+          '易错点 7：只遍历左子树或只遍历右子树。',
+          '易错点 8：判断偶数写成取模一。',
+          '延伸方向：BFS 按层记录祖父、带状态参数的树遍历和祖先相关的树形 DP。',
+        ],
+      },
+    ],
+  },
 ];
