@@ -131872,4 +131872,108 @@ ORDER BY gender, day;`,
       },
     ],
   },
+  {
+    id: 'restaurant-growth',
+    label: '1321. LeetCode 1321. 餐馆营业额变化增长',
+    difficulty: '中等',
+    description:
+      '按日期统计餐厅的七日均营业额与平均额。先按天汇总，再用窗口函数对最近七天求和，最后只保留窗口完整的那几天。',
+    outcome: '你能用 ROWS BETWEEN 组合滚动窗口，并用日期过滤去掉不足七天的行。',
+    sections: [
+      {
+        id: 'restaurant-growth-summary',
+        title: '题目在问什么',
+        summary:
+          'Customer 表记录每位顾客在某一天的消费金额，字段包括顾客编号、姓名、到店日期和金额。要求输出每一天的日期、最近七天（含当天）的营业总额以及平均额，平均额保留两位小数，结果按日期升序排列。只输出至少有连续七天数据的日子。',
+        bullets: [
+          'Customer 表按行记录消费。',
+          '每行包含日期和金额。',
+          '同一天可能有多位顾客。',
+          '窗口是包含当天的最近七天。',
+          '总额是这七天内所有消费之和。',
+          '平均额等于总额除以七。',
+          '平均额保留两位小数。',
+          '只输出窗口完整的日子。',
+          '结果按日期升序排列。',
+          '输出三列：日期、总额、平均额。',
+        ],
+      },
+      {
+        id: 'restaurant-growth-model',
+        title: '先按天聚合再滚动求和',
+        summary:
+          '先按日期分组，把每位顾客的消费汇总成当天营业额，这样窗口的每一行正好代表一天。再用窗口函数对最近七行求和，得到七天的总额。最后过滤掉最早的六天，因为它们的窗口还不满七天。',
+        bullets: [
+          '原始行不是按天聚合的。',
+          '第一步按日期分组求和。',
+          '聚合后每行代表一天。',
+          '窗口以行为单位向前看六行。',
+          '范围是最新一行往前六行。',
+          '最近七天恰好是七行。',
+          '平均额由总额除以七。',
+          '过滤掉不足七天的日期。',
+        ],
+        callout:
+          '为什么不直接对原始表开窗？同一天有多行时，每一行都会各自得到一个累计值，窗口会跨越错误的行数；先按天聚合才能让「七行」等于「七天」。',
+      },
+      {
+        id: 'restaurant-growth-solution',
+        title: '解法：日聚合加七天窗口',
+        summary:
+          '内层子查询按日期分组求和，中间层对日营业额使用前六行到当前行的窗口累计，外层用日期下限过滤，最后按日期排序并计算平均值。',
+        bullets: [
+          '内层按日期分组。',
+          'SUM 得到当天营业额。',
+          '中间层使用窗口求和。',
+          '窗口范围是六行前置到当前行。',
+          '外层计算平均额。',
+          '平均额保留两位小数。',
+          '日期下限用最早日期加六天。',
+          '结果按日期升序。',
+        ],
+        code: `SELECT
+  visited_on,
+  amount,
+  ROUND(amount / 7, 2) AS average_amount
+FROM (
+  SELECT
+    visited_on,
+    SUM(daily_amount) OVER (
+      ORDER BY visited_on
+      ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+    ) AS amount
+  FROM (
+    SELECT
+      visited_on,
+      SUM(amount) AS daily_amount
+    FROM Customer
+    GROUP BY visited_on
+  ) AS daily
+) AS windowed
+WHERE visited_on >= (
+  SELECT DATE_ADD(MIN(visited_on), INTERVAL 6 DAY)
+  FROM Customer
+)
+ORDER BY visited_on;`,
+        callout:
+          '日期下限也可以用「行号大于等于七」来表达；用最早日期加六天更直接依赖日历语义，只要数据中每天都有记录，两种写法结果一致。',
+      },
+      {
+        id: 'restaurant-growth-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在聚合粒度、窗口范围和结果过滤上。',
+        bullets: [
+          '易错点 1：直接对原始表开窗，同一天多行导致窗口错位。',
+          '易错点 2：窗口范围写成六行之外的范围。',
+          '易错点 3：忘记过滤最早六天。',
+          '易错点 4：平均额除以行数而不是七。',
+          '易错点 5：ROUND 的小数位写成零。',
+          '易错点 6：输出没有按日期排序。',
+          '易错点 7：把总额和平均额两列写反。',
+          '易错点 8：窗口范围多写了一行后置。',
+          '延伸方向：窗口函数、移动平均和滚动报表。',
+        ],
+      },
+    ],
+  },
 ];
