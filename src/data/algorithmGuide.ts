@@ -131976,4 +131976,101 @@ ORDER BY visited_on;`,
       },
     ],
   },
+  {
+    id: 'ads-performance',
+    label: '1322. LeetCode 1322. 广告效果',
+    difficulty: '简单',
+    description:
+      '统计每条广告的点击率，即点击数除以点击与浏览之和。没有点击也没有浏览的广告点击率记为零，结果按点击率降序、广告编号升序排列。',
+    outcome: '你能用条件聚合分别数出点击和浏览，并正确处理分母为零的除法。',
+    sections: [
+      {
+        id: 'ads-performance-summary',
+        title: '题目在问什么',
+        summary:
+          'Ads 表每行记录一次用户对广告的交互，包含广告编号、用户编号和动作，动作只有 Viewed 和 Clicked 两种。点击率定义为点击数除以点击数加浏览数再乘一百，结果保留两位小数。没有任何交互的广告点击率为零。结果按点击率降序排列，点击率相同时按广告编号升序。',
+        bullets: [
+          'Ads 表每行一次交互。',
+          '动作只有浏览和点击。',
+          '点击率等于点击除以点击加浏览。',
+          '结果要乘一百并保留两位小数。',
+          '分母为零时点击率记为零。',
+          '每条广告输出一行。',
+          '按点击率降序排列。',
+          '点击率相同按广告编号升序。',
+          '输出两列：广告编号和点击率。',
+          '广告编号是整数。',
+        ],
+      },
+      {
+        id: 'ads-performance-model',
+        title: '条件聚合算比例',
+        summary:
+          '同一条广告的所有行分成两类，分别统计点击次数和浏览次数。用条件求和就能在一行里得到两个计数，再把它们代入点击率公式。分母为零要单独处理，否则会出现除零错误或空值。',
+        bullets: [
+          '按广告编号分组。',
+          '条件求和统计点击。',
+          '条件求和统计浏览。',
+          '点击率等于点击除以两者之和。',
+          '分母为零时直接返回零。',
+          '结果乘一百保留两位小数。',
+          '排序先按点击率降序。',
+          '再按广告编号升序。',
+        ],
+        callout:
+          '为什么分母是点击加浏览而不是全部行数？点击率衡量的是「看到广告后点击的比例」，每一次点击和浏览都记一行，交互总数就是两者之和。',
+      },
+      {
+        id: 'ads-performance-solution',
+        title: '解法：分组条件求和',
+        summary:
+          '按广告编号分组，用 CASE WHEN 分别累加点击和浏览。用 CASE 避免零分母，再把比例乘一百并保留两位小数，最后按要求排序。',
+        bullets: [
+          '按广告编号分组。',
+          'CASE WHEN 累加点击数。',
+          'CASE WHEN 累加浏览数。',
+          '分母为零时返回零。',
+          '比例乘一百。',
+          'ROUND 保留两位小数。',
+          '按点击率降序。',
+          '同率按广告编号升序。',
+        ],
+        code: `SELECT
+  ad_id,
+  ROUND(
+    CASE
+      WHEN SUM(CASE WHEN action = 'Clicked' THEN 1 ELSE 0 END) = 0
+        AND SUM(CASE WHEN action = 'Viewed' THEN 1 ELSE 0 END) = 0
+      THEN 0
+      ELSE SUM(CASE WHEN action = 'Clicked' THEN 1 ELSE 0 END) / (
+        SUM(CASE WHEN action = 'Clicked' THEN 1 ELSE 0 END) +
+        SUM(CASE WHEN action = 'Viewed' THEN 1 ELSE 0 END)
+      ) * 100
+    END,
+    2
+  ) AS ctr
+FROM Ads
+GROUP BY ad_id
+ORDER BY ctr DESC, ad_id ASC;`,
+        callout:
+          'MySQL 允许直接写 SUM(action = 「Clicked」)，布尔表达式会转成零和一；用 CASE WHEN 写更通用，换到别的数据库也不需要改。',
+      },
+      {
+        id: 'ads-performance-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在分母定义、除零保护和排序细节上。',
+        bullets: [
+          '易错点 1：分母用总行数而不是点击加浏览。',
+          '易错点 2：忘记乘一百。',
+          '易错点 3：分母为零时出现除零错误。',
+          '易错点 4：用平均动作代替比例。',
+          '易错点 5：点击率没有保留两位小数。',
+          '易错点 6：排序方向写反。',
+          '易错点 7：点击率相同时没有按广告编号升序。',
+          '易错点 8：把浏览数当成点击数。',
+          '延伸方向：条件聚合、比率指标和除零保护。',
+        ],
+      },
+    ],
+  },
 ];
