@@ -131749,4 +131749,127 @@ ORDER BY gender, day;`,
       },
     ],
   },
+  {
+    id: 'minimum-distance-to-type-a-word-using-two-fingers',
+    label: '1320. LeetCode 1320. 二指输入的最小距离',
+    difficulty: '困难',
+    description:
+      '两根手指在键盘上打一个单词，要求总移动距离最小。按已输入位置定义状态，记录另一根手指停在哪里，用动态规划在「同指继续」和「换指」之间取较小值。',
+    outcome:
+      '你能把双指移动建模成「当前字符加另一指位置」的状态，并写出滚动更新的 DP。',
+    sections: [
+      {
+        id: 'minimum-distance-to-type-a-word-using-two-fingers-summary',
+        title: '题目在问什么',
+        summary:
+          '键盘按五行排列，前四行每行六个字母，从 A 到 X 依次分布，最后一行是 Y 和 Z。给定一个只含大写字母的单词 word，初始时两根手指都不在键盘上。每次用一个手指按下当前字母，移动距离是手指所在键到目标键的曼哈顿距离，从键盘外开始的那次移动不产生距离。要求打完整个单词的最小总距离。',
+        bullets: [
+          '键盘是固定的五行布局。',
+          '单词只含大写字母。',
+          '初始时两指都不在键盘上。',
+          '每个字母必须用其中一根手指按。',
+          '按下的顺序固定。',
+          '移动代价是曼哈顿距离。',
+          '从键盘外开始的那次移动不产生距离。',
+          '两根手指可以任意切换。',
+          '同一个键可以被反复按。',
+          '返回最小总移动距离。',
+        ],
+      },
+      {
+        id: 'minimum-distance-to-type-a-word-using-two-fingers-model',
+        title: '只记录另一只手',
+        summary:
+          '打完第 i 个字母后，一手在 word[i] 上，另一手停在某个位置 j。定义 dp[j] 为「当前一手在刚打的字母、另一手在 j」的最小代价，j 取零到二十五表示字母键，二十六表示还没上键盘。下一字母要么由当前手继续按，要么由另一手去按，两种转移取较小值。',
+        bullets: [
+          '状态里只需记录另一只手的位置。',
+          '刚打完的字母位置由下标隐含。',
+          '二十六表示手指还没上键盘。',
+          '同指继续要付两字母间的距离。',
+          '换指要付另一手到新字母的距离。',
+          '换指后旧位置成为新的另一手。',
+          '每步只依赖上一步状态。',
+          '最终答案是所有状态的最小值。',
+        ],
+        callout:
+          '为什么状态可以只记一只手？因为另一只手一定停在刚打完的字母上，这个位置由当前下标唯一确定；把两只手都写进状态会产生大量重复信息。',
+      },
+      {
+        id: 'minimum-distance-to-type-a-word-using-two-fingers-solution',
+        title: '解法：滚动数组动态规划',
+        summary:
+          '把字母映射到坐标，dp 数组长度二十七，初值只在「另一手为空」处为零。逐字母更新：同一手继续和换手各写一条转移，最后取所有状态的最小值。',
+        bullets: [
+          '预存每个字母的行坐标。',
+          '预存每个字母的列坐标。',
+          '空手到任意键的距离为零。',
+          '同指转移保留另一手位置。',
+          '换指转移把旧位置写成新的另一手。',
+          '每轮用新数组接收转移。',
+          '最后一轮取全体最小值。',
+          '单词长度为一时答案为零。',
+        ],
+        code: `function minimumDistance(word: string): number {
+  const rows = [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4]
+  const cols = [0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1]
+  const FREE = 26
+  const letters = Array.from(word, (char) => char.charCodeAt(0) - 65)
+
+  const distance = (from: number, to: number): number => {
+    if (from === FREE) {
+      return 0
+    }
+    return Math.abs(rows[from] - rows[to]) + Math.abs(cols[from] - cols[to])
+  }
+
+  let dp = new Array<number>(27).fill(Infinity)
+  dp[FREE] = 0
+
+  for (let index = 1; index < letters.length; index += 1) {
+    const next = new Array<number>(27).fill(Infinity)
+    const previous = letters[index - 1]
+    const current = letters[index]
+
+    for (let other = 0; other < 27; other += 1) {
+      if (dp[other] === Infinity) {
+        continue
+      }
+
+      next[other] = Math.min(
+        next[other],
+        dp[other] + distance(previous, current),
+      )
+
+      next[previous] = Math.min(
+        next[previous],
+        dp[other] + distance(other, current),
+      )
+    }
+
+    dp = next
+  }
+
+  return Math.min(...dp)
+}`,
+        callout:
+          '注意初始状态只有「另一手为空」一个位置为零，而不是两只手都为空：第一下必须用手去按，按完后另一只手才保持空闲。',
+      },
+      {
+        id: 'minimum-distance-to-type-a-word-using-two-fingers-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在状态定义、转移方向和代价计算上。',
+        bullets: [
+          '易错点 1：初始状态让两只手都为空，多算一次免费起步。',
+          '易错点 2：状态同时记录两只手的位置，维度爆炸。',
+          '易错点 3：换手后没有把旧位置写成新的另一手。',
+          '易错点 4：距离用欧氏距离而不是曼哈顿距离。',
+          '易错点 5：从键盘外移动仍然计算距离。',
+          '易错点 6：每步只写一种转移，漏掉另一种。',
+          '易错点 7：滚动数组没有重新初始化为无穷大。',
+          '易错点 8：最终答案取 dp[零] 而不是全体最小值。',
+          '延伸方向：状态压缩动态规划、路径规划和双资源调度。',
+        ],
+      },
+    ],
+  },
 ];
