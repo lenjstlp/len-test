@@ -131314,4 +131314,136 @@ ORDER BY gender, day;`,
       },
     ],
   },
+  {
+    id: 'distinct-echo-substrings',
+    label: '1316. LeetCode 1316. 不同的循环子字符串',
+    difficulty: '困难',
+    description:
+      '统计字符串中形如 A + A 的不同子串个数。枚举起点和半长，用双哈希在常数时间比较两半，再用集合去重。',
+    outcome:
+      '你能用哈希把子串相等判断降到常数时间，并理解去重对象是 A 本身而不是出现位置。',
+    sections: [
+      {
+        id: 'distinct-echo-substrings-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个由小写英文字母组成的字符串 text。如果一个连续子串可以拆成两个完全相同的非空部分 A 和 A，就称它为循环子字符串。要求统计所有不同的循环子字符串对应的 A 有多少个；同一个 A 在不同位置出现多次只算一次。',
+        bullets: [
+          '字符串只含小写英文字母。',
+          '长度在一到两千之间。',
+          '循环子串必须是连续的。',
+          '由两个完全相同的非空部分拼成。',
+          '统计的是不同字符串的个数。',
+          '不同位置出现相同的 A 只算一次。',
+          '允许不同子串之间互相重叠。',
+          '空串不算循环子串。',
+          '循环子串的长度一定是偶数。',
+          '返回整数计数。',
+        ],
+      },
+      {
+        id: 'distinct-echo-substrings-model',
+        title: '枚举半长加双哈希',
+        summary:
+          '直接枚举所有起点和半长，再逐字符比较两半，单次比较最坏要扫半个子串，整体会到立方级。先把字符串映射成前缀哈希，任意一段的哈希都能在常数时间求出，两半相等就变成两个整数比较。',
+        bullets: [
+          '循环子串由起点和半长确定。',
+          '半长从一递增到剩余长度的一半。',
+          '两段哈希相等就认为两半相同。',
+          '前缀哈希支持任意区间查询。',
+          '单次区间哈希是常数时间。',
+          '单个模数存在碰撞风险。',
+          '两个模数同时相等才接受。',
+          '去重集合存 A 的指纹而不是位置。',
+          '整体复杂度是平方级。',
+        ],
+        callout:
+          '为什么不用直接比较字符串？当字符串是大量重复字符时，每次比较都要扫到最后一位，最坏会退化成 O(n³)；哈希把比较压缩成几次取模运算，代价是引入极小的碰撞概率。',
+      },
+      {
+        id: 'distinct-echo-substrings-solution',
+        title: '解法：前缀哈希加集合去重',
+        summary:
+          '先预计算两个模数下的幂次和前缀哈希，再枚举起点与半长，分别求出左右两半的哈希，双哈希都相等时把「半长加两个哈希值」放进集合，最后返回集合大小。',
+        bullets: [
+          '两个模数分别预处理。',
+          '幂次数组长度为 n 加一。',
+          '前缀数组下标从零开始。',
+          '区间哈希用前缀值相减。',
+          '左半区间从 start 到 middle。',
+          '右半区间从 middle 到 right。',
+          '双哈希相等才加入集合。',
+          '集合元素带上半长避免长度混淆。',
+        ],
+        code: `function distinctEchoSubstrings(text: string): number {
+  const length = text.length
+  const base = 131
+  const modA = 1_000_003
+  const modB = 1_000_033
+  const powerA = new Array<number>(length + 1).fill(1)
+  const powerB = new Array<number>(length + 1).fill(1)
+  const prefixA = new Array<number>(length + 1).fill(0)
+  const prefixB = new Array<number>(length + 1).fill(0)
+
+  for (let index = 0; index < length; index += 1) {
+    const code = text.charCodeAt(index)
+    powerA[index + 1] = (powerA[index] * base) % modA
+    powerB[index + 1] = (powerB[index] * base) % modB
+    prefixA[index + 1] = (prefixA[index] * base + code) % modA
+    prefixB[index + 1] = (prefixB[index] * base + code) % modB
+  }
+
+  const hashOf = (
+    prefix: number[],
+    power: number[],
+    mod: number,
+    left: number,
+    right: number,
+  ): number => {
+    const value =
+      (prefix[right] - ((prefix[left] * power[right - left]) % mod)) % mod
+    return value < 0 ? value + mod : value
+  }
+
+  const seen = new Set<string>()
+
+  for (let start = 0; start < length; start += 1) {
+    for (let half = 1; start + half * 2 <= length; half += 1) {
+      const middle = start + half
+      const right = middle + half
+      const leftA = hashOf(prefixA, powerA, modA, start, middle)
+      if (leftA !== hashOf(prefixA, powerA, modA, middle, right)) {
+        continue
+      }
+      const leftB = hashOf(prefixB, powerB, modB, start, middle)
+      if (leftB !== hashOf(prefixB, powerB, modB, middle, right)) {
+        continue
+      }
+      seen.add(\`\${half}:\${leftA}:\${leftB}\`)
+    }
+  }
+
+  return seen.size
+}`,
+        callout:
+          '哈希键里一定要带半长：不同长度的字符串即使前缀哈希巧合相同，也会被当成同一个 A；带上长度后，不同长度的子串天然分到不同的键。',
+      },
+      {
+        id: 'distinct-echo-substrings-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在哈希取舍、去重键和边界枚举上。',
+        bullets: [
+          '易错点 1：只用一个模数，碰撞被当成相等。',
+          '易错点 2：去重键只存哈希不存长度。',
+          '易错点 3：把不同位置出现的相同 A 重复计数。',
+          '易错点 4：枚举半长时下标越界。',
+          '易错点 5：把循环子串长度写成奇数。',
+          '易错点 6：区间哈希公式漏掉取模修正，出现负数。',
+          '易错点 7：模数取得太大，乘法超出安全整数范围。',
+          '易错点 8：认为循环子串必须互不重叠。',
+          '延伸方向：字符串哈希、不同子串计数和平方串检测。',
+        ],
+      },
+    ],
+  },
 ];
