@@ -131446,4 +131446,98 @@ ORDER BY gender, day;`,
       },
     ],
   },
+  {
+    id: 'convert-integer-to-the-sum-of-two-no-zero-integers',
+    label: '1317. LeetCode 1317. 将整数转换为两个无零整数的和',
+    difficulty: '简单',
+    description:
+      '把 n 拆成两个正整数之和，且两个数都不含数字零。从小到大枚举第一个加数，检查两个数的十进制表示里是否出现零即可。',
+    outcome:
+      '你能把数位限制转换成简单的字符串检查，并用枚举找到第一组合法拆分。',
+    sections: [
+      {
+        id: 'convert-integer-to-the-sum-of-two-no-zero-integers-summary',
+        title: '题目在问什么',
+        summary:
+          '给定一个正整数 n。要求找到两个正整数 a 和 b，满足 a 加 b 等于 n，并且 a 和 b 的十进制表示中都不包含数字零。返回任意一组合法答案即可。',
+        bullets: [
+          '输入是一个正整数 n。',
+          '需要返回两个正整数。',
+          '两个数相加必须等于 n。',
+          '两个数都不能含数字零。',
+          '顺序不唯一，返回任意一组。',
+          'n 至少为二。',
+          '返回值是长度为二的数组。',
+          '按十进制表示判断是否含零。',
+          '正整数不会出现前导零。',
+          '题目保证一定存在合法拆分。',
+        ],
+      },
+      {
+        id: 'convert-integer-to-the-sum-of-two-no-zero-integers-model',
+        title: '枚举第一个加数',
+        summary:
+          '设第一个数为 left，第二个数自然等于 n 减 left。left 从一往上试，只要两个数的十进制字符串里都没有字符零，这一组就合法。因为答案一定存在，最坏情况也能在有限次尝试内找到。',
+        bullets: [
+          '第一个数从一开始枚举。',
+          '第二个数等于 n 减第一个。',
+          '检查时把数字转成字符串。',
+          '字符串包含零就判为非法。',
+          '两个数都合法才返回。',
+          '从小到大试保证能终止。',
+          '单个数位检查与位数成正比。',
+          '最坏枚举次数小于 n。',
+        ],
+        callout:
+          '为什么从一小到大试而不是随机拆分？枚举保证第一次命中就是合法答案，也不需要额外的构造技巧；这一步的代价在题目范围内完全可以接受。',
+      },
+      {
+        id: 'convert-integer-to-the-sum-of-two-no-zero-integers-solution',
+        title: '解法：枚举加字符串检查',
+        summary:
+          '写一个判断数字是否含零的小函数，然后从一循环到 n 减一，每次检查 left 和 n 减 left，第一次同时合法就返回这一对。',
+        bullets: [
+          '判断函数把数字转成字符串。',
+          '包含字符零就返回真。',
+          '主循环从一开始。',
+          '第二个数用 n 减 left 求出。',
+          '两个数都通过检查就返回。',
+          '返回数组保持正数顺序。',
+          '循环一定能找到答案。',
+          '不需要额外空间。',
+        ],
+        code: `function getNoZeroIntegers(n: number): number[] {
+  const hasZero = (value: number): boolean => String(value).includes('0')
+
+  for (let left = 1; left < n; left += 1) {
+    const right = n - left
+
+    if (!hasZero(left) && !hasZero(right)) {
+      return [left, right]
+    }
+  }
+
+  return []
+}`,
+        callout:
+          '把「不含零」写成字符串检查最直观；如果坚持用取模逐位检查，记得循环条件是 value > 0，否则会漏掉最高位。',
+      },
+      {
+        id: 'convert-integer-to-the-sum-of-two-no-zero-integers-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在含零判断、检查范围和枚举边界上。',
+        bullets: [
+          '易错点 1：允许数字中出现零。',
+          '易错点 2：把 n 本身当成一个加数，另一个写成零。',
+          '易错点 3：只检查第一个数。',
+          '易错点 4：用取模逐位判断时漏掉最高位。',
+          '易错点 5：把字符零和数字零混淆。',
+          '易错点 6：循环边界写成小于等于 n，第二个数取到零。',
+          '易错点 7：没有找到答案却返回第一组候选。',
+          '易错点 8：误以为拆分唯一。',
+          '延伸方向：数位限制、数位 DP 和构造题枚举。',
+        ],
+      },
+    ],
+  },
 ];
