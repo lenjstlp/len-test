@@ -131640,4 +131640,113 @@ ORDER BY gender, day;`,
       },
     ],
   },
+  {
+    id: 'number-of-operations-to-make-network-connected',
+    label: '1319. LeetCode 1319. 连通网络的操作次数',
+    difficulty: '中等',
+    description:
+      '把所有电脑连成一个网络，每次可以把一条网线拔下来接到别处。先判断边数是否够用，再用并查集数出连通分量，答案就是分量数减一。',
+    outcome: '你能用并查集统计连通分量，并理解为什么多余的边总能把分量串起来。',
+    sections: [
+      {
+        id: 'number-of-operations-to-make-network-connected-summary',
+        title: '题目在问什么',
+        summary:
+          '有 n 台电脑，编号从零到 n 减一，connections 中每个二元组表示两台电脑之间已有的一条网线。每次操作可以拔掉任意一条网线，再把它接到任意两台还没直接相连的电脑上。要求把整个网络变成连通的最少操作次数；做不到时返回负一。',
+        bullets: [
+          '电脑编号从零到 n 减一。',
+          '每条连接都是无向边。',
+          '一次操作可以移动一条边。',
+          '目标是让所有电脑连通。',
+          '要求最少操作次数。',
+          '边数小于 n 减一时不可能连通。',
+          '多余的边可以反复利用。',
+          '自环和重边可能出现。',
+          '做不到时返回负一。',
+          '只需要返回次数，不需要方案。',
+        ],
+      },
+      {
+        id: 'number-of-operations-to-make-network-connected-model',
+        title: '数连通分量',
+        summary:
+          '连通性只和连通分量有关。并查集把已经连在一起的电脑合并，最后剩几个分量，就至少需要几条边把它们串起来。只要总边数不少于 n 减一，就一定有足够的边可拔可接，答案恒为分量数减一。',
+        bullets: [
+          '并查集维护连通关系。',
+          '每合并一次分量数减一。',
+          '最终分量数决定答案下界。',
+          '边数少于 n 减一直接失败。',
+          '多余的边一定存在。',
+          '一条多余的边能连接两个分量。',
+          '答案等于分量数减一。',
+          '操作顺序不影响次数。',
+        ],
+        callout:
+          '为什么只要边数够就一定可行？把所有分量看成点，多余的边就是可以随意搬运的资源；每连接两个分量消耗一条边，分量数减一，资源不够只发生在初始边数不足时。',
+      },
+      {
+        id: 'number-of-operations-to-make-network-connected-solution',
+        title: '解法：并查集合并',
+        summary:
+          '先检查边数，初始化每个节点各自成组；遍历所有连接，若两端不在同一组就合并并把分量数减一。遍历结束后返回分量数减一。',
+        bullets: [
+          '边数不足直接返回负一。',
+          '父数组初始指向自己。',
+          '查找时做路径压缩。',
+          '两端根相同说明是多余的边。',
+          '根不同就合并两组。',
+          '每合并一次分量数减一。',
+          '最终返回分量数减一。',
+          '时间接近线性。',
+        ],
+        code: `function makeConnected(n: number, connections: number[][]): number {
+  if (connections.length < n - 1) {
+    return -1
+  }
+
+  const parent = Array.from({ length: n }, (_, index) => index)
+  let components = n
+
+  const find = (node: number): number => {
+    let current = node
+    while (parent[current] !== current) {
+      parent[current] = parent[parent[current]]
+      current = parent[current]
+    }
+    return current
+  }
+
+  for (const [left, right] of connections) {
+    const rootLeft = find(left)
+    const rootRight = find(right)
+
+    if (rootLeft !== rootRight) {
+      parent[rootLeft] = rootRight
+      components -= 1
+    }
+  }
+
+  return components - 1
+}`,
+        callout:
+          '最终返回的是分量数减一而不是分量数：一个分量不需要连，k 个分量至少需要 k 减一条边才能串成整体。n 等于一时分量数为一，答案为零。',
+      },
+      {
+        id: 'number-of-operations-to-make-network-connected-mistakes',
+        title: '易错点和延伸方向',
+        summary: '易错点集中在边数判断、分量计数和并查集细节上。',
+        bullets: [
+          '易错点 1：边数足够时仍返回负一。',
+          '易错点 2：把分量数直接当答案，忘记减一。',
+          '易错点 3：查找时没有路径压缩。',
+          '易错点 4：合并后忘记更新分量计数。',
+          '易错点 5：把已经用于连通的边也当成可移动资源。',
+          '易错点 6：认为重边没有用，其实重边正是多余资源。',
+          '易错点 7：n 等于一时错误返回负一。',
+          '易错点 8：只统计边数而不检查连通性。',
+          '延伸方向：并查集、图的连通分量和最小生成树。',
+        ],
+      },
+    ],
+  },
 ];
